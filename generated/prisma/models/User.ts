@@ -298,6 +298,7 @@ export type UserWhereInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotListRelationFilter
   editedLibraryDocuments?: Prisma.LibraryDocumentListRelationFilter
   resourceRoles?: Prisma.UserResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
   departmentAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   projectAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   reviewedReclassResults?: Prisma.ReclassResultListRelationFilter
@@ -344,6 +345,7 @@ export type UserOrderByWithRelationInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotOrderByRelationAggregateInput
   editedLibraryDocuments?: Prisma.LibraryDocumentOrderByRelationAggregateInput
   resourceRoles?: Prisma.UserResourceRoleOrderByRelationAggregateInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantOrderByRelationAggregateInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeOrderByRelationAggregateInput
   projectAssignees?: Prisma.ProjectWorkAssigneeOrderByRelationAggregateInput
   reviewedReclassResults?: Prisma.ReclassResultOrderByRelationAggregateInput
@@ -393,6 +395,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   snapshotEdits?: Prisma.FinanceBalanceSnapshotListRelationFilter
   editedLibraryDocuments?: Prisma.LibraryDocumentListRelationFilter
   resourceRoles?: Prisma.UserResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
   departmentAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   projectAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
   reviewedReclassResults?: Prisma.ReclassResultListRelationFilter
@@ -478,6 +481,7 @@ export type UserCreateInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -524,6 +528,7 @@ export type UserUncheckedCreateInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -569,6 +574,7 @@ export type UserUpdateInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -615,6 +621,7 @@ export type UserUncheckedUpdateInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -764,6 +771,20 @@ export type UserUpdateOneRequiredWithoutResourceRolesNestedInput = {
   upsert?: Prisma.UserUpsertWithoutResourceRolesInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResourceRolesInput, Prisma.UserUpdateWithoutResourceRolesInput>, Prisma.UserUncheckedUpdateWithoutResourceRolesInput>
+}
+
+export type UserCreateNestedOneWithoutResourceActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResourceActionGrantsInput, Prisma.UserUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResourceActionGrantsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutResourceActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutResourceActionGrantsInput, Prisma.UserUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutResourceActionGrantsInput
+  upsert?: Prisma.UserUpsertWithoutResourceActionGrantsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutResourceActionGrantsInput, Prisma.UserUpdateWithoutResourceActionGrantsInput>, Prisma.UserUncheckedUpdateWithoutResourceActionGrantsInput>
 }
 
 export type UserCreateNestedOneWithoutNotificationsInput = {
@@ -1240,6 +1261,7 @@ export type UserCreateWithoutResourceRolesInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -1285,6 +1307,7 @@ export type UserUncheckedCreateWithoutResourceRolesInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -1345,6 +1368,7 @@ export type UserUpdateWithoutResourceRolesInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -1390,6 +1414,205 @@ export type UserUncheckedUpdateWithoutResourceRolesInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+}
+
+export type UserCreateWithoutResourceActionGrantsInput = {
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+}
+
+export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
+  id?: number
+  wxUserId?: string | null
+  username?: string | null
+  password?: string | null
+  nickname: string
+  avatar?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  canLogin?: boolean
+  apiKey?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  workScopePermissions?: Prisma.WorkScopePermissionUncheckedCreateNestedManyWithoutUserInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+}
+
+export type UserCreateOrConnectWithoutResourceActionGrantsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutResourceActionGrantsInput, Prisma.UserUncheckedCreateWithoutResourceActionGrantsInput>
+}
+
+export type UserUpsertWithoutResourceActionGrantsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutResourceActionGrantsInput, Prisma.UserUncheckedUpdateWithoutResourceActionGrantsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutResourceActionGrantsInput, Prisma.UserUncheckedCreateWithoutResourceActionGrantsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutResourceActionGrantsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutResourceActionGrantsInput, Prisma.UserUncheckedUpdateWithoutResourceActionGrantsInput>
+}
+
+export type UserUpdateWithoutResourceActionGrantsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
+  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  workScopePermissions?: Prisma.WorkScopePermissionUpdateManyWithoutUserNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+}
+
+export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nickname?: Prisma.StringFieldUpdateOperationsInput | string
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -1435,6 +1658,7 @@ export type UserCreateWithoutNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -1480,6 +1704,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -1529,6 +1754,7 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -1574,6 +1800,7 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -1634,6 +1861,7 @@ export type UserUpdateWithoutNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -1679,6 +1907,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -1734,6 +1963,7 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -1779,6 +2009,7 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -1822,6 +2053,7 @@ export type UserCreateWithoutEditedContractsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -1867,6 +2099,7 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -1927,6 +2160,7 @@ export type UserUpdateWithoutEditedContractsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -1972,6 +2206,7 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2016,6 +2251,7 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -2061,6 +2297,7 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -2121,6 +2358,7 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -2166,6 +2404,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2210,6 +2449,7 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -2255,6 +2495,7 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -2315,6 +2556,7 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -2360,6 +2602,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2405,6 +2648,7 @@ export type UserCreateWithoutLedgerImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -2450,6 +2694,7 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -2510,6 +2755,7 @@ export type UserUpdateWithoutLedgerImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -2555,6 +2801,7 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2598,6 +2845,7 @@ export type UserCreateWithoutSnapshotImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -2643,6 +2891,7 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -2692,6 +2941,7 @@ export type UserCreateWithoutSnapshotEditsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -2737,6 +2987,7 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -2797,6 +3048,7 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -2842,6 +3094,7 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2897,6 +3150,7 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -2942,6 +3196,7 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -2987,6 +3242,7 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -3032,6 +3288,7 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -3092,6 +3349,7 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -3137,6 +3395,7 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -3181,6 +3440,7 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
@@ -3226,6 +3486,7 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
@@ -3286,6 +3547,7 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
@@ -3331,6 +3593,7 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
@@ -3375,6 +3638,7 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -3420,6 +3684,7 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -3480,6 +3745,7 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -3525,6 +3791,7 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -3569,6 +3836,7 @@ export type UserCreateWithoutEditedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -3614,6 +3882,7 @@ export type UserUncheckedCreateWithoutEditedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -3663,6 +3932,7 @@ export type UserCreateWithoutReviewedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -3708,6 +3978,7 @@ export type UserUncheckedCreateWithoutReviewedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -3768,6 +4039,7 @@ export type UserUpdateWithoutEditedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -3813,6 +4085,7 @@ export type UserUncheckedUpdateWithoutEditedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -3868,6 +4141,7 @@ export type UserUpdateWithoutReviewedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -3913,6 +4187,7 @@ export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -3956,6 +4231,7 @@ export type UserCreateWithoutEmployeesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4001,6 +4277,7 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -4061,6 +4338,7 @@ export type UserUpdateWithoutEmployeesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -4106,6 +4384,7 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -4150,6 +4429,7 @@ export type UserCreateWithoutManagedDepartmentsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4195,6 +4475,7 @@ export type UserUncheckedCreateWithoutManagedDepartmentsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -4255,6 +4536,7 @@ export type UserUpdateWithoutManagedDepartmentsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -4300,6 +4582,7 @@ export type UserUncheckedUpdateWithoutManagedDepartmentsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -4344,6 +4627,7 @@ export type UserCreateWithoutEditHistoriesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4389,6 +4673,7 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -4449,6 +4734,7 @@ export type UserUpdateWithoutEditHistoriesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -4494,6 +4780,7 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -4538,6 +4825,7 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4583,6 +4871,7 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -4643,6 +4932,7 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -4688,6 +4978,7 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -4732,6 +5023,7 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4777,6 +5069,7 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -4837,6 +5130,7 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -4882,6 +5176,7 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -4926,6 +5221,7 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -4971,6 +5267,7 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -5031,6 +5328,7 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -5076,6 +5374,7 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -5120,6 +5419,7 @@ export type UserCreateWithoutStockOperationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -5165,6 +5465,7 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -5225,6 +5526,7 @@ export type UserUpdateWithoutStockOperationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -5270,6 +5572,7 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -5314,6 +5617,7 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -5359,6 +5663,7 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -5419,6 +5724,7 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -5464,6 +5770,7 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -5509,6 +5816,7 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -5554,6 +5862,7 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -5603,6 +5912,7 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -5648,6 +5958,7 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -5708,6 +6019,7 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -5753,6 +6065,7 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -5808,6 +6121,7 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -5853,6 +6167,7 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -5897,6 +6212,7 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -5942,6 +6258,7 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -6002,6 +6319,7 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -6047,6 +6365,7 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -6091,6 +6410,7 @@ export type UserCreateWithoutMeetingVotesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -6136,6 +6456,7 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -6196,6 +6517,7 @@ export type UserUpdateWithoutMeetingVotesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -6241,6 +6563,7 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -6285,6 +6608,7 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
@@ -6330,6 +6654,7 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
@@ -6390,6 +6715,7 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
@@ -6435,6 +6761,7 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
@@ -6479,6 +6806,7 @@ export type UserCreateWithoutProjectAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
@@ -6524,6 +6852,7 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
@@ -6584,6 +6913,7 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
@@ -6629,6 +6959,7 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
@@ -6673,6 +7004,7 @@ export type UserCreateWithoutWorkScopePermissionsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -6718,6 +7050,7 @@ export type UserUncheckedCreateWithoutWorkScopePermissionsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -6778,6 +7111,7 @@ export type UserUpdateWithoutWorkScopePermissionsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -6823,6 +7157,7 @@ export type UserUncheckedUpdateWithoutWorkScopePermissionsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -6867,6 +7202,7 @@ export type UserCreateWithoutWorkReportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
@@ -6912,6 +7248,7 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutUserInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
@@ -6972,6 +7309,7 @@ export type UserUpdateWithoutWorkReportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
@@ -7017,6 +7355,7 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
   editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
   resourceRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutUserNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
@@ -7054,6 +7393,7 @@ export type UserCountOutputType = {
   snapshotEdits: number
   editedLibraryDocuments: number
   resourceRoles: number
+  resourceActionGrants: number
   departmentAssignees: number
   projectAssignees: number
   reviewedReclassResults: number
@@ -7087,6 +7427,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   snapshotEdits?: boolean | UserCountOutputTypeCountSnapshotEditsArgs
   editedLibraryDocuments?: boolean | UserCountOutputTypeCountEditedLibraryDocumentsArgs
   resourceRoles?: boolean | UserCountOutputTypeCountResourceRolesArgs
+  resourceActionGrants?: boolean | UserCountOutputTypeCountResourceActionGrantsArgs
   departmentAssignees?: boolean | UserCountOutputTypeCountDepartmentAssigneesArgs
   projectAssignees?: boolean | UserCountOutputTypeCountProjectAssigneesArgs
   reviewedReclassResults?: boolean | UserCountOutputTypeCountReviewedReclassResultsArgs
@@ -7211,6 +7552,13 @@ export type UserCountOutputTypeCountEditedLibraryDocumentsArgs<ExtArgs extends r
  */
 export type UserCountOutputTypeCountResourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserResourceRoleWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountResourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserResourceActionGrantWhereInput
 }
 
 /**
@@ -7354,6 +7702,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   snapshotEdits?: boolean | Prisma.User$snapshotEditsArgs<ExtArgs>
   editedLibraryDocuments?: boolean | Prisma.User$editedLibraryDocumentsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.User$resourceActionGrantsArgs<ExtArgs>
   departmentAssignees?: boolean | Prisma.User$departmentAssigneesArgs<ExtArgs>
   projectAssignees?: boolean | Prisma.User$projectAssigneesArgs<ExtArgs>
   reviewedReclassResults?: boolean | Prisma.User$reviewedReclassResultsArgs<ExtArgs>
@@ -7437,6 +7786,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   snapshotEdits?: boolean | Prisma.User$snapshotEditsArgs<ExtArgs>
   editedLibraryDocuments?: boolean | Prisma.User$editedLibraryDocumentsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.User$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.User$resourceActionGrantsArgs<ExtArgs>
   departmentAssignees?: boolean | Prisma.User$departmentAssigneesArgs<ExtArgs>
   projectAssignees?: boolean | Prisma.User$projectAssigneesArgs<ExtArgs>
   reviewedReclassResults?: boolean | Prisma.User$reviewedReclassResultsArgs<ExtArgs>
@@ -7475,6 +7825,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     snapshotEdits: Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>[]
     editedLibraryDocuments: Prisma.$LibraryDocumentPayload<ExtArgs>[]
     resourceRoles: Prisma.$UserResourceRolePayload<ExtArgs>[]
+    resourceActionGrants: Prisma.$UserResourceActionGrantPayload<ExtArgs>[]
     departmentAssignees: Prisma.$DepartmentWorkAssigneePayload<ExtArgs>[]
     projectAssignees: Prisma.$ProjectWorkAssigneePayload<ExtArgs>[]
     reviewedReclassResults: Prisma.$ReclassResultPayload<ExtArgs>[]
@@ -7914,6 +8265,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   snapshotEdits<T extends Prisma.User$snapshotEditsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$snapshotEditsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBalanceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedLibraryDocuments<T extends Prisma.User$editedLibraryDocumentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedLibraryDocumentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceRoles<T extends Prisma.User$resourceRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resourceActionGrants<T extends Prisma.User$resourceActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   departmentAssignees<T extends Prisma.User$departmentAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$departmentAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectAssignees<T extends Prisma.User$projectAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewedReclassResults<T extends Prisma.User$reviewedReclassResultsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedReclassResultsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReclassResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -8696,6 +9048,30 @@ export type User$resourceRolesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
+}
+
+/**
+ * User.resourceActionGrants
+ */
+export type User$resourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserResourceActionGrant
+   */
+  select?: Prisma.UserResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserResourceActionGrant
+   */
+  omit?: Prisma.UserResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.UserResourceActionGrantWhereInput
+  orderBy?: Prisma.UserResourceActionGrantOrderByWithRelationInput | Prisma.UserResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.UserResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserResourceActionGrantScalarFieldEnum | Prisma.UserResourceActionGrantScalarFieldEnum[]
 }
 
 /**

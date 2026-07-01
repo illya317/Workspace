@@ -68,15 +68,30 @@ export type Role = Prisma.RoleModel
  */
 export type UserResourceRole = Prisma.UserResourceRoleModel
 /**
+ * Model UserResourceActionGrant
+ * 用户-资源-动作授权关系（事实表，手工配置；用于第一阶段新权限动作，不替代旧 Role 授权）
+ */
+export type UserResourceActionGrant = Prisma.UserResourceActionGrantModel
+/**
  * Model PositionResourceRole
  * 岗位-资源-角色授权关系（用于权限继承）
  */
 export type PositionResourceRole = Prisma.PositionResourceRoleModel
 /**
+ * Model PositionResourceActionGrant
+ * 岗位-资源-动作授权关系（事实表，手工配置；用于权限动作继承到岗位成员）
+ */
+export type PositionResourceActionGrant = Prisma.PositionResourceActionGrantModel
+/**
  * Model DepartmentResourceRole
  * 部门-资源-角色授权关系（用于权限继承）
  */
 export type DepartmentResourceRole = Prisma.DepartmentResourceRoleModel
+/**
+ * Model DepartmentResourceActionGrant
+ * 部门-资源-动作授权关系（事实表，手工配置；用于权限动作继承到部门成员）
+ */
+export type DepartmentResourceActionGrant = Prisma.DepartmentResourceActionGrantModel
 /**
  * Model Notification
  * 站内通知/待确认事项

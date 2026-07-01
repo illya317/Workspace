@@ -55,7 +55,13 @@ export {
 export { getPermissionContext, ensureGrantCache } from "./rbac/context";
 export { getVisibleResourceKeys } from "./rbac/visibility";
 export {
+  evaluatePermissionAction,
+  getActionGrants,
+  setSubjectPermissionActionGrant,
+} from "./rbac/action-grants";
+export {
   getResourceAncestorKeys,
+  getResourceChildKeys,
   getResourceSummariesByIds,
 } from "./rbac/resource";
 export {

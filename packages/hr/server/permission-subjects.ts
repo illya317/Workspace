@@ -1,8 +1,11 @@
 import {
   getGrants,
   getResourceAncestorKeys,
+  getResourceChildKeys,
   type SubjectType,
 } from "@workspace/platform/server/auth";
+import { getActionGrants } from "@workspace/platform/server/rbac/action-grants";
+import { buildPermissionRecords, type PermissionRecord } from "@workspace/platform/server/rbac/action-records";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isCapabilityResource } from "@workspace/platform/resources";
 import { getDefaultResourceRole, isDefaultAccessResource } from "@workspace/platform/server/rbac/implicit";
@@ -26,7 +29,11 @@ export interface PermissionGrantData {
     roleKey: string;
     scopeId: string | null;
   }>;
+  directActionGrants: Awaited<ReturnType<typeof getActionGrants>>;
+  positionActionGrants: Awaited<ReturnType<typeof getActionGrants>>;
+  departmentActionGrants: Awaited<ReturnType<typeof getActionGrants>>;
   ancestorResourceKeys: string[];
+  actionRecords: Record<number, PermissionRecord>;
 }
 
 function hasAdminGrant(grants: Awaited<ReturnType<typeof getGrants>>, subjectIds: number[]) {
@@ -95,16 +102,22 @@ export async function getPermissionGrantData(
   }
 
   const directGrants = await getGrants(subjectType, undefined, scopeId);
+  const directActionGrants = await getActionGrants(subjectType, undefined, scopeId);
 
   let positionGrants: Awaited<ReturnType<typeof getGrants>> = [];
   let departmentGrants: Awaited<ReturnType<typeof getGrants>> = [];
+  let positionActionGrants: Awaited<ReturnType<typeof getActionGrants>> = [];
+  let departmentActionGrants: Awaited<ReturnType<typeof getActionGrants>> = [];
 
   if (subjectType === "user") {
     positionGrants = await getGrants("position", undefined, scopeId);
     departmentGrants = await getGrants("department", undefined, scopeId);
+    positionActionGrants = await getActionGrants("position", undefined, scopeId);
+    departmentActionGrants = await getActionGrants("department", undefined, scopeId);
   }
 
   const ancestorResourceKeys = resourceKey ? await getResourceAncestorKeys(resourceKey) : [];
+  const childResourceKeys = resourceKey ? await getResourceChildKeys(resourceKey) : [];
   const implicitGrants = buildImplicitGrants({
     subjects,
     subjectType,
@@ -119,8 +132,25 @@ export async function getPermissionGrantData(
     directGrants,
     positionGrants,
     departmentGrants,
+    directActionGrants,
+    positionActionGrants,
+    departmentActionGrants,
     implicitGrants,
     ancestorResourceKeys,
+    actionRecords: buildPermissionRecords({
+      subjects,
+      subjectType,
+      selectedResource: resourceKey ?? null,
+      ancestorResourceKeys,
+      directGrants,
+      positionGrants,
+      departmentGrants,
+      implicitGrants,
+      directActionGrants,
+      positionActionGrants,
+      departmentActionGrants,
+      childResourceKeys,
+    }),
   };
 }
 

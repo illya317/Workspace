@@ -294,6 +294,7 @@ export type PositionWhereInput = {
   department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   managedDepartments?: Prisma.DepartmentListRelationFilter
   resourceRoles?: Prisma.PositionResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.PositionResourceActionGrantListRelationFilter
 }
 
 export type PositionOrderByWithRelationInput = {
@@ -315,6 +316,7 @@ export type PositionOrderByWithRelationInput = {
   department?: Prisma.DepartmentOrderByWithRelationInput
   managedDepartments?: Prisma.DepartmentOrderByRelationAggregateInput
   resourceRoles?: Prisma.PositionResourceRoleOrderByRelationAggregateInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantOrderByRelationAggregateInput
 }
 
 export type PositionWhereUniqueInput = Prisma.AtLeast<{
@@ -339,6 +341,7 @@ export type PositionWhereUniqueInput = Prisma.AtLeast<{
   department?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   managedDepartments?: Prisma.DepartmentListRelationFilter
   resourceRoles?: Prisma.PositionResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.PositionResourceActionGrantListRelationFilter
 }, "id">
 
 export type PositionOrderByWithAggregationInput = {
@@ -395,6 +398,7 @@ export type PositionCreateInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateInput = {
@@ -414,6 +418,7 @@ export type PositionUncheckedCreateInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUpdateInput = {
@@ -432,6 +437,7 @@ export type PositionUpdateInput = {
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateInput = {
@@ -451,6 +457,7 @@ export type PositionUncheckedUpdateInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionCreateManyInput = {
@@ -588,6 +595,20 @@ export type PositionUpdateOneRequiredWithoutResourceRolesNestedInput = {
   upsert?: Prisma.PositionUpsertWithoutResourceRolesInput
   connect?: Prisma.PositionWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutResourceRolesInput, Prisma.PositionUpdateWithoutResourceRolesInput>, Prisma.PositionUncheckedUpdateWithoutResourceRolesInput>
+}
+
+export type PositionCreateNestedOneWithoutResourceActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutResourceActionGrantsInput
+  connect?: Prisma.PositionWhereUniqueInput
+}
+
+export type PositionUpdateOneRequiredWithoutResourceActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionCreateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.PositionCreateOrConnectWithoutResourceActionGrantsInput
+  upsert?: Prisma.PositionUpsertWithoutResourceActionGrantsInput
+  connect?: Prisma.PositionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionUpdateToOneWithWhereWithoutResourceActionGrantsInput, Prisma.PositionUpdateWithoutResourceActionGrantsInput>, Prisma.PositionUncheckedUpdateWithoutResourceActionGrantsInput>
 }
 
 export type PositionCreateNestedOneWithoutFinanceWorkshopReportsInput = {
@@ -737,6 +758,7 @@ export type PositionCreateWithoutResourceRolesInput = {
   positionDescription?: Prisma.PositionDescriptionCreateNestedOneWithoutPositionsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutResourceRolesInput = {
@@ -755,6 +777,7 @@ export type PositionUncheckedCreateWithoutResourceRolesInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutResourceRolesInput = {
@@ -788,6 +811,7 @@ export type PositionUpdateWithoutResourceRolesInput = {
   positionDescription?: Prisma.PositionDescriptionUpdateOneWithoutPositionsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutResourceRolesInput = {
@@ -806,6 +830,97 @@ export type PositionUncheckedUpdateWithoutResourceRolesInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
+}
+
+export type PositionCreateWithoutResourceActionGrantsInput = {
+  code: string
+  alias?: string | null
+  name: string
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPCreateNestedManyWithoutPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportCreateNestedManyWithoutPositionInput
+  positionDescription?: Prisma.PositionDescriptionCreateNestedOneWithoutPositionsInput
+  department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
+  managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
+  resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+}
+
+export type PositionUncheckedCreateWithoutResourceActionGrantsInput = {
+  id?: number
+  code: string
+  alias?: string | null
+  name: string
+  departmentId?: number | null
+  positionDescriptionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
+  managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
+  resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+}
+
+export type PositionCreateOrConnectWithoutResourceActionGrantsInput = {
+  where: Prisma.PositionWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionCreateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedCreateWithoutResourceActionGrantsInput>
+}
+
+export type PositionUpsertWithoutResourceActionGrantsInput = {
+  update: Prisma.XOR<Prisma.PositionUpdateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedUpdateWithoutResourceActionGrantsInput>
+  create: Prisma.XOR<Prisma.PositionCreateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedCreateWithoutResourceActionGrantsInput>
+  where?: Prisma.PositionWhereInput
+}
+
+export type PositionUpdateToOneWithWhereWithoutResourceActionGrantsInput = {
+  where?: Prisma.PositionWhereInput
+  data: Prisma.XOR<Prisma.PositionUpdateWithoutResourceActionGrantsInput, Prisma.PositionUncheckedUpdateWithoutResourceActionGrantsInput>
+}
+
+export type PositionUpdateWithoutResourceActionGrantsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUpdateManyWithoutPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUpdateManyWithoutPositionNestedInput
+  positionDescription?: Prisma.PositionDescriptionUpdateOneWithoutPositionsNestedInput
+  department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
+  managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
+  resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+}
+
+export type PositionUncheckedUpdateWithoutResourceActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  positionDescriptionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
+  financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
+  managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
+  resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionCreateWithoutFinanceWorkshopReportsInput = {
@@ -823,6 +938,7 @@ export type PositionCreateWithoutFinanceWorkshopReportsInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutFinanceWorkshopReportsInput = {
@@ -841,6 +957,7 @@ export type PositionUncheckedCreateWithoutFinanceWorkshopReportsInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutFinanceWorkshopReportsInput = {
@@ -874,6 +991,7 @@ export type PositionUpdateWithoutFinanceWorkshopReportsInput = {
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
@@ -892,6 +1010,7 @@ export type PositionUncheckedUpdateWithoutFinanceWorkshopReportsInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionCreateWithoutPositionDescriptionInput = {
@@ -909,6 +1028,7 @@ export type PositionCreateWithoutPositionDescriptionInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
@@ -927,6 +1047,7 @@ export type PositionUncheckedCreateWithoutPositionDescriptionInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutPositionDescriptionInput = {
@@ -987,6 +1108,7 @@ export type PositionCreateWithoutManagedDepartmentsInput = {
   positionDescription?: Prisma.PositionDescriptionCreateNestedOneWithoutPositionsInput
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutManagedDepartmentsInput = {
@@ -1005,6 +1127,7 @@ export type PositionUncheckedCreateWithoutManagedDepartmentsInput = {
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutManagedDepartmentsInput = {
@@ -1027,6 +1150,7 @@ export type PositionCreateWithoutDepartmentInput = {
   positionDescription?: Prisma.PositionDescriptionCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutDepartmentInput = {
@@ -1045,6 +1169,7 @@ export type PositionUncheckedCreateWithoutDepartmentInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutDepartmentInput = {
@@ -1082,6 +1207,7 @@ export type PositionUpdateWithoutManagedDepartmentsInput = {
   positionDescription?: Prisma.PositionDescriptionUpdateOneWithoutPositionsNestedInput
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutManagedDepartmentsInput = {
@@ -1100,6 +1226,7 @@ export type PositionUncheckedUpdateWithoutManagedDepartmentsInput = {
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionNestedInput
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1133,6 +1260,7 @@ export type PositionCreateWithoutEdpsInput = {
   department?: Prisma.DepartmentCreateNestedOneWithoutPositionsInput
   managedDepartments?: Prisma.DepartmentCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutPositionInput
 }
 
 export type PositionUncheckedCreateWithoutEdpsInput = {
@@ -1151,6 +1279,7 @@ export type PositionUncheckedCreateWithoutEdpsInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedCreateNestedManyWithoutPositionInput
   managedDepartments?: Prisma.DepartmentUncheckedCreateNestedManyWithoutManagerPositionInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutPositionInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutPositionInput
 }
 
 export type PositionCreateOrConnectWithoutEdpsInput = {
@@ -1184,6 +1313,7 @@ export type PositionUpdateWithoutEdpsInput = {
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutEdpsInput = {
@@ -1202,6 +1332,7 @@ export type PositionUncheckedUpdateWithoutEdpsInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionCreateManyPositionDescriptionInput = {
@@ -1233,6 +1364,7 @@ export type PositionUpdateWithoutPositionDescriptionInput = {
   department?: Prisma.DepartmentUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
@@ -1251,6 +1383,7 @@ export type PositionUncheckedUpdateWithoutPositionDescriptionInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateManyWithoutPositionDescriptionInput = {
@@ -1296,6 +1429,7 @@ export type PositionUpdateWithoutDepartmentInput = {
   positionDescription?: Prisma.PositionDescriptionUpdateOneWithoutPositionsNestedInput
   managedDepartments?: Prisma.DepartmentUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateWithoutDepartmentInput = {
@@ -1314,6 +1448,7 @@ export type PositionUncheckedUpdateWithoutDepartmentInput = {
   financeWorkshopReports?: Prisma.FinanceWorkshopReportUncheckedUpdateManyWithoutPositionNestedInput
   managedDepartments?: Prisma.DepartmentUncheckedUpdateManyWithoutManagerPositionNestedInput
   resourceRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutPositionNestedInput
+  resourceActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutPositionNestedInput
 }
 
 export type PositionUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1340,6 +1475,7 @@ export type PositionCountOutputType = {
   financeWorkshopReports: number
   managedDepartments: number
   resourceRoles: number
+  resourceActionGrants: number
 }
 
 export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1347,6 +1483,7 @@ export type PositionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   financeWorkshopReports?: boolean | PositionCountOutputTypeCountFinanceWorkshopReportsArgs
   managedDepartments?: boolean | PositionCountOutputTypeCountManagedDepartmentsArgs
   resourceRoles?: boolean | PositionCountOutputTypeCountResourceRolesArgs
+  resourceActionGrants?: boolean | PositionCountOutputTypeCountResourceActionGrantsArgs
 }
 
 /**
@@ -1387,6 +1524,13 @@ export type PositionCountOutputTypeCountResourceRolesArgs<ExtArgs extends runtim
   where?: Prisma.PositionResourceRoleWhereInput
 }
 
+/**
+ * PositionCountOutputType without action
+ */
+export type PositionCountOutputTypeCountResourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PositionResourceActionGrantWhereInput
+}
+
 
 export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1407,6 +1551,7 @@ export type PositionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   department?: boolean | Prisma.Position$departmentArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.Position$managedDepartmentsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.Position$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.Position$resourceActionGrantsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["position"]>
 
@@ -1467,6 +1612,7 @@ export type PositionInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   department?: boolean | Prisma.Position$departmentArgs<ExtArgs>
   managedDepartments?: boolean | Prisma.Position$managedDepartmentsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.Position$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.Position$resourceActionGrantsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PositionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1487,6 +1633,7 @@ export type $PositionPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     department: Prisma.$DepartmentPayload<ExtArgs> | null
     managedDepartments: Prisma.$DepartmentPayload<ExtArgs>[]
     resourceRoles: Prisma.$PositionResourceRolePayload<ExtArgs>[]
+    resourceActionGrants: Prisma.$PositionResourceActionGrantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1901,6 +2048,7 @@ export interface Prisma__PositionClient<T, Null = never, ExtArgs extends runtime
   department<T extends Prisma.Position$departmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$departmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   managedDepartments<T extends Prisma.Position$managedDepartmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$managedDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceRoles<T extends Prisma.Position$resourceRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$resourceRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resourceActionGrants<T extends Prisma.Position$resourceActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Position$resourceActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2472,6 +2620,30 @@ export type Position$resourceRolesArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.PositionResourceRoleScalarFieldEnum | Prisma.PositionResourceRoleScalarFieldEnum[]
+}
+
+/**
+ * Position.resourceActionGrants
+ */
+export type Position$resourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PositionResourceActionGrant
+   */
+  select?: Prisma.PositionResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PositionResourceActionGrant
+   */
+  omit?: Prisma.PositionResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.PositionResourceActionGrantWhereInput
+  orderBy?: Prisma.PositionResourceActionGrantOrderByWithRelationInput | Prisma.PositionResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.PositionResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PositionResourceActionGrantScalarFieldEnum | Prisma.PositionResourceActionGrantScalarFieldEnum[]
 }
 
 /**

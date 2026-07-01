@@ -10,7 +10,7 @@
 
 | 文件 | 领域 | 模型 |
 |------|------|------|
-| `auth-rbac.prisma` | 认证与权限 | User, Resource, Role, UserResourceRole, PositionResourceRole, DepartmentResourceRole |
+| `auth-rbac.prisma` | 认证与权限 | User, Resource, Role, UserResourceRole, PositionResourceRole, DepartmentResourceRole, UserResourceActionGrant, PositionResourceActionGrant, DepartmentResourceActionGrant |
 | `open-api.prisma` | Open API 接入 | OpenApiClient, OpenApiResource, OpenApiScope, OpenApiClientScopeGrant, OpenApiAccessLog |
 | `system.prisma` | 系统 | SystemConfig, LoginAttempt |
 | `works.prisma` | 工作计划 | WorkItem, WorkParticipant, DepartmentWorkAssignee, ProjectWorkAssignee, WorkScopePermission |

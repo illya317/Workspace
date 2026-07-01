@@ -270,9 +270,12 @@ export type ResourceWhereInput = {
   scopeInheritanceMode?: Prisma.StringFilter<"Resource"> | string
   departmentRoles?: Prisma.DepartmentResourceRoleListRelationFilter
   positionRoles?: Prisma.PositionResourceRoleListRelationFilter
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantListRelationFilter
+  positionActionGrants?: Prisma.PositionResourceActionGrantListRelationFilter
   parent?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   children?: Prisma.ResourceListRelationFilter
   userRoles?: Prisma.UserResourceRoleListRelationFilter
+  userActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
 }
 
 export type ResourceOrderByWithRelationInput = {
@@ -288,9 +291,12 @@ export type ResourceOrderByWithRelationInput = {
   scopeInheritanceMode?: Prisma.SortOrder
   departmentRoles?: Prisma.DepartmentResourceRoleOrderByRelationAggregateInput
   positionRoles?: Prisma.PositionResourceRoleOrderByRelationAggregateInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantOrderByRelationAggregateInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantOrderByRelationAggregateInput
   parent?: Prisma.ResourceOrderByWithRelationInput
   children?: Prisma.ResourceOrderByRelationAggregateInput
   userRoles?: Prisma.UserResourceRoleOrderByRelationAggregateInput
+  userActionGrants?: Prisma.UserResourceActionGrantOrderByRelationAggregateInput
 }
 
 export type ResourceWhereUniqueInput = Prisma.AtLeast<{
@@ -309,9 +315,12 @@ export type ResourceWhereUniqueInput = Prisma.AtLeast<{
   scopeInheritanceMode?: Prisma.StringFilter<"Resource"> | string
   departmentRoles?: Prisma.DepartmentResourceRoleListRelationFilter
   positionRoles?: Prisma.PositionResourceRoleListRelationFilter
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantListRelationFilter
+  positionActionGrants?: Prisma.PositionResourceActionGrantListRelationFilter
   parent?: Prisma.XOR<Prisma.ResourceNullableScalarRelationFilter, Prisma.ResourceWhereInput> | null
   children?: Prisma.ResourceListRelationFilter
   userRoles?: Prisma.UserResourceRoleListRelationFilter
+  userActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
 }, "id" | "key">
 
 export type ResourceOrderByWithAggregationInput = {
@@ -359,9 +368,12 @@ export type ResourceCreateInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateInput = {
@@ -377,8 +389,11 @@ export type ResourceUncheckedCreateInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUpdateInput = {
@@ -392,9 +407,12 @@ export type ResourceUpdateInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateInput = {
@@ -410,8 +428,11 @@ export type ResourceUncheckedUpdateInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateManyInput = {
@@ -604,6 +625,20 @@ export type ResourceUpdateOneRequiredWithoutUserRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutUserRolesInput, Prisma.ResourceUpdateWithoutUserRolesInput>, Prisma.ResourceUncheckedUpdateWithoutUserRolesInput>
 }
 
+export type ResourceCreateNestedOneWithoutUserActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutUserActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutUserActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+}
+
+export type ResourceUpdateOneRequiredWithoutUserActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutUserActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutUserActionGrantsInput
+  upsert?: Prisma.ResourceUpsertWithoutUserActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutUserActionGrantsInput, Prisma.ResourceUpdateWithoutUserActionGrantsInput>, Prisma.ResourceUncheckedUpdateWithoutUserActionGrantsInput>
+}
+
 export type ResourceCreateNestedOneWithoutPositionRolesInput = {
   create?: Prisma.XOR<Prisma.ResourceCreateWithoutPositionRolesInput, Prisma.ResourceUncheckedCreateWithoutPositionRolesInput>
   connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutPositionRolesInput
@@ -616,6 +651,20 @@ export type ResourceUpdateOneRequiredWithoutPositionRolesNestedInput = {
   upsert?: Prisma.ResourceUpsertWithoutPositionRolesInput
   connect?: Prisma.ResourceWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutPositionRolesInput, Prisma.ResourceUpdateWithoutPositionRolesInput>, Prisma.ResourceUncheckedUpdateWithoutPositionRolesInput>
+}
+
+export type ResourceCreateNestedOneWithoutPositionActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutPositionActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutPositionActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+}
+
+export type ResourceUpdateOneRequiredWithoutPositionActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutPositionActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutPositionActionGrantsInput
+  upsert?: Prisma.ResourceUpsertWithoutPositionActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutPositionActionGrantsInput, Prisma.ResourceUpdateWithoutPositionActionGrantsInput>, Prisma.ResourceUncheckedUpdateWithoutPositionActionGrantsInput>
 }
 
 export type ResourceCreateNestedOneWithoutDepartmentRolesInput = {
@@ -632,6 +681,20 @@ export type ResourceUpdateOneRequiredWithoutDepartmentRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutDepartmentRolesInput, Prisma.ResourceUpdateWithoutDepartmentRolesInput>, Prisma.ResourceUncheckedUpdateWithoutDepartmentRolesInput>
 }
 
+export type ResourceCreateNestedOneWithoutDepartmentActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutDepartmentActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutDepartmentActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+}
+
+export type ResourceUpdateOneRequiredWithoutDepartmentActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.ResourceCreateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutDepartmentActionGrantsInput>
+  connectOrCreate?: Prisma.ResourceCreateOrConnectWithoutDepartmentActionGrantsInput
+  upsert?: Prisma.ResourceUpsertWithoutDepartmentActionGrantsInput
+  connect?: Prisma.ResourceWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ResourceUpdateToOneWithWhereWithoutDepartmentActionGrantsInput, Prisma.ResourceUpdateWithoutDepartmentActionGrantsInput>, Prisma.ResourceUncheckedUpdateWithoutDepartmentActionGrantsInput>
+}
+
 export type ResourceCreateWithoutChildrenInput = {
   key: string
   name: string
@@ -643,8 +706,11 @@ export type ResourceCreateWithoutChildrenInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutChildrenInput = {
@@ -660,7 +726,10 @@ export type ResourceUncheckedCreateWithoutChildrenInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutChildrenInput = {
@@ -679,8 +748,11 @@ export type ResourceCreateWithoutParentInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutParentInput = {
@@ -695,8 +767,11 @@ export type ResourceUncheckedCreateWithoutParentInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutParentInput = {
@@ -730,8 +805,11 @@ export type ResourceUpdateWithoutChildrenInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutChildrenInput = {
@@ -747,7 +825,10 @@ export type ResourceUncheckedUpdateWithoutChildrenInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUpsertWithWhereUniqueWithoutParentInput = {
@@ -793,8 +874,11 @@ export type ResourceCreateWithoutUserRolesInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutUserRolesInput = {
@@ -810,7 +894,10 @@ export type ResourceUncheckedCreateWithoutUserRolesInput = {
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutUserRolesInput = {
@@ -840,8 +927,11 @@ export type ResourceUpdateWithoutUserRolesInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutUserRolesInput = {
@@ -857,7 +947,100 @@ export type ResourceUncheckedUpdateWithoutUserRolesInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceCreateWithoutUserActionGrantsInput = {
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
+  parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
+  children?: Prisma.ResourceCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceUncheckedCreateWithoutUserActionGrantsInput = {
+  id?: number
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  parentId?: number | null
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceCreateOrConnectWithoutUserActionGrantsInput = {
+  where: Prisma.ResourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutUserActionGrantsInput>
+}
+
+export type ResourceUpsertWithoutUserActionGrantsInput = {
+  update: Prisma.XOR<Prisma.ResourceUpdateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutUserActionGrantsInput>
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutUserActionGrantsInput>
+  where?: Prisma.ResourceWhereInput
+}
+
+export type ResourceUpdateToOneWithWhereWithoutUserActionGrantsInput = {
+  where?: Prisma.ResourceWhereInput
+  data: Prisma.XOR<Prisma.ResourceUpdateWithoutUserActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutUserActionGrantsInput>
+}
+
+export type ResourceUpdateWithoutUserActionGrantsInput = {
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
+  parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceUncheckedUpdateWithoutUserActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateWithoutPositionRolesInput = {
@@ -870,9 +1053,12 @@ export type ResourceCreateWithoutPositionRolesInput = {
   scopeTypes?: string | null
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutPositionRolesInput = {
@@ -887,8 +1073,11 @@ export type ResourceUncheckedCreateWithoutPositionRolesInput = {
   scopeTypes?: string | null
   scopeInheritanceMode?: string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutPositionRolesInput = {
@@ -917,9 +1106,12 @@ export type ResourceUpdateWithoutPositionRolesInput = {
   scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutPositionRolesInput = {
@@ -934,8 +1126,101 @@ export type ResourceUncheckedUpdateWithoutPositionRolesInput = {
   scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceCreateWithoutPositionActionGrantsInput = {
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
+  children?: Prisma.ResourceCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceUncheckedCreateWithoutPositionActionGrantsInput = {
+  id?: number
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  parentId?: number | null
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceCreateOrConnectWithoutPositionActionGrantsInput = {
+  where: Prisma.ResourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutPositionActionGrantsInput>
+}
+
+export type ResourceUpsertWithoutPositionActionGrantsInput = {
+  update: Prisma.XOR<Prisma.ResourceUpdateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutPositionActionGrantsInput>
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutPositionActionGrantsInput>
+  where?: Prisma.ResourceWhereInput
+}
+
+export type ResourceUpdateToOneWithWhereWithoutPositionActionGrantsInput = {
+  where?: Prisma.ResourceWhereInput
+  data: Prisma.XOR<Prisma.ResourceUpdateWithoutPositionActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutPositionActionGrantsInput>
+}
+
+export type ResourceUpdateWithoutPositionActionGrantsInput = {
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceUncheckedUpdateWithoutPositionActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateWithoutDepartmentRolesInput = {
@@ -948,9 +1233,12 @@ export type ResourceCreateWithoutDepartmentRolesInput = {
   scopeTypes?: string | null
   scopeInheritanceMode?: string
   positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
   parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
   children?: Prisma.ResourceCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceUncheckedCreateWithoutDepartmentRolesInput = {
@@ -965,8 +1253,11 @@ export type ResourceUncheckedCreateWithoutDepartmentRolesInput = {
   scopeTypes?: string | null
   scopeInheritanceMode?: string
   positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
   children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
   userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
 }
 
 export type ResourceCreateOrConnectWithoutDepartmentRolesInput = {
@@ -995,9 +1286,12 @@ export type ResourceUpdateWithoutDepartmentRolesInput = {
   scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutDepartmentRolesInput = {
@@ -1012,8 +1306,101 @@ export type ResourceUncheckedUpdateWithoutDepartmentRolesInput = {
   scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceCreateWithoutDepartmentActionGrantsInput = {
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantCreateNestedManyWithoutResourceInput
+  parent?: Prisma.ResourceCreateNestedOneWithoutChildrenInput
+  children?: Prisma.ResourceCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceUncheckedCreateWithoutDepartmentActionGrantsInput = {
+  id?: number
+  key: string
+  name: string
+  description?: string | null
+  level?: number
+  sortOrder?: number
+  parentId?: number | null
+  maxRoleKey?: string
+  scopeTypes?: string | null
+  scopeInheritanceMode?: string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+  children?: Prisma.ResourceUncheckedCreateNestedManyWithoutParentInput
+  userRoles?: Prisma.UserResourceRoleUncheckedCreateNestedManyWithoutResourceInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutResourceInput
+}
+
+export type ResourceCreateOrConnectWithoutDepartmentActionGrantsInput = {
+  where: Prisma.ResourceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutDepartmentActionGrantsInput>
+}
+
+export type ResourceUpsertWithoutDepartmentActionGrantsInput = {
+  update: Prisma.XOR<Prisma.ResourceUpdateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutDepartmentActionGrantsInput>
+  create: Prisma.XOR<Prisma.ResourceCreateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedCreateWithoutDepartmentActionGrantsInput>
+  where?: Prisma.ResourceWhereInput
+}
+
+export type ResourceUpdateToOneWithWhereWithoutDepartmentActionGrantsInput = {
+  where?: Prisma.ResourceWhereInput
+  data: Prisma.XOR<Prisma.ResourceUpdateWithoutDepartmentActionGrantsInput, Prisma.ResourceUncheckedUpdateWithoutDepartmentActionGrantsInput>
+}
+
+export type ResourceUpdateWithoutDepartmentActionGrantsInput = {
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
+  parent?: Prisma.ResourceUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
+}
+
+export type ResourceUncheckedUpdateWithoutDepartmentActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  maxRoleKey?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeTypes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
+  userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceCreateManyParentInput = {
@@ -1039,8 +1426,11 @@ export type ResourceUpdateWithoutParentInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateWithoutParentInput = {
@@ -1055,8 +1445,11 @@ export type ResourceUncheckedUpdateWithoutParentInput = {
   scopeInheritanceMode?: Prisma.StringFieldUpdateOperationsInput | string
   departmentRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
   positionRoles?: Prisma.PositionResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  departmentActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
+  positionActionGrants?: Prisma.PositionResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
   children?: Prisma.ResourceUncheckedUpdateManyWithoutParentNestedInput
   userRoles?: Prisma.UserResourceRoleUncheckedUpdateManyWithoutResourceNestedInput
+  userActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutResourceNestedInput
 }
 
 export type ResourceUncheckedUpdateManyWithoutParentInput = {
@@ -1079,15 +1472,21 @@ export type ResourceUncheckedUpdateManyWithoutParentInput = {
 export type ResourceCountOutputType = {
   departmentRoles: number
   positionRoles: number
+  departmentActionGrants: number
+  positionActionGrants: number
   children: number
   userRoles: number
+  userActionGrants: number
 }
 
 export type ResourceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   departmentRoles?: boolean | ResourceCountOutputTypeCountDepartmentRolesArgs
   positionRoles?: boolean | ResourceCountOutputTypeCountPositionRolesArgs
+  departmentActionGrants?: boolean | ResourceCountOutputTypeCountDepartmentActionGrantsArgs
+  positionActionGrants?: boolean | ResourceCountOutputTypeCountPositionActionGrantsArgs
   children?: boolean | ResourceCountOutputTypeCountChildrenArgs
   userRoles?: boolean | ResourceCountOutputTypeCountUserRolesArgs
+  userActionGrants?: boolean | ResourceCountOutputTypeCountUserActionGrantsArgs
 }
 
 /**
@@ -1117,6 +1516,20 @@ export type ResourceCountOutputTypeCountPositionRolesArgs<ExtArgs extends runtim
 /**
  * ResourceCountOutputType without action
  */
+export type ResourceCountOutputTypeCountDepartmentActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DepartmentResourceActionGrantWhereInput
+}
+
+/**
+ * ResourceCountOutputType without action
+ */
+export type ResourceCountOutputTypeCountPositionActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PositionResourceActionGrantWhereInput
+}
+
+/**
+ * ResourceCountOutputType without action
+ */
 export type ResourceCountOutputTypeCountChildrenArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ResourceWhereInput
 }
@@ -1126,6 +1539,13 @@ export type ResourceCountOutputTypeCountChildrenArgs<ExtArgs extends runtime.Typ
  */
 export type ResourceCountOutputTypeCountUserRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.UserResourceRoleWhereInput
+}
+
+/**
+ * ResourceCountOutputType without action
+ */
+export type ResourceCountOutputTypeCountUserActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.UserResourceActionGrantWhereInput
 }
 
 
@@ -1142,9 +1562,12 @@ export type ResourceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scopeInheritanceMode?: boolean
   departmentRoles?: boolean | Prisma.Resource$departmentRolesArgs<ExtArgs>
   positionRoles?: boolean | Prisma.Resource$positionRolesArgs<ExtArgs>
+  departmentActionGrants?: boolean | Prisma.Resource$departmentActionGrantsArgs<ExtArgs>
+  positionActionGrants?: boolean | Prisma.Resource$positionActionGrantsArgs<ExtArgs>
   parent?: boolean | Prisma.Resource$parentArgs<ExtArgs>
   children?: boolean | Prisma.Resource$childrenArgs<ExtArgs>
   userRoles?: boolean | Prisma.Resource$userRolesArgs<ExtArgs>
+  userActionGrants?: boolean | Prisma.Resource$userActionGrantsArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["resource"]>
 
@@ -1193,9 +1616,12 @@ export type ResourceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs =
 export type ResourceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   departmentRoles?: boolean | Prisma.Resource$departmentRolesArgs<ExtArgs>
   positionRoles?: boolean | Prisma.Resource$positionRolesArgs<ExtArgs>
+  departmentActionGrants?: boolean | Prisma.Resource$departmentActionGrantsArgs<ExtArgs>
+  positionActionGrants?: boolean | Prisma.Resource$positionActionGrantsArgs<ExtArgs>
   parent?: boolean | Prisma.Resource$parentArgs<ExtArgs>
   children?: boolean | Prisma.Resource$childrenArgs<ExtArgs>
   userRoles?: boolean | Prisma.Resource$userRolesArgs<ExtArgs>
+  userActionGrants?: boolean | Prisma.Resource$userActionGrantsArgs<ExtArgs>
   _count?: boolean | Prisma.ResourceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ResourceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1210,9 +1636,12 @@ export type $ResourcePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     departmentRoles: Prisma.$DepartmentResourceRolePayload<ExtArgs>[]
     positionRoles: Prisma.$PositionResourceRolePayload<ExtArgs>[]
+    departmentActionGrants: Prisma.$DepartmentResourceActionGrantPayload<ExtArgs>[]
+    positionActionGrants: Prisma.$PositionResourceActionGrantPayload<ExtArgs>[]
     parent: Prisma.$ResourcePayload<ExtArgs> | null
     children: Prisma.$ResourcePayload<ExtArgs>[]
     userRoles: Prisma.$UserResourceRolePayload<ExtArgs>[]
+    userActionGrants: Prisma.$UserResourceActionGrantPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1630,9 +2059,12 @@ export interface Prisma__ResourceClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   departmentRoles<T extends Prisma.Resource$departmentRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$departmentRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positionRoles<T extends Prisma.Resource$positionRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$positionRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  departmentActionGrants<T extends Prisma.Resource$departmentActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$departmentActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  positionActionGrants<T extends Prisma.Resource$positionActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$positionActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   parent<T extends Prisma.Resource$parentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$parentArgs<ExtArgs>>): Prisma.Prisma__ResourceClient<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   children<T extends Prisma.Resource$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ResourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   userRoles<T extends Prisma.Resource$userRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$userRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  userActionGrants<T extends Prisma.Resource$userActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Resource$userActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2119,6 +2551,54 @@ export type Resource$positionRolesArgs<ExtArgs extends runtime.Types.Extensions.
 }
 
 /**
+ * Resource.departmentActionGrants
+ */
+export type Resource$departmentActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DepartmentResourceActionGrant
+   */
+  select?: Prisma.DepartmentResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DepartmentResourceActionGrant
+   */
+  omit?: Prisma.DepartmentResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DepartmentResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.DepartmentResourceActionGrantWhereInput
+  orderBy?: Prisma.DepartmentResourceActionGrantOrderByWithRelationInput | Prisma.DepartmentResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.DepartmentResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DepartmentResourceActionGrantScalarFieldEnum | Prisma.DepartmentResourceActionGrantScalarFieldEnum[]
+}
+
+/**
+ * Resource.positionActionGrants
+ */
+export type Resource$positionActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PositionResourceActionGrant
+   */
+  select?: Prisma.PositionResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PositionResourceActionGrant
+   */
+  omit?: Prisma.PositionResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.PositionResourceActionGrantWhereInput
+  orderBy?: Prisma.PositionResourceActionGrantOrderByWithRelationInput | Prisma.PositionResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.PositionResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PositionResourceActionGrantScalarFieldEnum | Prisma.PositionResourceActionGrantScalarFieldEnum[]
+}
+
+/**
  * Resource.parent
  */
 export type Resource$parentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2183,6 +2663,30 @@ export type Resource$userRolesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.UserResourceRoleScalarFieldEnum | Prisma.UserResourceRoleScalarFieldEnum[]
+}
+
+/**
+ * Resource.userActionGrants
+ */
+export type Resource$userActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserResourceActionGrant
+   */
+  select?: Prisma.UserResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the UserResourceActionGrant
+   */
+  omit?: Prisma.UserResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.UserResourceActionGrantWhereInput
+  orderBy?: Prisma.UserResourceActionGrantOrderByWithRelationInput | Prisma.UserResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.UserResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.UserResourceActionGrantScalarFieldEnum | Prisma.UserResourceActionGrantScalarFieldEnum[]
 }
 
 /**

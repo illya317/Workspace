@@ -27,6 +27,7 @@ model User {
   snapshotEdits            FinanceBalanceSnapshot[] @relation("SnapshotEditor")
   editedLibraryDocuments LibraryDocument[] @relation("LibraryDocumentEditor")
   resourceRoles            UserResourceRole[]
+  resourceActionGrants     UserResourceActionGrant[]
   departmentAssignees      DepartmentWorkAssignee[]
   projectAssignees         ProjectWorkAssignee[]
   reviewedReclassResults   ReclassResult[]          @relation("ReclassResultReviewer")
@@ -62,9 +63,12 @@ model Resource {
   scopeInheritanceMode String                   @default("inherit")
   departmentRoles      DepartmentResourceRole[]
   positionRoles        PositionResourceRole[]
+  departmentActionGrants DepartmentResourceActionGrant[]
+  positionActionGrants   PositionResourceActionGrant[]
   parent               Resource?                @relation("ResHierarchy", fields: [parentId], references: [id])
   children             Resource[]               @relation("ResHierarchy")
   userRoles            UserResourceRole[]
+  userActionGrants     UserResourceActionGrant[]
 }
 
 /// RBAC 角色定义
@@ -93,6 +97,19 @@ model UserResourceRole {
   @@unique([userId, resourceId, roleId, scopeId])
 }
 
+/// 用户-资源-动作授权关系（事实表，手工配置；用于第一阶段新权限动作，不替代旧 Role 授权）
+model UserResourceActionGrant {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId, actionKey, scopeId])
+}
+
 /// 岗位-资源-角色授权关系（用于权限继承）
 model PositionResourceRole {
   id         Int      @id @default(autoincrement())
@@ -107,6 +124,19 @@ model PositionResourceRole {
   @@unique([positionId, resourceId, roleId, scopeId])
 }
 
+/// 岗位-资源-动作授权关系（事实表，手工配置；用于权限动作继承到岗位成员）
+model PositionResourceActionGrant {
+  id         Int      @id @default(autoincrement())
+  positionId Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([positionId, resourceId, actionKey, scopeId])
+}
+
 /// 部门-资源-角色授权关系（用于权限继承）
 model DepartmentResourceRole {
   id           Int        @id @default(autoincrement())
@@ -119,6 +149,19 @@ model DepartmentResourceRole {
   department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
 
   @@unique([departmentId, resourceId, roleId, scopeId])
+}
+
+/// 部门-资源-动作授权关系（事实表，手工配置；用于权限动作继承到部门成员）
+model DepartmentResourceActionGrant {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  resourceId   Int
+  actionKey    String
+  scopeId      String?
+  resource     Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, resourceId, actionKey, scopeId])
 }
 
 /// 站内通知/待确认事项

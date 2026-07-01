@@ -56,8 +56,11 @@ export const ModelName = {
   Resource: 'Resource',
   Role: 'Role',
   UserResourceRole: 'UserResourceRole',
+  UserResourceActionGrant: 'UserResourceActionGrant',
   PositionResourceRole: 'PositionResourceRole',
+  PositionResourceActionGrant: 'PositionResourceActionGrant',
   DepartmentResourceRole: 'DepartmentResourceRole',
+  DepartmentResourceActionGrant: 'DepartmentResourceActionGrant',
   Notification: 'Notification',
   Contract: 'Contract',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
@@ -236,6 +239,17 @@ export const UserResourceRoleScalarFieldEnum = {
 export type UserResourceRoleScalarFieldEnum = (typeof UserResourceRoleScalarFieldEnum)[keyof typeof UserResourceRoleScalarFieldEnum]
 
 
+export const UserResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type UserResourceActionGrantScalarFieldEnum = (typeof UserResourceActionGrantScalarFieldEnum)[keyof typeof UserResourceActionGrantScalarFieldEnum]
+
+
 export const PositionResourceRoleScalarFieldEnum = {
   id: 'id',
   positionId: 'positionId',
@@ -247,6 +261,17 @@ export const PositionResourceRoleScalarFieldEnum = {
 export type PositionResourceRoleScalarFieldEnum = (typeof PositionResourceRoleScalarFieldEnum)[keyof typeof PositionResourceRoleScalarFieldEnum]
 
 
+export const PositionResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  positionId: 'positionId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type PositionResourceActionGrantScalarFieldEnum = (typeof PositionResourceActionGrantScalarFieldEnum)[keyof typeof PositionResourceActionGrantScalarFieldEnum]
+
+
 export const DepartmentResourceRoleScalarFieldEnum = {
   id: 'id',
   departmentId: 'departmentId',
@@ -256,6 +281,17 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 } as const
 
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
+
+
+export const DepartmentResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type DepartmentResourceActionGrantScalarFieldEnum = (typeof DepartmentResourceActionGrantScalarFieldEnum)[keyof typeof DepartmentResourceActionGrantScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {

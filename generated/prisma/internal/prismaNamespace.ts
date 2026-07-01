@@ -389,8 +389,11 @@ export const ModelName = {
   Resource: 'Resource',
   Role: 'Role',
   UserResourceRole: 'UserResourceRole',
+  UserResourceActionGrant: 'UserResourceActionGrant',
   PositionResourceRole: 'PositionResourceRole',
+  PositionResourceActionGrant: 'PositionResourceActionGrant',
   DepartmentResourceRole: 'DepartmentResourceRole',
+  DepartmentResourceActionGrant: 'DepartmentResourceActionGrant',
   Notification: 'Notification',
   Contract: 'Contract',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
@@ -495,7 +498,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "positionResourceRole" | "departmentResourceRole" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "documentTemplateSpacePermission" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workPlan" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
+    modelProps: "agentProposal" | "user" | "resource" | "role" | "userResourceRole" | "userResourceActionGrant" | "positionResourceRole" | "positionResourceActionGrant" | "departmentResourceRole" | "departmentResourceActionGrant" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "documentTemplateSpacePermission" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "employee" | "employment" | "company" | "companyRelation" | "department" | "position" | "eDP" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "project" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "projectTask" | "projectTaskAssignment" | "workPlan" | "workItem" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee" | "workScopePermission" | "workReport" | "workReportItem"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -869,6 +872,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    UserResourceActionGrant: {
+      payload: Prisma.$UserResourceActionGrantPayload<ExtArgs>
+      fields: Prisma.UserResourceActionGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.UserResourceActionGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.UserResourceActionGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.UserResourceActionGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.UserResourceActionGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        findMany: {
+          args: Prisma.UserResourceActionGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>[]
+        }
+        create: {
+          args: Prisma.UserResourceActionGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        createMany: {
+          args: Prisma.UserResourceActionGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.UserResourceActionGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.UserResourceActionGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        update: {
+          args: Prisma.UserResourceActionGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.UserResourceActionGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.UserResourceActionGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.UserResourceActionGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.UserResourceActionGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$UserResourceActionGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.UserResourceActionGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateUserResourceActionGrant>
+        }
+        groupBy: {
+          args: Prisma.UserResourceActionGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserResourceActionGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.UserResourceActionGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.UserResourceActionGrantCountAggregateOutputType> | number
+        }
+      }
+    }
     PositionResourceRole: {
       payload: Prisma.$PositionResourceRolePayload<ExtArgs>
       fields: Prisma.PositionResourceRoleFieldRefs
@@ -943,6 +1020,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    PositionResourceActionGrant: {
+      payload: Prisma.$PositionResourceActionGrantPayload<ExtArgs>
+      fields: Prisma.PositionResourceActionGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.PositionResourceActionGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.PositionResourceActionGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.PositionResourceActionGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.PositionResourceActionGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        findMany: {
+          args: Prisma.PositionResourceActionGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>[]
+        }
+        create: {
+          args: Prisma.PositionResourceActionGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        createMany: {
+          args: Prisma.PositionResourceActionGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.PositionResourceActionGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.PositionResourceActionGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        update: {
+          args: Prisma.PositionResourceActionGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.PositionResourceActionGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.PositionResourceActionGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.PositionResourceActionGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.PositionResourceActionGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$PositionResourceActionGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.PositionResourceActionGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregatePositionResourceActionGrant>
+        }
+        groupBy: {
+          args: Prisma.PositionResourceActionGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PositionResourceActionGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.PositionResourceActionGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.PositionResourceActionGrantCountAggregateOutputType> | number
+        }
+      }
+    }
     DepartmentResourceRole: {
       payload: Prisma.$DepartmentResourceRolePayload<ExtArgs>
       fields: Prisma.DepartmentResourceRoleFieldRefs
@@ -1014,6 +1165,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.DepartmentResourceRoleCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DepartmentResourceRoleCountAggregateOutputType> | number
+        }
+      }
+    }
+    DepartmentResourceActionGrant: {
+      payload: Prisma.$DepartmentResourceActionGrantPayload<ExtArgs>
+      fields: Prisma.DepartmentResourceActionGrantFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.DepartmentResourceActionGrantFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.DepartmentResourceActionGrantFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        findFirst: {
+          args: Prisma.DepartmentResourceActionGrantFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.DepartmentResourceActionGrantFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        findMany: {
+          args: Prisma.DepartmentResourceActionGrantFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>[]
+        }
+        create: {
+          args: Prisma.DepartmentResourceActionGrantCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        createMany: {
+          args: Prisma.DepartmentResourceActionGrantCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.DepartmentResourceActionGrantCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>[]
+        }
+        delete: {
+          args: Prisma.DepartmentResourceActionGrantDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        update: {
+          args: Prisma.DepartmentResourceActionGrantUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        deleteMany: {
+          args: Prisma.DepartmentResourceActionGrantDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.DepartmentResourceActionGrantUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.DepartmentResourceActionGrantUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>[]
+        }
+        upsert: {
+          args: Prisma.DepartmentResourceActionGrantUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$DepartmentResourceActionGrantPayload>
+        }
+        aggregate: {
+          args: Prisma.DepartmentResourceActionGrantAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateDepartmentResourceActionGrant>
+        }
+        groupBy: {
+          args: Prisma.DepartmentResourceActionGrantGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentResourceActionGrantGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.DepartmentResourceActionGrantCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.DepartmentResourceActionGrantCountAggregateOutputType> | number
         }
       }
     }
@@ -7713,6 +7938,17 @@ export const UserResourceRoleScalarFieldEnum = {
 export type UserResourceRoleScalarFieldEnum = (typeof UserResourceRoleScalarFieldEnum)[keyof typeof UserResourceRoleScalarFieldEnum]
 
 
+export const UserResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type UserResourceActionGrantScalarFieldEnum = (typeof UserResourceActionGrantScalarFieldEnum)[keyof typeof UserResourceActionGrantScalarFieldEnum]
+
+
 export const PositionResourceRoleScalarFieldEnum = {
   id: 'id',
   positionId: 'positionId',
@@ -7724,6 +7960,17 @@ export const PositionResourceRoleScalarFieldEnum = {
 export type PositionResourceRoleScalarFieldEnum = (typeof PositionResourceRoleScalarFieldEnum)[keyof typeof PositionResourceRoleScalarFieldEnum]
 
 
+export const PositionResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  positionId: 'positionId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type PositionResourceActionGrantScalarFieldEnum = (typeof PositionResourceActionGrantScalarFieldEnum)[keyof typeof PositionResourceActionGrantScalarFieldEnum]
+
+
 export const DepartmentResourceRoleScalarFieldEnum = {
   id: 'id',
   departmentId: 'departmentId',
@@ -7733,6 +7980,17 @@ export const DepartmentResourceRoleScalarFieldEnum = {
 } as const
 
 export type DepartmentResourceRoleScalarFieldEnum = (typeof DepartmentResourceRoleScalarFieldEnum)[keyof typeof DepartmentResourceRoleScalarFieldEnum]
+
+
+export const DepartmentResourceActionGrantScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  resourceId: 'resourceId',
+  actionKey: 'actionKey',
+  scopeId: 'scopeId'
+} as const
+
+export type DepartmentResourceActionGrantScalarFieldEnum = (typeof DepartmentResourceActionGrantScalarFieldEnum)[keyof typeof DepartmentResourceActionGrantScalarFieldEnum]
 
 
 export const NotificationScalarFieldEnum = {
@@ -9600,8 +9858,11 @@ export type GlobalOmitConfig = {
   resource?: Prisma.ResourceOmit
   role?: Prisma.RoleOmit
   userResourceRole?: Prisma.UserResourceRoleOmit
+  userResourceActionGrant?: Prisma.UserResourceActionGrantOmit
   positionResourceRole?: Prisma.PositionResourceRoleOmit
+  positionResourceActionGrant?: Prisma.PositionResourceActionGrantOmit
   departmentResourceRole?: Prisma.DepartmentResourceRoleOmit
+  departmentResourceActionGrant?: Prisma.DepartmentResourceActionGrantOmit
   notification?: Prisma.NotificationOmit
   contract?: Prisma.ContractOmit
   documentTemplateSpace?: Prisma.DocumentTemplateSpaceOmit

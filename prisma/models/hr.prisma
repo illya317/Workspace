@@ -123,6 +123,7 @@ model Department {
   children        Department[]             @relation("DeptHierarchy")
   descriptions    DepartmentDescription[]
   resourceRoles   DepartmentResourceRole[]
+  resourceActionGrants DepartmentResourceActionGrant[]
   workAssignees   DepartmentWorkAssignee[]
   leadingProjects Project[]                @relation("ProjectLeadingDepartment")
   edps            EDP[]
@@ -153,6 +154,7 @@ model Position {
   department             Department?             @relation(fields: [departmentId], references: [id])
   managedDepartments     Department[]            @relation("DepartmentManagerPosition")
   resourceRoles          PositionResourceRole[]
+  resourceActionGrants   PositionResourceActionGrant[]
 
   @@index([code])
   @@index([name])

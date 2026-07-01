@@ -217,7 +217,7 @@ export const registeredModuleDefinitions = [
     apiGuards: [
       ...apiResourceGuards("/api/modules/finance/ledger", "finance.ledger"),
       ...apiResourceGuards("/api/modules/finance/statement-config", "finance.statementConfig"),
-      ...apiResourceGuards("/api/modules/finance/statement-review", "finance.statementReview"),
+      ...apiResourceGuards("/api/modules/finance/statement-review", "finance.statementReview", ["GET", "POST", "PUT", "PATCH"]),
       ...apiResourceGuards("/api/modules/finance/statements", "finance.statements", ["GET"]),
       ...apiResourceGuards("/api/modules/finance/budget", "finance.budget"),
       ...apiResourceGuards("/api/modules/finance/analysis", "finance.analysis", ["GET"]),
@@ -355,6 +355,8 @@ export const registeredModuleDefinitions = [
     routes: ["/settings", "/settings/account", "/settings/admin", "/settings/api", "/settings/api/hr-generated", "/settings/ui"],
     apiRoutes: [
       { method: "GET", pathPrefix: "/api/settings/version", access: "public" },
+      { method: "GET", pathPrefix: "/api/settings/account/api-key", access: "protected", resourceKey: "settings.account.apiAccess", action: "access" },
+      { method: "POST", pathPrefix: "/api/settings/account/api-key", access: "protected", resourceKey: "settings.account.apiAccess", action: "access" },
       { method: "GET", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "POST", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },
       { method: "PUT", pathPrefix: "/api/settings/account", access: "protected", resourceKey: "settings.account", action: "access" },

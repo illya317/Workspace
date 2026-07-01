@@ -7,6 +7,8 @@ import type {
 
 import { effectiveModuleDefinitions, isApiGuardEnabled } from "./effective-module-registry";
 import { defaultApiActionForMethod } from "./module-registry-utils";
+import { resolvePermissionApiAction, assertPermissionApiActionSupported } from "./permission-api-action-policy";
+import type { PermissionActionKey } from "./permission-actions";
 
 export type ApiMethod = ApiGuardRegistration["method"];
 export type ApiAction = ApiGuardRegistration["action"];
@@ -20,6 +22,7 @@ export interface ApiContract {
   access: ApiRouteAccessMode;
   resourceKey: string | null;
   action: ApiAction | null;
+  permissionAction: PermissionActionKey | null;
   ownerPackage: string;
   ownerLayer: WorkspacePackageRegistration["layer"];
   ownerModuleKey: string | null;
@@ -80,6 +83,12 @@ function buildApiContracts(
         access: isApiGuardEnabled(guard) ? "protected" : "disabled",
         resourceKey: guard.resourceKey,
         action: guard.action,
+        permissionAction: resolvePermissionApiAction({
+          method: guard.method,
+          apiPath: normalizePathPrefix(guard.pathPrefix),
+          resourceKey: guard.resourceKey,
+          legacyAction: guard.action,
+        }),
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,
@@ -105,6 +114,12 @@ function buildApiContracts(
         access: route.access,
         resourceKey: route.resourceKey ?? null,
         action,
+        permissionAction: resolvePermissionApiAction({
+          method: route.method,
+          apiPath: normalizePathPrefix(route.pathPrefix),
+          resourceKey: route.resourceKey ?? null,
+          legacyAction: action,
+        }),
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,
@@ -134,6 +149,13 @@ function validateApiContracts(contracts: readonly ApiContract[]) {
       );
     }
     seenRouteOwners.set(routeOwnerKey, contract);
+
+    assertPermissionApiActionSupported({
+      method: contract.method,
+      apiPath: contract.pathPrefix,
+      resourceKey: contract.resourceKey,
+      legacyAction: contract.action,
+    });
   }
 }
 
@@ -151,10 +173,20 @@ export function getApiContracts() {
 
 export function findApiContract(method: ApiMethod, apiPath: string) {
   const normalizedPath = apiPath.replace(/\/+$/g, "") || "/";
-  return apiContracts
+  const contract = apiContracts
     .filter((contract) => contract.method === method)
     .filter((contract) => pathMatchesPrefix(normalizedPath, contract.pathPrefix))
     .sort((left, right) => right.pathPrefix.length - left.pathPrefix.length)[0] ?? null;
+  if (!contract) return null;
+  return {
+    ...contract,
+    permissionAction: resolvePermissionApiAction({
+      method,
+      apiPath: normalizedPath,
+      resourceKey: contract.resourceKey,
+      legacyAction: contract.action,
+    }),
+  };
 }
 
 export function assertApiContractRegistered(method: ApiMethod, apiPath: string) {

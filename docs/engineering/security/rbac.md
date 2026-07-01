@@ -15,6 +15,23 @@
 - `delete` 隐含 `write/access`
 - `write` 隐含 `access`
 
+## 权限动作层（第一阶段）
+
+权限管理后台新增动作层，用于先表达和保存更细的 ERP 权限语义；现有业务 guard 仍以 `access/write/delete/admin` 为准，直到具体资源在第二阶段显式映射。
+
+| 分组 | 动作 | 继承语义 |
+|------|------|----------|
+| 基础权限 | `access`, `create`, `write`, `delete` | `delete > write > create > access` |
+| 流程发起 | `submit`, `withdraw` | `submit` 隐含 `withdraw/create/access` |
+| 流程审批 | `approve`, `reject` | `approve` 隐含 `reject/access`，不隐含 `submit/create` |
+| 生命周期 | `archive`, `revise` | 独立生命周期动作；`revise` 隐含 `write/create/access` |
+| 数据交换 | `import`, `export` | 独立高风险动作，均隐含 `access` |
+| 管理 | `admin` | 授权管理权，隐含全部动作 |
+
+新增动作授权写入 `UserResourceActionGrant`、`PositionResourceActionGrant`、`DepartmentResourceActionGrant`；旧四级动作继续写入 `Role` 和三张 `*ResourceRole` 表。后台 API 统一接受 `actionKey`，`roleKey` 仅作为旧调用兼容。
+
+第一版 SoD 只做提示：同一对象在同一资源同时拥有 `submit` 和 `approve` 时，矩阵展示风险，不阻断保存。
+
 ## 授权对象（3 类统一）
 
 | 类型 | subjectType | 说明 |
@@ -147,6 +164,14 @@ checkPermission(userId, resourceKey, roleKey)
   → 找到 → true，否则 false
 ```
 
+## Resource Action Policy
+
+新权限动作的资源映射由 `@workspace/platform/permission-resource-policy` 维护。该 catalog 只说明某个 `resourceKey` 支持哪些 action、哪些 action 可以从祖先资源继承、哪些高风险 action 必须在当前资源或 capability 上显式授权。
+
+当前阶段 policy 只用于权限管理 UI 和 action record 解释：未被当前 resource policy 支持的 action 显示为“业务待接入”。它不替换现有业务 guard；页面/API 的实际授权仍按当前 `access/write/delete/admin` 路径执行，直到后续任务显式把某个业务动作接入对应 service/route。
+
+API 的新动作语义由 `@workspace/platform/permission-api-action-policy` 维护。`api-registry` 会为每个 contract 计算 `permissionAction`，用于表达该 API 的业务动作归属，例如导入确认是 `import`、QC 提交是 `submit`、报表导出/下载是 `export`。当前 `permissionAction` 是后端 contract 语义，不参与 `requireApiAccess()` 的旧 guard 判定；旧判定仍读取 `contract.action`，保持现有运行行为不变。
+
 ## 表结构（当前）
 
 ```prisma
@@ -187,14 +212,39 @@ model DepartmentResourceRole {
   scopeId      String?
   @@unique([departmentId, resourceId, roleId, scopeId])
 }
+
+model UserResourceActionGrant {
+  userId     Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  @@unique([userId, resourceId, actionKey, scopeId])
+}
+
+model PositionResourceActionGrant {
+  positionId Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  @@unique([positionId, resourceId, actionKey, scopeId])
+}
+
+model DepartmentResourceActionGrant {
+  departmentId Int
+  resourceId   Int
+  actionKey    String
+  scopeId      String?
+  @@unique([departmentId, resourceId, actionKey, scopeId])
+}
 ```
 
 ## 后台矩阵 UI
 
-- 左侧：资源树 + 最高权限选择器（仅内置 root admin 可见）
+- 左侧：资源树；最高业务权限在资源级工具栏维护（仅内置 root admin 可见）
 - 顶部：员工 / 岗位 / 部门切换
 - 筛选：部门层级 + 姓名搜索
-- 列：访问 / 编辑 / 删除 / 管理 / 最高权限
+- 列：授权对象 / 基础权限 / 流程权限 / 生命周期 / 数据交换 / 管理 / 风险 / 展开
+- 行：收起态显示 summary；展开态显示动作树、来源、隐含关系和 SoD 提示
 - 超过 maxRoleKey 的列显示灰色 `—`
 
 ## 工作模块数据权限（业务规则）

@@ -318,6 +318,7 @@ export type DepartmentWhereInput = {
   children?: Prisma.DepartmentListRelationFilter
   descriptions?: Prisma.DepartmentDescriptionListRelationFilter
   resourceRoles?: Prisma.DepartmentResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantListRelationFilter
   workAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   leadingProjects?: Prisma.ProjectListRelationFilter
   edps?: Prisma.EDPListRelationFilter
@@ -345,6 +346,7 @@ export type DepartmentOrderByWithRelationInput = {
   children?: Prisma.DepartmentOrderByRelationAggregateInput
   descriptions?: Prisma.DepartmentDescriptionOrderByRelationAggregateInput
   resourceRoles?: Prisma.DepartmentResourceRoleOrderByRelationAggregateInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantOrderByRelationAggregateInput
   workAssignees?: Prisma.DepartmentWorkAssigneeOrderByRelationAggregateInput
   leadingProjects?: Prisma.ProjectOrderByRelationAggregateInput
   edps?: Prisma.EDPOrderByRelationAggregateInput
@@ -375,6 +377,7 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   children?: Prisma.DepartmentListRelationFilter
   descriptions?: Prisma.DepartmentDescriptionListRelationFilter
   resourceRoles?: Prisma.DepartmentResourceRoleListRelationFilter
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantListRelationFilter
   workAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   leadingProjects?: Prisma.ProjectListRelationFilter
   edps?: Prisma.EDPListRelationFilter
@@ -440,6 +443,7 @@ export type DepartmentCreateInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -464,6 +468,7 @@ export type DepartmentUncheckedCreateInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -487,6 +492,7 @@ export type DepartmentUpdateInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -511,6 +517,7 @@ export type DepartmentUncheckedUpdateInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -711,6 +718,20 @@ export type DepartmentUpdateOneRequiredWithoutResourceRolesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutResourceRolesInput, Prisma.DepartmentUpdateWithoutResourceRolesInput>, Prisma.DepartmentUncheckedUpdateWithoutResourceRolesInput>
 }
 
+export type DepartmentCreateNestedOneWithoutResourceActionGrantsInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutResourceActionGrantsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+}
+
+export type DepartmentUpdateOneRequiredWithoutResourceActionGrantsNestedInput = {
+  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedCreateWithoutResourceActionGrantsInput>
+  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutResourceActionGrantsInput
+  upsert?: Prisma.DepartmentUpsertWithoutResourceActionGrantsInput
+  connect?: Prisma.DepartmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutResourceActionGrantsInput, Prisma.DepartmentUpdateWithoutResourceActionGrantsInput>, Prisma.DepartmentUncheckedUpdateWithoutResourceActionGrantsInput>
+}
+
 export type DepartmentCreateNestedOneWithoutDescriptionsInput = {
   create?: Prisma.XOR<Prisma.DepartmentCreateWithoutDescriptionsInput, Prisma.DepartmentUncheckedCreateWithoutDescriptionsInput>
   connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutDescriptionsInput
@@ -903,6 +924,7 @@ export type DepartmentCreateWithoutManagerInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -926,6 +948,7 @@ export type DepartmentUncheckedCreateWithoutManagerInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -993,6 +1016,7 @@ export type DepartmentCreateWithoutResourceRolesInput = {
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1016,6 +1040,7 @@ export type DepartmentUncheckedCreateWithoutResourceRolesInput = {
   version?: number
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1054,6 +1079,7 @@ export type DepartmentUpdateWithoutResourceRolesInput = {
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1077,6 +1103,117 @@ export type DepartmentUncheckedUpdateWithoutResourceRolesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentCreateWithoutResourceActionGrantsInput = {
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  manager?: Prisma.UserCreateNestedOneWithoutManagedDepartmentsInput
+  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
+  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
+  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
+  id?: number
+  code: string
+  name: string
+  alias?: string | null
+  level?: number
+  parentId?: number | null
+  managerUserId?: number | null
+  managerPositionId?: number | null
+  isArchived?: boolean
+  archivedAt?: Date | string | null
+  endDate?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
+  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
+  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
+}
+
+export type DepartmentCreateOrConnectWithoutResourceActionGrantsInput = {
+  where: Prisma.DepartmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedCreateWithoutResourceActionGrantsInput>
+}
+
+export type DepartmentUpsertWithoutResourceActionGrantsInput = {
+  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedUpdateWithoutResourceActionGrantsInput>
+  create: Prisma.XOR<Prisma.DepartmentCreateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedCreateWithoutResourceActionGrantsInput>
+  where?: Prisma.DepartmentWhereInput
+}
+
+export type DepartmentUpdateToOneWithWhereWithoutResourceActionGrantsInput = {
+  where?: Prisma.DepartmentWhereInput
+  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutResourceActionGrantsInput, Prisma.DepartmentUncheckedUpdateWithoutResourceActionGrantsInput>
+}
+
+export type DepartmentUpdateWithoutResourceActionGrantsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  manager?: Prisma.UserUpdateOneWithoutManagedDepartmentsNestedInput
+  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
+  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
+  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
+  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
+  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
+}
+
+export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  level?: Prisma.IntFieldUpdateOperationsInput | number
+  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
+  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1099,6 +1236,7 @@ export type DepartmentCreateWithoutDescriptionsInput = {
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1122,6 +1260,7 @@ export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
   version?: number
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1160,6 +1299,7 @@ export type DepartmentUpdateWithoutDescriptionsInput = {
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1183,6 +1323,7 @@ export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1205,6 +1346,7 @@ export type DepartmentCreateWithoutChildrenInput = {
   parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1228,6 +1370,7 @@ export type DepartmentUncheckedCreateWithoutChildrenInput = {
   version?: number
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1255,6 +1398,7 @@ export type DepartmentCreateWithoutParentInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1278,6 +1422,7 @@ export type DepartmentUncheckedCreateWithoutParentInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1320,6 +1465,7 @@ export type DepartmentUpdateWithoutChildrenInput = {
   parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1343,6 +1489,7 @@ export type DepartmentUncheckedUpdateWithoutChildrenInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1382,6 +1529,7 @@ export type DepartmentCreateWithoutPositionsInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1405,6 +1553,7 @@ export type DepartmentUncheckedCreateWithoutPositionsInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1431,6 +1580,7 @@ export type DepartmentCreateWithoutManagerPositionInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
@@ -1454,6 +1604,7 @@ export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1497,6 +1648,7 @@ export type DepartmentUpdateWithoutPositionsInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1520,6 +1672,7 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1558,6 +1711,7 @@ export type DepartmentCreateWithoutEdpsInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1581,6 +1735,7 @@ export type DepartmentUncheckedCreateWithoutEdpsInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1619,6 +1774,7 @@ export type DepartmentUpdateWithoutEdpsInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1642,6 +1798,7 @@ export type DepartmentUncheckedUpdateWithoutEdpsInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1664,6 +1821,7 @@ export type DepartmentCreateWithoutLeadingProjectsInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1687,6 +1845,7 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1725,6 +1884,7 @@ export type DepartmentUpdateWithoutLeadingProjectsInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1748,6 +1908,7 @@ export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1770,6 +1931,7 @@ export type DepartmentCreateWithoutWorkAssigneesInput = {
   children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1793,6 +1955,7 @@ export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
   children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedCreateNestedManyWithoutDepartmentInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1831,6 +1994,7 @@ export type DepartmentUpdateWithoutWorkAssigneesInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1854,6 +2018,7 @@ export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1891,6 +2056,7 @@ export type DepartmentUpdateWithoutManagerInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1914,6 +2080,7 @@ export type DepartmentUncheckedUpdateWithoutManagerInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1968,6 +2135,7 @@ export type DepartmentUpdateWithoutParentInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -1991,6 +2159,7 @@ export type DepartmentUncheckedUpdateWithoutParentInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2045,6 +2214,7 @@ export type DepartmentUpdateWithoutManagerPositionInput = {
   children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
@@ -2068,6 +2238,7 @@ export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
   children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
   descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
   resourceRoles?: Prisma.DepartmentResourceRoleUncheckedUpdateManyWithoutDepartmentNestedInput
+  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
   workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2099,6 +2270,7 @@ export type DepartmentCountOutputType = {
   children: number
   descriptions: number
   resourceRoles: number
+  resourceActionGrants: number
   workAssignees: number
   leadingProjects: number
   edps: number
@@ -2109,6 +2281,7 @@ export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   children?: boolean | DepartmentCountOutputTypeCountChildrenArgs
   descriptions?: boolean | DepartmentCountOutputTypeCountDescriptionsArgs
   resourceRoles?: boolean | DepartmentCountOutputTypeCountResourceRolesArgs
+  resourceActionGrants?: boolean | DepartmentCountOutputTypeCountResourceActionGrantsArgs
   workAssignees?: boolean | DepartmentCountOutputTypeCountWorkAssigneesArgs
   leadingProjects?: boolean | DepartmentCountOutputTypeCountLeadingProjectsArgs
   edps?: boolean | DepartmentCountOutputTypeCountEdpsArgs
@@ -2144,6 +2317,13 @@ export type DepartmentCountOutputTypeCountDescriptionsArgs<ExtArgs extends runti
  */
 export type DepartmentCountOutputTypeCountResourceRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.DepartmentResourceRoleWhereInput
+}
+
+/**
+ * DepartmentCountOutputType without action
+ */
+export type DepartmentCountOutputTypeCountResourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.DepartmentResourceActionGrantWhereInput
 }
 
 /**
@@ -2196,6 +2376,7 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   children?: boolean | Prisma.Department$childrenArgs<ExtArgs>
   descriptions?: boolean | Prisma.Department$descriptionsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.Department$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.Department$resourceActionGrantsArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Department$workAssigneesArgs<ExtArgs>
   leadingProjects?: boolean | Prisma.Department$leadingProjectsArgs<ExtArgs>
   edps?: boolean | Prisma.Department$edpsArgs<ExtArgs>
@@ -2268,6 +2449,7 @@ export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   children?: boolean | Prisma.Department$childrenArgs<ExtArgs>
   descriptions?: boolean | Prisma.Department$descriptionsArgs<ExtArgs>
   resourceRoles?: boolean | Prisma.Department$resourceRolesArgs<ExtArgs>
+  resourceActionGrants?: boolean | Prisma.Department$resourceActionGrantsArgs<ExtArgs>
   workAssignees?: boolean | Prisma.Department$workAssigneesArgs<ExtArgs>
   leadingProjects?: boolean | Prisma.Department$leadingProjectsArgs<ExtArgs>
   edps?: boolean | Prisma.Department$edpsArgs<ExtArgs>
@@ -2294,6 +2476,7 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     children: Prisma.$DepartmentPayload<ExtArgs>[]
     descriptions: Prisma.$DepartmentDescriptionPayload<ExtArgs>[]
     resourceRoles: Prisma.$DepartmentResourceRolePayload<ExtArgs>[]
+    resourceActionGrants: Prisma.$DepartmentResourceActionGrantPayload<ExtArgs>[]
     workAssignees: Prisma.$DepartmentWorkAssigneePayload<ExtArgs>[]
     leadingProjects: Prisma.$ProjectPayload<ExtArgs>[]
     edps: Prisma.$EDPPayload<ExtArgs>[]
@@ -2714,6 +2897,7 @@ export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends runti
   children<T extends Prisma.Department$childrenArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$childrenArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   descriptions<T extends Prisma.Department$descriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$descriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentDescriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceRoles<T extends Prisma.Department$resourceRolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$resourceRolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentResourceRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  resourceActionGrants<T extends Prisma.Department$resourceActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$resourceActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   workAssignees<T extends Prisma.Department$workAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$workAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leadingProjects<T extends Prisma.Department$leadingProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$leadingProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   edps<T extends Prisma.Department$edpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$edpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3286,6 +3470,30 @@ export type Department$resourceRolesArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.DepartmentResourceRoleScalarFieldEnum | Prisma.DepartmentResourceRoleScalarFieldEnum[]
+}
+
+/**
+ * Department.resourceActionGrants
+ */
+export type Department$resourceActionGrantsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the DepartmentResourceActionGrant
+   */
+  select?: Prisma.DepartmentResourceActionGrantSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the DepartmentResourceActionGrant
+   */
+  omit?: Prisma.DepartmentResourceActionGrantOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.DepartmentResourceActionGrantInclude<ExtArgs> | null
+  where?: Prisma.DepartmentResourceActionGrantWhereInput
+  orderBy?: Prisma.DepartmentResourceActionGrantOrderByWithRelationInput | Prisma.DepartmentResourceActionGrantOrderByWithRelationInput[]
+  cursor?: Prisma.DepartmentResourceActionGrantWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.DepartmentResourceActionGrantScalarFieldEnum | Prisma.DepartmentResourceActionGrantScalarFieldEnum[]
 }
 
 /**
