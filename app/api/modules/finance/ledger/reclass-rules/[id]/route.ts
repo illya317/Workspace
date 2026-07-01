@@ -4,10 +4,10 @@ import {
 } from "@workspace/finance/server/route-commands";
 import { routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceLedgerDelete } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerRevise } from "@workspace/platform/server/auth";
 
 export const DELETE = createCommandRoute({
-  access: checkFinanceLedgerDelete,
+  access: checkFinanceLedgerRevise,
   paramsSchema: routeIdParamsSchema,
   paramsError: "无效的规则 ID",
   buildCommand: ({ params }) => buildFinanceRouteIdCommand(params.id),

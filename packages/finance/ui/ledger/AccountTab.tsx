@@ -11,11 +11,15 @@ import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 // Account type and column definitions from shared AccountTable
 
 export default function AccountTab({
-  canWrite,
+  canWrite: _canWrite,
+  canDelete: _canDelete,
+  canRevise,
   navigation,
   lifecycleBlocks = [],
 }: {
   canWrite: boolean;
+  canDelete: boolean;
+  canRevise: boolean;
   navigation?: PageSurfaceNavigationSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
@@ -104,7 +108,7 @@ export default function AccountTab({
           : [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
       },
     ] : []),
-    ...(canWrite ? [{
+    ...(canRevise ? [{
       kind: "action-group" as const,
       key: "reclass-actions",
       actions: [{
@@ -115,7 +119,7 @@ export default function AccountTab({
         onClick: () => setReclassMode(!reclassMode),
       }],
     }] : []),
-    ...(canWrite && reclassMode ? [{
+    ...(canRevise && reclassMode ? [{
       kind: "select" as const,
       key: "reclass-status",
       label: "状态",
@@ -152,7 +156,7 @@ export default function AccountTab({
     keyword,
     statusFilter: reclassStatus,
     pageSize,
-    canWrite,
+    canRevise,
     onStats: setReclassStats,
   });
   const reclassSection = companyFilter && yearFilter

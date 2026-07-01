@@ -7,7 +7,7 @@ import {
   executeUpsertReclassRuleRouteCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerAccess, checkFinanceLedgerRevise } from "@workspace/platform/server/auth";
 
 const scanRulesQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -33,7 +33,7 @@ export const GET = createCommandRoute({
 });
 
 export const PUT = createCommandRoute({
-  access: checkFinanceLedgerWrite,
+  access: checkFinanceLedgerRevise,
   bodySchema: upsertRuleSchema,
   bodyError: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填",
   buildCommand: ({ body }) => buildUpsertReclassRuleRouteCommand(body),

@@ -72,15 +72,26 @@
 | `/api/modules/hr/roster/*` | POST/PUT/PATCH | `hr.roster.write` |
 | `/api/modules/hr/roster/*` | DELETE | `hr.roster.delete` |
 | `/api/modules/finance/ledger/accounts*` | GET | `finance.ledger.access` |
-| `/api/modules/finance/ledger/accounts*` | POST/PUT | `finance.ledger.write` |
+| `/api/modules/finance/ledger/accounts` | POST | `finance.ledger.access` + `finance.ledger.create` |
+| `/api/modules/finance/ledger/accounts/[id]` | PUT | `finance.ledger.write` |
 | `/api/modules/finance/ledger/accounts*` | DELETE | `finance.ledger.delete` |
 | `/api/modules/finance/ledger/vouchers*` | GET | `finance.ledger.access` |
-| `/api/modules/finance/ledger/vouchers*` | POST/PUT | `finance.ledger.write` |
+| `/api/modules/finance/ledger/vouchers` | POST | `finance.ledger.access` + `finance.ledger.create` |
+| `/api/modules/finance/ledger/vouchers/[id]` | PUT | `finance.ledger.write` |
 | `/api/modules/finance/ledger/vouchers*` | DELETE | `finance.ledger.delete` |
-| `/api/modules/finance/ledger/balances*` | GET/POST | `finance.ledger.access` (read/compute) |
-| `/api/modules/finance/ledger/balances/reconcile` | POST | `finance.ledger.write` (upload + compare) |
-| `/api/modules/finance/ledger/periods*` | GET/PUT | `finance.ledger.access/write` |
-| `/api/modules/finance/ledger/init` | POST | `finance.ledger.write` |
+| `/api/modules/finance/ledger/balances` | GET | `finance.ledger.access` |
+| `/api/modules/finance/ledger/balances` | POST | `finance.ledger.access` + `finance.ledger.revise` |
+| `/api/modules/finance/ledger/balances/reconcile` | POST | `finance.ledger.access` + `finance.ledger.import` |
+| `/api/modules/finance/ledger/periods*` | GET | `finance.ledger.access` |
+| `/api/modules/finance/ledger/periods` | POST | `finance.ledger.access` + `finance.ledger.create` |
+| `/api/modules/finance/ledger/periods/[id]` | PUT/DELETE | `finance.ledger.write/delete` |
+| `/api/modules/finance/ledger/init` | POST | `finance.ledger.access` + `finance.ledger.create` |
+| `/api/modules/finance/ledger/reclass-rules` | GET | `finance.ledger.access` |
+| `/api/modules/finance/ledger/reclass-rules` | PUT | `finance.ledger.access` + `finance.ledger.revise` |
+| `/api/modules/finance/ledger/reclass-rules/[id]` | DELETE | `finance.ledger.access` + `finance.ledger.revise` |
+| `/api/modules/finance/ledger/reclass-results` | GET | `finance.ledger.access` |
+| `/api/modules/finance/ledger/reclass-results` | POST | `finance.ledger.access` + `finance.ledger.revise` |
+| `/api/modules/finance/ledger/reclass-results/[id]` | PATCH | `finance.ledger.access` + `finance.ledger.revise` |
 | `/api/modules/finance/statement-config` | GET | `finance.statementConfig.access` |
 | `/api/modules/finance/statement-config` | PUT | `finance.statementConfig.write` |
 | `/api/modules/finance/statement-config/mappings` | GET | `finance.statementConfig.access` |

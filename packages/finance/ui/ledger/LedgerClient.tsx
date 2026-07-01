@@ -10,7 +10,21 @@ import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import ReclassTab from "./ReclassTab";
 
-export default function LedgerClient({ canWrite, user }: { canWrite: boolean; user: SessionUser }) {
+export default function LedgerClient({
+  canWrite,
+  canDelete,
+  canRevise,
+  canImport,
+  canExport,
+  user,
+}: {
+  canWrite: boolean;
+  canDelete: boolean;
+  canRevise: boolean;
+  canImport: boolean;
+  canExport: boolean;
+  user: SessionUser;
+}) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("ledger", user), [user]);
   const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "accounts");
   useEffect(() => {
@@ -27,10 +41,10 @@ export default function LedgerClient({ canWrite, user }: { canWrite: boolean; us
 
   return (
     <>
-      {activeTab === "accounts" && <AccountTab canWrite={canWrite} {...pageChrome} />}
-      {activeTab === "vouchers" && <VoucherTab canWrite={canWrite} {...pageChrome} />}
-      {activeTab === "ledger" && <LedgerTab {...pageChrome} />}
-      {activeTab === "reclass" && <ReclassTab {...pageChrome} />}
+      {activeTab === "accounts" && <AccountTab canWrite={canWrite} canDelete={canDelete} canRevise={canRevise} {...pageChrome} />}
+      {activeTab === "vouchers" && <VoucherTab canRevise={canRevise} {...pageChrome} />}
+      {activeTab === "ledger" && <LedgerTab canImport={canImport} {...pageChrome} />}
+      {activeTab === "reclass" && <ReclassTab canExport={canExport} {...pageChrome} />}
       {activeTab === "depreciation" && <DepreciationPlaceholder {...pageChrome} />}
     </>
   );

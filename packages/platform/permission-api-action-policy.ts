@@ -40,6 +40,8 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/finance/budget", resourceKey: "finance.budget", additionalAction: "import", pathPattern: /^\/api\/modules\/finance\/budget$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/balances/reconcile", resourceKey: "finance.ledger", additionalAction: "import" },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/balances", resourceKey: "finance.ledger", additionalAction: "revise" },
+  { method: "PUT", pathPrefix: "/api/modules/finance/ledger/reclass-rules", resourceKey: "finance.ledger", baseAction: "access", additionalAction: "revise", pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-rules$/ },
+  { method: "DELETE", pathPrefix: "/api/modules/finance/ledger/reclass-rules", resourceKey: "finance.ledger", baseAction: "access", additionalAction: "revise", pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-rules\/[^/]+$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/reclass-results", resourceKey: "finance.ledger", additionalAction: "revise", pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-results$/ },
   { method: "PATCH", pathPrefix: "/api/modules/finance/ledger/reclass-results", resourceKey: "finance.ledger", additionalAction: "revise", pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-results\/[^/]+$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/budget/versions", resourceKey: "finance.budget", additionalAction: "create", pathPattern: /^\/api\/modules\/finance\/budget\/versions$/ },

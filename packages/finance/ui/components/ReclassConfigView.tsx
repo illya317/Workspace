@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useState, useRef, useMemo } from "react";
-import { PageSurface, createMessageSection, createPageBody, useFeedback } from "@workspace/core/ui";
+import { ActionGlyph, PageSurface, createMessageSection, createPageBody, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, DataSurfaceColumnSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
@@ -21,7 +21,7 @@ interface Props {
   keyword?: string;
   statusFilter?: "all" | "noRule" | "hasRule";
   pageSize?: number;
-  canWrite: boolean;
+  canRevise: boolean;
   onStats?: (s: {
     total: number;
     noRule: number;
@@ -34,7 +34,7 @@ export function useReclassConfigSection({
   keyword = "",
   statusFilter = "hasRule",
   pageSize = 50,
-  canWrite,
+  canRevise,
   onStats
 }: Props): { section: BodySurfaceSectionSpec; footer?: PageSurfaceFooterSpec } {
   const [_scanned, setScanned] = useState<RuleCandidate[]>([]);
@@ -259,7 +259,7 @@ export function useReclassConfigSection({
       const targetClassName = hasRule ? "inline-block cursor-pointer rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono text-xs text-emerald-700 hover:ring-1 hover:ring-emerald-300" : displayTarget ? "inline-block cursor-pointer rounded border border-slate-200 bg-slate-50 px-2 py-0.5 font-mono text-xs text-slate-500 hover:ring-1 hover:ring-emerald-300" : "inline-block cursor-pointer rounded border border-dashed border-slate-200 bg-white px-2 py-0.5 text-xs text-slate-400 hover:border-emerald-300 hover:text-emerald-600";
       return <div className="cursor-pointer" onClick={event => {
         event.stopPropagation();
-        if (!editCode && canWrite) onStartEdit(candidate);
+        if (!editCode && canRevise) onStartEdit(candidate);
       }}>
             {editCode === rowKey ? <div ref={editRef} onKeyDown={event => {
           if (event.key === "Escape") onCancelEdit();
@@ -269,6 +269,46 @@ export function useReclassConfigSection({
               </div> : displayTarget ? <span className={targetClassName}>{targetDisplay(displayTarget)}</span> : <span className={targetClassName}>选择科目</span>}
           </div>;
     }
+  }, {
+    key: "actions",
+    label: "操作",
+    required: true,
+    align: "center",
+    cell: candidate => {
+      if (!canRevise) return null;
+      const actions = [];
+      const reviseLabel = (label: string) => (
+        <span className="inline-flex items-center">
+          <ActionGlyph kind="reclass" className="h-4 w-4" />
+          <span className="sr-only">{label}</span>
+        </span>
+      );
+      if (candidate.existingRuleId) {
+        actions.push({
+          key: "clear",
+          label: reviseLabel("清除规则"),
+          onClick: () => void clearRule(candidate),
+          size: "sm" as const,
+        });
+      } else if (candidate.suggestedTarget) {
+        actions.push({
+          key: "confirm",
+          label: reviseLabel("确认规则"),
+          onClick: () => void saveRule(candidate, candidate.suggestedTarget).then(saved => {
+            if (saved) success("已确认规则");
+          }),
+          size: "sm" as const,
+        });
+      } else {
+        actions.push({
+          key: "adjust",
+          label: reviseLabel("调整规则"),
+          onClick: () => startEdit(candidate),
+          size: "sm" as const,
+        });
+      }
+      return { kind: "actions" as const, align: "center" as const, actions };
+    },
   }];
   function onStartEdit(candidate: RuleCandidate) {
     startEdit(candidate);
@@ -300,17 +340,6 @@ export function useReclassConfigSection({
             rowKey: candidate => candidate.accountCode + "::" + candidate.abnormalSide,
                         presentation: { density: "compact" },
 
-            rowActions: canWrite ? (candidate) => {
-              if (candidate.existingRuleId) {
-                return [{ key: "clear", kind: "delete", label: "清除规则", onClick: () => void clearRule(candidate) }];
-              }
-              if (candidate.suggestedTarget) {
-                return [{ key: "confirm", kind: "save", label: "确认", onClick: () => void saveRule(candidate, candidate.suggestedTarget).then(saved => {
-                  if (saved) success("已确认规则");
-                }) }];
-              }
-              return [{ key: "adjust", kind: "edit", label: "调整", onClick: () => startEdit(candidate) }];
-            } : undefined,
           } },
     },
     footer: { pagination: { page, totalPages, total: filtered.length, onPageChange: setPage } },
