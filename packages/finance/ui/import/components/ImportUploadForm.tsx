@@ -127,6 +127,7 @@ export function createImportUploadSections({
         commands: [{
           key: "preview",
           label: loading ? "解析中..." : "预览数据",
+          icon: "view",
           variant: "primary",
           onClick: onPreview,
           disabled: !file || !companyCode || loading,

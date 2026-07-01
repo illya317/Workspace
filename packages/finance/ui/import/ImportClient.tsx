@@ -2,15 +2,15 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
-import { SessionUser } from "@workspace/platform/types";
+import type { SessionUser } from "@workspace/platform/types";
 import { PageSurface, createPageBody, createPageTabsNavigation } from "@workspace/core/ui";
 import { createImportUploadSections } from "./components/ImportUploadForm";
 import { createImportPreviewSections } from "./components/ImportPreview";
 import { createImportResultSection } from "./components/ImportResult";
-import { Company, PreviewResult } from "./components/types";
+import type { Company, PreviewResult } from "./components/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
-export default function ImportClient({ user }: { user: SessionUser }) {
+export default function ImportClient({ user, canImport }: { user: SessionUser; canImport: boolean }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
   const [importType, setImportType] = useState<"balance" | "journal" | "account">("balance");
@@ -88,6 +88,10 @@ export default function ImportClient({ user }: { user: SessionUser }) {
 
   async function handleConfirm() {
     if (!preview) return;
+    if (!canImport) {
+      setResult({ success: false, message: "无确认导入权限" });
+      return;
+    }
     setImporting(true);
     setResult(null);
 
@@ -144,7 +148,7 @@ export default function ImportClient({ user }: { user: SessionUser }) {
             onPreview: handlePreview,
           }),
           ...(result ? [createImportResultSection({ success: result.success, message: result.message })] : []),
-          ...(preview ? createImportPreviewSections({ preview, importing, typeLabel, onConfirm: handleConfirm }) : []),
+          ...(preview ? createImportPreviewSections({ preview, importing, typeLabel, canImport, onConfirm: handleConfirm }) : []),
         ])}
     />
   );

@@ -16,7 +16,7 @@
 | `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, delete, import, export, admin |
-| `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
+| `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), import (confirm), export, admin |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `external` | `visibleResourceKeys` | access, admin（占位容器，无业务 API） |
 | `external.investors/customers/suppliers` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
@@ -105,7 +105,7 @@
 | `/api/modules/finance/statements/reports` | GET | `finance.statements.access` |
 | `/api/modules/finance/budget` | GET/POST | `finance.budget.access/write` |
 | `/api/modules/finance/import/preview` | POST | `finance.import.access` |
-| `/api/modules/finance/import/confirm` | POST | `finance.import.write` |
+| `/api/modules/finance/import/confirm` | POST | `finance.import.import` |
 | `/api/modules/finance/cost/*` | GET | `finance.cost.access` |
 | `/api/modules/finance/cost/imports` | POST | `finance.cost.import` |
 | `/api/modules/finance/cost/imports/[id]` | DELETE | `finance.cost.delete` |

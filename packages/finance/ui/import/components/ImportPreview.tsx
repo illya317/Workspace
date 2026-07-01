@@ -7,6 +7,7 @@ interface ImportPreviewProps {
   preview: PreviewResult;
   importing: boolean;
   typeLabel: string;
+  canImport: boolean;
   onConfirm: () => void;
 }
 type AccountRow = PreviewAccount & {
@@ -213,6 +214,7 @@ export function createImportPreviewSections({
   preview,
   importing,
   typeLabel,
+  canImport,
   onConfirm
 }: ImportPreviewProps): BodySurfaceSectionSpec[] {
   const accountRows = preview.accounts.map(account => ({
@@ -226,10 +228,11 @@ export function createImportPreviewSections({
   const accountColumns = createAccountColumns();
   const balanceColumns = createBalanceColumns();
   const sections: BodySurfaceSectionSpec[] = [
-    ...(preview.errors.length === 0
+    ...(preview.errors.length === 0 && canImport
       ? [createActionsSection("import-preview-actions", [{
           key: "confirm",
           label: importing ? "导入中..." : "确认导入",
+          icon: "upload",
           variant: "primary",
           onClick: onConfirm,
           disabled: importing,
@@ -339,6 +342,7 @@ export default function ImportPreview({
   preview,
   importing,
   typeLabel,
+  canImport,
   onConfirm
 }: ImportPreviewProps) {
   const accountRows = preview.accounts.map(account => ({
@@ -352,13 +356,14 @@ export default function ImportPreview({
   const accountColumns = createAccountColumns();
   const balanceColumns = createBalanceColumns();
   return <div className="space-y-4">
-      {preview.errors.length === 0 && (
+      {preview.errors.length === 0 && canImport && (
         <PageSurface kind="standard"
           embedded
           body={createPageBody([
             createActionsSection("import-preview-actions", [{
               key: "confirm",
               label: importing ? "导入中..." : "确认导入",
+              icon: "upload",
               variant: "primary",
               onClick: onConfirm,
               disabled: importing,
