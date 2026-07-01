@@ -284,8 +284,11 @@ function buildBaseValues(data: PositionDescriptionTemplateData): Record<string, 
     "position.summary": data.summary,
     "position.externalCollaboration": joinList(details.externalCollaboration),
     "qualification.education": details.education,
+    "qualification.major.summary": formatMajorSummary(normalizeMajors(details.major)),
+    "qualification.experience.summary": formatExperienceSummary(normalizeExperiences(details.experienceRequirements)),
     "qualification.training": joinList(details.training),
     "qualification.otherRequirements": joinList(details.otherRequirements) || "无。",
+    "conditions.workEnvironment.summary": formatWorkEnvironmentSummary(normalizeWorkEnvironments(details.workEnvironments)),
     "conditions.equipment": joinList(details.equipment),
     "conditions.workSchedule": details.workSchedule,
   };
@@ -360,6 +363,31 @@ function normalizeWorkEnvironments(value: unknown): WorkEnvironmentItem[] {
 function normalizeStringList(value: unknown) {
   if (!Array.isArray(value)) return [];
   return value.map((item) => stringValue(item)).filter(Boolean);
+}
+
+function formatMajorSummary(items: MajorItem[]) {
+  return uniqueStrings(items.map((item) => item.specialty || item.category).filter(Boolean)).join("、");
+}
+
+function formatExperienceSummary(items: ExperienceItem[]) {
+  return items.map((item) => {
+    const years = formatYears(item.years);
+    const requirement = item.requirement;
+    if (years && requirement) return `${years}：${requirement}`;
+    return years || requirement;
+  }).filter(Boolean).join("；");
+}
+
+function formatWorkEnvironmentSummary(items: WorkEnvironmentItem[]) {
+  return items.map((item) => {
+    const factors = joinList(item.factors);
+    if (item.area && factors) return `${item.area}：${factors}`;
+    return item.area || factors;
+  }).filter(Boolean).join("；");
+}
+
+function uniqueStrings(values: string[]) {
+  return [...new Set(values)];
 }
 
 function numberedLines(items: string[]) {

@@ -119,7 +119,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -141,7 +142,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.name"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               },
               {
                 "header": true,
@@ -154,7 +156,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -176,7 +179,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.code"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -194,7 +198,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -216,7 +221,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.departmentName"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               },
               {
                 "header": true,
@@ -229,7 +235,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -251,7 +258,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.reportTo"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -269,7 +277,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -291,7 +300,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.subordinates"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               },
               {
                 "header": true,
@@ -304,7 +314,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -326,7 +337,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.headcount"
                 },
-                "colspan": 2
+                "colspan": 2,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -563,7 +575,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -585,7 +598,8 @@
                   "role": "value",
                   "sourceFieldKey": "position.externalCollaboration"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -624,7 +638,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -646,12 +661,13 @@
                   "role": "value",
                   "sourceFieldKey": "qualification.education"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           },
           {
-            "id": "qualification-major-template",
+            "id": "qualification-major",
             "cells": [
               {
                 "header": true,
@@ -663,61 +679,38 @@
                   }
                 ],
                 "metadata": {
-                  "role": "label",
-                  "dynamicRegion": "major"
-                }
+                  "role": "label"
+                },
+                "className": "single-line-cell"
               },
               {
                 "colspan": 5,
                 "align": "left",
                 "parts": [
                   {
-                    "type": "text",
-                    "text": "门类："
-                  },
-                  {
                     "type": "fieldSlot",
-                    "fieldKey": "qualification.major.category",
-                    "label": "专业门类",
+                    "fieldKey": "qualification.major.summary",
+                    "label": "专业",
                     "slotKind": "plain",
                     "display": "plain",
                     "readonlyDisplay": true,
-                    "width": "8rem",
+                    "width": "100%",
                     "metadata": {
-                      "templateFieldKey": "qualification.major.category",
-                      "sourcePath": "details.major[].category",
-                      "dynamicRegion": "major"
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "text": "  专业："
-                  },
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "qualification.major.specialty",
-                    "label": "专业类别",
-                    "slotKind": "plain",
-                    "display": "plain",
-                    "readonlyDisplay": true,
-                    "width": "12rem",
-                    "metadata": {
-                      "templateFieldKey": "qualification.major.specialty",
-                      "sourcePath": "details.major[].specialty",
-                      "dynamicRegion": "major"
+                      "templateFieldKey": "qualification.major.summary",
+                      "sourcePath": "details.major"
                     }
                   }
                 ],
                 "metadata": {
-                  "role": "dynamic-object-list",
-                  "dynamicRegion": "major",
-                  "repeatFor": "details.major[]"
-                }
+                  "role": "value",
+                  "sourceFieldKey": "qualification.major.summary"
+                },
+                "className": "single-line-cell"
               }
             ]
           },
           {
-            "id": "qualification-experience-template",
+            "id": "qualification-experience",
             "cells": [
               {
                 "header": true,
@@ -729,56 +722,33 @@
                   }
                 ],
                 "metadata": {
-                  "role": "label",
-                  "dynamicRegion": "experience"
-                }
+                  "role": "label"
+                },
+                "className": "single-line-cell"
               },
               {
                 "colspan": 5,
                 "align": "left",
                 "parts": [
                   {
-                    "type": "text",
-                    "text": "年限："
-                  },
-                  {
                     "type": "fieldSlot",
-                    "fieldKey": "qualification.experience.years",
-                    "label": "经验年限",
+                    "fieldKey": "qualification.experience.summary",
+                    "label": "经验",
                     "slotKind": "plain",
                     "display": "plain",
                     "readonlyDisplay": true,
-                    "width": "4rem",
+                    "width": "100%",
                     "metadata": {
-                      "templateFieldKey": "qualification.experience.years",
-                      "sourcePath": "details.experienceRequirements[].years",
-                      "dynamicRegion": "experience"
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "text": "  要求："
-                  },
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "qualification.experience.requirement",
-                    "label": "经验要求",
-                    "slotKind": "plain",
-                    "display": "plain",
-                    "readonlyDisplay": true,
-                    "width": "24rem",
-                    "metadata": {
-                      "templateFieldKey": "qualification.experience.requirement",
-                      "sourcePath": "details.experienceRequirements[].requirement",
-                      "dynamicRegion": "experience"
+                      "templateFieldKey": "qualification.experience.summary",
+                      "sourcePath": "details.experienceRequirements"
                     }
                   }
                 ],
                 "metadata": {
-                  "role": "dynamic-object-list",
-                  "dynamicRegion": "experience",
-                  "repeatFor": "details.experienceRequirements[]"
-                }
+                  "role": "value",
+                  "sourceFieldKey": "qualification.experience.summary"
+                },
+                "className": "single-line-cell"
               }
             ]
           },
@@ -796,7 +766,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -818,7 +789,8 @@
                   "role": "value",
                   "sourceFieldKey": "qualification.training"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -881,7 +853,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -903,7 +876,8 @@
                   "role": "value",
                   "sourceFieldKey": "qualification.otherRequirements"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -929,7 +903,7 @@
             ]
           },
           {
-            "id": "conditions-environment-template",
+            "id": "conditions-environment",
             "cells": [
               {
                 "header": true,
@@ -941,57 +915,33 @@
                   }
                 ],
                 "metadata": {
-                  "role": "label",
-                  "dynamicRegion": "workEnvironments"
-                }
+                  "role": "label"
+                },
+                "className": "single-line-cell"
               },
               {
                 "colspan": 5,
                 "align": "left",
                 "parts": [
                   {
-                    "type": "text",
-                    "text": "区域："
-                  },
-                  {
                     "type": "fieldSlot",
-                    "fieldKey": "conditions.workEnvironment.area",
-                    "label": "环境区域",
+                    "fieldKey": "conditions.workEnvironment.summary",
+                    "label": "工作环境",
                     "slotKind": "plain",
                     "display": "plain",
                     "readonlyDisplay": true,
-                    "width": "8rem",
+                    "width": "100%",
                     "metadata": {
-                      "templateFieldKey": "conditions.workEnvironment.area",
-                      "sourcePath": "details.workEnvironments[].area",
-                      "dynamicRegion": "workEnvironments"
-                    }
-                  },
-                  {
-                    "type": "text",
-                    "text": "  因素："
-                  },
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "conditions.workEnvironment.factors",
-                    "label": "环境因素",
-                    "slotKind": "plain",
-                    "display": "plain",
-                    "readonlyDisplay": true,
-                    "width": "18rem",
-                    "metadata": {
-                      "templateFieldKey": "conditions.workEnvironment.factors",
-                      "sourcePath": "details.workEnvironments[].factors[]",
-                      "dynamicRegion": "workEnvironments",
-                      "listStyle": "join"
+                      "templateFieldKey": "conditions.workEnvironment.summary",
+                      "sourcePath": "details.workEnvironments"
                     }
                   }
                 ],
                 "metadata": {
-                  "role": "dynamic-object-list",
-                  "dynamicRegion": "workEnvironments",
-                  "repeatFor": "details.workEnvironments[]"
-                }
+                  "role": "value",
+                  "sourceFieldKey": "conditions.workEnvironment.summary"
+                },
+                "className": "single-line-cell"
               }
             ]
           },
@@ -1009,7 +959,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -1031,7 +982,8 @@
                   "role": "value",
                   "sourceFieldKey": "conditions.equipment"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           },
@@ -1049,7 +1001,8 @@
                 ],
                 "metadata": {
                   "role": "label"
-                }
+                },
+                "className": "single-line-cell"
               },
               {
                 "align": "left",
@@ -1071,7 +1024,8 @@
                   "role": "value",
                   "sourceFieldKey": "conditions.workSchedule"
                 },
-                "colspan": 5
+                "colspan": 5,
+                "className": "single-line-cell"
               }
             ]
           }
@@ -1322,6 +1276,24 @@
           "dynamicRegion": "major"
         }
       },
+      "qualification.major.summary": {
+        "fieldKey": "qualification.major.summary",
+        "label": "专业",
+        "name": "专业",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.major",
+          "format": "specialtyList"
+        },
+        "metadata": {
+          "sourcePath": "details.major",
+          "format": "specialtyList"
+        }
+      },
       "qualification.major.category": {
         "fieldKey": "qualification.major.category",
         "label": "专业门类",
@@ -1375,6 +1347,24 @@
           "sourcePath": "details.experienceRequirements",
           "format": "objectList",
           "dynamicRegion": "experience"
+        }
+      },
+      "qualification.experience.summary": {
+        "fieldKey": "qualification.experience.summary",
+        "label": "经验",
+        "name": "经验",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.experienceRequirements",
+          "format": "summary"
+        },
+        "metadata": {
+          "sourcePath": "details.experienceRequirements",
+          "format": "summary"
         }
       },
       "qualification.experience.years": {
@@ -1485,6 +1475,24 @@
           "sourcePath": "details.workEnvironments",
           "format": "objectList",
           "dynamicRegion": "workEnvironments"
+        }
+      },
+      "conditions.workEnvironment.summary": {
+        "fieldKey": "conditions.workEnvironment.summary",
+        "label": "工作环境",
+        "name": "工作环境",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.workEnvironments",
+          "format": "summary"
+        },
+        "metadata": {
+          "sourcePath": "details.workEnvironments",
+          "format": "summary"
         }
       },
       "conditions.workEnvironment.area": {

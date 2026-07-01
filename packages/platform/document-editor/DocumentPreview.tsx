@@ -152,6 +152,7 @@ function cellSemanticClassName(cell: Extract<EditorBlock, { type: "table" }>["ro
     cell.isEmpty || tokens.has("empty") ? "text-transparent" : "",
     tokens.has("label-cell") ? "whitespace-nowrap font-semibold" : "",
     tokens.has("basis-cell") ? "whitespace-pre-line leading-6" : "",
+    tokens.has("single-line-cell") ? "leading-[1.45] [&_span]:align-middle" : "",
     cell.className || "",
   ].filter(Boolean).join(" ");
 }
