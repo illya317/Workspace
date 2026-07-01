@@ -121,11 +121,12 @@
 | `/api/modules/finance/cost/imports` | POST | `finance.cost.import` |
 | `/api/modules/finance/cost/imports/[id]` | DELETE | `finance.cost.delete` |
 | `/api/modules/production/qc` | GET | `production.qc.access` |
-| `/api/modules/production/qc` | POST | `production.qc.write` |
+| `/api/modules/production/qc` | POST | `production.qc.create` |
 | `/api/modules/production/qc/[batchId]` | GET | `production.qc.access` |
 | `/api/modules/production/qc/[batchId]` | PATCH | `production.qc.write` |
 | `/api/modules/production/qc/[batchId]` | DELETE | `production.qc.delete` |
-| `/api/modules/production/qc/[batchId]/submit` | POST | `production.qc.write` |
+| `/api/modules/production/qc/[batchId]/submit` | POST | `production.qc.submit` |
+| `/api/modules/production/qc/[batchId]/approve-review` | POST | `production.qc.approve` |
 | `/api/modules/administration/contracts*` | GET | `administration.contracts.access` |
 | `/api/modules/administration/contracts` | POST | `administration.contracts.create` |
 | `/api/modules/administration/contracts/[id]` | PATCH | `administration.contracts.write` |
