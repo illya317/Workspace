@@ -11,7 +11,7 @@
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
-| `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, approve, admin |
 | `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
@@ -99,7 +99,9 @@
 | `/api/modules/finance/statement-config/mappings` | GET | `finance.statementConfig.access` |
 | `/api/modules/finance/statement-config/mappings` | POST/PATCH/DELETE | `finance.statementConfig.create/write/delete` |
 | `/api/modules/finance/statement-review/reviews` | GET | `finance.statementReview.access` |
-| `/api/modules/finance/statement-review/reviews` | POST/PUT | `finance.statementReview.write` |
+| `/api/modules/finance/statement-review/reviews` | POST | `finance.statementReview.create` |
+| `/api/modules/finance/statement-review/reviews/[id]` | PUT | `finance.statementReview.write` |
+| `/api/modules/finance/statement-review/reviews/[id]/confirm` | POST | `finance.statementReview.approve` |
 | `/api/modules/finance/statement-review/workpapers` | GET | `finance.statementReview.access` |
 | `/api/modules/finance/statement-review/workpapers` | PUT | `finance.statementReview.write` |
 | `/api/modules/finance/statements/reports` | GET | `finance.statements.access` |

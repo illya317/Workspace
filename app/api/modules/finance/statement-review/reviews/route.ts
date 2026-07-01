@@ -9,7 +9,7 @@ import {
 } from "@workspace/finance/server/statements/reviews/schemas";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceStatementReviewAccess, checkFinanceStatementReviewWrite } from "@workspace/platform/server/auth";
+import { checkFinanceStatementReviewAccess } from "@workspace/platform/server/auth";
 
 export const GET = createCommandRoute({
   access: checkFinanceStatementReviewAccess,
@@ -20,7 +20,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceStatementReviewWrite,
+  access: checkFinanceStatementReviewAccess,
   bodySchema: generateReviewSchema,
   bodyError: "workpaperId 为必填",
   buildCommand: ({ body, user }) => buildGenerateReviewCommand(body.workpaperId, user.userId),

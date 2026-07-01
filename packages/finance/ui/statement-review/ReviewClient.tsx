@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { createMessageSection, createPageBody, PageSurface, createPageTableSection, createStatusSection } from "@workspace/core/ui";
+import { ActionGlyph, createMessageSection, createPageBody, PageSurface, createPageTableSection, createStatusSection } from "@workspace/core/ui";
 import type { DataSurfaceColumnSpec, BodySurfaceSectionSpec, SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useReviewFilterToolbarItems } from "./ReviewFilters";
 import type { RvLine } from "@workspace/finance/types";
@@ -29,7 +29,24 @@ function formatAmount(n: number) {
   });
 }
 
-export default function ReviewClient() {
+function iconLabel(kind: "edit" | "reclass" | "refresh", label: string) {
+  return (
+    <>
+      <ActionGlyph kind={kind} className="h-4 w-4" />
+      <span className="sr-only">{label}</span>
+    </>
+  );
+}
+
+export default function ReviewClient({
+  canCreate,
+  canWrite,
+  canApprove,
+}: {
+  canCreate: boolean;
+  canWrite: boolean;
+  canApprove: boolean;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const rtFromQuery = searchParams.get("reportType");
@@ -79,6 +96,10 @@ export default function ReviewClient() {
 
   const generate = async () => {
     if (!wp?.id) return;
+    if (!canCreate) {
+      setError("无生成校对权限");
+      return;
+    }
     setLoading(true);
     setError(null);
     const response = await fetch(workspacePath("/api/modules/finance/statement-review/reviews"), {
@@ -99,6 +120,10 @@ export default function ReviewClient() {
 
   const saveEdits = async () => {
     if (!rv || edits.size === 0) return;
+    if (!canWrite) {
+      setError("无保存校对权限");
+      return;
+    }
     setSaving(true);
     setError(null);
     const lines = [...edits.entries()].map(([lineCode, edit]) => ({ lineCode, ...edit }));
@@ -120,6 +145,10 @@ export default function ReviewClient() {
 
   const doConfirm = async () => {
     if (!rv) return;
+    if (!canApprove) {
+      setError("无确认校对权限");
+      return;
+    }
     setSaving(true);
     setError(null);
     const response = await fetch(workspacePath(`/api/modules/finance/statement-review/reviews/${rv.id}/confirm`), { method: "POST" });
@@ -181,7 +210,7 @@ export default function ReviewClient() {
     upsertEdit(line, { status: next });
   };
 
-  const isReadOnly = rv?.status === "confirmed";
+  const isReadOnly = rv?.status === "confirmed" || !canWrite;
   const changedCount = edits.size;
   const hasFlaggedWithoutComment = rv ? rv.lines.some((line) => {
     const state = getLineState(line);
@@ -209,7 +238,7 @@ export default function ReviewClient() {
           ),
         }
       : null,
-    wp && wp.id > 0 && (!rv || rv.isStale)
+    canCreate && wp && wp.id > 0 && (!rv || rv.isStale)
       ? {
           kind: "action-group",
           key: "generate",
@@ -218,12 +247,12 @@ export default function ReviewClient() {
             kind: "generate",
             label: rv?.isStale ? "重新生成校对" : "生成校对",
             variant: "primary" as const,
-            disabled: loading,
+            disabled: loading || !canCreate,
             onClick: generate,
           }],
         }
       : null,
-    rv && changedCount > 0
+    canWrite && rv && changedCount > 0
       ? {
           kind: "action-group",
           key: "save",
@@ -237,16 +266,16 @@ export default function ReviewClient() {
           }],
         }
       : null,
-    rv && rv.status !== "confirmed"
+    canApprove && rv && rv.status !== "confirmed"
       ? {
           kind: "action-group",
           key: "confirm",
           actions: [{
             key: "confirm",
-            kind: "check",
+            kind: "verified",
             label: "确认校对",
             variant: "primary" as const,
-            disabled: saving || changedCount > 0,
+            disabled: saving || changedCount > 0 || !canApprove,
             onClick: doConfirm,
           }],
         }
@@ -280,6 +309,7 @@ export default function ReviewClient() {
             commands: [{
               key: "view-report",
               label: "前往财务报表查看最终结果",
+              icon: "view",
               variant: "primary",
               onClick: () => router.push(`/finance/statements?companyCode=${co}&year=${yr}&month=${mo}&reportType=${rt === "incomeStatement" ? "income" : "cashflow"}`),
             }],
@@ -335,21 +365,25 @@ export default function ReviewClient() {
           },
         };
       }
+      const amountLabel = state.adjustedAmount != null ? formatAmount(state.adjustedAmount) : "—";
+      if (isReadOnly) return { kind: "text", value: amountLabel };
       return {
-        kind: "action",
-        action: {
-          key: `edit-amount-${line.lineCode}`,
-          label: state.adjustedAmount != null ? formatAmount(state.adjustedAmount) : "—",
-          size: "sm",
-
-          disabled: isReadOnly,
-          onClick: () => {
-            if (!isReadOnly) {
-              setEditingAmt(line.lineCode);
-              setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
-            }
+        kind: "group",
+        items: [
+          { kind: "text", value: amountLabel },
+          {
+            kind: "action",
+            action: {
+              key: `edit-amount-${line.lineCode}`,
+              label: iconLabel("reclass", "调整金额"),
+              size: "sm",
+              onClick: () => {
+                setEditingAmt(line.lineCode);
+                setEditAmt(state.adjustedAmount != null ? String(state.adjustedAmount) : "");
+              },
+            },
           },
-        },
+        ],
       };
     },
   }, {
@@ -367,16 +401,22 @@ export default function ReviewClient() {
 
     cell: (line) => {
       const status = getLineState(line).status;
+      const label = REVIEW_STATUS_LABELS[status] || status;
+      if (isReadOnly) return { kind: "badge", label, tone: status === "flagged" ? "red" : status === "confirmed" ? "emerald" : "amber" };
       return {
-        kind: "action",
-        action: {
-          key: `status-${line.lineCode}`,
-          label: REVIEW_STATUS_LABELS[status] || status,
-          size: "sm",
-          disabled: isReadOnly,
-
-          onClick: () => toggleStatus(line),
-        },
+        kind: "group",
+        items: [
+          { kind: "badge", label, tone: status === "flagged" ? "red" : status === "confirmed" ? "emerald" : "amber" },
+          {
+            kind: "action",
+            action: {
+              key: `status-${line.lineCode}`,
+              label: iconLabel("refresh", "切换状态"),
+              size: "sm",
+              onClick: () => toggleStatus(line),
+            },
+          },
+        ],
       };
     },
   }, {
@@ -401,21 +441,25 @@ export default function ReviewClient() {
           },
         };
       }
+      const commentLabel = state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—");
+      if (isReadOnly) return { kind: "text", value: commentLabel, tone: state.comment ? undefined : "muted" };
       return {
-        kind: "action",
-        action: {
-          key: `comment-${line.lineCode}`,
-          label: state.comment || (state.status === "flagged" ? "请填写标记原因…" : "—"),
-          size: "sm",
-          disabled: isReadOnly,
-
-          onClick: () => {
-            if (!isReadOnly) {
-              setEditingCmt(line.lineCode);
-              setEditCmt(state.comment || "");
-            }
+        kind: "group",
+        items: [
+          { kind: "text", value: commentLabel, tone: state.comment ? undefined : "muted" },
+          {
+            kind: "action",
+            action: {
+              key: `comment-${line.lineCode}`,
+              label: iconLabel("edit", "编辑备注"),
+              size: "sm",
+              onClick: () => {
+                setEditingCmt(line.lineCode);
+                setEditCmt(state.comment || "");
+              },
+            },
           },
-        },
+        ],
       };
     },
   }];
