@@ -75,6 +75,24 @@ export interface SurfaceNavigationTabSpec {
 }
 
 export type SurfaceToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
+export type SurfaceToolbarActionSemanticKey =
+  | "access"
+  | "admin"
+  | "approve"
+  | "back"
+  | "close"
+  | "confirm"
+  | "export"
+  | "import"
+  | "open"
+  | "reject"
+  | "remove"
+  | "retry"
+  | "revise"
+  | "submit"
+  | "withdraw"
+  | "write";
+export type SurfaceToolbarActionKind = SurfaceToolbarActionGlyphKind | SurfaceToolbarActionSemanticKey;
 
 export interface SurfaceToolbarIconButtonItem {
   kind: "icon-button";
@@ -248,7 +266,7 @@ export interface SurfaceToolbarMenuItem {
 export interface SurfaceToolbarActionGroupActionSpec {
   key?: string;
   label: string;
-  kind: SurfaceToolbarActionGlyphKind;
+  kind: SurfaceToolbarActionKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";

@@ -12,6 +12,24 @@ export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailin
 export type ToolbarLayoutMode = "auto" | "compact" | "split";
 
 export type ToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
+export type ToolbarActionSemanticKey =
+  | "access"
+  | "admin"
+  | "approve"
+  | "back"
+  | "close"
+  | "confirm"
+  | "export"
+  | "import"
+  | "open"
+  | "reject"
+  | "remove"
+  | "retry"
+  | "revise"
+  | "submit"
+  | "withdraw"
+  | "write";
+export type ToolbarActionKind = ToolbarActionGlyphKind | ToolbarActionSemanticKey;
 
 export interface ToolbarIconButtonItem {
   kind: "icon-button";
@@ -179,7 +197,7 @@ export interface ToolbarMenuItem {
 export interface ToolbarActionGroupAction {
   key?: string;
   label: string;
-  kind: ToolbarActionGlyphKind;
+  kind: ToolbarActionKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";

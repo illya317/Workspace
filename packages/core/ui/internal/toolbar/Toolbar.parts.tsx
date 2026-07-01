@@ -1,7 +1,8 @@
 "use client";
 
 import { ActionButton } from "../action/ActionControls";
-import { ACTION_GLYPH_ACTION_BY_KEY, ACTION_GLYPH_ORDER_BY_KIND } from "../action/ActionGlyphs";
+import { ACTION_GLYPH_ACTION_BY_KEY, ACTION_GLYPH_ORDER_BY_KIND, resolveActionGlyphAction } from "../action/ActionGlyphs";
+import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import { CreateStartButton } from "../action/CreateActionControls";
 import { CONTROL_SIZES, TEXT_STYLES } from "../common/interactionTokens";
 import type { ControlSize } from "../common/interactionTokens";
@@ -11,7 +12,7 @@ import SearchableOptionInput from "../input/SearchableOptionInput";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
-import type { ToolbarActionGlyphKind, ToolbarItem } from "./Toolbar.types";
+import type { ToolbarActionGlyphKind, ToolbarActionKind, ToolbarItem } from "./Toolbar.types";
 
 export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
@@ -20,7 +21,7 @@ export function ToolbarDivider() {
 type ToolbarRenderableAction = {
   key?: string;
   label: string;
-  kind: ToolbarActionGlyphKind;
+  kind: ToolbarActionKind;
   onClick?: () => void;
   disabled?: boolean;
   variant?: "primary" | "secondary" | "danger";
@@ -28,11 +29,11 @@ type ToolbarRenderableAction = {
 };
 
 function getActionOrder(action: ToolbarRenderableAction) {
-  return ACTION_GLYPH_ORDER_BY_KIND[action.kind]?.order ?? Number.MAX_SAFE_INTEGER;
+  return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.order ?? Number.MAX_SAFE_INTEGER;
 }
 
 function getActionGroup(action: ToolbarRenderableAction) {
-  return ACTION_GLYPH_ORDER_BY_KIND[action.kind]?.group ?? "unknown";
+  return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.group ?? "unknown";
 }
 
 function getOrderedActions(actions: ToolbarRenderableAction[]) {
@@ -45,7 +46,7 @@ export function getToolbarItemActionOrder(item: ToolbarItem) {
       return ACTION_GLYPH_ORDER_BY_KIND[item.icon]?.order ?? Number.MAX_SAFE_INTEGER;
     case "action-group":
       return item.actions.length > 0
-        ? Math.min(...item.actions.map((a) => ACTION_GLYPH_ORDER_BY_KIND[a.kind]?.order ?? Number.MAX_SAFE_INTEGER))
+        ? Math.min(...item.actions.map((action) => ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.order ?? Number.MAX_SAFE_INTEGER))
         : Number.MAX_SAFE_INTEGER;
     case "edit-group": {
       const orders: number[] = [];
@@ -71,10 +72,10 @@ function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: str
       <span key={action.key ?? `${keyPrefix}-${index}`} className="contents">
         {needsDivider && <ToolbarDivider />}
         <ActionButton
-          kind={action.kind}
+          kind={resolveToolbarActionIcon(action)}
           label={action.label}
           type={action.type}
-          variant={action.variant}
+          variant={resolveToolbarActionVariant(action)}
           disabled={action.disabled}
           onClick={action.onClick}
           size={size}
@@ -82,6 +83,23 @@ function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: str
       </span>
     );
   });
+}
+
+function isToolbarActionGlyphKind(kind: ToolbarActionKind): kind is ToolbarActionGlyphKind {
+  return kind in ACTION_GLYPH_ORDER_BY_KIND;
+}
+
+function resolveToolbarSemanticAction(action: ToolbarRenderableAction) {
+  if (isToolbarActionGlyphKind(action.kind)) return undefined;
+  return resolveActionGlyphAction({ key: action.kind, type: action.type });
+}
+
+function resolveToolbarActionIcon(action: ToolbarRenderableAction): ActionGlyphKind {
+  return resolveToolbarSemanticAction(action)?.icon ?? (action.kind as ActionGlyphKind);
+}
+
+function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
+  return action.variant ?? resolveToolbarSemanticAction(action)?.variant;
 }
 
 function getToolbarOptionInputClassName(size: ControlSize) {

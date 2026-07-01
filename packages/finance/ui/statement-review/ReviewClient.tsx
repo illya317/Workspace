@@ -272,7 +272,7 @@ export default function ReviewClient({
           key: "confirm",
           actions: [{
             key: "confirm",
-            kind: "verified",
+            kind: "approve",
             label: "确认校对",
             variant: "primary" as const,
             disabled: saving || changedCount > 0 || !canApprove,

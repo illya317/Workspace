@@ -126,7 +126,7 @@ export default function QcBatchTestRecord({
     recordActions.push({
       key: "approve-review",
       label: isPending ? "复核中" : "复核通过",
-      kind: "verified",
+      kind: "approve",
       onClick: approveReview,
       disabled: isPending,
       variant: "primary",

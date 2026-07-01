@@ -20978,11 +20978,27 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "kind",
-                                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                          description: "可选值：access / admin / approve / archive / back / cancel / check / close / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / export / eye-off / filter / generate / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / remove / reset / restore / retry / revise / save / search / send / settings / sort / stop / submit / unlink / unlock / upload / verified / view / withdraw / write / x。",
                                           children: [
+                                            {
+                                              name: "access",
+                                              description: "access 分支声明。",
+                                            },
+                                            {
+                                              name: "admin",
+                                              description: "admin 分支声明。",
+                                            },
+                                            {
+                                              name: "approve",
+                                              description: "approve 分支声明。",
+                                            },
                                             {
                                               name: "archive",
                                               description: "archive 分支声明。",
+                                            },
+                                            {
+                                              name: "back",
+                                              description: "back 分支声明。",
                                             },
                                             {
                                               name: "cancel",
@@ -20991,6 +21007,14 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "check",
                                               description: "check 分支声明。",
+                                            },
+                                            {
+                                              name: "close",
+                                              description: "close 分支声明。",
+                                            },
+                                            {
+                                              name: "confirm",
+                                              description: "confirm 分支声明。",
                                             },
                                             {
                                               name: "copy",
@@ -21021,6 +21045,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "edit 分支声明。",
                                             },
                                             {
+                                              name: "export",
+                                              description: "export 分支声明。",
+                                            },
+                                            {
                                               name: "eye-off",
                                               description: "eye-off 分支声明。",
                                             },
@@ -21037,6 +21065,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "history 分支声明。",
                                             },
                                             {
+                                              name: "import",
+                                              description: "import 分支声明。",
+                                            },
+                                            {
                                               name: "link",
                                               description: "link 分支声明。",
                                             },
@@ -21051,6 +21083,10 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "more",
                                               description: "more 分支声明。",
+                                            },
+                                            {
+                                              name: "open",
+                                              description: "open 分支声明。",
                                             },
                                             {
                                               name: "panel-close",
@@ -21081,12 +21117,28 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "refresh 分支声明。",
                                             },
                                             {
+                                              name: "reject",
+                                              description: "reject 分支声明。",
+                                            },
+                                            {
+                                              name: "remove",
+                                              description: "remove 分支声明。",
+                                            },
+                                            {
                                               name: "reset",
                                               description: "reset 分支声明。",
                                             },
                                             {
                                               name: "restore",
                                               description: "restore 分支声明。",
+                                            },
+                                            {
+                                              name: "retry",
+                                              description: "retry 分支声明。",
+                                            },
+                                            {
+                                              name: "revise",
+                                              description: "revise 分支声明。",
                                             },
                                             {
                                               name: "save",
@@ -21113,6 +21165,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "stop 分支声明。",
                                             },
                                             {
+                                              name: "submit",
+                                              description: "submit 分支声明。",
+                                            },
+                                            {
                                               name: "unlink",
                                               description: "unlink 分支声明。",
                                             },
@@ -21131,6 +21187,14 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "view",
                                               description: "view 分支声明。",
+                                            },
+                                            {
+                                              name: "withdraw",
+                                              description: "withdraw 分支声明。",
+                                            },
+                                            {
+                                              name: "write",
+                                              description: "write 分支声明。",
                                             },
                                             {
                                               name: "x",
@@ -23202,11 +23266,27 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "kind",
-                              description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                              description: "可选值：access / admin / approve / archive / back / cancel / check / close / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / export / eye-off / filter / generate / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / remove / reset / restore / retry / revise / save / search / send / settings / sort / stop / submit / unlink / unlock / upload / verified / view / withdraw / write / x。",
                               children: [
+                                {
+                                  name: "access",
+                                  description: "access 分支声明。",
+                                },
+                                {
+                                  name: "admin",
+                                  description: "admin 分支声明。",
+                                },
+                                {
+                                  name: "approve",
+                                  description: "approve 分支声明。",
+                                },
                                 {
                                   name: "archive",
                                   description: "archive 分支声明。",
+                                },
+                                {
+                                  name: "back",
+                                  description: "back 分支声明。",
                                 },
                                 {
                                   name: "cancel",
@@ -23215,6 +23295,14 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "check",
                                   description: "check 分支声明。",
+                                },
+                                {
+                                  name: "close",
+                                  description: "close 分支声明。",
+                                },
+                                {
+                                  name: "confirm",
+                                  description: "confirm 分支声明。",
                                 },
                                 {
                                   name: "copy",
@@ -23245,6 +23333,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "edit 分支声明。",
                                 },
                                 {
+                                  name: "export",
+                                  description: "export 分支声明。",
+                                },
+                                {
                                   name: "eye-off",
                                   description: "eye-off 分支声明。",
                                 },
@@ -23261,6 +23353,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "history 分支声明。",
                                 },
                                 {
+                                  name: "import",
+                                  description: "import 分支声明。",
+                                },
+                                {
                                   name: "link",
                                   description: "link 分支声明。",
                                 },
@@ -23275,6 +23371,10 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "more",
                                   description: "more 分支声明。",
+                                },
+                                {
+                                  name: "open",
+                                  description: "open 分支声明。",
                                 },
                                 {
                                   name: "panel-close",
@@ -23305,12 +23405,28 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "refresh 分支声明。",
                                 },
                                 {
+                                  name: "reject",
+                                  description: "reject 分支声明。",
+                                },
+                                {
+                                  name: "remove",
+                                  description: "remove 分支声明。",
+                                },
+                                {
                                   name: "reset",
                                   description: "reset 分支声明。",
                                 },
                                 {
                                   name: "restore",
                                   description: "restore 分支声明。",
+                                },
+                                {
+                                  name: "retry",
+                                  description: "retry 分支声明。",
+                                },
+                                {
+                                  name: "revise",
+                                  description: "revise 分支声明。",
                                 },
                                 {
                                   name: "save",
@@ -23337,6 +23453,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "stop 分支声明。",
                                 },
                                 {
+                                  name: "submit",
+                                  description: "submit 分支声明。",
+                                },
+                                {
                                   name: "unlink",
                                   description: "unlink 分支声明。",
                                 },
@@ -23355,6 +23475,14 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "view",
                                   description: "view 分支声明。",
+                                },
+                                {
+                                  name: "withdraw",
+                                  description: "withdraw 分支声明。",
+                                },
+                                {
+                                  name: "write",
+                                  description: "write 分支声明。",
                                 },
                                 {
                                   name: "x",
@@ -61228,11 +61356,27 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "kind",
-                                                      description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                                      description: "可选值：access / admin / approve / archive / back / cancel / check / close / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / export / eye-off / filter / generate / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / remove / reset / restore / retry / revise / save / search / send / settings / sort / stop / submit / unlink / unlock / upload / verified / view / withdraw / write / x。",
                                                       children: [
+                                                        {
+                                                          name: "access",
+                                                          description: "access 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "admin",
+                                                          description: "admin 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "approve",
+                                                          description: "approve 分支声明。",
+                                                        },
                                                         {
                                                           name: "archive",
                                                           description: "archive 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "back",
+                                                          description: "back 分支声明。",
                                                         },
                                                         {
                                                           name: "cancel",
@@ -61241,6 +61385,14 @@ export const generatedCoreUiSurfaceContracts = {
                                                         {
                                                           name: "check",
                                                           description: "check 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "close",
+                                                          description: "close 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "confirm",
+                                                          description: "confirm 分支声明。",
                                                         },
                                                         {
                                                           name: "copy",
@@ -61271,6 +61423,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "edit 分支声明。",
                                                         },
                                                         {
+                                                          name: "export",
+                                                          description: "export 分支声明。",
+                                                        },
+                                                        {
                                                           name: "eye-off",
                                                           description: "eye-off 分支声明。",
                                                         },
@@ -61287,6 +61443,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "history 分支声明。",
                                                         },
                                                         {
+                                                          name: "import",
+                                                          description: "import 分支声明。",
+                                                        },
+                                                        {
                                                           name: "link",
                                                           description: "link 分支声明。",
                                                         },
@@ -61301,6 +61461,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                         {
                                                           name: "more",
                                                           description: "more 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "open",
+                                                          description: "open 分支声明。",
                                                         },
                                                         {
                                                           name: "panel-close",
@@ -61331,12 +61495,28 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "refresh 分支声明。",
                                                         },
                                                         {
+                                                          name: "reject",
+                                                          description: "reject 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "remove",
+                                                          description: "remove 分支声明。",
+                                                        },
+                                                        {
                                                           name: "reset",
                                                           description: "reset 分支声明。",
                                                         },
                                                         {
                                                           name: "restore",
                                                           description: "restore 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "retry",
+                                                          description: "retry 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "revise",
+                                                          description: "revise 分支声明。",
                                                         },
                                                         {
                                                           name: "save",
@@ -61363,6 +61543,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "stop 分支声明。",
                                                         },
                                                         {
+                                                          name: "submit",
+                                                          description: "submit 分支声明。",
+                                                        },
+                                                        {
                                                           name: "unlink",
                                                           description: "unlink 分支声明。",
                                                         },
@@ -61381,6 +61565,14 @@ export const generatedCoreUiSurfaceContracts = {
                                                         {
                                                           name: "view",
                                                           description: "view 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "withdraw",
+                                                          description: "withdraw 分支声明。",
+                                                        },
+                                                        {
+                                                          name: "write",
+                                                          description: "write 分支声明。",
                                                         },
                                                         {
                                                           name: "x",
@@ -63452,11 +63644,27 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "kind",
-                                          description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                          description: "可选值：access / admin / approve / archive / back / cancel / check / close / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / export / eye-off / filter / generate / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / remove / reset / restore / retry / revise / save / search / send / settings / sort / stop / submit / unlink / unlock / upload / verified / view / withdraw / write / x。",
                                           children: [
+                                            {
+                                              name: "access",
+                                              description: "access 分支声明。",
+                                            },
+                                            {
+                                              name: "admin",
+                                              description: "admin 分支声明。",
+                                            },
+                                            {
+                                              name: "approve",
+                                              description: "approve 分支声明。",
+                                            },
                                             {
                                               name: "archive",
                                               description: "archive 分支声明。",
+                                            },
+                                            {
+                                              name: "back",
+                                              description: "back 分支声明。",
                                             },
                                             {
                                               name: "cancel",
@@ -63465,6 +63673,14 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "check",
                                               description: "check 分支声明。",
+                                            },
+                                            {
+                                              name: "close",
+                                              description: "close 分支声明。",
+                                            },
+                                            {
+                                              name: "confirm",
+                                              description: "confirm 分支声明。",
                                             },
                                             {
                                               name: "copy",
@@ -63495,6 +63711,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "edit 分支声明。",
                                             },
                                             {
+                                              name: "export",
+                                              description: "export 分支声明。",
+                                            },
+                                            {
                                               name: "eye-off",
                                               description: "eye-off 分支声明。",
                                             },
@@ -63511,6 +63731,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "history 分支声明。",
                                             },
                                             {
+                                              name: "import",
+                                              description: "import 分支声明。",
+                                            },
+                                            {
                                               name: "link",
                                               description: "link 分支声明。",
                                             },
@@ -63525,6 +63749,10 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "more",
                                               description: "more 分支声明。",
+                                            },
+                                            {
+                                              name: "open",
+                                              description: "open 分支声明。",
                                             },
                                             {
                                               name: "panel-close",
@@ -63555,12 +63783,28 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "refresh 分支声明。",
                                             },
                                             {
+                                              name: "reject",
+                                              description: "reject 分支声明。",
+                                            },
+                                            {
+                                              name: "remove",
+                                              description: "remove 分支声明。",
+                                            },
+                                            {
                                               name: "reset",
                                               description: "reset 分支声明。",
                                             },
                                             {
                                               name: "restore",
                                               description: "restore 分支声明。",
+                                            },
+                                            {
+                                              name: "retry",
+                                              description: "retry 分支声明。",
+                                            },
+                                            {
+                                              name: "revise",
+                                              description: "revise 分支声明。",
                                             },
                                             {
                                               name: "save",
@@ -63587,6 +63831,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "stop 分支声明。",
                                             },
                                             {
+                                              name: "submit",
+                                              description: "submit 分支声明。",
+                                            },
+                                            {
                                               name: "unlink",
                                               description: "unlink 分支声明。",
                                             },
@@ -63605,6 +63853,14 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "view",
                                               description: "view 分支声明。",
+                                            },
+                                            {
+                                              name: "withdraw",
+                                              description: "withdraw 分支声明。",
+                                            },
+                                            {
+                                              name: "write",
+                                              description: "write 分支声明。",
                                             },
                                             {
                                               name: "x",
@@ -65804,11 +66060,27 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "kind",
-                                  description: "可选值：archive / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reset / restore / save / search / send / settings / sort / stop / unlink / unlock / upload / verified / view / x。",
+                                  description: "可选值：access / admin / approve / archive / back / cancel / check / close / confirm / copy / delete / delete-bin / delete-minus / double-check / download / edit / export / eye-off / filter / generate / history / import / link / list / lock / more / open / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / remove / reset / restore / retry / revise / save / search / send / settings / sort / stop / submit / unlink / unlock / upload / verified / view / withdraw / write / x。",
                                   children: [
+                                    {
+                                      name: "access",
+                                      description: "access 分支声明。",
+                                    },
+                                    {
+                                      name: "admin",
+                                      description: "admin 分支声明。",
+                                    },
+                                    {
+                                      name: "approve",
+                                      description: "approve 分支声明。",
+                                    },
                                     {
                                       name: "archive",
                                       description: "archive 分支声明。",
+                                    },
+                                    {
+                                      name: "back",
+                                      description: "back 分支声明。",
                                     },
                                     {
                                       name: "cancel",
@@ -65817,6 +66089,14 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "check",
                                       description: "check 分支声明。",
+                                    },
+                                    {
+                                      name: "close",
+                                      description: "close 分支声明。",
+                                    },
+                                    {
+                                      name: "confirm",
+                                      description: "confirm 分支声明。",
                                     },
                                     {
                                       name: "copy",
@@ -65847,6 +66127,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "edit 分支声明。",
                                     },
                                     {
+                                      name: "export",
+                                      description: "export 分支声明。",
+                                    },
+                                    {
                                       name: "eye-off",
                                       description: "eye-off 分支声明。",
                                     },
@@ -65863,6 +66147,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "history 分支声明。",
                                     },
                                     {
+                                      name: "import",
+                                      description: "import 分支声明。",
+                                    },
+                                    {
                                       name: "link",
                                       description: "link 分支声明。",
                                     },
@@ -65877,6 +66165,10 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "more",
                                       description: "more 分支声明。",
+                                    },
+                                    {
+                                      name: "open",
+                                      description: "open 分支声明。",
                                     },
                                     {
                                       name: "panel-close",
@@ -65907,12 +66199,28 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "refresh 分支声明。",
                                     },
                                     {
+                                      name: "reject",
+                                      description: "reject 分支声明。",
+                                    },
+                                    {
+                                      name: "remove",
+                                      description: "remove 分支声明。",
+                                    },
+                                    {
                                       name: "reset",
                                       description: "reset 分支声明。",
                                     },
                                     {
                                       name: "restore",
                                       description: "restore 分支声明。",
+                                    },
+                                    {
+                                      name: "retry",
+                                      description: "retry 分支声明。",
+                                    },
+                                    {
+                                      name: "revise",
+                                      description: "revise 分支声明。",
                                     },
                                     {
                                       name: "save",
@@ -65939,6 +66247,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "stop 分支声明。",
                                     },
                                     {
+                                      name: "submit",
+                                      description: "submit 分支声明。",
+                                    },
+                                    {
                                       name: "unlink",
                                       description: "unlink 分支声明。",
                                     },
@@ -65957,6 +66269,14 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "view",
                                       description: "view 分支声明。",
+                                    },
+                                    {
+                                      name: "withdraw",
+                                      description: "withdraw 分支声明。",
+                                    },
+                                    {
+                                      name: "write",
+                                      description: "write 分支声明。",
                                     },
                                     {
                                       name: "x",

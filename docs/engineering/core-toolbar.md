@@ -72,7 +72,7 @@ primary -> search -> filter -> edit/action -> meta/view
 
 Toolbar 动作按钮只能来自 Core `ActionGlyph` 封闭集合。
 
-- `icon-button.icon` 和 `action-group.actions[].kind` 必须是 `ActionGlyphKind`。
+- `icon-button.icon` 必须是 `ActionGlyphKind`；`action-group.actions[].kind` 可以是 `ActionGlyphKind` 或不与图标名重名的非创建类 `ACTION_GLYPH_ACTIONS` 语义 key。
 - 常见动作语义使用 `ACTION_GLYPH_ACTIONS` 映射到默认图标、文案、variant 和 section；新增 icon 后若要作为业务动作使用，必须同步补动作语义，而不是只补 SVG。
 - 业务只选 icon 和 callback，不手排顺序。
 - 非 Toolbar 的 icon-only cell/action 也必须复用 `ActionGlyph`；新增图标先进入封闭集合，不在业务/平台文件里手写 `<svg>`。
