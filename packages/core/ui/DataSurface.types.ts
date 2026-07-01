@@ -84,6 +84,7 @@ export interface DataSurfaceCellInputSpec {
   onBlur?: FocusEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   onKeyDown?: KeyboardEventHandler<HTMLInputElement | HTMLTextAreaElement>;
   stopPropagation?: boolean;
+  autocompletePresentation?: "popover" | "inline";
 }
 
 export interface DataSurfaceCellActionSpec extends DataSurfaceCommandSpec {

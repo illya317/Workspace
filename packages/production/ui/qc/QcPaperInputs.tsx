@@ -48,8 +48,16 @@ function inputWidth(part: QcPaperSlotPart): CSSProperties {
   return documentSlotWidth(part);
 }
 
-function selectWidth(part: QcPaperSlotPart): CSSProperties {
-  return { ...documentSlotWidth(part), backgroundImage: "none" };
+function adaptiveInputWidth(part: QcPaperSlotPart): CSSProperties {
+  const configured = cssSlotWidth(part.width);
+  if (configured === "auto") return { width: "auto", minWidth: "3rem", maxWidth: "100%" };
+  return { width: "auto", minWidth: configured, maxWidth: "100%" };
+}
+
+function adaptiveSelectWidth(part: QcPaperSlotPart): CSSProperties {
+  const configured = cssSlotWidth(part.width);
+  if (configured === "auto") return { width: "auto", minWidth: "3rem", maxWidth: "100%", backgroundImage: "none" };
+  return { width: "auto", minWidth: configured, maxWidth: "100%", backgroundImage: "none" };
 }
 
 export function qcRangeLabel(part: QcPaperSlotPart) {
@@ -135,8 +143,8 @@ export function QcPaperLineInput({
       inputMode={part.valueType === "number" || part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-0 overflow-hidden border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-      style={inputWidth(part)}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} field-sizing-content inline-block h-7 min-w-0 border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+      style={adaptiveInputWidth(part)}
     />
   );
 }
@@ -216,7 +224,7 @@ export function QcPaperSelectInput({
     <span
       ref={rootRef}
       className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-baseline ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
-      style={selectWidth(part)}
+      style={adaptiveSelectWidth(part)}
     >
       <button
         type="button"
@@ -226,7 +234,7 @@ export function QcPaperSelectInput({
         data-field-key={part.fieldKey || part.field || part.name}
         disabled={readOnly || part.readonlyDisplay}
         onClick={() => setOpen((current) => !current)}
-        className={`${PAPER_INPUT_TEXT_CLASS} h-7 w-full border-0 bg-transparent px-0.5 ${inputAlignClass(part)} font-normal leading-7 outline-none disabled:cursor-default disabled:opacity-100`}
+        className={`${PAPER_INPUT_TEXT_CLASS} h-7 w-auto border-0 bg-transparent px-0.5 ${inputAlignClass(part)} font-normal leading-7 outline-none disabled:cursor-default disabled:opacity-100`}
       >
         {display || "\u00A0"}
       </button>

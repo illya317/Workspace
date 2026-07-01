@@ -38,14 +38,13 @@ export async function listSpacePermissions(input: {
     getActorDocsEditorAdmin(input.userId),
   ]);
   const userNames = await loadDocsEditorPermissionUsers(explicit.map((item) => item.userId));
-  const lockedManagers = dedupeUsers([
-    ...(actorAdmin ? [actorAdmin] : []),
-    ...naturalManagers,
-  ]);
+  const lockedManagers = buildLockedManagers(actorAdmin, naturalManagers, space.targetType);
   return serviceOk({
     permissions: [
       ...lockedManagers.map((item) => ({
-        ...item,
+        userId: item.userId,
+        userName: item.userName,
+        sourceLabel: item.sourceLabel,
         role: "manager" as const,
         kind: docsEditorPermissionKind() as "template",
         source: "natural" as const,
@@ -103,11 +102,37 @@ export async function updateSpacePermissions(input: {
   return serviceOk({ success: true });
 }
 
-function dedupeUsers<T extends { userId: number }>(items: T[]) {
-  const seen = new Set<number>();
-  return items.filter((item) => {
-    if (seen.has(item.userId)) return false;
-    seen.add(item.userId);
-    return true;
-  });
+function buildLockedManagers(
+  actorAdmin: { userId: number; userName: string } | null,
+  naturalManagers: Array<{ userId: number; userName: string }>,
+  targetType: string,
+) {
+  const map = new Map<number, { userId: number; userName: string; labels: string[] }>();
+  if (actorAdmin) {
+    map.set(actorAdmin.userId, { ...actorAdmin, labels: ["系统管理员"] });
+  }
+  const naturalLabel = naturalManagerLabel(targetType);
+  for (const manager of naturalManagers) {
+    const existing = map.get(manager.userId);
+    if (existing) {
+      if (naturalLabel && !existing.labels.includes(naturalLabel)) {
+        existing.labels.push(naturalLabel);
+      }
+    } else {
+      map.set(manager.userId, { ...manager, labels: naturalLabel ? [naturalLabel] : [] });
+    }
+  }
+  return Array.from(map.values()).map((item) => ({
+    userId: item.userId,
+    userName: item.userName,
+    sourceLabel: item.labels.join(" / ") || "天然最高权限",
+  }));
 }
+
+function naturalManagerLabel(targetType: string): string {
+  if (targetType === "department") return "部门负责人";
+  if (targetType === "personal") return "所有者";
+  return "";
+}
+
+

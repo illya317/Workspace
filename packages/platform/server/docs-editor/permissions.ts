@@ -173,9 +173,11 @@ export async function listNaturalDocsEditorManagers(targetType: string, targetId
   if (targetType === "department") {
     const department = await prisma.department.findUnique({
       where: { id: targetId },
-      select: { manager: { select: userSelect } },
+      select: { managerUserId: true },
     });
-    return department?.manager ? [{ userId: department.manager.id, userName: userName(department.manager) }] : [];
+    if (!department?.managerUserId) return [];
+    const user = await prisma.user.findUnique({ where: { id: department.managerUserId }, select: userSelect });
+    return user ? [{ userId: user.id, userName: userName(user) }] : [];
   }
   return [];
 }

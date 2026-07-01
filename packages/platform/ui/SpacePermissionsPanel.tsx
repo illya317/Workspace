@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
+  ActionGlyph,
   createPageBody,
   createStatusSection,
   PageSurface,
@@ -17,6 +18,64 @@ import {
   type BusinessSpaceRole,
 } from "@workspace/platform/permissions";
 
+const ROLE_ORDER: BusinessSpaceRole[] = ["viewer", "editor", "delete", "manager"];
+
+function roleLevel(role: BusinessSpaceRole): number {
+  return ROLE_ORDER.indexOf(role);
+}
+
+function roleAtLeast(role: BusinessSpaceRole, required: BusinessSpaceRole): boolean {
+  return roleLevel(role) >= roleLevel(required);
+}
+
+interface RoleMatrixCellProps {
+  row: SpacePermissionRow;
+  role: BusinessSpaceRole;
+  onClick: () => void;
+}
+
+function RoleMatrixCell({ row, role, onClick }: RoleMatrixCellProps) {
+  const active = roleAtLeast(row.role, role);
+  const locked = row.locked;
+  if (locked) {
+    return (
+      <button
+        type="button"
+        disabled
+        className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-amber-100 bg-amber-50 text-amber-700 shadow-sm"
+        aria-label={`${businessSpaceRoleLabel(role)}（天然权限）`}
+        title={`${businessSpaceRoleLabel(role)}（天然权限）`}
+      >
+        <ActionGlyph kind="check" className="h-4 w-4" />
+      </button>
+    );
+  }
+  if (active) {
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-700"
+        aria-label={`已授权${businessSpaceRoleLabel(role)}，点击改为${businessSpaceRoleLabel(role)}`}
+        title={`已授权${businessSpaceRoleLabel(role)}，点击重选`}
+      >
+        <ActionGlyph kind="check" className="h-4 w-4" />
+      </button>
+    );
+  }
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
+      aria-label={`授权${businessSpaceRoleLabel(role)}`}
+      title={`授权${businessSpaceRoleLabel(role)}`}
+    >
+      <ActionGlyph kind="add" className="h-4 w-4" />
+    </button>
+  );
+}
+
 export type SpacePermissionToast = {
   type: "success" | "error";
   message: string;
@@ -28,6 +87,7 @@ export interface SpacePermissionRow {
   role: BusinessSpaceRole;
   kind?: string;
   source?: "natural" | "explicit" | string;
+  sourceLabel?: string;
   locked: boolean;
 }
 
@@ -156,6 +216,9 @@ export function useSpacePermissionsSections<TTarget>({
 
   const explicitRows = useMemo(() => rows.filter((row) => !row.locked), [rows]);
   const normalizedRoleOptions = useMemo(() => [...roleOptions], [roleOptions]);
+  const patchRow = useCallback((userId: number, patch: Partial<SpacePermissionRow>) => {
+    setRows((current) => current.map((row) => row.userId === userId ? { ...row, ...patch } : row));
+  }, []);
   const columns = useMemo<DataSurfaceColumnSpec<SpacePermissionRow>[]>(() => [
     {
       key: "user",
@@ -167,29 +230,28 @@ export function useSpacePermissionsSections<TTarget>({
             direction: "column",
             items: [
               { kind: "text", value: row.userName, emphasis: "medium" },
-              { kind: "text", value: "天然最高权限", tone: "muted" },
+              { kind: "text", value: row.sourceLabel || "天然最高权限", tone: "muted" },
             ],
           }
         : { kind: "text", value: row.userName, emphasis: "medium" },
     },
-    {
-      key: "role",
-      label: "权限",
+    ...ROLE_ORDER.map<DataSurfaceColumnSpec<SpacePermissionRow>>((role) => ({
+      key: role,
+      label: businessSpaceRoleLabel(role),
       defaultVisible: true,
-      cell: (row) => row.locked ? { kind: "text", value: businessSpaceRoleLabel(row.role) } : {
-        kind: "input",
-        spec: {
-          valueType: "string",
-          control: "choice",
-          options: { source: "static", items: normalizedRoleOptions, visibleCount: 4 },
-        },
-        value: row.role,
-        onChange: (value) => patchRow(row.userId, {
-          role: normalizeBusinessSpaceRole(value == null ? null : String(value)),
-        }),
-      },
-    },
-  ], [normalizedRoleOptions]);
+      align: "center",
+      width: "content",
+      cell: (row) => (
+        <div className="flex justify-center">
+          <RoleMatrixCell
+            row={row}
+            role={role}
+            onClick={() => patchRow(row.userId, { role })}
+          />
+        </div>
+      ),
+    })),
+  ], [patchRow]);
 
   function getPermissionRowActions(row: SpacePermissionRow): SurfaceDataRowActionSpec[] {
     if (row.locked) return [];
@@ -202,14 +264,16 @@ export function useSpacePermissionsSections<TTarget>({
     }];
   }
 
-  function patchRow(userId: number, patch: Partial<SpacePermissionRow>) {
-    setRows((current) => current.map((row) => row.userId === userId ? { ...row, ...patch } : row));
-  }
-
   function addDraft() {
     if (!draft.userId) return;
-    if (rows.some((row) => row.userId === draft.userId)) {
-      onToast({ type: "error", message: duplicateText });
+    const existing = rows.find((row) => row.userId === draft.userId);
+    if (existing) {
+      if (existing.locked) {
+        onToast({ type: "error", message: duplicateText });
+        return;
+      }
+      patchRow(draft.userId, { role: draft.role });
+      setDraft({ userId: null, userName: "", role: defaultRole });
       return;
     }
     setRows((current) => [...current, {
@@ -314,13 +378,12 @@ export function useSpacePermissionsSections<TTarget>({
           kind: "table",
           rows,
           columns,
-          visibleColumns: ["role"],
           rowKey: (row) => row.userId,
           presentation: { density: "compact" },
           loading,
           emptyText: "暂无额外授权",
           rowActions: getPermissionRowActions,
-          scroll: { y: "hidden" },
+          scroll: {},
         },
       },
     },

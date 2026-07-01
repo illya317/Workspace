@@ -19,7 +19,7 @@ export default async function QcBatchTestPage({ params }: Props) {
 
   return renderAppShellPage({
     title: "批次检测记录",
-    backHref: `/production/qc/${batch.id}/${runtimeStage.key}`,
+    backHref: "/production/qc",
     user,
     children: <QcBatchTestRecord batch={batch} productName={runtimeTemplate.productName} runtimeTemplate={runtimeTemplate} runtimeStage={runtimeStage} runtimeTest={runtimeTest} currentUserName={user.employeeName || user.nickname} />,
   });

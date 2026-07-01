@@ -123,8 +123,8 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
 function renderCell(value: ReactNode | DataSurfaceCellSpec): ReactNode {
   if (!isCellSpec(value)) return value;
   if (value.kind === "input") {
-    const { kind: _kind, stopPropagation, ...props } = value;
-    const control = <InputSurface {...props} />;
+    const { kind: _kind, stopPropagation, autocompletePresentation, ...props } = value;
+    const control = <InputSurface {...props} autocompletePresentation={autocompletePresentation} />;
     if (stopPropagation === false) return control;
     return <div className="block" onClick={(event) => event.stopPropagation()}>{control}</div>;
   }

@@ -43,6 +43,7 @@ export interface DocsEditorSpacePermissionDto {
   role: DocsEditorPermissionRole;
   kind: "template";
   source: "natural" | "explicit";
+  sourceLabel?: string;
   locked: boolean;
 }
 

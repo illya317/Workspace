@@ -269,13 +269,18 @@ export async function listWorkSpacePermissions(input: { userId: number; targetTy
     listNaturalManagers(input.targetType, input.targetId),
     getActorWorkTaskAdmin(input.userId),
   ]);
-  const lockedManagers = dedupeUsers([
-    ...(actorAdmin ? [actorAdmin] : []),
-    ...naturalManagers,
-  ]);
+  const lockedManagers = buildLockedManagers(actorAdmin, naturalManagers, input.targetType);
   return serviceOk({
       permissions: [
-        ...lockedManagers.map((item) => ({ ...item, role: "manager" as const, kind: "task", source: "natural" as const, locked: true })),
+        ...lockedManagers.map((item) => ({
+          userId: item.userId,
+          userName: item.userName,
+          sourceLabel: item.sourceLabel,
+          role: "manager" as const,
+          kind: "task" as const,
+          source: "natural" as const,
+          locked: true,
+        })),
         ...explicit.map((item) => ({
           userId: item.userId,
           userName: userName(item.user),
@@ -337,8 +342,10 @@ async function listNaturalManagers(targetType: WorkSpaceTargetType, targetId: nu
     return user ? [{ userId: user.id, userName: userName(user) }] : [];
   }
   if (targetType === "department") {
-    const department = await prisma.department.findUnique({ where: { id: targetId }, select: { manager: { select: userSelect } } });
-    return department?.manager ? [{ userId: department.manager.id, userName: userName(department.manager) }] : [];
+    const department = await prisma.department.findUnique({ where: { id: targetId }, select: { managerUserId: true } });
+    if (!department?.managerUserId) return [];
+    const user = await prisma.user.findUnique({ where: { id: department.managerUserId }, select: userSelect });
+    return user ? [{ userId: user.id, userName: userName(user) }] : [];
   }
   if (targetType === "project") {
     const project = await prisma.project.findUnique({
@@ -369,6 +376,40 @@ const userSelect = {
 
 function userName(user: { nickname: string; username: string | null; employees?: Array<{ name: string }> }) {
   return user.employees?.[0]?.name || user.nickname || user.username || "未命名用户";
+}
+
+function buildLockedManagers(
+  actorAdmin: { userId: number; userName: string } | null,
+  naturalManagers: Array<{ userId: number; userName: string }>,
+  targetType: WorkSpaceTargetType,
+) {
+  const map = new Map<number, { userId: number; userName: string; labels: string[] }>();
+  if (actorAdmin) {
+    map.set(actorAdmin.userId, { ...actorAdmin, labels: ["系统管理员"] });
+  }
+  const naturalLabel = naturalManagerLabel(targetType);
+  for (const manager of naturalManagers) {
+    const existing = map.get(manager.userId);
+    if (existing) {
+      if (naturalLabel && !existing.labels.includes(naturalLabel)) {
+        existing.labels.push(naturalLabel);
+      }
+    } else {
+      map.set(manager.userId, { ...manager, labels: naturalLabel ? [naturalLabel] : [] });
+    }
+  }
+  return Array.from(map.values()).map((item) => ({
+    userId: item.userId,
+    userName: item.userName,
+    sourceLabel: item.labels.join(" / ") || "天然最高权限",
+  }));
+}
+
+function naturalManagerLabel(targetType: WorkSpaceTargetType): string {
+  if (targetType === "department") return "部门负责人";
+  if (targetType === "project") return "项目负责人";
+  if (targetType === "personal") return "所有者";
+  return "";
 }
 
 function dedupeUsers<T extends { userId: number }>(items: T[]) {

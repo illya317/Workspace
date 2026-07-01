@@ -18,6 +18,7 @@ import {
   conclusionParts,
   environmentRows,
   equipmentRows,
+  mergeSignatureFooterRows,
   verificationRows,
   textParts,
 } from "./editor-adapter-layout";
@@ -163,7 +164,10 @@ function convertLayoutBlock(block: QcLayoutBlock, context: ConversionContext): E
   const metadata = blockMetadata(block, context);
   const precheckBlocks = expandPrecheckLayoutBlock(block);
   if (precheckBlocks) return precheckBlocks.flatMap((item, index) => convertLayoutBlock(item, { ...context, blockIndex: context.blockIndex + index }));
-  if (block.type === "table" && block.rows?.length) return [tableBlockFromRows(block, block.rows, metadata, context)];
+  if (block.type === "table" && block.rows?.length) {
+    const rows = block.label === "test_signature_footer" ? mergeSignatureFooterRows(block.rows) : block.rows;
+    return [tableBlockFromRows(block, rows, metadata, context)];
+  }
   if (block.type === "environment_table") return [tableBlockFromRows(block, environmentRows(block), metadata, context)];
   if (block.type === "equipment_table") return [tableBlockFromRows(block, equipmentRows(block), metadata, context)];
   if (block.type === "materials_table") return [tableBlockFromRows(block, verificationRows(block, block.materials || [], "试验材料", block.fieldPrefix || "layout/common/materials"), metadata, context)];
@@ -528,21 +532,14 @@ function isSignatureField(fieldKey: string) {
   return /\/signature\/(inspector|reviewer|signature)$/.test(fieldKey);
 }
 
-function signatureRole(fieldKey: string): "inspector" | "reviewer" | "signature" {
-  if (fieldKey.endsWith("/inspector")) return "inspector";
-  if (fieldKey.endsWith("/reviewer")) return "reviewer";
-  return "signature";
-}
+function signatureRole(fieldKey: string): "inspector" | "reviewer" | "signature" { if (fieldKey.endsWith("/inspector")) return "inspector"; if (fieldKey.endsWith("/reviewer")) return "reviewer"; return "signature"; }
 
 function testValue(part: QcLayoutPart, test?: QcTemplateTestItem) {
   const valuePath = part.path || part.field || "";
   return ({ standard: test?.standardText, name: test?.name, method: test?.methodName }[valuePath] || part.defaultValue || part.text || "");
 }
 
-function scopePrefix(fieldKey: string) {
-  const parts = fieldKey.split("/");
-  return parts.length >= 2 ? `${parts[0]}/${parts[1]}/` : "";
-}
+function scopePrefix(fieldKey: string) { const parts = fieldKey.split("/"); return parts.length >= 2 ? `${parts[0]}/${parts[1]}/` : ""; }
 
 function unique(values: string[]) { return [...new Set(values.filter(Boolean))]; }
 

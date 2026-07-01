@@ -13,7 +13,7 @@ import type {
 } from "./types";
 import { workDraftPayload, workPlanDraftPayload } from "./model";
 
-export const WORK_REFERENCE_OPTIONS_ENDPOINT = "/api/modules/work/projects/reference-options";
+export const WORK_REFERENCE_OPTIONS_ENDPOINT = "/api/modules/work/tasks/reference-options";
 
 async function readJson<T>(response: Response, fallbackError: string): Promise<T> {
   const data = await response.json().catch(() => ({}));

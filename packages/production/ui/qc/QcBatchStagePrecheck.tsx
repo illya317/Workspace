@@ -3,8 +3,8 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { createMessageSection, createPageBody, PageSurface, useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
-import type { EditorBlock } from "@workspace/platform/document-editor";
+import { createDocumentSection, createMessageSection, createPageBody, PageSurface, useFeedback, type SurfaceToolbarItems, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import type { EditorBlock, EditorSlotInline } from "@workspace/platform/document-editor";
 import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcEditorRuntimePaper from "./QcEditorRuntimePaper";
@@ -16,7 +16,7 @@ interface Props {
   runtimeTemplate: QcEditorRuntimeTemplate;
   runtimeStage: QcEditorRuntimeStage;
 }
-function writableRuntimeValues(values: EditorRuntimeValues, blocks: EditorBlock[]) {
+function writableRuntimeKeys(blocks: EditorBlock[]) {
   const keys = new Set<string>();
   for (const block of blocks) {
     if (block.type === "paragraph") block.parts.forEach((part) => { if (part.type !== "text" && !part.referenceFieldKey && !part.fieldKey.includes("/signature/") && part.slotKind !== "formula" && part.slotKind !== "reference" && !part.readonlyDisplay) keys.add(part.fieldKey); });
@@ -26,7 +26,58 @@ function writableRuntimeValues(values: EditorRuntimeValues, blocks: EditorBlock[
       })));
     }
   }
+  return keys;
+}
+
+function writableRuntimeValues(values: EditorRuntimeValues, blocks: EditorBlock[]) {
+  const keys = writableRuntimeKeys(blocks);
   return Object.fromEntries(Object.entries(values).filter(([key]) => keys.has(key)));
+}
+
+const PRECHECK_FIELD_LABELS: Record<string, string> = {
+  "pre_check/quantity_2": "检品数量",
+  "layout/stage_header/request_date": "请验日期",
+  "layout/stage_header/inspection_date": "检验日期",
+  "layout/stage_header/report_date": "报告日期",
+  "pre_check/confirm_1": "仪器、设备是否在校验有效期内",
+  "pre_check/confirm_2": "检验用具、物品是否齐全",
+  "pre_check/env": "实验环境",
+};
+
+function slotDisplayLabel(part: EditorSlotInline): string {
+  if (part.label?.trim()) return part.label.trim();
+  if (part.alias?.trim() && part.alias.trim() !== "i") return part.alias.trim();
+  if (part.placeholder?.trim()) return part.placeholder.trim();
+  if (PRECHECK_FIELD_LABELS[part.fieldKey]) return PRECHECK_FIELD_LABELS[part.fieldKey];
+  const last = part.fieldKey.split("/").pop() || part.fieldKey;
+  return last.replace(/_/g, " ");
+}
+
+function precheckCompletionStatus(values: EditorRuntimeValues, blocks: EditorBlock[]) {
+  const missing: string[] = [];
+  for (const block of blocks) {
+    if (block.type === "paragraph") {
+      block.parts.forEach((part) => {
+        if (part.type === "text") return;
+        if (part.referenceFieldKey || part.fieldKey.includes("/signature/") || part.slotKind === "formula" || part.slotKind === "reference" || part.readonlyDisplay) return;
+        const value = values[part.fieldKey];
+        if (value == null || String(value).trim() === "") {
+          missing.push(slotDisplayLabel(part));
+        }
+      });
+    }
+    if (block.type === "table") {
+      block.rows.forEach((row) => row.cells.forEach((cell) => cell.parts.forEach((part) => {
+        if (part.type === "text") return;
+        if (part.referenceFieldKey || part.fieldKey.includes("/signature/") || part.slotKind === "formula" || part.slotKind === "reference" || part.readonlyDisplay) return;
+        const value = values[part.fieldKey];
+        if (value == null || String(value).trim() === "") {
+          missing.push(slotDisplayLabel(part));
+        }
+      })));
+    }
+  }
+  return { complete: missing.length === 0, missing };
 }
 
 export default function QcBatchStagePrecheck({
@@ -50,7 +101,15 @@ export default function QcBatchStagePrecheck({
   const stageStatus = workflow.stages[runtimeStage.index];
   const locked = !stageStatus?.unlocked;
   const precheckComplete = !!stageStatus?.precheckComplete;
+  const precheckStatus = precheckCompletionStatus(form.values, runtimeStage.precheckBlocks);
+  const canSave = precheckStatus.complete;
+  const missingLabels = precheckStatus.missing;
   function save() {
+    const status = precheckCompletionStatus(form.values, runtimeStage.precheckBlocks);
+    if (!status.complete) {
+      feedback.error(`还有 ${status.missing.length} 项检验前确认项未填写。`);
+      return;
+    }
     startTransition(async () => {
       const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
         method: "PATCH",
@@ -99,20 +158,21 @@ export default function QcBatchStagePrecheck({
       key: "precheck-actions",
       section: "edit",
       actions: [
-        { key: "save", label: isPending ? "保存中" : "保存", kind: "save", variant: "primary", disabled: locked || isPending, onClick: save },
+        { key: "save", label: isPending ? "保存中" : "保存", kind: "save", variant: "primary", disabled: locked || isPending || !canSave, onClick: save },
       ],
     },
   ];
-  return <PageSurface kind="standard"
-    toolbar={{ items: toolbarItems }}
-    body={createPageBody([
-      locked ? createMessageSection("precheck-locked", {
+  const bodySections: BodySurfaceSectionSpec[] = locked
+    ? [createMessageSection("precheck-locked", {
         tone: "warning",
-
         content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"
-      }) : {
-        key: "precheck-paper",
-        body: { kind: "document", document: {
+      })]
+    : [
+        ...(!canSave ? [createMessageSection("precheck-incomplete", {
+          tone: "warning",
+          content: `还有 ${missingLabels.length} 项未填写，请补充后再保存。`
+        })] : []),
+        createDocumentSection("precheck-paper", {
           kind: "pages",
           pages: {
             items: [{
@@ -121,8 +181,10 @@ export default function QcBatchStagePrecheck({
               content: <QcEditorRuntimePaper blocks={runtimeStage.precheckBlocks} fieldModel={runtimeTemplate.fieldModel} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={locked} />,
             }],
           },
-        } },
-      },
-    ])}
+        }),
+      ];
+  return <PageSurface kind="standard"
+    toolbar={{ items: toolbarItems }}
+    body={createPageBody(bodySections)}
   />;
 }

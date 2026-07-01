@@ -274,7 +274,7 @@
     "data-cell-callback: packages/library/ui/components/LibraryTable.tsx: jsx-return#3",
     "data-cell-callback: packages/library/ui/components/LibraryTable.tsx: jsx-return#4",
     "data-cell-callback: packages/platform/ui/SpacePermissionsPanel.tsx: structured-return#1",
-    "data-cell-callback: packages/platform/ui/SpacePermissionsPanel.tsx: structured-return#2",
+    "data-cell-callback: packages/platform/ui/SpacePermissionsPanel.tsx: jsx-return#1",
     "data-cell-callback: packages/platform/ui/admin/components/permissions/MatrixTable.tsx: jsx-return#1",
     "data-cell-callback: packages/platform/ui/admin/components/permissions/MatrixTable.tsx: jsx-return#2",
     "data-cell-callback: packages/platform/ui/admin/components/permissions/MatrixTable.tsx: jsx-return#3",

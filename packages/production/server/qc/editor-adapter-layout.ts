@@ -137,3 +137,34 @@ function conclusionValueScore(name: string, targetName: string, attr?: string, f
 function cell(rawText: string, parts: QcLayoutPart[] = [], colspan = 1, extra: Partial<QcLayoutCell> = {}): QcLayoutCell {
   return { rawText, parts, colspan, rowspan: 1, isEmpty: false, align: "center", ...extra };
 }
+
+export function mergeSignatureFooterRows(rows: QcLayoutCell[][]): QcLayoutCell[][] {
+  return rows.map((row) => {
+    if (row.length !== 8) return row;
+    const [label1, slot1, label2, slot2, label3, slot3, label4, slot4] = row;
+    return [
+      mergeLabelSlotCell(label1, slot1),
+      mergeLabelSlotCell(label2, slot2),
+      mergeLabelSlotCell(label3, slot3),
+      mergeLabelSlotCell(label4, slot4),
+    ];
+  });
+}
+
+function mergeLabelSlotCell(label: QcLayoutCell, slot: QcLayoutCell): QcLayoutCell {
+  const labelParts = label.parts?.length
+    ? label.parts.map((part) => ({ ...part }))
+    : [{ type: "text" as const, text: label.rawText || "" }];
+  const lastPart = labelParts[labelParts.length - 1];
+  if (lastPart?.type === "text" && !lastPart.text?.endsWith("：") && !lastPart.text?.endsWith(":")) {
+    lastPart.text = `${lastPart.text || ""}：`;
+  }
+  return {
+    rawText: `${label.rawText || ""}：${slot.rawText || ""}`,
+    parts: [...labelParts, ...(slot.parts || [])],
+    colspan: (label.colspan || 1) + (slot.colspan || 1),
+    rowspan: 1,
+    isEmpty: false,
+    align: label.align || slot.align || "center",
+  };
+}
