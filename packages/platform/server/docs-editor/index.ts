@@ -25,6 +25,15 @@ export {
   normalizeDocumentTemplatePayload,
 } from "./domain/document-template-validation";
 export {
+  deleteTemplateContentFiles,
+  isStructuredTemplateContentRef,
+  planTemplateContentRefs,
+  readTemplateContentJson,
+  templateContentFilesStatus,
+  writeTemplateContentJson,
+  type DocsEditorTemplateStorageMode,
+} from "./content-store";
+export {
   copyDocumentTemplate,
   createDocumentTemplate,
   deleteDocumentTemplateDraft,

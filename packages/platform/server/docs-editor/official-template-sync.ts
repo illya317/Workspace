@@ -7,6 +7,7 @@ import {
 } from "./db";
 import {
   readTemplateContent,
+  readTemplateContentHashes,
   writeTemplateContentJson,
 } from "./content-store";
 import {
@@ -28,10 +29,6 @@ import {
 
 function sameTime(left: Date | null, right: Date | null) {
   return (left?.getTime() ?? null) === (right?.getTime() ?? null);
-}
-
-function contentHash(content: string) {
-  return createHash("sha256").update(content).digest("hex");
 }
 
 async function ensureSpace(seed: {
@@ -102,7 +99,10 @@ async function ensureHrPositionDescriptionOfficialTemplate(db: DocsEditorDb) {
     documentJson: JSON.stringify(normalized.data.document),
     fieldModelJson: JSON.stringify(normalized.data.fieldModel),
   };
+  const sourceDocumentHash = contentHash(content.documentJson);
+  const sourceFieldModelHash = contentHash(content.fieldModelJson);
   const sourcePublishedAt = source.publishedAt ? new Date(source.publishedAt) : null;
+
   if (existing) {
     if (existing.publishedByUserId !== null) {
       if (existing.spaceId !== space.id) {
@@ -110,39 +110,60 @@ async function ensureHrPositionDescriptionOfficialTemplate(db: DocsEditorDb) {
       }
       return space;
     }
-    const current = existing.title === data.title
+    const metadataCurrent = existing.title === data.title
       && existing.type === data.type
       && existing.status === data.status
       && existing.spaceId === space.id
       && existing.sourceKind === data.sourceKind
       && existing.sourceProductKey === data.sourceProductKey
       && existing.sourceStageKeys === data.sourceStageKeys
-      && sameTime(existing.publishedAt, sourcePublishedAt)
-      && existing.documentContentHash === contentHash(content.documentJson)
-      && existing.fieldModelContentHash === contentHash(content.fieldModelJson);
-    if (current) return space;
-    const contentMetadata = await writeTemplateContentJson({ templateId: existing.id, ...content });
+      && sameTime(existing.publishedAt, sourcePublishedAt);
+
+    let contentCurrent = false;
+    if (metadataCurrent) {
+      const runtimeHashes = await readTemplateContentHashes(existing);
+      contentCurrent = runtimeHashes !== null
+        && runtimeHashes.documentHash === sourceDocumentHash
+        && runtimeHashes.fieldModelHash === sourceFieldModelHash;
+    }
+
+    if (metadataCurrent && contentCurrent) return space;
+
+    const contentMetadata = await writeTemplateContentJson({
+      template: {
+        ...existing,
+        title: data.title,
+        type: data.type,
+        status: data.status,
+        ownerUserId: data.ownerUserId,
+        sourceKind: data.sourceKind,
+        sourceProductKey: data.sourceProductKey,
+      },
+      space,
+      ...content,
+      mode: "version",
+    });
     await db.documentTemplate.update({
       where: { id: existing.id },
       data: {
         ...data,
         ...contentMetadata,
-        documentJson: "{}",
-        fieldModelJson: "{}",
         version: { increment: 1 },
       },
     });
     return space;
   }
-  const created = await db.documentTemplate.create({ data: { ...data, ...content } });
-  const contentMetadata = await writeTemplateContentJson({ templateId: created.id, ...content });
+
+  const created = await db.documentTemplate.create({ data });
+  const contentMetadata = await writeTemplateContentJson({
+    template: created,
+    space,
+    ...content,
+    mode: "version",
+  });
   await db.documentTemplate.update({
     where: { id: created.id },
-    data: {
-      ...contentMetadata,
-      documentJson: "{}",
-      fieldModelJson: "{}",
-    },
+    data: contentMetadata,
   });
   return space;
 }
@@ -176,4 +197,8 @@ export async function getPublishedHrPositionDescriptionOfficialTemplate() {
     document: content.document,
     fieldModel: content.fieldModel,
   };
+}
+
+function contentHash(content: string) {
+  return createHash("sha256").update(content).digest("hex");
 }

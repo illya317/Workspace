@@ -230,9 +230,64 @@ function validateDatabase(dbPath) {
       )
       .get().count;
     ok(`Database users: ${users}; WeCom-linked users: ${wxUsers}`);
+    validateDocsEditorContentRefs(db, path.dirname(dbPath));
     db.close();
   } catch (error) {
     fail(`Cannot read SQLite database: ${error.message}`);
+  }
+}
+
+function validateDocsEditorContentRefs(db, dataDir) {
+  const hasDocumentTemplate =
+    db.prepare("select count(*) as count from sqlite_master where type = 'table' and name = 'DocumentTemplate'")
+      .get().count > 0;
+  if (!hasDocumentTemplate) return;
+
+  const rows = db.prepare(`
+    select id, title, documentContentRef, fieldModelContentRef
+    from DocumentTemplate
+    where deletedAt is null
+      and (documentContentRef is not null or fieldModelContentRef is not null)
+    order by id asc
+  `).all();
+  let legacyCurrentRefs = 0;
+  for (const row of rows) {
+    const refs = [
+      ["document", row.documentContentRef],
+      ["fieldModel", row.fieldModelContentRef],
+    ];
+    for (const [label, ref] of refs) {
+      if (!ref) {
+        fail(`Docs editor template #${row.id} ${row.title} missing ${label} content ref`);
+        continue;
+      }
+      if (path.isAbsolute(ref) || ref.includes("..") || !ref.startsWith("data/docs-editor/templates/")) {
+        fail(`Docs editor template #${row.id} ${row.title} has invalid ${label} content ref: ${ref}`);
+        continue;
+      }
+      if (/^data\/docs-editor\/templates\/\d+\//.test(ref)) legacyCurrentRefs += 1;
+      const filePath = path.join(path.dirname(dataDir), ref);
+      if (!fs.existsSync(filePath)) {
+        fail(`Docs editor template #${row.id} ${row.title} ${label} content file missing: ${filePath}`);
+        continue;
+      }
+      if (fs.statSync(filePath).size === 0) {
+        fail(`Docs editor template #${row.id} ${row.title} ${label} content file is empty: ${filePath}`);
+      }
+    }
+  }
+  if (rows.length > 0 && legacyCurrentRefs === 0) {
+    ok(`Docs editor content refs verified: ${rows.length} template(s)`);
+  } else if (rows.length > 0) {
+    warn(`Docs editor has ${legacyCurrentRefs} current legacy flat content ref(s); run docs-editor:content:rehome`);
+  }
+
+  const legacyRoot = path.join(dataDir, "docs-editor", "templates");
+  const legacyDirs = fs.existsSync(legacyRoot)
+    ? fs.readdirSync(legacyRoot).filter((entry) => /^\d+$/.test(entry))
+    : [];
+  if (legacyDirs.length > 0) {
+    warn(`Docs editor legacy flat template directories still present: ${legacyDirs.length}`);
   }
 }
 

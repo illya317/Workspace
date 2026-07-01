@@ -314,7 +314,7 @@ async function getTemplateWithRole(userId: number, templateId: number, db: DocsE
   if (!template) return null;
   const space = await db.documentTemplateSpace.findUnique({ where: { id: template.spaceId } });
   const role = await resolveTemplateRole({ userId, template, space });
-  return { template, role };
+  return { template, role, space };
 }
 
 export async function getTemplate(input: TemplateIdInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
@@ -357,6 +357,8 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
     const current = await getTemplateWithRole(command.data.userId, templateId);
     if (!current) return serviceError("模板不存在", 404);
     if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
+    if (!current.space) return serviceError("模板空间不存在", 404);
+    const currentSpace = current.space;
     if (current.template.status === "archived") {
       return serviceError("已归档模板不能直接保存", 409);
     }
@@ -364,9 +366,11 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
       const txDb = docsEditorDb(tx);
       await ensureEditHistoryBaseline("DocumentTemplate", templateId, command.data.userId, tx);
       const contentUpdate = await writeTemplateContentUpdate({
-        templateId,
+        template: current.template,
+        space: currentSpace,
         data: command.data.data,
         existing: current.template,
+        mode: current.template.status === "published" ? "version" : "draft",
       });
       const saved = await txDb.documentTemplate.update({
         where: { id: templateId },
@@ -397,17 +401,17 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
         status: "draft",
         ownerUserId: command.data.userId,
         spaceId: targetSpace.id,
-        documentJson: command.data.data.documentJson || "{}",
-        fieldModelJson: command.data.data.fieldModelJson || "{}",
         sourceKind: command.data.data.sourceKind ?? null,
         sourceProductKey: command.data.data.sourceProductKey ?? null,
         sourceStageKeys: command.data.data.sourceStageKeys ?? null,
       },
     });
     const createdContentUpdate = await writeTemplateContentUpdate({
-      templateId: created.id,
+      template: created,
+      space: targetSpace,
       data: command.data.data,
       existing: created,
+      mode: "draft",
     });
     const result = Object.keys(createdContentUpdate).length
       ? await txDb.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate })
@@ -445,17 +449,17 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
         status: "draft",
         ownerUserId: command.data.userId,
         spaceId: targetSpace.id,
-        documentJson: sourceContent.documentJson,
-        fieldModelJson: sourceContent.fieldModelJson,
         sourceKind: null,
         sourceProductKey: null,
         sourceStageKeys: source.template.sourceStageKeys,
       },
     });
     const createdContentUpdate = await writeTemplateContentUpdate({
-      templateId: created.id,
+      template: created,
+      space: targetSpace,
       data: sourceContent,
       existing: created,
+      mode: "draft",
     });
     const result = await txDb.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate });
     await snapshotHistory("DocumentTemplate", result.id, command.data.userId, tx);
