@@ -11,9 +11,8 @@ export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailin
 
 export type ToolbarLayoutMode = "auto" | "compact" | "split";
 
-export interface ToolbarItemBase {}
 
-export interface ToolbarIconButtonItem extends ToolbarItemBase {
+export interface ToolbarIconButtonItem {
   kind: "icon-button";
   key: string;
   icon: ActionGlyphKind;
@@ -24,7 +23,7 @@ export interface ToolbarIconButtonItem extends ToolbarItemBase {
   onClick?: () => void;
 }
 
-export interface ToolbarPanelToggleItem extends ToolbarItemBase {
+export interface ToolbarPanelToggleItem {
   kind: "panel-toggle";
   key: string;
   icon: Extract<ActionGlyphKind, "panel-open" | "panel-close">;
@@ -35,7 +34,7 @@ export interface ToolbarPanelToggleItem extends ToolbarItemBase {
   onClick?: () => void;
 }
 
-export interface ToolbarSearchItem extends ToolbarItemBase {
+export interface ToolbarSearchItem {
   kind: "search";
   key: string;
   value: string;
@@ -45,7 +44,7 @@ export interface ToolbarSearchItem extends ToolbarItemBase {
   scope?: "full" | readonly string[];
 }
 
-export interface ToolbarSelectItem extends ToolbarItemBase {
+export interface ToolbarSelectItem {
   kind: "select";
   key: string;
   value: string;
@@ -57,7 +56,7 @@ export interface ToolbarSelectItem extends ToolbarItemBase {
   visibleCount?: number;
 }
 
-export interface ToolbarAutocompleteItem extends ToolbarItemBase {
+export interface ToolbarAutocompleteItem {
   kind: "autocomplete";
   key: string;
   value: string;
@@ -68,7 +67,7 @@ export interface ToolbarAutocompleteItem extends ToolbarItemBase {
   visibleCount?: number;
 }
 
-export interface ToolbarOptionGroupItem extends ToolbarItemBase {
+export interface ToolbarOptionGroupItem {
   kind: "option-group";
   key: string;
   value: string;
@@ -79,7 +78,7 @@ export interface ToolbarOptionGroupItem extends ToolbarItemBase {
   presentation?: "segmented" | "accordion";
 }
 
-export interface ToolbarFieldFilterItem extends ToolbarItemBase {
+export interface ToolbarFieldFilterItem {
   kind: "field-filter";
   key: string;
   fieldKey: string;
@@ -93,7 +92,7 @@ export interface ToolbarFieldFilterItem extends ToolbarItemBase {
   referenceEndpoint?: string;
 }
 
-export interface ToolbarColumnToggleItem extends ToolbarItemBase {
+export interface ToolbarColumnToggleItem {
   kind: "column-toggle";
   key: string;
   columns: ColumnDef[];
@@ -101,7 +100,7 @@ export interface ToolbarColumnToggleItem extends ToolbarItemBase {
   onChange: (visible: string[]) => void;
 }
 
-export interface ToolbarPageSizeItem extends ToolbarItemBase {
+export interface ToolbarPageSizeItem {
   kind: "page-size";
   key: string;
   value: string;
@@ -110,7 +109,7 @@ export interface ToolbarPageSizeItem extends ToolbarItemBase {
   label?: string;
 }
 
-export interface ToolbarPeriodDateItem extends ToolbarItemBase {
+export interface ToolbarPeriodDateItem {
   kind: "period";
   key: string;
   mode: "date";
@@ -120,7 +119,7 @@ export interface ToolbarPeriodDateItem extends ToolbarItemBase {
   disabled?: boolean;
 }
 
-export interface ToolbarPeriodMonthItem extends ToolbarItemBase {
+export interface ToolbarPeriodMonthItem {
   kind: "period";
   key: string;
   mode: "month";
@@ -130,7 +129,7 @@ export interface ToolbarPeriodMonthItem extends ToolbarItemBase {
   disabled?: boolean;
 }
 
-export interface ToolbarPeriodNavItem extends ToolbarItemBase {
+export interface ToolbarPeriodNavItem {
   kind: "period";
   key: string;
   mode: "nav";
@@ -144,7 +143,7 @@ export interface ToolbarPeriodNavItem extends ToolbarItemBase {
 
 export type ToolbarPeriodItem = ToolbarPeriodDateItem | ToolbarPeriodMonthItem | ToolbarPeriodNavItem;
 
-export interface ToolbarTextItem extends ToolbarItemBase {
+export interface ToolbarTextItem {
   kind: "text";
   key: string;
   content: ReactNode;
@@ -167,7 +166,7 @@ export interface ToolbarMenuActionItem {
   separatorBefore?: boolean;
 }
 
-export interface ToolbarMenuItem extends ToolbarItemBase {
+export interface ToolbarMenuItem {
   kind: "menu";
   key: string;
   trigger: ToolbarMenuTriggerSpec;
@@ -186,13 +185,13 @@ export interface ToolbarActionGroupAction {
   type?: "button" | "submit";
 }
 
-export interface ToolbarActionGroupItem extends ToolbarItemBase {
+export interface ToolbarActionGroupItem {
   kind: "action-group";
   key: string;
   actions: ToolbarActionGroupAction[];
 }
 
-export interface ToolbarEditGroupItem extends ToolbarItemBase {
+export interface ToolbarEditGroupItem {
   kind: "edit-group";
   key: string;
   editMode: boolean;
@@ -208,7 +207,7 @@ export interface ToolbarEditGroupItem extends ToolbarItemBase {
   onShowHistory?: () => void;
 }
 
-export interface ToolbarCreateItem extends ToolbarItemBase {
+export interface ToolbarCreateItem {
   kind: "create";
   key: string;
   label?: string;

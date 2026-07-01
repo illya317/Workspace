@@ -74,9 +74,8 @@ export interface SurfaceNavigationTabSpec {
   children?: SurfaceNavigationTabSpec[];
 }
 
-export interface SurfaceToolbarItemBase {}
 
-export interface SurfaceToolbarIconButtonItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarIconButtonItem {
   kind: "icon-button";
   key: string;
   icon: ActionGlyphKind;
@@ -87,7 +86,7 @@ export interface SurfaceToolbarIconButtonItem extends SurfaceToolbarItemBase {
   onClick?: () => void;
 }
 
-export interface SurfaceToolbarPanelToggleItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarPanelToggleItem {
   kind: "panel-toggle";
   key: string;
   icon: Extract<ActionGlyphKind, "panel-open" | "panel-close">;
@@ -98,7 +97,7 @@ export interface SurfaceToolbarPanelToggleItem extends SurfaceToolbarItemBase {
   onClick?: () => void;
 }
 
-export interface SurfaceToolbarSearchItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarSearchItem {
   kind: "search";
   key: string;
   value: string;
@@ -108,7 +107,7 @@ export interface SurfaceToolbarSearchItem extends SurfaceToolbarItemBase {
   scope?: "full" | readonly string[];
 }
 
-export interface SurfaceToolbarSelectItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarSelectItem {
   kind: "select";
   key: string;
   value: string;
@@ -120,7 +119,7 @@ export interface SurfaceToolbarSelectItem extends SurfaceToolbarItemBase {
   visibleCount?: number;
 }
 
-export interface SurfaceToolbarAutocompleteItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarAutocompleteItem {
   kind: "autocomplete";
   key: string;
   value: string;
@@ -137,7 +136,7 @@ export interface SurfaceToolbarOption {
   disabled?: boolean;
 }
 
-export interface SurfaceToolbarOptionGroupItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarOptionGroupItem {
   kind: "option-group";
   key: string;
   value: string;
@@ -148,7 +147,7 @@ export interface SurfaceToolbarOptionGroupItem extends SurfaceToolbarItemBase {
   presentation?: "segmented" | "accordion";
 }
 
-export interface SurfaceToolbarFieldFilterItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarFieldFilterItem {
   kind: "field-filter";
   key: string;
   fieldKey: string;
@@ -162,7 +161,7 @@ export interface SurfaceToolbarFieldFilterItem extends SurfaceToolbarItemBase {
   referenceEndpoint?: string;
 }
 
-export interface SurfaceToolbarColumnToggleItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarColumnToggleItem {
   kind: "column-toggle";
   key: string;
   columns: SurfaceColumnOptionSpec[];
@@ -170,7 +169,7 @@ export interface SurfaceToolbarColumnToggleItem extends SurfaceToolbarItemBase {
   onChange: (visible: string[]) => void;
 }
 
-export interface SurfaceToolbarPageSizeItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarPageSizeItem {
   kind: "page-size";
   key: string;
   value: string;
@@ -179,7 +178,7 @@ export interface SurfaceToolbarPageSizeItem extends SurfaceToolbarItemBase {
   label?: string;
 }
 
-export interface SurfaceToolbarPeriodDateItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarPeriodDateItem {
   kind: "period";
   key: string;
   mode: "date";
@@ -189,7 +188,7 @@ export interface SurfaceToolbarPeriodDateItem extends SurfaceToolbarItemBase {
   disabled?: boolean;
 }
 
-export interface SurfaceToolbarPeriodMonthItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarPeriodMonthItem {
   kind: "period";
   key: string;
   mode: "month";
@@ -199,7 +198,7 @@ export interface SurfaceToolbarPeriodMonthItem extends SurfaceToolbarItemBase {
   disabled?: boolean;
 }
 
-export interface SurfaceToolbarPeriodNavItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarPeriodNavItem {
   kind: "period";
   key: string;
   mode: "nav";
@@ -213,7 +212,7 @@ export interface SurfaceToolbarPeriodNavItem extends SurfaceToolbarItemBase {
 
 export type SurfaceToolbarPeriodItem = SurfaceToolbarPeriodDateItem | SurfaceToolbarPeriodMonthItem | SurfaceToolbarPeriodNavItem;
 
-export interface SurfaceToolbarTextItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarTextItem {
   kind: "text";
   key: string;
   content: ReactNode;
@@ -236,7 +235,7 @@ export interface SurfaceToolbarMenuActionItem {
   separatorBefore?: boolean;
 }
 
-export interface SurfaceToolbarMenuItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarMenuItem {
   kind: "menu";
   key: string;
   trigger: SurfaceToolbarMenuTriggerSpec;
@@ -255,13 +254,13 @@ export interface SurfaceToolbarActionGroupActionSpec {
   type?: "button" | "submit";
 }
 
-export interface SurfaceToolbarActionGroupItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarActionGroupItem {
   kind: "action-group";
   key: string;
   actions: SurfaceToolbarActionGroupActionSpec[];
 }
 
-export interface SurfaceToolbarEditGroupItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarEditGroupItem {
   kind: "edit-group";
   key: string;
   editMode: boolean;
@@ -277,7 +276,7 @@ export interface SurfaceToolbarEditGroupItem extends SurfaceToolbarItemBase {
   onShowHistory?: () => void;
 }
 
-export interface SurfaceToolbarCreateItem extends SurfaceToolbarItemBase {
+export interface SurfaceToolbarCreateItem {
   kind: "create";
   key: string;
   label?: string;
