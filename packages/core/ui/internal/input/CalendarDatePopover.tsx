@@ -9,6 +9,7 @@ const WEEK_LABELS = ["一", "二", "三", "四", "五", "六", "日"];
 
 interface CalendarDatePopoverProps {
   value: string | null | undefined;
+  precision?: "date" | "month";
   mode: PickerMode;
   viewYear: number;
   viewMonth: number;
@@ -29,6 +30,10 @@ function formatDate(year: number, monthIndex: number, day: number) {
   return `${year}-${pad2(monthIndex + 1)}-${pad2(day)}`;
 }
 
+function formatMonth(year: number, monthIndex: number) {
+  return `${year}-${pad2(monthIndex + 1)}`;
+}
+
 export function parseDate(value: string | null | undefined) {
   if (!value) return null;
   const match = value.match(/^(\d{4})-(\d{2})-(\d{2})$/);
@@ -47,6 +52,16 @@ export function parseDate(value: string | null | undefined) {
   return { year, monthIndex, day };
 }
 
+export function parseMonth(value: string | null | undefined) {
+  if (!value) return null;
+  const match = value.match(/^(\d{4})-(\d{2})$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const monthIndex = Number(match[2]) - 1;
+  if (!Number.isInteger(year) || monthIndex < 0 || monthIndex > 11) return null;
+  return { year, monthIndex, day: 1 };
+}
+
 function getMonthDays(year: number, monthIndex: number) {
   const first = new Date(year, monthIndex, 1);
   const offset = (first.getDay() + 6) % 7;
@@ -60,6 +75,7 @@ function decadeStart(year: number) {
 
 export function CalendarDatePopover({
   value,
+  precision = "date",
   mode,
   viewYear,
   viewMonth,
@@ -110,6 +126,16 @@ export function CalendarDatePopover({
     onClose();
   }
 
+  function chooseMonth(monthIndex: number) {
+    setViewMonth(monthIndex);
+    if (precision === "month") {
+      onChange(formatMonth(viewYear, monthIndex));
+      onClose();
+      return;
+    }
+    setMode("day");
+  }
+
   return (
     <div className={className} style={style}>
       <div className="mb-2 flex items-center gap-1.5">
@@ -122,7 +148,7 @@ export function CalendarDatePopover({
         </button>
         <button
           type="button"
-          onClick={() => setMode(mode === "day" ? "month" : "year")}
+          onClick={() => setMode(mode === "year" ? "month" : precision === "month" ? "year" : "month")}
           className="flex-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-800 hover:bg-slate-50"
         >
           {headerLabel()}
@@ -166,7 +192,7 @@ export function CalendarDatePopover({
               type="button"
               onClick={() => {
                 setViewMonth(index);
-                setMode("day");
+                chooseMonth(index);
               }}
               className={`rounded-md px-2 py-1.5 text-xs transition ${
                 index === viewMonth
@@ -225,11 +251,16 @@ export function CalendarDatePopover({
           type="button"
           onClick={() => {
             const now = new Date();
+            if (precision === "month") {
+              onChange(formatMonth(now.getFullYear(), now.getMonth()));
+              onClose();
+              return;
+            }
             chooseDate(formatDate(now.getFullYear(), now.getMonth(), now.getDate()));
           }}
           className="text-xs font-medium text-sky-700 hover:text-sky-800"
         >
-          今天
+          {precision === "month" ? "本月" : "今天"}
         </button>
       </div>
     </div>

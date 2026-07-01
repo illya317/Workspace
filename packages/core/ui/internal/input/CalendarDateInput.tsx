@@ -2,7 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { joinClassNames } from "../common/card-utils";
-import { CalendarDatePopover, parseDate, type PickerMode } from "./CalendarDatePopover";
+import { CalendarDatePopover, parseDate, parseMonth, type PickerMode } from "./CalendarDatePopover";
 import FieldInputShell from "./FieldInputShell";
 import { useFieldContext } from "./field-context";
 
@@ -15,6 +15,7 @@ interface CalendarDateInputProps {
   className?: string;
   wrapperClassName?: string;
   placeholder?: string;
+  precision?: "date" | "month";
   popoverMode?: "absolute" | "fixed";
   style?: CSSProperties;
   title?: string;
@@ -33,6 +34,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       className,
       wrapperClassName = "relative",
       placeholder,
+      precision = "date",
       popoverMode = "absolute",
       style,
       title,
@@ -41,9 +43,9 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
     },
     ref,
   ) {
-    const selected = parseDate(value);
+    const selected = precision === "month" ? parseMonth(value) : parseDate(value);
     const fieldContext = useFieldContext();
-    const inputPlaceholder = placeholder ?? "选择日期";
+    const inputPlaceholder = placeholder ?? (precision === "month" ? "选择月份" : "选择日期");
     const today = useMemo(() => new Date(), []);
     const [open, setOpen] = useState(false);
     const [mode, setMode] = useState<PickerMode>("day");
@@ -80,13 +82,17 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
 
     useEffect(() => {
       if (!open) return;
-      const next = parseDate(value);
+      const next = precision === "month" ? parseMonth(value) : parseDate(value);
       if (next) {
         setViewYear(next.year);
         setViewMonth(next.monthIndex);
       }
-      setMode("day");
-    }, [open, value]);
+      setMode(precision === "month" ? "month" : "day");
+    }, [open, precision, value]);
+
+    const displayValue = precision === "month" && selected
+      ? `${selected.year}年${String(selected.monthIndex + 1).padStart(2, "0")}月`
+      : value ?? "";
 
     useEffect(() => {
       function handleClickOutside(event: MouseEvent) {
@@ -114,7 +120,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
         ref={assignInputRef}
         type="text"
         readOnly
-        value={value ?? ""}
+        value={displayValue}
         onFocus={openPicker}
         onClick={openPicker}
         onKeyDown={onKeyDown}
@@ -153,6 +159,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
         {open && !disabled && (
           <CalendarDatePopover
             value={value}
+            precision={precision}
             mode={mode}
             viewYear={viewYear}
             viewMonth={viewMonth}

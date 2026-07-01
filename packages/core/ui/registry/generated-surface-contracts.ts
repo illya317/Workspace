@@ -10804,7 +10804,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "kind",
-                                  description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                                  description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                   children: [
                                     {
                                       name: "action-group",
@@ -11380,6 +11380,38 @@ export const generatedCoreUiSurfaceContracts = {
                                           children: [
                                             {
                                               name: "date",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "value",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(value: string | null) => void。",
+                                        },
+                                        {
+                                          name: "placeholder",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "period",
+                                      description: "period 分支声明。",
+                                      children: [
+                                        {
+                                          name: "mode",
+                                          description: "可选值：month。",
+                                          children: [
+                                            {
+                                              name: "month",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -20916,7 +20948,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "kind",
-                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                               children: [
                                 {
                                   name: "action-group",
@@ -21894,6 +21926,38 @@ export const generatedCoreUiSurfaceContracts = {
                                       children: [
                                         {
                                           name: "date",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "value",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "onChange",
+                                      description: "类型：(value: string | null) => void。",
+                                    },
+                                    {
+                                      name: "placeholder",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "period",
+                                  description: "period 分支声明。",
+                                  children: [
+                                    {
+                                      name: "mode",
+                                      description: "可选值：month。",
+                                      children: [
+                                        {
+                                          name: "month",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -23150,7 +23214,7 @@ export const generatedCoreUiSurfaceContracts = {
                 },
                 {
                   name: "kind",
-                  description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                  description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                   children: [
                     {
                       name: "action-group",
@@ -24128,6 +24192,38 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "date",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "value",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "onChange",
+                          description: "类型：(value: string | null) => void。",
+                        },
+                        {
+                          name: "placeholder",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "disabled",
+                          description: "类型：boolean。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "period",
+                      description: "period 分支声明。",
+                      children: [
+                        {
+                          name: "mode",
+                          description: "可选值：month。",
+                          children: [
+                            {
+                              name: "month",
                               description: "字面量取值。",
                             },
                           ],
@@ -50982,7 +51078,7 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "kind",
-                                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                               children: [
                                                 {
                                                   name: "action-group",
@@ -51558,6 +51654,38 @@ export const generatedCoreUiSurfaceContracts = {
                                                       children: [
                                                         {
                                                           name: "date",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "value",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onChange",
+                                                      description: "类型：(value: string | null) => void。",
+                                                    },
+                                                    {
+                                                      name: "placeholder",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "period",
+                                                  description: "period 分支声明。",
+                                                  children: [
+                                                    {
+                                                      name: "mode",
+                                                      description: "可选值：month。",
+                                                      children: [
+                                                        {
+                                                          name: "month",
                                                           description: "字面量取值。",
                                                         },
                                                       ],
@@ -61094,7 +61222,7 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "kind",
-                                          description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                                          description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                                           children: [
                                             {
                                               name: "action-group",
@@ -62072,6 +62200,38 @@ export const generatedCoreUiSurfaceContracts = {
                                                   children: [
                                                     {
                                                       name: "date",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "value",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "onChange",
+                                                  description: "类型：(value: string | null) => void。",
+                                                },
+                                                {
+                                                  name: "placeholder",
+                                                  description: "类型：string。",
+                                                },
+                                                {
+                                                  name: "disabled",
+                                                  description: "类型：boolean。",
+                                                },
+                                              ],
+                                            },
+                                            {
+                                              name: "period",
+                                              description: "period 分支声明。",
+                                              children: [
+                                                {
+                                                  name: "mode",
+                                                  description: "可选值：month。",
+                                                  children: [
+                                                    {
+                                                      name: "month",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -63328,7 +63488,7 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "kind",
-                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                              description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                               children: [
                                 {
                                   name: "action-group",
@@ -64306,6 +64466,38 @@ export const generatedCoreUiSurfaceContracts = {
                                       children: [
                                         {
                                           name: "date",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "value",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "onChange",
+                                      description: "类型：(value: string | null) => void。",
+                                    },
+                                    {
+                                      name: "placeholder",
+                                      description: "类型：string。",
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "period",
+                                  description: "period 分支声明。",
+                                  children: [
+                                    {
+                                      name: "mode",
+                                      description: "可选值：month。",
+                                      children: [
+                                        {
+                                          name: "month",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -65690,7 +65882,7 @@ export const generatedCoreUiSurfaceContracts = {
                     },
                     {
                       name: "kind",
-                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / search / select / text。",
+                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                       children: [
                         {
                           name: "action-group",
@@ -66668,6 +66860,38 @@ export const generatedCoreUiSurfaceContracts = {
                               children: [
                                 {
                                   name: "date",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "value",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "onChange",
+                              description: "类型：(value: string | null) => void。",
+                            },
+                            {
+                              name: "placeholder",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "period",
+                          description: "period 分支声明。",
+                          children: [
+                            {
+                              name: "mode",
+                              description: "可选值：month。",
+                              children: [
+                                {
+                                  name: "month",
                                   description: "字面量取值。",
                                 },
                               ],
