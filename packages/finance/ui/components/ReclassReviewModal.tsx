@@ -168,8 +168,8 @@ export function useReclassReviewModal({ item, open, onClose, onSubmit, companyCo
         },
       ], {
         commands: [
-          { key: "cancel", label: "取消", onClick: handleClose },
-          { key: "submit", label: saving ? "提交中..." : "确认调整", variant: "primary", disabled: saving, onClick: handleSubmit },
+          { key: "cancel", label: "取消", icon: "cancel", onClick: handleClose },
+          { key: "submit", label: saving ? "提交中..." : "确认调整", icon: "verified", variant: "primary", disabled: saving, onClick: handleSubmit },
         ],
       }),
     ],

@@ -14,11 +14,11 @@ import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 // ─── Component ───────────────────────────────────────────
 
 export default function VoucherTab({
-  canWrite,
+  canRevise,
   navigation,
   lifecycleBlocks = [],
 }: {
-  canWrite: boolean;
+  canRevise: boolean;
   navigation?: PageSurfaceNavigationSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
@@ -44,8 +44,8 @@ export default function VoucherTab({
 
   // 选好公司+年+月后台静默生成重分类结果
   useEffect(() => {
-    if (companyFilter && yearFilter && monthFilter) handleGenerate(true);
-  }, [companyFilter, handleGenerate, monthFilter, yearFilter]);
+    if (canRevise && companyFilter && yearFilter && monthFilter) handleGenerate(true);
+  }, [canRevise, companyFilter, handleGenerate, monthFilter, yearFilter]);
 
   const reclassCounts = useMemo(() => {
     const unconfigured = allItems.filter((r) => r.kind === "normal").length;
@@ -101,7 +101,7 @@ export default function VoucherTab({
 
   const totalPages = Math.ceil(total / pageSize);
   const extraToolbarItems: SurfaceToolbarItems = [
-    ...(canWrite ? [{
+    ...(canRevise ? [{
       kind: "action-group" as const,
       key: "reclass-actions",
       actions: [{
@@ -112,7 +112,7 @@ export default function VoucherTab({
         onClick: () => setViewMode(viewMode === "reclass" ? "vouchers" : "reclass"),
       }],
     }] : []),
-    ...(canWrite && viewMode === "reclass" ? [{
+    ...(canRevise && viewMode === "reclass" ? [{
       kind: "select" as const,
       key: "reclass-status",
       label: "状态",
@@ -145,7 +145,7 @@ export default function VoucherTab({
   const hasReclassPeriod = Boolean(companyFilter && yearFilter && monthFilter);
   const reclassReview = useReclassReviewSurface({
     items: allItems,
-    canWrite,
+    canRevise,
     statusFilter: reclassStatus,
     onReview: handleReview,
     companyCode: companyFilter,

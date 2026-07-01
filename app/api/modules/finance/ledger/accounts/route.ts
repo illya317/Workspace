@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerAccess, checkFinanceLedgerCreate } from "@workspace/platform/server/auth";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import {
   createFinanceAccount,
@@ -42,7 +42,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceLedgerWrite,
+  access: checkFinanceLedgerCreate,
   bodySchema: createAccountSchema,
   bodyError: "科目编码、名称、类别为必填",
   buildCommand: ({ user, body }) => okCommand({ body, userId: user.userId }),

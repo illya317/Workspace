@@ -27,9 +27,11 @@ interface Balance {
 }
 
 export default function LedgerTab({
+  canImport,
   navigation,
   lifecycleBlocks = [],
 }: {
+  canImport: boolean;
   navigation?: PageSurfaceNavigationSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
@@ -177,7 +179,10 @@ export default function LedgerTab({
       content: <span>共 {total} 条</span>,
     }],
   });
-  const reconcileSection = useFinanceBalanceReconcileSection({ showToast: feedback.notify });
+  const reconcileSection = useFinanceBalanceReconcileSection({
+    enabled: canImport,
+    showToast: feedback.notify,
+  });
 
   return (
     <PageSurface kind="standard"
@@ -199,7 +204,7 @@ export default function LedgerTab({
               rowKey: (balance: Balance) => balance.id,
             } },
           },
-          reconcileSection,
+          ...(reconcileSection ? [reconcileSection] : []),
         ], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

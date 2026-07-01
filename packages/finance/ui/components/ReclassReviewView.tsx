@@ -9,7 +9,7 @@ import { formatFinanceAmount } from "../formatters";
 import { targetDisplay } from "../ledger/reclassColumns";
 interface Props {
   items: ReclassResultRow[];
-  canWrite: boolean;
+  canRevise: boolean;
   statusFilter: string;
   onReview: (id: number, action: "approve" | "revert" | "adjust" | "mark_pending", body?: Record<string, unknown>, extra?: {
     periodId?: number;
@@ -32,19 +32,19 @@ const DEFAULT_DIR: Record<SortKey, "asc" | "desc"> = {
 };
 export default function ReclassReviewView({
   items,
-  canWrite,
+  canRevise,
   statusFilter,
   onReview,
   companyCode = "",
   year = ""
 }: Props) {
-  const { sections, modals } = useReclassReviewSurface({ items, canWrite, statusFilter, onReview, companyCode, year });
+  const { sections, modals } = useReclassReviewSurface({ items, canRevise, statusFilter, onReview, companyCode, year });
   return <PageSurface kind="standard" embedded body={createPageBody([...sections, ...modals])} />;
 }
 
 export function useReclassReviewSurface({
   items,
-  canWrite,
+  canRevise,
   statusFilter,
   onReview,
   companyCode = "",
@@ -130,7 +130,7 @@ export function useReclassReviewSurface({
       const displayTarget = row.suggestedTarget || row.targetAccount;
       const hasTarget = !!displayTarget;
       const className = isNormal && !hasTarget ? "inline-block cursor-pointer rounded border border-dashed border-gray-200 bg-white px-2 py-0.5 text-xs text-gray-400 hover:border-emerald-300 hover:text-emerald-600" : `inline-block cursor-pointer rounded border px-2 py-0.5 text-xs font-mono hover:ring-1 hover:ring-emerald-300 ${isNormal ? "border-gray-200 bg-gray-50 text-gray-500" : isAdjusted ? "border-blue-200 bg-blue-50 text-blue-700" : "border-emerald-200 bg-emerald-50 text-emerald-700"}`;
-      return <span className={className} onClick={() => canWrite && setAdjustItem(row)}>
+      return <span className={className} onClick={() => canRevise && setAdjustItem(row)}>
             {hasTarget ? targetDisplay(displayTarget) : "选择科目"}
           </span>;
     }
@@ -155,7 +155,7 @@ export function useReclassReviewSurface({
         visibleColumns: columns.map(column => column.key),
         emptyText: "无重分类条目",
         rowKey: row => `${row.voucherItemId}-${row.voucherNo}`,
-        rowActions: canWrite ? (row) => {
+        rowActions: canRevise ? (row) => {
           const kind = row.kind as string || "normal";
           const isNormal = kind === "normal";
           const hasTarget = !!(row.suggestedTarget || row.targetAccount);

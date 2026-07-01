@@ -7,7 +7,7 @@ import {
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerAccess, checkFinanceLedgerCreate } from "@workspace/platform/server/auth";
 
 const optionalPositiveInt = z.preprocess(
   (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
@@ -58,7 +58,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceLedgerWrite,
+  access: checkFinanceLedgerCreate,
   bodySchema: createVoucherSchema,
   bodyError: "凭证号、日期、公司编码、分录为必填",
   buildCommand: ({ body, user }) => buildCreateVoucherCommand(body, user.userId),

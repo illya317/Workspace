@@ -5,7 +5,7 @@ import {
   executeInitializeFinanceDefaultsCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerCreate } from "@workspace/platform/server/auth";
 
 const initFinanceSchema = z.object({
   year: z.coerce.number().int().default(2025),
@@ -14,7 +14,7 @@ const initFinanceSchema = z.object({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceLedgerWrite,
+  access: checkFinanceLedgerCreate,
   bodySchema: initFinanceSchema,
   bodyError: "companyCode 为必填",
   buildCommand: ({ body, user }) => buildInitializeFinanceDefaultsCommand(body, user.userId),

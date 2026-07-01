@@ -18,9 +18,11 @@ interface ReclassEntry {
   reason: string;
 }
 export default function ReclassTab({
+  canExport,
   navigation,
   lifecycleBlocks = [],
 }: {
+  canExport: boolean;
   navigation?: PageSurfaceNavigationSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
@@ -90,11 +92,11 @@ export default function ReclassTab({
   }];
   const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
   const extraToolbarItems: SurfaceToolbarItems = [
-    {
-      kind: "action-group",
+    ...(canExport ? [{
+      kind: "action-group" as const,
       key: "reclass-export",
-      actions: [{ key: "export", kind: "download", label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }],
-    },
+      actions: [{ key: "export", kind: "download" as const, label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }],
+    }] : []),
     {
       kind: "text",
       key: "reclass-count",

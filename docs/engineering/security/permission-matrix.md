@@ -9,7 +9,7 @@
 | `hr` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, write（生成/刷新并发布派生资料） |
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
-| `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, revise, import, export, admin |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, approve, admin |
 | `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |

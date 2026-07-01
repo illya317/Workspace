@@ -7,7 +7,7 @@ import {
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceLedgerAccess } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerAccess, checkFinanceLedgerRevise } from "@workspace/platform/server/auth";
 
 const balancesQuerySchema = z.object({
   periodId: z.coerce.number().int().positive().optional(),
@@ -32,6 +32,7 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
+  access: checkFinanceLedgerRevise,
   bodySchema: recomputeBalancesSchema,
   bodyError: "periodId 为必填且为有效数字",
   buildCommand: ({ body }) => okCommand(body),

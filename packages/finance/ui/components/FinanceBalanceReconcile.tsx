@@ -43,22 +43,25 @@ interface ReconcileResult {
   }[];
 }
 export function useFinanceBalanceReconcileSection({
+  enabled = true,
   showToast
 }: {
+  enabled?: boolean;
   showToast: (message: string, type?: "success" | "error") => void;
-}): BodySurfaceSectionSpec {
+}): BodySurfaceSectionSpec | null {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ReconcileResult | null>(null);
   useEffect(() => {
+    if (!enabled) return;
     fetch(workspacePath("/api/modules/hr/roster/companies")).then(response => response.json()).then(data => {
       const list = (data.companies || []) as Company[];
       setCompanies(list);
       if (list.length) setCompanyCode(list[0].code);
     }).catch(() => {});
-  }, []);
+  }, [enabled]);
   async function handleReconcile() {
     if (!file || !companyCode) {
       showToast("请选择公司和余额表文件", "error");
@@ -82,6 +85,7 @@ export function useFinanceBalanceReconcileSection({
       setLoading(false);
     }
   }
+  if (!enabled) return null;
   return {
     key: "balance-reconcile",
     header: {
@@ -107,7 +111,7 @@ export function useFinanceBalanceReconcileSection({
             },
           ], {
             kind: "filters",
-            commands: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", variant: "primary", onClick: handleReconcile, disabled: loading }],
+            commands: [{ key: "reconcile", label: loading ? "核对中..." : "开始核对", icon: "upload", variant: "primary", onClick: handleReconcile, disabled: loading }],
           }),
         ...(result ? [
           createMessageSection("balance-reconcile-summary", {
@@ -135,6 +139,7 @@ export default function FinanceBalanceReconcile(props: {
   showToast: (message: string, type?: "success" | "error") => void;
 }) {
   const section = useFinanceBalanceReconcileSection(props);
+  if (!section) return null;
   return <PageSurface kind="standard" embedded body={createPageBody([section])} />;
 }
 
