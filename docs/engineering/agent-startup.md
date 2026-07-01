@@ -94,5 +94,5 @@
 - Coordinator 收口自检不等于最终 Review；全部完成后需要独立 Review 审查最终 diff 和交付风险。
 - 本地重型检查走项目锁串行执行。`lint`、`typecheck`、`arch:gate`、`build` 等 npm script 已包 `scripts/check/with-check-lock.js`；如果终端提示 `Waiting for project check lock`，说明别的 agent 正在跑检查，等待即可，不要再开并行检查。`arch:gate` 会按代码快照复用已通过结果；看到 `Reusing cached arch:gate result` 表示同一快照无需重复跑。
 - 收口/集成/提交前验证时按风险选命令：文档改动跑 `npm run docs:check`；普通 TS/TSX 跑 `npm run check:changed`；涉及边界、权限、registry、Core/Platform 或 API contract 时加 `npm run check:blockers`；只碰业务访问模型跑 `npm run gate:domain`；只碰结构性 UI 边界跑 `npm run gate:ui`；清债/重构专项跑 `npm run check:refactor`；schema/model/migration 跑 `npm run check:data`；CI 收口跑 `npm run check:ci`；周期性简单清债跑 `npm run check:hygiene`。净增行预算只在 `complexity:line-budget` 中显式执行，日常 `check:changed` 不跑。
-- pre-commit 运行 CI 权威入口 `npm run check:ci`，不要用 `--no-verify` 绕过。检查失败时先判断是否由当前任务造成；无关并行失败要在交付说明里标明，不要顺手修或提交别人的文件。
+- pre-commit 运行 CI 权威入口 `npm run check:ci`，通过后会按当前 tree 写入 `.git/workspace-check-ci-ok`；pre-push 和私有 `publish.sh` 可复用同一通过记录，避免同一 tree 重复跑 CI。不要手动用 `--no-verify` 绕过检查；发布源码或部署时用桌面 ops 的 `publish.sh push|deploy`。
 - 本地开发只允许一个 3000 端口 dev server。需要开 dev 前先查 `lsof -nP -iTCP:3000 -sTCP:LISTEN`。

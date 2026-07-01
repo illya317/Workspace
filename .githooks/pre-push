@@ -1,10 +1,20 @@
 #!/bin/sh
 # Pre-push hook: mirror GitHub CI before publishing.
 
+ci_tree="$(git rev-parse HEAD^{tree})"
+ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
+
+if [ -f "$ci_stamp" ] && [ "$(cat "$ci_stamp")" = "$ci_tree" ]; then
+  echo "✓ CI already passed for current tree. Skipping duplicate pre-push CI."
+  exit 0
+fi
+
 echo "→ Running CI checks before push..."
 npm run ci || {
   echo "✗ CI checks failed. Push aborted."
   exit 1
 }
+
+printf '%s\n' "$ci_tree" > "$ci_stamp"
 
 echo "✓ CI checks passed."

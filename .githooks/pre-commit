@@ -12,4 +12,8 @@ npm run check:ci || {
   exit 1
 }
 
+ci_tree="$(git write-tree)"
+ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
+printf '%s\n' "$ci_tree" > "$ci_stamp"
+
 echo "✓ Pre-commit CI checks passed."
