@@ -350,7 +350,7 @@ export default function AccountSettingsPanel({
                 }] : []),
                 ],
               },
-              commands: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
+              commands: [{ key: "save-password", label: "保存密码", icon: "save", variant: "secondary", onClick: () => void savePassword() }],
             } },
         },
         {
@@ -391,7 +391,7 @@ export default function AccountSettingsPanel({
                 }] : []),
                 ],
               },
-              commands: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
+              commands: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", icon: "save", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
             } },
         },
       ],
@@ -445,6 +445,7 @@ export default function AccountSettingsPanel({
               commands: [{
                 key: "save-preferred-departments",
                 label: preferredDepartmentSaving ? "保存中..." : "保存常用部门",
+                icon: "save",
                 variant: "primary",
                 disabled: preferredDepartmentSaving || preferredDepartments.length === 0,
                 onClick: () => void savePreferredDepartments(),
