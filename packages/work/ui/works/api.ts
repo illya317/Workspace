@@ -1,4 +1,5 @@
 import { workspacePath } from "@workspace/core/routing";
+import type { SpacePermissionData, SpacePermissionToggleInput } from "@workspace/platform/ui/SpacePermissionsPanel";
 import type {
   WorkItem,
   WorkItemDraft,
@@ -7,7 +8,6 @@ import type {
   WorkReportCollectionResponse,
   WorkReportDraftResponse,
   WorkReportItem,
-  WorkSpacePermissionRow,
   WorkTaskSpace,
   WorkTarget,
 } from "./types";
@@ -126,15 +126,14 @@ export async function listProjectPhaseOptions(projectId: number | null) {
 
 export async function listSpacePermissions(target: WorkTarget) {
   const response = await fetch(workspacePath(`/api/modules/work/tasks/spaces/${target.targetType}/${target.targetId}/permissions`));
-  const data = await readJson<{ permissions?: WorkSpacePermissionRow[] }>(response, "加载空间权限失败");
-  return data.permissions || [];
+  return readJson<SpacePermissionData>(response, "加载空间权限失败");
 }
 
-export async function saveSpacePermissions(target: WorkTarget, permissions: Array<{ userId: number; role: string }>) {
+export async function setSpacePermissionGrant(target: WorkTarget, input: SpacePermissionToggleInput) {
   const response = await fetch(workspacePath(`/api/modules/work/tasks/spaces/${target.targetType}/${target.targetId}/permissions`), {
     method: "PUT",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ permissions }),
+    body: JSON.stringify(input),
   });
   return readJson<{ success: true }>(response, "保存空间权限失败");
 }

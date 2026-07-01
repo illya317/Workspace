@@ -10,8 +10,10 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import {
   canAccessTarget,
-  canDeleteWorkTask,
-  canEditWorkTask,
+  canArchiveWorkTaskAction,
+  canCreateWorkTaskAction,
+  canDeleteWorkTaskAction,
+  canWriteWorkTaskAction,
 } from "./access";
 import {
   archiveWorkPlan,
@@ -134,7 +136,7 @@ export function buildCreateWorkPlanCommand(input: {
 export async function executeCreateWorkPlanCommand(
   command: WorkPlanCreateRouteCommand,
 ): Promise<ServiceResult<{ plan: unknown }>> {
-  if (!(await canEditWorkTask(command.userId, command.targetType, command.targetId))) {
+  if (!(await canCreateWorkTaskAction(command.userId, command.targetType, command.targetId))) {
     return serviceError("无权限编辑工作计划", 403);
   }
   const plan = await createWorkPlan({
@@ -159,7 +161,7 @@ export async function executeUpdateWorkPlanCommand(
 ): Promise<ServiceResult<{ plan: unknown }>> {
   const existing = await getWorkPlanAccessMetadata(command.planId);
   if (!existing) return serviceError("工作计划不存在", 404);
-  if (!(await canEditWorkTask(command.userId, existing.targetType, existing.targetId))) {
+  if (!(await canWriteWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限编辑工作计划", 403);
   }
   const plan = await updateWorkPlan(command.planId, command.body);
@@ -179,7 +181,7 @@ export async function executeArchiveWorkPlanCommand(
 ): Promise<ServiceResult<{ success: true }>> {
   const existing = await getWorkPlanAccessMetadata(command.planId);
   if (!existing) return serviceError("工作计划不存在", 404);
-  if (!(await canDeleteWorkTask(command.userId, existing.targetType, existing.targetId))) {
+  if (!(await canArchiveWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限删除工作计划", 403);
   }
   const result = await archiveWorkPlan(command.planId);
@@ -199,7 +201,7 @@ export async function executeDeleteWorkPlanCommand(
 ): Promise<ServiceResult<{ success: true }>> {
   const existing = await getWorkPlanAccessMetadata(command.planId);
   if (!existing) return serviceError("工作计划不存在", 404);
-  if (!(await canDeleteWorkTask(command.userId, existing.targetType, existing.targetId))) {
+  if (!(await canDeleteWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限删除工作计划", 403);
   }
   const result = await deleteWorkPlan(command.planId);

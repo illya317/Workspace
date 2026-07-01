@@ -1,6 +1,7 @@
 import {
   getGeneratedQcTemplateMetrics,
 } from "./generated-qc";
+import { readTemplateContent } from "./content-store";
 import type {
   DocsEditorTemplateRow,
 } from "./db";
@@ -12,14 +13,13 @@ export type DocsEditorTemplateListRow = Pick<
   | "type"
   | "status"
   | "spaceId"
+  | "documentContentRef"
+  | "fieldModelContentRef"
   | "sourceKind"
   | "sourceProductKey"
   | "sourceStageKeys"
   | "updatedAt"
-> & {
-  documentJson?: string;
-  fieldModelJson?: string;
-};
+>;
 
 type TemplateMetrics = {
   stageCount?: number;
@@ -28,16 +28,15 @@ type TemplateMetrics = {
   tableCount?: number;
 };
 
-export function collectTemplateMetrics(template: DocsEditorTemplateListRow): TemplateMetrics {
+export async function collectTemplateMetrics(template: DocsEditorTemplateListRow): Promise<TemplateMetrics> {
   if (template.sourceKind === "production.qc.official") {
     const metrics = getGeneratedQcTemplateMetrics(template.sourceProductKey);
     if (metrics) return metrics;
   }
-  if (template.documentJson === undefined || template.fieldModelJson === undefined) {
-    return { stageCount: jsonArrayLength(template.sourceStageKeys) };
-  }
-  const document = parseJson(template.documentJson, {});
-  const fieldModel = parseJson(template.fieldModelJson, {});
+
+  const content = await readTemplateContent(template);
+  const document = content.document;
+  const fieldModel = content.fieldModel;
   const fieldKeys = new Set<string>();
   let formulaCount = 0;
   let tableCount = 0;

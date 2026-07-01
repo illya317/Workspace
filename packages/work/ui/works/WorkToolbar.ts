@@ -1,6 +1,6 @@
 "use client";
 
-import { createSpaceViewToolbarItem, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
+import { createSpaceViewToolbarItem, spaceWorkbenchPanelToolbarItems, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
 import type { SurfaceToolbarItem, SurfaceToolbarItems } from "@workspace/core/ui";
 import { WORK_ITEM_TYPE_OPTIONS } from "./model";
 import type { WorkTargetType } from "./types";
@@ -19,7 +19,7 @@ export function createWorkToolbarItems({
   sideOpen,
   activeTab,
   canManage,
-  canEdit,
+  canCreate,
   planCreating,
   saving,
   planDraftTitle,
@@ -38,7 +38,7 @@ export function createWorkToolbarItems({
   hasSpace: boolean;
   sideOpen: boolean;
   activeTab: string;
-  canEdit: boolean;
+  canCreate: boolean;
   canManage: boolean;
   planCreating: boolean;
   saving: boolean;
@@ -57,8 +57,12 @@ export function createWorkToolbarItems({
 }): SurfaceToolbarItems {
   if (!hasSpace) return [];
   return [
-    { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: "显示工作计划", visibility: "mobile", onClick: onOpenDrawer },
-    { kind: "panel-toggle", key: "desktop-side-toggle", icon: sideOpen ? "panel-open" : "panel-close", label: `${sideOpen ? "隐藏" : "显示"}工作计划`, variant: sideOpen ? "primary" : "secondary", visibility: "desktop", onClick: onToggleSide },
+    ...spaceWorkbenchPanelToolbarItems({
+      label: "工作计划",
+      open: sideOpen,
+      onOpenDrawer,
+      onToggleSide,
+    }),
     createSpaceViewToolbarItem({
       key: "work-view",
       value: activeTab,
@@ -79,13 +83,13 @@ export function createWorkToolbarItems({
       { kind: "option-group" as const, key: "type", value: itemTypeFilter, options: [{ value: "all", label: "全部节点" }, ...WORK_ITEM_TYPE_OPTIONS], onChange: onItemTypeFilterChange, ariaLabel: "节点类型" },
     ] : []),
     ...(activeTab === "reports" ? reportToolbarItems : []),
-    ...(activeTab === "tasks" && canEdit ? [
+    ...(activeTab === "tasks" && canCreate ? [
       { kind: "create" as const, key: "create-plan", label: "新增 OKR 计划", active: planCreating, disabled: saving, onClick: onCreatePlan },
       ...(planCreating ? [{
         kind: "action-group" as const,
         key: "plan-save-actions",
         actions: [
-          { key: "save-plan", kind: "check" as const, label: planCreating ? "保存 OKR 计划" : "保存计划修改", variant: "primary" as const, disabled: !planDraftTitle.trim(), onClick: onSavePlan },
+          { key: "save-plan", kind: "save" as const, label: planCreating ? "保存 OKR 计划" : "保存计划修改", variant: "primary" as const, disabled: !planDraftTitle.trim(), onClick: onSavePlan },
         ],
       }] : []),
     ] : []),

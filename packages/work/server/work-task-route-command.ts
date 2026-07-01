@@ -9,8 +9,10 @@ import {
 
 import {
   canAccessTarget,
-  canDeleteWorkTask,
-  canEditWorkTask,
+  canCreateWorkTaskAction,
+  canArchiveWorkTaskAction,
+  canDeleteWorkTaskAction,
+  canWriteWorkTaskAction,
   canUseProject,
   normalizeWorkTargetType,
   type WorkSpaceTargetType,
@@ -279,7 +281,7 @@ export async function buildCreateWorkItemRouteCommand(input: {
     deptId,
     user: input.user,
   });
-  if (!(await canEditWorkTask(input.user.userId, finalTargetType, finalTargetId))) {
+  if (!(await canCreateWorkTaskAction(input.user.userId, finalTargetType, finalTargetId))) {
     return failCommand("无权限编辑工作计划", 403);
   }
   return okCommand({
@@ -303,7 +305,11 @@ export async function buildUpdateWorkItemRouteCommand(input: {
 }): Promise<DomainValidationResult<UpdateWorkItemRouteCommand>> {
   const existing = await getWorkItemAccessMetadata(input.workId);
   if (!existing) return failCommand("节点不存在", 404);
-  if (!(await canEditWorkTask(input.userId, existing.targetType, existing.targetId ?? 0))) {
+  const targetId = existing.targetId ?? 0;
+  if (isWorkItemArchiveRequest(input.body) && !(await canArchiveWorkTaskAction(input.userId, existing.targetType, targetId))) {
+    return failCommand("无权限归档工作计划", 403);
+  }
+  if (hasNonArchiveWorkItemPatch(input.body) && !(await canWriteWorkTaskAction(input.userId, existing.targetType, targetId))) {
     return failCommand("无权限编辑工作计划", 403);
   }
   const { participants, ...data } = input.body;
@@ -314,6 +320,18 @@ export async function buildUpdateWorkItemRouteCommand(input: {
       ...(participants !== undefined && { participants: parseParticipants(participants) }),
     },
   });
+}
+
+function isWorkItemArchiveRequest(body: Record<string, unknown>) {
+  return body.status === "archived" || body.isArchived === true;
+}
+
+function hasNonArchiveWorkItemPatch(body: Record<string, unknown> & { participants?: string }) {
+  const nonArchiveKeys = Object.keys(body).filter((key) => key !== "status" && key !== "isArchived");
+  if (nonArchiveKeys.length > 0) return true;
+  if (body.status !== undefined && body.status !== "archived") return true;
+  if (body.isArchived !== undefined && body.isArchived !== true) return true;
+  return false;
 }
 
 export async function executeUpdateWorkItemRouteCommand(command: UpdateWorkItemRouteCommand) {
@@ -328,7 +346,7 @@ export async function buildDeleteWorkItemRouteCommand(input: {
 }): Promise<DomainValidationResult<DeleteWorkItemRouteCommand>> {
   const existing = await getWorkItemAccessMetadata(input.workId);
   if (!existing) return failCommand("节点不存在", 404);
-  if (!(await canDeleteWorkTask(input.userId, existing.targetType, existing.targetId ?? 0))) {
+  if (!(await canDeleteWorkTaskAction(input.userId, existing.targetType, existing.targetId ?? 0))) {
     return failCommand("无权限删除工作计划", 403);
   }
   return okCommand({ workId: input.workId });

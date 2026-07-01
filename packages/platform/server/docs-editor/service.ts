@@ -10,7 +10,6 @@ import { prisma } from "../prisma";
 import {
   docsEditorDb,
   type DocsEditorDb,
-  type DocsEditorSpaceRow,
   type DocsEditorTemplateRow,
 } from "./db";
 import {
@@ -31,13 +30,9 @@ import {
   type TemplateIdInput,
 } from "./domain/document-template-validation";
 import {
-  canPublishOfficialQcTemplate,
-  docsEditorPermissionKind,
-  getAllDepartmentContexts,
-  getDepartmentContext,
-  getGroupCompanyContext,
-  getUserDepartmentContexts,
-  isDocsEditorRoleAtLeast,
+  canCreateDocsEditorTemplateAction,
+  canDeleteDocsEditorTemplateAction,
+  canWriteDocsEditorTemplateAction,
   resolveSpaceRole,
   resolveTemplateRole,
 } from "./permissions";
@@ -55,6 +50,12 @@ import type {
   DocsEditorTemplateListItemDto,
 } from "./types";
 import {
+  listAccessibleSpaces,
+  resolveTargetSpace,
+  toSpaceDto,
+  type DocsEditorAccessibleSpace,
+} from "./space-service";
+import {
   collectTemplateMetrics,
   type DocsEditorTemplateListRow,
 } from "./template-metrics";
@@ -68,35 +69,10 @@ function roleOrViewer(role: DocsEditorPermissionRole | null): DocsEditorPermissi
   return role ?? "viewer";
 }
 
-type DocsEditorSpaceTargetType = DocsEditorSpaceDto["targetType"];
-
-type SpaceSeed = {
-  targetType: DocsEditorSpaceTargetType;
-  targetId: number;
-  title: string;
-  description: string;
-};
-
-function toSpaceDto(space: DocsEditorSpaceRow, role: DocsEditorPermissionRole): DocsEditorSpaceDto {
-  const targetType = normalizeSpaceTargetType(space.targetType);
-  return {
-    id: String(space.id),
-    kind: targetType,
-    targetType,
-    targetId: space.targetId,
-    title: targetType === "company" ? "公共模板" : space.title,
-    ...(targetType === "company"
-      ? { description: "所有人可查看的公共文档模板空间" }
-      : space.description ? { description: space.description } : {}),
-    departmentId: targetType === "department" ? space.targetId : null,
-    role,
-  };
-}
-
-function toListItemDto(
+async function toListItemDto(
   template: DocsEditorTemplateListRow,
   role: DocsEditorPermissionRole,
-): DocsEditorTemplateListItemDto {
+): Promise<DocsEditorTemplateListItemDto> {
   return {
     id: String(template.id),
     title: template.title,
@@ -107,7 +83,7 @@ function toListItemDto(
     sourceKind: template.sourceKind,
     sourceProductKey: template.sourceProductKey,
     role,
-    ...collectTemplateMetrics(template),
+    ...(await collectTemplateMetrics(template)),
   };
 }
 
@@ -115,144 +91,25 @@ async function templateDetailDto(
   template: DocsEditorTemplateRow,
   role: DocsEditorPermissionRole,
 ): Promise<DocsEditorTemplateDetailDto> {
-  const content = await readTemplateContent(template);
+  const [content, listItem] = await Promise.all([
+    readTemplateContent(template),
+    toListItemDto(template, role),
+  ]);
   return {
-    ...toListItemDto(template, role),
+    ...listItem,
     document: content.document,
     fieldModel: content.fieldModel,
   };
 }
 
-function normalizeSpaceTargetType(value: string): DocsEditorSpaceTargetType {
-  if (value === "personal" || value === "company" || value === "department") return value;
-  return "department";
-}
-
-async function ensureSpace(seed: SpaceSeed, db: DocsEditorDb = docsEditorDb()) {
-  const existing = await db.documentTemplateSpace.findFirst({
-    where: { targetType: seed.targetType, targetId: seed.targetId, deletedAt: null },
-    orderBy: { id: "asc" },
-  });
-  if (existing) return existing;
-  return db.documentTemplateSpace.create({
-    data: {
-      targetType: seed.targetType,
-      targetId: seed.targetId,
-      title: seed.title,
-      description: seed.description,
-    },
-  });
-}
-
-async function ensurePersonalSpace(userId: number, db: DocsEditorDb = docsEditorDb()) {
-  return ensureSpace({
-    targetType: "personal",
-    targetId: userId,
-    title: "我的模板空间",
-    description: "个人草稿和私有模板",
-  }, db);
-}
-
-async function ensureCompanySpace(db: DocsEditorDb = docsEditorDb()) {
-  const company = await getGroupCompanyContext();
-  if (!company) return null;
-  return ensureSpace({
-    targetType: "company",
-    targetId: company.id,
-    title: "公共模板",
-    description: "所有人可查看的公共文档模板空间",
-  }, db);
-}
-
-async function ensureDepartmentSpace(departmentId: number, db: DocsEditorDb = docsEditorDb()) {
-  const department = await getDepartmentContext(departmentId);
-  if (!department) return null;
-  return ensureSpace({
-      targetType: "department",
-      targetId: department.id,
-      title: `${department.name}模板空间`,
-      description: "部门成员可查看，负责人可管理",
-  }, db);
-}
-
-async function listExplicitSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
-  const rows = await prisma.documentTemplateSpacePermission.findMany({
-    where: { userId, kind: docsEditorPermissionKind() },
-    select: { targetType: true, targetId: true },
-  });
-  const seeds: SpaceSeed[] = [];
-  const company = await getGroupCompanyContext();
-  const companyId = company?.id ?? null;
-  const departmentIds = rows
-    .filter((row) => row.targetType === "department")
-    .map((row) => row.targetId);
-  const departments = departmentIds.length ? await prisma.department.findMany({
-    where: { id: { in: departmentIds } },
-    select: { id: true, name: true },
-  }) : [];
-  const departmentNameById = new Map(departments.map((department) => [department.id, department.name]));
-  for (const row of rows) {
-    const targetType = normalizeSpaceTargetType(row.targetType);
-    if (targetType === "personal") continue;
-    if (targetType === "company" && companyId === row.targetId && company) {
-      seeds.push({
-        targetType: "company",
-        targetId: company.id,
-        title: "公共模板",
-        description: "所有人可查看的公共文档模板空间",
-      });
-    }
-    if (targetType === "department" && departmentNameById.has(row.targetId)) {
-      seeds.push({
-        targetType: "department",
-        targetId: row.targetId,
-        title: `${departmentNameById.get(row.targetId)}模板空间`,
-        description: "部门成员可查看，负责人可管理",
-      });
-    }
-  }
-  return seeds;
-}
-
-async function listAccessibleSpaces(userId: number) {
-  const db = docsEditorDb();
-  await ensureOfficialTemplates(db);
-  const isAdmin = await canPublishOfficialQcTemplate(userId);
-  const departments = isAdmin ? await getAllDepartmentContexts() : await getUserDepartmentContexts(userId);
-  const personal = await ensurePersonalSpace(userId, db);
-  const [companySpace, explicitSeeds] = await Promise.all([
-    ensureCompanySpace(db),
-    listExplicitSpaceSeeds(userId),
-  ]);
-  const departmentSpaces = await Promise.all(
-    departments.map((department) => ensureDepartmentSpace(department.id, db)),
-  );
-  const explicitSpaces = await Promise.all(explicitSeeds.map((seed) => ensureSpace(seed, db)));
-  const baseSpaces = [
-    personal,
-    ...(companySpace ? [companySpace] : []),
-    ...departmentSpaces.filter((space): space is DocsEditorSpaceRow => Boolean(space)),
-    ...explicitSpaces,
-  ];
-  const uniqueSpaces = new Map<number, DocsEditorSpaceRow>();
-  baseSpaces.forEach((space) => uniqueSpaces.set(space.id, space));
-
-  const result: Array<{ space: DocsEditorSpaceRow; role: DocsEditorPermissionRole }> = [];
-  for (const space of Array.from(uniqueSpaces.values())) {
-    const role = await resolveSpaceRole(userId, space);
-    if (role) result.push({ space, role });
-  }
-  return result;
-}
-
 export async function listSpaces(input: { userId: number }): Promise<ServiceResult<DocsEditorSpaceDto[]>> {
   const spaces = await listAccessibleSpaces(input.userId);
-  return serviceOk(spaces.map(({ space, role }) => toSpaceDto(space, role)));
+  return serviceOk(await Promise.all(spaces.map(({ space, role }) => toSpaceDto(input.userId, space, role))));
 }
 
 async function listTemplatesForSpaces(
   input: ListTemplatesInput,
-  spaces: Awaited<ReturnType<typeof listAccessibleSpaces>>,
+  spaces: DocsEditorAccessibleSpace[],
 ): Promise<ServiceResult<DocsEditorTemplateListItemDto[]>> {
   const command = buildListTemplatesCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
@@ -278,6 +135,8 @@ async function listTemplatesForSpaces(
       sourceKind: true,
       sourceProductKey: true,
       sourceStageKeys: true,
+      documentContentRef: true,
+      fieldModelContentRef: true,
       version: true,
       createdAt: true,
       updatedAt: true,
@@ -297,7 +156,7 @@ async function listTemplatesForSpaces(
       template,
       space: spaceById.get(template.spaceId) ?? null,
     });
-    if (role) rows.push(toListItemDto(template, role));
+    if (role) rows.push(await toListItemDto(template, role));
   }
   return serviceOk(rows);
 }
@@ -328,25 +187,6 @@ export async function getTemplate(input: TemplateIdInput): Promise<ServiceResult
   return serviceOk(await templateDetailDto(current.template, current.role));
 }
 
-async function resolveTargetSpace(command: {
-  userId: number;
-  spaceId?: number;
-  departmentId?: number;
-  spaceKind?: string;
-}, db: DocsEditorDb) {
-  if (command.spaceId) {
-    return db.documentTemplateSpace.findFirst({ where: { id: command.spaceId, deletedAt: null } });
-  }
-  if (command.departmentId || command.spaceKind === "department") {
-    if (!command.departmentId) return null;
-    return ensureDepartmentSpace(command.departmentId, db);
-  }
-  if (command.spaceKind === "company") {
-    return ensureCompanySpace(db);
-  }
-  return ensurePersonalSpace(command.userId, db);
-}
-
 export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
   const command = buildSaveDraftCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
@@ -356,9 +196,9 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
     const templateId = command.data.templateId;
     const current = await getTemplateWithRole(command.data.userId, templateId);
     if (!current) return serviceError("模板不存在", 404);
-    if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
-    if (!current.space) return serviceError("模板空间不存在", 404);
     const currentSpace = current.space;
+    if (!currentSpace) return serviceError("模板空间不存在", 404);
+    if (!(await canWriteDocsEditorTemplateAction(command.data.userId, currentSpace, current.role))) return serviceError("无权限", 403);
     if (current.template.status === "archived") {
       return serviceError("已归档模板不能直接保存", 409);
     }
@@ -391,7 +231,7 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
   const targetSpace = await resolveTargetSpace(command.data, db);
   if (!targetSpace) return serviceError("目标空间不存在", 404);
   const spaceRole = await resolveSpaceRole(command.data.userId, targetSpace);
-  if (!isDocsEditorRoleAtLeast(spaceRole, "editor")) return serviceError("无权限", 403);
+  if (!(await canCreateDocsEditorTemplateAction(command.data.userId, targetSpace, spaceRole))) return serviceError("无权限", 403);
   const saved = await prisma.$transaction(async (tx) => {
     const txDb = docsEditorDb(tx);
     const created = await txDb.documentTemplate.create({
@@ -427,7 +267,7 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
   const source = await getTemplateWithRole(command.data.userId, command.data.templateId);
   if (!source) return serviceError("模板不存在", 404);
-  if (!isDocsEditorRoleAtLeast(source.role, "viewer")) return serviceError("无权限", 403);
+  if (!source.role) return serviceError("无权限", 403);
 
   const db = docsEditorDb();
   const targetSpace = await resolveTargetSpace({
@@ -437,7 +277,7 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
   }, db);
   if (!targetSpace) return serviceError("目标空间不存在", 404);
   const targetRole = await resolveSpaceRole(command.data.userId, targetSpace);
-  if (!isDocsEditorRoleAtLeast(targetRole, "editor")) return serviceError("无权限", 403);
+  if (!(await canCreateDocsEditorTemplateAction(command.data.userId, targetSpace, targetRole))) return serviceError("无权限", 403);
   const sourceContent = await readTemplateContentJson(source.template);
 
   const saved = await prisma.$transaction(async (tx) => {
@@ -473,7 +313,8 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
   const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
   if (!current) return serviceError("模板不存在", 404);
-  if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
+  if (!current.space) return serviceError("模板空间不存在", 404);
+  if (!(await canDeleteDocsEditorTemplateAction(command.data.userId, current.space, current.role))) return serviceError("无权限", 403);
   if (current.template.status !== "draft") return serviceError("只能删除草稿模板", 409);
   await prisma.$transaction(async (tx) => {
     const txDb = docsEditorDb(tx);
@@ -490,7 +331,7 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
 
 export async function getEditorBootstrap(input: ListTemplatesInput): Promise<ServiceResult<DocsEditorBootstrapDto>> {
   const spacesWithRoles = await listAccessibleSpaces(input.userId);
-  const spaces = spacesWithRoles.map(({ space, role }) => toSpaceDto(space, role));
+  const spaces = await Promise.all(spacesWithRoles.map(({ space, role }) => toSpaceDto(input.userId, space, role)));
   const defaultSpaceId = spacesWithRoles[0]?.space.id;
   const templates = await listTemplatesForSpaces({
     ...input,

@@ -100,8 +100,11 @@ export default function WorksClient({ initialTarget }: {
     () => currentSpace ? plans.filter((plan) => sameTarget(plan, currentSpace)) : [],
     [currentSpace, plans],
   );
-  const canEdit = roleAllows(currentSpace?.role, "editor");
-  const canDelete = roleAllows(currentSpace?.role, "delete");
+  const currentActionPermissions = currentSpace?.actionPermissions;
+  const canCreate = Boolean(currentActionPermissions?.canCreate) && roleAllows(currentSpace?.role, "editor");
+  const canEdit = Boolean(currentActionPermissions?.canWrite) && roleAllows(currentSpace?.role, "editor");
+  const canArchive = Boolean(currentActionPermissions?.canArchive) && roleAllows(currentSpace?.role, "delete");
+  const canDelete = Boolean(currentActionPermissions?.canDelete) && roleAllows(currentSpace?.role, "delete");
   const canManage = roleAllows(currentSpace?.role, "manager");
   const worksState = useWorks(currentSpace, activePlanId);
   const setWorkCreating = worksState.setCreating;
@@ -182,6 +185,7 @@ export default function WorksClient({ initialTarget }: {
     works: worksState.works,
     loading: worksState.loading,
     canEdit,
+    canDelete,
     saving: worksState.saving,
     detailId: worksState.detailId,
     editingId: worksState.editingId,
@@ -369,7 +373,7 @@ export default function WorksClient({ initialTarget }: {
     sideOpen,
     activeTab,
     canManage,
-    canEdit,
+    canCreate,
     planCreating,
     saving: worksState.saving,
     planDraftTitle: planDraft.title,
@@ -420,6 +424,8 @@ export default function WorksClient({ initialTarget }: {
       activePlan,
       canEditPlan: canEdit,
       canDeletePlan: canDelete,
+      canCreatePlan: canCreate,
+      canArchivePlan: canArchive,
       nodeCreating: worksState.creating,
       createNodeDisabled: worksState.saving || editing,
       nodeSaveDisabled: worksState.saving || !worksState.createDraft.content.trim(),

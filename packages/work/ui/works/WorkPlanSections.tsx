@@ -117,6 +117,8 @@ export function createWorkPlanContentSection({
   activePlan,
   canEditPlan,
   canDeletePlan,
+  canCreatePlan,
+  canArchivePlan,
   nodeCreating,
   createNodeDisabled,
   nodeSaveDisabled,
@@ -137,6 +139,8 @@ export function createWorkPlanContentSection({
   activePlan: WorkPlan | null;
   canEditPlan: boolean;
   canDeletePlan: boolean;
+  canCreatePlan: boolean;
+  canArchivePlan: boolean;
   nodeCreating: boolean;
   createNodeDisabled: boolean;
   nodeSaveDisabled: boolean;
@@ -156,6 +160,8 @@ export function createWorkPlanContentSection({
   const planActions = !planCreating && activePlan && canEditPlan
     ? createEditablePlanCommands({
         canDeletePlan,
+        canCreatePlan,
+        canArchivePlan,
         nodeCreating,
         createNodeDisabled,
         planSaveDisabled,
@@ -175,8 +181,9 @@ export function createWorkPlanContentSection({
           createFormSection("plan-form", planFormSurface),
         ] : [
           createWorkPlanHeaderSection(activePlan, createWorkPlanHeaderActions({
-            canEditPlan,
             canDeletePlan,
+            canCreatePlan,
+            canArchivePlan,
             nodeCreating,
             createNodeDisabled,
             nodeSaveDisabled,
@@ -191,7 +198,7 @@ export function createWorkPlanContentSection({
           createFormSection("create-task", {
             ...createTaskSurface,
             commands: [
-              { key: "save-node", label: "保存节点", icon: "check", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
+              { key: "save-node", label: "保存节点", icon: "save", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
               { key: "cancel-node", label: "取消新增", icon: "cancel", variant: "secondary", onClick: onCancelNodeCreate },
             ],
           }, { autoReveal: true }),
@@ -206,8 +213,9 @@ export function createWorkPlanContentSection({
 }
 
 function createWorkPlanHeaderActions({
-  canEditPlan,
   canDeletePlan,
+  canCreatePlan,
+  canArchivePlan,
   nodeCreating,
   createNodeDisabled,
   nodeSaveDisabled,
@@ -217,8 +225,9 @@ function createWorkPlanHeaderActions({
   onSaveNode,
   onCancelNodeCreate,
 }: {
-  canEditPlan: boolean;
   canDeletePlan: boolean;
+  canCreatePlan: boolean;
+  canArchivePlan: boolean;
   nodeCreating: boolean;
   createNodeDisabled: boolean;
   nodeSaveDisabled: boolean;
@@ -229,18 +238,22 @@ function createWorkPlanHeaderActions({
   onCancelNodeCreate: () => void;
 }): BodySurfaceCommandSpec[] | undefined {
   if (nodeCreating) return [
-    { key: "save-node", label: "保存节点", icon: "check", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
+    { key: "save-node", label: "保存节点", icon: "save", variant: "primary", disabled: nodeSaveDisabled, onClick: onSaveNode },
     { key: "cancel-node", label: "取消新增", icon: "cancel", variant: "secondary", onClick: onCancelNodeCreate },
   ];
   const actions: BodySurfaceCommandSpec[] = [];
-  if (canEditPlan) {
+  if (canCreatePlan) {
     actions.push(
       { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled, onClick: onCreateNode },
     );
   }
-  if (canDeletePlan) {
+  if (canArchivePlan) {
     actions.push(
       { key: "archive-plan", label: "归档计划", icon: "archive", variant: "secondary", onClick: onArchivePlan },
+    );
+  }
+  if (canDeletePlan) {
+    actions.push(
       { key: "delete-plan", label: "删除计划", icon: "delete-bin", variant: "danger", onClick: onDeletePlan },
     );
   }
@@ -249,6 +262,8 @@ function createWorkPlanHeaderActions({
 
 function createEditablePlanCommands({
   canDeletePlan,
+  canCreatePlan,
+  canArchivePlan,
   nodeCreating,
   createNodeDisabled,
   planSaveDisabled,
@@ -258,6 +273,8 @@ function createEditablePlanCommands({
   onSavePlan,
 }: {
   canDeletePlan: boolean;
+  canCreatePlan: boolean;
+  canArchivePlan: boolean;
   nodeCreating: boolean;
   createNodeDisabled: boolean;
   planSaveDisabled: boolean;
@@ -267,12 +284,20 @@ function createEditablePlanCommands({
   onSavePlan: () => void;
 }): BodySurfaceCommandSpec[] {
   const commands: BodySurfaceCommandSpec[] = [
-    { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled || nodeCreating, onClick: onCreateNode },
-    { key: "save-plan", label: "保存计划修改", icon: "check", variant: "primary", disabled: planSaveDisabled, onClick: onSavePlan },
+    { key: "save-plan", label: "保存计划修改", icon: "save", variant: "primary", disabled: planSaveDisabled, onClick: onSavePlan },
   ];
-  if (canDeletePlan) {
+  if (canCreatePlan) {
+    commands.unshift(
+      { key: "create-node", label: "新增节点", icon: "add", variant: "primary", disabled: createNodeDisabled || nodeCreating, onClick: onCreateNode },
+    );
+  }
+  if (canArchivePlan) {
     commands.push(
       { key: "archive-plan", label: "归档计划", icon: "archive", variant: "secondary", onClick: onArchivePlan },
+    );
+  }
+  if (canDeletePlan) {
+    commands.push(
       { key: "delete-plan", label: "删除计划", icon: "delete-bin", variant: "danger", onClick: onDeletePlan },
     );
   }

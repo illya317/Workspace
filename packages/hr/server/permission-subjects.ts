@@ -6,9 +6,14 @@ import {
 } from "@workspace/platform/server/auth";
 import { getActionGrants } from "@workspace/platform/server/rbac/action-grants";
 import { buildPermissionRecords, type PermissionRecord } from "@workspace/platform/server/rbac/action-records";
+import type { PermissionActionKey, PermissionActionSource } from "@workspace/platform/permission-actions";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isCapabilityResource } from "@workspace/platform/resources";
-import { getDefaultResourceRole, isDefaultAccessResource } from "@workspace/platform/server/rbac/implicit";
+import {
+  getDefaultResourceRole,
+  IMPLICIT_ALL_ADMIN_POSITION_NAME,
+  isDefaultAccessResource,
+} from "@workspace/platform/server/rbac/implicit";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 
@@ -34,6 +39,70 @@ export interface PermissionGrantData {
   departmentActionGrants: Awaited<ReturnType<typeof getActionGrants>>;
   ancestorResourceKeys: string[];
   actionRecords: Record<number, PermissionRecord>;
+}
+
+type BusinessSpaceRoleLike = "viewer" | "editor" | "delete" | "manager";
+
+export function mergeBusinessSpaceRolesIntoPermissionGrantData(
+  data: PermissionGrantData,
+  {
+    resourceKey,
+    scopeId,
+    roles,
+  }: {
+    resourceKey: string;
+    scopeId: string | null;
+    roles: Array<{ userId: number; role: BusinessSpaceRoleLike; source?: PermissionActionSource }>;
+  },
+): PermissionGrantData {
+  const subjectIdByUserId = new Map<number, number>();
+  for (const subject of data.subjects) {
+    const userId = Number(subject.extra?.userId ?? subject.id);
+    if (Number.isInteger(userId) && userId > 0) subjectIdByUserId.set(userId, subject.id);
+  }
+
+  const actionGrants = roles.flatMap((row) => {
+    const subjectId = subjectIdByUserId.get(row.userId);
+    const actionKey = businessSpaceRoleToActionKey(row.role);
+    return subjectId && actionKey
+      ? [{
+          subjectId,
+          resourceKey,
+          actionKey,
+          resourceId: 0,
+          scopeId,
+          source: row.source ?? "implicit",
+        }]
+      : [];
+  });
+  if (actionGrants.length === 0) return data;
+
+  const directActionGrants = [...data.directActionGrants, ...actionGrants];
+  return {
+    ...data,
+    directActionGrants,
+    actionRecords: buildPermissionRecords({
+      subjects: data.subjects,
+      subjectType: "user",
+      selectedResource: resourceKey,
+      ancestorResourceKeys: data.ancestorResourceKeys,
+      directGrants: data.directGrants,
+      positionGrants: data.positionGrants,
+      departmentGrants: data.departmentGrants,
+      implicitGrants: data.implicitGrants,
+      directActionGrants,
+      positionActionGrants: data.positionActionGrants,
+      departmentActionGrants: data.departmentActionGrants,
+      selectedScopeId: scopeId,
+    }),
+  };
+}
+
+function businessSpaceRoleToActionKey(role: BusinessSpaceRoleLike): PermissionActionKey {
+  if (role === "manager") return "admin";
+  if (role === "delete") return "delete";
+  if (role === "editor") return "write";
+  return "access";
 }
 
 function hasAdminGrant(grants: Awaited<ReturnType<typeof getGrants>>, subjectIds: number[]) {
@@ -63,28 +132,43 @@ function buildImplicitGrants({
   departmentGrants: Awaited<ReturnType<typeof getGrants>>;
 }): PermissionGrantData["implicitGrants"] {
   if (!resourceKey) return [];
-  if (isDefaultAccessResource(resourceKey) && !isCapabilityResource(resourceKey)) {
-    if (subjectType !== "user") return [];
-    const roleKeys = includedDefaultRoleKeys(getDefaultResourceRole(resourceKey) ?? "access");
-    return subjects
-      .filter((subject) => subject.id > 0 && subject.extra?.hasUser)
-      .flatMap((subject) => roleKeys.map((roleKey) => ({ subjectId: subject.id, resourceKey, roleKey, scopeId: null })));
+  const implicitAdminGrants: PermissionGrantData["implicitGrants"] = [];
+  if (subjectType === "user") {
+    for (const subject of subjects) {
+      if (subject.id <= 0 || !subject.extra?.hasUser) continue;
+      if (subject.extra?.isAllResourceAdmin) {
+        implicitAdminGrants.push({ subjectId: subject.id, resourceKey, roleKey: "admin", scopeId: null });
+      }
+    }
   }
-  if (resourceKey !== "settings.admin") return [];
+  if (isDefaultAccessResource(resourceKey) && !isCapabilityResource(resourceKey)) {
+    if (subjectType !== "user") return implicitAdminGrants;
+    const roleKeys = includedDefaultRoleKeys(getDefaultResourceRole(resourceKey) ?? "access");
+    return [
+      ...implicitAdminGrants,
+      ...subjects
+        .filter((subject) => subject.id > 0 && subject.extra?.hasUser)
+        .flatMap((subject) => roleKeys.map((roleKey) => ({ subjectId: subject.id, resourceKey, roleKey, scopeId: null }))),
+    ];
+  }
+  if (resourceKey !== "settings.admin") return implicitAdminGrants;
 
-  return subjects.flatMap((subject) => {
-    const directAdmin = hasAdminGrant(directGrants, [subject.id]);
-    const positionIds = (subject.extra?.positionIds as number[] | undefined) ?? [];
-    const departmentIds = (subject.extra?.departmentIds as number[] | undefined) ?? [];
-    const positionAdmin = subjectType === "user"
-      ? hasAdminGrant(positionGrants, positionIds)
-      : false;
-    const departmentAdmin = subjectType === "user"
-      ? hasAdminGrant(departmentGrants, departmentIds)
-      : false;
-    if (!directAdmin && !positionAdmin && !departmentAdmin) return [];
-    return [{ subjectId: subject.id, resourceKey, roleKey: "access", scopeId: null }];
-  });
+  return [
+    ...implicitAdminGrants,
+    ...subjects.flatMap((subject) => {
+      const directAdmin = hasAdminGrant(directGrants, [subject.id]);
+      const positionIds = (subject.extra?.positionIds as number[] | undefined) ?? [];
+      const departmentIds = (subject.extra?.departmentIds as number[] | undefined) ?? [];
+      const positionAdmin = subjectType === "user"
+        ? hasAdminGrant(positionGrants, positionIds)
+        : false;
+      const departmentAdmin = subjectType === "user"
+        ? hasAdminGrant(departmentGrants, departmentIds)
+        : false;
+      if (!directAdmin && !positionAdmin && !departmentAdmin) return [];
+      return [{ subjectId: subject.id, resourceKey, roleKey: "access", scopeId: null }];
+    }),
+  ];
 }
 
 export async function getPermissionGrantData(
@@ -150,6 +234,7 @@ export async function getPermissionGrantData(
       positionActionGrants,
       departmentActionGrants,
       childResourceKeys,
+      selectedScopeId: scopeId,
     }),
   };
 }
@@ -205,24 +290,51 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
       positions: {
         include: {
           department: { select: { name: true, code: true, id: true } },
-          position: { select: { name: true } },
+          position: { select: { name: true, alias: true } },
         },
       },
     },
   });
 
+  const managerPositionIds = new Set(
+    (
+      await prisma.department.findMany({
+        where: { isArchived: false, managerPositionId: { not: null } },
+        select: { managerPositionId: true },
+      })
+    )
+      .map((department) => department.managerPositionId)
+      .filter((id): id is number => id !== null)
+  );
+
   const employeeUsers = await prisma.employee.findMany({
     where: { userId: { not: null } },
-    select: { employeeId: true, userId: true },
+    select: {
+      employeeId: true,
+      userId: true,
+      user: { select: { username: true, canLogin: true } },
+    },
   });
   const userIdByEmployeeId = new Map(
     employeeUsers.map((e) => [e.employeeId, e.userId!])
+  );
+  const userMetaByEmployeeId = new Map(
+    employeeUsers.map((e) => [e.employeeId, e.user])
   );
 
   const result: SubjectInfo[] = [];
   for (const emp of employees) {
     const userId = userIdByEmployeeId.get(emp.employeeId);
+    const userMeta = userMetaByEmployeeId.get(emp.employeeId);
     const dept = emp.positions[0]?.department;
+    const positionIds = emp.positions
+      .map((p) => p.positionId)
+      .filter((id): id is number => id !== null);
+    const isAllResourceAdmin = emp.positions.some((p) =>
+      p.position?.name === IMPLICIT_ALL_ADMIN_POSITION_NAME ||
+      p.position?.alias === IMPLICIT_ALL_ADMIN_POSITION_NAME
+    );
+    const isDepartmentManager = positionIds.some((positionId) => managerPositionIds.has(positionId));
 
     result.push({
       id: userId ?? 0,
@@ -231,12 +343,15 @@ export async function getUserSubjects(): Promise<SubjectInfo[]> {
         employeeId: emp.employeeId,
         userId,
         hasUser: !!userId,
+        username: userMeta?.username ?? null,
+        canLogin: userMeta?.canLogin ?? false,
         company: resolveCompany(companyMap, dept?.code),
         department: dept?.name || "",
+        position: emp.positions[0]?.position?.name || "",
+        isAllResourceAdmin,
+        isDepartmentManager,
         deptPath: getDeptPath(dept?.id ?? null),
-        positionIds: emp.positions
-          .map((p) => p.positionId)
-          .filter((id): id is number => id !== null),
+        positionIds,
         departmentIds: [
           ...new Set(
             emp.positions

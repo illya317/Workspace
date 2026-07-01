@@ -1,47 +1,78 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
 import {
-  createEmptySection,
+  createFormSection,
   createMessageSection,
   createPageBody,
-  createPageDataSection,
   createSectionSection,
-  InputSurface,
   PageSurface,
-  type DataSurfaceColumnSpec,
+  type SurfaceToolbarItems,
 } from "@workspace/core/ui";
-import { createEmptyEditorDocument } from "@workspace/platform/document-editor";
-import { businessSpaceKindLabel } from "@workspace/platform/permissions";
-import { useSpacePermissionsSections, type SpacePermissionRow } from "@workspace/platform/ui/SpacePermissionsPanel";
-import { createSpaceKindNavigation, createSpaceViewToolbarItem, createSpaceWorkbenchBody, type SpaceWorkbenchKindOption } from "../../space-workbench";
+import { workspacePath } from "@workspace/core/routing";
+import {
+  createEmptyEditorDocument,
+  exportEditorDocumentToDocxBlob,
+  type EditorDocument,
+  type FieldModel,
+} from "@workspace/platform/document-editor";
+import { useSpacePermissionsSections } from "@workspace/platform/ui/SpacePermissionsPanel";
+import {
+  createSpaceKindNavigation,
+  createSpaceViewToolbarItem,
+  createSpaceWorkbenchBody,
+  spaceWorkbenchPanelToolbarItems,
+  type SpaceWorkbenchKindOption,
+} from "../../space-workbench";
 import { fetchPreferredDepartmentSettings } from "../../space-preferences";
 import {
-  DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
   createEditorTemplateDraft,
   fetchEditorBootstrap,
+  fetchEditorTemplate,
   fetchEditorSpacePermissions,
-  saveEditorSpacePermissions,
+  saveEditorTemplateDraft,
+  setEditorSpacePermissionGrant,
   type EditorSpaceDto,
+  type EditorTemplateDetailDto,
   type EditorTemplateListItemDto,
 } from "./api";
+import { createEditorDetailSection } from "./sections";
 import {
+  canEdit,
   canManage,
+  evaluateFieldModel,
   formatDateTime,
   isEditableSpace,
+  normalizeEditorDocument,
+  normalizeFieldModel,
   roleLabel,
   statusLabel,
   statusTone,
 } from "./model";
 
-export default function DocsEditorWorkbench() {
-  const router = useRouter();
+function downloadBlob(blob: Blob, filename: string) {
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = filename;
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
+
+export default function DocsEditorWorkbench({ initialTemplateId = null }: { initialTemplateId?: string | null } = {}) {
   const [spaces, setSpaces] = useState<EditorSpaceDto[]>([]);
   const [templates, setTemplates] = useState<EditorTemplateListItemDto[]>([]);
   const [activeSpaceId, setActiveSpaceId] = useState<string | null>(null);
+  const [activeTemplateId, setActiveTemplateId] = useState<string | null>(initialTemplateId);
+  const [detail, setDetail] = useState<EditorTemplateDetailDto | null>(null);
+  const [documentDraft, setDocumentDraft] = useState<EditorDocument>(() => createEmptyEditorDocument());
+  const [fieldModelDraft, setFieldModelDraft] = useState<FieldModel>(() => ({ schemaVersion: 1, fields: {}, formulas: {} }));
   const [activeTab, setActiveTab] = useState("templates");
   const [loading, setLoading] = useState(true);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [busy, setBusy] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -55,12 +86,17 @@ export default function DocsEditorWorkbench() {
     setLoading(true);
     try {
       const data = await fetchEditorBootstrap(spaceId ?? undefined);
+      const initialTemplate = initialTemplateId ? data.templates.find((template) => template.id === initialTemplateId) : null;
       setSpaces(data.spaces);
       setTemplates(data.templates);
       setActiveSpaceId((current) => {
-        const next = current ?? data.spaces[0]?.id ?? null;
+        const next = current ?? initialTemplate?.spaceId ?? data.spaces[0]?.id ?? null;
         if (!spaceId && !current) hydratedDefaultSpaceIdRef.current = next;
         return next;
+      });
+      setActiveTemplateId((current) => {
+        if (current && data.templates.some((template) => template.id === current)) return current;
+        return initialTemplate?.id ?? data.templates[0]?.id ?? null;
       });
       setMessage(null);
     } catch (error) {
@@ -68,7 +104,7 @@ export default function DocsEditorWorkbench() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [initialTemplateId]);
 
   useEffect(() => {
     if (activeSpaceId && hydratedDefaultSpaceIdRef.current === activeSpaceId) {
@@ -92,18 +128,54 @@ export default function DocsEditorWorkbench() {
     };
   }, []);
 
+  useEffect(() => {
+    if (!activeTemplateId) {
+      setDetail(null);
+      setDetailLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setDetailLoading(true);
+    setMessage(null);
+    fetchEditorTemplate(activeTemplateId)
+      .then((next) => {
+        if (cancelled) return;
+        setDetail(next);
+        setDocumentDraft(normalizeEditorDocument(next));
+        setFieldModelDraft(normalizeFieldModel(next.fieldModel));
+        setActiveSpaceId((current) => current ?? next.spaceId);
+      })
+      .catch((error) => {
+        if (!cancelled) {
+          setDetail(null);
+          setMessage(error instanceof Error ? error.message : "加载模板详情失败");
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setDetailLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeTemplateId]);
+
   const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
-  const spaceKindOptions = docsSpaceKindOptions(spaces, preferredDepartmentIds);
+  const spaceById = useMemo(() => new Map(spaces.map((space) => [space.id, space])), [spaces]);
+  const detailSpace = detail ? spaceById.get(detail.spaceId) ?? null : null;
+  const spaceKindOptions = docsSpaceKindOptions(spaces, preferredDepartmentIds, activeSpace);
   const activeSpaceNavigationKey = activeSpace ? docsSpaceNavigationKey(activeSpace, spaceKindOptions) : spaceKindOptions[0]?.key ?? null;
   const filteredSpaces = filterDocsSpacesByNavigation(spaces, activeSpaceNavigationKey);
-  const canCreateTemplate = Boolean(activeSpace && isEditableSpace(activeSpace));
+  const canCreateTemplate = Boolean(activeSpace?.actionPermissions.canCreate && isEditableSpace(activeSpace));
+  const canWriteTemplate = Boolean(detail && detailSpace?.actionPermissions.canWrite && canEdit(detail.role));
+  const canExportTemplate = Boolean(detail && detailSpace?.actionPermissions.canExport);
   const canManageSpace = canManage(activeSpace?.role);
+  const formulaComputation = useMemo(() => evaluateFieldModel(fieldModelDraft), [fieldModelDraft]);
   const handlePermissionToast = useCallback((toast: { message: string }) => setMessage(toast.message), []);
   const listSpacePermissions = useCallback((space: EditorSpaceDto) => (
-    fetchEditorSpacePermissions(space.id) as Promise<SpacePermissionRow[]>
+    fetchEditorSpacePermissions(space.id)
   ), []);
-  const saveSpacePermissions = useCallback((space: EditorSpaceDto, permissions: Array<{ userId: number; role: SpacePermissionRow["role"] }>) => (
-    saveEditorSpacePermissions(space.id, permissions)
+  const setSpacePermissionGrant = useCallback((space: EditorSpaceDto, input: Parameters<typeof setEditorSpacePermissionGrant>[1]) => (
+    setEditorSpacePermissionGrant(space.id, input)
   ), []);
   const permissionSections = useSpacePermissionsSections({
     target: activeSpace,
@@ -111,10 +183,7 @@ export default function DocsEditorWorkbench() {
     enabled: activeTab === "permissions",
     onToast: handlePermissionToast,
     listPermissions: listSpacePermissions,
-    savePermissions: saveSpacePermissions,
-    referenceEndpoint: DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
-    userFkKey: "docs.editor.permission.user",
-    permissionKind: "template",
+    setPermissionActionGrant: setSpacePermissionGrant,
     saveSuccessText: "模板空间权限已保存",
     loadErrorText: "加载模板空间权限失败",
     saveErrorText: "保存模板空间权限失败",
@@ -131,13 +200,13 @@ export default function DocsEditorWorkbench() {
     if (fallback) setActiveSpaceId(fallback.id);
   }, [activeSpace, activeSpaceNavigationKey, filteredSpaces]);
 
-  async function createTemplate() {
+  async function handleCreateTemplate() {
     const title = createTitle.trim();
     if (!title) {
       setMessage("请输入文件名");
       return;
     }
-    if (!activeSpace || !isEditableSpace(activeSpace)) {
+    if (!activeSpace || !canCreateTemplate) {
       setMessage("当前模板空间不可新增模板");
       return;
     }
@@ -153,7 +222,12 @@ export default function DocsEditorWorkbench() {
       });
       setCreateTitle("");
       setCreateOpen(false);
-      router.push(`/docs/editor/templates/${encodeURIComponent(saved.id)}`);
+      setTemplates((current) => [saved, ...current.filter((template) => template.id !== saved.id)]);
+      setActiveTemplateId(saved.id);
+      setDetail(saved);
+      setDocumentDraft(normalizeEditorDocument(saved));
+      setFieldModelDraft(normalizeFieldModel(saved.fieldModel));
+      pushTemplateHistory(saved.id);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "创建模板失败");
     } finally {
@@ -161,118 +235,149 @@ export default function DocsEditorWorkbench() {
     }
   }
 
-  const templateColumns = useMemo<DataSurfaceColumnSpec<EditorTemplateListItemDto>[]>(() => [
+  async function saveDraft() {
+    if (!detail) return;
+    if (!canWriteTemplate) {
+      setMessage("当前模板无保存权限");
+      return;
+    }
+    setBusy("save");
+    setMessage(null);
+    try {
+      const saved = await saveEditorTemplateDraft(detail.id, {
+        title: detail.title,
+        document: documentDraft,
+        fieldModel: fieldModelDraft,
+      });
+      setDetail(saved);
+      setDocumentDraft(normalizeEditorDocument(saved));
+      setFieldModelDraft(normalizeFieldModel(saved.fieldModel));
+      setTemplates((current) => current.map((template) => template.id === saved.id ? saved : template));
+      setMessage("草稿已保存");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "保存失败");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function exportDocx() {
+    if (!canExportTemplate) {
+      setMessage("当前模板无导出权限");
+      return;
+    }
+    setBusy("export");
+    setMessage(null);
+    try {
+      const blob = await exportEditorDocumentToDocxBlob(documentDraft, formulaComputation.previewValues);
+      downloadBlob(blob, `${detail?.title ?? documentDraft.title}.docx`);
+      setMessage("DOCX 已生成");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "导出 DOCX 失败");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  const editorToolbarItems: SurfaceToolbarItems = activeTab === "templates" ? [
     {
-      key: "title",
-      label: "模板",
-      cell: (row: EditorTemplateListItemDto) => (
-        <div className="min-w-0">
-          <div className="truncate font-medium text-slate-900">{row.title}</div>
-          <div className="mt-0.5 text-xs text-slate-500">
-            {row.stageCount ?? 0} 阶段 · {row.tableCount ?? 0} 表格 · {row.fieldCount ?? 0} 字段 · {row.formulaCount ?? 0} 公式
-          </div>
-        </div>
-      ),
+      kind: "icon-button",
+      key: "save",
+      icon: "save",
+      label: "保存草稿",
+      variant: "primary",
+      onClick: saveDraft,
+      disabled: !detail || busy === "save" || !canWriteTemplate,
     },
-    { key: "type", label: "类型", cell: (row: EditorTemplateListItemDto) => row.type.toUpperCase() },
     {
-      key: "status",
-      label: "状态",
-      cell: (row: EditorTemplateListItemDto) => ({ kind: "badge", label: statusLabel(row.status), tone: statusTone(row.status) }),
+      kind: "icon-button",
+      key: "export",
+      icon: "download",
+      label: "导出 DOCX",
+      onClick: exportDocx,
+      disabled: !detail || busy === "export" || !canExportTemplate,
     },
-    { key: "role", label: "权限", cell: (row: EditorTemplateListItemDto) => roleLabel(row.role) },
-    { key: "updatedAt", label: "更新", cell: (row: EditorTemplateListItemDto) => formatDateTime(row.updatedAt) },
-  ], []);
+  ] : [];
 
   const left = {
     kind: "selector" as const,
     selector: {
       kind: "list" as const,
-      title: "模板空间",
-      items: filteredSpaces,
-      selectedId: activeSpaceId,
+      title: activeSpace ? activeSpace.title : "文档模板",
+      commands: [
+        { key: "create", icon: "add" as const, label: "新增", variant: "primary" as const, onClick: () => setCreateOpen((open) => !open), disabled: loading || !canCreateTemplate },
+      ],
+      items: templates,
+      selectedId: activeTemplateId,
       loading,
-      loadingText: "加载空间...",
-      emptyText: "暂无可用空间",
-      getKey: (item: EditorSpaceDto) => item.id,
-      onSelect: (item: EditorSpaceDto) => {
-        setActiveSpaceId(item.id);
+      loadingText: "加载模板...",
+      emptyText: "暂无模板",
+      getKey: (item: EditorTemplateListItemDto) => item.id,
+      onSelect: (item: EditorTemplateListItemDto) => {
+        setActiveTemplateId(item.id);
         setActiveTab("templates");
+        pushTemplateHistory(item.id);
       },
-      renderItem: (item: EditorSpaceDto) => ({
+      renderItem: (item: EditorTemplateListItemDto) => ({
         title: item.title,
-        subtitle: item.description,
-        tone: item.kind === "personal" ? "blue" as const : item.kind === "company" ? "slate" as const : "emerald" as const,
+        subtitle: `${item.stageCount ?? 0} 阶段 · ${item.tableCount ?? 0} 表格 · ${item.fieldCount ?? 0} 字段 · ${item.formulaCount ?? 0} 公式`,
+        code: statusLabel(item.status),
+        codeTone: statusTone(item.status),
         meta: [
           roleLabel(item.role),
-          businessSpaceKindLabel(item.kind, "docsTemplate"),
+          item.type.toUpperCase(),
+          formatDateTime(item.updatedAt),
         ],
       }),
+      size: "sm" as const,
     },
   };
   const viewOptions = canManageSpace
     ? DOCS_EDITOR_VIEW_OPTIONS
     : DOCS_EDITOR_VIEW_OPTIONS.filter((option) => option.key !== "permissions");
 
-  const templateListSection = createSectionSection("docs-editor-list", {
-    title: activeSpace ? activeSpace.title : "模板列表",
-    actions: [
-      { key: "create", icon: "create" as const, label: "新增", variant: "primary" as const, onClick: () => setCreateOpen((open) => !open), disabled: loading || !canCreateTemplate },
-      { key: "reload", label: "刷新", onClick: () => loadBootstrap(activeSpaceId), disabled: loading },
-    ],
+  const templateEditorSection = createSectionSection("docs-editor-template-editor", {
+    title: detail ? detail.title : activeSpace ? `${activeSpace.title}编辑器` : "模板编辑器",
     sections: [
-      ...(message ? [createMessageSection("docs-editor-list-message", { content: message, tone: "danger" as const })] : []),
-      ...(createOpen ? [createEmptySection("docs-editor-create-template", {
-        presentation: "plain",
-        content: (
-          <form
-            className="flex flex-wrap items-end gap-3 rounded-md border border-emerald-100 bg-emerald-50/40 p-3 text-slate-900"
-            onSubmit={(event) => {
-              event.preventDefault();
-              void createTemplate();
-            }}
-          >
-            <label className="min-w-64 flex-1 space-y-1">
-              <span className="block text-xs font-medium text-slate-500">文件名</span>
-              <InputSurface
-                spec={{ valueType: "string", control: "text", validation: { required: true } }}
-                value={createTitle}
-                placeholder="请输入文件名"
-                density="compact"
-                onChange={(value) => setCreateTitle(String(value ?? ""))}
-              />
-            </label>
-            <button
-              type="submit"
-              disabled={creating || !createTitle.trim()}
-              className="inline-flex h-10 items-center rounded-md bg-emerald-600 px-4 text-sm font-medium text-white shadow-sm transition hover:bg-emerald-700 disabled:bg-slate-300"
-            >
-              {creating ? "创建中..." : "创建"}
-            </button>
-            <button
-              type="button"
-              disabled={creating}
-              className="inline-flex h-10 items-center rounded-md border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm transition hover:border-slate-300 hover:text-slate-900 disabled:text-slate-300"
-              onClick={() => {
-                setCreateOpen(false);
-                setCreateTitle("");
-              }}
-            >
-              取消
-            </button>
-          </form>
-        ),
-      })] : []),
-      createPageDataSection("template-table", {
-        kind: "table",
-        rows: templates,
-        columns: templateColumns,
-        visibleColumns: templateColumns.map((column) => column.key),
-        loading,
-        emptyText: "暂无模板",
-        rowKey: (row: EditorTemplateListItemDto) => row.id,
-        onRowClick: (row: EditorTemplateListItemDto) => router.push(`/docs/editor/templates/${encodeURIComponent(row.id)}`),
-        presentation: { density: "compact", rowHover: "interactive" },
+      ...(message ? [createMessageSection("docs-editor-list-message", { content: message, tone: message.includes("失败") ? "danger" as const : "success" as const })] : []),
+      ...(createOpen ? [createFormSection("docs-editor-create-template", {
+        kind: "filters",
+        content: {
+          items: [{
+            key: "title",
+            label: "文件名",
+            required: true,
+            spec: { valueType: "string", control: "text", validation: { required: true } },
+            value: createTitle,
+            placeholder: "请输入文件名",
+            onChange: (value) => setCreateTitle(String(value ?? "")),
+          }],
+          layout: { flow: "inline", columns: 2, commandPlacement: "inline" },
+        },
+        submit: { onSubmit: () => void handleCreateTemplate() },
+        commands: [
+          { key: "create", label: creating ? "创建中..." : "创建", icon: "add", type: "submit", variant: "primary", disabled: creating || !createTitle.trim() },
+          {
+            key: "cancel",
+            label: "取消",
+            icon: "cancel",
+            disabled: creating,
+            onClick: () => {
+              setCreateOpen(false);
+              setCreateTitle("");
+            },
+          },
+        ],
+      }, { autoReveal: true })] : []),
+      createEditorDetailSection({
+        detail,
+        detailLoading,
+        documentDraft,
+        fieldModelDraft,
+        formulaComputation,
+        message: null,
+        editable: canWriteTemplate,
+        setDocumentDraft,
       }),
     ],
   });
@@ -286,7 +391,7 @@ export default function DocsEditorWorkbench() {
   });
 
   const right = createPageBody([
-    activeTab === "permissions" ? permissionSection : templateListSection,
+    activeTab === "permissions" ? permissionSection : templateEditorSection,
   ]);
 
   return (
@@ -304,8 +409,12 @@ export default function DocsEditorWorkbench() {
       }) : undefined}
       toolbar={activeSpace ? {
         items: [
-          { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: "显示模板空间", visibility: "mobile", onClick: () => setDrawerOpen(true) },
-          { kind: "panel-toggle", key: "desktop-side-toggle", icon: sideOpen ? "panel-open" : "panel-close", label: `${sideOpen ? "隐藏" : "显示"}模板空间`, variant: sideOpen ? "primary" : "secondary", visibility: "desktop", onClick: () => setSideOpen(!sideOpen) },
+          ...spaceWorkbenchPanelToolbarItems({
+            label: "模板列表",
+            open: sideOpen,
+            onOpenDrawer: () => setDrawerOpen(true),
+            onToggleSide: () => setSideOpen(!sideOpen),
+          }),
           createSpaceViewToolbarItem({
             key: "docs-editor-view",
             value: activeTab,
@@ -313,12 +422,13 @@ export default function DocsEditorWorkbench() {
             onChange: setActiveTab,
             ariaLabel: "模板编辑器视图",
           }),
+          ...editorToolbarItems,
         ],
       } : undefined}
       body={createSpaceWorkbenchBody({
         left,
         right,
-        label: activeSpace?.title ?? "模板空间",
+        label: "模板列表",
         open: sideOpen,
         drawerOpen,
         onOpenChange: setSideOpen,
@@ -328,6 +438,11 @@ export default function DocsEditorWorkbench() {
       })}
     />
   );
+}
+
+function pushTemplateHistory(templateId: string) {
+  if (typeof window === "undefined") return;
+  window.history.pushState(null, "", workspacePath(`/docs/editor/templates/${encodeURIComponent(templateId)}`));
 }
 
 const DOCS_EDITOR_VIEW_OPTIONS: SpaceWorkbenchKindOption[] = [
@@ -343,22 +458,26 @@ function docsDepartmentLabel(space: EditorSpaceDto) {
   return space.title.replace(/模板空间$/, "") || space.title;
 }
 
-function preferredDocsDepartmentSpaces(spaces: EditorSpaceDto[], preferredDepartmentIds: number[]) {
+function preferredDocsDepartmentSpaces(spaces: EditorSpaceDto[], preferredDepartmentIds: number[], activeSpace: EditorSpaceDto | null) {
   const departments = spaces.filter((space) => space.kind === "department");
   const byTargetId = new Map(departments.map((space) => [space.targetId, space]));
   const preferred = preferredDepartmentIds.map((id) => byTargetId.get(id)).filter((space): space is EditorSpaceDto => Boolean(space));
-  return (preferred.length > 0 ? preferred : departments).slice(0, 3);
+  const visible = preferred.slice(0, 3);
+  if (activeSpace?.kind === "department" && !visible.some((space) => space.id === activeSpace.id)) return [...visible, activeSpace];
+  return visible;
 }
 
-function docsSpaceKindOptions(spaces: EditorSpaceDto[], preferredDepartmentIds: number[]): SpaceWorkbenchKindOption[] {
+function docsSpaceKindOptions(spaces: EditorSpaceDto[], preferredDepartmentIds: number[], activeSpace: EditorSpaceDto | null): SpaceWorkbenchKindOption[] {
   const items: SpaceWorkbenchKindOption[] = [];
   const personal = spaces.find((space) => space.kind === "personal");
+  const committee = spaces.find((space) => space.kind === "committee");
   const company = spaces.find((space) => space.kind === "company");
   if (personal) items.push({ key: docsSpaceTargetKey(personal), label: "个人" });
-  if (company) items.push({ key: docsSpaceTargetKey(company), label: "公共" });
-  preferredDocsDepartmentSpaces(spaces, preferredDepartmentIds).forEach((space) => {
+  preferredDocsDepartmentSpaces(spaces, preferredDepartmentIds, activeSpace).forEach((space) => {
     items.push({ key: docsSpaceTargetKey(space), label: docsDepartmentLabel(space) });
   });
+  if (committee) items.push({ key: docsSpaceTargetKey(committee), label: "运营委员会" });
+  if (company) items.push({ key: docsSpaceTargetKey(company), label: "公司" });
   return items;
 }
 

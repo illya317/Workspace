@@ -8,29 +8,29 @@
 
 ## 页面结构
 
-AdminClient 渲染两个 Tab：
+AdminClient 渲染管理入口：
 
 | Tab | 组件 | 说明 |
 |-----|------|------|
-| 用户账号 | AdminUsersTab | 用户列表、重置密码、角色管理 |
-| 权限管理 | PermissionsTab | 统一权限矩阵（员工/岗位/部门） |
+| 权限管理 | PermissionsTab / SpacePermissionsTab | 子 tab 为员工、岗位、部门、空间；前三者是资源授权矩阵，空间是个人/部门/公司空间授权入口 |
+| 模块管理 | ModuleManagementTab | 系统管理员维护模块启停 |
 
 ## 核心组件链
 
 ```
 page.tsx
   └─ AdminClient.tsx
-       ├─ AdminUsersTab        — 用户管理
-       └─ PermissionsTab
-            ├─ usePermissionsTab.ts   — 权限数据加载/筛选/排序
-            └─ PermissionDrilldown.tsx — 权限来源详情弹窗
+       ├─ PermissionsTab              — 员工/岗位/部门资源授权
+       ├─ SpacePermissionsTab         — 权限管理下的空间子 tab
+       └─ ModuleManagementTab
 ```
 
 ## 数据流
 
-1. **AdminClient** 加载权限资源树 `/api/settings/admin/permissions`
+1. **AdminClient** 进入员工/岗位/部门权限时加载权限资源树 `/api/settings/admin/permissions`
 2. **PermissionsTab** 按 `subjectType`（user/position/department）切换，加载对应授权数据
-3. **API 路由** 在 `app/api/settings/admin/` 下，分功能子目录（permissions、permission-grants、users 等）
+3. **SpacePermissionsTab** 按空间主体（个人/常用部门/公司）选择任务、项目、模板入口；已接入的入口调用对应模块 API
+4. **API 路由** 在 `app/api/settings/admin/` 下，分功能子目录（permissions、permission-grants、users 等）；空间权限保存由各业务空间 API 自己验权
 
 ## API 规范
 
@@ -49,9 +49,9 @@ Admin API 在 `app/api/settings/admin/` 下：
 ## 权限标准
 
 - 内置 `admin` root 账号 — 拥有全部权限，不属于 RBAC resource
-- `settings.admin.access` — 管理后台入口权限；拥有任意 active resource 的 `admin` 角色会默认有效
+- `/settings/admin` 页面入口只要求登录；后台资源权限 API 和空间权限 API 分别做最终授权校验
 - `manageableResourceKeys` — 进入后台后的实际可管理范围
-- 仅内置 `admin` root 账号 — 可见用户账号、模块管理和系统配置
+- 仅内置 `admin` root 账号 — 可见模块管理和系统配置
 - 资源级权限通过 RBAC 矩阵管理，支持用户/岗位/部门三种授权对象
 
 前端只做显示控制（按钮隐藏），API 必须做最终权限校验。

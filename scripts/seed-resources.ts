@@ -9,6 +9,10 @@ import { fileURLToPath } from "node:url";
 import { PrismaClient } from "../generated/prisma/client";
 import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
 import { RESOURCE_DEFS } from "@workspace/platform/resources";
+import {
+  getPermissionResourceActionPolicy,
+  serializePermissionScopeTypes,
+} from "@workspace/platform/permission-resource-policy";
 
 const scriptDir = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.resolve(scriptDir, "..");
@@ -51,13 +55,14 @@ async function upsertResource(
 
 async function main() {
   for (const resource of RESOURCE_DEFS) {
+    const policy = getPermissionResourceActionPolicy(resource.key);
     await upsertResource(
       resource.key,
       resource.name,
       resource.parentKey,
       resource.maxRoleKey ?? "admin",
-      undefined,
-      "inherit",
+      serializePermissionScopeTypes(policy?.scopeTypes),
+      policy?.scopeInheritanceMode ?? "inherit",
       resource.sortOrder ?? 0,
     );
   }

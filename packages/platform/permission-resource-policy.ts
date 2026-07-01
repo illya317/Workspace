@@ -1,5 +1,24 @@
 import { type PermissionActionKey } from "./permission-actions";
 
+export const PERMISSION_SCOPE_TYPE_KEYS = ["personal", "company", "committee", "department", "project", "other"] as const;
+
+export type PermissionScopeTypeKey = (typeof PERMISSION_SCOPE_TYPE_KEYS)[number];
+export type PermissionScopeInheritanceMode = "inherit" | "self_only";
+
+export interface PermissionScopeTypeDefinition {
+  key: PermissionScopeTypeKey;
+  label: string;
+}
+
+export const PERMISSION_SCOPE_TYPE_DEFS: Record<PermissionScopeTypeKey, PermissionScopeTypeDefinition> = {
+  personal: { key: "personal", label: "个人" },
+  company: { key: "company", label: "公司/公共" },
+  committee: { key: "committee", label: "运营委员会" },
+  department: { key: "department", label: "部门" },
+  project: { key: "project", label: "项目" },
+  other: { key: "other", label: "其他" },
+};
+
 export type PermissionResourcePolicyStatus =
   | "container"
   | "business"
@@ -14,6 +33,8 @@ export interface PermissionResourceActionPolicy {
   supportedActions: readonly PermissionActionKey[];
   ancestorInheritedActions: readonly PermissionActionKey[];
   explicitOnlyActions: readonly PermissionActionKey[];
+  scopeTypes?: readonly PermissionScopeTypeKey[];
+  scopeInheritanceMode?: PermissionScopeInheritanceMode;
   notes?: string;
 }
 
@@ -21,12 +42,9 @@ export const DEFAULT_ANCESTOR_INHERITED_ACTIONS = ["access", "create", "write", 
 
 export const PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "work", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
-  { resourceKey: "work.tasks", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "export", "admin"], notes: "Work task data still uses personal/department/project space rules in services." },
-  { resourceKey: "work.projects", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "export", "admin"], notes: "Project visibility/edit/manage/delete remains object-level; organization project creation is a separate capability." },
+  { resourceKey: "work.tasks", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "admin"], scopeTypes: ["personal", "company", "committee", "department", "project"], scopeInheritanceMode: "self_only", notes: "Work task data uses personal/department/committee/company/project space rules in services; action policy only declares actions with current business support." },
+  { resourceKey: "work.projects", status: "business", supportedActions: ["access", "create", "write", "delete", "revise", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["revise", "admin"], scopeTypes: ["personal", "company", "committee", "department", "other"], scopeInheritanceMode: "self_only", notes: "Project spaces use personal/department/committee/company categories; action policy only declares actions with current business support." },
   { resourceKey: "work.meetings", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "approve", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "approve", "admin"] },
-  { resourceKey: "work.projects.createOrg", status: "capability", supportedActions: ["access", "create", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "create", "admin"] },
-  { resourceKey: "work.projects.viewAll", status: "capability", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "export", "admin"] },
-  { resourceKey: "work.meetings.viewAll", status: "capability", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "export", "admin"] },
   { resourceKey: "hr", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "hr.roster", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "admin"] },
   { resourceKey: "hr.performance", status: "business", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
@@ -54,7 +72,7 @@ export const PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "docs", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "docs.company", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "docs.expense", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
-  { resourceKey: "docs.editor", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "archive", "revise", "import", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["create", "write", "delete", "submit", "withdraw", "approve", "reject", "archive", "revise", "import", "export", "admin"] },
+  { resourceKey: "docs.editor", status: "business", supportedActions: ["access", "create", "write", "delete", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["create", "write", "delete", "export", "admin"], scopeTypes: ["personal", "company", "committee", "department"], scopeInheritanceMode: "self_only", notes: "Template create/write/delete/export APIs require matching resource actions, then docs-editor space roles narrow object access." },
   { resourceKey: "library", status: "container", supportedActions: ["access", "write", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "library.basicInfo", status: "business", supportedActions: ["access", "write", "archive", "import", "export", "admin"], ancestorInheritedActions: ["access", "write"], explicitOnlyActions: ["archive", "import", "export", "admin"], notes: "Document removal is soft archive; scan and generated documents are import-like ingestion paths." },
   { resourceKey: "settings", status: "container", supportedActions: ["access", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
@@ -75,6 +93,14 @@ export function getPermissionResourceActionPolicy(resourceKey: string | null | u
   return resourceKey ? POLICY_BY_RESOURCE.get(resourceKey) ?? null : null;
 }
 
+export function serializePermissionScopeTypes(scopeTypes: readonly PermissionScopeTypeKey[] | null | undefined) {
+  return scopeTypes?.length ? scopeTypes.join(",") : null;
+}
+
+export function getPermissionResourceScopeTypes(resourceKey: string | null | undefined): readonly PermissionScopeTypeKey[] {
+  return getPermissionResourceActionPolicy(resourceKey)?.scopeTypes ?? [];
+}
+
 export function isPermissionActionSupported(resourceKey: string | null | undefined, actionKey: PermissionActionKey) {
   const policy = getPermissionResourceActionPolicy(resourceKey);
   return policy ? policy.supportedActions.includes(actionKey) : false;
@@ -92,4 +118,9 @@ export function isPermissionActionExplicitOnly(resourceKey: string | null | unde
 export function canPermissionActionInheritFromAncestor(resourceKey: string | null | undefined, actionKey: PermissionActionKey) {
   const policy = getPermissionResourceActionPolicy(resourceKey);
   return policy ? policy.ancestorInheritedActions.includes(actionKey) : false;
+}
+
+export function canPermissionResourceInheritGlobalScope(resourceKey: string | null | undefined) {
+  const policy = getPermissionResourceActionPolicy(resourceKey);
+  return policy?.scopeInheritanceMode !== "self_only";
 }

@@ -67,6 +67,7 @@ export function createProjectTaskFormSection(
   function removePredecessor(id: number) {
     patch({ predecessorTaskIds: draft.predecessorTaskIds.filter((item) => item !== id) });
   }
+  const submitIcon: "add" | "save" = submitLabel?.includes("新增") || submitLabel?.includes("创建") ? "add" : "save";
 
   const fields: FormSurfaceItemSpec<number>[] = [
     { key: "name", label: "任务名称", required: true, span: "wide", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: draft.name, onChange: (value) => patch({ name: String(value ?? "") }) },
@@ -105,8 +106,8 @@ export function createProjectTaskFormSection(
   return createFieldsSection<number>(key, fields, {
     layout: { columns: 3 },
     commands: [
-      ...(onCancel ? [{ key: "cancel", label: "取消", disabled, onClick: onCancel }] : []),
-      ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
+      ...(onCancel ? [{ key: "cancel", label: "取消", icon: "cancel" as const, disabled, onClick: onCancel }] : []),
+      ...(submitLabel && onSubmit ? [{ key: "submit", label: submitLabel, icon: submitIcon, variant: "primary" as const, disabled, onClick: onSubmit }] : []),
     ],
   });
 }

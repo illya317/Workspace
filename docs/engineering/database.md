@@ -31,13 +31,13 @@
 | nickname | String | - |  |
 | avatar | String? | - |  |
 | routineItems | String? | - |  |
+| preferredDepartmentIds | String? | - |  |
 | canLogin | Boolean | @default(true) |  |
 | apiKey | String? | @unique |  |
 | employeeId | String? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | sessionVersion | Int | @default(0) |  |
 | editedContracts | Contract[] | @relation("ContractEditor") |  |
-| managedDepartments | Department[] | @relation("DepartmentManager") |  |
 | editHistories | EditHistory[] | @relation("EditHistoryEditor") |  |
 | employees | Employee[] | @relation("EmployeeUser") |  |
 | editedFinanceAccounts | FinanceAccount[] | @relation("FinanceAccountEditor") |  |
@@ -50,6 +50,7 @@
 | snapshotEdits | FinanceBalanceSnapshot[] | @relation("SnapshotEditor") |  |
 | editedLibraryDocuments | LibraryDocument[] | @relation("LibraryDocumentEditor") |  |
 | resourceRoles | UserResourceRole[] | - |  |
+| resourceActionGrants | UserResourceActionGrant[] | - |  |
 | departmentAssignees | DepartmentWorkAssignee[] | - |  |
 | projectAssignees | ProjectWorkAssignee[] | - |  |
 | reviewedReclassResults | ReclassResult[] | @relation("ReclassResultReviewer") |  |
@@ -83,9 +84,12 @@
 | scopeInheritanceMode | String | @default("inherit") |  |
 | departmentRoles | DepartmentResourceRole[] | - |  |
 | positionRoles | PositionResourceRole[] | - |  |
+| departmentActionGrants | DepartmentResourceActionGrant[] | - |  |
+| positionActionGrants | PositionResourceActionGrant[] | - |  |
 | parent | Resource? | @relation("ResHierarchy", fields: [parentId], references: [id]) |  |
 | children | Resource[] | @relation("ResHierarchy") |  |
 | userRoles | UserResourceRole[] | - |  |
+| userActionGrants | UserResourceActionGrant[] | - |  |
 
 ### Role
 
@@ -113,6 +117,18 @@
 | resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
 | user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
 
+### UserResourceActionGrant
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| userId | Int | - |  |
+| resourceId | Int | - |  |
+| actionKey | String | - |  |
+| scopeId | String? | - |  |
+| resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
+| user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
+
 ### PositionResourceRole
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -126,6 +142,18 @@
 | resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
 | position | Position | @relation(fields: [positionId], references: [id], onDelete: Cascade) |  |
 
+### PositionResourceActionGrant
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| positionId | Int | - |  |
+| resourceId | Int | - |  |
+| actionKey | String | - |  |
+| scopeId | String? | - |  |
+| resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
+| position | Position | @relation(fields: [positionId], references: [id], onDelete: Cascade) |  |
+
 ### DepartmentResourceRole
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -136,6 +164,18 @@
 | roleId | Int | - |  |
 | scopeId | String? | - |  |
 | role | Role | @relation(fields: [roleId], references: [id], onDelete: Cascade) |  |
+| resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
+| department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
+
+### DepartmentResourceActionGrant
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| departmentId | Int | - |  |
+| resourceId | Int | - |  |
+| actionKey | String | - |  |
+| scopeId | String? | - |  |
 | resource | Resource | @relation(fields: [resourceId], references: [id], onDelete: Cascade) |  |
 | department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
 
@@ -214,14 +254,8 @@
 | status | String | @default("draft") |  |
 | ownerUserId | Int? | - |  |
 | spaceId | Int | - |  |
-| documentJson | String | - |  |
-| fieldModelJson | String | - |  |
 | documentContentRef | String? | - |  |
-| documentContentHash | String? | - |  |
-| documentContentBytes | Int? | - |  |
 | fieldModelContentRef | String? | - |  |
-| fieldModelContentHash | String? | - |  |
-| fieldModelContentBytes | Int? | - |  |
 | sourceKind | String? | - |  |
 | sourceProductKey | String? | - |  |
 | sourceStageKeys | String? | - |  |
@@ -993,18 +1027,19 @@
 | alias | String? | - |  |
 | level | Int | @default(1) |  |
 | parentId | Int? | - |  |
-| managerUserId | Int? | - |  |
+| managerPositionId | Int? | - |  |
 | isArchived | Boolean | @default(false) |  |
 | archivedAt | DateTime? | - |  |
 | endDate | DateTime? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
-| manager | User? | @relation("DepartmentManager", fields: [managerUserId], references: [id]) |  |
+| managerPosition | Position? | @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id]) |  |
 | parent | Department? | @relation("DeptHierarchy", fields: [parentId], references: [id]) |  |
 | children | Department[] | @relation("DeptHierarchy") |  |
 | descriptions | DepartmentDescription[] | - |  |
 | resourceRoles | DepartmentResourceRole[] | - |  |
+| resourceActionGrants | DepartmentResourceActionGrant[] | - |  |
 | workAssignees | DepartmentWorkAssignee[] | - |  |
 | leadingProjects | Project[] | @relation("ProjectLeadingDepartment") |  |
 | edps | EDP[] | - |  |
@@ -1030,7 +1065,9 @@
 | financeWorkshopReports | FinanceWorkshopReport[] | - |  |
 | positionDescription | PositionDescription? | @relation(fields: [positionDescriptionId], references: [id]) |  |
 | department | Department? | @relation(fields: [departmentId], references: [id]) |  |
+| managedDepartments | Department[] | @relation("DepartmentManagerPosition") |  |
 | resourceRoles | PositionResourceRole[] | - |  |
+| resourceActionGrants | PositionResourceActionGrant[] | - |  |
 
 ### EDP
 

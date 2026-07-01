@@ -7,6 +7,14 @@ export interface WorkUser {
   company?: string | null;
 }
 
+export interface WorkProjectActionPermissions {
+  canCreate: boolean;
+  canCreateOrg: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  canRevise: boolean;
+}
+
 export function workCanEdit(user: WorkUser) {
   if (user.isAdmin) return true;
   const keys = user.visibleWriteResourceKeys || [];
@@ -21,7 +29,7 @@ export function workCanAccessProjects(user: WorkUser) {
 
 export function workCanCreateOrgProject(user: WorkUser) {
   if (user.isAdmin) return true;
-  const keys = user.visibleWriteResourceKeys || [];
+  const keys = user.visibleResourceKeys || [];
   return keys.includes("work.projects.createOrg");
 }
 

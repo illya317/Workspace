@@ -14,7 +14,6 @@ model User {
   createdAt                DateTime                 @default(now())
   sessionVersion           Int                      @default(0)
   editedContracts          Contract[]               @relation("ContractEditor")
-  managedDepartments       Department[]             @relation("DepartmentManager")
   editHistories            EditHistory[]            @relation("EditHistoryEditor")
   employees                Employee[]               @relation("EmployeeUser")
   editedFinanceAccounts    FinanceAccount[]         @relation("FinanceAccountEditor")

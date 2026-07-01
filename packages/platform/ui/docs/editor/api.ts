@@ -1,10 +1,18 @@
 "use client";
 
+import type { SpacePermissionData, SpacePermissionToggleInput } from "@workspace/platform/ui/SpacePermissionsPanel";
 import { requestJson } from "../../api-client";
 
-export type EditorSpaceKind = "personal" | "company" | "department";
+export type EditorSpaceKind = "personal" | "company" | "committee" | "department";
 export type EditorTemplateStatus = "draft" | "published" | "archived";
 export type EditorPermissionRole = "viewer" | "editor" | "delete" | "manager";
+
+export interface EditorSpaceActionPermissions {
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  canExport: boolean;
+}
 
 export interface EditorSpaceDto {
   id: string;
@@ -15,6 +23,7 @@ export interface EditorSpaceDto {
   description?: string;
   departmentId?: number | null;
   role: EditorPermissionRole;
+  actionPermissions: EditorSpaceActionPermissions;
 }
 
 export interface EditorTemplateListItemDto {
@@ -36,15 +45,6 @@ export interface EditorTemplateListItemDto {
 export interface EditorTemplateDetailDto extends EditorTemplateListItemDto {
   document: unknown;
   fieldModel: unknown;
-}
-
-export interface EditorSpacePermissionRow {
-  userId: number;
-  userName: string;
-  role: EditorPermissionRole;
-  kind: "template";
-  source: "natural" | "explicit";
-  locked: boolean;
 }
 
 export interface EditorBootstrapDto {
@@ -79,7 +79,7 @@ export function saveEditorTemplateDraft(templateId: string, body: { document: un
 export function createEditorTemplateDraft(body: {
   spaceId?: string | null;
   departmentId?: number | null;
-  spaceKind?: "personal" | "department" | null;
+  spaceKind?: "personal" | "company" | "committee" | "department" | null;
   title: string;
   type: string;
   document: unknown;
@@ -96,15 +96,15 @@ export function createEditorTemplateDraft(body: {
 }
 
 export function fetchEditorSpacePermissions(spaceId: string) {
-  return requestJson<{ permissions?: EditorSpacePermissionRow[] }>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
+  return requestJson<SpacePermissionData>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
     fallbackMessage: "加载模板空间权限失败",
-  }).then((data) => data.permissions || []);
+  });
 }
 
-export function saveEditorSpacePermissions(spaceId: string, permissions: Array<{ userId: number; role: EditorPermissionRole }>) {
+export function setEditorSpacePermissionGrant(spaceId: string, input: SpacePermissionToggleInput) {
   return requestJson<{ success: true }>(`${API_PREFIX}/spaces/${encodeURIComponent(spaceId)}/permissions`, {
     method: "PUT",
-    body: JSON.stringify({ permissions }),
+    body: JSON.stringify(input),
     fallbackMessage: "保存模板空间权限失败",
   });
 }

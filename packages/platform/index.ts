@@ -10,6 +10,15 @@ export type {
   ApiContractSource,
   ApiMethod,
 } from "./api-registry";
+export {
+  buildSpacePermissionsPath,
+  getRegisteredSpaceDefinitions,
+  registeredSpaceDefinitions,
+} from "./space-registry";
+export type {
+  RegisteredSpaceDefinition,
+  SpacePermissionsPathParams,
+} from "./space-registry";
 export { workspacePackages } from "./modules";
 export {
   ACTION,

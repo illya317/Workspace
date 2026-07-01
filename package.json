@@ -47,6 +47,7 @@
     "arch:surface-boundaries": "tsx scripts/arch/surface-boundaries.ts",
     "arch:surface-page-adoption": "tsx scripts/arch/surface-page-adoption.ts",
     "arch:surface-visualization-adoption": "tsx scripts/arch/surface-visualization-adoption.ts",
+    "arch:ui-helper-purity": "tsx scripts/arch/ui-helper-purity.ts",
     "db:check": "node scripts/check/check-db.js",
     "db:path:check": "node scripts/check/check-database-paths.js",
     "db:docs": "node scripts/generate/gen-db-docs.js",

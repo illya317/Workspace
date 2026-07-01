@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useCallback, useMemo } from "react";
-import type { ResourceItem, Subject, Grant, SubjectType } from "../types";
+import type { ResourceItem, Subject, Grant, SubjectType, PermissionActionKey, PermissionActionRecord } from "../types";
 import { ROLE_META, computePermissionState } from "../lib";
 import { usePermissionFilters } from "./usePermissionFilters";
 
@@ -19,10 +19,21 @@ function findResourceInTree(nodes: ResourceItem[], key: string): ResourceItem | 
 
 export type PermissionsTabState = ReturnType<typeof usePermissionsTab>;
 
+function copyFallback(text: string) {
+  const el = document.createElement("textarea");
+  el.value = text;
+  el.style.cssText = "position:fixed;opacity:0";
+  document.body.appendChild(el);
+  el.select();
+  document.execCommand("copy");
+  document.body.removeChild(el);
+}
+
 export function usePermissionsTab(
   resources: ResourceItem[],
   resourceLookup: ResourceItem[],
-  showToast: (msg: string, type?: "success" | "error") => void
+  showToast: (msg: string, type?: "success" | "error") => void,
+  enabled = true,
 ) {
   const [subjectType, setSubjectType] = useState<SubjectType>("user");
   const [selectedResource, setSelectedResource] = useState<string | null>(null);
@@ -31,6 +42,7 @@ export function usePermissionsTab(
   const [positionGrants, setPositionGrants] = useState<Grant[]>([]);
   const [departmentGrants, setDepartmentGrants] = useState<Grant[]>([]);
   const [implicitGrants, setImplicitGrants] = useState<Grant[]>([]);
+  const [actionRecords, setActionRecords] = useState<Record<number, PermissionActionRecord>>({});
   const [ancestorResourceKeys, setAncestorResourceKeys] = useState<string[]>([]);
   const [maxRoleKey, setMaxRoleKey] = useState("admin");
   const [isSystemAdmin, setIsSystemAdmin] = useState(false);
@@ -51,6 +63,7 @@ export function usePermissionsTab(
   }, [selectedResource, resourceLookup]);
 
   const loadData = useCallback(async () => {
+    if (!enabled) return;
     setLoading(true);
     try {
       const params = new URLSearchParams();
@@ -66,6 +79,7 @@ export function usePermissionsTab(
         setPositionGrants(data.positionGrants || []);
         setDepartmentGrants(data.departmentGrants || []);
         setImplicitGrants(data.implicitGrants || []);
+        setActionRecords(data.actionRecords || {});
         setAncestorResourceKeys(data.ancestorResourceKeys || []);
         setMaxRoleKey(data.maxRoleKey || "admin");
         setIsSystemAdmin(data.isSystemAdmin || false);
@@ -77,11 +91,12 @@ export function usePermissionsTab(
     } finally {
       setLoading(false);
     }
-  }, [subjectType, selectedResource, showToast]);
+  }, [enabled, subjectType, selectedResource, showToast]);
 
   useEffect(() => {
+    if (!enabled) return;
     loadData();
-  }, [loadData]);
+  }, [enabled, loadData]);
 
   // Child resource keys for gray checkmark (no parent grant but child has)
   const childResourceKeys = useMemo(() => {
@@ -103,13 +118,24 @@ export function usePermissionsTab(
     ]
   );
 
-  async function toggleGrant(subject: Subject, roleKey: string) {
+  const getPermissionRecord = useCallback(
+    (subject: Subject) => actionRecords[subject.id] ?? null,
+    [actionRecords],
+  );
+
+  const getActionState = useCallback(
+    (subject: Subject, actionKey: PermissionActionKey) => getPermissionRecord(subject)?.actionStates[actionKey] ?? null,
+    [getPermissionRecord],
+  );
+
+  async function toggleGrant(subject: Subject, actionKey: PermissionActionKey | string) {
     if (subjectType === "user" && !subject.extra?.hasUser) {
       showToast("该员工未关联账号，无法授权", "error");
       return;
     }
 
-    const state = getPermissionState(subject, roleKey);
+    const actionState = getActionState(subject, actionKey as PermissionActionKey);
+    const state = actionState ?? getPermissionState(subject, actionKey);
     const subjectId =
       subjectType === "user"
         ? subject.extra?.userId ?? subject.id
@@ -128,7 +154,7 @@ export function usePermissionsTab(
           subjectType,
           subjectId,
           resourceKey: selectedResource,
-          roleKey,
+          actionKey,
           value: state.source === "direct" ? !state.has : true,
         }),
       });
@@ -165,11 +191,60 @@ export function usePermissionsTab(
     }
   }, [selectedResource, showToast, loadData]);
 
+  const updateAccountLogin = useCallback(async (subject: Subject, canLogin: boolean) => {
+    const userId = subject.extra?.userId;
+    if (!userId) {
+      showToast("该员工未关联账号", "error");
+      return;
+    }
+    try {
+      const res = await fetch(workspacePath(`/api/settings/admin/users/${userId}`), {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ field: "canLogin", value: canLogin }),
+      });
+      if (res.ok) {
+        showToast(canLogin ? "账号已启用" : "账号已停用", "success");
+        await loadData();
+      } else {
+        const e = await res.json().catch(() => ({ error: "操作失败" }));
+        showToast(e.error, "error");
+      }
+    } catch {
+      showToast("网络错误", "error");
+    }
+  }, [loadData, showToast]);
+
+  const resetAccountPassword = useCallback(async (subject: Subject) => {
+    const userId = subject.extra?.userId;
+    if (!userId) {
+      showToast("该员工未关联账号", "error");
+      return;
+    }
+    try {
+      const res = await fetch(workspacePath(`/api/settings/admin/users/${userId}`), { method: "POST" });
+      if (res.ok) {
+        const data = await res.json();
+        const msg = `${subject.name}您好，用户:${subject.extra?.username || "(未设置)"}，密码:${data.password}`;
+        try {
+          await navigator.clipboard.writeText(msg);
+        } catch {
+          copyFallback(msg);
+        }
+        showToast("已复制到剪贴板", "success");
+      } else {
+        const e = await res.json().catch(() => ({ error: "重置失败" }));
+        showToast(e.error, "error");
+      }
+    } catch {
+      showToast("网络错误", "error");
+    }
+  }, [showToast]);
+
   const filters = usePermissionFilters(
     rawSubjects,
     subjectType,
-    getPermissionState,
-    roles
+    getPermissionRecord,
   );
 
   return {
@@ -184,9 +259,12 @@ export function usePermissionsTab(
     nameSearchOptions: filters.nameSearchOptions,
     setDepartmentFilter: filters.setDepartmentFilter,
     nameSearch: filters.nameSearch, setNameSearch: filters.setNameSearch,
+    page: filters.page, pageSize: filters.pageSize, totalPages: filters.totalPages, totalSubjects: filters.totalSubjects,
+    setPage: filters.setPage, setPageSize: filters.setPageSize,
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,
     roles,
-    getPermissionState, toggleGrant,
+    getPermissionState, getPermissionRecord, getActionState, toggleGrant,
     maxRoleKey, isSystemAdmin, updateMaxRole,
+    updateAccountLogin, resetAccountPassword,
   };
 }

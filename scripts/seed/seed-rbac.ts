@@ -149,29 +149,6 @@ async function main() {
   }
   console.log(`   ✓ ${urrCount} UserResourceRole grants`);
 
-  // ─── Step 5: DepartmentAdmin → UserResourceRole ──────────
-  console.log("\n6. Migrating DepartmentAdmin → UserResourceRole...");
-  const deptResId = resourceMap.get("department")!;
-  const adminRoleId = roleMap.get("admin")!;
-  let daCount = 0;
-
-  if (backup.departmentAdmins) {
-    for (const da of backup.departmentAdmins) {
-      try {
-        await prisma.userResourceRole.create({
-          data: {
-            userId: da.userId,
-            resourceId: deptResId,
-            roleId: adminRoleId,
-            scopeId: String(da.departmentId || da.id),
-          },
-        });
-        daCount++;
-      } catch { /* skip */ }
-    }
-  }
-  console.log(`   ✓ ${daCount} department admins`);
-
   // ─── Summary ────────────────────────────────────────────
   console.log("\n=== Migration Complete ===");
   console.log(`   Resources: ${await prisma.resource.count()}`);

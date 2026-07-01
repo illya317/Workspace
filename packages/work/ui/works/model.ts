@@ -10,7 +10,6 @@ export const WORK_CATEGORY_OPTIONS = [
 export const WORK_STATUS_OPTIONS: Array<{ value: WorkItemStatus; label: string }> = [
   { value: "doing", label: "进行中" },
   { value: "done", label: "已完成" },
-  { value: "archived", label: "已归档" },
 ];
 
 export const WORK_ITEM_TYPE_OPTIONS: Array<{ value: WorkItemType; label: string }> = [
@@ -54,6 +53,7 @@ export function getWorkSpaceLabel(type: WorkTargetType) {
 export function getWorkSpacePath(type: WorkTargetType, id: number) {
   if (type === "personal") return `/work/tasks/personal/${id}`;
   if (type === "company") return `/work/tasks/companies/${id}`;
+  if (type === "committee") return `/work/tasks/committees/${id}`;
   if (type === "department") return `/work/tasks/departments/${id}`;
   if (type === "project") return `/work/tasks/projects/${id}`;
   return "/work/tasks";
@@ -64,10 +64,10 @@ export function getWorkTargetFromPath(pathname: string, spaces: WorkTaskSpace[])
     ? pathname.slice(workspaceBasePath.length)
     : pathname;
   if (path === "/work/tasks" || path === "/work/tasks/personal") return spaces.find((space) => space.targetType === "personal") || null;
-  const match = path.match(/^\/work\/tasks\/(personal|companies|departments|projects)\/(\d+)$/);
+  const match = path.match(/^\/work\/tasks\/(personal|companies|committees|departments|projects)\/(\d+)$/);
   if (!match) return null;
   const targetId = Number(match[2]);
-  const targetType = ({ personal: "personal", companies: "company", departments: "department", projects: "project" } as const)[match[1] as "personal" | "companies" | "departments" | "projects"];
+  const targetType = ({ personal: "personal", companies: "company", committees: "committee", departments: "department", projects: "project" } as const)[match[1] as "personal" | "companies" | "committees" | "departments" | "projects"];
   return spaces.find((space) => space.targetType === targetType && space.targetId === targetId) || null;
 }
 

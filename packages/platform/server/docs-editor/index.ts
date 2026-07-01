@@ -8,6 +8,7 @@ export {
   listTemplates,
   saveDraft,
 } from "./service";
+export { ensureDocsEditorSpaceForTarget } from "./space-service";
 export {
   listSpacePermissions,
   updateSpacePermissions,

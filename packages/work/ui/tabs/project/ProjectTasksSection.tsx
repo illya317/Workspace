@@ -21,6 +21,8 @@ import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 type ProjectTasksSectionProps = {
   projectId: number | null;
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   disabled: boolean;
   onChanged?: () => void;
   onCreateChildProject?: (task: ProjectTaskItem) => void;
@@ -30,6 +32,8 @@ type ProjectTasksSectionProps = {
 export function useProjectTasksSection({
   projectId,
   canEdit,
+  canCreate,
+  canDelete,
   disabled,
   onChanged,
   onCreateChildProject,
@@ -126,17 +130,7 @@ export function useProjectTasksSection({
           <span className={`inline-flex rounded px-2 py-0.5 text-xs font-medium ${statusClassName(task.childProjectStatus)}`}>
             {task.childProjectStatus || "已派生"}
           </span>
-        ) : {
-          kind: "action" as const,
-          action: {
-            key: "create-child-project",
-            label: "+",
-            size: "sm",
-            variant: "primary" as const,
-            disabled: saving || disabled || !canEdit || !onCreateChildProject,
-            onClick: () => onCreateChildProject?.(task),
-          },
-        }
+        ) : <span className="text-xs text-slate-400">未派生</span>
       ),
     },
     {
@@ -249,10 +243,10 @@ export function useProjectTasksSection({
     label: "项目任务",
     header: {
       title: "项目任务",
-      actions: projectId && canEdit && !creatingTask ? [{
+      actions: projectId && canCreate && !creatingTask ? [{
         key: "create",
         label: "新增任务",
-        icon: "create",
+        icon: "add",
         variant: "primary",
         disabled: disabled || saving,
         onClick: () => setCreatingTask(true),
@@ -294,6 +288,8 @@ export function useProjectTasksSection({
             disabled,
             saving,
             canEdit,
+            canCreate,
+            canDelete,
             taskOptions,
             phases,
             onRowClick: handleToggleDetail,
@@ -301,6 +297,7 @@ export function useProjectTasksSection({
             onStartEdit: handleStartEdit,
             onSave: handleUpdate,
             onCancelEdit: handleCancelEdit,
+            onCreateChildProject,
             onDelete: handleDelete,
           }) },
         },
@@ -324,6 +321,8 @@ function buildProjectTaskTableSurface({
   disabled,
   saving,
   canEdit,
+  canCreate,
+  canDelete,
   taskOptions,
   phases,
   onRowClick,
@@ -331,6 +330,7 @@ function buildProjectTaskTableSurface({
   onStartEdit,
   onSave,
   onCancelEdit,
+  onCreateChildProject,
   onDelete,
 }: {
   tasks: ProjectTaskItem[];
@@ -342,6 +342,8 @@ function buildProjectTaskTableSurface({
   disabled: boolean;
   saving: boolean;
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   taskOptions: SurfacePickerOptionSpec[];
   phases: ProjectPlanPhaseItem[];
   onRowClick: (task: ProjectTaskItem) => void;
@@ -349,6 +351,7 @@ function buildProjectTaskTableSurface({
   onStartEdit: (task: ProjectTaskItem) => void;
   onSave: () => void;
   onCancelEdit: () => void;
+  onCreateChildProject?: (task: ProjectTaskItem) => void;
   onDelete: (task: ProjectTaskItem) => void;
 }): DataSurfaceProps<ProjectTaskItem> {
   return {
@@ -390,15 +393,22 @@ function buildProjectTaskTableSurface({
       onCancel: onCancelEdit,
     }),
     rowActions: (task) => {
-      if (!canEdit || editingTaskId === task.id) return [];
+      if (editingTaskId === task.id) return [];
       return [
-        {
+        ...(!task.childProjectId && canCreate && onCreateChildProject ? [{
+          key: "create-child-project",
+          kind: "add" as const,
+          label: "派生子项目",
+          onClick: () => onCreateChildProject(task),
+          disabled: saving || disabled,
+        }] : []),
+        ...(canDelete ? [{
           key: "delete",
           kind: "delete" as const,
           label: "删除任务",
           onClick: () => void onDelete(task),
           disabled: saving || disabled || Boolean(task.childProjectId),
-        },
+        }] : []),
       ];
     },
     scroll: { y: "hidden" },

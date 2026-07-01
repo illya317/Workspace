@@ -5,7 +5,7 @@ import { z } from "zod";
 import { useFeedback } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { type WorkUser, workCanAccessProjects, workCanCreateOrgProject } from "@workspace/work/types";
+import { type WorkProjectActionPermissions, type WorkUser } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectTasks, syncMembers, updateProjectField } from "./api";
 import {
   MULTI_PROJECT_ROLES,
@@ -76,9 +76,9 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
 
 const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId"] as const;
 
-export function useProjectTabModel(user: WorkUser, initialProjectId?: number | null) {
-  const canCreate = workCanAccessProjects(user);
-  const canCreateOrg = workCanCreateOrgProject(user);
+export function useProjectTabModel(user: WorkUser, actionPermissions: WorkProjectActionPermissions, initialProjectId?: number | null) {
+  const canCreate = actionPermissions.canCreate;
+  const canCreateOrg = actionPermissions.canCreate && actionPermissions.canCreateOrg;
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
   const [selection, setSelection] = useState<number | null>(null);
@@ -92,6 +92,7 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
   const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("all");
   const [projectTypeFilter, setProjectTypeFilter] = useState<ProjectType>("department");
+  const [projectDepartmentFilter, setProjectDepartmentFilter] = useState<number | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { notify } = useFeedback();
   const setToast = useCallback((toast: { type: "success" | "error"; message: string } | null) => {
@@ -99,9 +100,10 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }, [notify]);
 
   const filteredProjects = useMemo(
-    () => projects.filter((project) => projectMatchesFilter(project, projectListFilter, projectTypeFilter)),
-    [projectListFilter, projectTypeFilter, projects]
+    () => projects.filter((project) => projectMatchesFilter(project, projectListFilter, projectTypeFilter, projectDepartmentFilter)),
+    [projectDepartmentFilter, projectListFilter, projectTypeFilter, projects]
   );
+  const projectDepartmentOptions = useMemo(() => projectDepartmentFilterOptions(projects), [projects]);
   const selectedProject = useMemo(
     () => typeof selection === "number" ? projects.find((project) => project.id === selection) || null : null,
     [projects, selection]
@@ -115,10 +117,17 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
     [draft, selectedTasks]
   );
   const dirty = draftSnapshot(draft) !== baseline;
-  const canEditCurrent = draft?.id ? Boolean(selectedProject?.permissions.canEdit) : canCreate;
-  const canManageCurrent = draft?.id ? Boolean(selectedProject?.permissions.canManage) : canCreate;
-  const canDeleteCurrent = draft?.id ? Boolean(selectedProject?.permissions.canDelete) : false;
-  const canSave = !!draft && canEditCurrent && !saving && dirty;
+  const canCreateDraftProject = draft && !draft.id
+    ? draft.projectType === "company" ? canCreateOrg : canCreate
+    : false;
+  const selectedActionPermissions = selectedProject?.actionPermissions;
+  const canEditCurrent = draft?.id ? Boolean(selectedActionPermissions?.canWrite && selectedProject?.permissions.canEdit) : Boolean(canCreateDraftProject);
+  const canManageCurrent = draft?.id ? Boolean(selectedActionPermissions?.canWrite && selectedProject?.permissions.canManage) : Boolean(canCreateDraftProject);
+  const canDeleteCurrent = draft?.id ? Boolean(selectedActionPermissions?.canDelete && selectedProject?.permissions.canDelete) : false;
+  const canCreateCurrent = draft?.id ? Boolean(selectedActionPermissions?.canCreate && selectedProject?.permissions.canEdit) : Boolean(canCreateDraftProject);
+  const canDeleteSubresourceCurrent = draft?.id ? Boolean(selectedActionPermissions?.canDelete && selectedProject?.permissions.canEdit) : false;
+  const canReviseCurrent = draft?.id ? Boolean(selectedActionPermissions?.canRevise && selectedProject?.permissions.canEdit) : false;
+  const canSave = !!draft && (draft.id ? canEditCurrent : canCreateDraftProject) && !saving && dirty;
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -138,6 +147,8 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
         : null;
       if (requestedProject) {
         setProjectListFilter(filterForProjectLevel(requestedProject.projectLevel));
+        setProjectTypeFilter(requestedProject.projectType);
+        setProjectDepartmentFilter(requestedProject.projectType === "department" ? requestedProject.leadingDepartmentId ?? null : null);
         setSelection(requestedProject.id);
       } else {
         setSelection((prev) => nextProjects.some((project) => project.id === prev) ? prev : null);
@@ -162,6 +173,16 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }, []);
 
   useEffect(() => { loadData(); }, [loadData]);
+
+  useEffect(() => {
+    if (projectTypeFilter !== "department") return;
+    if (projectDepartmentOptions.length === 0) {
+      if (projectDepartmentFilter !== null) setProjectDepartmentFilter(null);
+      return;
+    }
+    if (projectDepartmentFilter !== null && projectDepartmentOptions.some((option) => option.id === projectDepartmentFilter)) return;
+    setProjectDepartmentFilter(projectDepartmentOptions[0].id);
+  }, [projectDepartmentFilter, projectDepartmentOptions, projectTypeFilter]);
 
   useEffect(() => {
     if (creating || loading) return;
@@ -277,12 +298,13 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   function startCreateProject() {
+    const selectedDepartment = projectDepartmentOptions.find((option) => option.id === projectDepartmentFilter) ?? null;
     const nextDraft = {
       ...createEmptyProjectDraft(),
       projectType: projectTypeFilter,
-      leadingDepartmentId: projectTypeFilter === "department" ? null : null,
-      leadingDepartmentName: projectTypeFilter === "department" ? "" : null,
-      leadingDepartmentCode: projectTypeFilter === "department" ? "" : null,
+      leadingDepartmentId: projectTypeFilter === "department" ? selectedDepartment?.id ?? null : null,
+      leadingDepartmentName: projectTypeFilter === "department" ? selectedDepartment?.name ?? "" : null,
+      leadingDepartmentCode: projectTypeFilter === "department" ? selectedDepartment?.code ?? "" : null,
     };
     setProjectListFilter(filterForProjectLevel(nextDraft.projectLevel));
     setCreating(true);
@@ -329,11 +351,11 @@ export function useProjectTabModel(user: WorkUser, initialProjectId?: number | n
   }
 
   return {
-    canCreateProject: projectTypeFilter === "company" ? canCreateOrg : canCreate, canDeleteCurrent, canEditCurrent, canManageCurrent, canSave, creating, dirty, draft, error,
-    filteredProjects, loading, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectTypeFilter, rasciRows, saving,
+    canCreateProject: projectTypeFilter === "company" ? canCreateOrg : canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, creating, dirty, draft, error,
+    filteredProjects, loading, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectTypeFilter, rasciRows, saving,
     selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject, startCreateChildProject,
-    setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setProjectTypeFilter, setRoleMembers, setSelection,
+    setProjectDepartmentFilter, setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setProjectTypeFilter, setRoleMembers, setSelection,
     loadSelectedTasks, setToast, updateDraft,
   };
 }
@@ -344,10 +366,24 @@ function deriveStatusFromActualDates(startDate: string | null, endDate: string |
   return "未开始";
 }
 
-function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter, typeFilter: ProjectType) {
+function projectMatchesFilter(project: ProjectItem, filter: ProjectListFilter, typeFilter: ProjectType, departmentFilter: number | null) {
   if (project.projectType !== typeFilter) return false;
+  if (typeFilter === "department" && departmentFilter !== null && project.leadingDepartmentId !== departmentFilter) return false;
   if (filter === "all") return true;
   return (project.projectLevel || "普通") === filter;
+}
+
+function projectDepartmentFilterOptions(projects: ProjectItem[]) {
+  const departments = new Map<number, { id: number; name: string; code: string | null }>();
+  for (const project of projects) {
+    if (project.projectType !== "department" || !project.leadingDepartmentId) continue;
+    departments.set(project.leadingDepartmentId, {
+      id: project.leadingDepartmentId,
+      name: project.leadingDepartmentName || "未命名部门",
+      code: project.leadingDepartmentCode ?? null,
+    });
+  }
+  return Array.from(departments.values()).sort((a, b) => (a.code || a.name).localeCompare(b.code || b.name, "zh-Hans-CN"));
 }
 
 function filterForProjectLevel(projectLevel: string | null | undefined): ProjectListFilter {

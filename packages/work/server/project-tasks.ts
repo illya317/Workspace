@@ -1,7 +1,7 @@
 import { serviceError, serviceOk, serviceResponse, type ServiceResult } from "@workspace/platform/server/api";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
-import { canEditProject, canViewProject } from "./access";
+import { canCreateProjectAction, canDeleteProjectSubresourceAction, canViewProject, canWriteProjectAction } from "./access";
 import { deriveStatusFromActualDates } from "./project-dates";
 import { formatDate } from "./project-normalization";
 import {
@@ -117,7 +117,7 @@ export async function listProjectTasks(input: { userId: number; projectId: numbe
 }
 
 export async function createProjectTask(input: { userId: number; projectId: number; body: ProjectTaskInput }) {
-  if (!(await canEditProject(input.userId, input.projectId))) {
+  if (!(await canCreateProjectAction(input.userId, input.projectId))) {
     return serviceError("无权限", 403);
   }
   const normalized = normalizeProjectTaskInput(input.body, "create");
@@ -186,7 +186,7 @@ export async function updateProjectTask(input: { userId: number; projectId: numb
   if (!existing || existing.projectId !== input.projectId) {
     return serviceError("任务不存在", 404);
   }
-  if (!(await canEditProject(input.userId, input.projectId))) {
+  if (!(await canWriteProjectAction(input.userId, input.projectId))) {
     return serviceError("无权限", 403);
   }
   const normalized = normalizeProjectTaskInput(input.body, "update");
@@ -352,7 +352,7 @@ export async function deleteProjectTask(input: { userId: number; projectId: numb
   if (!existing || existing.projectId !== input.projectId) {
     return serviceError("任务不存在", 404);
   }
-  if (!(await canEditProject(input.userId, input.projectId))) {
+  if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) {
     return serviceError("无权限", 403);
   }
   if (existing.childProject) {

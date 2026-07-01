@@ -37,6 +37,7 @@ export default function WorkFormSection({
         actions: isAdmin && !showForm && !editingWork ? [{
           key: "add",
           label: "添加节点",
+          icon: "add",
           variant: "primary",
           onClick: onAddClick,
         }] : undefined,

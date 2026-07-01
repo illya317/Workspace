@@ -28,13 +28,17 @@
   "businessModuleViewUsages": [],
   "businessPageLayoutPrimitiveUsages": [],
   "businessToolbarCompositionWarnings": [],
-  "businessCoreUiRoleBypassImports": [],
+  "businessCoreUiRoleBypassImports": [
+    "packages/finance/ui/cost/components/ImportHistoryTable.tsx: BodySurface from @workspace/core/ui (secondary-declaration: business value import must use an explicit Core UI runtime entry or helper; secondary declarations are expressed through specs)",
+    "packages/library/ui/components/DocumentsTab.tsx: BodySurface from @workspace/core/ui (secondary-declaration: business value import must use an explicit Core UI runtime entry or helper; secondary declarations are expressed through specs)",
+    "packages/library/ui/components/LibraryTable.tsx: BodySurface from @workspace/core/ui (secondary-declaration: business value import must use an explicit Core UI runtime entry or helper; secondary declarations are expressed through specs)",
+    "packages/production/ui/qc/QcBatchListClient.tsx: BodySurface from @workspace/core/ui (secondary-declaration: business value import must use an explicit Core UI runtime entry or helper; secondary declarations are expressed through specs)"
+  ],
   "uiForbiddenCoreUiTypeImports": [],
   "pageSurfaceLayoutProtocolWarnings": [],
   "platformCoreUiRoleBypassImports": [],
   "pageDesignDriftFiles": [
-    "packages/hr/ui/tabs/department-position/navigation-panels.tsx: handwritten-action-button,handwritten-surface",
-    "packages/production/ui/qc/QcBatchListClient.tsx: handwritten-surface,handwritten-toolbar-layout",
+    "packages/production/ui/qc/QcBatchListClient.tsx: handwritten-surface",
     "packages/production/ui/qc/QcBatchRecordStageList.tsx: handwritten-layout-grid",
     "packages/production/ui/qc/QcPaperDateInput.tsx: handwritten-form-control",
     "packages/production/ui/qc/QcPaperInputs.tsx: handwritten-form-control"

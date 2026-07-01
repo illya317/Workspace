@@ -9,11 +9,15 @@ import type { ProjectPlanPhaseItem } from "./plan-gantt-model";
 export function useProjectPlanManagementSection({
   projectId,
   canEdit,
+  canCreate,
+  canDelete,
   disabled,
   onToast,
 }: {
   projectId: number | null;
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   disabled: boolean;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }): BodySurfaceSectionSpec {
@@ -42,6 +46,8 @@ export function useProjectPlanManagementSection({
     projectId,
     phases,
     canEdit,
+    canCreate,
+    canDelete,
     disabled: disabled || loading,
     onChanged: loadPlan,
   });
@@ -50,6 +56,8 @@ export function useProjectPlanManagementSection({
 export default function ProjectPlanManagementSection(props: {
   projectId: number | null;
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   disabled: boolean;
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 }) {

@@ -1,19 +1,27 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createBodySplitSection, createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
 import type { PageSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
-import { createSpaceKindNavigation, createSpaceViewToolbarItem, type SpaceWorkbenchKindOption } from "@workspace/platform/ui";
+import {
+  createSpaceKindNavigation,
+  createSpaceViewToolbarItem,
+  createSpaceWorkbenchBody,
+  spaceWorkbenchPanelToolbarItems,
+  type SpaceWorkbenchKindOption,
+} from "@workspace/platform/ui";
+import { useSpacePermissionsSections, type SpacePermissionToggleInput } from "@workspace/platform/ui/SpacePermissionsPanel";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import type { WorkUser } from "@workspace/work/types";
-import { useProjectDetailEditorSection } from "./project/ProjectDetailEditor";
+import type { WorkProjectActionPermissions, WorkUser } from "@workspace/work/types";
+import { useProjectDetailEditorSection, type ProjectDetailViewKey } from "./project/ProjectDetailEditor";
 import ProjectGanttTab from "./project/ProjectGanttTab";
 import ProjectPlanGanttTab from "./project/ProjectPlanGanttTab";
+import { listProjectPermissions, setProjectPermissionGrant } from "./project/api";
 import { PROJECT_LIST_FILTER_OPTIONS, projectCode, type ProjectItem, type ProjectListFilter } from "./project/model";
 import { useProjectTabModel } from "./project/use-project-tab-model";
 
-export default function ProjectTab({ user }: { user: WorkUser }) {
+export default function ProjectTab({ user, actionPermissions }: { user: WorkUser; actionPermissions: WorkProjectActionPermissions }) {
   const searchParams = useSearchParams();
   const tabs = useMemo(() => getPageViewTabs("/work/projects"), []);
   const [activeChild, setActiveChild] = useState("projects");
@@ -38,23 +46,28 @@ export default function ProjectTab({ user }: { user: WorkUser }) {
   if (activeChild === "project-plan-gantt") {
     return <ProjectPlanGanttTab requestedProjectId={requestedProjectId} surface={surface} />;
   }
-  return <ProjectLedgerTab user={user} surface={surface} />;
+  return <ProjectLedgerTab user={user} actionPermissions={actionPermissions} surface={surface} />;
 }
 
 type ProjectChildSurfaceProps = Pick<PageSurfaceProps, "navigation" | "toolbar">;
 
 const PROJECT_SCOPE_OPTIONS: SpaceWorkbenchKindOption[] = [
   { key: "company", label: "运营委员会" },
-  { key: "department", label: "部门" },
   { key: "other", label: "其他" },
 ];
 
-function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: ProjectChildSurfaceProps }) {
+function ProjectLedgerTab({ user, actionPermissions, surface }: { user: WorkUser; actionPermissions: WorkProjectActionPermissions; surface?: ProjectChildSurfaceProps }) {
   const searchParams = useSearchParams();
   const requestedProjectId = Number(searchParams.get("projectId") || "");
-  const model = useProjectTabModel(user, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
+  const model = useProjectTabModel(user, actionPermissions, Number.isInteger(requestedProjectId) && requestedProjectId > 0 ? requestedProjectId : null);
   const feedback = useFeedback();
+  const [activeProjectDetailView, setActiveProjectDetailView] = useState<ProjectDetailViewKey>("overview");
   const editorTitle = model.creating ? "新建项目" : model.selectedProject ? "项目信息" : "项目详情";
+  const projectScopeOptions = useMemo(() => projectScopeOptionsForDepartments(model.projectDepartmentOptions), [model.projectDepartmentOptions]);
+  const activeProjectScopeKey = model.projectTypeFilter === "department"
+    ? model.projectDepartmentFilter !== null ? departmentScopeKey(model.projectDepartmentFilter) : "department"
+    : model.projectTypeFilter;
+  const activeProjectScopeLabel = projectScopeOptions.find((option) => option.key === activeProjectScopeKey)?.label ?? "";
   const startProjectCreate = () => {
     model.setProjectListFilter("普通");
     model.setProjectListOpen(true);
@@ -80,7 +93,42 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       });
     }
   };
+  const selectedProjectPermissionTarget = useMemo(
+    () => model.selectedProject ? { id: model.selectedProject.id } : null,
+    [model.selectedProject],
+  );
+  const listProjectPermissionTarget = useCallback(
+    (target: { id: number }) => listProjectPermissions(target.id),
+    [],
+  );
+  const setProjectPermissionTargetGrant = useCallback(
+    (target: { id: number }, input: SpacePermissionToggleInput) => setProjectPermissionGrant(target.id, input),
+    [],
+  );
+  const projectPermissionSections = useSpacePermissionsSections({
+    target: selectedProjectPermissionTarget,
+    canManage: model.canManageCurrent,
+    enabled: Boolean(model.selectedProject && model.canManageCurrent),
+    onToast: model.setToast,
+    listPermissions: listProjectPermissionTarget,
+    setPermissionActionGrant: setProjectPermissionTargetGrant,
+    deniedText: "仅项目管理员可维护权限。",
+    loadErrorText: "加载项目权限失败",
+    saveErrorText: "保存项目权限失败",
+    saveSuccessText: "项目权限已更新",
+  });
+  const projectDetailViewOptions = useMemo(() => [
+    { value: "overview", label: editorTitle },
+    { value: "plan", label: "项目计划" },
+    ...(model.selectedProject && model.canManageCurrent ? [{ value: "permissions", label: "权限设置" }] : []),
+  ], [editorTitle, model.canManageCurrent, model.selectedProject]);
+  useEffect(() => {
+    if (!projectDetailViewOptions.some((option) => option.value === activeProjectDetailView)) {
+      setActiveProjectDetailView("overview");
+    }
+  }, [activeProjectDetailView, projectDetailViewOptions]);
   const projectDetailSection = useProjectDetailEditorSection({
+    activeView: activeProjectDetailView,
     editorTitle,
     dirty: model.dirty,
     draft: model.draft,
@@ -88,6 +136,8 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
     canEditCurrent: model.canEditCurrent,
     canManageCurrent: model.canManageCurrent,
     canDeleteCurrent: model.canDeleteCurrent,
+    canCreateCurrent: model.canCreateCurrent,
+    canDeleteSubresourceCurrent: model.canDeleteSubresourceCurrent,
     saving: model.saving,
     canSave: model.canSave,
     rasciRows: model.rasciRows,
@@ -105,6 +155,8 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       model.setSelection(projectId);
     },
     onProjectTasksChanged: (projectId) => void model.loadSelectedTasks(projectId),
+    onActiveViewChange: setActiveProjectDetailView,
+    permissionSections: projectPermissionSections,
     onToast: model.setToast,
   });
 
@@ -114,23 +166,21 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
       toolbar={model.loading || model.error ? undefined : {
         items: [
               ...(surface?.toolbar?.items ?? []),
-              {
-                kind: "panel-toggle",
-                key: "mobile-side-toggle",
-                icon: "panel-open",
-                label: "显示项目列表",
-                visibility: "mobile",
-                onClick: () => model.setProjectListDrawerOpen(true),
-              },
-              {
-                kind: "panel-toggle",
-                key: "desktop-side-toggle",
-                icon: model.projectListOpen ? "panel-open" : "panel-close",
-                label: `${model.projectListOpen ? "隐藏" : "显示"}项目列表`,
-                variant: model.projectListOpen ? "primary" : "secondary",
-                visibility: "desktop",
-                onClick: () => model.setProjectListOpen(!model.projectListOpen),
-              },
+              ...spaceWorkbenchPanelToolbarItems({
+                label: "项目列表",
+                open: model.projectListOpen,
+                onOpenDrawer: () => model.setProjectListDrawerOpen(true),
+                onToggleSide: () => model.setProjectListOpen(!model.projectListOpen),
+              }),
+              ...(model.draft ? [{
+                kind: "option-group" as const,
+                key: "project-detail-view",
+                value: activeProjectDetailView,
+                options: projectDetailViewOptions,
+                presentation: "segmented" as const,
+                onChange: (value: string) => setActiveProjectDetailView(value as ProjectDetailViewKey),
+                ariaLabel: "项目详情视图",
+              }] : []),
               {
                 kind: "option-group",
                 key: "project-filter",
@@ -143,7 +193,7 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
                 ? [{
                     kind: "create" as const,
                     key: "create-project",
-                    label: `新建${PROJECT_SCOPE_OPTIONS.find((option) => option.key === model.projectTypeFilter)?.label ?? ""}项目`,
+                    label: `新建${activeProjectScopeLabel}项目`,
                     active: model.creating,
                     onClick: startProjectCreate,
                   }]
@@ -151,18 +201,17 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
             ],
       }}
       navigation={createSpaceKindNavigation({
-        items: PROJECT_SCOPE_OPTIONS,
-        active: model.projectTypeFilter,
-        onChange: (key) => model.setProjectTypeFilter(key as ProjectItem["projectType"]),
+        items: projectScopeOptions,
+        active: activeProjectScopeKey,
+        onChange: (key) => {
+          const scope = parseProjectScopeKey(key);
+          model.setProjectTypeFilter(scope.projectType);
+          model.setProjectDepartmentFilter(scope.departmentId);
+        },
         ariaLabel: "项目空间类型",
       })}
-      body={createBodySplitSection({
+      body={createSpaceWorkbenchBody({
         left: { kind: "selector", selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
-          model.setCreating(false);
-          model.setSelection(projectId);
-          model.setProjectListDrawerOpen(false);
-        }, model.loading, model.error) },
-        drawerLeft: { kind: "selector", selector: projectListSelector(model.filteredProjects, model.projectListFilter, model.selection, (projectId) => {
           model.setCreating(false);
           model.setSelection(projectId);
           model.setProjectListDrawerOpen(false);
@@ -171,18 +220,38 @@ function ProjectLedgerTab({ user, surface }: { user: WorkUser; surface?: Project
           content: model.error || "加载中...",
           tone: model.error ? "danger" : "muted"
         })]) : projectDetailSection,
-        side: {
-          label: "项目列表",
-          open: model.projectListOpen,
-          drawerOpen: model.projectListDrawerOpen,
-          onOpenChange: model.setProjectListOpen,
-          onDrawerOpenChange: model.setProjectListDrawerOpen,
-          showControls: false,
-        },
-        layout: { ratio: [2, 8] },
+        label: "项目列表",
+        open: model.projectListOpen,
+        drawerOpen: model.projectListDrawerOpen,
+        onOpenChange: model.setProjectListOpen,
+        onDrawerOpenChange: model.setProjectListDrawerOpen,
+        ratio: [0.2, 0.8],
+        showControls: false,
       })}
 			    />
   );
+}
+
+function departmentScopeKey(departmentId: number) {
+  return `department:${departmentId}`;
+}
+
+function projectScopeOptionsForDepartments(departments: Array<{ id: number; name: string; code: string | null }>): SpaceWorkbenchKindOption[] {
+  return [
+    PROJECT_SCOPE_OPTIONS[0],
+    ...departments.map((department) => ({ key: departmentScopeKey(department.id), label: department.name })),
+    ...(departments.length === 0 ? [{ key: "department", label: "部门" }] : []),
+    PROJECT_SCOPE_OPTIONS[1],
+  ];
+}
+
+function parseProjectScopeKey(key: string): { projectType: ProjectItem["projectType"]; departmentId: number | null } {
+  if (key.startsWith("department:")) {
+    const departmentId = Number(key.slice("department:".length));
+    return { projectType: "department", departmentId: Number.isFinite(departmentId) ? departmentId : null };
+  }
+  if (key === "company" || key === "other") return { projectType: key, departmentId: null };
+  return { projectType: "department", departmentId: null };
 }
 
 function projectListSelector(

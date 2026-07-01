@@ -79,10 +79,11 @@ export function useWorkFormSection({
     layout: { columns: 2 },
 
     commands: [
-      { key: "cancel", label: "取消", onClick: onCancel },
+      { key: "cancel", label: "取消", icon: "cancel", onClick: onCancel },
       {
         key: "save",
         label: initial ? "保存" : "添加节点",
+        icon: initial ? "save" : "add",
         disabled: !content.trim(),
         variant: "primary",
         onClick: () =>

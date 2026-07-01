@@ -4,6 +4,7 @@ import { isResourceEnabled } from "../../effective-module-registry";
 import { getResourceDescendants } from "./resource";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { isRootAdminUser } from "../auth/root";
+import { getImplicitAdminResourceIdsForUser, isImplicitAllResourceAdminUser } from "./implicit-admins";
 
 /**
  * Find all resource IDs where the user (or their positions/departments)
@@ -48,9 +49,12 @@ async function findAdminResourceIds(userId: number): Promise<number[]> {
  */
 export async function getManageableResourceKeys(userId: number): Promise<Set<string>> {
   const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
-  if (await isRootAdminUser(userId)) return new Set(activeResourceKeys);
+  if (await isRootAdminUser(userId) || await isImplicitAllResourceAdminUser(userId)) return new Set(activeResourceKeys);
 
-  const adminResourceIds = await findAdminResourceIds(userId);
+  const adminResourceIds = [
+    ...await findAdminResourceIds(userId),
+    ...await getImplicitAdminResourceIdsForUser(userId),
+  ];
   const manageableIds = new Set<number>();
 
   for (const rid of adminResourceIds) {

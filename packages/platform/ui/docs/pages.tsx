@@ -1,7 +1,6 @@
 import { createEmptySection, createPageBody, createSectionSection, PageSurface } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { renderAppShellPage } from "../app-shell-page";
-import DocsEditorTemplateDetailClient from "./editor/DocsEditorTemplateDetailClient";
 import DocsEditorWorkbench from "./editor/DocsEditorWorkbench";
 
 export function DocsPlaceholderPage({
@@ -40,6 +39,6 @@ export function DocsEditorTemplateDetailPage({ templateId, user }: { templateId:
     title: "模板编辑器",
     backHref: "/docs/editor",
     user,
-    children: <DocsEditorTemplateDetailClient templateId={templateId} />,
+    children: <DocsEditorWorkbench initialTemplateId={templateId} />,
   });
 }

@@ -225,7 +225,7 @@ app/* route shell
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/tasks/page.tsx`，但对外 route 仍必须是 `/work/tasks`。禁止重新创建绕开 L1 的顶层 route shell。
 - `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；L1 目录页也通过 Platform/Package UI 承接，Core UI 使用必须收口到 package UI 的声明组件里。
 - L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
-- 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；当一个资源不能继承父权限、但必须随模块 disable 一起失效时，保持 `parentKey` 为空并设置 `runtimeParentKey`。典型例子是 `work.projects.viewAll`：它不能继承 `work.projects` 模块权限，但必须随 `work.projects` disabled 一起失效。
+- 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；只有真实存在独立授权语义的能力才声明 capability，并用 `runtimeParentKey` 跟随 owner 模块启停。
 - Headless/API-only 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 仅保留 API / bot 接入能力，不要求真实 `/agent` 页面，但 API 和 runtime disabled 仍必须绑定 `agent` resource。
 - Settings 下的 account/admin/api 是标准 L2。默认权限、隐式继承和 Open API 边界只在 `docs/engineering/security/rbac.md` 维护，不在 registry 或页面层写特判。
 

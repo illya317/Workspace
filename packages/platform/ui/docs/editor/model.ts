@@ -54,9 +54,9 @@ export function normalizePermissionRole(value: unknown): EditorPermissionRole {
 }
 
 export function statusTone(status: EditorTemplateListItemDto["status"]) {
-  if (status === "published") return "green" as const;
-  if (status === "archived") return "slate" as const;
-  return "sky" as const;
+  if (status === "published") return "success" as const;
+  if (status === "archived") return "muted" as const;
+  return "default" as const;
 }
 
 export function canEdit(role: EditorPermissionRole | undefined) {

@@ -27,14 +27,17 @@ Docs Editor 使用和 Work Tasks 一致的业务空间入口，但不复用 Work
 | `delete` | 包含编辑能力，并允许删除草稿 |
 | `manager` | 包含删除能力，并允许发布、管理空间授权 |
 
-空间角色由自然权限和显式授权取最大值。显式授权写入 `DocumentTemplateSpacePermission`，以 `targetType + targetId + userId + kind` 唯一；当前 `kind` 固定为 `template`，用于和 Work 共用 Platform 权限面板时保持语义清晰。
+空间角色由自然权限、旧显式授权和 scoped action grant 取最大值。新权限矩阵写入 `UserResourceActionGrant`，使用 `resourceKey=docs.editor` 和 `scopeId=<spaceType>:<id>`；旧 `DocumentTemplateSpacePermission` 只作为兼容来源读取。
 
-`docs.editor.access` 只控制能否进入模板编辑器。进入后具体能看到、编辑、删除或管理哪个个人/公共/部门空间，由 Docs Editor 空间权限计算。公共模板空间对所有进入编辑器的用户可见，但编辑、删除和管理仍必须通过显式授权或 Docs Editor admin 获得。
+空间自然权限只在模板空间内生效：部门负责人岗位是部门模板空间的天然 `manager`，不授予全局 `docs.editor.admin`、`hr.*` 或 `settings.admin`。
+
+`docs.editor.access` 控制能否进入模板编辑器。模板创建、复制、保存和删除 API 还会分别检查 `docs.editor.create`、`docs.editor.write`、`docs.editor.delete`，然后由 Docs Editor 空间权限继续收窄具体能操作哪个个人/公司/运营委员会/部门空间。公司模板空间默认全员可查看，但编辑、删除和管理仍必须通过空间授权、自然管理员或 Docs Editor admin 获得。DOCX 导出当前由前端本地生成，语义归入 `docs.editor.export`，暂不落后端 API guard。
 
 ## UI 和 API 边界
 
 - Work Tasks 和 Docs Editor 复用 `packages/platform/ui/SpacePermissionsPanel.tsx` 与 `packages/platform/permissions.ts` 的业务空间角色工具。
-- Docs Editor 通过 `/api/modules/docs/editor/spaces/[spaceId]/permissions` 读写空间授权。
+- Docs Editor 通过 `/api/modules/docs/editor/spaces/[spaceId]/permissions` 读写空间授权；该接口返回完整新 action matrix，写入 scoped action grant。
+- 空间授权读写仍由当前空间 `manager` 角色控制，不要求全局 `docs.editor.admin`。
 - 用户选择候选走 Docs Editor 自己的 `reference-options` API 和 FK registration，不能直接复用 Work 的 FK key。
 - Docs Editor 顶部 `scope` 先选择个人/公共/部门空间类型；页面内 `文档模板` / `权限管理` 作为 toolbar micro segmented 视图切换，只有当前空间 `manager` 才显示权限管理。
 

@@ -20,14 +20,8 @@ export type DocsEditorTemplateRow = {
   status: string;
   ownerUserId: number | null;
   spaceId: number;
-  documentJson: string;
-  fieldModelJson: string;
   documentContentRef: string | null;
-  documentContentHash: string | null;
-  documentContentBytes: number | null;
   fieldModelContentRef: string | null;
-  fieldModelContentHash: string | null;
-  fieldModelContentBytes: number | null;
   sourceKind: string | null;
   sourceProductKey: string | null;
   sourceStageKeys: string | null;

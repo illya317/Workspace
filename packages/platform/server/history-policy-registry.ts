@@ -161,8 +161,6 @@ const documentTemplateLabels = {
   type: "模板类型",
   status: "状态",
   spaceId: "模板空间",
-  documentJson: "模板正文",
-  fieldModelJson: "字段模型",
   sourceKind: "来源类型",
   sourceProductKey: "来源标识",
   publishedAt: "发布时间",
@@ -179,15 +177,13 @@ async function prepareDocumentTemplateSnapshot(record: Record<string, unknown>) 
 }
 
 async function readDocumentTemplateContentJson(record: Record<string, unknown>) {
-  const documentJson = typeof record.documentJson === "string" ? record.documentJson : "{}";
-  const fieldModelJson = typeof record.fieldModelJson === "string" ? record.fieldModelJson : "{}";
   const [documentContent, fieldModelContent] = await Promise.all([
     readDocumentTemplateContentRef(typeof record.documentContentRef === "string" ? record.documentContentRef : null),
     readDocumentTemplateContentRef(typeof record.fieldModelContentRef === "string" ? record.fieldModelContentRef : null),
   ]);
   return {
-    documentJson: documentContent ?? documentJson,
-    fieldModelJson: fieldModelContent ?? fieldModelJson,
+    documentJson: documentContent ?? "{}",
+    fieldModelJson: fieldModelContent ?? "{}",
   };
 }
 
@@ -377,11 +373,7 @@ export const historyPolicyRegistry = {
       "updatedAt",
       "deletedAt",
       "documentContentRef",
-      "documentContentHash",
-      "documentContentBytes",
       "fieldModelContentRef",
-      "fieldModelContentHash",
-      "fieldModelContentBytes",
     ],
     restore: false,
     prepareSnapshot: prepareDocumentTemplateSnapshot,

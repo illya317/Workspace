@@ -1,4 +1,5 @@
 import { workspacePath } from "@workspace/core/routing";
+import type { SpacePermissionData, SpacePermissionToggleInput } from "@workspace/platform/ui/SpacePermissionsPanel";
 import {
   MULTI_PROJECT_ROLES,
   normalizeProjectRole,
@@ -79,6 +80,27 @@ export async function deleteProject(projectId: number) {
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "删除项目失败");
+  }
+}
+
+export async function listProjectPermissions(projectId: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/permissions`));
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "加载项目权限失败");
+  }
+  return await res.json() as SpacePermissionData;
+}
+
+export async function setProjectPermissionGrant(projectId: number, input: SpacePermissionToggleInput) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/permissions`), {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(input),
+  });
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}));
+    throw new Error(data.error || "保存项目权限失败");
   }
 }
 

@@ -1,103 +1,58 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActionGlyph,
   createPageBody,
   createStatusSection,
   PageSurface,
   type BodySurfaceSectionSpec,
-  type DataSurfaceColumnSpec,
-  type SurfaceDataRowActionSpec,
-  type SurfaceSelectOptionSpec,
+  type InputOption,
 } from "@workspace/core/ui";
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+import { matchSearchFields } from "@workspace/platform/search";
+import { PermissionActionMatrixGrid } from "./PermissionActionMatrixGrid";
 import {
-  BUSINESS_SPACE_ROLE_OPTIONS,
-  businessSpaceRoleLabel,
-  normalizeBusinessSpaceRole,
-  type BusinessSpaceRole,
-} from "@workspace/platform/permissions";
+  getPermissionActionRecordSortScore,
+  sortPermissionSubjectsByScore,
+} from "./permission-matrix-model";
 
-const ROLE_ORDER: BusinessSpaceRole[] = ["viewer", "editor", "delete", "manager"];
+type PermissionSource = "direct" | "position" | "department" | "ancestor" | "implied" | "implicit" | "child" | null;
 
-function roleLevel(role: BusinessSpaceRole): number {
-  return ROLE_ORDER.indexOf(role);
+export interface SpacePermissionSubject {
+  id: number;
+  name: string;
+  extra?: {
+    employeeId?: string;
+    userId?: number | null;
+    hasUser?: boolean;
+    username?: string | null;
+    department?: string;
+    position?: string;
+    code?: string;
+  };
 }
 
-function roleAtLeast(role: BusinessSpaceRole, required: BusinessSpaceRole): boolean {
-  return roleLevel(role) >= roleLevel(required);
+export interface SpacePermissionActionState {
+  actionKey: PermissionActionKey;
+  label: string;
+  has: boolean;
+  source: PermissionSource;
+  sourceActionKey: PermissionActionKey | null;
+  sourceResourceKey: string | null;
+  directGrantable: boolean;
+  pendingResourceMapping: boolean;
 }
 
-interface RoleMatrixCellProps {
-  row: SpacePermissionRow;
-  role: BusinessSpaceRole;
-  onClick: () => void;
+export interface SpacePermissionActionRecord {
+  subjectId: number;
+  actionStates: Record<PermissionActionKey, SpacePermissionActionState>;
 }
 
-function RoleMatrixCell({ row, role, onClick }: RoleMatrixCellProps) {
-  const active = roleAtLeast(row.role, role);
-  const locked = row.locked;
-  if (locked) {
-    if (!active) {
-      if (roleLevel(role) > roleLevel(row.role)) {
-        return (
-          <button
-            type="button"
-            onClick={onClick}
-            className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-            aria-label={`显式授权${businessSpaceRoleLabel(role)}`}
-            title={`显式授权${businessSpaceRoleLabel(role)}`}
-          >
-            <ActionGlyph kind="add" className="h-4 w-4" />
-          </button>
-        );
-      }
-      return (
-        <button
-          type="button"
-          disabled
-          className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-100 bg-slate-50 text-slate-300"
-          aria-label={`未授权${businessSpaceRoleLabel(role)}（天然权限）`}
-          title={`未授权${businessSpaceRoleLabel(role)}（天然权限）`}
-        />
-      );
-    }
-    return (
-      <button
-        type="button"
-        disabled
-        className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-amber-100 bg-amber-50 text-amber-700 shadow-sm"
-        aria-label={`${businessSpaceRoleLabel(role)}（天然权限）`}
-        title={`${businessSpaceRoleLabel(role)}（天然权限）`}
-      >
-        <ActionGlyph kind="check" className="h-4 w-4" />
-      </button>
-    );
-  }
-  if (active) {
-    return (
-      <button
-        type="button"
-        onClick={onClick}
-        className="inline-flex h-7 w-7 items-center justify-center rounded-md bg-emerald-600 text-white shadow-sm transition hover:bg-emerald-700"
-        aria-label={`已授权${businessSpaceRoleLabel(role)}，点击改为${businessSpaceRoleLabel(role)}`}
-        title={`已授权${businessSpaceRoleLabel(role)}，点击重选`}
-      >
-        <ActionGlyph kind="check" className="h-4 w-4" />
-      </button>
-    );
-  }
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-slate-200 bg-white text-slate-500 shadow-sm transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
-      aria-label={`授权${businessSpaceRoleLabel(role)}`}
-      title={`授权${businessSpaceRoleLabel(role)}`}
-    >
-      <ActionGlyph kind="add" className="h-4 w-4" />
-    </button>
-  );
+export interface SpacePermissionData {
+  subjects: SpacePermissionSubject[];
+  actionRecords: Record<number, SpacePermissionActionRecord>;
+  resourceKey: string;
+  scopeId: string | null;
 }
 
 export type SpacePermissionToast = {
@@ -105,20 +60,11 @@ export type SpacePermissionToast = {
   message: string;
 };
 
-export interface SpacePermissionRow {
-  userId: number;
-  userName: string;
-  role: BusinessSpaceRole;
-  kind?: string;
-  source?: "natural" | "explicit" | string;
-  sourceLabel?: string;
-  locked: boolean;
-}
-
-type PermissionDraft = {
-  userId: number | null;
-  userName: string;
-  role: BusinessSpaceRole;
+export type SpacePermissionToggleInput = {
+  subjectType: "user";
+  subjectId: number;
+  actionKey: PermissionActionKey;
+  value: boolean;
 };
 
 export interface SpacePermissionsSectionsOptions<TTarget> {
@@ -126,18 +72,31 @@ export interface SpacePermissionsSectionsOptions<TTarget> {
   canManage: boolean;
   enabled: boolean;
   onToast: (toast: SpacePermissionToast) => void;
-  listPermissions: (target: TTarget) => Promise<SpacePermissionRow[]>;
-  savePermissions: (target: TTarget, permissions: Array<{ userId: number; role: BusinessSpaceRole }>) => Promise<unknown>;
-  referenceEndpoint: string;
-  userFkKey: string;
-  permissionKind?: string;
-  roleOptions?: readonly SurfaceSelectOptionSpec[];
-  defaultRole?: BusinessSpaceRole;
+  listPermissions: (target: TTarget) => Promise<SpacePermissionData>;
+  setPermissionActionGrant: (target: TTarget, input: SpacePermissionToggleInput) => Promise<unknown>;
   deniedText?: string;
-  duplicateText?: string;
   loadErrorText?: string;
   saveErrorText?: string;
   saveSuccessText?: string;
+  nameSearch?: string;
+  page?: number;
+  pageSize?: number;
+  onPageMetaChange?: (meta: { total: number; totalPages: number }) => void;
+  onNameSearchOptionsChange?: (options: InputOption[]) => void;
+}
+
+function subjectContent(subject: SpacePermissionSubject) {
+  return (
+    <div className="flex min-w-0 flex-col">
+      <span className="truncate font-medium text-slate-800">{subject.name}</span>
+      {subject.extra?.employeeId ? <span className="truncate font-mono text-xs text-slate-400">{subject.extra.employeeId}</span> : null}
+      {!subject.extra?.hasUser ? <span className="truncate text-xs text-red-500">未关联账号</span> : null}
+    </div>
+  );
+}
+
+function subjectRowKey(subject: SpacePermissionSubject) {
+  return subject.extra?.employeeId ?? subject.extra?.username ?? String(subject.id);
 }
 
 export default function SpacePermissionsPanel<TTarget>({
@@ -145,12 +104,7 @@ export default function SpacePermissionsPanel<TTarget>({
   canManage,
   onToast,
   listPermissions,
-  savePermissions,
-  referenceEndpoint,
-  userFkKey,
-  permissionKind,
-  roleOptions,
-  defaultRole,
+  setPermissionActionGrant,
 }: Omit<SpacePermissionsSectionsOptions<TTarget>, "enabled">) {
   const sections = useSpacePermissionsSections({
     target,
@@ -158,12 +112,7 @@ export default function SpacePermissionsPanel<TTarget>({
     enabled: true,
     onToast,
     listPermissions,
-    savePermissions,
-    referenceEndpoint,
-    userFkKey,
-    permissionKind,
-    roleOptions,
-    defaultRole,
+    setPermissionActionGrant,
   });
   return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }
@@ -174,283 +123,177 @@ export function useSpacePermissionsSections<TTarget>({
   enabled,
   onToast,
   listPermissions,
-  savePermissions,
-  referenceEndpoint,
-  userFkKey,
-  permissionKind,
-  roleOptions = BUSINESS_SPACE_ROLE_OPTIONS,
-  defaultRole = "viewer",
+  setPermissionActionGrant,
   deniedText = "仅空间管理员可维护权限。",
-  duplicateText = "该用户已经在权限列表中",
   loadErrorText = "加载权限失败",
   saveErrorText = "保存权限失败",
-  saveSuccessText = "空间权限已保存",
+  saveSuccessText = "权限已更新",
+  nameSearch = "",
+  page = 0,
+  pageSize,
+  onPageMetaChange,
+  onNameSearchOptionsChange,
 }: SpacePermissionsSectionsOptions<TTarget>): BodySurfaceSectionSpec[] {
-  const [rows, setRows] = useState<SpacePermissionRow[]>([]);
+  const [data, setData] = useState<SpacePermissionData | null>(null);
   const [loading, setLoading] = useState(false);
-  const [saving, setSaving] = useState(false);
-  const [draft, setDraft] = useState<PermissionDraft>({
-    userId: null,
-    userName: "",
-    role: defaultRole,
-  });
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [expandedRows, setExpandedRows] = useState<Set<string>>(() => new Set());
   const targetKey = useMemo(() => spacePermissionTargetKey(target), [target]);
-  const latest = useRef({
-    target,
-    onToast,
-    listPermissions,
-    savePermissions,
-    loadErrorText,
-    saveErrorText,
-    saveSuccessText,
-  });
+  const filteredData = useMemo(() => {
+    if (!data) return null;
+    const keyword = nameSearch.trim();
+    const matchedSubjects = keyword
+      ? data.subjects.filter((subject) => matchSearchFields({
+          name: subject.name,
+          employeeId: subject.extra?.employeeId,
+          username: subject.extra?.username,
+          department: subject.extra?.department,
+          position: subject.extra?.position,
+        }, keyword, ["name", "employeeId", "username", "department", "position"]))
+      : data.subjects;
+    const subjects = sortPermissionSubjectsByScore(
+      matchedSubjects,
+      (subject) => getPermissionActionRecordSortScore(data.actionRecords[subject.id]),
+    );
+    const total = subjects.length;
+    const size = pageSize && pageSize > 0 ? pageSize : total || 1;
+    const totalPages = Math.max(1, Math.ceil(total / size));
+    const safePage = Math.min(Math.max(page, 0), totalPages - 1);
+    return {
+      ...data,
+      subjects: subjects.slice(safePage * size, safePage * size + size),
+      total,
+      totalPages,
+    };
+  }, [data, nameSearch, page, pageSize]);
+
+  const nameSearchOptions = useMemo<InputOption[]>(() => {
+    if (!data) return [];
+    const options = new Map<string, InputOption>();
+    for (const subject of data.subjects) {
+      const name = subject.name.trim();
+      if (!name || options.has(name)) continue;
+      const employeeId = String(subject.extra?.employeeId ?? "");
+      options.set(name, {
+        value: name,
+        label: employeeId ? `${name} ${employeeId}` : name,
+        searchText: [
+          name,
+          employeeId,
+          subject.extra?.username,
+          subject.extra?.department,
+          subject.extra?.position,
+        ].filter(Boolean).join(" "),
+      });
+    }
+    return Array.from(options.values());
+  }, [data]);
 
   useEffect(() => {
-    latest.current = {
-      target,
-      onToast,
-      listPermissions,
-      savePermissions,
-      loadErrorText,
-      saveErrorText,
-      saveSuccessText,
-    };
-  }, [target, onToast, listPermissions, savePermissions, loadErrorText, saveErrorText, saveSuccessText]);
+    if (!filteredData) {
+      onPageMetaChange?.({ total: 0, totalPages: 1 });
+      return;
+    }
+    onPageMetaChange?.({ total: filteredData.total, totalPages: filteredData.totalPages });
+  }, [filteredData, onPageMetaChange]);
+
+  useEffect(() => {
+    onNameSearchOptionsChange?.(nameSearchOptions);
+  }, [nameSearchOptions, onNameSearchOptionsChange]);
 
   const load = useCallback(async () => {
     void targetKey;
-    const current = latest.current;
-    if (!current.target || !canManage || !enabled) return;
+    if (!target || !canManage || !enabled) return;
     setLoading(true);
     try {
-      setRows(await current.listPermissions(current.target));
-    } catch (err) {
-      latest.current.onToast({
-        type: "error",
-        message: err instanceof Error ? err.message : latest.current.loadErrorText,
+      const next = await listPermissions(target);
+      setData(next);
+      setExpandedRows((currentExpanded) => {
+        if (currentExpanded.size > 0) return currentExpanded;
+        const firstDirect = sortPermissionSubjectsByScore(
+          next.subjects,
+          (subject) => getPermissionActionRecordSortScore(next.actionRecords[subject.id]),
+        ).find((subject) => getPermissionActionRecordSortScore(next.actionRecords[subject.id]) > 0);
+        return firstDirect ? new Set([subjectRowKey(firstDirect)]) : currentExpanded;
       });
+    } catch (err) {
+      onToast({ type: "error", message: err instanceof Error ? err.message : loadErrorText });
     } finally {
       setLoading(false);
     }
-  }, [canManage, enabled, targetKey]);
+  }, [canManage, enabled, listPermissions, loadErrorText, onToast, target, targetKey]);
 
   useEffect(() => {
     void load();
   }, [load]);
 
-  const explicitRows = useMemo(() => rows.filter((row) => !row.locked), [rows]);
-  const normalizedRoleOptions = useMemo(() => [...roleOptions], [roleOptions]);
-  const patchRow = useCallback((userId: number, patch: Partial<SpacePermissionRow>) => {
-    setRows((current) => current.map((row) => row.userId === userId ? { ...row, ...patch } : row));
+  const toggleExpand = useCallback((subjectKey: string) => {
+    setExpandedRows((current) => {
+      const next = new Set(current);
+      if (next.has(subjectKey)) next.delete(subjectKey);
+      else next.add(subjectKey);
+      return next;
+    });
   }, []);
-  const columns = useMemo<DataSurfaceColumnSpec<SpacePermissionRow>[]>(() => [
-    {
-      key: "user",
-      label: "用户",
-      required: true,
-      cell: (row) => row.locked
-        ? {
-            kind: "group",
-            direction: "column",
-            items: [
-              { kind: "text", value: row.userName, emphasis: "medium" },
-              { kind: "text", value: row.sourceLabel || "天然最高权限", tone: "muted" },
-            ],
-          }
-        : { kind: "text", value: row.userName, emphasis: "medium" },
-    },
-    ...ROLE_ORDER.map<DataSurfaceColumnSpec<SpacePermissionRow>>((role) => ({
-      key: role,
-      label: businessSpaceRoleLabel(role),
-      defaultVisible: true,
-      align: "center",
-      width: "content",
-      cell: (row) => (
-        <div className="flex justify-center">
-          <RoleMatrixCell
-            row={row}
-            role={role}
-            onClick={() => {
-              if (row.locked) {
-                if (roleLevel(role) <= roleLevel(row.role)) return;
-                patchRow(row.userId, {
-                  role,
-                  ...(permissionKind ? { kind: permissionKind } : {}),
-                  source: "explicit",
-                  locked: false,
-                });
-                return;
-              }
-              patchRow(row.userId, { role });
-            }}
-          />
-        </div>
-      ),
-    })),
-  ], [patchRow, permissionKind]);
 
-  function getPermissionRowActions(row: SpacePermissionRow): SurfaceDataRowActionSpec[] {
-    if (row.locked) return [];
-    return [{
-      key: "delete",
-      kind: "delete",
-      label: "移除授权",
-      onClick: () => setRows((current) => current.filter((item) => item.userId !== row.userId)),
-      disabled: saving,
-    }];
-  }
-
-  function addDraft() {
-    if (!draft.userId) return;
-    const existing = rows.find((row) => row.userId === draft.userId);
-    if (existing) {
-      if (existing.locked) {
-        if (roleLevel(draft.role) <= roleLevel(existing.role)) {
-          onToast({ type: "error", message: duplicateText });
-          return;
-        }
-        patchRow(draft.userId, {
-          role: draft.role,
-          ...(permissionKind ? { kind: permissionKind } : {}),
-          source: "explicit",
-          locked: false,
-        });
-        setDraft({ userId: null, userName: "", role: defaultRole });
-        return;
-      }
-      patchRow(draft.userId, { role: draft.role });
-      setDraft({ userId: null, userName: "", role: defaultRole });
+  const toggleGrant = useCallback(async (subject: SpacePermissionSubject, state: SpacePermissionActionState) => {
+    const subjectId = subject.extra?.userId ?? subject.id;
+    if (!target || !subjectId || !subject.extra?.hasUser) {
+      onToast({ type: "error", message: "该员工未关联账号，无法授权" });
       return;
     }
-    setRows((current) => [...current, {
-      userId: draft.userId!,
-      userName: draft.userName,
-      role: draft.role,
-      ...(permissionKind ? { kind: permissionKind } : {}),
-      source: "explicit",
-      locked: false,
-    }]);
-    setDraft({ userId: null, userName: "", role: defaultRole });
-  }
-
-  async function save() {
-    const current = latest.current;
-    if (!current.target || saving) return;
-    setSaving(true);
+    const key = `${subjectRowKey(subject)}:${state.actionKey}`;
+    setSavingKey(key);
     try {
-      await current.savePermissions(current.target, explicitRows.map((row) => ({ userId: row.userId, role: row.role })));
-      await load();
-      latest.current.onToast({ type: "success", message: latest.current.saveSuccessText });
-    } catch (err) {
-      latest.current.onToast({
-        type: "error",
-        message: err instanceof Error ? err.message : latest.current.saveErrorText,
+      await setPermissionActionGrant(target, {
+        subjectType: "user",
+        subjectId,
+        actionKey: state.actionKey,
+        value: state.source === "direct" ? !state.has : true,
       });
+      await load();
+      onToast({ type: "success", message: saveSuccessText });
+    } catch (err) {
+      onToast({ type: "error", message: err instanceof Error ? err.message : saveErrorText });
     } finally {
-      setSaving(false);
+      setSavingKey(null);
     }
-  }
+  }, [load, onToast, saveErrorText, saveSuccessText, setPermissionActionGrant, target]);
 
-  if (!canManage) {
-    return [createStatusSection("permissions-denied", { kind: "empty", content: deniedText })];
-  }
+  if (!canManage) return [createStatusSection("permissions-denied", { kind: "empty", content: deniedText })];
+  if (loading) return [createStatusSection("permission-table-loading", { kind: "empty", content: "加载权限..." })];
+  if (!data || !filteredData) return [createStatusSection("permission-table-empty", { kind: "empty", content: "请选择空间" })];
+  if (filteredData.subjects.length === 0) return [createStatusSection("permission-table-empty", { kind: "empty", content: nameSearch.trim() ? "无匹配结果" : "暂无可授权用户" })];
 
-  return [
-    {
-      key: "permission-draft",
-      body: {
-        kind: "form",
-        form: {
-          kind: "fields",
-          content: {
-            layout: { columns: 3 },
-            items: [
-              {
-                key: "user",
-                label: "授权用户",
-                spec: {
-                  valueType: "reference",
-                  control: "reference",
-                  options: {
-                    source: "remote",
-                    fkKey: userFkKey,
-                    endpoint: referenceEndpoint,
-                    returnField: "id",
-                  },
-                },
-                value: draft.userId ? String(draft.userId) : "",
-                displayValue: draft.userName,
-                placeholder: "搜索用户",
-                onChange: (value, option) => {
-                  const fkOption = option as { id?: number; name?: string } | undefined;
-                  setDraft((current) => ({
-                    ...current,
-                    userId: fkOption?.id ?? (value ? current.userId : null),
-                    userName: fkOption?.name ?? (value ? String(value) : ""),
-                  }));
-                },
-              },
-              {
-                key: "role",
-                label: "权限",
-                spec: {
-                  valueType: "string",
-                  control: "choice",
-                  options: { source: "static", items: normalizedRoleOptions, visibleCount: 4 },
-                },
-                value: draft.role,
-                onChange: (value) => setDraft((current) => ({
-                  ...current,
-                  role: normalizeBusinessSpaceRole(value == null ? null : String(value)),
-                })),
-              },
-            ],
-          },
-          commands: [{
-            key: "add",
-            label: "添加",
-            variant: "primary",
-            disabled: !draft.userId || saving,
-            onClick: addDraft,
+  return [{
+    key: "permission-table",
+    body: {
+      kind: "document",
+      document: {
+        kind: "pages",
+        pages: {
+          items: [{
+            key: "space-permission-matrix-grid",
+            size: "fluid",
+            content: (
+              <PermissionActionMatrixGrid
+                subjects={filteredData.subjects}
+                subjectColumnLabel="姓名"
+                getSubjectKey={subjectRowKey}
+                renderSubject={subjectContent}
+                getRecord={(subject) => filteredData.actionRecords[subject.id]}
+                expandedKeys={expandedRows}
+                onToggleExpand={(subject) => toggleExpand(subjectRowKey(subject))}
+                onToggleAction={toggleGrant}
+                canToggleAction={(subject) => Boolean(subject.extra?.hasUser && subject.extra?.userId)}
+                savingKey={savingKey}
+              />
+            ),
           }],
         },
       },
     },
-    {
-      key: "permission-table",
-      body: {
-        kind: "data",
-        data: {
-          kind: "table",
-          rows,
-          columns,
-          rowKey: (row) => row.userId,
-          presentation: { density: "compact" },
-          loading,
-          emptyText: "暂无自然成员或额外授权",
-          rowActions: getPermissionRowActions,
-          scroll: {},
-        },
-      },
-    },
-    {
-      key: "permission-actions",
-      body: {
-        kind: "form",
-        form: {
-          kind: "filters",
-          content: { items: [] },
-          commands: [{
-            key: "save",
-            label: "保存权限",
-            variant: "primary",
-            disabled: saving,
-            onClick: () => void save(),
-          }],
-        },
-      },
-    },
-  ];
+  }];
 }
 
 function spacePermissionTargetKey(target: unknown): string {
@@ -459,9 +302,7 @@ function spacePermissionTargetKey(target: unknown): string {
   const record = target as Record<string, unknown>;
   if (record.id != null) return `id:${String(record.id)}`;
   if (record.key != null) return `key:${String(record.key)}`;
-  if (record.targetType != null && record.targetId != null) {
-    return `target:${String(record.targetType)}:${String(record.targetId)}`;
-  }
+  if (record.targetType != null && record.targetId != null) return `target:${String(record.targetType)}:${String(record.targetId)}`;
   return stableTargetJson(record);
 }
 

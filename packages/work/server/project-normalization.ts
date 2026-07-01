@@ -12,7 +12,7 @@ export type ProjectType = (typeof PROJECT_TYPES)[number];
 export const COMPANY_PROJECT_CODE_PREFIX = "FH";
 
 type LeadingDepartmentResult =
-  | { value: number; department: { id: number; code: string; name: string; managerUserId: number | null } }
+  | { value: number; department: { id: number; code: string; name: string } }
   | { error: string };
 type ProjectFieldUpdateResult = { field: string; value: unknown } | { error: string } | null;
 
@@ -107,7 +107,7 @@ export async function normalizeLeadingDepartmentId(value: unknown): Promise<Lead
   if (!validation.ok) return { error: validation.error };
   const department = await prisma.department.findUnique({
     where: { id: leadingDepartmentId },
-    select: { id: true, code: true, name: true, managerUserId: true },
+    select: { id: true, code: true, name: true },
   });
   if (!department) return { error: "主导部门不存在" };
   return { value: leadingDepartmentId, department };

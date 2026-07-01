@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { createMessageSection, createPageBody, PageSurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { useMemo } from "react";
+import { createMessageSection, PageSurface, type BodySurfaceProps, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createAdminSelectorSplitBody } from "../components/AdminSelectorSplit";
 import { createPermissionMatrixSection } from "../components/permissions/MatrixTable";
 import type { PermissionsTabState } from "../hooks/usePermissionsTab";
 import type { ResourceItem } from "../types";
@@ -46,8 +47,6 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
     return resources.map(attachCapabilities);
   }, [capabilitiesByOwner, resources]);
   const flattenedResources = useMemo(() => flattenResources(resourceTree), [resourceTree]);
-  const [drawerOpen, setDrawerOpen] = useState(false);
-
   function selectResource(key: string) {
     const resource = flattenedResources.find((item) => item.key === key);
     setSelectedResource(resource?.key ?? key);
@@ -63,35 +62,13 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
     ...(!s.loading ? [createPermissionMatrixSection({ s })] : []),
   ];
 
-  return {
-    kind: "section",
-    layout: "split",
-    left: {
-      kind: "selector",
-      selector: {
-        kind: "tree",
-        title: "资源模块",
-        items: resourceTree,
-        selectedId: selectedResource,
-        onSelect: (resource: PermissionTreeNode) => selectResource(resource.key),
-        getKey: (resource: PermissionTreeNode) => resource.key,
-        getChildren: (resource: PermissionTreeNode) => resource.children,
-        renderItem: (resource: PermissionTreeNode, ctx) => ({
-          title: resource.name,
-          code: resource.hidden ? "隐藏" : resource.enabled === false ? "停用" : undefined,
-          level: ctx.level,
-        }),
-      },
-    },
-    right: createPageBody(bodyBlocks),
-    sideOpen: true,
-    drawerOpen,
-    onSideOpenChange: () => undefined,
-    onDrawerOpenChange: setDrawerOpen,
-    sideLabel: "资源模块",
-    showSideControls: false,
-    splitRatio: [3, 7],
-  };
+  return createAdminSelectorSplitBody({
+    title: "资源模块",
+    items: resourceTree,
+    selectedId: selectedResource,
+    sections: bodyBlocks,
+    onSelect: (resource) => selectResource(resource.key),
+  });
 }
 
 export default function PermissionsTab(props: Props) {

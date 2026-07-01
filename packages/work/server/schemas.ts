@@ -11,6 +11,10 @@ const endDateSchema = dateStringSchema
   .nullable()
   .refine((value) => !value || value <= todayDateString(), "结项日期不能晚于今日");
 
+export const WorkProjectIdParamsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
 export const ProjectCreateSchema = z.object({
   name: z.string().min(1, "名称不能为空"),
   description: z.string().optional().nullable(),

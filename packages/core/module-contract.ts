@@ -155,6 +155,28 @@ export interface FkRegistryRegistration {
   };
 }
 
+export type SpacePermissionTargetType = "personal" | "department" | "committee" | "company" | "project" | "other";
+export type SpacePermissionDefaultRole = "viewer" | "manager";
+
+export interface SpaceRegistration {
+  key: string;
+  label: string;
+  entryKind: string;
+  resourceKey: string;
+  app: {
+    moduleKey: string;
+    childKey: string;
+    defaultLevel: "L3";
+  };
+  api: {
+    permissionsPathTemplate: string;
+  };
+  targetTypes: SpacePermissionTargetType[];
+  defaultRoles: Partial<Record<SpacePermissionTargetType, SpacePermissionDefaultRole>>;
+  naturalManagerSources?: Partial<Record<SpacePermissionTargetType, string[]>>;
+  notes?: string;
+}
+
 export interface WorkspacePackageRegistration {
   packageName: string;
   layer: WorkspaceLayer;
@@ -164,4 +186,5 @@ export interface WorkspacePackageRegistration {
   apiGuards?: ApiGuardRegistration[];
   apiRoutes?: ApiRouteRegistration[];
   fkRegistrations?: FkRegistryRegistration[];
+  spaceRegistrations?: SpaceRegistration[];
 }

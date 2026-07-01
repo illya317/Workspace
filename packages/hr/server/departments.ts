@@ -134,8 +134,6 @@ export async function listDepartments(input: { keyword: string; page: number; pa
       levelLabel: department.level === 1 ? "事业部" : department.level === 2 ? "部门" : "子部门",
       parentId: department.parentId,
       parentName: department.parent?.name || null,
-      managerUserId: department.managerUserId,
-      managerUserIds: managers.map((manager) => manager.userId).filter((userId): userId is number => userId !== null),
       managerPositionId: department.managerPositionId,
       managerPositionName: department.managerPosition?.name ?? null,
       managerNames,

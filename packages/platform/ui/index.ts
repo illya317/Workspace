@@ -23,5 +23,6 @@ export {
   createSpaceKindNavigation,
   createSpaceViewToolbarItem,
   createSpaceWorkbenchBody,
+  spaceWorkbenchPanelToolbarItems,
   type SpaceWorkbenchKindOption,
 } from "./space-workbench";

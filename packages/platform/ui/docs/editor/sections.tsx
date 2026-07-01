@@ -15,7 +15,6 @@ import type {
   EditorTemplateDetailDto,
 } from "./api";
 import {
-  canEdit,
   type FormulaComputation,
 } from "./model";
 
@@ -26,6 +25,7 @@ export function createEditorDetailSection(input: {
   fieldModelDraft: FieldModel;
   formulaComputation: FormulaComputation;
   message: string | null;
+  editable: boolean;
   setDocumentDraft: (document: EditorDocument) => void;
 }): BodySurfaceSectionSpec {
   const {
@@ -35,6 +35,7 @@ export function createEditorDetailSection(input: {
     fieldModelDraft,
     formulaComputation,
     message,
+    editable,
     setDocumentDraft,
   } = input;
 
@@ -55,10 +56,10 @@ export function createEditorDetailSection(input: {
     : [];
 
   return createPaperTabSection({
-    detail,
     documentDraft,
     fieldModelDraft,
     formulaComputation,
+    editable,
     messageSection,
     setDocumentDraft,
   });
@@ -77,14 +78,14 @@ function createHeaderlessSection(key: string, sections: BodySurfaceSectionSpec[]
 }
 
 function createPaperTabSection(input: {
-  detail: EditorTemplateDetailDto;
   documentDraft: EditorDocument;
   fieldModelDraft: FieldModel;
   formulaComputation: FormulaComputation;
+  editable: boolean;
   messageSection: BodySurfaceSectionSpec[];
   setDocumentDraft: (document: EditorDocument) => void;
 }): BodySurfaceSectionSpec {
-  const { detail, documentDraft, fieldModelDraft, formulaComputation, messageSection, setDocumentDraft } = input;
+  const { documentDraft, fieldModelDraft, formulaComputation, editable, messageSection, setDocumentDraft } = input;
   return {
     key: "docs-editor-paper",
     chrome: "plain" as const,
@@ -100,7 +101,7 @@ function createPaperTabSection(input: {
               document={documentDraft}
               fieldModel={fieldModelDraft}
               computedValues={formulaComputation.previewValues}
-              editable={canEdit(detail.role)}
+              editable={editable}
               onChange={setDocumentDraft}
             />
           ),

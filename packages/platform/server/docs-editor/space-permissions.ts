@@ -7,6 +7,8 @@ import {
 } from "../api";
 import {
   listDepartmentNaturalSpacePermissions,
+  listCompanyNaturalSpacePermissions,
+  listOperatingCommitteeNaturalSpacePermissions,
   mergeBusinessSpacePermissionRows,
 } from "../business-space-permissions";
 import { prisma } from "../prisma";
@@ -100,6 +102,12 @@ async function listNaturalDocsEditorRows(targetType: string, targetId: number) {
   if (targetType === "department") {
     return listDepartmentNaturalSpacePermissions(targetId);
   }
+  if (targetType === "company") {
+    return listCompanyNaturalSpacePermissions();
+  }
+  if (targetType === "committee") {
+    return listOperatingCommitteeNaturalSpacePermissions();
+  }
   if (targetType === "personal") {
     const userNames = await loadDocsEditorPermissionUsers([targetId]);
     const userName = userNames.get(targetId);
@@ -108,8 +116,8 @@ async function listNaturalDocsEditorRows(targetType: string, targetId: number) {
       userName,
       role: "manager" as const,
       sourceLabel: "所有者",
+      actionSource: "implicit" as const,
     }] : [];
   }
   return [];
 }
-

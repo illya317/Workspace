@@ -2,7 +2,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   canAccessTarget,
-  canEditWorkTask,
+  canWriteWorkTaskAction,
   workSpaceRoleAllows,
   type WorkSpaceTargetType,
 } from "./access";
@@ -44,7 +44,7 @@ export async function getWorkReportDraft(input: {
   const report = await findUserReport(input.userId, input.targetType, input.targetId, period.startDate);
   const previous = await findUserReport(input.userId, input.targetType, input.targetId, addDays(period.startDate, -7));
   const workItems = await listReportWorkItems(input.targetType, input.targetId);
-  const canEdit = await canEditWorkTask(input.userId, input.targetType, input.targetId);
+  const canEdit = await canWriteWorkTaskAction(input.userId, input.targetType, input.targetId);
   return serviceOk({
       period: period.dto,
       canEdit,
@@ -62,7 +62,7 @@ export async function saveWorkReport(input: {
 }) {
   const command = validateWorkReportCommand("saveWorkReport");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditWorkTask(input.userId, input.targetType, input.targetId))) {
+  if (!(await canWriteWorkTaskAction(input.userId, input.targetType, input.targetId))) {
     return serviceError("无权限填写工作汇报", 403);
   }
   const period = normalizeWeeklyPeriod(input.periodStart);

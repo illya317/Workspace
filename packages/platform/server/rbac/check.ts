@@ -11,6 +11,7 @@ import {
   hasImplicitAccessGrant,
   hasAnyAdminGrantForContext,
 } from "./implicit";
+import { hasImplicitAdminForResourceIds } from "./implicit-admins";
 
 function resolveRoleKeys(roleKey: string): string[] {
   const normalized = normalizeRoleKey(roleKey);
@@ -52,6 +53,7 @@ export async function evaluatePermission(
   const roleKeys = resolveRoleKeys(roleKey);
   // 3a. 运行时上限：即使有 grant，超过 maxRoleKey 也拒绝
   if (!(await isRoleAllowedForResource(resourceKey, normalized))) return false;
+  if (await hasImplicitAdminForResourceIds(userId, resourceIds)) return true;
 
   if (await hasImplicitAccessGrant({
     roleKey: normalized,
@@ -122,6 +124,7 @@ export async function evaluatePermissionWithContext(
 
   const resourceIds = await resolveResourceIds(resourceKey);
   if (!resourceIds) return false;
+  if (hasImplicitAdminForContext(ctx, resourceIds)) return true;
 
   if (await hasImplicitAccessGrant({
     roleKey: normalized,
@@ -139,6 +142,13 @@ export async function evaluatePermissionWithContext(
 
   // Slow path: individual DB queries
   return evaluatePermissionSlow(ctx, resourceKey, roleKey);
+}
+
+function hasImplicitAdminForContext(ctx: PermissionContext, resourceIds: number[]) {
+  const implicitIds = ctx.implicitAdminResourceIds ?? [];
+  if (implicitIds.length === 0) return false;
+  const resourceIdSet = new Set(resourceIds);
+  return implicitIds.some((resourceId) => resourceIdSet.has(resourceId));
 }
 
 const _resourceCache = new Map<string, { id: number } | null>();

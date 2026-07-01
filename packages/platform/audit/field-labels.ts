@@ -17,7 +17,7 @@ export const FIELD_LABELS: Record<string, string> = {
   departmentName: "所属部门", positionPurpose: "岗位目的", summary: "职责概要",
   headcount: "编制人数", effectiveDate: "生效日期", sourceFile: "源文件",
   shareRatio: "持股比例", isConsolidated: "并表", sortOrder: "排序",
-  queryGroup: "查询分组", level: "层级", parentId: "上级", managerUserId: "负责人",
+  queryGroup: "查询分组", level: "层级", parentId: "上级",
   departmentId: "所属部门", positionId: "岗位", positionDescriptionId: "岗位说明书",
   projectId: "项目", childId: "下级",
   targetType: "目标类型", date: "日期", taskName: "任务名称", notes: "备注",

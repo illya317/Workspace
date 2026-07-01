@@ -1,15 +1,18 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { isRootAdminUser } from "../auth/root";
+import { getImplicitAdminResourceIdsForUser, isImplicitAllResourceAdminUser } from "./implicit-admins";
 import type { PermissionContext } from "./types";
 
 export async function getPermissionContext(userId: number): Promise<PermissionContext> {
-  const [positionIds, departmentIds, isAdmin] = await Promise.all([
+  const [positionIds, departmentIds, isAdmin, isAllResourceAdmin, implicitAdminResourceIds] = await Promise.all([
     getUserPositionIds(userId),
     getUserDepartmentIds(userId),
     isRootAdminUser(userId),
+    isImplicitAllResourceAdminUser(userId),
+    getImplicitAdminResourceIdsForUser(userId),
   ]);
-  return { userId, isAdmin, positionIds, departmentIds };
+  return { userId, isAdmin, isAllResourceAdmin, positionIds, departmentIds, implicitAdminResourceIds };
 }
 
 /** Preload all grants + warm resource/ancestor caches. Call once before batch visibility checks. */

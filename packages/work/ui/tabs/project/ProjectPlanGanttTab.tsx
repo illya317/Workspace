@@ -77,7 +77,11 @@ export default function ProjectPlanGanttTab({
     savedItems: data.items,
     savedDependencies: data.dependencies,
   }) : false;
-  const canEdit = Boolean(data?.permissions.canEdit);
+  const selectedProject = useMemo(
+    () => projects.find((project) => project.id === selectedProjectId) || null,
+    [projects, selectedProjectId],
+  );
+  const canEdit = Boolean(selectedProject?.actionPermissions.canWrite && data?.permissions.canEdit);
   function changeZoom(nextZoom: ProjectGanttZoom) {
     setZoom(nextZoom);
     setCurrentStart(current => getPeriodStart(current, nextZoom));

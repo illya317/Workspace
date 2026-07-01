@@ -109,7 +109,6 @@ model Department {
   alias           String?
   level           Int                      @default(1)
   parentId        Int?
-  managerUserId     Int?
   managerPositionId Int?
   isArchived      Boolean                  @default(false)
   archivedAt      DateTime?
@@ -117,7 +116,6 @@ model Department {
   editedBy        Int?
   editedAt        DateTime?
   version         Int                      @default(1)
-  manager         User?                    @relation("DepartmentManager", fields: [managerUserId], references: [id])
   managerPosition Position?                @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id])
   parent          Department?              @relation("DeptHierarchy", fields: [parentId], references: [id])
   children        Department[]             @relation("DeptHierarchy")

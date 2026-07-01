@@ -1,8 +1,11 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { isPermissionActionKey } from "@workspace/platform/permission-actions";
+import { isPermissionActionSupported } from "@workspace/platform/permission-resource-policy";
 import { RESOURCE_KEYS } from "@workspace/platform/resources";
 import { isRootAdminUsername } from "../auth/root";
 
 type RoleKey = "access" | "write";
+type VisiblePermissionKey = RoleKey | string;
 
 interface ResourceLite {
   id: number;
@@ -11,14 +14,29 @@ interface ResourceLite {
 }
 
 const ROLE_LEVEL: Record<string, number> = { access: 0, write: 1, delete: 2, admin: 3 };
+const ACTION_DISPLAY_LEVEL: Record<string, number> = {
+  access: 0,
+  export: 0,
+  create: 1,
+  write: 1,
+  archive: 1,
+  revise: 1,
+  submit: 1,
+  withdraw: 1,
+  approve: 1,
+  reject: 1,
+  import: 1,
+  delete: 2,
+  admin: 3,
+};
 
 function visibleRole(roleKey: string): RoleKey {
   return (ROLE_LEVEL[roleKey] ?? 0) >= ROLE_LEVEL.write ? "write" : "access";
 }
 
-function maxVisibleRole(a: RoleKey | undefined, b: RoleKey): RoleKey {
+function maxVisiblePermission(a: VisiblePermissionKey | undefined, b: VisiblePermissionKey): VisiblePermissionKey {
   if (!a) return b;
-  return ROLE_LEVEL[a] >= ROLE_LEVEL[b] ? a : b;
+  return (ACTION_DISPLAY_LEVEL[a] ?? 0) >= (ACTION_DISPLAY_LEVEL[b] ?? 0) ? a : b;
 }
 
 function buildResourceMaps(resources: ResourceLite[]) {
@@ -110,7 +128,7 @@ export async function listUsersWithEffectiveResourceRoles() {
     departmentIdsByUser.set(employee.userId, departmentSet);
   }
 
-  const [positionRows, departmentRows] = await Promise.all([
+  const [positionRows, departmentRows, userActionRows, positionActionRows, departmentActionRows] = await Promise.all([
     allPositionIds.size > 0
       ? prisma.positionResourceRole.findMany({
           where: { positionId: { in: [...allPositionIds] } },
@@ -123,28 +141,57 @@ export async function listUsersWithEffectiveResourceRoles() {
           select: { departmentId: true, resourceId: true, role: { select: { key: true } } },
         })
       : [],
+    prisma.userResourceActionGrant.findMany({
+      where: { userId: { in: userIds } },
+      select: { userId: true, resourceId: true, actionKey: true },
+    }),
+    allPositionIds.size > 0
+      ? prisma.positionResourceActionGrant.findMany({
+          where: { positionId: { in: [...allPositionIds] } },
+          select: { positionId: true, resourceId: true, actionKey: true },
+        })
+      : [],
+    allDepartmentIds.size > 0
+      ? prisma.departmentResourceActionGrant.findMany({
+          where: { departmentId: { in: [...allDepartmentIds] } },
+          select: { departmentId: true, resourceId: true, actionKey: true },
+        })
+      : [],
   ]);
 
   const activeResourceKeys = new Set(RESOURCE_KEYS);
   const { byId, descendants, ancestors } = buildResourceMaps(resources);
-  const grantsByUser = new Map<number, Map<string, RoleKey>>();
+  const grantsByUser = new Map<number, Map<string, VisiblePermissionKey>>();
 
   function addGrant(userId: number, resourceId: number, roleKey: string) {
     const role = visibleRole(roleKey);
-    const map = grantsByUser.get(userId) || new Map<string, RoleKey>();
+    const map = grantsByUser.get(userId) || new Map<string, VisiblePermissionKey>();
     const targets = descendants.get(resourceId) || [resourceId];
     for (const targetId of targets) {
       for (const id of ancestors.get(targetId) || [targetId]) {
         const resource = byId.get(id);
         if (!resource) continue;
         if (!activeResourceKeys.has(resource.key)) continue;
-        map.set(resource.key, maxVisibleRole(map.get(resource.key), role));
+        map.set(resource.key, maxVisiblePermission(map.get(resource.key), role));
       }
     }
     grantsByUser.set(userId, map);
   }
 
+  function addActionGrant(userId: number, resourceId: number, actionKey: string) {
+    if (!isPermissionActionKey(actionKey)) return;
+    const map = grantsByUser.get(userId) || new Map<string, VisiblePermissionKey>();
+    for (const id of ancestors.get(resourceId) || [resourceId]) {
+      const resource = byId.get(id);
+      if (!resource || !activeResourceKeys.has(resource.key)) continue;
+      if (!isPermissionActionSupported(resource.key, actionKey)) continue;
+      map.set(resource.key, maxVisiblePermission(map.get(resource.key), actionKey));
+    }
+    grantsByUser.set(userId, map);
+  }
+
   for (const row of userRows) addGrant(row.userId, row.resourceId, row.role.key);
+  for (const row of userActionRows) addActionGrant(row.userId, row.resourceId, row.actionKey);
 
   for (const user of users) {
     const positionSet = positionIdsByUser.get(user.id) || new Set<number>();
@@ -154,6 +201,12 @@ export async function listUsersWithEffectiveResourceRoles() {
     }
     for (const row of departmentRows) {
       if (departmentSet.has(row.departmentId)) addGrant(user.id, row.resourceId, row.role.key);
+    }
+    for (const row of positionActionRows) {
+      if (positionSet.has(row.positionId)) addActionGrant(user.id, row.resourceId, row.actionKey);
+    }
+    for (const row of departmentActionRows) {
+      if (departmentSet.has(row.departmentId)) addActionGrant(user.id, row.resourceId, row.actionKey);
     }
   }
 

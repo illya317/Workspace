@@ -33,6 +33,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - 正文 Surface 的 `kind` 必须是一级 discriminant。选择 `DocumentSurface kind="pages"` 后，纸面列表只写入 `pages.items`；选择 `VisualizationSurface kind="chart"` 后，图表声明只写入 `chart.visual`，选择 `kind="gantt"` 后，甘特声明只写入 `gantt.timeline`。标题、外框、空态等细节进入对应 kind 的 payload，不再作为 Surface 顶层共享可选字段。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- 业务和 Platform UI helper 只能做纯数据转换，不能拥有产品决策。helper / factory / builder 不得默认生成可见 UI 文案、标题、header、toolbar、navigation、modal、panel chrome、layout、icon、variant，也不得决定新建后选中、跳转、展开、滚动、关闭弹窗、切 tab、权限显示或 fetch/toast/confirm/router/history 等流程副作用。页面可见内容和交互流程必须在页面声明点显式出现；确实需要跨页面复用的 UI 或流程能力，必须升级成正式 Surface / Platform 模块接口并有 contract、文档和 gate。
 
 Architecture/Core UI agent：
 

@@ -108,7 +108,6 @@ export {
   checkLibraryWrite,
 } from "./auth/domain";
 export {
-  getUserDepartmentAdmins,
   getUserPermissions,
 } from "./rbac/queries";
 export { listUsersWithEffectiveResourceRoles } from "./rbac/user-list";

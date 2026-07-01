@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { ActionGlyph, createPageBody, createStatusSection, type DataSurfaceColumnSpec, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { getStatusLabel, getWorkItemTypeLabel, isWorkDraftDirty } from "./model";
 import { WorkTaskDetail } from "./WorkTaskDetail";
 import { WorkTaskForm } from "./WorkTaskFields";
@@ -16,6 +16,7 @@ type WorkTaskTableProps = {
   works: WorkItem[];
   loading: boolean;
   canEdit: boolean;
+  canDelete: boolean;
   saving: boolean;
   detailId: number | null;
   editingId: number | null;
@@ -36,6 +37,7 @@ export function useWorkTaskTableSection({
   works,
   loading,
   canEdit,
+  canDelete,
   saving,
   detailId,
   editingId,
@@ -116,7 +118,7 @@ export function useWorkTaskTableSection({
         />
       ) : <WorkTaskDetail work={work} />,
       rowActions: (work) => {
-        if (!canEdit) return [];
+        if (!canEdit && !canDelete) return [];
         const dirty = isWorkDraftDirty(work, editDraft);
         if (editingId === work.id) return [
           {
@@ -127,7 +129,7 @@ export function useWorkTaskTableSection({
             disabled: saving || !editDraft?.content.trim() || !dirty,
           },
         ];
-        return [
+        return canDelete ? [
           {
             key: "delete",
             kind: "delete",
@@ -135,7 +137,7 @@ export function useWorkTaskTableSection({
             onClick: () => onDelete(work),
             disabled: saving,
           },
-        ];
+        ] : [];
       },
       actionsColumn: { label: "操作", align: "center" },
       scroll: { y: "hidden" },
@@ -162,30 +164,41 @@ function createColumns({
       required: true,
       width: "content",
 
-      cell: (work) => (
-        <div className={`flex w-80 max-w-80 min-w-0 items-center gap-2 ${depthIndentClassName(work.depth)}`}>
-          {work.childCount > 0 ? (
-            <button
-              type="button"
-              title={expandedIds.has(work.id) ? "收起" : "展开"}
-              onClick={(event) => {
-                event.stopPropagation();
-                onToggleExpand(work);
-              }}
-              className="flex h-6 w-6 shrink-0 items-center justify-center rounded border border-slate-200 bg-white text-xs font-semibold text-slate-500 hover:bg-slate-50"
-            >
-              {expandedIds.has(work.id) ? "-" : "+"}
-            </button>
-          ) : (
-            <span className="h-6 w-6 shrink-0" />
-          )}
-          <TypeBadge itemType={work.itemType} />
-          <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-slate-900" title={work.content}>{work.content}</div>
-            {work.parentWorkItemContent && <div className="truncate text-xs text-slate-400" title={work.parentWorkItemContent}>上级：{work.parentWorkItemContent}</div>}
-          </div>
-        </div>
-      ),
+      cell: (work) => ({
+        kind: "group",
+        items: [
+          {
+            kind: "text",
+            value: <span className={`block ${depthIndentClassName(work.depth)}`} />,
+          },
+          work.childCount > 0
+            ? {
+                kind: "action",
+                action: {
+                  key: `toggle-${work.id}`,
+                  label: (
+                    <>
+                      <ActionGlyph kind={expandedIds.has(work.id) ? "panel-close" : "panel-open"} className="h-4 w-4" />
+                      <span className="sr-only">{expandedIds.has(work.id) ? "收起" : "展开"}</span>
+                    </>
+                  ),
+                  size: "sm",
+                  onClick: () => onToggleExpand(work),
+                },
+              }
+            : { kind: "text", value: <span className="block h-8 w-8 shrink-0" /> },
+          { kind: "text", value: <TypeBadge itemType={work.itemType} /> },
+          {
+            kind: "text",
+            value: (
+              <div className="w-64 min-w-0">
+                <div className="truncate text-sm font-medium text-slate-900" title={work.content}>{work.content}</div>
+                {work.parentWorkItemContent && <div className="truncate text-xs text-slate-400" title={work.parentWorkItemContent}>上级：{work.parentWorkItemContent}</div>}
+              </div>
+            ),
+          },
+        ],
+      }),
     },
     {
       key: "status",

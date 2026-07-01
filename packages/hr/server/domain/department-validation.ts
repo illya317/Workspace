@@ -10,7 +10,7 @@ import { HR_FK_REGISTRY } from "../fk-registry";
 import { getManagerPositionScopeDepartmentIds } from "../department-manager-positions";
 import { guardDepartmentArchive } from "../reference-guards";
 
-export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "level", "levelLabel", "parentId", "managerPositionId", "managerUserId", "isArchived", "archivedAt"];
+export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "level", "levelLabel", "parentId", "managerPositionId", "isArchived", "archivedAt"];
 
 export interface DepartmentCreateInput {
   code?: unknown;
@@ -29,7 +29,6 @@ export interface DepartmentUpdateInput {
   level?: number;
   parentId?: number | string | null;
   managerPositionId?: number | string | null;
-  managerUserId?: number | string | null;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
   descriptions?: unknown;
@@ -164,9 +163,6 @@ export async function buildDepartmentFieldUpdateCommand(field: string, value: un
     const managerPosition = await validateManagerPosition(value, id);
     return managerPosition.ok ? okCommand({ field, value: managerPosition.data }) : managerPosition;
   }
-  if (field === "managerUserId") {
-    return failCommand("部门负责人由负责人岗位自动派生，请维护负责人岗位", 400);
-  }
   if (field === "isArchived") {
     const archived = Boolean(value);
     if (archived && id) {
@@ -225,9 +221,6 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
     const managerPosition = await validateManagerPosition(input.managerPositionId, id);
     if (!managerPosition.ok) return managerPosition;
     data.managerPositionId = managerPosition.data;
-  }
-  if (input.managerUserId !== undefined) {
-    return failCommand("部门负责人由负责人岗位自动派生，请维护负责人岗位", 400);
   }
   if (input.isArchived !== undefined) {
     const archived = Boolean(input.isArchived);

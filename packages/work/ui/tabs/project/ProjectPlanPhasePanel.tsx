@@ -18,12 +18,16 @@ export function useProjectPlanPhaseSection({
   projectId,
   phases,
   canEdit,
+  canCreate,
+  canDelete,
   disabled,
   onChanged,
 }: {
   projectId: number | null;
   phases: ProjectPlanPhaseItem[];
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   disabled?: boolean;
   onChanged: () => Promise<void>;
 }): BodySurfaceSectionSpec {
@@ -96,10 +100,10 @@ export function useProjectPlanPhaseSection({
     label: "项目阶段",
     header: {
       title: "项目阶段",
-      actions: canEdit && !creating ? [{
+      actions: canCreate && !creating ? [{
         key: "create",
         label: "新增项目阶段",
-        icon: "create",
+        icon: "add",
         variant: "primary",
         disabled: disabled || busy,
         onClick: () => setCreating(true),
@@ -141,6 +145,7 @@ export function useProjectPlanPhaseSection({
             body: { kind: "data", data: buildPhaseRowsSurface({
               phases,
               canEdit,
+              canDelete,
               disabled: disabled || busy,
               editingId,
               editDraft,
@@ -163,6 +168,8 @@ export default function ProjectPlanPhasePanel(props: {
   projectId: number;
   phases: ProjectPlanPhaseItem[];
   canEdit: boolean;
+  canCreate: boolean;
+  canDelete: boolean;
   disabled?: boolean;
   onChanged: () => Promise<void>;
 }) {
@@ -173,6 +180,7 @@ export default function ProjectPlanPhasePanel(props: {
 function buildPhaseRowsSurface({
   phases,
   canEdit,
+  canDelete,
   disabled,
   editingId,
   editDraft,
@@ -184,6 +192,7 @@ function buildPhaseRowsSurface({
 }: {
   phases: ProjectPlanPhaseItem[];
   canEdit: boolean;
+  canDelete: boolean;
   disabled?: boolean;
   editingId: number | null;
   editDraft: PhaseDraft;
@@ -267,7 +276,7 @@ function buildPhaseRowsSurface({
       onSave: () => onSubmitEdit(phase.id),
       onCancel: onCancelEdit,
     }) : undefined,
-    rowActions: canEdit ? (phase) => {
+    rowActions: canDelete ? (phase) => {
       if (editingId === phase.id) return [];
       return [{
         key: "delete",

@@ -7,6 +7,7 @@ import { checkInputSurfaceAdoption } from "./input-surface-adoption";
 import { checkPageSurfaceDirectoryRenderer } from "./page-surface-directory";
 import { checkPageSurfaceAdoption } from "./surface-page-adoption";
 import { checkSurfaceRawContentWarnings } from "./surface-raw-content";
+import { checkUiHelperPurityWarnings } from "./ui-helper-purity";
 
 type GateCheck = [name: string, run: () => boolean | Promise<boolean>];
 
@@ -17,6 +18,7 @@ export const uiGateChecks: GateCheck[] = [
   ["page-surface-directory", checkPageSurfaceDirectoryRenderer],
   ["page-surface-adoption", checkPageSurfaceAdoption],
   ["surface-raw-content", checkSurfaceRawContentWarnings],
+  ["ui-helper-purity", checkUiHelperPurityWarnings],
   ["body-command-renderer", checkBodyCommandRenderer],
   ["core-ui-guard", checkCoreUiGuard],
   ["core-ui-registry", checkCoreUiRegistry],

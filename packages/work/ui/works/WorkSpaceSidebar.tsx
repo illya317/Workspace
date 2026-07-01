@@ -1,19 +1,14 @@
 "use client";
 
-import { PageSurface, type BodySurfaceSelectorProps } from "@workspace/core/ui";
+import { ActionGlyph, PageSurface, type BodySurfaceSelectorProps } from "@workspace/core/ui";
 import { businessSpaceGroupTitle } from "@workspace/platform/permissions";
 import { getWorkPeriodLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
-import type { WorkPlan, WorkTarget, WorkTaskSpace, WorkTargetType } from "./types";
+import type { WorkPlan, WorkTarget, WorkTaskSpace } from "./types";
 
 type SpaceNavItem = { kind: "space"; key: string; group: string; space: WorkTaskSpace; plans: WorkPlan[]; expanded: boolean };
 type PlanNavItem = { kind: "plan"; key: string; group: string; plan: WorkPlan };
 type PagerNavItem = { kind: "pager"; key: string; group: string; space: WorkTaskSpace; label: string; range: string; page: number };
 type WorkSpaceNavItem = SpaceNavItem | PlanNavItem | PagerNavItem;
-
-const WORK_SPACE_GROUPS: Array<{ type: WorkTargetType; title: string }> = [
-  { type: "department", title: "部门空间" },
-  { type: "project", title: "项目空间" },
-];
 
 export function createWorkSpaceNavigationBody({
   spaces,
@@ -95,10 +90,7 @@ function groupPlans(plans: WorkPlan[]) {
 }
 
 function groupTitle(space: WorkTaskSpace) {
-  if (space.targetType === "personal" || space.targetType === "company") {
-    return businessSpaceGroupTitle(space.targetType, "work");
-  }
-  return WORK_SPACE_GROUPS.find((group) => group.type === space.targetType)?.title ?? "";
+  return businessSpaceGroupTitle(space.targetType, "work");
 }
 
 function spaceItems({
@@ -162,7 +154,7 @@ function spaceCard(item: SpaceNavItem, onToggleSpace: (space: WorkTaskSpace) => 
     meta: [roleLabel(space.role), lifecycleLabel(space.lifecycleStatus)].filter(Boolean),
     archived: space.lifecycleStatus === "archived" || space.lifecycleStatus === "inactive",
     status: plans.length ? {
-      label: item.expanded ? "-" : "+",
+      label: <ActionGlyph kind={item.expanded ? "panel-close" : "panel-open"} className="h-3.5 w-3.5" />,
       onClick: () => onToggleSpace(space),
     } : undefined,
   };

@@ -3,7 +3,7 @@ import { rejectInvalidDateField } from "@workspace/platform/server/api";
 import { validateFkValue } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../../constants/field-options";
-import { canManageProject } from "../access";
+import { canManageProject, canWriteProjectAction } from "../access";
 import { WORK_FK_REGISTRY } from "../fk-registry";
 
 const DATE_FIELDS = ["startDate", "endDate"];
@@ -76,7 +76,7 @@ export async function buildProjectMemberCreateCommand(
 
   const projectNumber = Number(projectId);
   if (!Number.isInteger(projectNumber) || projectNumber <= 0) return failCommand("项目无效");
-  if (!(await canManageProject(userId, projectNumber))) return failCommand("无权限", 403);
+  if (!(await canManageProject(userId, projectNumber)) || !(await canWriteProjectAction(userId, projectNumber))) return failCommand("无权限", 403);
 
   const employee = await prisma.employee.findUnique({
     where: { employeeId: String(employeeNumber) },
@@ -129,11 +129,15 @@ export async function buildProjectMemberFieldUpdateCommand(
     select: { employeeId: true, projectId: true },
   });
   if (!existing) return failCommand("记录不存在", 404);
-  if (!(await canManageProject(userId, existing.projectId))) return failCommand("无权限", 403);
+  if (!(await canManageProject(userId, existing.projectId)) || !(await canWriteProjectAction(userId, existing.projectId))) return failCommand("无权限", 403);
 
   const result = await normalizeMemberField(field, value);
   if (!result.ok) return result;
-  if (field === "projectId" && Number(result.data.value) !== existing.projectId && !(await canManageProject(userId, Number(result.data.value)))) {
+  if (
+    field === "projectId" &&
+    Number(result.data.value) !== existing.projectId &&
+    (!(await canManageProject(userId, Number(result.data.value))) || !(await canWriteProjectAction(userId, Number(result.data.value))))
+  ) {
     return failCommand("无权限", 403);
   }
   if (field === "projectId" && Number(result.data.value) !== existing.projectId) {
@@ -163,6 +167,6 @@ export async function validateProjectMemberDeleteCommand(
     select: { projectId: true },
   });
   if (!existing) return failCommand("记录不存在", 404);
-  if (!(await canManageProject(userId, existing.projectId))) return failCommand("无权限", 403);
+  if (!(await canManageProject(userId, existing.projectId)) || !(await canWriteProjectAction(userId, existing.projectId))) return failCommand("无权限", 403);
   return okCommand({ recordId });
 }

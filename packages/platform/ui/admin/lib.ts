@@ -27,6 +27,24 @@ export function sourceLabel(source: string): string {
   }
 }
 
+export type PermissionSourceTone = "gray" | "green" | "red" | "yellow" | "blue";
+
+export function sourceTone(source: string | null | undefined): PermissionSourceTone {
+  if (source === "direct") return "green";
+  if (source === "position" || source === "department") return "red";
+  if (source === "ancestor" || source === "implied" || source === "implicit") return "blue";
+  if (source === "child") return "yellow";
+  return "gray";
+}
+
+export function sourceTooltip(source: string | null | undefined): string {
+  if (!source) return "未授权";
+  if (source === "ancestor") return "上层授予";
+  if (source === "implied") return "高级隐含";
+  if (source === "child") return "下级隐含";
+  return sourceLabel(source);
+}
+
 /** 返回 targetRoleKey 的所有隐含权限（含自身） */
 function impliedRoleKeys(roleKey: string): string[] {
   const normalized = roleKey === "read" ? "access" : roleKey;

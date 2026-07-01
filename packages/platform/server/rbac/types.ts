@@ -8,8 +8,10 @@ export interface GrantCache {
 export interface PermissionContext {
   userId: number;
   isAdmin: boolean;
+  isAllResourceAdmin?: boolean;
   positionIds: number[];
   departmentIds: number[];
+  implicitAdminResourceIds?: number[];
   /** Preloaded grants for fast in-memory checks. Populated on demand. */
   _grantCache?: GrantCache;
 }

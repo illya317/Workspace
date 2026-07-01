@@ -127,7 +127,7 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 | Settings `settings` | Platform | account, admin, api, ui | settings account/admin/api APIs; UI component page is page-only |
 | Agent `agent` | Platform headless | no page | `/api/agent` protected API only |
 
-Important capability resources include `work.projects.viewAll`, `work.meetings.viewAll`, `hr.roster.generated`, `settings.account.apiAccess`, `settings.api.manage`, and library confidentiality capabilities. Check the registry and `docs/engineering/security/rbac.md` before changing capability semantics.
+Important capability resources include `hr.roster.generated`, `settings.account.apiAccess`, and `settings.api.manage`. Check the registry and `docs/engineering/security/rbac.md` before changing capability semantics.
 
 ## 6. Development Rules That Usually Matter
 

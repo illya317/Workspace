@@ -1,4 +1,6 @@
-export const DOCS_EDITOR_SPACE_KINDS = ["personal", "company", "department"] as const;
+import type { PermissionActionSource } from "@workspace/platform/permission-actions";
+
+export const DOCS_EDITOR_SPACE_KINDS = ["personal", "company", "committee", "department"] as const;
 export const DOCS_EDITOR_TEMPLATE_STATUSES = ["draft", "published", "archived"] as const;
 export const DOCS_EDITOR_PERMISSION_ROLES = ["viewer", "editor", "delete", "manager"] as const;
 
@@ -10,6 +12,13 @@ export type DocumentTemplateSpaceKind = DocsEditorSpaceKind;
 export type DocumentTemplateStatus = DocsEditorTemplateStatus;
 export type DocumentTemplateRole = DocsEditorPermissionRole;
 
+export interface DocsEditorSpaceActionPermissions {
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  canExport: boolean;
+}
+
 export interface DocsEditorSpaceDto {
   id: string;
   kind: DocsEditorSpaceKind;
@@ -19,6 +28,7 @@ export interface DocsEditorSpaceDto {
   description?: string;
   departmentId?: number | null;
   role: DocsEditorPermissionRole;
+  actionPermissions: DocsEditorSpaceActionPermissions;
 }
 
 export interface DocsEditorTemplateListItemDto {
@@ -43,6 +53,7 @@ export interface DocsEditorSpacePermissionDto {
   role: DocsEditorPermissionRole;
   kind: "template";
   source: "natural" | "explicit";
+  actionSource: PermissionActionSource;
   sourceLabel?: string;
   locked: boolean;
 }

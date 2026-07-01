@@ -3,6 +3,10 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_KEYS } from "../../resources";
 import { isResourceEnabled } from "../../effective-module-registry";
 
+export {
+  IMPLICIT_ALL_ADMIN_POSITION_NAME,
+} from "./implicit-admins";
+
 const DEFAULT_RESOURCE_ROLES = {
   "settings.account": "access",
   "work.projects": "access",
@@ -78,8 +82,9 @@ export function getDefaultResourceRole(resourceKey: string | undefined | null) {
 }
 
 export async function hasAnyAdminGrantForContext(ctx: PermissionContext) {
-  if (ctx.isAdmin) return true;
+  if (ctx.isAdmin || ctx.isAllResourceAdmin) return true;
   const activeResourceIds = await getActiveResourceIds();
+  if ((ctx.implicitAdminResourceIds ?? []).some((resourceId) => activeResourceIds.has(resourceId))) return true;
   if (ctx._grantCache) {
     return grantsContainAdmin(ctx._grantCache.userGrants, activeResourceIds)
       || grantsContainAdmin(ctx._grantCache.positionGrants, activeResourceIds)

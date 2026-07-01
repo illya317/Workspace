@@ -1,6 +1,7 @@
 import { randomBytes } from "node:crypto";
 
 import { isRootAdminUser } from "./auth/root";
+import { listDepartmentIdsManagedByUserPosition } from "./business-space-permissions";
 import { currentOpenEndedDateWhere } from "./fk-registry";
 import { prisma } from "./prisma";
 
@@ -94,13 +95,13 @@ export async function updateUserRoutineItems(userId: number, routineItems: Routi
 export async function listUserAvailableDepartments(userId: number): Promise<PreferredDepartmentOption[]> {
   if (await isRootAdminUser(userId)) {
     return prisma.department.findMany({
-      where: { isArchived: false },
+      where: { isArchived: false, code: { not: "EXC001" } },
       select: { id: true, name: true, code: true },
       orderBy: [{ code: "asc" }, { id: "asc" }],
     });
   }
 
-  const [employeeDepartments, managedDepartments, taskAssignees, explicitTaskPermissions, explicitTemplatePermissions] = await Promise.all([
+  const [employeeDepartments, managedDepartmentIds, taskAssignees, explicitTaskPermissions, explicitTemplatePermissions] = await Promise.all([
     prisma.employee.findMany({
       where: {
         userId,
@@ -114,10 +115,7 @@ export async function listUserAvailableDepartments(userId: number): Promise<Pref
         },
       },
     }),
-    prisma.department.findMany({
-      where: { managerUserId: userId, isArchived: false },
-      select: { id: true, name: true, code: true },
-    }),
+    listDepartmentIdsManagedByUserPosition(userId),
     prisma.departmentWorkAssignee.findMany({
       where: { userId },
       select: { department: { select: { id: true, name: true, code: true, isArchived: true } } },
@@ -131,6 +129,10 @@ export async function listUserAvailableDepartments(userId: number): Promise<Pref
       select: { targetId: true },
     }),
   ]);
+  const managedDepartments = managedDepartmentIds.length ? await prisma.department.findMany({
+    where: { id: { in: managedDepartmentIds }, isArchived: false },
+    select: { id: true, name: true, code: true },
+  }) : [];
 
   const explicitIds = Array.from(new Set([
     ...explicitTaskPermissions.map((item) => item.targetId),
@@ -144,6 +146,7 @@ export async function listUserAvailableDepartments(userId: number): Promise<Pref
   const byId = new Map<number, PreferredDepartmentOption>();
   const addDepartment = (department: PreferredDepartmentOption & { isArchived?: boolean }) => {
     if (department.isArchived) return;
+    if (department.code === "EXC001") return;
     byId.set(department.id, { id: department.id, name: department.name, code: department.code });
   };
   employeeDepartments.forEach((employee) => {

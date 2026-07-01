@@ -7,6 +7,7 @@ import { matchAnyField } from "@workspace/platform/search";
 import { ProjectCreateSchema } from "./schemas";
 import {
   buildVisibleProjectWhere,
+  getWorkProjectScopedActionPermissions,
   getProjectPermissions,
 } from "./access";
 import { formatDate } from "./project-normalization";
@@ -26,7 +27,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     include: {
       _count: { select: { employees: true } },
       employees: { select: { employeeId: true, role: true } },
-      leadingDepartment: { select: { id: true, code: true, name: true, managerUserId: true } },
+      leadingDepartment: { select: { id: true, code: true, name: true } },
       parentProjectTask: {
         select: {
           id: true,
@@ -44,6 +45,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
   const mapped = await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const permissions = await getProjectPermissions(input.userId, project);
+    const actionPermissions = await getWorkProjectScopedActionPermissions(input.userId, project.id);
     const dates = effectiveProjectDates(project);
     const parentTaskStatus = project.parentProjectTask
       ? deriveStatusFromActualDates(project.parentProjectTask.startDate, project.parentProjectTask.endDate)
@@ -58,6 +60,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
         canManage: permissions.canManage,
         canDelete: permissions.canDelete,
       },
+      actionPermissions,
       description: project.description,
       projectType: project.projectType as ProjectType,
       parentProjectTaskId: project.parentProjectTaskId,

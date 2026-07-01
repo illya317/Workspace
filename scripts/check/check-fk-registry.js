@@ -17,7 +17,6 @@ const HISTORY_FK_FIELDS = [
   ["CompanyRelation", "parentId"],
   ["CompanyRelation", "childId"],
   ["Department", "parentId"],
-  ["Department", "managerUserId"],
   ["Position", "departmentId"],
   ["Position", "positionDescriptionId"],
   ["EDP", "employeeId"],

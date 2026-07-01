@@ -6,7 +6,7 @@ export interface WorkParticipant {
   createdAt: string;
 }
 
-export type WorkTargetType = "personal" | "company" | "department" | "project";
+export type WorkTargetType = "personal" | "company" | "committee" | "department" | "project";
 export type WorkItemCategory = "routine" | "non-routine";
 export type WorkItemType = "objective" | "key_result" | "task";
 export type WorkItemStatus = "doing" | "done" | "archived";
@@ -20,11 +20,19 @@ export interface WorkTarget {
   targetId: number;
 }
 
+export interface WorkTaskActionPermissions {
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  canArchive: boolean;
+}
+
 export interface WorkTaskSpace extends WorkTarget {
   name: string;
   subtitle: string | null;
   lifecycleStatus?: "active" | "archived" | "inactive";
   role: WorkSpaceRole;
+  actionPermissions: WorkTaskActionPermissions;
   counts: {
     objective: number;
     keyResult: number;
@@ -182,16 +190,6 @@ export interface WorkItemDraft {
   parentWorkItemContent: string;
   participants: string;
   sortOrder: number;
-}
-
-export interface WorkSpacePermissionRow {
-  userId: number;
-  userName: string;
-  role: WorkSpaceRole;
-  kind: "task";
-  source: "natural" | "explicit";
-  sourceLabel?: string;
-  locked: boolean;
 }
 
 export interface WorkReportPeriod {

@@ -205,7 +205,6 @@ function main() {
 
   const apply = hasArg("--apply");
   const overwrite = hasArg("--overwrite");
-  const clearLegacyUser = hasArg("--clear-legacy-user");
   const noBackup = hasArg("--no-backup");
   const minScore = Number(argValue("--min-score", "65"));
   const today = argValue("--today", new Date().toISOString().slice(0, 10));
@@ -285,7 +284,7 @@ function main() {
   printTable("Unresolved active departments", unresolved);
 
   console.log(`\nDatabase: ${dbPath}`);
-  console.log(`Mode: ${apply ? "apply" : "dry-run"}${overwrite ? " + overwrite" : ""}${clearLegacyUser ? " + clear legacy user" : ""}`);
+  console.log(`Mode: ${apply ? "apply" : "dry-run"}${overwrite ? " + overwrite" : ""}`);
   console.log(`Candidates: ${planned.length}; unresolved: ${unresolved.length}`);
 
   if (apply && planned.length > 0) {
@@ -296,7 +295,6 @@ function main() {
       UPDATE Department
       SET
         managerPositionId = @managerPositionId,
-        managerUserId = CASE WHEN @clearLegacyUser THEN NULL ELSE managerUserId END,
         editedBy = COALESCE(@editedBy, editedBy),
         editedAt = CURRENT_TIMESTAMP,
         version = version + 1
@@ -309,7 +307,6 @@ function main() {
         update.run({
           departmentId: item.departmentId,
           managerPositionId: item.managerPositionId,
-          clearLegacyUser: clearLegacyUser ? 1 : 0,
           editedBy,
         });
       }

@@ -2,7 +2,7 @@
 
 import { ActionGlyph, type ActionGlyphKind } from "@workspace/core/ui";
 
-export type PermissionCellButtonTone = "empty" | "direct" | "organization" | "derived";
+export type PermissionCellButtonTone = "empty" | "direct" | "organization" | "common" | "derived";
 
 interface PermissionCellButtonProps {
   tone: PermissionCellButtonTone;
@@ -13,9 +13,10 @@ interface PermissionCellButtonProps {
 }
 
 const TONE_CLASS: Record<PermissionCellButtonTone, string> = {
-  empty: "border border-slate-200 bg-white text-slate-500 hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700",
+  empty: "border border-slate-200 bg-white text-slate-500 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-700",
   direct: "bg-emerald-600 text-white hover:bg-emerald-700",
-  organization: "border border-amber-100 bg-amber-50 text-amber-700 hover:border-amber-200 hover:bg-amber-100",
+  organization: "border border-red-100 bg-red-50 text-red-700 hover:border-red-200 hover:bg-red-100",
+  common: "border border-yellow-100 bg-yellow-50 text-yellow-700 hover:border-yellow-200 hover:bg-yellow-100",
   derived: "border border-sky-100 bg-sky-50 text-sky-700 hover:border-sky-200 hover:bg-sky-100",
 };
 

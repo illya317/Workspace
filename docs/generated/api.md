@@ -92,9 +92,6 @@
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
-| **DELETE** | `/api/settings/admin/department-admins` | 登录 | 移除部门管理员 |
-| **GET** | `/api/settings/admin/department-admins` | 登录 | 部门管理员列表 |
-| **PUT** | `/api/settings/admin/department-admins` | 登录 | 设置部门管理员 |
 | **DELETE** | `/api/settings/admin/departments` | 登录 + 系统管理员 | Admin删除部门 |
 | **GET** | `/api/settings/admin/departments` | 登录 + 系统管理员 | Admin部门列表 |
 

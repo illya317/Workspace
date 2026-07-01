@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { createEmptySection, createFormSection, createPageBody, createTabbedPageBody, type BodySurfaceProps, type FormSurfaceCommandSpec, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
+import { useState } from "react";
+import { createEmptySection, createFormSection, createPageBody, type BodySurfaceProps, type BodySurfaceSectionSpec, type FormSurfaceCommandSpec, type FormSurfaceItemSpec, PageSurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { useProjectPlanManagementSection } from "./ProjectPlanManagementSection";
 import { createProjectRasciMatrixSection } from "./ProjectRasciMatrix";
@@ -22,7 +22,10 @@ import {
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 
+export type ProjectDetailViewKey = "overview" | "plan" | "permissions";
+
 type ProjectDetailEditorProps = {
+  activeView: ProjectDetailViewKey;
   editorTitle: string;
   dirty: boolean;
   draft: ProjectDraft | null;
@@ -30,6 +33,8 @@ type ProjectDetailEditorProps = {
   canEditCurrent: boolean;
   canManageCurrent: boolean;
   canDeleteCurrent: boolean;
+  canCreateCurrent: boolean;
+  canDeleteSubresourceCurrent: boolean;
   saving: boolean;
   canSave: boolean;
   rasciRows: ProjectRasciRow[];
@@ -43,16 +48,21 @@ type ProjectDetailEditorProps = {
   onCreateChildProject: (task: ProjectTaskItem) => void;
   onOpenProject: (projectId: number) => void;
   onProjectTasksChanged: (projectId: number | null) => void;
+  onActiveViewChange: (view: ProjectDetailViewKey) => void;
+  permissionSections?: BodySurfaceSectionSpec[];
   onToast: (toast: { type: "success" | "error"; message: string }) => void;
 };
 
 export function useProjectDetailEditorSection({
-  editorTitle,
+  activeView,
+  editorTitle: _editorTitle,
   draft,
   selectedProject,
   canEditCurrent,
   canManageCurrent,
   canDeleteCurrent,
+  canCreateCurrent,
+  canDeleteSubresourceCurrent,
   saving,
   canSave,
   rasciRows,
@@ -66,33 +76,34 @@ export function useProjectDetailEditorSection({
   onCreateChildProject,
   onOpenProject,
   onProjectTasksChanged,
+  onActiveViewChange,
+  permissionSections = [],
   onToast,
 }: ProjectDetailEditorProps): BodySurfaceProps {
-  const [activeTab, setActiveTab] = useState("overview");
   const [addingMemberRole, setAddingMemberRole] = useState<MultiProjectRole | null>(null);
   const isChildProject = Boolean(draft?.parentProjectTaskId);
   const parentProjectLabel = draft
     ? [draft.parentProjectCode, draft.parentProjectName].filter(Boolean).join(" · ") || "未设置"
     : "未设置";
 
-  useEffect(() => {
-    if (activeTab !== "overview" && activeTab !== "plan") setActiveTab("overview");
-  }, [activeTab]);
-
-  const openParentProjectPlan = (projectId: number | null) => { if (projectId) { setActiveTab("plan"); onOpenProject(projectId); } };
+  const openParentProjectPlan = (projectId: number | null) => { if (projectId) { onActiveViewChange("plan"); onOpenProject(projectId); } };
   const startCreateChildProject = (task: ProjectTaskItem) => {
-    setActiveTab("overview");
+    onActiveViewChange("overview");
     onCreateChildProject(task);
   };
   const projectPlanSection = useProjectPlanManagementSection({
     projectId: draft?.id ?? null,
     canEdit: canEditCurrent,
+    canCreate: canCreateCurrent,
+    canDelete: canDeleteSubresourceCurrent,
     disabled: saving || creating,
     onToast,
   });
   const projectTasksSection = useProjectTasksSection({
     projectId: draft?.id ?? null,
     canEdit: canEditCurrent,
+    canCreate: canCreateCurrent,
+    canDelete: canDeleteSubresourceCurrent,
     disabled: saving || creating,
     onToast,
     onCreateChildProject: startCreateChildProject,
@@ -185,7 +196,9 @@ export function useProjectDetailEditorSection({
             : {
                 action: {
                   key: `start-add-${role}`,
-                  label: "+",
+                  label: `添加${role}`,
+                  icon: "add",
+                  presentation: "icon",
                   onClick: () => setAddingMemberRole(role),
                   size: "sm",
                 },
@@ -205,32 +218,12 @@ export function useProjectDetailEditorSection({
     )
   })]);
 
-  return createTabbedPageBody(
-    [
-      {
-        key: "overview",
-        label: editorTitle,
-        framed: false,
-        body: {
-          kind: "section",
-          sections: createPageBody([
-            createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields } }),
-            createProjectRasciMatrixSection(rasciRows),
-          ]).sections,
-        },
-      },
-      {
-        key: "plan",
-        label: "项目计划",
-        framed: false,
-        body: {
-          kind: "section",
-          sections: createPageBody([projectPlanSection, projectTasksSection]).sections,
-        },
-      },
-    ],
-    { active: activeTab, onChange: setActiveTab },
-  );
+  if (activeView === "plan") return createPageBody([projectPlanSection, projectTasksSection]);
+  if (activeView === "permissions" && selectedProject && canManageCurrent) return createPageBody(permissionSections);
+  return createPageBody([
+    createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields } }),
+    createProjectRasciMatrixSection(rasciRows),
+  ]);
 }
 
 export default function ProjectDetailEditor(props: ProjectDetailEditorProps) {

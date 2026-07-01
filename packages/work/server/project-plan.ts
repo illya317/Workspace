@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { canEditProject, canViewProject, getProjectPermissionsById } from "./access";
+import { canCreateProjectAction, canDeleteProjectSubresourceAction, canViewProject, canWriteProjectAction, getProjectPermissionsById } from "./access";
 import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectPlanCommand } from "./domain/project-plan-validation";
 import { validateProjectTaskPlanBatch } from "./domain/project-task-validation";
 import { deriveStatusFromActualDates, effectiveProjectDates } from "./project-dates";
@@ -177,7 +177,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
 }
 
 export async function saveProjectPlanGantt(input: { userId: number; projectId: number; body: { items?: PlanDateInput[] } }) {
-  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canCreateProjectAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const items = Array.isArray(input.body.items) ? input.body.items : [];
   const normalized: NormalizedPlanDate[] = [];
   for (const item of items) {
@@ -227,7 +227,7 @@ export async function saveProjectPlanGantt(input: { userId: number; projectId: n
 export async function syncProjectPlanDependencies(input: { userId: number; projectId: number; body: { dependencies?: DependencyInput[] } }) {
   const command = validateProjectPlanCommand("syncProjectPlanDependencies");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canWriteProjectAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const scope = await loadPlanScope(input.projectId);
   const dependencies: NormalizedDependency[] = [];
   for (const dependency of Array.isArray(input.body.dependencies) ? input.body.dependencies : []) {
@@ -268,7 +268,7 @@ export async function listProjectPlanPhases(input: { userId: number; projectId: 
 export async function createProjectPlanPhase(input: { userId: number; projectId: number; body: PlanPhaseInput }) {
   const command = validateProjectPlanCommand("createProjectPlanPhase");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "create");
   if ("error" in normalized) return serviceError(String(normalized.error || "参数错误"));
   const createData = normalized.data;
@@ -284,7 +284,7 @@ export async function createProjectPlanPhase(input: { userId: number; projectId:
 export async function updateProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number; body: PlanPhaseInput }) {
   const command = validateProjectPlanCommand("updateProjectPlanPhase");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canWriteProjectAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
   const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "update");
@@ -307,7 +307,7 @@ function derivePhaseBaseline(phases: Array<{ startDate: Date | null; endDate: Da
 export async function deleteProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number }) {
   const command = validateProjectPlanCommand("deleteProjectPlanPhase");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditProject(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
   await prisma.projectPlanPhase.delete({ where: { id: input.phaseId } });

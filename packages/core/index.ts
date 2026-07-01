@@ -8,6 +8,7 @@ export type {
   ModuleLifecycleStatus,
   ModuleRegistration,
   ResourceRegistration,
+  SpaceRegistration,
   SubModuleDef,
   SubModuleRegistration,
   WorkspaceLayer,

@@ -1,9 +1,14 @@
 import assert from "node:assert/strict";
 import { actionImplies, getPermissionActionGlyph, PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
 import { getApiContracts, findApiContract } from "@workspace/platform/api-registry";
-import { PERMISSION_RESOURCE_ACTION_POLICIES } from "@workspace/platform/permission-resource-policy";
+import {
+  PERMISSION_RESOURCE_ACTION_POLICIES,
+  PERMISSION_SCOPE_TYPE_KEYS,
+  type PermissionResourceActionPolicy,
+} from "@workspace/platform/permission-resource-policy";
 import { PERMISSION_API_ACTION_POLICY_LIST, resolvePermissionApiActionPolicy } from "@workspace/platform/permission-api-action-policy";
 import { registeredModuleDefinitions } from "@workspace/platform/module-registry";
+import { buildPermissionRecords } from "@workspace/platform/server/rbac/action-records";
 
 assert.equal(actionImplies("delete", "write"), true);
 assert.equal(actionImplies("delete", "create"), true);
@@ -35,10 +40,12 @@ for (const definition of registeredModuleDefinitions) {
 }
 
 const policyResourceKeys = new Set<string>(PERMISSION_RESOURCE_ACTION_POLICIES.map((policy) => policy.resourceKey));
+const validScopeTypeKeys = new Set<string>(PERMISSION_SCOPE_TYPE_KEYS);
+const validScopeInheritanceModes = new Set<string>(["inherit", "self_only"]);
 for (const resourceKey of registeredResourceKeys) {
   assert.equal(policyResourceKeys.has(resourceKey), true, `missing permission action policy for ${resourceKey}`);
 }
-for (const policy of PERMISSION_RESOURCE_ACTION_POLICIES) {
+for (const policy of PERMISSION_RESOURCE_ACTION_POLICIES as readonly PermissionResourceActionPolicy[]) {
   assert.equal(registeredResourceKeys.has(policy.resourceKey), true, `permission action policy has unknown resource ${policy.resourceKey}`);
   const supportedActions = policy.supportedActions as readonly string[];
   for (const actionKey of policy.supportedActions) {
@@ -49,6 +56,16 @@ for (const policy of PERMISSION_RESOURCE_ACTION_POLICIES) {
   }
   for (const actionKey of policy.explicitOnlyActions) {
     assert.equal(supportedActions.includes(actionKey), true, `${policy.resourceKey} marks unsupported explicit action ${actionKey}`);
+  }
+  for (const scopeType of policy.scopeTypes ?? []) {
+    assert.equal(validScopeTypeKeys.has(scopeType), true, `${policy.resourceKey} declares unknown scope type ${scopeType}`);
+  }
+  if (policy.scopeInheritanceMode) {
+    assert.equal(
+      validScopeInheritanceModes.has(policy.scopeInheritanceMode),
+      true,
+      `${policy.resourceKey} declares unknown scope inheritance mode ${policy.scopeInheritanceMode}`,
+    );
   }
 }
 
@@ -92,5 +109,23 @@ for (const policy of PERMISSION_API_ACTION_POLICY_LIST) {
     `${policy.method} ${policy.pathPrefix} maps ${policy.resourceKey} to unsupported action ${policy.additionalAction}`,
   );
 }
+
+const projectRecord = buildPermissionRecords({
+  subjects: [{ id: 1, name: "Test" }],
+  subjectType: "user",
+  selectedResource: "work.projects",
+  ancestorResourceKeys: [],
+  directGrants: [{ subjectId: 1, resourceKey: "work.projects", roleKey: "admin", scopeId: null }],
+  positionGrants: [],
+  departmentGrants: [],
+  implicitGrants: [],
+  directActionGrants: [],
+  positionActionGrants: [],
+  departmentActionGrants: [],
+})[1];
+const projectVisibleActions = new Set(projectRecord.actionTree.flatMap((group) => group.actions.map((action) => action.actionKey)));
+assert.equal(projectVisibleActions.has("revise"), true, "work.projects should show supported revise action");
+assert.equal(projectVisibleActions.has("export"), false, "work.projects should hide unsupported export action");
+assert.equal(projectVisibleActions.has("archive"), false, "work.projects should hide unsupported archive action");
 
 console.log("permission action catalog ok");

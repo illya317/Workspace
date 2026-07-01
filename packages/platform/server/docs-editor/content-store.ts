@@ -48,7 +48,7 @@ export type DocsEditorTemplateContentFileStatus = {
 
 const CONTENT_ROOT_PARTS = ["data", "docs-editor", "templates"] as const;
 const EMPTY_JSON = "{}";
-const STRUCTURED_REF_PATTERN = /^data\/docs-editor\/templates\/(?:department|personal|company)\//;
+const STRUCTURED_REF_PATTERN = /^data\/docs-editor\/templates\/(?:department|personal|company|committee)\//;
 
 const hashCache = new Map<string, { documentHash: string; fieldModelHash: string; mtimeMs: number }>();
 
@@ -197,13 +197,13 @@ async function templateContentBaseRef(input: DocsEditorTemplateStorageContext) {
   ].join("/");
 }
 
-async function resolveSpaceLabel(targetType: "department" | "personal" | "company", targetId: number, fallback: string) {
-  if (targetType === "department") {
+async function resolveSpaceLabel(targetType: "department" | "personal" | "company" | "committee", targetId: number, fallback: string) {
+  if (targetType === "department" || targetType === "committee") {
     const department = await prisma.department.findUnique({
       where: { id: targetId },
       select: { code: true, name: true },
     });
-    return slug(department?.code || department?.name || fallback || "department");
+    return slug(department?.code || department?.name || fallback || targetType);
   }
   if (targetType === "personal") {
     const user = await prisma.user.findUnique({
@@ -297,8 +297,8 @@ function contentRootRef() {
   return CONTENT_ROOT_PARTS.join("/");
 }
 
-function normalizeTargetType(value: string): "department" | "personal" | "company" {
-  if (value === "personal" || value === "company") return value;
+function normalizeTargetType(value: string): "department" | "personal" | "company" | "committee" {
+  if (value === "personal" || value === "company" || value === "committee") return value;
   return "department";
 }
 

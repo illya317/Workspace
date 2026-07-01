@@ -2,8 +2,8 @@
 
 import { useState, useMemo, useEffect } from "react";
 import { matchEmployee, matchText } from "@workspace/platform/search";
-import type { Subject, PermissionState, SubjectType } from "../types";
-import { ROLE_PRIORITY } from "../lib";
+import { getPermissionActionRecordSortScore, sortPermissionSubjectsByScore } from "../../permission-matrix-model";
+import type { Subject, SubjectType, PermissionActionRecord } from "../types";
 
 const DEPARTMENT_FILTER_SEPARATOR = "\u001F";
 
@@ -18,14 +18,15 @@ function parseDepartmentFilter(value: string) {
 export function usePermissionFilters(
   rawSubjects: Subject[],
   subjectType: SubjectType,
-  getPermissionState: (subject: Subject, roleKey: string) => PermissionState,
-  roles: { key: string; name: string; color: string }[]
+  getPermissionRecord: (subject: Subject) => PermissionActionRecord | null,
 ) {
   const [l1Dept, setL1Dept] = useState("全部");
   const [l2Dept, setL2Dept] = useState("全部");
   const [l3Dept, setL3Dept] = useState("全部");
   const [nameSearch, setNameSearch] = useState("");
   const [expandedRows, setExpandedRows] = useState<Set<number>>(new Set());
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSizeState] = useState(50);
 
   useEffect(() => {
     setL1Dept("全部");
@@ -40,6 +41,11 @@ export function usePermissionFilters(
       else next.add(subjectId);
       return next;
     });
+  }
+
+  function setPageSize(nextPageSize: number) {
+    setPageSizeState(nextPageSize);
+    setPage(1);
   }
 
   const l1Options = useMemo(() => {
@@ -147,25 +153,10 @@ export function usePermissionFilters(
       });
     }
 
-    result.sort((a, b) => {
-      const aScore = Math.max(
-        ...roles.map((r) =>
-          getPermissionState(a, r.key).has
-            ? ROLE_PRIORITY[r.key] || 0
-            : 0
-        )
-      );
-      const bScore = Math.max(
-        ...roles.map((r) =>
-          getPermissionState(b, r.key).has
-            ? ROLE_PRIORITY[r.key] || 0
-            : 0
-        )
-      );
-      return bScore - aScore;
-    });
-
-    return result;
+    return sortPermissionSubjectsByScore(
+      result,
+      (subject) => getPermissionActionRecordSortScore(getPermissionRecord(subject)),
+    );
   }, [
     rawSubjects,
     l1Dept,
@@ -173,9 +164,20 @@ export function usePermissionFilters(
     l3Dept,
     nameSearch,
     subjectType,
-    getPermissionState,
-    roles,
+    getPermissionRecord,
   ]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [l1Dept, l2Dept, l3Dept, nameSearch, subjectType, pageSize]);
+
+  const totalSubjects = subjects.length;
+  const totalPages = Math.max(1, Math.ceil(totalSubjects / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pagedSubjects = useMemo(() => {
+    const start = (currentPage - 1) * pageSize;
+    return subjects.slice(start, start + pageSize);
+  }, [subjects, currentPage, pageSize]);
 
   return {
     l1Dept,
@@ -195,6 +197,12 @@ export function usePermissionFilters(
     nameSearchOptions,
     selectedDepartmentFilter,
     setDepartmentFilter,
-    subjects,
+    subjects: pagedSubjects,
+    totalSubjects,
+    page: currentPage,
+    pageSize,
+    totalPages,
+    setPage,
+    setPageSize,
   };
 }

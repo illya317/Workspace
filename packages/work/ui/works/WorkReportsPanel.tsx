@@ -181,7 +181,7 @@ export function useWorkReportsController({
             actions: [
               {
                 key: "save",
-                kind: "check" as const,
+                kind: "save" as const,
                 label: saving ? "保存中..." : "保存汇报",
                 variant: "primary" as const,
                 onClick: handleSave,

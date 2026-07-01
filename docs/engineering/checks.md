@@ -65,6 +65,7 @@
 - PageSurface 协议、页面壳、toolbar/input/selector/tabbar 的结构边界。
 - 页面级 toolbar 与数据块 toolbar 重复、Surface 自带 page chrome、业务直引 Common renderer。
 - 业务 UI 候选组件没有复用 Core/Platform 基建、Core UI ownership/coupling 违规。
+- UI helper 纯度：业务和 Platform UI helper / factory / builder 不得拥有可见 UI、页面 chrome、流程副作用或权限显示决策。已有项进入 `ui-helper-purity-baseline.json` ratchet，新增会失败。
 - Surface raw/custom content 使用会进入 `surface-raw-content-baseline.json` ratchet：已有项在 `gate:ui` 中 warning 展示，新增 `content JSX`、`cell` 回调、`expandedRowContent`、`renderItem/renderOption` 未进 baseline 会失败；Surface contract 声明层由 `core-ui:contracts:check` 禁止重新暴露 raw/custom content 字段。
 
 这些问题不交给 hygiene 重构；谁引入或触碰相关 UI，谁修到 `gate:ui` 通过。`arch:gate` 仍保留为兼容总入口，内部等价于 `gate:domain + gate:ui`。

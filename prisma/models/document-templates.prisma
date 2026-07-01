@@ -23,14 +23,8 @@ model DocumentTemplate {
   status           String    @default("draft")
   ownerUserId      Int?
   spaceId          Int
-  documentJson     String
-  fieldModelJson   String
   documentContentRef String?
-  documentContentHash String?
-  documentContentBytes Int?
   fieldModelContentRef String?
-  fieldModelContentHash String?
-  fieldModelContentBytes Int?
   sourceKind       String?
   sourceProductKey String?
   sourceStageKeys  String?

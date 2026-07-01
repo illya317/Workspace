@@ -10,12 +10,20 @@ export type ProjectPermissions = {
   canDelete: boolean;
 };
 
+export type ProjectActionPermissions = {
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  canRevise: boolean;
+};
+
 export type ProjectItem = {
   id: number;
   code: string | null;
   name: string;
   createdBy: number | null;
   permissions: ProjectPermissions;
+  actionPermissions: ProjectActionPermissions;
   description: string | null;
   projectType: ProjectType;
   parentProjectTaskId: number | null;

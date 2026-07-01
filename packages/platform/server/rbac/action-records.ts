@@ -8,7 +8,11 @@ import {
   type PermissionActionSource,
   type PermissionGroupKey,
 } from "@workspace/platform/permission-actions";
-import { canPermissionActionInheritFromAncestor, isPermissionActionSupported } from "@workspace/platform/permission-resource-policy";
+import {
+  canPermissionActionInheritFromAncestor,
+  canPermissionResourceInheritGlobalScope,
+  isPermissionActionSupported,
+} from "@workspace/platform/permission-resource-policy";
 import type { SubjectType } from "./grants";
 import type { ActionGrantItem } from "./action-grants";
 
@@ -23,7 +27,10 @@ export interface LegacyGrantItem {
   resourceKey: string;
   roleKey: string;
   scopeId: string | null;
+  source?: PermissionActionSource;
 }
+
+type ActionGrantWithSource = ActionGrantItem & { source?: PermissionActionSource };
 
 export interface PermissionActionState {
   actionKey: PermissionActionKey;
@@ -72,10 +79,11 @@ interface BuildPermissionRecordsInput {
   positionGrants: LegacyGrantItem[];
   departmentGrants: LegacyGrantItem[];
   implicitGrants: LegacyGrantItem[];
-  directActionGrants: ActionGrantItem[];
-  positionActionGrants: ActionGrantItem[];
-  departmentActionGrants: ActionGrantItem[];
+  directActionGrants: ActionGrantWithSource[];
+  positionActionGrants: ActionGrantWithSource[];
+  departmentActionGrants: ActionGrantWithSource[];
   childResourceKeys?: string[];
+  selectedScopeId?: string | null;
 }
 
 const ACTION_LEVEL: Record<PermissionActionKey, number> = {
@@ -102,10 +110,14 @@ export function isPermissionActionAllowedByMaxRole(actionKey: PermissionActionKe
 }
 
 function isPendingResourceMapping(resourceKey: string | null, actionKey: PermissionActionKey) {
-  return Boolean(resourceKey) && !isPermissionActionSupported(resourceKey, actionKey);
+  return Boolean(resourceKey && !isPermissionActionSupported(resourceKey, actionKey));
 }
 
-function toActionGrants(grants: LegacyGrantItem[]): ActionGrantItem[] {
+function isActionVisibleForResource(resourceKey: string | null, actionKey: PermissionActionKey) {
+  return !isPendingResourceMapping(resourceKey, actionKey);
+}
+
+function toActionGrants(grants: LegacyGrantItem[]): ActionGrantWithSource[] {
   return grants.flatMap((grant) => {
     const actionKey = roleKeyToActionKey(grant.roleKey);
     if (!actionKey) return [];
@@ -115,6 +127,7 @@ function toActionGrants(grants: LegacyGrantItem[]): ActionGrantItem[] {
       actionKey,
       resourceId: 0,
       scopeId: grant.scopeId,
+      source: grant.source,
     }];
   });
 }
@@ -135,17 +148,30 @@ function pickSummarySource(states: PermissionActionState[]) {
   return [...states].sort((a, b) => sourceRank(a.source) - sourceRank(b.source))[0]?.source ?? null;
 }
 
+function grantMatchesSelectedScope(
+  grantScopeId: string | null,
+  selectedScopeId: string | null | undefined,
+  selectedResource: string | null,
+) {
+  if (selectedScopeId === undefined) return true;
+  if (grantScopeId === selectedScopeId) return true;
+  return grantScopeId === null && selectedScopeId !== null && canPermissionResourceInheritGlobalScope(selectedResource);
+}
+
 function findState(
-  grants: ActionGrantItem[],
+  grants: ActionGrantWithSource[],
   subjectIds: number[],
   selectedResource: string | null,
   ancestorResourceKeys: string[],
   actionKey: PermissionActionKey,
   source: PermissionActionSource,
+  selectedScopeId: string | null | undefined,
 ): PermissionActionState | null {
+  if (!isActionVisibleForResource(selectedResource, actionKey)) return null;
   const subjectIdSet = new Set(subjectIds);
   for (const grant of grants) {
     if (!subjectIdSet.has(grant.subjectId)) continue;
+    if (!grantMatchesSelectedScope(grant.scopeId, selectedScopeId, selectedResource)) continue;
     if (grant.resourceKey !== selectedResource && !ancestorResourceKeys.includes(grant.resourceKey)) continue;
     if (!actionImplies(grant.actionKey, actionKey)) continue;
     const fromAncestor = selectedResource ? grant.resourceKey !== selectedResource : false;
@@ -154,7 +180,7 @@ function findState(
       actionKey,
       label: getPermissionActionLabel(actionKey),
       has: true,
-      source: fromAncestor ? "ancestor" : source,
+      source: fromAncestor ? "ancestor" : grant.source ?? source,
       sourceActionKey: grant.actionKey === actionKey ? null : grant.actionKey,
       sourceResourceKey: grant.resourceKey,
       directGrantable: PERMISSION_ACTION_DEFS[actionKey].directGrantable,
@@ -169,11 +195,14 @@ function findChildState(
   subjectIds: number[],
   childResourceKeys: string[],
   actionKey: PermissionActionKey,
+  selectedScopeId: string | null | undefined,
+  selectedResource: string | null,
 ): PermissionActionState | null {
   const subjectIdSet = new Set(subjectIds);
   const childKeySet = new Set(childResourceKeys);
   const grant = grants.find((item) =>
     subjectIdSet.has(item.subjectId) &&
+    grantMatchesSelectedScope(item.scopeId, selectedScopeId, selectedResource) &&
     childKeySet.has(item.resourceKey) &&
     actionImplies(item.actionKey, actionKey)
   );
@@ -191,6 +220,7 @@ function findChildState(
 }
 
 function emptyState(resourceKey: string | null, actionKey: PermissionActionKey): PermissionActionState {
+  const pendingResourceMapping = isPendingResourceMapping(resourceKey, actionKey);
   return {
     actionKey,
     label: getPermissionActionLabel(actionKey),
@@ -198,8 +228,8 @@ function emptyState(resourceKey: string | null, actionKey: PermissionActionKey):
     source: null,
     sourceActionKey: null,
     sourceResourceKey: null,
-    directGrantable: PERMISSION_ACTION_DEFS[actionKey].directGrantable,
-    pendingResourceMapping: isPendingResourceMapping(resourceKey, actionKey),
+    directGrantable: !pendingResourceMapping && PERMISSION_ACTION_DEFS[actionKey].directGrantable,
+    pendingResourceMapping,
   };
 }
 
@@ -245,15 +275,16 @@ export function buildPermissionRecords(input: BuildPermissionRecordsInput): Reco
     const states = {} as Record<PermissionActionKey, PermissionActionState>;
 
     for (const actionKey of Object.keys(PERMISSION_ACTION_DEFS) as PermissionActionKey[]) {
-      const state =
-        findState(directGrants, [subjectId], input.selectedResource, input.ancestorResourceKeys, actionKey, "direct") ??
-        (input.subjectType === "user" ? findState(positionGrants, positionIds, input.selectedResource, input.ancestorResourceKeys, actionKey, "position") : null) ??
-        (input.subjectType === "user" ? findState(departmentGrants, departmentIds, input.selectedResource, input.ancestorResourceKeys, actionKey, "department") : null) ??
-        findState(legacyImplicit, [subject.id], input.selectedResource, input.ancestorResourceKeys, actionKey, "implicit") ??
-        findChildState(directGrants, [subjectId], childResourceKeys, actionKey) ??
-        (input.subjectType === "user" ? findChildState(positionGrants, positionIds, childResourceKeys, actionKey) : null) ??
-        (input.subjectType === "user" ? findChildState(departmentGrants, departmentIds, childResourceKeys, actionKey) : null) ??
-        emptyState(input.selectedResource, actionKey);
+      const state = isActionVisibleForResource(input.selectedResource, actionKey)
+        ? findState(directGrants, [subjectId], input.selectedResource, input.ancestorResourceKeys, actionKey, "direct", input.selectedScopeId) ??
+          (input.subjectType === "user" ? findState(positionGrants, positionIds, input.selectedResource, input.ancestorResourceKeys, actionKey, "position", input.selectedScopeId) : null) ??
+          (input.subjectType === "user" ? findState(departmentGrants, departmentIds, input.selectedResource, input.ancestorResourceKeys, actionKey, "department", input.selectedScopeId) : null) ??
+          findState(legacyImplicit, [subject.id], input.selectedResource, input.ancestorResourceKeys, actionKey, "implicit", input.selectedScopeId) ??
+          findChildState(directGrants, [subjectId], childResourceKeys, actionKey, input.selectedScopeId, input.selectedResource) ??
+          (input.subjectType === "user" ? findChildState(positionGrants, positionIds, childResourceKeys, actionKey, input.selectedScopeId, input.selectedResource) : null) ??
+          (input.subjectType === "user" ? findChildState(departmentGrants, departmentIds, childResourceKeys, actionKey, input.selectedScopeId, input.selectedResource) : null) ??
+          emptyState(input.selectedResource, actionKey)
+        : emptyState(input.selectedResource, actionKey);
       states[actionKey] = state;
     }
 
@@ -271,11 +302,15 @@ export function buildPermissionRecords(input: BuildPermissionRecordsInput): Reco
     const riskSummary = states.submit.has && states.approve.has
       ? { label: "submit+approve", source: null, actionKeys: ["submit", "approve"] as PermissionActionKey[] }
       : null;
-    const actionTree = PERMISSION_GROUP_DEFS.map((group) => ({
-      key: group.key,
-      label: group.label,
-      actions: group.actions.map((actionKey) => states[actionKey]),
-    }));
+    const actionTree = PERMISSION_GROUP_DEFS
+      .map((group) => ({
+        key: group.key,
+        label: group.label,
+        actions: group.actions
+          .map((actionKey) => states[actionKey])
+          .filter((state) => !state.pendingResourceMapping),
+      }))
+      .filter((group) => group.actions.length > 0);
 
     records.set(subject.id, {
       subjectId: subject.id,

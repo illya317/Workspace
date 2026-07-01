@@ -39,7 +39,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/production/types` 已接收生产 QC 模板、布局和批次领域类型。
 - `packages/platform/module-registry.ts` 是模块注册锁。`registeredModuleDefinitions` 是唯一有效注册源；`packages/platform/modules.tsx` 只消费 registry 并导出运行时聚合，不直接 import domain package。
 - `packages/platform/module-overrides.ts` 是模块运行态覆盖层。模块中文名、描述、隐藏和启停优先在这里改；不要为了展示 rename 去散改页面文案、resource name、API path 或 FK key。运行时消费方使用 effective registry，资源和 FK 使用 active registry 自动过滤 disabled 模块。
-- `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树。像 `work.projects.viewAll` 这类不能继承父权限、但必须随项目模块失效的资源，应保持 `parentKey` 为空并设置 `runtimeParentKey: "work.projects"`。
+- `ResourceRegistration.parentKey` 只用于 RBAC 权限树继承；`runtimeParentKey` 只用于模块启停级联。不要为了让 disabled 级联而把独立权限挂进父资源树；确有独立业务能力时才声明 capability。
 - `packages/platform/module-nav.tsx` 生成 `MODULES`、`getAccessibleModules`、`getSubModules`。
 - `packages/platform/resources.ts` 从各 package `resourceDefs` 派生 `RESOURCE_DEFS`、`RESOURCE_KEYS` 和 `RESOURCE_MAX_ROLE`，`packages/platform/permissions.ts` 与 `scripts/seed-resources.ts` 复用这个出口。
 - `packages/platform/module-lifecycle.ts` 从模块注册的 `lifecycleStatus` 派生资源生命周期提示。
@@ -115,10 +115,9 @@ Level 1/1.5 只有一个硬门禁入口：
 
 ## Work Project 权限边界
 
-- 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API、FK 目标和 `work.projects.viewAll` 都必须统一失效。项目任务、项目阶段和基线都随项目管理模块失效，不单独配置 disable。
+- 模块启停优先于项目对象权限：`work` 或 `work.projects` disabled 后，项目入口、`/work/projects`、相关 API 和 FK 目标都必须统一失效。项目任务、项目阶段和基线都随项目管理模块失效，不单独配置 disable。
 - `work.projects.access/write/delete` 是模块功能门禁，表示用户可以进入、发起或使用项目功能；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。
-- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、显式 `work.projects.viewAll` 和 root admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
-- `work.projects.viewAll` 是独立资源，不使用 `parentKey: "work.projects"`，避免继承模块权限；它使用 `runtimeParentKey: "work.projects"`，保证模块 disabled 后一起失效。
+- 项目对象权限由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员和 root admin 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
 - 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳，项目/会议 FK 的对象可见性 adapter 必须留在 `@workspace/work/server/fk-registry.ts` 并通过 Platform FK registry 暴露，route 不再按 `fkKey` 手写分支。
 
 ## 后续拆分顺序

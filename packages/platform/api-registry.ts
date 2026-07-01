@@ -180,14 +180,16 @@ export function findApiContract(method: ApiMethod, apiPath: string) {
     .filter((contract) => pathMatchesPrefix(normalizedPath, contract.pathPrefix))
     .sort((left, right) => right.pathPrefix.length - left.pathPrefix.length)[0] ?? null;
   if (!contract) return null;
+  const actionPolicy = resolvePermissionApiActionPolicy({
+    method,
+    apiPath: normalizedPath,
+    resourceKey: contract.resourceKey,
+    defaultBaseAction: contract.action,
+  });
   return {
     ...contract,
-    ...resolvePermissionApiActionPolicy({
-      method,
-      apiPath: normalizedPath,
-      resourceKey: contract.resourceKey,
-      defaultBaseAction: contract.action,
-    }),
+    action: actionPolicy.baseAction,
+    additionalAction: actionPolicy.additionalAction,
   };
 }
 

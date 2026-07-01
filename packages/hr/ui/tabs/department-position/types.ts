@@ -6,8 +6,6 @@ export type Department = {
   level: number;
   parentId: number | null;
   parentName: string | null;
-  managerUserId: number | null;
-  managerUserIds: number[];
   managerPositionId: number | null;
   managerPositionName: string | null;
   managerNames: string[];

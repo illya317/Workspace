@@ -32,8 +32,19 @@ interface Model {
   inboundFrom: string[];
 }
 
-function parseSchema(schemaPath: string): { models: Model[]; groups: string[] } {
-  const content = fs.readFileSync(schemaPath, "utf-8");
+function readPrismaSchemaSources() {
+  const modelsDir = path.resolve(__dirname, "../../prisma/models");
+  if (fs.existsSync(modelsDir)) {
+    return fs.readdirSync(modelsDir)
+      .filter((file) => file.endsWith(".prisma"))
+      .sort()
+      .map((file) => fs.readFileSync(path.join(modelsDir, file), "utf-8"))
+      .join("\n\n");
+  }
+  return fs.readFileSync(path.resolve(__dirname, "../../prisma/schema.prisma"), "utf-8");
+}
+
+function parseSchema(content: string): { models: Model[]; groups: string[] } {
   const lines = content.split("\n");
 
   const models: Model[] = [];
@@ -607,9 +618,6 @@ function generateDescription(path: string, method: string): string {
   if (p === "admin/position-codes" && method === "GET") return "岗位编码列表";
   if (p === "admin/position-codes" && method === "PUT") return "更新岗位编码";
   if (p === "admin/position-codes" && method === "DELETE") return "删除岗位编码";
-  if (p === "admin/department-admins" && method === "GET") return "部门管理员列表";
-  if (p === "admin/department-admins" && method === "PUT") return "设置部门管理员";
-  if (p === "admin/department-admins" && method === "DELETE") return "移除部门管理员";
   if (p === "admin/departments" && method === "GET") return "Admin部门列表";
   if (p === "admin/departments" && method === "DELETE") return "Admin删除部门";
   if (p === "admin/system-config" && method === "GET") return "系统配置列表";
@@ -637,7 +645,7 @@ function groupEndpoints(endpoints: ApiEndpoint[]): Map<string, ApiEndpoint[]> {
     if (firstPart === "admin") {
       const secondPart = ep.path.replace(/^\/api\/admin\//, "").split("/")[0];
       if (["company-codes", "department-codes", "position-codes"].includes(secondPart)) group = "admin-codes";
-      else if (["department-admins", "departments"].includes(secondPart)) group = "admin-dept";
+      else if (["departments"].includes(secondPart)) group = "admin-dept";
       else if (secondPart === "system-config") group = "admin-config";
       else if (secondPart === "permissions") group = "admin-perms";
       else if (["user-permissions", "employee-permissions", "department-permissions", "position-permissions"].includes(secondPart)) group = "admin-perms";
@@ -798,8 +806,7 @@ function generateApiMD(endpoints: ApiEndpoint[]): string {
 //  MAIN
 // ═══════════════════════════════════════════════════════════
 
-const schemaPath = path.resolve(__dirname, "../../prisma/schema.prisma");
-const { models } = parseSchema(schemaPath);
+const { models } = parseSchema(readPrismaSchemaSources());
 
 fs.writeFileSync(path.resolve(__dirname, "../../docs/generated/tables.html"), generateTablesHTML(models), "utf-8");
 fs.writeFileSync(path.resolve(__dirname, "../../docs/generated/tables.md"), generateTablesMD(models), "utf-8");
