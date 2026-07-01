@@ -7,7 +7,8 @@
 | 资源 key | Session 表达 | 动作 |
 |----------|--------------|------|
 | `hr` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
-| `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, write（生成/刷新并发布派生资料） |
+| `hr.roster` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, archive, revise, admin（组织归档/恢复、审计恢复为独立动作） |
+| `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, export, admin |
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, revise, import, export, admin |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
@@ -88,6 +89,9 @@
 | `/api/modules/finance/ledger/periods` | POST | `finance.ledger.access` + `finance.ledger.create` |
 | `/api/modules/finance/ledger/periods/[id]` | PUT/DELETE | `finance.ledger.write/delete` |
 | `/api/modules/finance/ledger/init` | POST | `finance.ledger.access` + `finance.ledger.create` |
+| `/api/modules/hr/roster/departments/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
+| `/api/modules/hr/roster/positions/[id]/archive` | POST | `hr.roster.access` + `hr.roster.archive` |
+| `/api/modules/hr/roster/audit-log/restore` | POST | `hr.roster.access` + `hr.roster.revise` |
 | `/api/modules/finance/ledger/reclass-rules` | GET | `finance.ledger.access` |
 | `/api/modules/finance/ledger/reclass-rules` | PUT | `finance.ledger.access` + `finance.ledger.revise` |
 | `/api/modules/finance/ledger/reclass-rules/[id]` | DELETE | `finance.ledger.access` + `finance.ledger.revise` |

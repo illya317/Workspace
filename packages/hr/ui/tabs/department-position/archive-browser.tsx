@@ -77,12 +77,14 @@ export function ArchivedDepartmentPositionPage({
               {
                 key: "departments",
                 label: `归档部门 ${archivedDepartments.length}`,
+                icon: "list",
                 variant: archivedTab === "departments" ? "primary" : "secondary",
                 onClick: () => onArchivedTabChange("departments"),
               },
               {
                 key: "positions",
                 label: `归档岗位 ${archivedPositions.length}`,
+                icon: "archive",
                 variant: archivedTab === "positions" ? "primary" : "secondary",
                 onClick: () => onArchivedTabChange("positions"),
               },
@@ -109,16 +111,18 @@ export function ArchivedDepartmentPositionPage({
             kind: "list",
             title: "归档列表",
             commands: [
-              { key: "close", label: "关闭", onClick: () => onDrawerOpenChange(false) },
+              { key: "close", label: "关闭", icon: "panel-close", onClick: () => onDrawerOpenChange(false) },
               {
                 key: "departments",
                 label: `归档部门 ${archivedDepartments.length}`,
+                icon: "list",
                 variant: archivedTab === "departments" ? "primary" : "secondary",
                 onClick: () => onArchivedTabChange("departments"),
               },
               {
                 key: "positions",
                 label: `归档岗位 ${archivedPositions.length}`,
+                icon: "archive",
                 variant: archivedTab === "positions" ? "primary" : "secondary",
                 onClick: () => onArchivedTabChange("positions"),
               },

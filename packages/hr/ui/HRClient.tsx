@@ -45,7 +45,14 @@ function toHRUser(user: SessionUser): HRUser {
   };
 }
 
-export default function HRClient({ user }: { user: SessionUser; hideShell?: boolean }) {
+export default function HRClient({
+  user,
+  canArchiveRoster = false,
+}: {
+  user: SessionUser;
+  hideShell?: boolean;
+  canArchiveRoster?: boolean;
+}) {
   const rosterViews = useMemo(
     () => getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
     [user.visibleResourceKeys],
@@ -137,6 +144,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
         user={hrUser}
         mode="organization"
         surface={surface}
+        canArchive={canArchiveRoster}
         onUnsavedChange={setHasUnsavedChanges}
         onOpenDepartmentDetails={(departmentId) => void openDepartmentDetails(departmentId)}
         onOpenPositionDetails={(positionId) => void openPositionDetails(positionId)}
@@ -151,6 +159,7 @@ export default function HRClient({ user }: { user: SessionUser; hideShell?: bool
         mode="position"
         lifecycle={departmentLifecycle}
         surface={surface}
+        canArchive={canArchiveRoster}
         focusDepartmentId={focusDepartmentId}
         focusPositionId={focusPositionId}
         onUnsavedChange={setHasUnsavedChanges}

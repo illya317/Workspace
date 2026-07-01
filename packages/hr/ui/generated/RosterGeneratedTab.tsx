@@ -47,6 +47,7 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
   const [error, setError] = useState<string | null>(null);
   const [editMode, setEditMode] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [pageSize, setPageSize] = useState("50");
   const currentQueryRef = useRef<RosterPreviewQuery>({});
 
@@ -136,15 +137,37 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
     }));
   }
 
-  function downloadCsv() {
-    const csv = buildCsv(visibleTableColumns, groups, false);
-    const blob = new Blob([`\uFEFF${csv}`], { type: "text/csv;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = `${variant === "management" ? "管理版花名册" : "尽调版花名册"}_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
+  async function downloadCsv() {
+    setDownloading(true);
+    setError(null);
+    try {
+      const params = new URLSearchParams({
+        variant,
+        status,
+        fields: visibleColumns.join(","),
+      });
+      if (keyword.trim()) params.set("keyword", keyword.trim());
+      if (filterField && filterValue) {
+        params.set("filterField", filterField);
+        params.set("filterValue", filterValue);
+      }
+      const response = await fetch(workspacePath(`/api/modules/hr/roster/generated/export?${params.toString()}`));
+      if (!response.ok) {
+        const data = await response.json().catch(() => null) as { error?: string } | null;
+        throw new Error(data?.error || `下载失败 (${response.status})`);
+      }
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `${variant === "management" ? "管理版花名册" : "尽调版花名册"}_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "下载失败");
+    } finally {
+      setDownloading(false);
+    }
   }
 
   const toolbarItems = buildHRToolbarItems({
@@ -179,11 +202,12 @@ export default function RosterGeneratedTab({ variant, canEdit, surface }: { vari
         setGroups(preview?.groups ?? []);
         setEditMode(false);
       },
-      onDownload: downloadCsv,
+      onDownload: () => void downloadCsv(),
       canEdit,
       saveLabel: "应用到预览",
       editLabel: "编辑预览",
       saving,
+      downloading,
     },
     meta: preview ? <span>共 {preview.totalEmployees} 人</span> : null,
     pageSize: {
@@ -307,23 +331,4 @@ function mapFilterFields(fields: RosterGeneratedFilterField[]): SurfaceFilterFie
     fkReturnField: field.fkReturnField,
     lifecycleScope: field.lifecycleScope,
   }));
-}
-
-function buildCsv(columns: RosterGeneratedColumn[], groups: RosterGeneratedGroup[], blankMergedCells: boolean) {
-  const lines = [columns.map((column) => escapeCsvCell(column.label)).join(",")];
-  for (const group of groups) {
-    group.rows.forEach((row, rowIndex) => {
-      lines.push(columns.map((column) => {
-        if (column.scope === "employee" && blankMergedCells && rowIndex > 0) return "";
-        const value = column.scope === "employee" ? group.employeeCells[column.key] : row.cells[column.key];
-        return escapeCsvCell(value ?? "");
-      }).join(","));
-    });
-  }
-  return lines.join("\n");
-}
-
-function escapeCsvCell(value: unknown) {
-  const text = value === null || value === undefined ? "" : String(value);
-  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }

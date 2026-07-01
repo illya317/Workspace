@@ -59,8 +59,8 @@ export function createPositionDescriptionTemplateEditorSection({
         })),
       }),
       createActionsSection("template-editor-actions", [
-        { key: "cancel", label: "取消", onClick: onCancel },
-        { key: "save", label: "保存模板", variant: "primary", onClick: () => void onSave() },
+        { key: "cancel", label: "取消", icon: "cancel", onClick: onCancel },
+        { key: "save", label: "保存模板", icon: "save", variant: "primary", onClick: () => void onSave() },
       ]),
     ],
   });

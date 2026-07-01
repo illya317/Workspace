@@ -4,7 +4,6 @@ import type { Dispatch, SetStateAction } from "react";
 import { createPageBody, createEmptySection, createMessageSection, createSectionsSection, createPanelSection, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceProps } from "@workspace/core/ui";
 import { createPositionCreatePanelSection } from "./create-panels";
 import type { CreatePositionDraft, Department, DescriptionDraft, Position, Selection } from "./types";
-import { shortPositionCode } from "./utils";
 
 function isBodySurfaceSectionSpec(section: BodySurfaceSectionSpec | null): section is BodySurfaceSectionSpec {
   return section !== null;
@@ -119,33 +118,26 @@ export function createDirectPositionPanelSection({
           key: "positions",
           chrome: "plain",
           body: {
-            kind: "section",
-            empty: {
-              presentation: "plain",
-              content: (
-                <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
-                  {directPositions.map((position) => {
-                    const active = selection?.type === "position" && selection.id === position.id;
-                    return (
-                      <button
-                        key={position.id}
-                        type="button"
-                        className={`flex min-h-12 min-w-0 items-center gap-2 rounded-lg border px-3 py-2 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 ${
-                          active
-                            ? "border-emerald-100 bg-emerald-50 text-slate-950 shadow-sm"
-                            : "border-slate-200 bg-white text-slate-900 hover:border-slate-300 hover:bg-slate-50"
-                        }`}
-                        onClick={() => onSelect({ type: "position", id: position.id })}
-                      >
-                        <span className="min-w-0 truncate text-sm font-semibold">{position.name}</span>
-                        <span className="shrink-0 rounded-md bg-slate-100 px-1.5 py-0.5 text-xs font-semibold text-slate-600">
-                          {shortPositionCode(position.code)}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ),
+            kind: "data",
+            data: {
+              kind: "structured",
+              rows: [[{
+                content: {
+                  kind: "selectionGrid",
+                  mode: "select",
+                  layout: "fixed",
+                  columns: 2,
+                  value: selection?.type === "position" ? String(selection.id) : null,
+                  ariaLabel: "直属岗位",
+                  options: directPositions.map((position) => ({
+                    value: String(position.id),
+                    label: position.name,
+                    code: position.code,
+                  })),
+                  onChange: (value) => onSelect({ type: "position", id: Number(value) }),
+                },
+              }]],
+              frame: "plain",
             },
           },
         }
@@ -241,7 +233,7 @@ export function DepartmentTreePanel({
         createPanelSection("department-tree", {
 
 
-          actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
+          actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", icon: "panel-close", onClick: onClose }] : undefined,
           sections,
         }),
       ])}
@@ -284,7 +276,7 @@ export function createDepartmentTreePanelSection({
   return createPanelSection("department-tree", {
 
 
-    actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
+    actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", icon: "panel-close", onClick: onClose }] : undefined,
     sections,
   });
 }
@@ -332,7 +324,7 @@ export function OrganizationRootPanel({
         createPanelSection("organization-roots", {
 
 
-          actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
+          actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", icon: "panel-close", onClick: onClose }] : undefined,
           sections,
         }),
       ])}
@@ -380,7 +372,7 @@ export function createOrganizationRootPanelSection({
   return createPanelSection("organization-roots", {
 
 
-    actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", onClick: onClose }] : undefined,
+    actions: mode === "drawer" && onClose ? [{ key: "close", label: "关闭", icon: "panel-close", onClick: onClose }] : undefined,
     sections,
   });
 }

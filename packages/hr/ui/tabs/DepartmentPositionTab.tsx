@@ -23,6 +23,7 @@ export default function DepartmentPositionTab({
   user,
   mode = "position",
   lifecycle = "active",
+  canArchive = false,
   focusDepartmentId = null,
   focusPositionId = null,
   surface,
@@ -35,6 +36,7 @@ export default function DepartmentPositionTab({
   user: HRUser;
   mode?: DepartmentPositionMode;
   lifecycle?: "active" | "archived";
+  canArchive?: boolean;
   focusDepartmentId?: number | null;
   focusPositionId?: number | null;
   surface?: RosterSurfaceNavigationProps;
@@ -111,6 +113,7 @@ export default function DepartmentPositionTab({
   const canEdit = hrCanEdit(user);
   const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
   const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
+  const canArchiveDepartmentPosition = canArchive && !isOrganizationMode;
   const { departments, error, loadData, loading, positions } = useDepartmentPositionData({
     compact: isOrganizationMode,
     setSelection,
@@ -283,7 +286,7 @@ export default function DepartmentPositionTab({
     archivedDepartments,
     archivedPositions,
     archivedTab,
-    canEdit,
+    canArchive: canArchiveDepartmentPosition,
     canEditDepartment,
     canEditPosition,
     createPanel,

@@ -1,7 +1,16 @@
 "use client";
 
 import { createPageBody, PageSurface, createActionsSection } from "@workspace/core/ui";
-import type { BodySurfaceCommandSpec } from "@workspace/core/ui";
+import type { ActionGlyphKind, BodySurfaceCommandSpec } from "@workspace/core/ui";
+
+function profileActionIcon(key: string, label: string): ActionGlyphKind {
+  if (key === "delete" || label === "删除") return "delete-bin";
+  if (key === "add" || label === "新增") return "add";
+  if (key === "save" || label.includes("保存")) return "save";
+  if (key === "cancel" || label === "取消") return "cancel";
+  if (key === "refresh" || label === "刷新") return "refresh";
+  return "edit";
+}
 
 export function profileActionSpec({
   key,
@@ -19,6 +28,7 @@ export function profileActionSpec({
   return {
     key,
     label,
+    icon: profileActionIcon(key, label),
     variant,
     disabled,
     type: "button",

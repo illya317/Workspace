@@ -5,6 +5,7 @@ import {
   createPageBody, createEmptySection, createMessageSection,
   createPanelSection,
   type DataSurfaceColumnSpec,
+  type DataSurfaceRowActionSpec,
   PageSurface,
   type BodySurfaceSectionSpec,
   type SelectorSurfaceProps,
@@ -137,15 +138,11 @@ export function OrganizationModePanel({
           kind: "group",
           items: [
             {
-              kind: "action",
-              action: {
-                key: `open-${position.id}`,
-                label: position.name,
-                onClick: () => onOpenPositionDetails?.(position.id),
-                size: "sm",
-                truncate: true,
-                emphasis: "strong", tone: "info", width: "wide",
-              },
+              kind: "text",
+              value: position.name,
+              emphasis: "strong",
+              tone: "info",
+              wrap: "truncate",
             },
             {
               kind: "badge",
@@ -186,13 +183,9 @@ export function OrganizationModePanel({
     <div
       className="organization-title-layout min-w-0 whitespace-normal"
     >
-      <button
-        type="button"
-        onClick={() => onOpenDepartmentDetails?.(organizationHeaderDepartment.id)}
-        className="min-w-0 truncate text-left text-lg font-semibold leading-7 text-slate-900 hover:text-sky-700 hover:underline"
-      >
+      <span className="min-w-0 truncate text-left text-lg font-semibold leading-7 text-slate-900">
         {organizationHeaderDepartment.name}
-      </button>
+      </span>
       <span className="shrink-0 font-mono text-sm text-slate-400">{organizationHeaderDepartment.code}</span>
       <span className="flex min-w-0 w-72 items-center gap-2">
         <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
@@ -232,6 +225,14 @@ export function OrganizationModePanel({
             columns,
             visibleColumns: columns.map(column => column.key),
             rowKey: row => row.position.id,
+            rowActions: onOpenPositionDetails
+              ? (row): DataSurfaceRowActionSpec[] => [{
+                  key: `open-position-${row.position.id}`,
+                  label: "查看岗位详情",
+                  kind: "view",
+                  onClick: () => onOpenPositionDetails(row.position.id),
+                }]
+              : undefined,
             presentation: { density: "compact" },
             rowState: row => row.position.id === selectedPositionId ? "selected" : "normal",
             frame: "bordered",
@@ -249,6 +250,13 @@ export function OrganizationModePanel({
     ? [createDepartmentSection]
     : [createPanelSection("organization-mode", {
         title: organizationPanelTitle,
+        actions: organizationHeaderDepartment && onOpenDepartmentDetails ? [{
+          key: "open-department",
+          label: "查看部门详情",
+          icon: "view",
+          onClick: () => onOpenDepartmentDetails(organizationHeaderDepartment.id),
+          presentation: "icon",
+        }] : undefined,
         sections: panelSections,
       })];
 

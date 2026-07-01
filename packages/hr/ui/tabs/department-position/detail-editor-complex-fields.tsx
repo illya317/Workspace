@@ -79,7 +79,7 @@ export function WorkEnvironmentEditor({
               const availableFactors = ENVIRONMENT_FACTOR_OPTIONS.filter((factor) => !item.factors.includes(factor));
               return {
                 key: `${item.area}-${index}`,
-                actions: disabled ? undefined : [{ key: "delete-area", label: "删除", variant: "danger", size: "sm", onClick: () => void removeArea(index),  }],
+                actions: disabled ? undefined : [{ key: "delete-area", label: "删除", icon: "delete-bin", variant: "danger", size: "sm", onClick: () => void removeArea(index),  }],
                 items: [
                   {
                     key: "area",
@@ -258,12 +258,12 @@ export function ExperienceRequirementsEditor({
           kind: "repeatable",
           key: "experience-requirements",
           title: label,
-          addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: addItem,  },
+          addAction: disabled ? undefined : { key: "add-experience", label: "新增", icon: "add", size: "sm", onClick: addItem,  },
           empty: "未设置",
           layout: { columns: 2 },
           items: items.map((item, index) => ({
             key: `experience-${index}`,
-            actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", variant: "danger", size: "sm", onClick: () => void removeItem(index),  }],
+            actions: disabled ? undefined : [{ key: "delete-experience", label: "删除", icon: "delete-bin", variant: "danger", size: "sm", onClick: () => void removeItem(index),  }],
             items: [
               {
                 key: "years",

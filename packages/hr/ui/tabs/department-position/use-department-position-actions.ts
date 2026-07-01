@@ -231,7 +231,7 @@ async function setArchived(
 ) {
   setSaving(true);
   try {
-    await putJson(path, { id, isArchived: archived }, "操作失败");
+    await postJson(`${path}/${id}/archive`, { archived }, "操作失败");
     await loadData();
     await showActionPrompt(archived ? "归档成功" : "恢复成功", archived ? `${label}已归档` : `${label}已恢复`, false);
   } catch (err) {

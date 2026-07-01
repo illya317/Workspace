@@ -129,7 +129,7 @@ export function createDepartmentDescriptionDetailsSections({
     return createPanelSection("duty-description", {
       title: "部门职责描述",
       chrome: "divider",
-      actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", onClick: addRecord }],
+      actions: disabled ? undefined : [{ key: "add-duty", label: "新增职责", icon: "add", onClick: addRecord }],
 
       sections: records.length === 0
         ? [createEmptySection("empty", {

@@ -25,7 +25,7 @@ export function useDepartmentPositionViewRenderers(props: {
   archivedDepartments: Department[];
   archivedPositions: Position[];
   archivedTab: ArchivedEntityTab;
-  canEdit: boolean;
+  canArchive: boolean;
   canEditDepartment: boolean;
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
@@ -108,7 +108,7 @@ export function useDepartmentPositionViewRenderers(props: {
     positionsByDepartment: props.positionsByDepartment,
     selection: props.selection,
     showArchived: props.showArchived,
-    canEdit: props.canEdit,
+    canArchive: props.canArchive,
     canEditPosition: props.canEditPosition,
     dirty: props.dirty,
     descriptionDirty: props.descriptionDirty,
@@ -148,7 +148,7 @@ export function useDepartmentPositionViewRenderers(props: {
     departmentDescriptionDrafts: props.departmentDescriptionDrafts,
     positionsByDepartment: props.positionsByDepartment,
     isOrganizationMode: props.isOrganizationMode,
-    canEdit: props.canEdit,
+    canArchive: props.canArchive,
     canEditDepartment: props.canEditDepartment,
     canEditPosition: props.canEditPosition,
     createPanel: props.createPanel,

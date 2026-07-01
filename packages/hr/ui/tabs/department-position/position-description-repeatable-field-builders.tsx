@@ -77,6 +77,7 @@ export function buildDutyField(
     addAction: disabled ? undefined : {
       key: `add-${detailKey}`,
       label: `新增${label}`,
+      icon: "add",
       onClick: () => updateDetailValue(detailKey, [...records, { title: "", items: [] }]),
     },
     empty: "未设置",
@@ -149,6 +150,7 @@ export function buildChangeHistoryField(
     addAction: disabled ? undefined : {
       key: "add-history",
       label: "新增变更历史",
+      icon: "add",
       onClick: () => {
         const nextVersion = formatHistoryVersion(Math.max(-1, ...records.map(record => versionNumber(record.version))) + 1);
         updateDetailValue("changeHistory", [...records, { version: nextVersion, documentName: "", effectiveDate: "", approver: "" }]);
@@ -300,7 +302,7 @@ export function buildExperienceRequirementField(
     kind: "repeatable",
     key,
     title: label,
-    addAction: disabled ? undefined : { key: "add-experience", label: "新增", size: "sm", onClick: () => updateDetailValue(key, [...items, { years: "1", requirement: "" }]),  },
+    addAction: disabled ? undefined : { key: "add-experience", label: "新增", icon: "add", size: "sm", onClick: () => updateDetailValue(key, [...items, { years: "1", requirement: "" }]),  },
     empty: "未设置",
     layout: { columns: 2 },
     items: items.map((item, index) => ({

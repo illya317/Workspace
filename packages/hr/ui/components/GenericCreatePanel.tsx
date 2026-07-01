@@ -28,8 +28,8 @@ export function createGenericCreatePanelSection({
     sections: [
       createInlineFieldsSection("fields", fields, {
         commands: [
-          { key: "cancel", label: "取消", onClick: onCancel },
-          { key: "submit", label: "保存", variant: "primary", disabled: submitDisabled, onClick: onSubmit },
+          { key: "cancel", label: "取消", icon: "cancel", onClick: onCancel },
+          { key: "submit", label: "保存", icon: "save", variant: "primary", disabled: submitDisabled, onClick: onSubmit },
         ],
       }),
     ],

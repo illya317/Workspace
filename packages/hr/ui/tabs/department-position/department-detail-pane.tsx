@@ -21,7 +21,7 @@ type DepartmentDetailPaneProps = {
   departmentDescriptionDrafts: DepartmentDescriptionDraft[];
   positionsByDepartment: Map<number, Position[]>;
   isOrganizationMode: boolean;
-  canEdit: boolean;
+  canArchive: boolean;
   canEditDepartment: boolean;
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
@@ -56,7 +56,7 @@ export function useDepartmentDetailPaneSection({
   departmentDescriptionDrafts,
   positionsByDepartment,
   isOrganizationMode,
-  canEdit,
+  canArchive,
   canEditDepartment,
   canEditPosition,
   createPanel,
@@ -240,7 +240,7 @@ export function useDepartmentDetailPaneSection({
               onClick: () => void saveDepartment(),
             }]
           : []),
-        ...(canEdit
+        ...(canArchive
           ? [{
               key: "archive",
               label: showArchived ? "恢复" : "归档",

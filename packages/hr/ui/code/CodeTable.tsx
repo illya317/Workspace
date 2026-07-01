@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import type { KeyboardEvent } from "react";
 import { useEffect, useState } from "react";
-import { PageSurface, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceCommandSpec, type DataSurfaceRowActionSpec } from "@workspace/core/ui";
 import PersonListModal from "./components/PersonListModal";
 import PositionDeptModal from "./components/PositionDeptModal";
 import { hrCanEdit, type HRUser as User } from "@workspace/hr/types";
@@ -212,9 +212,7 @@ export default function CodeTable({
           onChange: (value) => setEditCodeValue(String(value ?? "")),
         };
       }
-      return <span className={onSelect ? "cursor-pointer hover:text-emerald-600" : ""} onClick={() => onSelect?.(row.item.code)}>
-            {editRow === row.item.code ? editCodeValue : row.item.code}
-          </span>;
+      return { kind: "text", value: editRow === row.item.code ? editCodeValue : row.item.code, font: "mono" };
     }
   }, {
     key: "name",
@@ -246,9 +244,7 @@ export default function CodeTable({
           onChange: (value) => setEditNameValue(String(value ?? "")),
         };
       }
-      return <span className="cursor-pointer hover:text-emerald-600" onClick={() => handleNameClick(row.item)}>
-            {row.item.name || "-"}
-          </span>;
+      return { kind: "text", value: row.item.name || "-" };
     }
   }, {
     key: "count",
@@ -267,30 +263,13 @@ export default function CodeTable({
         };
       }
       if (row.kind === "add") {
-        return {
-          kind: "action",
-          action: {
-            key: "add",
-            label: "添加",
-            variant: "primary",
-            size: "sm",
-
-            onClick: handleAdd,
-          },
-        };
+        return null;
       }
       if (row.kind !== "code") return null;
-      const count = stats[row.item.code] || 0;
       return {
-        kind: "action",
-        action: {
-          key: "detail-count",
-          label: count,
-          variant: "secondary",
-          size: "sm",
-
-          onClick: () => openDetail(row.item),
-        },
+        kind: "badge",
+        label: stats[row.item.code] || 0,
+        tone: "slate",
       };
     }
   }];
@@ -307,9 +286,21 @@ export default function CodeTable({
               rows,
               columns,
               visibleColumns: ["code", "name", "count"],
-                            presentation: { density: "compact" },
+              presentation: { density: "compact" },
 
               rowKey: row => row.id,
+              onRowClick: (row) => {
+                if (row.kind === "code" && !editMode) handleNameClick(row.item);
+              },
+              rowActions: (row): DataSurfaceRowActionSpec[] => {
+                if (editMode && hrCanEdit(user) && row.kind === "add") {
+                  return [{ key: "add-code", label: "添加", kind: "add", onClick: handleAdd }];
+                }
+                if (!editMode && !onSelect && row.kind === "code") {
+                  return [{ key: `view-code-${row.item.code}`, label: "查看详情", kind: "view", onClick: () => handleNameClick(row.item) }];
+                }
+                return [];
+              },
 
               rowState: row => {
                 if (row.kind === "group" || row.kind === "summary") return "muted";

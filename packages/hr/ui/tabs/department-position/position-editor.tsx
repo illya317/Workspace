@@ -22,7 +22,7 @@ type PositionEditorProps = {
   positionsByDepartment: Map<number, Position[]>;
   selection: Selection;
   showArchived: boolean;
-  canEdit: boolean;
+  canArchive: boolean;
   canEditPosition: boolean;
   dirty: boolean;
   descriptionDirty: boolean;
@@ -62,7 +62,7 @@ export function usePositionEditorSections({
   positionsByDepartment,
   selection,
   showArchived,
-  canEdit,
+  canArchive,
   canEditPosition,
   dirty,
   descriptionDirty,
@@ -241,7 +241,7 @@ export function usePositionEditorSections({
           ),
           actions: [
             { key: "save", label: saving ? "保存中..." : "保存", icon: "save" as const, variant: "primary", disabled: !canEditPosition || !dirty || saving, onClick: () => void onSavePosition() },
-            ...(canEdit ? [{ key: "archive", label: showArchived ? "恢复" : "归档", icon: showArchived ? "restore" as const : "archive" as const, disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
+            ...(canArchive ? [{ key: "archive", label: showArchived ? "恢复" : "归档", icon: showArchived ? "restore" as const : "archive" as const, disabled: saving, onClick: () => void onArchivePosition(position.id, !showArchived) }] : []),
           ],
 
           sections: draft ? [{

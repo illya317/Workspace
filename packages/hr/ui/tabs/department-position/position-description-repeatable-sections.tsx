@@ -49,7 +49,7 @@ export function PositionDutyEditor({
           kind: "repeatable",
           key: detailKey,
           title: label,
-          addAction: disabled ? undefined : { key: "add-duty", label: `新增${label}`, onClick: addDuty },
+          addAction: disabled ? undefined : { key: "add-duty", label: `新增${label}`, icon: "add", onClick: addDuty },
           empty: "未设置",
           layout: { columns: 1 },
           items: records.map((record, index) => {
@@ -58,7 +58,7 @@ export function PositionDutyEditor({
               key: `duty-${index}`,
               itemRef: getItemRef(index),
               title: `职责 ${index + 1}`,
-              actions: disabled ? undefined : [{ key: "delete-duty", label: "删除", variant: "danger", size: "sm", onClick: () => void removeDuty(index), className: "px-2 py-1 text-xs" }],
+              actions: disabled ? undefined : [{ key: "delete-duty", label: "删除", icon: "delete-bin", variant: "danger", size: "sm", onClick: () => void removeDuty(index) }],
               items: [
                 {
                   key: "title",
@@ -147,7 +147,7 @@ export function PositionChangeHistoryEditor({
           kind: "repeatable",
           key: "changeHistory",
           title: "变更历史",
-          addAction: disabled ? undefined : { key: "add-history", label: "新增变更历史", onClick: addRecord },
+          addAction: disabled ? undefined : { key: "add-history", label: "新增变更历史", icon: "add", onClick: addRecord },
           empty: "未设置",
           layout: { columns: 2 },
           items: records.map((record, index) => {
@@ -158,7 +158,7 @@ export function PositionChangeHistoryEditor({
               key: `history-${index}`,
               itemRef: getItemRef(index),
               title: `变更历史 ${index + 1}`,
-              actions: disabled ? undefined : [{ key: "delete-history", label: "删除", variant: "danger", size: "sm", onClick: () => void removeRecord(index), className: "px-2 py-1 text-xs" }],
+              actions: disabled ? undefined : [{ key: "delete-history", label: "删除", icon: "delete-bin", variant: "danger", size: "sm", onClick: () => void removeRecord(index) }],
               items: [
                 { key: "version", label: "版本", spec: { valueType: "string", control: "text", state: "readonly" }, value: String(record.version || formatHistoryVersion(index)) },
                 { key: "documentName", label: "文件名", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: String(record.documentName || ""), onChange: next => updateRecord(index, { documentName: String(next ?? "") }) },
