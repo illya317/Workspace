@@ -1,5 +1,6 @@
 import { authorize, type AuthorizeAction } from "./authorize";
 import { isSuperAdmin } from "./admin";
+import { evaluatePermissionAction } from "../rbac/action-grants";
 
 function can(userId: number, resourceKey: string, action: AuthorizeAction) {
   return authorize({ user: userId, resourceKey, action });
@@ -82,6 +83,16 @@ export async function checkFinanceLedgerWrite(userId: number): Promise<boolean> 
   return checkFinanceLedgerAccess(userId, "write");
 }
 
+export async function checkFinanceLedgerCreate(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.ledger", "create");
+}
+
+export async function checkFinanceLedgerRevise(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.ledger", "revise");
+}
+
 export async function checkFinanceLedgerDelete(userId: number): Promise<boolean> {
   return checkFinanceLedgerAccess(userId, "delete");
 }
@@ -115,8 +126,17 @@ export async function checkFinanceStatementConfigAccess(
   return checkFinanceStatementResourceAccess(userId, "finance.statementConfig", roleKey);
 }
 
+export async function checkFinanceStatementConfigCreate(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.statementConfig", "create");
+}
+
 export async function checkFinanceStatementConfigWrite(userId: number): Promise<boolean> {
   return checkFinanceStatementConfigAccess(userId, "write");
+}
+
+export async function checkFinanceStatementConfigDelete(userId: number): Promise<boolean> {
+  return checkFinanceStatementConfigAccess(userId, "delete");
 }
 
 export async function checkFinanceStatementReviewAccess(
@@ -128,6 +148,16 @@ export async function checkFinanceStatementReviewAccess(
 
 export async function checkFinanceStatementReviewWrite(userId: number): Promise<boolean> {
   return checkFinanceStatementReviewAccess(userId, "write");
+}
+
+export async function checkFinanceStatementReviewCreate(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.statementReview", "create");
+}
+
+export async function checkFinanceStatementReviewApprove(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.statementReview", "approve");
 }
 
 export async function checkFinanceReportAccess(
@@ -172,6 +202,21 @@ export async function checkFinanceBudgetWrite(userId: number): Promise<boolean> 
 
 export async function checkFinanceBudgetDelete(userId: number): Promise<boolean> {
   return checkFinanceBudgetAccess(userId, "delete");
+}
+
+export async function checkFinanceBudgetImport(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.budget", "import");
+}
+
+export async function checkFinanceBudgetCreate(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.budget", "create");
+}
+
+export async function checkFinanceBudgetApprove(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.budget", "approve");
 }
 
 export async function checkFinanceAnalysisAccess(
@@ -230,4 +275,9 @@ export async function checkFinanceImportWrite(userId: number): Promise<boolean> 
 
 export async function checkFinanceImportDelete(userId: number): Promise<boolean> {
   return checkFinanceImportAccess(userId, "delete");
+}
+
+export async function checkFinanceImportImport(userId: number): Promise<boolean> {
+  if (await isSuperAdmin(userId)) return true;
+  return evaluatePermissionAction(userId, "finance.import", "import");
 }

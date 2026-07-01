@@ -9,13 +9,17 @@ export {
   checkFinanceCostWrite,
   checkFinanceCostDelete,
   checkFinanceLedgerAccess,
+  checkFinanceLedgerCreate,
   checkFinanceLedgerWrite,
+  checkFinanceLedgerRevise,
   checkFinanceLedgerDelete,
   checkFinanceReportAccess,
   checkFinanceReportWrite,
   checkFinanceReportDelete,
   checkFinanceStatementConfigAccess,
+  checkFinanceStatementConfigCreate,
   checkFinanceStatementConfigWrite,
+  checkFinanceStatementConfigDelete,
   checkFinanceStatementReviewAccess,
   checkFinanceStatementReviewWrite,
   checkFinanceBudgetAccess,
@@ -105,6 +109,6 @@ export async function checkLibraryAccess(userId: number): Promise<boolean> {
 export async function checkLibraryWrite(userId: number): Promise<boolean> {
   return (
     (await isSuperAdmin(userId)) ||
-    (await authorize({ user: userId, resourceKey: "library.basicInfo.write", action: "write" }))
+    (await authorize({ user: userId, resourceKey: "library.basicInfo", action: "write" }))
   );
 }
