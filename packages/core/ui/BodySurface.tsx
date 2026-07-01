@@ -377,7 +377,7 @@ function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspa
 function renderSplitSideControls(props: BodySurfaceSplitSectionProps) {
   const sideItems: ToolbarItem[] = props.showSideControls === false ? [] : [
     { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: `显示${props.sideLabel}`, onClick: () => props.onDrawerOpenChange(true), visibility: "mobile" },
-    { kind: "panel-toggle", key: "desktop-side-toggle", icon: props.sideOpen ? "panel-open" : "panel-close", label: `${props.sideOpen ? "隐藏" : "显示"}${props.sideLabel}`, onClick: () => props.onSideOpenChange(!props.sideOpen), variant: props.sideOpen ? "primary" : "secondary", visibility: "desktop" },
+    { kind: "panel-toggle", key: "desktop-side-toggle", icon: props.sideOpen ? "panel-close" : "panel-open", label: `${props.sideOpen ? "隐藏" : "显示"}${props.sideLabel}`, onClick: () => props.onSideOpenChange(!props.sideOpen), variant: props.sideOpen ? "primary" : "secondary", visibility: "desktop" },
   ];
   const items = [...sideItems, ...(props.toolbarItems ?? [])];
   if (!items.length) return null;

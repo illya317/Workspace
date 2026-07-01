@@ -94,7 +94,7 @@ export function WorkspaceSplitPage({
     toolbarItems.push({
       kind: "panel-toggle",
       key: "desktop-side-toggle",
-      icon: sideOpen ? "panel-open" : "panel-close",
+      icon: sideOpen ? "panel-close" : "panel-open",
       label: `${sideOpen ? "隐藏" : "显示"}${sideLabel}`,
       onClick: () => onSideOpenChange(!sideOpen),
       variant: sideOpen ? "primary" : "secondary",

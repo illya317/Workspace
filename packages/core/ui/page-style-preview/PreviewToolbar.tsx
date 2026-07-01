@@ -60,7 +60,7 @@ export default function PreviewToolbar({
   if (onToggleList) {
     viewActions.push({
       key: "toggle-list",
-      kind: listVisible ? "panel-open" : "panel-close",
+      kind: listVisible ? "panel-close" : "panel-open",
       label: listVisible ? "隐藏" : "显示",
       variant: listVisible ? "primary" : "secondary",
       onClick: onToggleList,
