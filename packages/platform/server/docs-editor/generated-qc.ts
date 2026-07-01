@@ -11,6 +11,7 @@ import type {
 import {
   writeTemplateContentJson,
 } from "./content-store";
+import { normalizeDocumentTemplatePayload } from "./domain/document-template-validation";
 
 type GeneratedQcMetrics = {
   stageCount?: number;
@@ -112,6 +113,10 @@ async function upsertGeneratedQcTemplate(
   space: DocsEditorSpaceRow,
   payload: GeneratedQcPayload,
 ): Promise<boolean> {
+  const normalized = normalizeDocumentTemplatePayload(payload.document, payload.fieldModel);
+  if (normalized.ok === false) {
+    throw new Error(`官方 QC 模板数据无效：${payload.productKey} ${normalized.issue.message}`);
+  }
   const existing = await db.documentTemplate.findFirst({
     where: {
       spaceId: space.id,
@@ -134,8 +139,8 @@ async function upsertGeneratedQcTemplate(
     publishedByUserId: null,
   };
   const content = {
-    documentJson: JSON.stringify(payload.document),
-    fieldModelJson: JSON.stringify(payload.fieldModel),
+    documentJson: JSON.stringify(normalized.data.document),
+    fieldModelJson: JSON.stringify(normalized.data.fieldModel),
   };
   if (existing) {
     if (existing.publishedByUserId !== null) return false;

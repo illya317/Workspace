@@ -14,6 +14,11 @@ const optionalText = z.preprocess(
   z.string().optional(),
 );
 
+const jsonObjectSchema = z.custom<Record<string, unknown>>(
+  (value) => typeof value === "object" && value !== null && !Array.isArray(value),
+  "必须是 JSON 对象",
+);
+
 const listQuerySchema = z.object({
   spaceId: z.string().optional(),
   status: z.enum(["draft", "published", "archived"]).optional(),
@@ -26,8 +31,8 @@ const saveDraftBodySchema = z.object({
   spaceKind: z.enum(["personal", "company", "department"]).optional().nullable(),
   title: z.string().optional().nullable(),
   type: z.string().optional().nullable(),
-  document: z.unknown().optional(),
-  fieldModel: z.unknown().optional(),
+  document: jsonObjectSchema.optional(),
+  fieldModel: jsonObjectSchema.optional(),
   sourceKind: z.string().optional().nullable(),
   sourceProductKey: z.string().optional().nullable(),
   sourceStageKeys: z.array(z.string()).optional().nullable(),

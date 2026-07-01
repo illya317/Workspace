@@ -110,12 +110,17 @@ export function createReferenceCatalog(fields: FormulaField[]) {
 export function normalizeFormulaText(expression: string) {
   return expression
     .trim()
-    .replace(/^=/, "")
+    .replace(/^[=＝]/, "")
     .replace(/≤/g, "<=")
     .replace(/≥/g, ">=")
     .replace(/≠/g, "!=")
+    .replace(/×/g, "*")
+    .replace(/[÷／]/g, "/")
+    .replace(/，/g, ",")
+    .replace(/[－﹣]/g, "-")
     .replace(/（/g, "(")
-    .replace(/）/g, ")");
+    .replace(/）/g, ")")
+    .replace(/(\d+(?:\.\d+)?)\s*%$/u, "$1");
 }
 
 export function normalizeComparisonOperator(operator: string): BinaryOperator {

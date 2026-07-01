@@ -16,6 +16,7 @@ export interface QcPaperSlotPart {
   rows?: number;
   withTime?: boolean;
   inputType?: string;
+  valueType?: string;
   numberFormat?: string;
   defaultValue?: string;
   defaultOffsetDays?: number;
@@ -129,7 +130,7 @@ export function QcPaperLineInput({
       onChange={(event) => onChange?.(event.target.value)}
       placeholder={part.placeholder}
       readOnly={isReadOnly}
-      inputMode={part.inputType === "number" ? "decimal" : undefined}
+      inputMode={part.valueType === "number" || part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
       className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-0 overflow-hidden border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}

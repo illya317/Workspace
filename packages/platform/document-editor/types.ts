@@ -117,6 +117,7 @@ export interface EditorSlotInline {
   defaultOffsetDays?: number;
   role?: "inspector" | "reviewer" | "signature";
   inputType?: string;
+  valueType?: string;
   numberFormat?: string;
   options?: string[];
   placeholder?: string;

@@ -4,6 +4,8 @@ import {
   type DomainValidationIssue,
   type DomainValidationResult,
 } from "../../domain-validation";
+import { normalizeDocumentFormulaRules } from "./document-template-formula-validation";
+import { normalizeDocumentSlotPayload } from "./document-template-slot-normalization";
 import {
   DOCS_EDITOR_SPACE_KINDS,
   DOCS_EDITOR_TEMPLATE_STATUSES,
@@ -154,6 +156,16 @@ type ReferenceCandidate = {
   context: string;
 };
 
+export function normalizeDocumentTemplatePayload(document: unknown, fieldModel: unknown): DomainValidationResult<{ document: unknown; fieldModel: unknown }> {
+  const slots = normalizeDocumentSlotPayload(document, fieldModel);
+  if (slots.ok === false) return failFrom(slots);
+  const formulas = normalizeDocumentFormulaRules(slots.data.document, slots.data.fieldModel);
+  if (formulas.ok === false) return failFrom(formulas);
+  const normalizedDocument = normalizeDocumentReferences(formulas.data.document, formulas.data.fieldModel);
+  if (normalizedDocument.ok === false) return failFrom(normalizedDocument);
+  return okCommand({ document: normalizedDocument.data, fieldModel: formulas.data.fieldModel });
+}
+
 function normalizeDocumentReferences(value: unknown, fieldModel?: unknown): DomainValidationResult<unknown> {
   if (value === undefined) return okCommand(undefined);
   const candidates = collectReferenceCandidates(value);
@@ -179,7 +191,11 @@ function collectReferenceCandidates(value: unknown) {
     const alias = referenceAlias(node.alias);
     const fieldKey = stringField(node.fieldKey);
     if (!alias || !fieldKey || isReferenceNode(node)) return;
-    candidates.push({ alias, fieldKey, context: slotContextLabel(node) });
+    candidates.push({
+      alias,
+      fieldKey,
+      context: slotContextLabel(node),
+    });
   });
   return candidates;
 }
@@ -329,11 +345,11 @@ export function buildSaveDraftCommand(input: SaveDraftInput): DomainValidationRe
   if (title.ok === false) return failFrom(title);
   const type = optionalText(input.type, 40, "type");
   if (type.ok === false) return failFrom(type);
-  const document = normalizeDocumentReferences(input.document, input.fieldModel);
-  if (document.ok === false) return failFrom(document);
-  const documentJson = jsonString(document.data, "document");
+  const payload = normalizeDocumentTemplatePayload(input.document, input.fieldModel);
+  if (payload.ok === false) return failFrom(payload);
+  const documentJson = jsonString(payload.data.document, "document");
   if (documentJson.ok === false) return failFrom(documentJson);
-  const fieldModelJson = jsonString(input.fieldModel, "fieldModel");
+  const fieldModelJson = jsonString(payload.data.fieldModel, "fieldModel");
   if (fieldModelJson.ok === false) return failFrom(fieldModelJson);
   const sourceKind = nullableText(input.sourceKind, 80, "sourceKind");
   if (sourceKind.ok === false) return failFrom(sourceKind);

@@ -37,7 +37,10 @@ export default function QcEditorRuntimePaper({ blocks, fieldModel, values, refer
 function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: RenderContext }) {
   const value = slotValue(part, context);
   const field = fieldDefinition(context.fieldModel, part.fieldKey);
-  const inputType = part.inputType || field?.inputType || field?.type || (part.type === "dateSlot" ? "date" : "text");
+  const rawInputType = part.inputType || field?.inputType || (field?.type === "date" ? "date" : undefined) || (part.type === "dateSlot" ? "date" : "text");
+  const options = part.options ?? field?.options;
+  const inputType = normalizedInputType(rawInputType, options);
+  const valueType = part.valueType || field?.valueType || inferredValueType(part, field, rawInputType);
   const disabled = context.readOnly || !context.onFieldChange || part.readonlyDisplay || part.slotKind === "formula" || part.slotKind === "reference" || !!part.referenceFieldKey;
   const layoutPart = {
     type: part.type === "dateSlot" ? "date" : inputType === "select" ? "select" : "line",
@@ -45,12 +48,13 @@ function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: Rende
     width: part.width ? String(part.width) : "3rem",
     align: part.align || "center",
     inputType,
+    valueType,
     numberFormat: part.numberFormat || field?.numberFormat,
     defaultValue: part.defaultValue,
     defaultOffsetDays: part.defaultOffsetDays,
     placeholder: part.placeholder,
     readonlyDisplay: disabled,
-    withTime: part.withTime,
+    withTime: part.withTime || valueType === "datetime" || rawInputType === "datetime",
     underline: true,
   };
 
@@ -58,10 +62,10 @@ function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: Rende
     return <QcPaperDateInput part={layoutPart} value={value} hourValue={context.values[`${part.fieldKey}_hour`]} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} onHourChange={(next) => context.onFieldChange?.(`${part.fieldKey}_hour`, next)} readOnly={disabled} inTable={context.inTable} />;
   }
   if (inputType === "radio" || inputType === "checkbox") {
-    return <QcPaperChoiceInput fieldKey={part.fieldKey} options={part.options ?? field?.options} type={inputType} disabled={disabled} value={value} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} />;
+    return <QcPaperChoiceInput fieldKey={part.fieldKey} options={options} type={inputType} disabled={disabled} value={value} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} />;
   }
-  if (inputType === "select" || part.options?.length || field?.options?.length) {
-    return <QcPaperSelectInput part={layoutPart} options={part.options ?? field?.options} readOnly={disabled} value={value} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} inTable={context.inTable} />;
+  if (inputType === "select" || options?.length) {
+    return <QcPaperSelectInput part={layoutPart} options={options} readOnly={disabled} value={value} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} inTable={context.inTable} />;
   }
   return <QcPaperLineInput part={layoutPart} readOnly={disabled} value={value} onChange={(next) => context.onFieldChange?.(part.fieldKey, next)} inTable={context.inTable} />;
 }
@@ -84,4 +88,21 @@ function fixedReferenceValue(part: EditorSlotInline, referenceValues?: EditorRun
 function fieldDefinition(fieldModel: FieldModel, fieldKey: string) {
   if (Array.isArray(fieldModel.fields)) return fieldModel.fields.find((field) => field.fieldKey === fieldKey || field.key === fieldKey);
   return fieldModel.fields[fieldKey];
+}
+
+function normalizedInputType(rawInputType: string, options?: string[]) {
+  if (rawInputType === "number") return "text";
+  if (rawInputType === "field") return options?.length ? "select" : "text";
+  if (rawInputType === "boolean") return "radio";
+  return rawInputType;
+}
+
+function inferredValueType(part: EditorSlotInline, field: ReturnType<typeof fieldDefinition>, rawInputType: string) {
+  if (part.withTime || rawInputType === "datetime") return "datetime";
+  if (rawInputType === "date" || part.type === "dateSlot" || field?.type === "date") return "date";
+  if (rawInputType === "boolean" || field?.type === "boolean") return "boolean";
+  if (rawInputType === "checkbox") return "array";
+  if (part.inputType === "number" || field?.inputType === "number" || field?.type === "number") return "number";
+  if (field?.type === "line" || field?.type === "field") return "text";
+  return field?.type;
 }

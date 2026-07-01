@@ -11,6 +11,7 @@ import { Tokenizer, type Token } from "./tokenizer";
 export {
   collectFormulaReferences,
   createReferenceCatalog,
+  normalizeFormulaText,
   validateFormulaFunctionArguments,
   type FormulaExpression,
 } from "./expression";

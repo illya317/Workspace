@@ -62,7 +62,7 @@ type TiptapEditor = NonNullable<ReturnType<typeof useEditor>>;
 
 export default function DocumentEditorCanvas({
   document,
-  fieldModel: _fieldModel,
+  fieldModel,
   editable = true,
   onChange,
 }: DocumentEditorCanvasProps) {
@@ -70,7 +70,7 @@ export default function DocumentEditorCanvas({
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
   const serializedDocument = useMemo(() => JSON.stringify(editorDocumentToTiptapJson(document)), [document]);
   const referenceTokens = useMemo(() => collectReferenceTokens(document), [document]);
-  const formulaTokens = useMemo(() => collectFormulaDisplayTokens(document), [document]);
+  const formulaTokens = useMemo(() => collectFormulaDisplayTokens(document, fieldModel), [document, fieldModel]);
   const lastAppliedDocument = useRef(serializedDocument);
   const lastSlotAnchor = useRef<SelectedSlot["anchor"] | null>(null);
   const editorScrollRef = useRef<HTMLDivElement | null>(null);
@@ -214,7 +214,7 @@ export default function DocumentEditorCanvas({
             ].join(" ")}
           />
         </div>
-        <SlotInspector editor={editor} editable={editable} selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} tokens={referenceTokens} formulaTokens={formulaTokens} getReferenceTokens={getCurrentReferenceTokens} getCurrentDocument={() => tiptapJsonToEditorDocument(editor.getJSON(), document)} />
+        <SlotInspector editor={editor} editable={editable} selectedSlot={selectedSlot} setSelectedSlot={setSelectedSlot} tokens={referenceTokens} formulaTokens={formulaTokens} fieldModel={fieldModel} getReferenceTokens={getCurrentReferenceTokens} getCurrentDocument={() => tiptapJsonToEditorDocument(editor.getJSON(), document)} />
       </div>
     </div>
   );
@@ -273,13 +273,13 @@ function renderInsertRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, e
     <>
       <ToolbarGroup label="插入">
         <ToolbarButton label="普通输入" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "普通", slotKind: "plain", inputType: "text" })}><GlyphIcon>i</GlyphIcon></ToolbarButton>
-        <ToolbarButton label="输入 x" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { label: "输入", slotKind: "variable", inputType: "number" })}><GlyphIcon>x</GlyphIcon></ToolbarButton>
+        <ToolbarButton label="输入 x" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { label: "输入", slotKind: "variable", inputType: "text", valueType: "number", numberFormat: "plain" })}><GlyphIcon>x</GlyphIcon></ToolbarButton>
         <ToolbarButton label="输出 y" disabled={!editable} onClick={() => insertSlot(editor, document, "formulaSlot", { label: "输出", slotKind: "formula" })}><GlyphIcon>y</GlyphIcon></ToolbarButton>
         <ToolbarButton label="引用 z" disabled={!editable} onClick={() => insertSlot(editor, document, "formulaSlot", { label: "引用", slotKind: "reference" })}><GlyphIcon>z</GlyphIcon></ToolbarButton>
         <ToolbarButton label="单选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "是否", slotKind: "choice", inputType: "radio", options: ["是", "否"] })}><CircleCheck size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="多选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "多选", slotKind: "choice", inputType: "checkbox", options: ["选项1", "选项2"] })}><SquareCheck size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="选择框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "选择", slotKind: "choice", inputType: "select", options: ["选项1", "选项2"] })}><ListChecks size={16} strokeWidth={1.9} /></ToolbarButton>
-        <ToolbarButton label="日期" disabled={!editable} onClick={() => insertSlot(editor, document, "dateSlot", { alias: "i", label: "日期", slotKind: "plain", inputType: "date" })}><CalendarDays size={16} strokeWidth={1.9} /></ToolbarButton>
+        <ToolbarButton label="日期" disabled={!editable} onClick={() => insertSlot(editor, document, "dateSlot", { alias: "i", label: "日期", slotKind: "plain", inputType: "date", valueType: "date" })}><CalendarDays size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="分页占位符" disabled={!editable} onClick={() => insertPageBreak(editor)}><SquareDashedBottom size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
     </>
@@ -393,6 +393,8 @@ function insertSlot(editor: TiptapEditor, document: DocumentEditorCanvasProps["d
       alias,
       slotKind: nextAttrs.slotKind,
       inputType: nextAttrs.inputType,
+      valueType: nextAttrs.valueType,
+      numberFormat: nextAttrs.numberFormat,
       options: nextAttrs.options,
       width: "3rem",
       align: "center",

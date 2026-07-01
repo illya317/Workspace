@@ -4,15 +4,29 @@ import { InputSurface, type InputSurfaceProps } from "@workspace/core/ui";
 import type { Editor } from "@tiptap/core";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { normalizeFormulaDisplayText } from "./formula-display";
+import { collectFieldModelFormulaTokens, formulaDisplayText, validateFormulaSlotDraft, type FormulaDisplayToken } from "./formula-validation";
+import {
+  effectiveOptions,
+  inputMethod,
+  inputMethodOptions,
+  inputMethodPatch,
+  isOptionSlot,
+  normalizeInputAttrs,
+  numberFormat,
+  numberFormatOptions,
+  slotValueType,
+  supportsNumberFormat,
+  supportsValueType,
+  valueTypeOptions,
+  valueTypePatch,
+  type SlotPatch,
+} from "./slot-input-semantics";
 import { nextAvailableSlotAlias, numberedSlotKind, slotContextLabel, validateNumberedAlias, walkEditorSlots, type NumberedSlotKind } from "./slot-numbering";
-import type { EditorDocument, EditorSlotInline, EditorSlotType } from "./types";
+import type { EditorDocument, EditorSlotInline, EditorSlotType, FieldDefinition, FieldModel } from "./types";
 
 export type SlotAnchor = { top: number; left: number };
 export type SelectedSlot = { pos: number; type: EditorSlotType; attrs: EditorSlotInline; anchor: SlotAnchor };
 type ReferenceToken = { fieldKey: string; label: string; alias: string; sourceLabel: string; context: string };
-type FormulaDisplayToken = { fieldKey: string; alias: string; labels: string[]; context: string; formulaText?: string };
-type SlotPatch = Record<string, unknown>;
 type InspectorField = {
   key: string;
   label: string;
@@ -35,6 +49,7 @@ export function SlotInspector({
   setSelectedSlot,
   tokens,
   formulaTokens,
+  fieldModel,
   getReferenceTokens,
   getCurrentDocument,
 }: {
@@ -44,6 +59,7 @@ export function SlotInspector({
   setSelectedSlot: (slot: SelectedSlot | null) => void;
   tokens: ReferenceToken[];
   formulaTokens: FormulaDisplayToken[];
+  fieldModel?: FieldModel;
   getReferenceTokens?: () => ReferenceToken[];
   getCurrentDocument?: () => EditorDocument;
 }) {
@@ -53,9 +69,10 @@ export function SlotInspector({
   const [validationError, setValidationError] = useState("");
 
   useEffect(() => {
-    setDraft(attrs && selectedType ? cloneSlotAttrs(attrs, selectedType) : null);
+    const field = attrs ? fieldDefinition(fieldModel, attrs.fieldKey) : undefined;
+    setDraft(attrs && selectedType ? cloneSlotAttrs(attrs, selectedType, field) : null);
     setValidationError("");
-  }, [attrs, selectedType]);
+  }, [attrs, fieldModel, selectedType]);
 
   const update = (patch: SlotPatch) => {
     setValidationError("");
@@ -63,7 +80,7 @@ export function SlotInspector({
   };
   const save = () => {
     if (!selectedSlot || !draft) return;
-    const validation = validateSlotDraft(draft, getReferenceTokens?.() ?? tokens, getCurrentDocument?.());
+    const validation = validateSlotDraft(draft, getReferenceTokens?.() ?? tokens, formulaTokens, getCurrentDocument?.());
     if (validation.ok === false) {
       setValidationError(validation.error);
       return;
@@ -75,6 +92,7 @@ export function SlotInspector({
   if (!attrs || !draft || !selectedType) return null;
   const inspectorSections = createInspectorSections({
     attrs: draft,
+    field: fieldDefinition(fieldModel, draft.fieldKey),
     editable,
     selectedType,
     tokens,
@@ -138,6 +156,7 @@ export function SlotInspector({
 
 function createInspectorSections({
   attrs,
+  field,
   editable,
   selectedType,
   tokens,
@@ -147,6 +166,7 @@ function createInspectorSections({
   allocateAlias,
 }: {
   attrs: EditorSlotInline;
+  field?: FieldDefinition;
   editable: boolean;
   selectedType: EditorSlotType;
   tokens: ReferenceToken[];
@@ -157,16 +177,17 @@ function createInspectorSections({
 }) {
   const disabledState = editable ? "normal" as const : "disabled" as const;
   const aliasState = numberedSlotKind(effectiveSlotKind(attrs)) ? "readonly" as const : disabledState;
+  const valueTypeState = editable ? "normal" as const : "disabled" as const;
   const sections: InspectorSection[] = [{
     key: "base",
     title: "基础属性",
     fields: [
       selectedType === "signatureSlot"
-        ? { key: "type", label: "类型", spec: { valueType: "string", control: "text", state: "readonly" }, value: "系统签名" }
+        ? { key: "type", label: "字段角色", spec: { valueType: "string", control: "text", state: "readonly" }, value: "系统签名" }
         : {
             key: "type",
-            label: "类型",
-            spec: { valueType: "string", control: "choice", options: { source: "static", items: slotKindOptions(), mode: "dropdown", searchPlaceholder: "搜索类型" }, state: disabledState },
+            label: "字段角色",
+            spec: { valueType: "string", control: "choice", options: { source: "static", items: slotKindOptions(), mode: "dropdown", searchPlaceholder: "选择字段角色" }, state: disabledState },
             value: effectiveSlotKind(attrs),
             onChange: (value) => {
               const nextKind = String(value || "");
@@ -179,10 +200,11 @@ function createInspectorSections({
         key: "inputMethod",
         label: "输入方式",
         spec: { valueType: "string", control: "choice", options: { source: "static", items: inputMethodOptions(), mode: "dropdown", searchPlaceholder: "选择输入方式" }, state: disabledState },
-        value: inputMethod(attrs),
-        onChange: (value) => update(inputMethodPatch(String(value || "text"), attrs)),
+        value: inputMethod(attrs, field),
+        onChange: (value) => update(inputMethodPatch(String(value || "text"), attrs, field)),
       } satisfies InspectorField] : []),
-      ...(supportsNumberFormat(attrs, selectedType) ? [{ key: "numberFormat", label: "数值格式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberFormatOptions(), mode: "dropdown", searchPlaceholder: "选择数值格式" }, state: disabledState }, value: numberFormat(attrs), onChange: (value) => update({ numberFormat: String(value || "plain") }) } satisfies InspectorField] : []),
+      ...(supportsValueType(attrs, field, selectedType, supportsInputMethod) ? [{ key: "valueType", label: "数据类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: valueTypeOptions(attrs, field), mode: "dropdown", searchPlaceholder: "选择数据类型" }, state: valueTypeState }, value: slotValueType(attrs, field), onChange: (value) => update(valueTypePatch(String(value || "text"), attrs, field)) } satisfies InspectorField] : []),
+      ...(supportsNumberFormat(attrs, field, selectedType, supportsInputMethod) ? [{ key: "numberFormat", label: "数值格式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberFormatOptions(), mode: "dropdown", searchPlaceholder: "选择数值格式" }, state: disabledState }, value: numberFormat(attrs), onChange: (value) => update({ numberFormat: String(value || "plain") }) } satisfies InspectorField] : []),
       { key: "label", label: "标签", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.label ?? "", onChange: (value) => update({ label: String(value ?? "") }) },
       ...(supportsPlaceholder(attrs) ? [{ key: "placeholder", label: "占位提示", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.placeholder ?? "", onChange: (value) => update({ placeholder: String(value ?? "") }) } satisfies InspectorField] : []),
       { key: "width", label: "下划线", spec: { valueType: "number", control: "number", validation: { min: 0 }, state: disabledState }, value: widthNumber(attrs.width), onChange: (value) => update({ width: remWidth(value) }) },
@@ -190,15 +212,15 @@ function createInspectorSections({
   }];
 
   const ruleFields: InspectorField[] = [];
-  if (isOptionSlot(attrs)) {
+  if (isOptionSlot(attrs, field)) {
     ruleFields.push({
       key: "options",
       label: "选项",
       span: "full",
       spec: { valueType: "array", control: "collection", itemControl: "text", state: disabledState },
-      value: (attrs.options ?? []).join("、"),
+      value: effectiveOptions(attrs, field).join("、"),
       placeholder: "输入后按 Enter 添加",
-      onChange: (value) => update({ options: splitOptions(String(value ?? "")) }),
+      onChange: (value) => update({ options: splitOptions(value) }),
     });
   }
   if (isFormulaSlot(attrs, selectedType)) {
@@ -256,7 +278,7 @@ export function collectReferenceTokens(document: EditorDocument) {
   return tokens;
 }
 
-export function collectFormulaDisplayTokens(document: EditorDocument) {
+export function collectFormulaDisplayTokens(document: EditorDocument, fieldModel?: FieldModel) {
   const parts: EditorSlotInline[] = [];
   walkEditorSlots(document, (part) => parts.push(part));
   const directTokens = parts.flatMap((part): FormulaDisplayToken[] => {
@@ -283,7 +305,13 @@ export function collectFormulaDisplayTokens(document: EditorDocument) {
       formulaText: referenced.formulaText,
     }];
   });
-  return [...directTokens, ...refTokens];
+  return [...directTokens, ...refTokens, ...collectFieldModelFormulaTokens(fieldModel, byFieldKey)];
+}
+
+function fieldDefinition(fieldModel: FieldModel | undefined, fieldKey: string) {
+  if (!fieldModel) return undefined;
+  if (Array.isArray(fieldModel.fields)) return fieldModel.fields.find((field) => field.fieldKey === fieldKey || field.key === fieldKey);
+  return fieldModel.fields[fieldKey];
 }
 
 function formulaAlias(part: EditorSlotInline) {
@@ -292,15 +320,6 @@ function formulaAlias(part: EditorSlotInline) {
   if (part.slotKind === "variable" && /^x\d+$/i.test(alias)) return alias.toLowerCase();
   if ((part.slotKind === "formula" || part.type === "formulaSlot") && /^y\d+$/i.test(alias)) return alias.toLowerCase();
   return "";
-}
-
-function formulaDisplayText(attrs: EditorSlotInline, tokens: FormulaDisplayToken[]) {
-  const formulaText = attrs.formulaText ?? "";
-  if (!formulaText) return "";
-  const currentContext = slotContextLabel(attrs);
-  const scopedTokens = tokens.filter((token) => token.context === currentContext);
-  const displayTokens = scopedTokens.length ? scopedTokens : tokens;
-  return normalizeFormulaDisplayText(replaceFormulaLabels(formulaText, displayTokens), createFormulaAliasMap(displayTokens));
 }
 
 function scopedReferenceTokens(attrs: EditorSlotInline, tokens: ReferenceToken[]) {
@@ -326,9 +345,10 @@ function allocateAlias(kind: NumberedSlotKind, attrs: EditorSlotInline, document
   return nextAvailableSlotAlias(document, kind, slotContextLabel(attrs), attrs.fieldKey);
 }
 
-function validateSlotDraft(attrs: EditorSlotInline, tokens: ReferenceToken[], document?: EditorDocument) {
+function validateSlotDraft(attrs: EditorSlotInline, tokens: ReferenceToken[], formulaTokens: FormulaDisplayToken[], document?: EditorDocument) {
   const aliasError = validateNumberedAlias(attrs, document);
   if (aliasError) return { ok: false as const, error: aliasError };
+  if (isFormulaSlot(attrs, attrs.type)) return validateFormulaSlotDraft(attrs, formulaTokens);
   if (!isReferenceSlot(attrs)) return { ok: true as const, attrs };
   const referenceTokens = scopedReferenceTokens(attrs, tokens);
   const value = normalizeReferenceInput(attrs.referenceFieldKey);
@@ -341,41 +361,12 @@ function validateSlotDraft(attrs: EditorSlotInline, tokens: ReferenceToken[], do
   return { ok: true as const, attrs: { ...attrs, referenceFieldKey: selected.fieldKey } };
 }
 
-function replaceFormulaLabels(formulaText: string, tokens: FormulaDisplayToken[]) {
-  const mappings = new Map<string, string>();
-  tokens.forEach((token) => {
-    token.labels.forEach((label) => {
-      if (label && label !== token.alias) mappings.set(label, token.alias);
-    });
-  });
-  return [...mappings.entries()]
-    .sort(([left], [right]) => right.length - left.length)
-    .reduce((text, [label, alias]) => text.replace(new RegExp(escapeRegExp(label), "g"), alias), formulaText);
-}
-
-function createFormulaAliasMap(tokens: FormulaDisplayToken[]) {
-  const formulas = new Map<string, string>();
-  tokens.forEach((token) => {
-    if (token.formulaText && /^y\d+$/i.test(token.alias)) {
-      formulas.set(token.alias.toLowerCase(), replaceFormulaLabels(token.formulaText, tokens));
-    }
-  });
-  return formulas;
-}
-
-function escapeRegExp(value: string) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function splitOptions(value: string) {
-  return value.split(/[\n,，]/).map((item) => item.trim()).filter(Boolean);
+function splitOptions(value: unknown) {
+  const rawItems = Array.isArray(value) ? value : String(value ?? "").split(/[,，、;；\n]+/);
+  return [...new Set(rawItems.map((item) => String(item).trim()).filter(Boolean))];
 }
 
 function slotKindOptions() { return [{ value: "plain", label: "普通" }, { value: "variable", label: "输入" }, { value: "formula", label: "输出" }, { value: "reference", label: "引用" }]; }
-
-function inputMethodOptions() { return [{ value: "text", label: "文本" }, { value: "textarea", label: "多行文本" }, { value: "number", label: "数字" }, { value: "date", label: "日期" }, { value: "datetime", label: "日期+时间" }, { value: "radio", label: "单选" }, { value: "checkbox", label: "多选" }, { value: "select", label: "下拉" }]; }
-
-function numberFormatOptions() { return [{ value: "plain", label: "普通数字" }, { value: "round_half_up", label: "四舍五入" }, { value: "round_half_even", label: "四舍六入" }, { value: "ceil", label: "向上取整" }, { value: "floor", label: "向下取整" }, { value: "truncate", label: "截断" }]; }
 
 function slotKindShortName(attrs: EditorSlotInline) {
   if (effectiveSlotKind(attrs) === "reference") return "z";
@@ -419,21 +410,13 @@ function ruleSectionTitle(attrs: EditorSlotInline, type: EditorSlotType) {
 }
 
 function slotKindPatch(value: string, attrs: EditorSlotInline, alias?: string): SlotPatch {
-  const reset: SlotPatch = { formulaText: null, formula: null, referenceFieldKey: null, placeholder: null, numberFormat: null };
+  const reset: SlotPatch = { formulaText: null, formula: null, referenceFieldKey: null, placeholder: null, valueType: null, numberFormat: null };
   if (value === "plain") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "plain", placeholder: attrs.placeholder, alias };
   if (value === "variable") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "variable", placeholder: attrs.placeholder, alias };
   if (value === "formula") return { ...reset, inputType: null, options: null, slotKind: "formula", alias };
   if (value === "reference") return { ...reset, inputType: null, options: null, slotKind: "reference", alias };
   return { ...reset, slotKind: value as EditorSlotInline["slotKind"] };
 }
-
-function inputMethod(attrs: EditorSlotInline) { return attrs.withTime ? "datetime" : attrs.inputType === "date" || attrs.slotKind === "date" || attrs.type === "dateSlot" ? "date" : attrs.inputType === "number" ? "number" : attrs.inputType === "textarea" ? "textarea" : isOptionSlot(attrs) ? attrs.inputType ?? "radio" : "text"; }
-
-function inputMethodPatch(value: string, attrs: EditorSlotInline): SlotPatch { if (value === "date") return { inputType: "date", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "datetime") return { inputType: "date", withTime: true, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "number") return { inputType: "number", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: numberFormat(attrs) }; if (value === "textarea") return { inputType: "textarea", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "radio" || value === "checkbox" || value === "select") return { inputType: value, withTime: null, options: attrs.options?.length ? attrs.options : defaultOptions(value), placeholder: null, numberFormat: null }; return { inputType: "text", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; }
-
-function numberFormat(attrs: EditorSlotInline) { const value = attrs.numberFormat; return numberFormatOptions().some((option) => option.value === value) ? value : "plain"; }
-
-function defaultOptions(inputType: "radio" | "checkbox" | "select") { return inputType === "radio" ? ["是", "否"] : ["选项1", "选项2"]; }
 
 function mergeSlotAttrs(attrs: EditorSlotInline, patch: SlotPatch): EditorSlotInline {
   const next: Record<string, unknown> = { ...attrs };
@@ -447,10 +430,11 @@ function mergeSlotAttrs(attrs: EditorSlotInline, patch: SlotPatch): EditorSlotIn
   return next as unknown as EditorSlotInline;
 }
 
-function cloneSlotAttrs(attrs: EditorSlotInline, type: EditorSlotType): EditorSlotInline {
+function cloneSlotAttrs(attrs: EditorSlotInline, type: EditorSlotType, field?: FieldDefinition): EditorSlotInline {
   const next = { ...attrs, type };
   const kind = effectiveSlotKind(next);
-  return kind === "plain" ? { ...next, alias: "i" } : next;
+  const normalized = normalizeInputAttrs(next, field, supportsInputMethod);
+  return kind === "plain" ? { ...normalized, alias: "i" } : normalized;
 }
 
 function nodeAttributes(attrs: EditorSlotInline) {
@@ -477,17 +461,13 @@ function inferredSlotKind(attrs: EditorSlotInline) {
   return "plain";
 }
 
-function isOptionSlot(attrs: EditorSlotInline) { return attrs.inputType === "radio" || attrs.inputType === "checkbox" || attrs.inputType === "select"; }
-
-function supportsPlaceholder(attrs: EditorSlotInline) { const method = inputMethod(attrs); return (attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot")) && (method === "text" || method === "textarea" || method === "number"); }
+function supportsPlaceholder(attrs: EditorSlotInline) { const method = inputMethod(attrs); return (attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot")) && (method === "text" || method === "textarea"); }
 
 function supportsAlias(attrs: EditorSlotInline, type: EditorSlotType) {
   return effectiveSlotKind(attrs) === "plain" || effectiveSlotKind(attrs) === "variable" || effectiveSlotKind(attrs) === "formula" || effectiveSlotKind(attrs) === "reference" || type === "formulaSlot";
 }
 
 function supportsInputMethod(attrs: EditorSlotInline, type: EditorSlotType) { const kind = effectiveSlotKind(attrs); return type !== "signatureSlot" && (kind === "plain" || kind === "variable"); }
-
-function supportsNumberFormat(attrs: EditorSlotInline, type: EditorSlotType) { return supportsInputMethod(attrs, type) && inputMethod(attrs) === "number"; }
 
 function isFormulaSlot(attrs: EditorSlotInline, type: EditorSlotType) { return !isReferenceSlot(attrs) && (attrs.slotKind === "formula" || (!attrs.slotKind && type === "formulaSlot")); }
 

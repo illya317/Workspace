@@ -23,8 +23,9 @@ function slotEntries(document: EditorDocument): Array<[string, EditorSlotInline]
   return entries;
 }
 
-function toFormulaValue(value: string | undefined): FormulaValue | undefined {
+function toFormulaValue(value: string | undefined, valueType?: string): FormulaValue | undefined {
   if (value == null || value === "") return undefined;
+  if (valueType === "boolean") return value === "true" || value === "是" || value === "符合" || value === "符合要求" || value === "有" || value === "检出";
   const number = Number(value);
   return Number.isFinite(number) ? number : value;
 }
@@ -76,14 +77,30 @@ function formulaFields(fieldModel: FieldModel, document: EditorDocument, values:
       label: slot?.label ?? field?.label ?? field?.name ?? fieldKey,
       aliases: aliases(fieldKey, field, formula, slot),
       formula: slot?.formulaText ?? formula?.formulaText ?? formula?.rule ?? field?.formula ?? null,
-      value: toFormulaValue(values[fieldKey]),
-      valueType: field?.valueType ?? field?.type,
-      inputType: slot?.inputType ?? field?.inputType,
+      value: toFormulaValue(values[fieldKey], slot?.valueType ?? field?.valueType ?? inferredValueType(slot, field)),
+      valueType: slot?.valueType ?? field?.valueType ?? inferredValueType(slot, field),
+      inputType: normalizedInputType(slot?.inputType ?? field?.inputType, slot?.options ?? field?.options),
       numberFormat: slot?.numberFormat ?? field?.numberFormat,
       attr: field?.attr,
       slotKind: slot?.slotKind ?? field?.slotKind,
     };
   });
+}
+
+function normalizedInputType(value?: string, options?: string[]) {
+  if (value === "number") return "text";
+  if (value === "field") return options?.length ? "select" : "text";
+  if (value === "boolean") return "radio";
+  return value;
+}
+
+function inferredValueType(slot?: EditorSlotInline, field?: FieldDefinition) {
+  if (slot?.withTime || slot?.inputType === "datetime") return "datetime";
+  if (slot?.type === "dateSlot" || slot?.inputType === "date" || field?.type === "date") return "date";
+  if (slot?.inputType === "boolean" || field?.inputType === "boolean" || field?.type === "boolean") return "boolean";
+  if (slot?.inputType === "checkbox" || field?.inputType === "checkbox") return "array";
+  if (slot?.inputType === "number" || field?.inputType === "number") return "number";
+  return field?.type;
 }
 
 function computeValues(fieldModel: FieldModel, document: EditorDocument, values: EditorRuntimeValues) {
@@ -93,7 +110,7 @@ function computeValues(fieldModel: FieldModel, document: EditorDocument, values:
   const engine = createFormulaEngine();
   const result = engine.evaluate({
     model: { fields },
-    values: Object.fromEntries(Object.entries(values).map(([fieldKey, value]) => [fieldKey, toFormulaValue(value)])),
+    values: Object.fromEntries(fields.map((field) => [field.fieldKey, toFormulaValue(values[field.fieldKey], field.valueType)])),
     targetFieldKeys,
   });
   const next = { ...values };

@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "generatedAt": "2026-06-30T18:56:13.698Z",
+  "generatedAt": "2026-07-01T03:11:35.388Z",
   "configRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc",
   "sourceSchemaRoot": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema",
   "outputRoot": "/Users/koito/Project/workspace/workspace/generated/docs-editor/qc",
@@ -6507,7 +6507,7 @@
             "tables": 102,
             "fields": 749,
             "formulas": 120,
-            "blocks": 302
+            "blocks": 303
           },
           "enhanced": {
             "stages": 0,
@@ -6515,7 +6515,7 @@
             "tables": 102,
             "fields": 750,
             "formulas": 120,
-            "blocks": 302
+            "blocks": 303
           }
         },
         "countDeltas": {

@@ -21,6 +21,9 @@ export {
   type PublishedQcOfficialTemplateSummary,
 } from "./qc-official-template";
 export {
+  normalizeDocumentTemplatePayload,
+} from "./domain/document-template-validation";
+export {
   copyDocumentTemplate,
   createDocumentTemplate,
   deleteDocumentTemplateDraft,

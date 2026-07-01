@@ -99,6 +99,7 @@ export function createSlotExtension(name: EditorSlotType) {
         withTime: { default: false },
         role: { default: null },
         inputType: { default: null },
+        valueType: { default: null },
         numberFormat: { default: null },
         options: { default: null },
         placeholder: { default: null },

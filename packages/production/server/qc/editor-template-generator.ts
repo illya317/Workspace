@@ -1,5 +1,6 @@
 import path from "path";
 import { mkdir, readdir, readFile, rm, writeFile } from "fs/promises";
+import { normalizeDocumentTemplatePayload } from "@workspace/platform/server/docs-editor";
 import { legacyQcToEditorDocument } from "./editor-adapter";
 import type {
   QcEditorConversionAudit,
@@ -154,17 +155,26 @@ export async function generateQcEditorTemplates(options: GenerateQcEditorTemplat
     const detail = await getQcTemplateDetailFromConfig(product.key);
     const sourceRead = await readProductSourceAudit(configRoot, sourceSchemaRoot, detail);
     const conversion = legacyQcToEditorDocument(detail);
-    const headingComparison = compareHeadings(detail, conversion, sourceRead.audit.canonicalMd);
+    const normalized = normalizeDocumentTemplatePayload(conversion.document, conversion.fieldModel);
+    if (normalized.ok === false) {
+      throw new Error(`QC 编辑器模板数据无效：${detail.id} ${normalized.issue.message}`);
+    }
+    const normalizedConversion: QcEditorConversionResult = {
+      ...conversion,
+      document: normalized.data.document as QcEditorConversionResult["document"],
+      fieldModel: normalized.data.fieldModel as QcEditorConversionResult["fieldModel"],
+    };
+    const headingComparison = compareHeadings(detail, normalizedConversion, sourceRead.audit.canonicalMd);
     const outputFile = path.join(productsRoot, `${product.key}.json`);
-    const productAudit = buildProductAudit(detail, conversion, sourceRead.audit, headingComparison, outputFile);
+    const productAudit = buildProductAudit(detail, normalizedConversion, sourceRead.audit, headingComparison, outputFile);
     await writeJson(outputFile, {
       schemaVersion: 1,
       kind: "qc-doc-editor-product-template",
       generatedAt: new Date().toISOString(),
       productKey: detail.id,
       productName: detail.productName,
-      document: conversion.document,
-      fieldModel: conversion.fieldModel,
+      document: normalizedConversion.document,
+      fieldModel: normalizedConversion.fieldModel,
       audit: productAudit,
     });
     productAudits.push(productAudit);
