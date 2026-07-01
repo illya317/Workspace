@@ -33,6 +33,7 @@
 | `settings.account.apiAccess` | `visibleResourceKeys` | access（个人 API Key 使用能力） |
 | `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
+| `library.basicInfo` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, archive, import, export, admin（资料元数据编辑、软归档、扫描/生成入库、下载导出） |
 | `agent` | `visibleResourceKeys` | access |
 
 ## 页面 Guard
@@ -144,6 +145,12 @@
 | `/api/modules/work/meetings/[id]/agenda` / `minutes` / `decisions` / `participants` / `action-candidates` / `proposals` | POST | `work.meetings.write` + 会议对象级编辑校验 |
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/cast` | POST | `work.meetings.access` + `work.meetings.submit` + 参会投票资格 |
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/close` | POST | `work.meetings.access` + `work.meetings.approve` + 会议对象级管理校验 |
+| `/api/modules/library/basic-info*` | GET | `library.basicInfo.access` + 保密等级过滤 |
+| `/api/modules/library/basic-info/documents/[id]` | PATCH | `library.basicInfo.write`；若状态改为归档还需要 `library.basicInfo.archive` |
+| `/api/modules/library/basic-info/documents/[id]` | DELETE | `library.basicInfo.access` + `library.basicInfo.archive` |
+| `/api/modules/library/basic-info/documents/[id]/download` | GET | `library.basicInfo.access` + `library.basicInfo.export` + 保密等级过滤 |
+| `/api/modules/library/basic-info/scan` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
+| `/api/modules/library/basic-info/generated-sources/[key]/generate` | POST | `library.basicInfo.access` + `library.basicInfo.import` |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
 | `/api/settings/account/*` | GET/POST/PUT/PATCH/DELETE | `settings.account.access` + 当前登录用户自助数据边界 |
 | `/api/settings/account/api-key` | GET | `settings.account.apiAccess.access` |

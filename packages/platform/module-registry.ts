@@ -318,11 +318,6 @@ export const registeredModuleDefinitions = [
         { key: "basicInfo", label: "基本资料", desc: "资料目录、文件、生成文档和保密等级", href: "/library/basic-info", iconKey: "basicInfo", color: "orange", resourceKey: "library.basicInfo", resourceMaxRoleKey: "write", apiPrefixes: ["/api/modules/library/basic-info"] },
       ],
     },
-    resourceDefs: [
-      { key: "library.basicInfo.write", name: "资料库编辑", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "admin", sortOrder: 0 },
-      { key: "library.basicInfo.secret", name: "保密资料", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "access", sortOrder: 1 },
-      { key: "library.basicInfo.topSecret", name: "绝密资料", kind: "capability", capabilityOwnerKey: "library.basicInfo", runtimeParentKey: "library.basicInfo", maxRoleKey: "access", sortOrder: 2 },
-    ],
     routes: ["/library", "/library/basic-info"],
     apiGuards: [
       ...apiResourceGuards("/api/modules/library/basic-info", "library.basicInfo"),

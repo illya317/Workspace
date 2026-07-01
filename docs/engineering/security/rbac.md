@@ -86,10 +86,6 @@ docs                access  文档中心
 library              write   资料库
   library.basicInfo  write   基本资料
 
-library.basicInfo.write     write   资料库编辑（capability）
-library.basicInfo.secret    access  保密资料（capability）
-library.basicInfo.topSecret access  绝密资料（capability）
-
 external            delete  外部关系
   external.investors delete  投资人关系
   external.customers delete  客户管理
