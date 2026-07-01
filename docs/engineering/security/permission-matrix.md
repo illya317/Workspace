@@ -22,6 +22,7 @@
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), import (confirm), export, admin |
 | `finance.tax` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
 | `finance.treasury` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
+| `administration` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `production` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `production.qc` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, submit, approve, export, admin（批次创建、填写、提交复核、审核和列表导出） |
@@ -33,6 +34,7 @@
 | `work.projects.viewAll` | `visibleResourceKeys` | access（独立全量可见资源，`runtimeParentKey=work.projects`） |
 | `work.tasks` | `visibleResourceKeys` / `visibleWriteResourceKeys` | delete（登录用户默认有效；访问/编辑/删除列显示为默认规则）, admin |
 | `work.meetings` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, submit, approve, admin（投票提交/关闭表决拆分） |
+| `settings` | `visibleResourceKeys` | access, admin |
 | `settings.account` | `visibleResourceKeys` | access（登录用户默认有效） |
 | `settings.admin` | `visibleResourceKeys` | access（任意资源管理员默认有效） |
 | `settings.api` | `visibleResourceKeys` | access（Open API 控制台读取；不代表外部调用权限） |
@@ -41,6 +43,7 @@
 | `settings.api.manage` | `visibleWriteResourceKeys` | access, create, write, delete, revise, admin（Client 创建、secret 轮换、scope 授权；`runtimeParentKey=settings.api`） |
 | `docs` | `visibleResourceKeys` | access（登录用户默认有效，并继承到普通 L2；不包含 capability） |
 | `docs.company` / `docs.expense` | `visibleResourceKeys` | access, admin（静态文档页，无业务 API） |
+| `library` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, admin |
 | `library.basicInfo` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, archive, import, export, admin（资料元数据编辑、软归档、扫描/生成入库、下载导出） |
 | `agent` | `visibleResourceKeys` | access |
 
