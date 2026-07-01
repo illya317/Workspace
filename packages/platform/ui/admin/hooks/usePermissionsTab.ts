@@ -181,6 +181,7 @@ export function usePermissionsTab(
     l1Options: filters.l1Options, l2Options: filters.l2Options, l3Options: filters.l3Options,
     selectedDepartmentFilter: filters.selectedDepartmentFilter,
     departmentFilterOptions: filters.departmentFilterOptions,
+    nameSearchOptions: filters.nameSearchOptions,
     setDepartmentFilter: filters.setDepartmentFilter,
     nameSearch: filters.nameSearch, setNameSearch: filters.setNameSearch,
     expandedRows: filters.expandedRows, toggleRowExpand: filters.toggleRowExpand,

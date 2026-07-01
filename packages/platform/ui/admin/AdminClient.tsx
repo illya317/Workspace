@@ -87,32 +87,12 @@ export default function AdminClient({ user }: { user: SessionUser }) {
 
   const subjectSearchPlaceholder =
     permissionState.subjectType === "user"
-      ? "搜索姓名..."
+      ? "筛选人名"
       : permissionState.subjectType === "position"
-        ? "搜索岗位..."
-        : "搜索部门...";
+        ? "筛选岗位"
+        : "筛选部门";
 
   const permissionToolbarItems: SurfaceToolbarItem[] = [
-    ...(permissionState.subjectType !== "department"
-      ? [{
-          kind: "autocomplete" as const,
-          key: "department-filter",
-          value: permissionState.selectedDepartmentFilter ?? "",
-          options: permissionState.departmentFilterOptions ?? [],
-          onChange: (value: string) => permissionState.setDepartmentFilter(String(value ?? "")),
-          placeholder: "搜索部门",
-          ariaLabel: "搜索部门",
-          visibleCount: 8,
-        }]
-      : []),
-    {
-      kind: "search",
-      key: "subject-search",
-      value: permissionState.nameSearch,
-      onChange: (value) => permissionState.setNameSearch(String(value ?? "")),
-      placeholder: subjectSearchPlaceholder,
-      ariaLabel: "搜索授权对象",
-    },
     ...(permissionState.selectedResource && permissionState.isSystemAdmin
       ? [{
           kind: "option-group" as const,
@@ -142,6 +122,28 @@ export default function AdminClient({ user }: { user: SessionUser }) {
           ariaLabel: "权限冲突策略",
         }]
       : []),
+    ...(permissionState.subjectType !== "department"
+      ? [{
+          kind: "autocomplete" as const,
+          key: "department-filter",
+          value: permissionState.selectedDepartmentFilter ?? "",
+          options: permissionState.departmentFilterOptions ?? [],
+          onChange: (value: string) => permissionState.setDepartmentFilter(String(value ?? "")),
+          placeholder: "搜索部门",
+          ariaLabel: "搜索部门",
+          visibleCount: 5,
+        }]
+      : []),
+    {
+      kind: "autocomplete",
+      key: "subject-search",
+      value: permissionState.nameSearch,
+      options: permissionState.nameSearchOptions ?? [],
+      onChange: (value) => permissionState.setNameSearch(String(value ?? "")),
+      placeholder: subjectSearchPlaceholder,
+      ariaLabel: "搜索授权对象",
+      visibleCount: 5,
+    },
   ];
 
   const subjectTabs = [

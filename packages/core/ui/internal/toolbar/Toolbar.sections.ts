@@ -5,6 +5,7 @@ function inferSection(item: ToolbarItem): ToolbarSection {
     case "search":
       return "search";
     case "select":
+    case "autocomplete":
     case "option-group":
     case "field-filter":
     case "period":
@@ -55,6 +56,7 @@ export function inferZone(item: ToolbarItem): ToolbarZoneKey {
     case "icon-button":
       return "actions";
     case "select":
+    case "autocomplete":
     case "option-group":
     case "field-filter":
     case "period":

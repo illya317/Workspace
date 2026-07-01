@@ -31,16 +31,6 @@ function normalizeYear(value: string) {
   return digits.slice(0, 4).padStart(4, "0");
 }
 
-function compactYear(value: string) {
-  return normalizeYear(value).slice(-2);
-}
-
-function displayYearInput(value: string) {
-  const digits = value.replace(/\D/g, "");
-  if (digits.length < 2) return digits;
-  return compactYear(digits);
-}
-
 function cssSlotWidth(value: string | undefined) {
   const width = value?.trim();
   return width || "3rem";
@@ -73,6 +63,7 @@ function DatePartInput({
   onChange,
   onBlur,
   readOnly,
+  widthClass = "w-[2ch]",
 }: {
   label: string;
   maxLength: number;
@@ -80,8 +71,8 @@ function DatePartInput({
   onChange: (value: string) => void;
   onBlur: () => void;
   readOnly?: boolean;
+  widthClass?: string;
 }) {
-  const widthClass = "w-[2ch]";
   return (
     <input
       aria-label={label}
@@ -129,6 +120,8 @@ export function QcPaperDateInput({
 
   const normalizedDate = normalizeDateParts(date.year, date.month, date.day);
   const dateValue = `${normalizedDate.year}-${normalizedDate.month}-${normalizedDate.day}`;
+  const displayMonth = String(Number(normalizedDate.month));
+  const displayDay = String(Number(normalizedDate.day));
   const key = part.fieldKey || "date";
   const isReadOnly = readOnly || part.readonlyDisplay;
   return (
@@ -136,11 +129,12 @@ export function QcPaperDateInput({
       className={`inline-flex max-w-full items-center whitespace-nowrap text-inherit align-baseline ${dateAlignClass(part)} ${inTable ? "gap-0 leading-7" : "gap-0.5"}`}
       style={dateRootStyle(part)}
     >
-      <DatePartInput label="年" maxLength={2} value={displayYearInput(date.year)} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
-      <span>/</span>
-      <DatePartInput label="月" maxLength={2} value={date.month} onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
-      <span>/</span>
-      <DatePartInput label="日" maxLength={2} value={date.day} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <DatePartInput label="年" maxLength={4} value={date.year} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} widthClass="w-[4ch]" />
+      <span>年</span>
+      <DatePartInput label="月" maxLength={2} value={displayMonth} onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <span>月</span>
+      <DatePartInput label="日" maxLength={2} value={displayDay} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <span>日</span>
       <InputSurface spec={{ valueType: "date", control: "temporal", state: "hidden" }} value={dateValue} dataFieldKey={key} readOnly />
       {part.withTime && (
         <DatePartInput

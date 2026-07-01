@@ -91,6 +91,21 @@ export function usePermissionFilters(
     return Array.from(options.values());
   }, [rawSubjects]);
 
+  const nameSearchOptions = useMemo(() => {
+    const options = new Map<string, { value: string; label: string; searchText: string }>();
+    for (const subject of rawSubjects) {
+      const name = subject.name.trim();
+      if (!name || options.has(name)) continue;
+      const employeeId = String(subject.extra?.employeeId ?? "");
+      options.set(name, {
+        value: name,
+        label: subjectType === "user" && employeeId ? `${name} ${employeeId}` : name,
+        searchText: [name, employeeId].filter(Boolean).join(" "),
+      });
+    }
+    return Array.from(options.values());
+  }, [rawSubjects, subjectType]);
+
   const selectedDepartmentFilter = useMemo(() => {
     const path = [l1Dept, l2Dept, l3Dept].filter((value) => value !== "全部");
     return departmentFilterValue(path);
@@ -177,6 +192,7 @@ export function usePermissionFilters(
     l2Options,
     l3Options,
     departmentFilterOptions,
+    nameSearchOptions,
     selectedDepartmentFilter,
     setDepartmentFilter,
     subjects,
