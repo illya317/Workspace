@@ -38,13 +38,32 @@ Docs Editor 使用和 Work Tasks 一致的业务空间入口，但不复用 Work
 - 用户选择候选走 Docs Editor 自己的 `reference-options` API 和 FK registration，不能直接复用 Work 的 FK key。
 - Docs Editor 页面 tab 固定为 `文档模版` 和 `权限管理`；只有当前空间 `manager` 才显示权限管理。
 
+## 模板正文存储
+
+`DocumentTemplate` 表只承载模板元数据、空间归属、状态、来源标识和正文文件引用。`documentJson` / `fieldModelJson` 仅作为迁移兼容回退字段，新写入应保持 `{}` 占位。
+
+模板正文持久化在运行态 workspace：
+
+```txt
+$WORKSPACE_CONFIG_DIR/data/docs-editor/templates/{templateId}/document.json
+$WORKSPACE_CONFIG_DIR/data/docs-editor/templates/{templateId}/field-model.json
+```
+
+对应 DB 字段为 `documentContentRef` / `fieldModelContentRef`，以及 hash/bytes 元数据。读取详情时优先读文件，文件缺失时才回退 DB 兼容字段。迁移旧数据使用：
+
+```bash
+npm run docs-editor:content:migrate
+```
+
+部署和备份时，除 SQLite DB 外，还必须同步 `$WORKSPACE_CONFIG_DIR/data/docs-editor/templates`。
+
 ## QC 官方模板
 
 QC 官方模板属于真实部门空间，不再作为虚拟空间或虚拟模板 ID 暴露。
 
 - 部门解析优先使用 `Department.code = FUN701`，找不到时回退到 `Department.name = 质量控制部`。
 - `generated/docs-editor/qc/products/*.json` 是同步源快照，不是前端直接选择的模板空间。
-- Docs Editor 服务进入空间列表时会确保质量控制部空间，并把 QC 快照 upsert 成真实 `DocumentTemplate`。
+- Docs Editor 服务进入空间列表时会确保质量控制部空间，并把 QC 快照 upsert 成真实 `DocumentTemplate`；正文同样写入 `$WORKSPACE_CONFIG_DIR/data/docs-editor/templates`，DB 只保留文件引用。
 - 官方模板使用 `sourceKind=production.qc.official` 和 `sourceProductKey` 标识同一产品模板，重复同步更新同一真实模板。
 - 复制官方模板时，副本清空 `sourceKind/sourceProductKey`，避免用户副本参与官方同步。
 

@@ -45,6 +45,7 @@ function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: Rende
     width: part.width ? String(part.width) : "3rem",
     align: part.align || "center",
     inputType,
+    numberFormat: part.numberFormat || field?.numberFormat,
     defaultValue: part.defaultValue,
     defaultOffsetDays: part.defaultOffsetDays,
     placeholder: part.placeholder,

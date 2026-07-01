@@ -16,6 +16,7 @@ export interface QcPaperSlotPart {
   rows?: number;
   withTime?: boolean;
   inputType?: string;
+  numberFormat?: string;
   defaultValue?: string;
   defaultOffsetDays?: number;
   readonlyDisplay?: boolean;

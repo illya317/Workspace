@@ -79,6 +79,7 @@ function formulaFields(fieldModel: FieldModel, document: EditorDocument, values:
       value: toFormulaValue(values[fieldKey]),
       valueType: field?.valueType ?? field?.type,
       inputType: slot?.inputType ?? field?.inputType,
+      numberFormat: slot?.numberFormat ?? field?.numberFormat,
       attr: field?.attr,
       slotKind: slot?.slotKind ?? field?.slotKind,
     };

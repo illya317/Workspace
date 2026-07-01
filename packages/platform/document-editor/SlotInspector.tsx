@@ -182,6 +182,7 @@ function createInspectorSections({
         value: inputMethod(attrs),
         onChange: (value) => update(inputMethodPatch(String(value || "text"), attrs)),
       } satisfies InspectorField] : []),
+      ...(supportsNumberFormat(attrs, selectedType) ? [{ key: "numberFormat", label: "数值格式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberFormatOptions(), mode: "dropdown", searchPlaceholder: "选择数值格式" }, state: disabledState }, value: numberFormat(attrs), onChange: (value) => update({ numberFormat: String(value || "plain") }) } satisfies InspectorField] : []),
       { key: "label", label: "标签", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.label ?? "", onChange: (value) => update({ label: String(value ?? "") }) },
       ...(supportsPlaceholder(attrs) ? [{ key: "placeholder", label: "占位提示", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.placeholder ?? "", onChange: (value) => update({ placeholder: String(value ?? "") }) } satisfies InspectorField] : []),
       { key: "width", label: "下划线", spec: { valueType: "number", control: "number", validation: { min: 0 }, state: disabledState }, value: widthNumber(attrs.width), onChange: (value) => update({ width: remWidth(value) }) },
@@ -372,7 +373,9 @@ function splitOptions(value: string) {
 
 function slotKindOptions() { return [{ value: "plain", label: "普通" }, { value: "variable", label: "输入" }, { value: "formula", label: "输出" }, { value: "reference", label: "引用" }]; }
 
-function inputMethodOptions() { return [{ value: "text", label: "文本" }, { value: "date", label: "日期" }, { value: "datetime", label: "日期+时间" }, { value: "radio", label: "单选" }]; }
+function inputMethodOptions() { return [{ value: "text", label: "文本" }, { value: "textarea", label: "多行文本" }, { value: "number", label: "数字" }, { value: "date", label: "日期" }, { value: "datetime", label: "日期+时间" }, { value: "radio", label: "单选" }, { value: "checkbox", label: "多选" }, { value: "select", label: "下拉" }]; }
+
+function numberFormatOptions() { return [{ value: "plain", label: "普通数字" }, { value: "round_half_up", label: "四舍五入" }, { value: "round_half_even", label: "四舍六入" }, { value: "ceil", label: "向上取整" }, { value: "floor", label: "向下取整" }, { value: "truncate", label: "截断" }]; }
 
 function slotKindShortName(attrs: EditorSlotInline) {
   if (effectiveSlotKind(attrs) === "reference") return "z";
@@ -416,12 +419,7 @@ function ruleSectionTitle(attrs: EditorSlotInline, type: EditorSlotType) {
 }
 
 function slotKindPatch(value: string, attrs: EditorSlotInline, alias?: string): SlotPatch {
-  const reset: SlotPatch = {
-    formulaText: null,
-    formula: null,
-    referenceFieldKey: null,
-    placeholder: null,
-  };
+  const reset: SlotPatch = { formulaText: null, formula: null, referenceFieldKey: null, placeholder: null, numberFormat: null };
   if (value === "plain") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "plain", placeholder: attrs.placeholder, alias };
   if (value === "variable") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "variable", placeholder: attrs.placeholder, alias };
   if (value === "formula") return { ...reset, inputType: null, options: null, slotKind: "formula", alias };
@@ -429,14 +427,13 @@ function slotKindPatch(value: string, attrs: EditorSlotInline, alias?: string): 
   return { ...reset, slotKind: value as EditorSlotInline["slotKind"] };
 }
 
-function inputMethod(attrs: EditorSlotInline) { return attrs.withTime ? "datetime" : attrs.inputType === "date" || attrs.slotKind === "date" || attrs.type === "dateSlot" ? "date" : isOptionSlot(attrs) ? "radio" : "text"; }
+function inputMethod(attrs: EditorSlotInline) { return attrs.withTime ? "datetime" : attrs.inputType === "date" || attrs.slotKind === "date" || attrs.type === "dateSlot" ? "date" : attrs.inputType === "number" ? "number" : attrs.inputType === "textarea" ? "textarea" : isOptionSlot(attrs) ? attrs.inputType ?? "radio" : "text"; }
 
-function inputMethodPatch(value: string, attrs: EditorSlotInline): SlotPatch {
-  if (value === "date") return { inputType: "date", withTime: null, options: null, placeholder: attrs.placeholder };
-  if (value === "datetime") return { inputType: "date", withTime: true, options: null, placeholder: attrs.placeholder };
-  if (value === "radio") return { inputType: "radio", options: attrs.options?.length ? attrs.options : ["是", "否"], placeholder: null };
-  return { inputType: "text", withTime: null, options: null, placeholder: attrs.placeholder };
-}
+function inputMethodPatch(value: string, attrs: EditorSlotInline): SlotPatch { if (value === "date") return { inputType: "date", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "datetime") return { inputType: "date", withTime: true, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "number") return { inputType: "number", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: numberFormat(attrs) }; if (value === "textarea") return { inputType: "textarea", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; if (value === "radio" || value === "checkbox" || value === "select") return { inputType: value, withTime: null, options: attrs.options?.length ? attrs.options : defaultOptions(value), placeholder: null, numberFormat: null }; return { inputType: "text", withTime: null, options: null, placeholder: attrs.placeholder, numberFormat: null }; }
+
+function numberFormat(attrs: EditorSlotInline) { const value = attrs.numberFormat; return numberFormatOptions().some((option) => option.value === value) ? value : "plain"; }
+
+function defaultOptions(inputType: "radio" | "checkbox" | "select") { return inputType === "radio" ? ["是", "否"] : ["选项1", "选项2"]; }
 
 function mergeSlotAttrs(attrs: EditorSlotInline, patch: SlotPatch): EditorSlotInline {
   const next: Record<string, unknown> = { ...attrs };
@@ -482,15 +479,15 @@ function inferredSlotKind(attrs: EditorSlotInline) {
 
 function isOptionSlot(attrs: EditorSlotInline) { return attrs.inputType === "radio" || attrs.inputType === "checkbox" || attrs.inputType === "select"; }
 
-function supportsPlaceholder(attrs: EditorSlotInline) {
-  return (attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot")) && inputMethod(attrs) === "text";
-}
+function supportsPlaceholder(attrs: EditorSlotInline) { const method = inputMethod(attrs); return (attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot")) && (method === "text" || method === "textarea" || method === "number"); }
 
 function supportsAlias(attrs: EditorSlotInline, type: EditorSlotType) {
   return effectiveSlotKind(attrs) === "plain" || effectiveSlotKind(attrs) === "variable" || effectiveSlotKind(attrs) === "formula" || effectiveSlotKind(attrs) === "reference" || type === "formulaSlot";
 }
 
 function supportsInputMethod(attrs: EditorSlotInline, type: EditorSlotType) { const kind = effectiveSlotKind(attrs); return type !== "signatureSlot" && (kind === "plain" || kind === "variable"); }
+
+function supportsNumberFormat(attrs: EditorSlotInline, type: EditorSlotType) { return supportsInputMethod(attrs, type) && inputMethod(attrs) === "number"; }
 
 function isFormulaSlot(attrs: EditorSlotInline, type: EditorSlotType) { return !isReferenceSlot(attrs) && (attrs.slotKind === "formula" || (!attrs.slotKind && type === "formulaSlot")); }
 

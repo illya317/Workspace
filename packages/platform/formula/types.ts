@@ -17,6 +17,7 @@ export interface FormulaField {
   slotKind?: string;
   valueType?: string;
   inputType?: string;
+  numberFormat?: string;
   attr?: string;
 }
 

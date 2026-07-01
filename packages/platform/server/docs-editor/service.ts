@@ -13,6 +13,13 @@ import {
   type DocsEditorTemplateRow,
 } from "./db";
 import {
+  deleteTemplateContentFiles,
+  readTemplateContent,
+  readTemplateContentJson,
+  stripTemplateContentData,
+  writeTemplateContentUpdate,
+} from "./content-store";
+import {
   buildCopyTemplateCommand,
   buildListTemplatesCommand,
   buildSaveDraftCommand,
@@ -23,7 +30,6 @@ import {
   type TemplateIdInput,
 } from "./domain/document-template-validation";
 import {
-  getGeneratedQcTemplateMetrics,
   syncGeneratedQcTemplates,
 } from "./generated-qc";
 import {
@@ -45,79 +51,14 @@ import type {
   DocsEditorTemplateDetailDto,
   DocsEditorTemplateListItemDto,
 } from "./types";
-
-type TemplateMetrics = {
-  stageCount?: number;
-  fieldCount?: number;
-  formulaCount?: number;
-  tableCount?: number;
-};
-
-type DocsEditorTemplateListRow = Omit<DocsEditorTemplateRow, "documentJson" | "fieldModelJson"> & {
-  documentJson?: string;
-  fieldModelJson?: string;
-};
-
-function parseJson(value: string | null | undefined, fallback: unknown) {
-  if (!value) return fallback;
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
-}
+import {
+  collectTemplateMetrics,
+  type DocsEditorTemplateListRow,
+} from "./template-metrics";
 
 function asStatus(value: string) {
   if (value === "published" || value === "archived") return value;
   return "draft";
-}
-
-function jsonArrayLength(value: string | null) {
-  const parsed = parseJson(value, []);
-  return Array.isArray(parsed) ? parsed.length : 0;
-}
-
-function walkJson(value: unknown, visit: (node: Record<string, unknown>) => void) {
-  if (Array.isArray(value)) {
-    value.forEach((item) => walkJson(item, visit));
-    return;
-  }
-  if (!value || typeof value !== "object") return;
-  const record = value as Record<string, unknown>;
-  visit(record);
-  Object.values(record).forEach((item) => walkJson(item, visit));
-}
-
-function collectMetrics(template: DocsEditorTemplateListRow): TemplateMetrics {
-  if (template.sourceKind === "production.qc.official") {
-    const metrics = getGeneratedQcTemplateMetrics(template.sourceProductKey);
-    if (metrics) return metrics;
-  }
-  if (template.documentJson === undefined || template.fieldModelJson === undefined) {
-    return { stageCount: jsonArrayLength(template.sourceStageKeys) };
-  }
-  const document = parseJson(template.documentJson, {});
-  const fieldModel = parseJson(template.fieldModelJson, {});
-  const fieldKeys = new Set<string>();
-  let formulaCount = 0;
-  let tableCount = 0;
-
-  walkJson(fieldModel, (node) => {
-    const fieldKey = node.fieldKey ?? node.key;
-    if (typeof fieldKey === "string" && fieldKey.trim()) fieldKeys.add(fieldKey);
-    if (node.formula || node.rule || node.advancedFormulaText) formulaCount += 1;
-  });
-  walkJson(document, (node) => {
-    const kind = node.kind ?? node.type ?? node.blockType;
-    if (kind === "table") tableCount += 1;
-  });
-
-  return {
-    stageCount: jsonArrayLength(template.sourceStageKeys),
-    fieldCount: fieldKeys.size,
-    formulaCount,
-    tableCount,
-  };
 }
 
 function roleOrViewer(role: DocsEditorPermissionRole | null): DocsEditorPermissionRole {
@@ -161,7 +102,7 @@ function toListItemDto(
     sourceKind: template.sourceKind,
     sourceProductKey: template.sourceProductKey,
     role,
-    ...collectMetrics(template),
+    ...collectTemplateMetrics(template),
   };
 }
 
@@ -169,10 +110,11 @@ async function templateDetailDto(
   template: DocsEditorTemplateRow,
   role: DocsEditorPermissionRole,
 ): Promise<DocsEditorTemplateDetailDto> {
+  const content = await readTemplateContent(template);
   return {
     ...toListItemDto(template, role),
-    document: parseJson(template.documentJson, {}),
-    fieldModel: parseJson(template.fieldModelJson, {}),
+    document: content.document,
+    fieldModel: content.fieldModel,
   };
 }
 
@@ -421,10 +363,16 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
     if (current.template.status === "archived") {
       return serviceError("已归档模板不能直接保存", 409);
     }
+    const contentUpdate = await writeTemplateContentUpdate({
+      templateId: command.data.templateId,
+      data: command.data.data,
+      existing: current.template,
+    });
     const updated = await db.documentTemplate.update({
       where: { id: command.data.templateId },
       data: {
-        ...command.data.data,
+        ...stripTemplateContentData(command.data.data),
+        ...contentUpdate,
         status: current.template.status === "published" ? "published" : "draft",
         ...(current.template.status === "published" ? { publishedAt: new Date(), publishedByUserId: command.data.userId } : {}),
         version: { increment: 1 },
@@ -451,7 +399,15 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
       sourceStageKeys: command.data.data.sourceStageKeys ?? null,
     },
   });
-  return serviceOk(await templateDetailDto(created, roleOrViewer(spaceRole)));
+  const createdContentUpdate = await writeTemplateContentUpdate({
+    templateId: created.id,
+    data: command.data.data,
+    existing: created,
+  });
+  const saved = Object.keys(createdContentUpdate).length
+    ? await db.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate })
+    : created;
+  return serviceOk(await templateDetailDto(saved, roleOrViewer(spaceRole)));
 }
 
 export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
@@ -470,6 +426,7 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
   if (!targetSpace) return serviceError("目标空间不存在", 404);
   const targetRole = await resolveSpaceRole(command.data.userId, targetSpace);
   if (!isDocsEditorRoleAtLeast(targetRole, "editor")) return serviceError("无权限", 403);
+  const sourceContent = await readTemplateContentJson(source.template);
 
   const created = await db.documentTemplate.create({
     data: {
@@ -478,14 +435,20 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
       status: "draft",
       ownerUserId: command.data.userId,
       spaceId: targetSpace.id,
-      documentJson: source.template.documentJson,
-      fieldModelJson: source.template.fieldModelJson,
+      documentJson: sourceContent.documentJson,
+      fieldModelJson: sourceContent.fieldModelJson,
       sourceKind: null,
       sourceProductKey: null,
       sourceStageKeys: source.template.sourceStageKeys,
     },
   });
-  return serviceOk(await templateDetailDto(created, roleOrViewer(targetRole)));
+  const createdContentUpdate = await writeTemplateContentUpdate({
+    templateId: created.id,
+    data: sourceContent,
+    existing: created,
+  });
+  const saved = await db.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate });
+  return serviceOk(await templateDetailDto(saved, roleOrViewer(targetRole)));
 }
 
 export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult<{ id: string }>> {
@@ -496,6 +459,7 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
   if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
   if (current.template.status !== "draft") return serviceError("只能删除草稿模板", 409);
   const db = docsEditorDb();
+  await deleteTemplateContentFiles(current.template);
   await db.documentTemplate.update({
     where: { id: command.data.templateId },
     data: { deletedAt: new Date(), version: { increment: 1 } },

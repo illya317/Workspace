@@ -38,6 +38,9 @@ const nextConfig: NextConfig = {
       : []),
   ],
   outputFileTracingRoot: workspaceRoot,
+  outputFileTracingExcludes: {
+    "/*": ["../.workspace/**/*"],
+  },
   turbopack: {
     root: workspaceRoot,
   },

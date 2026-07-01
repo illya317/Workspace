@@ -25,6 +25,12 @@ model DocumentTemplate {
   spaceId          Int
   documentJson     String
   fieldModelJson   String
+  documentContentRef String?
+  documentContentHash String?
+  documentContentBytes Int?
+  fieldModelContentRef String?
+  fieldModelContentHash String?
+  fieldModelContentBytes Int?
   sourceKind       String?
   sourceProductKey String?
   sourceStageKeys  String?
@@ -39,6 +45,7 @@ model DocumentTemplate {
   @@index([spaceId, deletedAt])
   @@index([ownerUserId])
   @@index([sourceKind, sourceProductKey])
+  @@index([documentContentRef])
 }
 
 /// 文档模板空间显式 user 级授权：viewer/editor/delete/manager

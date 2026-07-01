@@ -1,6 +1,9 @@
 import "server-only";
 
 import { prisma } from "../prisma";
+import {
+  readTemplateContent,
+} from "./content-store";
 
 export interface PublishedQcOfficialTemplate {
   templateId: number;
@@ -58,21 +61,14 @@ export async function getPublishedQcOfficialTemplateByProductKey(productKey: str
     orderBy: [{ version: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
   });
   if (!row?.sourceProductKey) return null;
+  const content = await readTemplateContent(row);
   return {
     templateId: row.id,
     templateVersion: row.version,
     productKey: row.sourceProductKey,
     productName: row.title.replace(/^批检验记录：/, ""),
-    document: parseJson(row.documentJson, {}),
-    fieldModel: parseJson(row.fieldModelJson, {}),
+    document: content.document,
+    fieldModel: content.fieldModel,
     updatedAt: row.updatedAt.toISOString(),
   };
-}
-
-function parseJson(value: string, fallback: unknown) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
 }

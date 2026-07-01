@@ -61,6 +61,11 @@
 | notifications | Notification[] | @relation("NotificationRecipient") |  |
 | createdNotifications | Notification[] | @relation("NotificationActor") |  |
 | workScopePermissions | WorkScopePermission[] | - |  |
+| workReports | WorkReport[] | @relation("WorkReportSubmitter") |  |
+| ownedMeetings | Meeting[] | @relation("MeetingOwner") |  |
+| secretariedMeetings | Meeting[] | @relation("MeetingSecretary") |  |
+| meetingParticipations | MeetingParticipant[] | @relation("MeetingParticipantUser") |  |
+| meetingVotes | MeetingVote[] | @relation("MeetingVoteUser") |  |
 
 ### Resource
 
@@ -184,6 +189,62 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | editor | User? | @relation("ContractEditor", fields: [editedBy], references: [id]) |  |
+
+### DocumentTemplateSpace
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| targetType | String | - |  |
+| targetId | Int | - |  |
+| title | String | - |  |
+| description | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| deletedAt | DateTime? | - |  |
+| templates | DocumentTemplate[] | - |  |
+
+### DocumentTemplate
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| title | String | - |  |
+| type | String | - |  |
+| status | String | @default("draft") |  |
+| ownerUserId | Int? | - |  |
+| spaceId | Int | - |  |
+| documentJson | String | - |  |
+| fieldModelJson | String | - |  |
+| documentContentRef | String? | - |  |
+| documentContentHash | String? | - |  |
+| documentContentBytes | Int? | - |  |
+| fieldModelContentRef | String? | - |  |
+| fieldModelContentHash | String? | - |  |
+| fieldModelContentBytes | Int? | - |  |
+| sourceKind | String? | - |  |
+| sourceProductKey | String? | - |  |
+| sourceStageKeys | String? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| deletedAt | DateTime? | - |  |
+| publishedAt | DateTime? | - |  |
+| publishedByUserId | Int? | - |  |
+| space | DocumentTemplateSpace | @relation(fields: [spaceId], references: [id], onDelete: Cascade) |  |
+
+### DocumentTemplateSpacePermission
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| targetType | String | - |  |
+| targetId | Int | - |  |
+| userId | Int | - |  |
+| role | String | - |  |
+| kind | String | @default("template") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
 
 ### FinanceBudgetVersion
 
@@ -853,6 +914,7 @@
 | projectTasks | ProjectTask[] | @relation("ProjectTaskOwner") |  |
 | projectTaskAssignments | ProjectTaskAssignment[] | - |  |
 | ownedWorkItems | WorkItem[] | @relation("WorkItemOwner") |  |
+| ownedWorkPlans | WorkPlan[] | @relation("WorkPlanOwner") |  |
 | employments | Employment[] | - |  |
 | financeSalesSalaries | FinanceSalesSalary[] | - |  |
 | financeShipments | FinanceShipment[] | - |  |
@@ -1355,6 +1417,207 @@
 | success | Boolean | - |  |
 | createdAt | DateTime | @default(now()) |  |
 
+### MeetingType
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| name | String | - |  |
+| description | String | @default("") |  |
+| defaultVisibility | String | @default("participants_only") |  |
+| sortOrder | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| series | MeetingSeries[] | - |  |
+| meetings | Meeting[] | - |  |
+
+### MeetingSeries
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| typeId | Int | - |  |
+| title | String | - |  |
+| description | String | @default("") |  |
+| cadence | String? | - |  |
+| defaultVisibility | String | @default("participants_only") |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| type | MeetingType | @relation(fields: [typeId], references: [id], onDelete: Restrict) |  |
+| meetings | Meeting[] | - |  |
+
+### Meeting
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| typeId | Int | - |  |
+| seriesId | Int? | - |  |
+| title | String | - |  |
+| description | String | @default("") |  |
+| startAt | DateTime? | - |  |
+| endAt | DateTime? | - |  |
+| location | String | @default("") |  |
+| visibility | String | @default("participants_only") |  |
+| status | String | @default("scheduled") |  |
+| ownerUserId | Int? | - |  |
+| secretaryUserId | Int? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| type | MeetingType | @relation(fields: [typeId], references: [id], onDelete: Restrict) |  |
+| series | MeetingSeries? | @relation(fields: [seriesId], references: [id], onDelete: SetNull) |  |
+| owner | User? | @relation("MeetingOwner", fields: [ownerUserId], references: [id], onDelete: SetNull) |  |
+| secretary | User? | @relation("MeetingSecretary", fields: [secretaryUserId], references: [id], onDelete: SetNull) |  |
+| participants | MeetingParticipant[] | - |  |
+| agendaItems | MeetingAgendaItem[] | - |  |
+| minuteEntries | MeetingMinuteEntry[] | - |  |
+| proposals | MeetingProposal[] | - |  |
+| decisions | MeetingDecision[] | - |  |
+| actionCandidates | MeetingActionCandidate[] | - |  |
+| sourceWorkItems | WorkItem[] | @relation("WorkItemSourceMeeting") |  |
+| sourceWorkPlans | WorkPlan[] | @relation("WorkPlanSourceMeeting") |  |
+
+### MeetingParticipant
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| userId | Int | - |  |
+| role | String | @default("participant") |  |
+| canVote | Boolean | @default(false) |  |
+| attendanceStatus | String | @default("invited") |  |
+| createdAt | DateTime | @default(now()) |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| user | User | @relation("MeetingParticipantUser", fields: [userId], references: [id], onDelete: Cascade) |  |
+
+### MeetingAgendaItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| title | String | - |  |
+| description | String | @default("") |  |
+| presenterUserId | Int? | - |  |
+| sortOrder | Int | @default(0) |  |
+| status | String | @default("open") |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| minuteEntries | MeetingMinuteEntry[] | - |  |
+| proposals | MeetingProposal[] | - |  |
+| decisions | MeetingDecision[] | - |  |
+| actionCandidates | MeetingActionCandidate[] | - |  |
+
+### MeetingMinuteEntry
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| agendaItemId | Int? | - |  |
+| content | String | - |  |
+| kind | String | @default("note") |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| agendaItem | MeetingAgendaItem? | @relation(fields: [agendaItemId], references: [id], onDelete: SetNull) |  |
+
+### MeetingProposal
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| agendaItemId | Int? | - |  |
+| title | String | - |  |
+| content | String | @default("") |  |
+| status | String | @default("open") |  |
+| voteVisibility | String | @default("named") |  |
+| minVotesRequired | Int? | - |  |
+| createdBy | Int? | - |  |
+| closedBy | Int? | - |  |
+| closedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| agendaItem | MeetingAgendaItem? | @relation(fields: [agendaItemId], references: [id], onDelete: SetNull) |  |
+| votes | MeetingVote[] | - |  |
+| decisions | MeetingDecision[] | - |  |
+
+### MeetingVote
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| proposalId | Int | - |  |
+| voterUserId | Int | - |  |
+| choice | String | - |  |
+| note | String | @default("") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| proposal | MeetingProposal | @relation(fields: [proposalId], references: [id], onDelete: Cascade) |  |
+| voter | User | @relation("MeetingVoteUser", fields: [voterUserId], references: [id], onDelete: Cascade) |  |
+
+### MeetingDecision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| agendaItemId | Int? | - |  |
+| proposalId | Int? | - |  |
+| kind | String | @default("decision") |  |
+| title | String | - |  |
+| content | String | @default("") |  |
+| status | String | @default("active") |  |
+| effectiveDate | DateTime? | - |  |
+| decidedAt | DateTime | @default(now()) |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| agendaItem | MeetingAgendaItem? | @relation(fields: [agendaItemId], references: [id], onDelete: SetNull) |  |
+| proposal | MeetingProposal? | @relation(fields: [proposalId], references: [id], onDelete: SetNull) |  |
+| actionCandidates | MeetingActionCandidate[] | - |  |
+| sourceWorkItems | WorkItem[] | @relation("WorkItemSourceMeetingDecision") |  |
+| sourceWorkPlans | WorkPlan[] | @relation("WorkPlanSourceMeetingDecision") |  |
+| sourceProjectTasks | ProjectTask[] | @relation("ProjectTaskSourceMeetingDecision") |  |
+
+### MeetingActionCandidate
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| meetingId | Int | - |  |
+| agendaItemId | Int? | - |  |
+| decisionId | Int? | - |  |
+| title | String | - |  |
+| description | String | @default("") |  |
+| targetKind | String | @default("work_item") |  |
+| status | String | @default("candidate") |  |
+| linkedWorkItemId | Int? | - |  |
+| linkedWorkPlanId | Int? | - |  |
+| linkedProjectTaskId | Int? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| meeting | Meeting | @relation(fields: [meetingId], references: [id], onDelete: Cascade) |  |
+| agendaItem | MeetingAgendaItem? | @relation(fields: [agendaItemId], references: [id], onDelete: SetNull) |  |
+| decision | MeetingDecision? | @relation(fields: [decisionId], references: [id], onDelete: SetNull) |  |
+| linkedWorkItem | WorkItem? | @relation("MeetingActionCandidateWorkItem", fields: [linkedWorkItemId], references: [id], onDelete: SetNull) |  |
+| linkedWorkPlan | WorkPlan? | @relation("MeetingActionCandidateWorkPlan", fields: [linkedWorkPlanId], references: [id], onDelete: SetNull) |  |
+| linkedProjectTask | ProjectTask? | @relation("MeetingActionCandidateProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull) |  |
+| sourceWorkItems | WorkItem[] | @relation("WorkItemSourceMeetingActionCandidate") |  |
+| sourceWorkPlans | WorkPlan[] | @relation("WorkPlanSourceMeetingActionCandidate") |  |
+| sourceProjectTasks | ProjectTask[] | @relation("ProjectTaskSourceMeetingActionCandidate") |  |
+
 ### Project
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1363,6 +1626,7 @@
 | code | String? | @unique |  |
 | name | String | - |  |
 | description | String? | - |  |
+| projectType | String | @default("department") |  |
 | projectLevel | String | @default("普通") |  |
 | plan | String? | - |  |
 | goal | String? | - |  |
@@ -1371,11 +1635,14 @@
 | budgetNote | String? | - |  |
 | riskNote | String? | - |  |
 | remark | String? | - |  |
+| baselineStartDate | DateTime? | - |  |
+| baselineEndDate | DateTime? | - |  |
 | startDate | DateTime? | - |  |
 | endDate | DateTime? | - |  |
 | completionPercent | Float? | - |  |
 | closureType | String? | - |  |
 | leadingDepartmentId | Int? | - |  |
+| parentProjectTaskId | Int? | @unique |  |
 | isArchived | Boolean | @default(false) |  |
 | archivedAt | DateTime? | - |  |
 | createdBy | Int? | - |  |
@@ -1385,6 +1652,7 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | leadingDepartment | Department? | @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull) |  |
+| parentProjectTask | ProjectTask? | @relation("ProjectTaskChildProject", fields: [parentProjectTaskId], references: [id], onDelete: Restrict) |  |
 | employees | EmployeeProject[] | - |  |
 | tasks | ProjectTask[] | - |  |
 | planPhases | ProjectPlanPhase[] | @relation("ProjectPlanPhases") |  |
@@ -1392,6 +1660,7 @@
 | planBaselines | ProjectPlanBaseline[] | @relation("ProjectPlanBaselines") |  |
 | workAssignees | ProjectWorkAssignee[] | - |  |
 | linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProject") |  |
+| linkedWorkPlans | WorkPlan[] | @relation("WorkPlanLinkedProject") |  |
 
 ### EmployeeProject
 
@@ -1430,6 +1699,8 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | project | Project | @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade) |  |
 | tasks | ProjectTask[] | @relation("ProjectTaskPlanPhase") |  |
+| linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProjectPhase") |  |
+| linkedWorkPlans | WorkPlan[] | @relation("WorkPlanLinkedProjectPhase") |  |
 
 ### ProjectPlanDependency
 
@@ -1502,6 +1773,8 @@
 | baselineEndDate | DateTime? | - |  |
 | startDate | DateTime? | - |  |
 | endDate | DateTime? | - |  |
+| sourceMeetingDecisionId | Int? | - |  |
+| sourceMeetingActionCandidateId | Int? | - |  |
 | sortOrder | Int | @default(0) |  |
 | createdBy | Int? | - |  |
 | editedBy | Int? | - |  |
@@ -1512,8 +1785,13 @@
 | project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
 | planPhase | ProjectPlanPhase? | @relation("ProjectTaskPlanPhase", fields: [planPhaseId], references: [id], onDelete: SetNull) |  |
 | owner | Employee? | @relation("ProjectTaskOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingDecision | MeetingDecision? | @relation("ProjectTaskSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingActionCandidate | MeetingActionCandidate? | @relation("ProjectTaskSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull) |  |
+| childProject | Project? | @relation("ProjectTaskChildProject") |  |
 | assignees | ProjectTaskAssignment[] | - |  |
 | linkedWorkItems | WorkItem[] | @relation("WorkItemLinkedProjectTask") |  |
+| linkedWorkPlans | WorkPlan[] | @relation("WorkPlanLinkedProjectTask") |  |
+| meetingActionCandidates | MeetingActionCandidate[] | @relation("MeetingActionCandidateProjectTask") |  |
 
 ### ProjectTaskAssignment
 
@@ -1531,35 +1809,93 @@
 | task | ProjectTask | @relation(fields: [taskId], references: [id], onDelete: Cascade) |  |
 | employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
 
-### WorkItem
+### WorkPlan
 
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
 | targetType | String | @default("personal") |  |
+| targetId | Int | - |  |
+| kind | String | @default("okr") |  |
+| title | String | - |  |
+| description | String | @default("") |  |
+| status | String | @default("active") |  |
+| ownerEmployeeId | Int? | - |  |
+| periodType | String? | - |  |
+| periodStart | DateTime? | - |  |
+| periodEnd | DateTime? | - |  |
+| sourceType | String | @default("other") |  |
+| sourceKind | String? | - |  |
+| sourceMeetingId | Int? | - |  |
+| sourceMeetingDecisionId | Int? | - |  |
+| sourceMeetingActionCandidateId | Int? | - |  |
+| linkedProjectId | Int? | - |  |
+| linkedProjectPhaseId | Int? | - |  |
+| linkedProjectTaskId | Int? | - |  |
+| sortOrder | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| owner | Employee? | @relation("WorkPlanOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
+| linkedProject | Project? | @relation("WorkPlanLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull) |  |
+| linkedProjectPhase | ProjectPlanPhase? | @relation("WorkPlanLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull) |  |
+| linkedProjectTask | ProjectTask? | @relation("WorkPlanLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull) |  |
+| sourceMeeting | Meeting? | @relation("WorkPlanSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingDecision | MeetingDecision? | @relation("WorkPlanSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingActionCandidate | MeetingActionCandidate? | @relation("WorkPlanSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull) |  |
+| items | WorkItem[] | - |  |
+| meetingActionCandidates | MeetingActionCandidate[] | @relation("MeetingActionCandidateWorkPlan") |  |
+
+### WorkItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| planId | Int? | - |  |
+| targetType | String | @default("personal") |  |
 | targetId | Int? | - |  |
 | category | String | - |  |
+| itemType | String | @default("task") |  |
 | content | String | - |  |
 | description | String | @default("") |  |
 | importance | Int | @default(3) |  |
 | urgency | Int | @default(3) |  |
 | status | String? | - |  |
+| krStartValue | Float? | - |  |
+| krTargetValue | Float? | - |  |
+| krCurrentValue | Float? | - |  |
+| krUnit | String? | - |  |
 | ownerEmployeeId | Int? | - |  |
 | startDate | DateTime? | - |  |
 | dueDate | DateTime? | - |  |
+| periodType | String? | - |  |
+| periodStart | DateTime? | - |  |
+| periodEnd | DateTime? | - |  |
+| sourceType | String | @default("other") |  |
+| sourceKind | String? | - |  |
+| sourceMeetingId | Int? | - |  |
+| sourceMeetingDecisionId | Int? | - |  |
+| sourceMeetingActionCandidateId | Int? | - |  |
 | linkedProjectId | Int? | - |  |
+| linkedProjectPhaseId | Int? | - |  |
 | linkedProjectTaskId | Int? | - |  |
 | parentWorkItemId | Int? | - |  |
 | isArchived | Boolean | @default(false) |  |
 | isPrivate | Boolean | @default(false) |  |
 | sortOrder | Int | @default(0) |  |
 | createdAt | DateTime | @default(now()) |  |
+| plan | WorkPlan? | @relation(fields: [planId], references: [id], onDelete: Cascade) |  |
 | participants | WorkParticipant[] | - |  |
 | owner | Employee? | @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
 | linkedProject | Project? | @relation("WorkItemLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull) |  |
+| linkedProjectPhase | ProjectPlanPhase? | @relation("WorkItemLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull) |  |
 | linkedProjectTask | ProjectTask? | @relation("WorkItemLinkedProjectTask", fields: [linkedProjectTaskId], references: [id], onDelete: SetNull) |  |
+| sourceMeeting | Meeting? | @relation("WorkItemSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingDecision | MeetingDecision? | @relation("WorkItemSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull) |  |
+| sourceMeetingActionCandidate | MeetingActionCandidate? | @relation("WorkItemSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull) |  |
 | parentWorkItem | WorkItem? | @relation("WorkItemHierarchy", fields: [parentWorkItemId], references: [id], onDelete: SetNull) |  |
 | childWorkItems | WorkItem[] | @relation("WorkItemHierarchy") |  |
+| meetingActionCandidates | MeetingActionCandidate[] | @relation("MeetingActionCandidateWorkItem") |  |
+| reportItems | WorkReportItem[] | - |  |
 
 ### WorkParticipant
 
@@ -1607,4 +1943,36 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | user | User | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
+
+### WorkReport
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| targetType | String | - |  |
+| targetId | Int | - |  |
+| periodType | String | @default("weekly") |  |
+| periodStart | DateTime | - |  |
+| periodEnd | DateTime | - |  |
+| submittedBy | Int | - |  |
+| submittedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| submitter | User | @relation("WorkReportSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade) |  |
+| items | WorkReportItem[] | - |  |
+
+### WorkReportItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| reportId | Int | - |  |
+| workItemId | Int? | - |  |
+| title | String | - |  |
+| previousPlanSnapshot | String | @default("") |  |
+| doneThisWeek | String | @default("") |  |
+| planNextWeek | String | @default("") |  |
+| sortOrder | Int | @default(0) |  |
+| report | WorkReport | @relation(fields: [reportId], references: [id], onDelete: Cascade) |  |
+| workItem | WorkItem? | @relation(fields: [workItemId], references: [id], onDelete: SetNull) |  |
 

@@ -8,6 +8,9 @@ import type {
   DocsEditorSpaceRow,
   DocsEditorTemplateRow,
 } from "./db";
+import {
+  writeTemplateContentJson,
+} from "./content-store";
 
 type GeneratedQcMetrics = {
   stageCount?: number;
@@ -124,40 +127,46 @@ async function upsertGeneratedQcTemplate(
     status: "published",
     ownerUserId: null,
     spaceId: space.id,
-    documentJson: JSON.stringify(payload.document),
-    fieldModelJson: JSON.stringify(payload.fieldModel),
     sourceKind: SOURCE_KIND,
     sourceProductKey: payload.productKey,
     sourceStageKeys: SOURCE_STAGE_KEYS,
     publishedAt: payload.generatedAt ? new Date(payload.generatedAt) : null,
     publishedByUserId: null,
   };
+  const content = {
+    documentJson: JSON.stringify(payload.document),
+    fieldModelJson: JSON.stringify(payload.fieldModel),
+  };
   if (existing) {
     if (existing.publishedByUserId !== null) return false;
-    if (
-      existing.title === data.title
-      && existing.type === data.type
-      && existing.status === data.status
-      && existing.ownerUserId === data.ownerUserId
-      && existing.spaceId === data.spaceId
-      && existing.documentJson === data.documentJson
-      && existing.fieldModelJson === data.fieldModelJson
-      && existing.sourceKind === data.sourceKind
-      && existing.sourceProductKey === data.sourceProductKey
-      && existing.sourceStageKeys === data.sourceStageKeys
-      && sameTime(existing.publishedAt, data.publishedAt)
-      && existing.publishedByUserId === data.publishedByUserId
-    ) return false;
+    const contentMetadata = await writeTemplateContentJson({ templateId: existing.id, ...content });
     await db.documentTemplate.update({
       where: { id: existing.id },
       data: {
         ...data,
+        ...contentMetadata,
+        documentJson: "{}",
+        fieldModelJson: "{}",
         version: { increment: 1 },
       },
     });
     return true;
   }
-  await db.documentTemplate.create({ data });
+  const created = await db.documentTemplate.create({
+    data: {
+      ...data,
+      ...content,
+    },
+  });
+  const contentMetadata = await writeTemplateContentJson({ templateId: created.id, ...content });
+  await db.documentTemplate.update({
+    where: { id: created.id },
+    data: {
+      ...contentMetadata,
+      documentJson: "{}",
+      fieldModelJson: "{}",
+    },
+  });
   return true;
 }
 

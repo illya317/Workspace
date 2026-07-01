@@ -30,6 +30,8 @@ export type DocumentTemplateAvgAggregateOutputType = {
   id: number | null
   ownerUserId: number | null
   spaceId: number | null
+  documentContentBytes: number | null
+  fieldModelContentBytes: number | null
   version: number | null
   publishedByUserId: number | null
 }
@@ -38,6 +40,8 @@ export type DocumentTemplateSumAggregateOutputType = {
   id: number | null
   ownerUserId: number | null
   spaceId: number | null
+  documentContentBytes: number | null
+  fieldModelContentBytes: number | null
   version: number | null
   publishedByUserId: number | null
 }
@@ -51,6 +55,12 @@ export type DocumentTemplateMinAggregateOutputType = {
   spaceId: number | null
   documentJson: string | null
   fieldModelJson: string | null
+  documentContentRef: string | null
+  documentContentHash: string | null
+  documentContentBytes: number | null
+  fieldModelContentRef: string | null
+  fieldModelContentHash: string | null
+  fieldModelContentBytes: number | null
   sourceKind: string | null
   sourceProductKey: string | null
   sourceStageKeys: string | null
@@ -71,6 +81,12 @@ export type DocumentTemplateMaxAggregateOutputType = {
   spaceId: number | null
   documentJson: string | null
   fieldModelJson: string | null
+  documentContentRef: string | null
+  documentContentHash: string | null
+  documentContentBytes: number | null
+  fieldModelContentRef: string | null
+  fieldModelContentHash: string | null
+  fieldModelContentBytes: number | null
   sourceKind: string | null
   sourceProductKey: string | null
   sourceStageKeys: string | null
@@ -91,6 +107,12 @@ export type DocumentTemplateCountAggregateOutputType = {
   spaceId: number
   documentJson: number
   fieldModelJson: number
+  documentContentRef: number
+  documentContentHash: number
+  documentContentBytes: number
+  fieldModelContentRef: number
+  fieldModelContentHash: number
+  fieldModelContentBytes: number
   sourceKind: number
   sourceProductKey: number
   sourceStageKeys: number
@@ -108,6 +130,8 @@ export type DocumentTemplateAvgAggregateInputType = {
   id?: true
   ownerUserId?: true
   spaceId?: true
+  documentContentBytes?: true
+  fieldModelContentBytes?: true
   version?: true
   publishedByUserId?: true
 }
@@ -116,6 +140,8 @@ export type DocumentTemplateSumAggregateInputType = {
   id?: true
   ownerUserId?: true
   spaceId?: true
+  documentContentBytes?: true
+  fieldModelContentBytes?: true
   version?: true
   publishedByUserId?: true
 }
@@ -129,6 +155,12 @@ export type DocumentTemplateMinAggregateInputType = {
   spaceId?: true
   documentJson?: true
   fieldModelJson?: true
+  documentContentRef?: true
+  documentContentHash?: true
+  documentContentBytes?: true
+  fieldModelContentRef?: true
+  fieldModelContentHash?: true
+  fieldModelContentBytes?: true
   sourceKind?: true
   sourceProductKey?: true
   sourceStageKeys?: true
@@ -149,6 +181,12 @@ export type DocumentTemplateMaxAggregateInputType = {
   spaceId?: true
   documentJson?: true
   fieldModelJson?: true
+  documentContentRef?: true
+  documentContentHash?: true
+  documentContentBytes?: true
+  fieldModelContentRef?: true
+  fieldModelContentHash?: true
+  fieldModelContentBytes?: true
   sourceKind?: true
   sourceProductKey?: true
   sourceStageKeys?: true
@@ -169,6 +207,12 @@ export type DocumentTemplateCountAggregateInputType = {
   spaceId?: true
   documentJson?: true
   fieldModelJson?: true
+  documentContentRef?: true
+  documentContentHash?: true
+  documentContentBytes?: true
+  fieldModelContentRef?: true
+  fieldModelContentHash?: true
+  fieldModelContentBytes?: true
   sourceKind?: true
   sourceProductKey?: true
   sourceStageKeys?: true
@@ -276,6 +320,12 @@ export type DocumentTemplateGroupByOutputType = {
   spaceId: number
   documentJson: string
   fieldModelJson: string
+  documentContentRef: string | null
+  documentContentHash: string | null
+  documentContentBytes: number | null
+  fieldModelContentRef: string | null
+  fieldModelContentHash: string | null
+  fieldModelContentBytes: number | null
   sourceKind: string | null
   sourceProductKey: string | null
   sourceStageKeys: string | null
@@ -319,6 +369,12 @@ export type DocumentTemplateWhereInput = {
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
+  documentContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
+  fieldModelContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   sourceKind?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceProductKey?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceStageKeys?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
@@ -340,6 +396,12 @@ export type DocumentTemplateOrderByWithRelationInput = {
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
+  documentContentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentContentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKind?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceProductKey?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceStageKeys?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -364,6 +426,12 @@ export type DocumentTemplateWhereUniqueInput = Prisma.AtLeast<{
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
+  documentContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
+  fieldModelContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   sourceKind?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceProductKey?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceStageKeys?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
@@ -385,6 +453,12 @@ export type DocumentTemplateOrderByWithAggregationInput = {
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
+  documentContentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentContentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentRef?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentHash?: Prisma.SortOrderInput | Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKind?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceProductKey?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceStageKeys?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -413,6 +487,12 @@ export type DocumentTemplateScalarWhereWithAggregatesInput = {
   spaceId?: Prisma.IntWithAggregatesFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringWithAggregatesFilter<"DocumentTemplate"> | string
+  documentContentRef?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
+  documentContentHash?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
+  documentContentBytes?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplate"> | number | null
+  fieldModelContentRef?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
+  fieldModelContentHash?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
+  fieldModelContentBytes?: Prisma.IntNullableWithAggregatesFilter<"DocumentTemplate"> | number | null
   sourceKind?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
   sourceProductKey?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
   sourceStageKeys?: Prisma.StringNullableWithAggregatesFilter<"DocumentTemplate"> | string | null
@@ -431,6 +511,12 @@ export type DocumentTemplateCreateInput = {
   ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -452,6 +538,12 @@ export type DocumentTemplateUncheckedCreateInput = {
   spaceId: number
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -470,6 +562,12 @@ export type DocumentTemplateUpdateInput = {
   ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -491,6 +589,12 @@ export type DocumentTemplateUncheckedUpdateInput = {
   spaceId?: Prisma.IntFieldUpdateOperationsInput | number
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -511,6 +615,12 @@ export type DocumentTemplateCreateManyInput = {
   spaceId: number
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -529,6 +639,12 @@ export type DocumentTemplateUpdateManyMutationInput = {
   ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -549,6 +665,12 @@ export type DocumentTemplateUncheckedUpdateManyInput = {
   spaceId?: Prisma.IntFieldUpdateOperationsInput | number
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -579,6 +701,12 @@ export type DocumentTemplateCountOrderByAggregateInput = {
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
+  documentContentRef?: Prisma.SortOrder
+  documentContentHash?: Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrder
+  fieldModelContentRef?: Prisma.SortOrder
+  fieldModelContentHash?: Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceProductKey?: Prisma.SortOrder
   sourceStageKeys?: Prisma.SortOrder
@@ -594,6 +722,8 @@ export type DocumentTemplateAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrder
   version?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
 }
@@ -607,6 +737,12 @@ export type DocumentTemplateMaxOrderByAggregateInput = {
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
+  documentContentRef?: Prisma.SortOrder
+  documentContentHash?: Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrder
+  fieldModelContentRef?: Prisma.SortOrder
+  fieldModelContentHash?: Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceProductKey?: Prisma.SortOrder
   sourceStageKeys?: Prisma.SortOrder
@@ -627,6 +763,12 @@ export type DocumentTemplateMinOrderByAggregateInput = {
   spaceId?: Prisma.SortOrder
   documentJson?: Prisma.SortOrder
   fieldModelJson?: Prisma.SortOrder
+  documentContentRef?: Prisma.SortOrder
+  documentContentHash?: Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrder
+  fieldModelContentRef?: Prisma.SortOrder
+  fieldModelContentHash?: Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrder
   sourceKind?: Prisma.SortOrder
   sourceProductKey?: Prisma.SortOrder
   sourceStageKeys?: Prisma.SortOrder
@@ -642,6 +784,8 @@ export type DocumentTemplateSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   ownerUserId?: Prisma.SortOrder
   spaceId?: Prisma.SortOrder
+  documentContentBytes?: Prisma.SortOrder
+  fieldModelContentBytes?: Prisma.SortOrder
   version?: Prisma.SortOrder
   publishedByUserId?: Prisma.SortOrder
 }
@@ -695,6 +839,12 @@ export type DocumentTemplateCreateWithoutSpaceInput = {
   ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -714,6 +864,12 @@ export type DocumentTemplateUncheckedCreateWithoutSpaceInput = {
   ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -762,6 +918,12 @@ export type DocumentTemplateScalarWhereInput = {
   spaceId?: Prisma.IntFilter<"DocumentTemplate"> | number
   documentJson?: Prisma.StringFilter<"DocumentTemplate"> | string
   fieldModelJson?: Prisma.StringFilter<"DocumentTemplate"> | string
+  documentContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  documentContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
+  fieldModelContentRef?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentHash?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
+  fieldModelContentBytes?: Prisma.IntNullableFilter<"DocumentTemplate"> | number | null
   sourceKind?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceProductKey?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
   sourceStageKeys?: Prisma.StringNullableFilter<"DocumentTemplate"> | string | null
@@ -781,6 +943,12 @@ export type DocumentTemplateCreateManySpaceInput = {
   ownerUserId?: number | null
   documentJson: string
   fieldModelJson: string
+  documentContentRef?: string | null
+  documentContentHash?: string | null
+  documentContentBytes?: number | null
+  fieldModelContentRef?: string | null
+  fieldModelContentHash?: string | null
+  fieldModelContentBytes?: number | null
   sourceKind?: string | null
   sourceProductKey?: string | null
   sourceStageKeys?: string | null
@@ -799,6 +967,12 @@ export type DocumentTemplateUpdateWithoutSpaceInput = {
   ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -818,6 +992,12 @@ export type DocumentTemplateUncheckedUpdateWithoutSpaceInput = {
   ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -837,6 +1017,12 @@ export type DocumentTemplateUncheckedUpdateManyWithoutSpaceInput = {
   ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   documentJson?: Prisma.StringFieldUpdateOperationsInput | string
   fieldModelJson?: Prisma.StringFieldUpdateOperationsInput | string
+  documentContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  documentContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fieldModelContentRef?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fieldModelContentBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceProductKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceStageKeys?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -859,6 +1045,12 @@ export type DocumentTemplateSelect<ExtArgs extends runtime.Types.Extensions.Inte
   spaceId?: boolean
   documentJson?: boolean
   fieldModelJson?: boolean
+  documentContentRef?: boolean
+  documentContentHash?: boolean
+  documentContentBytes?: boolean
+  fieldModelContentRef?: boolean
+  fieldModelContentHash?: boolean
+  fieldModelContentBytes?: boolean
   sourceKind?: boolean
   sourceProductKey?: boolean
   sourceStageKeys?: boolean
@@ -880,6 +1072,12 @@ export type DocumentTemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   spaceId?: boolean
   documentJson?: boolean
   fieldModelJson?: boolean
+  documentContentRef?: boolean
+  documentContentHash?: boolean
+  documentContentBytes?: boolean
+  fieldModelContentRef?: boolean
+  fieldModelContentHash?: boolean
+  fieldModelContentBytes?: boolean
   sourceKind?: boolean
   sourceProductKey?: boolean
   sourceStageKeys?: boolean
@@ -901,6 +1099,12 @@ export type DocumentTemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   spaceId?: boolean
   documentJson?: boolean
   fieldModelJson?: boolean
+  documentContentRef?: boolean
+  documentContentHash?: boolean
+  documentContentBytes?: boolean
+  fieldModelContentRef?: boolean
+  fieldModelContentHash?: boolean
+  fieldModelContentBytes?: boolean
   sourceKind?: boolean
   sourceProductKey?: boolean
   sourceStageKeys?: boolean
@@ -922,6 +1126,12 @@ export type DocumentTemplateSelectScalar = {
   spaceId?: boolean
   documentJson?: boolean
   fieldModelJson?: boolean
+  documentContentRef?: boolean
+  documentContentHash?: boolean
+  documentContentBytes?: boolean
+  fieldModelContentRef?: boolean
+  fieldModelContentHash?: boolean
+  fieldModelContentBytes?: boolean
   sourceKind?: boolean
   sourceProductKey?: boolean
   sourceStageKeys?: boolean
@@ -933,7 +1143,7 @@ export type DocumentTemplateSelectScalar = {
   publishedByUserId?: boolean
 }
 
-export type DocumentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "status" | "ownerUserId" | "spaceId" | "documentJson" | "fieldModelJson" | "sourceKind" | "sourceProductKey" | "sourceStageKeys" | "version" | "createdAt" | "updatedAt" | "deletedAt" | "publishedAt" | "publishedByUserId", ExtArgs["result"]["documentTemplate"]>
+export type DocumentTemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "type" | "status" | "ownerUserId" | "spaceId" | "documentJson" | "fieldModelJson" | "documentContentRef" | "documentContentHash" | "documentContentBytes" | "fieldModelContentRef" | "fieldModelContentHash" | "fieldModelContentBytes" | "sourceKind" | "sourceProductKey" | "sourceStageKeys" | "version" | "createdAt" | "updatedAt" | "deletedAt" | "publishedAt" | "publishedByUserId", ExtArgs["result"]["documentTemplate"]>
 export type DocumentTemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   space?: boolean | Prisma.DocumentTemplateSpaceDefaultArgs<ExtArgs>
 }
@@ -958,6 +1168,12 @@ export type $DocumentTemplatePayload<ExtArgs extends runtime.Types.Extensions.In
     spaceId: number
     documentJson: string
     fieldModelJson: string
+    documentContentRef: string | null
+    documentContentHash: string | null
+    documentContentBytes: number | null
+    fieldModelContentRef: string | null
+    fieldModelContentHash: string | null
+    fieldModelContentBytes: number | null
     sourceKind: string | null
     sourceProductKey: string | null
     sourceStageKeys: string | null
@@ -1399,6 +1615,12 @@ export interface DocumentTemplateFieldRefs {
   readonly spaceId: Prisma.FieldRef<"DocumentTemplate", 'Int'>
   readonly documentJson: Prisma.FieldRef<"DocumentTemplate", 'String'>
   readonly fieldModelJson: Prisma.FieldRef<"DocumentTemplate", 'String'>
+  readonly documentContentRef: Prisma.FieldRef<"DocumentTemplate", 'String'>
+  readonly documentContentHash: Prisma.FieldRef<"DocumentTemplate", 'String'>
+  readonly documentContentBytes: Prisma.FieldRef<"DocumentTemplate", 'Int'>
+  readonly fieldModelContentRef: Prisma.FieldRef<"DocumentTemplate", 'String'>
+  readonly fieldModelContentHash: Prisma.FieldRef<"DocumentTemplate", 'String'>
+  readonly fieldModelContentBytes: Prisma.FieldRef<"DocumentTemplate", 'Int'>
   readonly sourceKind: Prisma.FieldRef<"DocumentTemplate", 'String'>
   readonly sourceProductKey: Prisma.FieldRef<"DocumentTemplate", 'String'>
   readonly sourceStageKeys: Prisma.FieldRef<"DocumentTemplate", 'String'>

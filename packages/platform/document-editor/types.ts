@@ -117,6 +117,7 @@ export interface EditorSlotInline {
   defaultOffsetDays?: number;
   role?: "inspector" | "reviewer" | "signature";
   inputType?: string;
+  numberFormat?: string;
   options?: string[];
   placeholder?: string;
   metadata?: Record<string, unknown>;
@@ -147,6 +148,7 @@ export interface FieldDefinition {
   type?: "number" | "text" | "boolean" | "date" | "signature" | string;
   valueType?: string;
   inputType?: string;
+  numberFormat?: string;
   attr?: string;
   unit?: string;
   precision?: number;

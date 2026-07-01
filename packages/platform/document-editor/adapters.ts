@@ -261,6 +261,7 @@ function tiptapNodeToInline(node: TiptapNode): EditorInline | null {
       defaultValue: stringValue(attrs.defaultValue),
       role: attrs.role === "inspector" || attrs.role === "reviewer" ? attrs.role : "signature",
       inputType: stringValue(attrs.inputType),
+      numberFormat: stringValue(attrs.numberFormat),
       options: Array.isArray(attrs.options) ? attrs.options.map(String) : undefined,
       placeholder: stringValue(attrs.placeholder),
       metadata: recordAttr(node, "metadata"),

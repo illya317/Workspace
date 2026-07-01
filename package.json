@@ -61,6 +61,7 @@
     "env:check": "node scripts/check/check-env.js",
     "workspace:check": "node scripts/check/check-workspace-runtime.js",
     "qc:cache:build": "npx tsx scripts/build-qc-template-cache.ts",
+    "docs-editor:content:migrate": "npx tsx scripts/migrate-docs-editor-content-to-files.ts",
     "schema:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-schema-governance.js",
     "api:check": "npm run arch:gate",
     "docs:check": "node scripts/check/with-check-lock.js -- node scripts/check/check-architecture-docs.js",
