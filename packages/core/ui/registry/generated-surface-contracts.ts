@@ -1968,6 +1968,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                       ],
                                     },
+                                    {
+                                      name: "commandPlacement",
+                                      description: "可选值：below / inline。",
+                                      children: [
+                                        {
+                                          name: "below",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "inline",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
                                   ],
                                 },
                                 {
@@ -2328,6 +2342,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "commandPlacement",
+                                      description: "可选值：below / inline。",
+                                      children: [
+                                        {
+                                          name: "below",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "inline",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -3684,6 +3712,20 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "normal",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "commandPlacement",
+                          description: "可选值：below / inline。",
+                          children: [
+                            {
+                              name: "below",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "inline",
                               description: "字面量取值。",
                             },
                           ],
@@ -6760,6 +6802,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                       ],
                                                     },
+                                                    {
+                                                      name: "commandPlacement",
+                                                      description: "可选值：below / inline。",
+                                                      children: [
+                                                        {
+                                                          name: "below",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "inline",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
                                                   ],
                                                 },
                                                 {
@@ -7120,6 +7176,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "commandPlacement",
+                                                      description: "可选值：below / inline。",
+                                                      children: [
+                                                        {
+                                                          name: "below",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "inline",
                                                           description: "字面量取值。",
                                                         },
                                                       ],
@@ -8476,6 +8546,20 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "normal",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "commandPlacement",
+                                          description: "可选值：below / inline。",
+                                          children: [
+                                            {
+                                              name: "below",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "inline",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -15850,6 +15934,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                   ],
                                                 },
+                                                {
+                                                  name: "commandPlacement",
+                                                  description: "可选值：below / inline。",
+                                                  children: [
+                                                    {
+                                                      name: "below",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
                                               ],
                                             },
                                             {
@@ -16210,6 +16308,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "commandPlacement",
+                                                  description: "可选值：below / inline。",
+                                                  children: [
+                                                    {
+                                                      name: "below",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "inline",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -17566,6 +17678,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "commandPlacement",
+                                      description: "可选值：below / inline。",
+                                      children: [
+                                        {
+                                          name: "below",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "inline",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -27714,6 +27840,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                   ],
                                 },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -28074,6 +28214,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -29430,6 +29584,20 @@ export const generatedCoreUiSurfaceContracts = {
                         },
                         {
                           name: "normal",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "commandPlacement",
+                      description: "可选值：below / inline。",
+                      children: [
+                        {
+                          name: "below",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "inline",
                           description: "字面量取值。",
                         },
                       ],
@@ -30772,6 +30940,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                   ],
                                 },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -31132,6 +31314,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -32488,6 +32684,20 @@ export const generatedCoreUiSurfaceContracts = {
                         },
                         {
                           name: "normal",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "commandPlacement",
+                      description: "可选值：below / inline。",
+                      children: [
+                        {
+                          name: "below",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "inline",
                           description: "字面量取值。",
                         },
                       ],
@@ -33830,6 +34040,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                   ],
                                 },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -34190,6 +34414,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -35546,6 +35784,20 @@ export const generatedCoreUiSurfaceContracts = {
                         },
                         {
                           name: "normal",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "commandPlacement",
+                      description: "可选值：below / inline。",
+                      children: [
+                        {
+                          name: "below",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "inline",
                           description: "字面量取值。",
                         },
                       ],
@@ -36888,6 +37140,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                   ],
                                 },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
                               ],
                             },
                             {
@@ -37248,6 +37514,20 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "normal",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "commandPlacement",
+                                  description: "可选值：below / inline。",
+                                  children: [
+                                    {
+                                      name: "below",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "inline",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -38604,6 +38884,20 @@ export const generatedCoreUiSurfaceContracts = {
                         },
                         {
                           name: "normal",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
+                      name: "commandPlacement",
+                      description: "可选值：below / inline。",
+                      children: [
+                        {
+                          name: "below",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "inline",
                           description: "字面量取值。",
                         },
                       ],
@@ -41852,6 +42146,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                   ],
                                                 },
+                                                {
+                                                  name: "commandPlacement",
+                                                  description: "可选值：below / inline。",
+                                                  children: [
+                                                    {
+                                                      name: "below",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "inline",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
                                               ],
                                             },
                                             {
@@ -42212,6 +42520,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "commandPlacement",
+                                                  description: "可选值：below / inline。",
+                                                  children: [
+                                                    {
+                                                      name: "below",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "inline",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -43568,6 +43890,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "normal",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "commandPlacement",
+                                      description: "可选值：below / inline。",
+                                      children: [
+                                        {
+                                          name: "below",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "inline",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -46644,6 +46980,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                                     },
                                                                   ],
                                                                 },
+                                                                {
+                                                                  name: "commandPlacement",
+                                                                  description: "可选值：below / inline。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "below",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "inline",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
                                                               ],
                                                             },
                                                             {
@@ -47004,6 +47354,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                                     },
                                                                     {
                                                                       name: "normal",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                  ],
+                                                                },
+                                                                {
+                                                                  name: "commandPlacement",
+                                                                  description: "可选值：below / inline。",
+                                                                  children: [
+                                                                    {
+                                                                      name: "below",
+                                                                      description: "字面量取值。",
+                                                                    },
+                                                                    {
+                                                                      name: "inline",
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
@@ -48360,6 +48724,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "normal",
+                                                          description: "字面量取值。",
+                                                        },
+                                                      ],
+                                                    },
+                                                    {
+                                                      name: "commandPlacement",
+                                                      description: "可选值：below / inline。",
+                                                      children: [
+                                                        {
+                                                          name: "below",
+                                                          description: "字面量取值。",
+                                                        },
+                                                        {
+                                                          name: "inline",
                                                           description: "字面量取值。",
                                                         },
                                                       ],
@@ -55734,6 +56112,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                               ],
                                                             },
+                                                            {
+                                                              name: "commandPlacement",
+                                                              description: "可选值：below / inline。",
+                                                              children: [
+                                                                {
+                                                                  name: "below",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "inline",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
                                                           ],
                                                         },
                                                         {
@@ -56094,6 +56486,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                                 {
                                                                   name: "normal",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                              ],
+                                                            },
+                                                            {
+                                                              name: "commandPlacement",
+                                                              description: "可选值：below / inline。",
+                                                              children: [
+                                                                {
+                                                                  name: "below",
+                                                                  description: "字面量取值。",
+                                                                },
+                                                                {
+                                                                  name: "inline",
                                                                   description: "字面量取值。",
                                                                 },
                                                               ],
@@ -57450,6 +57856,20 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "normal",
+                                                      description: "字面量取值。",
+                                                    },
+                                                  ],
+                                                },
+                                                {
+                                                  name: "commandPlacement",
+                                                  description: "可选值：below / inline。",
+                                                  children: [
+                                                    {
+                                                      name: "below",
+                                                      description: "字面量取值。",
+                                                    },
+                                                    {
+                                                      name: "inline",
                                                       description: "字面量取值。",
                                                     },
                                                   ],

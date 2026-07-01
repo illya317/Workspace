@@ -16,10 +16,10 @@ import type {
 type ResolvedFormLayout = Required<FormSurfaceLayoutSpec>;
 
 function defaultLayout(kind: FormSurfaceKind): ResolvedFormLayout {
-  if (kind === "filters") return { flow: "inline", columns: 3, mode: "mixed", density: "compact" };
-  if (kind === "detail") return { flow: "grid", columns: 3, mode: "detail", density: "compact" };
-  if (kind === "login") return { flow: "single", columns: 1, mode: "mixed", density: "normal" };
-  return { flow: "grid", columns: 3, mode: "mixed", density: "normal" };
+  if (kind === "filters") return { flow: "inline", columns: 3, mode: "mixed", density: "compact", commandPlacement: "below" };
+  if (kind === "detail") return { flow: "grid", columns: 3, mode: "detail", density: "compact", commandPlacement: "below" };
+  if (kind === "login") return { flow: "single", columns: 1, mode: "mixed", density: "normal", commandPlacement: "below" };
+  return { flow: "grid", columns: 3, mode: "mixed", density: "normal", commandPlacement: "below" };
 }
 
 function resolveLayout(kind: FormSurfaceKind, layout?: FormSurfaceLayoutSpec): ResolvedFormLayout {
@@ -205,12 +205,16 @@ function renderInlineRepeatable<T>(
   );
 }
 
-function renderItems<T>(props: FormSurfaceProps<T>) {
+function renderItems<T>(props: FormSurfaceProps<T>, layout: ResolvedFormLayout, inlineCommands?: ReactNode) {
   const items = props.content.items;
-  if (!items.length) return null;
-  const layout = resolveLayout(props.kind, props.content.layout);
+  if (!items.length && !inlineCommands) return null;
   if (layout.flow === "inline") {
-    return <div className="flex flex-wrap items-center gap-3">{items.map((item) => renderInlineItem(item, layout))}</div>;
+    return (
+      <div className="flex flex-wrap items-center gap-3">
+        {items.map((item) => renderInlineItem(item, layout))}
+        {inlineCommands}
+      </div>
+    );
   }
   if (props.kind === "login") {
     return (
@@ -227,10 +231,13 @@ function renderItems<T>(props: FormSurfaceProps<T>) {
 }
 
 export function renderContent<T>(props: FormSurfaceProps<T>) {
+  const layout = resolveLayout(props.kind, props.content.layout);
+  const commands = renderCommands(props.commands);
+  const inlineCommands = layout.flow === "inline" && layout.commandPlacement === "inline" ? commands : undefined;
   return (
     <div className="space-y-4">
-      {renderItems(props)}
-      {renderCommands(props.commands)}
+      {renderItems(props, layout, inlineCommands)}
+      {inlineCommands ? null : commands}
     </div>
   );
 }

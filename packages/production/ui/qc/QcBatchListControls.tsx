@@ -1,6 +1,6 @@
 "use client";
 
-import { createFieldsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createFormSection, createPageBody, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceItemSpec } from "@workspace/core/ui";
 export { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-options";
 
 interface QcProductOption {
@@ -28,53 +28,58 @@ export function createQcBatchCreateSection({
   onProductKeyChange,
   onBatchNumberChange,
   onSubmit,
-  onCancel
+  onCancel,
 }: QcBatchCreatePanelProps): BodySurfaceSectionSpec | null {
   if (!open) return null;
-  return createFieldsSection("qc-create", [
-        { kind: "groupTitle", key: "title", title: "新建批次" },
-        {
-          key: "product",
-          label: "产品",
-          required: true,
-          spec: {
-            valueType: "string",
-            control: "choice",
-            options: {
-              source: "static",
-              mode: "autocomplete",
-              visibleCount: 5,
-              items: products.map(product => ({ value: product.id, label: product.productName })),
-            },
-          },
-          value: productKey,
-          onChange: (value) => onProductKeyChange(String(value ?? "")),
-          placeholder: "搜索产品",
+  const formItems: FormSurfaceItemSpec[] = [
+    {
+      key: "product",
+      label: "产品",
+      required: true,
+      spec: {
+        valueType: "string",
+        control: "choice",
+        options: {
+          source: "static",
+          mode: "autocomplete",
+          visibleCount: 8,
+          items: products.map(product => ({ value: product.id, label: product.productName })),
         },
-        {
-          key: "batchNumber",
-          label: "批号",
-          required: true,
-          spec: { valueType: "string", control: "text" },
-          value: batchNumber,
-          onChange: (value) => onBatchNumberChange(String(value ?? "")),
-          placeholder: "请输入批号",
-          className: "w-36",
-        },
-      ], {
-        layout: { columns: 3 },
-        submit: { onSubmit },
-        commands: [
-          {
-            key: "submit",
-            label: submitting ? "创建中..." : "创建",
-            type: "submit",
-            variant: "primary",
-            disabled: submitting || !productKey || !batchNumber.trim(),
-          },
-          { key: "cancel", label: "取消", onClick: onCancel },
-        ],
-      });
+      },
+      value: productKey,
+      onChange: (value) => onProductKeyChange(String(value ?? "")),
+      placeholder: "搜索产品",
+    },
+    {
+      key: "batchNumber",
+      label: "批号",
+      required: true,
+      spec: { valueType: "string", control: "text" },
+      value: batchNumber,
+      onChange: (value) => onBatchNumberChange(String(value ?? "")),
+      placeholder: "请输入批号",
+    },
+  ];
+  const formSection = createFormSection("qc-create", {
+    kind: "filters",
+    content: { items: formItems, layout: { flow: "inline", columns: 3, commandPlacement: "inline" } },
+    submit: { onSubmit },
+    commands: [
+      {
+        key: "save",
+        label: submitting ? "创建中..." : "创建",
+        icon: "save",
+        type: "submit",
+        variant: "primary",
+        disabled: submitting || !productKey || !batchNumber.trim(),
+      },
+      { key: "cancel", label: "取消", onClick: onCancel },
+    ],
+  }, { autoReveal: true });
+  return {
+    ...formSection,
+    chrome: "card",
+  };
 }
 
 export function QcBatchCreatePanel(props: QcBatchCreatePanelProps) {

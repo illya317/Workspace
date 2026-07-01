@@ -16,6 +16,7 @@ export interface FormSurfaceLayoutSpec {
   columns?: 1 | 2 | 3;
   mode?: FieldGridMode;
   density?: InputSurfaceProps["density"];
+  commandPlacement?: "below" | "inline";
 }
 
 export interface FormSurfaceSubmitSpec {
