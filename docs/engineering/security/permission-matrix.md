@@ -12,8 +12,8 @@
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, revise, import, export, admin |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, approve, admin |
-| `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
-| `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, admin |
+| `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, import, approve, admin |
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, delete, import, export, admin |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), import (confirm), export, admin |
@@ -104,8 +104,11 @@
 | `/api/modules/finance/statement-review/reviews/[id]/confirm` | POST | `finance.statementReview.approve` |
 | `/api/modules/finance/statement-review/workpapers` | GET | `finance.statementReview.access` |
 | `/api/modules/finance/statement-review/workpapers` | PUT | `finance.statementReview.write` |
-| `/api/modules/finance/statements/reports` | GET | `finance.statements.access` |
-| `/api/modules/finance/budget` | GET/POST | `finance.budget.access/write` |
+| `/api/modules/finance/statements/reports*` | GET | `finance.statements.access` |
+| `/api/modules/finance/analysis/budget` | GET | `finance.analysis.access` |
+| `/api/modules/finance/budget` | GET/POST | `finance.budget.access/import` |
+| `/api/modules/finance/budget/versions` | GET/POST | `finance.budget.access/create` |
+| `/api/modules/finance/budget/versions/[id]/activate` | POST | `finance.budget.approve` |
 | `/api/modules/finance/import/preview` | POST | `finance.import.access` |
 | `/api/modules/finance/import/confirm` | POST | `finance.import.import` |
 | `/api/modules/finance/cost/*` | GET | `finance.cost.access` |

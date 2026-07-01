@@ -140,7 +140,7 @@ export default function ReportTab() {
       kind: "action-group",
       key: "report-actions",
       actions: [
-        { key: "load", label: "生成报表", kind: "generate", variant: "primary", onClick: loadReport },
+        { key: "load", label: "查看报表", kind: "view", variant: "primary", onClick: loadReport },
       ],
     },
   ];

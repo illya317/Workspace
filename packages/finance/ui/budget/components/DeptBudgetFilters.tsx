@@ -88,6 +88,7 @@ export function createDeptBudgetFilterSections({
       commands: hasFilters ? [{
         key: "reset",
         label: "重置筛选",
+        icon: "reset",
         onClick: () => {
           setDeptFilter("");
           setTypeFilter("");

@@ -68,6 +68,7 @@ export function createRdBudgetFilterSections({
       commands: hasFilters ? [{
         key: "reset",
         label: "重置筛选",
+        icon: "reset",
         onClick: () => {
           setProjectFilter("");
           setCategoryFilter("");
