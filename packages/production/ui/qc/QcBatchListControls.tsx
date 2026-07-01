@@ -68,12 +68,12 @@ export function createQcBatchCreateSection({
       {
         key: "save",
         label: submitting ? "创建中..." : "创建",
-        icon: "save",
+        icon: "add",
         type: "submit",
         variant: "primary",
         disabled: submitting || !productKey || !batchNumber.trim(),
       },
-      { key: "cancel", label: "取消", onClick: onCancel },
+      { key: "cancel", label: "取消", icon: "cancel", onClick: onCancel },
     ],
   }, { autoReveal: true });
   return {

@@ -1,11 +1,10 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { CheckCircle2, ClipboardList, Eye, RotateCcw, Trash2 } from "lucide-react";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { PageSurface, createEmptySection, createPageBody, useFeedback } from "@workspace/core/ui";
-import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import { BodySurface, PageSurface, createEmptySection, createPageBody, useFeedback } from "@workspace/core/ui";
+import type { SelectorSurfaceStatusSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { QcBatchSummary, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS, createQcBatchCreateSection } from "./QcBatchListControls";
@@ -21,6 +20,9 @@ export interface QcBatchTableRow extends QcBatchSummary {
 interface Props {
   initialRows: QcBatchTableRow[];
   products: Array<{ id: string; productName: string }>;
+  canCreate: boolean;
+  canDelete: boolean;
+  canExport: boolean;
 }
 
 function qcBatchStatusText(batch: Pick<QcBatchTableRow, "statusLabels">) {
@@ -47,7 +49,7 @@ function todayBatchNumber() {
   return `${year}${month}${day}`;
 }
 
-export default function QcBatchListClient({ initialRows, products }: Props) {
+export default function QcBatchListClient({ initialRows, products, canCreate, canDelete, canExport }: Props) {
   const router = useRouter();
   const [rows, setRows] = useState(initialRows);
   const [selectedId, setSelectedId] = useState<number | null>(initialRows[0]?.id ?? null);
@@ -169,13 +171,13 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
   }
 
   const toolbarItems: SurfaceToolbarItems = [
-    {
+    ...(canCreate ? [{
       kind: "create",
       key: "create",
       label: createOpen ? "收起新建" : "新建批次",
       active: createOpen,
       onClick: () => setCreateOpen((open) => !open),
-    },
+    } as const] : []),
     {
       kind: "select",
       key: "status",
@@ -225,7 +227,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
       key: "batch-actions",
       actions: [
         { key: "refresh", label: "刷新", kind: "refresh", onClick: refreshBatches },
-        { key: "export", label: "导出", kind: "download", onClick: exportBatches },
+        ...(canExport ? [{ key: "export", label: "导出", kind: "download" as const, onClick: exportBatches }] : []),
       ],
     },
   ];
@@ -248,7 +250,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     <PageSurface kind="standard"
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
-        ...(createSection ? [createSection] : []),
+        ...(canCreate && createSection ? [createSection] : []),
         createEmptySection("qc-workbench", {
           presentation: "plain",
           content: (
@@ -256,7 +258,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
               rows={visibleBatches}
               selectedBatch={selectedBatch}
               onSelect={(batch) => setSelectedId(batch.id)}
-              onDelete={(batch) => void deleteBatch(batch)}
+              onDelete={canDelete ? (batch) => void deleteBatch(batch) : undefined}
             />
           ),
         }),
@@ -275,28 +277,25 @@ function BatchWorkbench({
   rows: QcBatchTableRow[];
   selectedBatch: QcBatchTableRow | null;
   onSelect: (batch: QcBatchTableRow) => void;
-  onDelete: (batch: QcBatchTableRow) => void;
+  onDelete?: (batch: QcBatchTableRow) => void;
 }) {
   return (
     <div className="grid gap-4 xl:grid-cols-[25rem_minmax(0,1fr)]">
-      <div className="max-lg:order-last overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm">
-        <div className="border-b border-emerald-100 bg-emerald-50/50 px-4 py-3">
-          <div className="text-sm font-semibold text-slate-950">批次队列</div>
-          <div className="mt-1 text-xs text-slate-500">{rows.length} 个批次，点击查看阶段详情</div>
-        </div>
-        <div className="divide-y divide-emerald-50 p-2">
-          {rows.length ? rows.map((batch) => (
-            <BatchQueueItem
-              key={batch.id}
-              batch={batch}
-              selected={selectedBatch?.id === batch.id}
-              onSelect={() => onSelect(batch)}
-              onDelete={() => onDelete(batch)}
-            />
-          )) : (
-            <div className="rounded-lg px-4 py-10 text-center text-sm text-slate-500">暂无批次记录。</div>
-          )}
-        </div>
+      <div className="max-lg:order-last min-w-0">
+        <BodySurface
+          kind="selector"
+          selector={{
+            kind: "list",
+            title: `批次队列 · ${rows.length}`,
+            items: rows,
+            selectedId: selectedBatch?.id ?? null,
+            getKey: (batch) => batch.id,
+            onSelect,
+            emptyText: "暂无批次记录。",
+            renderItem: (batch, { active }) => renderBatchQueueCard(batch, active, onDelete),
+            size: "sm",
+          }}
+        />
       </div>
 
       <div className="min-w-0">
@@ -316,82 +315,40 @@ function BatchWorkbench({
   );
 }
 
-function BatchQueueItem({
-  batch,
-  selected,
-  onSelect,
-  onDelete,
-}: {
-  batch: QcBatchTableRow;
-  selected: boolean;
-  onSelect: () => void;
-  onDelete: () => void;
-}) {
+function renderBatchQueueCard(batch: QcBatchTableRow, active: boolean, onDelete?: (batch: QcBatchTableRow) => void) {
   const metrics = batchMetrics(batch);
-  return (
-    <div
-      role="button"
-      tabIndex={0}
-      onClick={onSelect}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          onSelect();
-        }
-      }}
-      className={`group my-1 grid w-full gap-3 rounded-lg border px-4 py-4 text-left transition ${selected ? "border-emerald-300 bg-emerald-50 text-slate-950 shadow-sm ring-1 ring-emerald-100" : "border-transparent bg-white text-slate-950 hover:border-emerald-100 hover:bg-emerald-50/40"}`}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-0">
-          <div className="flex items-center gap-2">
-            <span className={`inline-flex h-7 min-w-7 items-center justify-center rounded-md border text-xs font-semibold ${selected ? "border-emerald-200 bg-white text-emerald-700" : "border-slate-200 bg-slate-50 text-slate-600"}`}>{batch.id}</span>
-            <span className="truncate text-base font-semibold">{batch.batchNumber}</span>
-          </div>
-          <div className={`mt-1 truncate text-sm ${selected ? "text-emerald-800" : "text-slate-500"}`}>{batch.productName}</div>
-        </div>
-        <button
-          type="button"
-          aria-label={`删除批次 ${batch.batchNumber}`}
-          onClick={(event) => {
-            event.stopPropagation();
-            onDelete();
-          }}
-          className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border transition ${selected ? "border-emerald-200 bg-white text-red-600 hover:bg-red-50" : "border-red-100 text-red-600 hover:bg-red-50"}`}
-        >
-          <Trash2 size={16} strokeWidth={1.9} />
-        </button>
+  return {
+    title: batch.batchNumber,
+    subtitle: batch.productName,
+    code: qcBatchStatusText(batch),
+    codeTone: batchStatusTone(batch),
+    leading: batch.id,
+    meta: [
+      `进度 ${metrics.completedTests}/${metrics.totalTests}`,
+      `待复核 ${metrics.pendingReview}`,
+      `阶段 ${metrics.completedStages}/${metrics.totalStages}`,
+    ],
+    metaLine: formatQcBatchDate(batch.createdAt),
+    trailing: onDelete ? (
+      <div onClick={(event) => event.stopPropagation()} onKeyDown={(event) => event.stopPropagation()}>
+        <BodySurface
+          kind="section"
+          commands={[
+            {
+              key: "delete",
+              label: `删除批次 ${batch.batchNumber}`,
+              icon: "delete-bin",
+              onClick: () => onDelete(batch),
+              presentation: "icon",
+              size: "sm",
+              variant: "danger",
+            },
+          ]}
+        />
       </div>
-
-      <div className="grid grid-cols-3 gap-2">
-        <Metric label="进度" value={`${metrics.completedTests}/${metrics.totalTests}`} selected={selected} />
-        <Metric label="待复核" value={String(metrics.pendingReview)} selected={selected} tone={metrics.pendingReview ? "amber" : "neutral"} />
-        <Metric label="阶段" value={`${metrics.completedStages}/${metrics.totalStages}`} selected={selected} />
-      </div>
-
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${selected ? "border-emerald-200 bg-white text-emerald-700" : statusClass(batch)}`}>
-          {statusIcon(batch)}
-          {qcBatchStatusText(batch)}
-        </span>
-        <span className={`text-xs ${selected ? "text-emerald-700" : "text-slate-500"}`}>{formatQcBatchDate(batch.createdAt)}</span>
-      </div>
-
-      <div className={`inline-flex items-center gap-1 text-xs font-medium ${selected ? "text-emerald-700" : "text-emerald-700"}`}>
-        <Eye size={14} strokeWidth={1.9} />
-        {selected ? "正在查看" : "打开详情"}
-      </div>
-    </div>
-  );
-}
-
-function Metric({ label, value, selected, tone = "neutral" }: { label: string; value: string; selected: boolean; tone?: "neutral" | "amber" }) {
-  const valueClass = tone === "amber" ? "text-amber-700" : selected ? "text-emerald-900" : "text-slate-950";
-  return (
-    <div className={`rounded-lg border px-2 py-2 ${selected ? "border-emerald-200 bg-white" : "border-slate-200 bg-slate-50"}`}>
-      <div className={`text-[11px] ${selected ? "text-emerald-700" : "text-slate-500"}`}>{label}</div>
-      <div className={`mt-0.5 text-sm font-semibold ${valueClass}`}>{value}</div>
-    </div>
-  );
+    ) : undefined,
+    active,
+  };
 }
 
 function batchMetrics(batch: QcBatchTableRow) {
@@ -407,15 +364,8 @@ function batchMetrics(batch: QcBatchTableRow) {
   };
 }
 
-function statusClass(batch: QcBatchTableRow) {
-  if (batch.statusLabels.includes("已验收")) return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (batch.statusLabels.includes("待复核")) return "border-amber-200 bg-amber-50 text-amber-700";
-  if (batch.statusLabels.includes("异常")) return "border-red-200 bg-red-50 text-red-700";
-  return "border-slate-200 bg-slate-50 text-slate-700";
-}
-
-function statusIcon(batch: QcBatchTableRow) {
-  if (batch.statusLabels.includes("已验收")) return <CheckCircle2 size={13} strokeWidth={1.9} />;
-  if (batch.statusLabels.includes("待复核")) return <RotateCcw size={13} strokeWidth={1.9} />;
-  return <ClipboardList size={13} strokeWidth={1.9} />;
+function batchStatusTone(batch: QcBatchTableRow): SelectorSurfaceStatusSpec["tone"] {
+  if (batch.statusLabels.includes("已验收")) return "success";
+  if (batch.statusLabels.includes("待复核") || batch.statusLabels.includes("异常")) return "warning";
+  return "default";
 }

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getQcBatch, getQcBatchEditorRuntimeTemplate } from "@workspace/production/server/qc";
 import { QcBatchTestRecord } from "@workspace/production/ui";
@@ -10,6 +10,10 @@ interface Props {
 
 export default async function QcBatchTestPage({ params }: Props) {
   const [{ batchId, stageKey, testName }, user] = await Promise.all([params, requireRouteAccess("/production/qc")]);
+  const [canWrite, canApprove] = await Promise.all([
+    evaluatePermissionAction(user.id, "production.qc", "write"),
+    evaluatePermissionAction(user.id, "production.qc", "approve"),
+  ]);
   const batch = await getQcBatch(Number(batchId));
   if (!batch) notFound();
   const runtimeTemplate = await getQcBatchEditorRuntimeTemplate(batch).catch(() => null);
@@ -21,6 +25,17 @@ export default async function QcBatchTestPage({ params }: Props) {
     title: "批次检测记录",
     backHref: "/production/qc",
     user,
-    children: <QcBatchTestRecord batch={batch} productName={runtimeTemplate.productName} runtimeTemplate={runtimeTemplate} runtimeStage={runtimeStage} runtimeTest={runtimeTest} currentUserName={user.employeeName || user.nickname} />,
+    children: (
+      <QcBatchTestRecord
+        batch={batch}
+        productName={runtimeTemplate.productName}
+        runtimeTemplate={runtimeTemplate}
+        runtimeStage={runtimeStage}
+        runtimeTest={runtimeTest}
+        currentUserName={user.employeeName || user.nickname}
+        canWrite={canWrite}
+        canApprove={canApprove}
+      />
+    ),
   });
 }

@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { requireRouteAccess } from "@workspace/platform/server/auth";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import { getQcBatch, getQcBatchEditorRuntimeTemplate } from "@workspace/production/server/qc";
 import { QcBatchStagePrecheck } from "@workspace/production/ui";
@@ -10,6 +10,7 @@ interface Props {
 
 export default async function QcBatchStagePage({ params }: Props) {
   const [{ batchId, stageKey }, user] = await Promise.all([params, requireRouteAccess("/production/qc")]);
+  const canWrite = await evaluatePermissionAction(user.id, "production.qc", "write");
   const batch = await getQcBatch(Number(batchId));
   if (!batch) notFound();
   const runtimeTemplate = await getQcBatchEditorRuntimeTemplate(batch).catch(() => null);
@@ -20,6 +21,6 @@ export default async function QcBatchStagePage({ params }: Props) {
     title: "批次阶段确认",
     backHref: "/production/qc",
     user,
-    children: <QcBatchStagePrecheck batch={batch} productName={runtimeTemplate.productName} runtimeTemplate={runtimeTemplate} runtimeStage={runtimeStage} />,
+    children: <QcBatchStagePrecheck batch={batch} productName={runtimeTemplate.productName} runtimeTemplate={runtimeTemplate} runtimeStage={runtimeStage} canWrite={canWrite} />,
   });
 }

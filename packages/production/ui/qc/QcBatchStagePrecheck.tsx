@@ -15,6 +15,7 @@ interface Props {
   productName: string;
   runtimeTemplate: QcEditorRuntimeTemplate;
   runtimeStage: QcEditorRuntimeStage;
+  canWrite: boolean;
 }
 function writableRuntimeKeys(blocks: EditorBlock[]) {
   const keys = new Set<string>();
@@ -83,7 +84,8 @@ function precheckCompletionStatus(values: EditorRuntimeValues, blocks: EditorBlo
 export default function QcBatchStagePrecheck({
   batch,
   runtimeTemplate,
-  runtimeStage
+  runtimeStage,
+  canWrite,
 }: Props) {
   const router = useRouter();
   const feedback = useFeedback();
@@ -102,7 +104,7 @@ export default function QcBatchStagePrecheck({
   const locked = !stageStatus?.unlocked;
   const precheckComplete = !!stageStatus?.precheckComplete;
   const precheckStatus = precheckCompletionStatus(form.values, runtimeStage.precheckBlocks);
-  const canSave = precheckStatus.complete;
+  const canSave = canWrite && precheckStatus.complete;
   const missingLabels = precheckStatus.missing;
   function save() {
     const status = precheckCompletionStatus(form.values, runtimeStage.precheckBlocks);
@@ -153,13 +155,13 @@ export default function QcBatchStagePrecheck({
         else router.push(qcBatchTestPath(batch.id, runtimeStage.key, value));
       },
     },
-    {
-      kind: "action-group",
+    ...(canWrite ? [{
+      kind: "action-group" as const,
       key: "precheck-actions",
       actions: [
-        { key: "save", label: isPending ? "保存中" : "保存", kind: "save", variant: "primary", disabled: locked || isPending || !canSave, onClick: save },
+        { key: "save", label: isPending ? "保存中" : "保存", kind: "save" as const, variant: "primary" as const, disabled: locked || isPending || !canSave, onClick: save },
       ],
-    },
+    }] : []),
   ];
   const bodySections: BodySurfaceSectionSpec[] = locked
     ? [createMessageSection("precheck-locked", {
@@ -167,7 +169,7 @@ export default function QcBatchStagePrecheck({
         content: "前一阶段尚未全部复核完成，当前阶段暂不可操作。"
       })]
     : [
-        ...(!canSave ? [createMessageSection("precheck-incomplete", {
+        ...(canWrite && !precheckStatus.complete ? [createMessageSection("precheck-incomplete", {
           tone: "warning",
           content: `还有 ${missingLabels.length} 项未填写，请补充后再保存。`
         })] : []),
@@ -177,7 +179,7 @@ export default function QcBatchStagePrecheck({
             items: [{
               key: "paper",
               size: "a4",
-              content: <QcEditorRuntimePaper blocks={runtimeStage.precheckBlocks} fieldModel={runtimeTemplate.fieldModel} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={locked} />,
+              content: <QcEditorRuntimePaper blocks={runtimeStage.precheckBlocks} fieldModel={runtimeTemplate.fieldModel} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={locked || !canWrite} />,
             }],
           },
         }),

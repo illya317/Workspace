@@ -16,6 +16,8 @@ interface Props {
   runtimeStage: QcEditorRuntimeStage;
   runtimeTest: QcEditorRuntimeTest;
   currentUserName: string;
+  canWrite: boolean;
+  canApprove: boolean;
 }
 
 function writableRuntimeValues(values: Record<string, string>, runtimeTest: QcEditorRuntimeTest) {
@@ -35,7 +37,9 @@ export default function QcBatchTestRecord({
   runtimeTemplate,
   runtimeStage,
   runtimeTest,
-  currentUserName
+  currentUserName,
+  canWrite,
+  canApprove,
 }: Props) {
   const router = useRouter();
   const feedback = useFeedback();
@@ -53,7 +57,7 @@ export default function QcBatchTestRecord({
   const locked = !stageStatus?.unlocked;
   const precheckComplete = !!stageStatus?.precheckComplete;
   const testsLocked = locked || !precheckComplete;
-  const readOnly = testsLocked || !!testStatus?.automatic || !!testStatus?.reviewed;
+  const readOnly = testsLocked || !!testStatus?.automatic || !!testStatus?.reviewed || !canWrite;
   const referenceValues = {
     "__qc_ref/batch_number": batch.batchNumber,
     "__qc_ref/inspector": inspectorName,
@@ -107,7 +111,7 @@ export default function QcBatchTestRecord({
     });
   }
   const recordActions: Extract<SurfaceToolbarItems[number], { kind: "action-group" }>["actions"] = [];
-  if (testStatus?.canSaveInspection) {
+  if (canWrite && testStatus?.canSaveInspection) {
     recordActions.push({
       key: "save-inspection",
       label: isPending ? "保存中" : "保存检验",
@@ -118,7 +122,7 @@ export default function QcBatchTestRecord({
 
     });
   }
-  if (testStatus?.canApproveReview) {
+  if (canApprove && testStatus?.canApproveReview) {
     recordActions.push({
       key: "approve-review",
       label: isPending ? "复核中" : "复核通过",
