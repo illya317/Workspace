@@ -9,15 +9,19 @@
 | `hr` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `hr.roster` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, archive, revise, admin（组织归档/恢复、审计恢复为独立动作） |
 | `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, export, admin |
+| `hr.performance` | `visibleResourceKeys` | access, admin（页面入口；数据复用 roster API，无独立写入） |
+| `hr.analytics` | `visibleResourceKeys` | access, admin（分析页面；数据由 roster DTO 派生，无独立 API） |
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, revise, import, export, admin |
 | `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, approve, admin |
-| `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, admin |
+| `finance.statements` | `visibleResourceKeys` | access, admin（只读报表 API） |
 | `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, import, approve, admin |
-| `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
+| `finance.analysis` | `visibleResourceKeys` | access, admin（只读分析 API） |
 | `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, delete, import, export, admin |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), import (confirm), export, admin |
+| `finance.tax` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
+| `finance.treasury` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `external` | `visibleResourceKeys` | access, admin（占位容器，无业务 API） |
 | `external.investors/customers/suppliers` | `visibleResourceKeys` | access, admin（规划中页面，无业务 API） |
