@@ -70,15 +70,14 @@ node scripts/import-finance-cost-json.mjs
 
 | 端点 | 权限守卫 |
 |------|---------|
-| GET /api/modules/finance/cost/* | `withFinanceCostAccess` |
-| POST /api/modules/finance/cost/imports | `withFinanceCostWrite` |
-| DELETE /api/modules/finance/cost/imports/[id] | `withFinanceCostDelete` |
+| GET /api/modules/finance/cost/* | `finance.cost.access` |
+| POST /api/modules/finance/cost/imports | `finance.cost.import`（当前返回“请使用导入脚本”） |
+| DELETE /api/modules/finance/cost/imports/[id] | `finance.cost.delete` |
 
 RBAC 资源：
 - `finance.cost` — 成本管理总权限
-- `finance.cost.shipments` / `.analysis` / `.structure` / `.workshop` / `.salary` / `.imports`
 
-父资源 `finance` 的 access/write/delete 自动覆盖子资源。
+父资源 `finance` 的 access/delete 可覆盖成本资源。成本模块当前不是通用 CRUD：发货、成本构成、成本分析、车间工分和工资均为导入后的查询模型；写入入口收口在导入脚本和导入历史清理。
 
 ## 6. UI Tab 对应数据表
 

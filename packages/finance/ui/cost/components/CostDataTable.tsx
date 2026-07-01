@@ -1,6 +1,6 @@
 "use client";
 
-import { PageSurface, createMessageSection, createPageBody, type DataSurfaceCellSpec, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createMessageSection, createPageBody, type DataSurfaceColumnSpec, type DataSurfaceRowActionSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import type { SourceTraceInfo } from "../types";
 export type CostRecord = Record<string, unknown>;
@@ -18,6 +18,7 @@ interface CostDataTableProps {
   page: number;
   onPageChange: (page: number) => void;
   rowKey?: (row: CostRecord) => string;
+  rowActions?: (row: CostRecord) => DataSurfaceRowActionSpec[];
 }
 export type CostDataSurfaceSpec = {
   sections: BodySurfaceSectionSpec[];
@@ -35,22 +36,18 @@ export function sourceTraceFromRow(row: CostRecord): SourceTraceInfo {
     sourceRow: row.sourceRow ? Number(row.sourceRow) : null
   };
 }
-export function CostTraceButton({
+export function createCostTraceAction({
   row,
   onTrace
 }: {
   row: CostRecord;
   onTrace: (info: SourceTraceInfo) => void;
-}): DataSurfaceCellSpec {
+}): DataSurfaceRowActionSpec {
   return {
-    kind: "action",
-    action: {
-      key: "trace",
-      label: "查看",
-      size: "sm",
-
-      onClick: () => onTrace(sourceTraceFromRow(row)),
-    },
+    key: "source-trace",
+    label: "查看来源",
+    kind: "view",
+    onClick: () => onTrace(sourceTraceFromRow(row)),
   };
 }
 export default function CostDataTable({
@@ -81,7 +78,8 @@ export function createCostDataSurface({
   pagination,
   page,
   onPageChange,
-  rowKey = row => String(row.id)
+  rowKey = row => String(row.id),
+  rowActions,
 }: CostDataTableProps): CostDataSurfaceSpec {
   return {
     sections: [
@@ -104,6 +102,7 @@ export function createCostDataSurface({
           columns,
           visibleColumns: columns.map(column => column.key),
           rowKey,
+          rowActions,
           emptyText: "暂无数据",
         } },
       },

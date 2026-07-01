@@ -37,7 +37,7 @@ export function createSourceTraceModal({ open, info, onClose }: Props): BodySurf
         { key: "sourceRow", label: "行号", spec: { valueType: "string", control: "text", state: "readonly" }, value: info.sourceRow ?? "—" },
       ], {
         kind: "detail",
-        commands: [{ key: "close", label: "关闭", variant: "primary", onClick: onClose }],
+        commands: [{ key: "close", label: "关闭", icon: "panel-close", variant: "primary", onClick: onClose }],
       }),
     ],
   });

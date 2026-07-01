@@ -15,7 +15,7 @@
 | `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.analysis` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access |
-| `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
+| `finance.cost` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, delete, import, export, admin |
 | `finance.import` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access (preview), write (confirm) |
 | `administration.contracts` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `external` | `visibleResourceKeys` | access, admin（占位容器，无业务 API） |
@@ -107,8 +107,8 @@
 | `/api/modules/finance/import/preview` | POST | `finance.import.access` |
 | `/api/modules/finance/import/confirm` | POST | `finance.import.write` |
 | `/api/modules/finance/cost/*` | GET | `finance.cost.access` |
-| `/api/modules/finance/cost/*` | POST/PUT | `finance.cost.write` |
-| `/api/modules/finance/cost/*` | DELETE | `finance.cost.delete` |
+| `/api/modules/finance/cost/imports` | POST | `finance.cost.import` |
+| `/api/modules/finance/cost/imports/[id]` | DELETE | `finance.cost.delete` |
 | `/api/modules/production/qc` | GET | `production.qc.access` |
 | `/api/modules/production/qc` | POST | `production.qc.write` |
 | `/api/modules/production/qc/[batchId]` | GET | `production.qc.access` |

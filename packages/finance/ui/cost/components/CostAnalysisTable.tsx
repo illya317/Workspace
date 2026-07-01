@@ -5,7 +5,7 @@ import { createPageBody, PageSurface, type DataSurfaceColumnSpec } from "@worksp
 import type { BodySurfaceModalSpec, BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState, SourceTraceInfo } from "../types";
-import { CostTraceButton, createCostDataSurface, formatCostNumber, type CostRecord } from "./CostDataTable";
+import { createCostDataSurface, createCostTraceAction, formatCostNumber, type CostRecord } from "./CostDataTable";
 import { createSourceTraceModal } from "./SourceTraceModal";
 
 interface Props {
@@ -36,10 +36,18 @@ export function useCostAnalysisSurface(filters: CostFiltersState): {
     { key: "rowLabel", label: "行标签", required: true, cell: (row) => String(row.rowLabel ?? "—") },
     { key: "metricName", label: "指标", required: true, cell: (row) => String(row.metricName ?? row.metricKey ?? "—") },
     { key: "value", label: "数值", required: true, align: "right",  cell: (row) => formatCostNumber(row.value as number) },
-    { key: "source", label: "来源", required: true, cell: (row) => CostTraceButton({ row, onTrace: (info) => setTrace({ open: true, info }) }) },
   ];
 
-  const table = createCostDataSurface({ rows: data, columns, loading, error, pagination, page, onPageChange: setPage });
+  const table = createCostDataSurface({
+    rows: data,
+    columns,
+    loading,
+    error,
+    pagination,
+    page,
+    onPageChange: setPage,
+    rowActions: (row) => [createCostTraceAction({ row, onTrace: (info) => setTrace({ open: true, info }) })],
+  });
   const modal = createSourceTraceModal({ open: trace.open, info: trace.info, onClose: () => setTrace({ ...trace, open: false }) });
   return { sections: table.sections, footer: table.footer, modals: modal ? [modal] : [] };
 }

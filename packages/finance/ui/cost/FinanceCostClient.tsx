@@ -15,7 +15,7 @@ import { useSalesSalarySurface } from "./components/SalesSalaryTable";
 import { useImportHistorySurface } from "./components/ImportHistoryTable";
 import type { CostFiltersState, CostTab } from "./types";
 
-export default function FinanceCostClient({ user: _user }: { user: SessionUser }) {
+export default function FinanceCostClient({ user: _user, canDelete }: { user: SessionUser; canDelete: boolean }) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("cost", _user), [_user]);
   const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "overview");
   useEffect(() => {
@@ -36,7 +36,7 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   });
   const toolbarItems = useCostFilterToolbarItems({ filters, onChange: setFilters });
   const pageChrome = { navigation, toolbarItems, lifecycleBlocks };
-  const pageProps = { ...pageChrome, filters };
+  const pageProps = { ...pageChrome, filters, canDelete };
 
   if (tab === "shipments") return <ShipmentCostPage {...pageProps} />;
   if (tab === "cost-analysis") return <CostAnalysisPage {...pageProps} />;
@@ -44,7 +44,7 @@ export default function FinanceCostClient({ user: _user }: { user: SessionUser }
   if (tab === "workshop") return <WorkshopCostPage {...pageProps} />;
   if (tab === "salary") return <SalesSalaryCostPage {...pageProps} />;
   if (tab === "imports") return <ImportHistoryCostPage {...pageProps} />;
-  return <OverviewCostPage {...pageChrome} filters={filters} />;
+  return <OverviewCostPage {...pageProps} />;
 }
 
 type CostPageChromeProps = {
@@ -52,6 +52,7 @@ type CostPageChromeProps = {
   toolbarItems: SurfaceToolbarItems;
   lifecycleBlocks: BodySurfaceSectionSpec[];
   filters: CostFiltersState;
+  canDelete: boolean;
 };
 
 function CostPageSurface({
@@ -108,6 +109,6 @@ function SalesSalaryCostPage(props: CostPageChromeProps) {
 }
 
 function ImportHistoryCostPage(props: CostPageChromeProps) {
-  const surface = useImportHistorySurface(props.filters);
+  const surface = useImportHistorySurface(props.filters, { canDelete: props.canDelete });
   return <CostPageSurface {...props} {...surface} />;
 }

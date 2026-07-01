@@ -2,22 +2,24 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState } from "react";
-import { createMessageSection, createPageBody, PageSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { BodySurface, createMessageSection, createPageBody, PageSurface, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { useCostData } from "../hooks/useFinanceCostData";
 import type { CostFiltersState } from "../types";
 import { createCostDataSurface, type CostRecord } from "./CostDataTable";
 interface Props {
   filters: CostFiltersState;
+  canDelete: boolean;
 }
 export default function ImportHistoryTable({
-  filters
+  filters,
+  canDelete,
 }: Props) {
-  const surface = useImportHistorySurface(filters);
+  const surface = useImportHistorySurface(filters, { canDelete });
   return <PageSurface kind="standard" embedded body={createPageBody(surface.sections)} footer={surface.footer} />;
 }
 
-export function useImportHistorySurface(filters: CostFiltersState): {
+export function useImportHistorySurface(filters: CostFiltersState, options: { canDelete: boolean }): {
   sections: BodySurfaceSectionSpec[];
   footer?: PageSurfaceFooterSpec;
 } {
@@ -99,23 +101,28 @@ export function useImportHistorySurface(filters: CostFiltersState): {
     label: "导入时间",
     required: true,
     cell: row => row.importedAt ? new Date(String(row.importedAt)).toLocaleString("zh-CN") : "—"
-  }, {
+  }, ...(options.canDelete ? [{
     key: "actions",
     label: "操作",
     required: true,
-    cell: row => ({
-      kind: "action",
-      action: {
-        key: `delete-${String(row.id)}`,
-        label: deleting === row.id ? "删除中…" : "删除",
-        variant: "danger",
-        size: "sm",
-        disabled: deleting === row.id,
-
-        onClick: () => handleDelete(Number(row.id)),
-      },
-    })
-  }];
+    cell: row => (
+      <span className="inline-flex" onClick={(event) => event.stopPropagation()}>
+        <BodySurface
+          kind="section"
+          commands={[{
+            key: `delete-${String(row.id)}`,
+            label: deleting === row.id ? "删除中…" : "删除",
+            icon: "delete-bin",
+            variant: "danger",
+            size: "sm",
+            disabled: deleting === row.id,
+            onClick: () => handleDelete(Number(row.id)),
+            presentation: "icon",
+          }]}
+        />
+      </span>
+    )
+  } satisfies DataSurfaceColumnSpec<CostRecord>] : [])];
   const table = createCostDataSurface({ rows: data, columns, loading, error, pagination, page, onPageChange: setPage });
   return {
     sections: [

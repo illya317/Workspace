@@ -60,7 +60,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "DELETE", pathPrefix: "/api/modules/library/basic-info/documents", resourceKey: "library.basicInfo", baseAction: "access", additionalAction: "archive", pathPattern: /^\/api\/modules\/library\/basic-info\/documents\/[^/]+$/ },
   { method: "POST", pathPrefix: "/api/modules/library/basic-info/scan", resourceKey: "library.basicInfo", baseAction: "access", additionalAction: "import" },
   { method: "POST", pathPrefix: "/api/modules/library/basic-info/generated-sources", resourceKey: "library.basicInfo", baseAction: "access", additionalAction: "import", pathPattern: /^\/api\/modules\/library\/basic-info\/generated-sources\/[^/]+\/generate$/ },
-  { method: "POST", pathPrefix: "/api/modules/finance/cost/imports", resourceKey: "finance.cost", additionalAction: "import" },
+  { method: "POST", pathPrefix: "/api/modules/finance/cost/imports", resourceKey: "finance.cost", baseAction: "access", additionalAction: "import", pathPattern: /^\/api\/modules\/finance\/cost\/imports$/ },
   { method: "POST", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", additionalAction: "create" },
   { method: "PUT", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", baseAction: "write" },
   { method: "POST", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", additionalAction: "revise", pathPattern: /^\/api\/settings\/api\/open\/clients\/[^/]+\/secret$/ },
