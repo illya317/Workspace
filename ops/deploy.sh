@@ -483,6 +483,8 @@ deploy_remote_artifact() {
     . \"\$release_dir/.env\"
     set +a
     export NODE_ENV=production
+    echo '==> 重建 native 模块以匹配服务器平台...'
+    npm rebuild better-sqlite3 --no-audit --fund=false --loglevel=error
     echo '==> 检查 Prisma migration 状态...'
     node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\" --allow-pending
     echo '==> 执行 Prisma 数据库迁移...'
