@@ -51,7 +51,7 @@
   settings.api      access  Open API 接入控制台
 
 settings.account.apiAccess access 个人 API 使用（capability，runtimeParentKey=settings.account）
-settings.api.manage        write  Open API Client 管理（capability，runtimeParentKey=settings.api）
+  settings.api.manage        create/write/revise  Open API Client 创建、scope 授权、secret 轮换（capability，runtimeParentKey=settings.api）
 
 agent               access  智能体（headless）
 
@@ -132,7 +132,7 @@ work.projects.viewAll access 项目全局查看（独立资源，runtimeParentKe
 
 ## Open API 权限边界
 
-外部开放 API 不使用内部 RBAC `Resource`。`settings.api.access` 控制 `/settings/api` 管理台读取；创建 Client、轮换 secret 和更新 scope 还必须授予 capability `settings.api.manage.write`。个人 API Key 使用能力归属 `settings.account.apiAccess.access`，与 `settings.api` 控制台权限分离。真正的外部调用只看 `OpenApiClient`、`OpenApiScope` 和 `OpenApiClientScopeGrant`。
+外部开放 API 不使用内部 RBAC `Resource`。`settings.api.access` 控制 `/settings/api` 管理台读取；创建 Client 还必须授予 `settings.api.manage.create`，轮换 secret 还必须授予 `settings.api.manage.revise`，更新 scope 还必须授予 `settings.api.manage.write`。个人 API Key 使用能力归属 `settings.account.apiAccess.access`，轮换个人 Key 还必须授予 `settings.account.apiAccess.revise`，与 `settings.api` 控制台权限分离。真正的外部调用只看 `OpenApiClient`、`OpenApiScope` 和 `OpenApiClientScopeGrant`。
 
 - 调用方使用 `Authorization: Bearer <secret>`，secret 只存 hash。
 - Scope 例如 `hr.generated.roster.read`，资源组例如 `hr.generated.roster`，均写入 Open API 专用表。

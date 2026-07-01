@@ -145,9 +145,14 @@
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/cast` | POST | `work.meetings.access` + `work.meetings.submit` + 参会投票资格 |
 | `/api/modules/work/meetings/[id]/votes/[proposalId]/close` | POST | `work.meetings.access` + `work.meetings.approve` + 会议对象级管理校验 |
 | `/api/settings/api/open/*` | GET | `settings.api.access` |
+| `/api/settings/account/*` | GET/POST/PUT/PATCH/DELETE | `settings.account.access` + 当前登录用户自助数据边界 |
+| `/api/settings/account/api-key` | GET | `settings.account.apiAccess.access` |
+| `/api/settings/account/api-key` | POST | `settings.account.apiAccess.access` + `settings.account.apiAccess.revise` |
 | `/api/settings/api/open/clients` | POST | `settings.api.access` + `settings.api.manage.create` |
 | `/api/settings/api/open/clients/[id]/secret` | POST | `settings.api.access` + `settings.api.manage.revise` |
 | `/api/settings/api/open/clients/[id]/scopes` | PUT | `settings.api.access` + `settings.api.manage.write` |
+| `/api/agent*` | GET | `agent.access` |
+| `/api/agent*` | POST | `agent.access` + `agent.submit` |
 
 ## Open API Scope
 

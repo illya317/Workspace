@@ -74,17 +74,17 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "PUT", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", baseAction: "write" },
   { method: "POST", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", baseAction: "access", additionalAction: "revise", pathPattern: /^\/api\/settings\/api\/open\/clients\/[^/]+\/secret$/ },
   { method: "PUT", pathPrefix: "/api/settings/api/open/clients", resourceKey: "settings.api.manage", baseAction: "write", pathPattern: /^\/api\/settings\/api\/open\/clients\/[^/]+\/scopes$/ },
-  { method: "POST", pathPrefix: "/api/settings/account/api-key", resourceKey: "settings.account.apiAccess", additionalAction: "revise" },
-  { method: "POST", pathPrefix: "/api/agent", resourceKey: "agent", additionalAction: "submit" },
+  { method: "POST", pathPrefix: "/api/settings/account/api-key", resourceKey: "settings.account.apiAccess", baseAction: "access", additionalAction: "revise" },
+  { method: "POST", pathPrefix: "/api/agent", resourceKey: "agent", baseAction: "access", additionalAction: "submit" },
   { method: "GET", pathPrefix: "/api/settings/admin", resourceKey: "settings.admin", baseAction: "access" },
   { method: "POST", pathPrefix: "/api/settings/admin", resourceKey: "settings.admin", baseAction: "admin" },
   { method: "PUT", pathPrefix: "/api/settings/admin", resourceKey: "settings.admin", baseAction: "admin" },
   { method: "PATCH", pathPrefix: "/api/settings/admin", resourceKey: "settings.admin", baseAction: "admin" },
   { method: "DELETE", pathPrefix: "/api/settings/admin", resourceKey: "settings.admin", baseAction: "admin" },
-  { method: "POST", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "write" },
-  { method: "PUT", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "write" },
-  { method: "PATCH", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "write" },
-  { method: "DELETE", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "write" },
+  { method: "POST", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "access" },
+  { method: "PUT", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "access" },
+  { method: "PATCH", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "access" },
+  { method: "DELETE", pathPrefix: "/api/settings/account", resourceKey: "settings.account", baseAction: "access" },
 ] as const satisfies readonly PermissionApiActionPolicy[];
 
 export const PERMISSION_API_ACTION_POLICY_LIST: readonly PermissionApiActionPolicy[] = PERMISSION_API_ACTION_POLICIES;
