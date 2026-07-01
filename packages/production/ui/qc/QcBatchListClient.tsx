@@ -31,6 +31,19 @@ function formatQcBatchDate(value: string) {
   return new Intl.DateTimeFormat("zh-CN", { dateStyle: "medium", timeStyle: "medium" }).format(new Date(value));
 }
 
+function qcBatchMonthValue(value: string) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  return `${year}-${month}`;
+}
+
+function formatQcBatchMonth(value: string) {
+  const [year, month] = value.split("-");
+  return year && month ? `${year}年${month}月` : value;
+}
+
 function todayBatchNumber() {
   const date = new Date();
   const year = date.getFullYear();
@@ -47,6 +60,7 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
   const [batchNumber, setBatchNumber] = useState(() => todayBatchNumber());
   const [statusFilter, setStatusFilter] = useState("all");
   const [productFilter, setProductFilter] = useState("");
+  const [monthFilter, setMonthFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [createOpen, setCreateOpen] = useState(false);
@@ -61,6 +75,15 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     () => products.map((product) => ({ value: product.id, label: product.productName })),
     [products],
   );
+  const monthFilterOptions = useMemo(() => {
+    const months = new Set(rows.map((batch) => qcBatchMonthValue(batch.createdAt)).filter(Boolean));
+    return [
+      { value: "all", label: "全部月份" },
+      ...Array.from(months)
+        .sort((left, right) => right.localeCompare(left))
+        .map((month) => ({ value: month, label: formatQcBatchMonth(month) })),
+    ];
+  }, [rows]);
 
   const filtered = useMemo(() => {
     let next = rows;
@@ -68,9 +91,10 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
     if (statusFilter === "reviewing") next = next.filter((batch) => batch.statusLabels.includes("待复核"));
     if (statusFilter === "accepted") next = next.filter((batch) => batch.statusLabels.includes("已验收"));
     if (statusFilter === "exception") next = next.filter((batch) => batch.statusLabels.includes("异常"));
+    if (monthFilter !== "all") next = next.filter((batch) => qcBatchMonthValue(batch.createdAt) === monthFilter);
     if (productFilter) next = next.filter((batch) => batch.productKey === productFilter);
     return next;
-  }, [productFilter, rows, statusFilter]);
+  }, [monthFilter, productFilter, rows, statusFilter]);
 
   const totalPages = useMemo(() => Math.max(1, Math.ceil(filtered.length / pageSize)), [filtered.length, pageSize]);
   const visibleBatches = useMemo(() => filtered.slice((page - 1) * pageSize, page * pageSize), [filtered, page, pageSize]);
@@ -171,6 +195,19 @@ export default function QcBatchListClient({ initialRows, products }: Props) {
         setStatusFilter(String(value ?? "all"));
         setPage(1);
       },
+    },
+    {
+      kind: "select",
+      key: "month",
+      section: "filter",
+      label: "月份",
+      options: monthFilterOptions,
+      value: monthFilter,
+      onChange: (value) => {
+        setMonthFilter(String(value ?? "all"));
+        setPage(1);
+      },
+      placeholder: "全部月份",
     },
     {
       kind: "select",
