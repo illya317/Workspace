@@ -56,7 +56,7 @@ function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: Rende
     placeholder: part.placeholder,
     readonlyDisplay: disabled,
     withTime: part.withTime || valueType === "datetime" || rawInputType === "datetime",
-    underline: true,
+    underline: part.display !== "plain",
   };
 
   if (part.type === "dateSlot" || inputType === "date" || inputType === "datetime") {

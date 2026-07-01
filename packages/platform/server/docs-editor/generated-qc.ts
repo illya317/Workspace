@@ -3,6 +3,7 @@ import "server-only";
 import path from "path";
 import { readFileSync } from "fs";
 import { open, readdir, readFile } from "fs/promises";
+import { createHash } from "crypto";
 import type {
   DocsEditorDb,
   DocsEditorSpaceRow,
@@ -12,6 +13,11 @@ import {
   writeTemplateContentJson,
 } from "./content-store";
 import { normalizeDocumentTemplatePayload } from "./domain/document-template-validation";
+import {
+  QC_OFFICIAL_TEMPLATE_PRODUCT_KEYS,
+  QC_OFFICIAL_TEMPLATE_SOURCE_KIND,
+  QC_OFFICIAL_TEMPLATE_STAGE_KEYS,
+} from "./official-templates";
 
 type GeneratedQcMetrics = {
   stageCount?: number;
@@ -39,6 +45,9 @@ type GeneratedQcIndexEntry = {
   productKey: string;
   productName: string;
   generatedAt: Date | null;
+  documentContentHash: string;
+  fieldModelContentHash: string;
+  payload: GeneratedQcPayload;
 };
 
 type GeneratedQcAuditProduct = {
@@ -68,10 +77,9 @@ type GeneratedQcExistingTemplate = Pick<
   | "sourceStageKeys"
   | "publishedAt"
   | "publishedByUserId"
+  | "documentContentHash"
+  | "fieldModelContentHash"
 >;
-
-const SOURCE_KIND = "production.qc.official";
-const SOURCE_STAGE_KEYS = JSON.stringify(["intermediate", "packaging", "finished"]);
 
 let auditIndexCache: GeneratedQcAuditIndex | null | undefined;
 const syncedSnapshotBySpaceId = new Map<number, string>();
@@ -83,22 +91,20 @@ export async function syncGeneratedQcTemplates(input: {
   const entries = await listGeneratedQcIndex();
   if (entries.length === 0) return;
   const snapshotKey = entries.map((entry) => (
-    `${entry.productKey}:${entry.generatedAt?.getTime() ?? ""}`
+    `${entry.productKey}:${entry.generatedAt?.getTime() ?? ""}:${entry.documentContentHash}:${entry.fieldModelContentHash}`
   )).join("|");
   if (syncedSnapshotBySpaceId.get(input.space.id) === snapshotKey) return;
 
-  const existingByProductKey = await listExistingGeneratedQcTemplates(input.db, input.space, entries);
-  if (entries.every((entry) => isGeneratedQcTemplateCurrent(entry, existingByProductKey.get(entry.productKey)))) {
+  const existingByProductKey = await listExistingGeneratedQcTemplates(input.db, entries);
+  if (entries.every((entry) => isGeneratedQcTemplateCurrent(input.space, entry, existingByProductKey.get(entry.productKey)))) {
     syncedSnapshotBySpaceId.set(input.space.id, snapshotKey);
     return;
   }
 
   for (const entry of entries) {
     const existing = existingByProductKey.get(entry.productKey);
-    if (isGeneratedQcTemplateCurrent(entry, existing)) continue;
-    const payload = await readGeneratedQcPayload(entry.filePath);
-    if (!payload) continue;
-    await upsertGeneratedQcTemplate(input.db, input.space, payload);
+    if (isGeneratedQcTemplateCurrent(input.space, entry, existing)) continue;
+    await upsertGeneratedQcTemplate(input.db, input.space, entry.payload);
   }
   syncedSnapshotBySpaceId.set(input.space.id, snapshotKey);
 }
@@ -119,8 +125,7 @@ async function upsertGeneratedQcTemplate(
   }
   const existing = await db.documentTemplate.findFirst({
     where: {
-      spaceId: space.id,
-      sourceKind: SOURCE_KIND,
+      sourceKind: QC_OFFICIAL_TEMPLATE_SOURCE_KIND,
       sourceProductKey: payload.productKey,
       deletedAt: null,
     },
@@ -132,9 +137,9 @@ async function upsertGeneratedQcTemplate(
     status: "published",
     ownerUserId: null,
     spaceId: space.id,
-    sourceKind: SOURCE_KIND,
+    sourceKind: QC_OFFICIAL_TEMPLATE_SOURCE_KIND,
     sourceProductKey: payload.productKey,
-    sourceStageKeys: SOURCE_STAGE_KEYS,
+    sourceStageKeys: QC_OFFICIAL_TEMPLATE_STAGE_KEYS,
     publishedAt: payload.generatedAt ? new Date(payload.generatedAt) : null,
     publishedByUserId: null,
   };
@@ -143,7 +148,15 @@ async function upsertGeneratedQcTemplate(
     fieldModelJson: JSON.stringify(normalized.data.fieldModel),
   };
   if (existing) {
-    if (isUserEditedOfficialTemplate(existing)) return false;
+    if (isUserEditedOfficialTemplate(existing)) {
+      if (existing.spaceId !== space.id) {
+        await db.documentTemplate.update({
+          where: { id: existing.id },
+          data: { spaceId: space.id },
+        });
+      }
+      return false;
+    }
     const contentMetadata = await writeTemplateContentJson({ templateId: existing.id, ...content });
     await db.documentTemplate.update({
       where: { id: existing.id },
@@ -181,14 +194,12 @@ function sameTime(left: Date | null, right: Date | null) {
 
 async function listExistingGeneratedQcTemplates(
   db: DocsEditorDb,
-  space: DocsEditorSpaceRow,
   entries: GeneratedQcIndexEntry[],
 ) {
   const productKeys = entries.map((entry) => entry.productKey);
   const rows = await db.documentTemplate.findMany({
     where: {
-      spaceId: space.id,
-      sourceKind: SOURCE_KIND,
+      sourceKind: QC_OFFICIAL_TEMPLATE_SOURCE_KIND,
       sourceProductKey: { in: productKeys },
       deletedAt: null,
     },
@@ -201,6 +212,8 @@ async function listExistingGeneratedQcTemplates(
       sourceStageKeys: true,
       publishedAt: true,
       publishedByUserId: true,
+      documentContentHash: true,
+      fieldModelContentHash: true,
     },
   }) as GeneratedQcExistingTemplate[];
   const byProductKey = new Map<string, GeneratedQcExistingTemplate>();
@@ -213,16 +226,20 @@ async function listExistingGeneratedQcTemplates(
 }
 
 function isGeneratedQcTemplateCurrent(
+  space: DocsEditorSpaceRow,
   entry: GeneratedQcIndexEntry,
   existing: GeneratedQcExistingTemplate | undefined,
 ) {
   if (!existing) return false;
-  if (isUserEditedOfficialTemplate(existing)) return true;
+  if (isUserEditedOfficialTemplate(existing)) return existing.spaceId === space.id;
   return existing.title === `批检验记录：${entry.productName}`
-    && existing.sourceKind === SOURCE_KIND
+    && existing.spaceId === space.id
+    && existing.sourceKind === QC_OFFICIAL_TEMPLATE_SOURCE_KIND
     && existing.sourceProductKey === entry.productKey
-    && existing.sourceStageKeys === SOURCE_STAGE_KEYS
-    && sameTime(existing.publishedAt, entry.generatedAt);
+    && existing.sourceStageKeys === QC_OFFICIAL_TEMPLATE_STAGE_KEYS
+    && sameTime(existing.publishedAt, entry.generatedAt)
+    && existing.documentContentHash === entry.documentContentHash
+    && existing.fieldModelContentHash === entry.fieldModelContentHash;
 }
 
 function isUserEditedOfficialTemplate(existing: GeneratedQcExistingTemplate) {
@@ -230,30 +247,50 @@ function isUserEditedOfficialTemplate(existing: GeneratedQcExistingTemplate) {
 }
 
 function generatedQcProductsRoot() {
-  return path.resolve(process.cwd(), "generated", "docs-editor", "qc", "products");
+  return path.resolve(process.cwd(), "generated", "production", "qc", "template-snapshots", "products");
 }
 
 function generatedQcAuditPath() {
-  return path.resolve(process.cwd(), "generated", "docs-editor", "qc", "audit.json");
+  return path.resolve(process.cwd(), "generated", "production", "qc", "template-snapshots", "audit.json");
 }
 
 async function listGeneratedQcIndex(): Promise<GeneratedQcIndexEntry[]> {
   const files = (await readdir(generatedQcProductsRoot()).catch(() => []))
     .filter((file) => file.endsWith(".json"))
     .sort();
-  const entries = await Promise.all(files.map(async (file) => {
+  const expectedKeys = new Set<string>(QC_OFFICIAL_TEMPLATE_PRODUCT_KEYS);
+  const entries = (await Promise.all(files.map(async (file) => {
     const filePath = path.join(generatedQcProductsRoot(), file);
     const header = await readGeneratedQcHeader(filePath);
     const productKey = header.productKey ?? path.basename(file, ".json");
     const productName = header.productName ?? productKey;
+    const payload = await readGeneratedQcPayload(filePath);
+    if (!payload) return null;
+    const normalized = normalizeDocumentTemplatePayload(payload.document, payload.fieldModel);
+    if (normalized.ok === false) {
+      throw new Error(`官方 QC 模板数据无效：${payload.productKey} ${normalized.issue.message}`);
+    }
     return {
       filePath,
       productKey,
       productName,
       generatedAt: header.generatedAt ? new Date(header.generatedAt) : null,
+      documentContentHash: contentHash(JSON.stringify(normalized.data.document)),
+      fieldModelContentHash: contentHash(JSON.stringify(normalized.data.fieldModel)),
+      payload,
     };
-  }));
-  return entries.filter((entry) => entry.productKey && entry.productName);
+  }))).filter((entry): entry is GeneratedQcIndexEntry => Boolean(entry?.productKey && entry.productName));
+  const actualKeys = new Set(entries.map((entry) => entry.productKey));
+  const missing = QC_OFFICIAL_TEMPLATE_PRODUCT_KEYS.filter((key) => !actualKeys.has(key));
+  const extra = entries.map((entry) => entry.productKey).filter((key) => !expectedKeys.has(key));
+  if (missing.length > 0 || extra.length > 0) {
+    throw new Error(`官方 QC 模板快照必须固定为 ${QC_OFFICIAL_TEMPLATE_PRODUCT_KEYS.length} 个产品：missing=${missing.join(",") || "-"} extra=${extra.join(",") || "-"}`);
+  }
+  return entries.filter((entry) => expectedKeys.has(entry.productKey));
+}
+
+function contentHash(content: string) {
+  return createHash("sha256").update(content).digest("hex");
 }
 
 async function readGeneratedQcHeader(filePath: string) {

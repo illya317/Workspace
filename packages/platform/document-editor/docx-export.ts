@@ -2,6 +2,8 @@ import type { EditorBlock, EditorDocument, EditorInline } from "./types";
 
 type DocxModule = typeof import("docx");
 type DocxChild = InstanceType<DocxModule["Paragraph"]> | InstanceType<DocxModule["Table"]>;
+type TextRunOptions = ConstructorParameters<DocxModule["TextRun"]>[0];
+type TextRunObjectOptions = Exclude<TextRunOptions, string>;
 
 const A4_WIDTH_DXA = 11906;
 const A4_HEIGHT_DXA = 16838;
@@ -72,6 +74,7 @@ function blockToDocx(
       layout: docx.TableLayoutType.FIXED,
       rows: block.rows.map((row) => new docx.TableRow({
         cantSplit: false,
+        height: rowHeight(docx, row.height),
         children: row.cells.map((cell, cellIndex) => new docx.TableCell({
           columnSpan: cell.colspan && cell.colspan > 1 ? cell.colspan : undefined,
           rowSpan: cell.rowspan && cell.rowspan > 1 ? cell.rowspan : undefined,
@@ -80,9 +83,9 @@ function blockToDocx(
           borders: tableBorders(docx),
           margins: { top: 100, right: 120, bottom: 100, left: 120 },
           children: [new docx.Paragraph({
-            alignment: docx.AlignmentType.CENTER,
+            alignment: docxAlignment(docx, cell.align) ?? docx.AlignmentType.CENTER,
             spacing: { before: 0, after: 0, line: 260 },
-            children: metadataAnnotation(cell.metadata) ? [] : cell.parts.flatMap((part) => inlineToRuns(docx, part, values)),
+            children: metadataAnnotation(cell.metadata) ? [] : cell.parts.flatMap((part) => inlineToRuns(docx, part, values, cell.align)),
           })],
         })),
       })),
@@ -95,10 +98,10 @@ function blockToDocx(
     alignment: paragraphAlignment(docx, block),
     spacing: { before: block.type === "heading" ? 90 : 0, after: block.type === "heading" ? 120 : 80, line: 300 },
     children: block.type === "heading"
-      ? [new docx.TextRun({ text: block.text, bold: block.bold ?? true, size: headingSize(block.level), color: "0F172A", font: PAPER_FONT })]
+      ? textRuns(docx, block.text, { bold: block.bold ?? true, size: headingSize(block.level), color: "0F172A", font: PAPER_FONT })
       : block.type === "paragraph"
         ? block.parts.flatMap((part) => inlineToRuns(docx, part, values))
-        : [new docx.TextRun({ text: `${block.title}：${block.text}`, size: BODY_SIZE, font: PAPER_FONT })],
+        : textRuns(docx, `${block.title}：${block.text}`, { size: BODY_SIZE, font: PAPER_FONT }),
   })];
 }
 
@@ -108,45 +111,64 @@ function paragraphAlignment(docx: DocxModule, block: EditorBlock) {
   return undefined;
 }
 
-function inlineToRuns(docx: DocxModule, part: EditorInline, values: Record<string, unknown>) {
+function inlineToRuns(docx: DocxModule, part: EditorInline, values: Record<string, unknown>, cellAlign?: string) {
   if (metadataAnnotation(part.metadata)) return [];
   if (part.type === "text") {
-    return [new docx.TextRun({
-      text: part.text,
+    return textRuns(docx, part.text, {
       bold: part.bold ?? part.marks?.bold,
       italics: part.marks?.italic,
       size: BODY_SIZE,
       font: PAPER_FONT,
       underline: part.marks?.underline ? { type: docx.UnderlineType.SINGLE } : undefined,
-    })];
+    });
   }
-  if (isChoiceSlot(part)) {
-    const value = part.fieldKey ? exportValue(values[part.fieldKey]) : undefined;
-    return [new docx.TextRun({
-      text: part.options.map((option) => `${choiceMark(value, option)}${option}`).join("    "),
+  const slotPart = inheritCellAlign(part, cellAlign);
+  if (isChoiceSlot(slotPart)) {
+    const value = slotPart.fieldKey ? exportValue(values[slotPart.fieldKey]) : undefined;
+    return textRuns(docx, slotPart.options.map((option) => `${choiceMark(value, option)}${option}`).join("    "), {
       size: BODY_SIZE,
       font: PAPER_FONT,
-    })];
+    });
   }
 
-  const value = part.fieldKey ? exportValue(values[part.fieldKey]) : undefined;
+  const value = slotPart.fieldKey ? exportValue(values[slotPart.fieldKey]) : undefined;
   const hasValue = value !== null && value !== undefined && value !== "";
-  const text = hasValue ? String(value) : slotBlankText(part);
-  const underlined = part.type === "dateSlot"
-    || part.type === "signatureSlot"
-    || part.display !== "plain";
+  const text = hasValue ? String(value) : slotBlankText(slotPart);
+  const underlined = slotPart.type === "dateSlot"
+    || slotPart.type === "signatureSlot"
+    || slotPart.display !== "plain";
 
   return [
     new docx.TextRun({ text: " " }),
-    new docx.TextRun({
-      text,
-      bold: part.type === "formulaSlot",
+    ...textRuns(docx, text, {
+      bold: slotPart.type === "formulaSlot",
       size: BODY_SIZE,
       font: PAPER_FONT,
       underline: underlined ? { type: docx.UnderlineType.SINGLE } : undefined,
     }),
     new docx.TextRun({ text: " " }),
   ];
+}
+
+function textRuns(docx: DocxModule, text: string, base: Omit<TextRunObjectOptions, "text" | "break">) {
+  return text.split("\n").map((line, index) => new docx.TextRun({
+    ...base,
+    ...(index > 0 ? { break: 1 } : {}),
+    text: line,
+  }));
+}
+
+function inheritCellAlign<T extends Exclude<EditorInline, { type: "text" }>>(part: T, cellAlign: string | undefined): T {
+  if (part.align || !cellAlign) return part;
+  return { ...part, align: cellAlign };
+}
+
+function docxAlignment(docx: DocxModule, value: string | undefined) {
+  if (value === "left") return docx.AlignmentType.LEFT;
+  if (value === "right") return docx.AlignmentType.RIGHT;
+  if (value === "center") return docx.AlignmentType.CENTER;
+  if (value === "justify") return docx.AlignmentType.JUSTIFIED;
+  return undefined;
 }
 
 function metadataAnnotation(value: unknown) {
@@ -190,6 +212,11 @@ function parseCssWidth(value: string | undefined) {
   if (value.endsWith("rem")) return numeric * 16;
   if (value.endsWith("em")) return numeric * 14;
   return numeric;
+}
+
+function rowHeight(docx: DocxModule, value: string | undefined) {
+  const height = value ? cssWidthToDxa(value) : undefined;
+  return height ? { value: height, rule: docx.HeightRule.ATLEAST } : undefined;
 }
 
 function headingSize(level: 1 | 2 | 3 | 4) {

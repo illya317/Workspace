@@ -10,10 +10,11 @@ export function DocumentRuntimeValueSlot({
   value: unknown;
 }) {
   const label = displayValue(value);
+  const underlined = part.display !== "plain";
   return (
     <span
       title={slotTitle(part)}
-      className="mx-1 inline-block max-w-full overflow-hidden whitespace-pre-line border-b border-slate-500 px-1 leading-[1.45] text-slate-950 align-baseline"
+      className={`mx-1 inline-block max-w-full overflow-hidden whitespace-pre-line px-1 leading-[1.45] text-slate-950 align-baseline ${underlined ? "border-b border-slate-500" : "border-b-0"}`}
       style={{
         width: `min(${cssSlotWidth(part.width)}, 100%)`,
         maxWidth: "100%",

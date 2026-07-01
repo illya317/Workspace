@@ -5,6 +5,7 @@ import {
   serviceOk,
   type ServiceResult,
 } from "../api";
+import { ensureEditHistoryBaseline, snapshotHistory } from "../history";
 import { prisma } from "../prisma";
 import {
   docsEditorDb,
@@ -30,20 +31,22 @@ import {
   type TemplateIdInput,
 } from "./domain/document-template-validation";
 import {
-  syncGeneratedQcTemplates,
-} from "./generated-qc";
-import {
   canPublishOfficialQcTemplate,
   docsEditorPermissionKind,
   getAllDepartmentContexts,
   getDepartmentContext,
   getGroupCompanyContext,
-  getQcDepartmentContext,
   getUserDepartmentContexts,
   isDocsEditorRoleAtLeast,
   resolveSpaceRole,
   resolveTemplateRole,
 } from "./permissions";
+import {
+  ensureOfficialTemplates,
+} from "./official-template-sync";
+export {
+  getPublishedHrPositionDescriptionOfficialTemplate,
+} from "./official-template-sync";
 import type {
   DocsEditorBootstrapDto,
   DocsEditorPermissionRole,
@@ -170,15 +173,6 @@ async function ensureDepartmentSpace(departmentId: number, db: DocsEditorDb = do
   }, db);
 }
 
-async function ensureQcOfficialTemplates(db: DocsEditorDb = docsEditorDb()) {
-  const department = await getQcDepartmentContext();
-  if (!department) return null;
-  const space = await ensureDepartmentSpace(department.id, db);
-  if (!space) return null;
-  await syncGeneratedQcTemplates({ db, space });
-  return space;
-}
-
 async function listExplicitSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
   const rows = await prisma.documentTemplateSpacePermission.findMany({
     where: { userId, kind: docsEditorPermissionKind() },
@@ -220,7 +214,7 @@ async function listExplicitSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
 
 async function listAccessibleSpaces(userId: number) {
   const db = docsEditorDb();
-  await ensureQcOfficialTemplates(db);
+  await ensureOfficialTemplates(db);
   const isAdmin = await canPublishOfficialQcTemplate(userId);
   const departments = isAdmin ? await getAllDepartmentContexts() : await getUserDepartmentContexts(userId);
   const personal = await ensurePersonalSpace(userId, db);
@@ -325,7 +319,7 @@ export async function getTemplate(input: TemplateIdInput): Promise<ServiceResult
   const command = buildTemplateIdCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
   const db = docsEditorDb();
-  await ensureQcOfficialTemplates(db);
+  await ensureOfficialTemplates(db);
   const current = await getTemplateWithRole(command.data.userId, command.data.templateId, db);
   if (!current) return serviceError("模板不存在", 404);
   if (!current.role) return serviceError("无权限", 403);
@@ -357,26 +351,33 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
 
   const db = docsEditorDb();
   if (command.data.templateId) {
-    const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
+    const templateId = command.data.templateId;
+    const current = await getTemplateWithRole(command.data.userId, templateId);
     if (!current) return serviceError("模板不存在", 404);
     if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
     if (current.template.status === "archived") {
       return serviceError("已归档模板不能直接保存", 409);
     }
-    const contentUpdate = await writeTemplateContentUpdate({
-      templateId: command.data.templateId,
-      data: command.data.data,
-      existing: current.template,
-    });
-    const updated = await db.documentTemplate.update({
-      where: { id: command.data.templateId },
-      data: {
-        ...stripTemplateContentData(command.data.data),
-        ...contentUpdate,
-        status: current.template.status === "published" ? "published" : "draft",
-        ...(current.template.status === "published" ? { publishedAt: new Date(), publishedByUserId: command.data.userId } : {}),
-        version: { increment: 1 },
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const txDb = docsEditorDb(tx);
+      await ensureEditHistoryBaseline("DocumentTemplate", templateId, command.data.userId, tx);
+      const contentUpdate = await writeTemplateContentUpdate({
+        templateId,
+        data: command.data.data,
+        existing: current.template,
+      });
+      const saved = await txDb.documentTemplate.update({
+        where: { id: templateId },
+        data: {
+          ...stripTemplateContentData(command.data.data),
+          ...contentUpdate,
+          status: current.template.status === "published" ? "published" : "draft",
+          ...(current.template.status === "published" ? { publishedAt: new Date(), publishedByUserId: command.data.userId } : {}),
+          version: { increment: 1 },
+        },
+      });
+      await snapshotHistory("DocumentTemplate", templateId, command.data.userId, tx);
+      return saved;
     });
     return serviceOk(await templateDetailDto(updated, roleOrViewer(current.role)));
   }
@@ -385,28 +386,33 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
   if (!targetSpace) return serviceError("目标空间不存在", 404);
   const spaceRole = await resolveSpaceRole(command.data.userId, targetSpace);
   if (!isDocsEditorRoleAtLeast(spaceRole, "editor")) return serviceError("无权限", 403);
-  const created = await db.documentTemplate.create({
-    data: {
-      title: command.data.data.title || "未命名模板",
-      type: command.data.data.type || "document",
-      status: "draft",
-      ownerUserId: command.data.userId,
-      spaceId: targetSpace.id,
-      documentJson: command.data.data.documentJson || "{}",
-      fieldModelJson: command.data.data.fieldModelJson || "{}",
-      sourceKind: command.data.data.sourceKind ?? null,
-      sourceProductKey: command.data.data.sourceProductKey ?? null,
-      sourceStageKeys: command.data.data.sourceStageKeys ?? null,
-    },
+  const saved = await prisma.$transaction(async (tx) => {
+    const txDb = docsEditorDb(tx);
+    const created = await txDb.documentTemplate.create({
+      data: {
+        title: command.data.data.title || "未命名模板",
+        type: command.data.data.type || "document",
+        status: "draft",
+        ownerUserId: command.data.userId,
+        spaceId: targetSpace.id,
+        documentJson: command.data.data.documentJson || "{}",
+        fieldModelJson: command.data.data.fieldModelJson || "{}",
+        sourceKind: command.data.data.sourceKind ?? null,
+        sourceProductKey: command.data.data.sourceProductKey ?? null,
+        sourceStageKeys: command.data.data.sourceStageKeys ?? null,
+      },
+    });
+    const createdContentUpdate = await writeTemplateContentUpdate({
+      templateId: created.id,
+      data: command.data.data,
+      existing: created,
+    });
+    const result = Object.keys(createdContentUpdate).length
+      ? await txDb.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate })
+      : created;
+    await snapshotHistory("DocumentTemplate", result.id, command.data.userId, tx);
+    return result;
   });
-  const createdContentUpdate = await writeTemplateContentUpdate({
-    templateId: created.id,
-    data: command.data.data,
-    existing: created,
-  });
-  const saved = Object.keys(createdContentUpdate).length
-    ? await db.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate })
-    : created;
   return serviceOk(await templateDetailDto(saved, roleOrViewer(spaceRole)));
 }
 
@@ -428,26 +434,31 @@ export async function copyTemplate(input: CopyTemplateInput): Promise<ServiceRes
   if (!isDocsEditorRoleAtLeast(targetRole, "editor")) return serviceError("无权限", 403);
   const sourceContent = await readTemplateContentJson(source.template);
 
-  const created = await db.documentTemplate.create({
-    data: {
-      title: command.data.title || `${source.template.title} 副本`,
-      type: source.template.type,
-      status: "draft",
-      ownerUserId: command.data.userId,
-      spaceId: targetSpace.id,
-      documentJson: sourceContent.documentJson,
-      fieldModelJson: sourceContent.fieldModelJson,
-      sourceKind: null,
-      sourceProductKey: null,
-      sourceStageKeys: source.template.sourceStageKeys,
-    },
+  const saved = await prisma.$transaction(async (tx) => {
+    const txDb = docsEditorDb(tx);
+    const created = await txDb.documentTemplate.create({
+      data: {
+        title: command.data.title || `${source.template.title} 副本`,
+        type: source.template.type,
+        status: "draft",
+        ownerUserId: command.data.userId,
+        spaceId: targetSpace.id,
+        documentJson: sourceContent.documentJson,
+        fieldModelJson: sourceContent.fieldModelJson,
+        sourceKind: null,
+        sourceProductKey: null,
+        sourceStageKeys: source.template.sourceStageKeys,
+      },
+    });
+    const createdContentUpdate = await writeTemplateContentUpdate({
+      templateId: created.id,
+      data: sourceContent,
+      existing: created,
+    });
+    const result = await txDb.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate });
+    await snapshotHistory("DocumentTemplate", result.id, command.data.userId, tx);
+    return result;
   });
-  const createdContentUpdate = await writeTemplateContentUpdate({
-    templateId: created.id,
-    data: sourceContent,
-    existing: created,
-  });
-  const saved = await db.documentTemplate.update({ where: { id: created.id }, data: createdContentUpdate });
   return serviceOk(await templateDetailDto(saved, roleOrViewer(targetRole)));
 }
 
@@ -458,12 +469,16 @@ export async function deleteDraft(input: TemplateIdInput): Promise<ServiceResult
   if (!current) return serviceError("模板不存在", 404);
   if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
   if (current.template.status !== "draft") return serviceError("只能删除草稿模板", 409);
-  const db = docsEditorDb();
-  await deleteTemplateContentFiles(current.template);
-  await db.documentTemplate.update({
-    where: { id: command.data.templateId },
-    data: { deletedAt: new Date(), version: { increment: 1 } },
+  await prisma.$transaction(async (tx) => {
+    const txDb = docsEditorDb(tx);
+    await ensureEditHistoryBaseline("DocumentTemplate", command.data.templateId, command.data.userId, tx);
+    await txDb.documentTemplate.update({
+      where: { id: command.data.templateId },
+      data: { deletedAt: new Date(), version: { increment: 1 } },
+    });
+    await snapshotHistory("DocumentTemplate", command.data.templateId, command.data.userId, tx);
   });
+  await deleteTemplateContentFiles(current.template);
   return serviceOk({ id: String(command.data.templateId) });
 }
 

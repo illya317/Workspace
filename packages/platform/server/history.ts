@@ -44,6 +44,9 @@ export async function ensureEditHistoryBaseline(
 
   const record = await readRecord(policy, entityId, client);
   if (!record) return;
+  const snapshot = policy.prepareSnapshot
+    ? await policy.prepareSnapshot(record, client as HistoryClient)
+    : record;
 
   await client.editHistory.create({
     data: {
@@ -51,7 +54,7 @@ export async function ensureEditHistoryBaseline(
       entityId: entityIdStr,
       version: 0,
       tag: "V0:baseline",
-      dataJson: JSON.stringify(record),
+      dataJson: JSON.stringify(snapshot),
       editedBy: userId,
     },
   });
@@ -70,6 +73,9 @@ export async function snapshotHistory(
 
   const record = await readRecord(policy, entityId, client);
   if (!record) return;
+  const snapshot = policy.prepareSnapshot
+    ? await policy.prepareSnapshot(record, client as HistoryClient)
+    : record;
 
   const entityIdStr = String(entityId);
 
@@ -84,7 +90,7 @@ export async function snapshotHistory(
       entityType,
       entityId: entityIdStr,
       version: nextVersion,
-      dataJson: JSON.stringify(record),
+      dataJson: JSON.stringify(snapshot),
       editedBy: userId,
     },
   });

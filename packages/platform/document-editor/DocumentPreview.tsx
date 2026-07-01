@@ -9,6 +9,7 @@ type RenderContext = {
   values: Record<string, unknown>;
   renderSlot?: DocumentPreviewProps["renderSlot"];
   inTable: boolean;
+  cellAlign?: string;
 };
 
 export default function DocumentPreview({ document, values, toolbar, renderSlot }: DocumentPreviewProps) {
@@ -65,10 +66,10 @@ function renderBlock(block: EditorBlock, context: RenderContext, blockIndex: num
                   key={cellKey}
                   colSpan={cell.colspan}
                   rowSpan={cell.rowspan}
-                  className={`border border-slate-500 px-2 py-1 text-center align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cell.isEmpty ? "text-transparent" : ""} ${cell.className || ""} ${annotationClassName(cell.metadata)}`}
+                  className={`border border-slate-500 px-2 py-1 text-center align-middle ${cell.bold || cell.header ? "font-semibold" : "font-normal"} ${cellSemanticClassName(cell)} ${annotationClassName(cell.metadata)}`}
                   style={{ textAlign: cellTextAlign(cell.align), width: cell.width }}
                 >
-                  {cell.parts.map((part, index) => renderInline(part, { ...context, inTable: true }, `${cellKey}:inline-${index}`))}
+                  {cell.parts.map((part, index) => renderInline(part, { ...context, inTable: true, cellAlign: cell.align }, `${cellKey}:inline-${index}`))}
                 </Cell>
               );
             })}
@@ -81,10 +82,11 @@ function renderBlock(block: EditorBlock, context: RenderContext, blockIndex: num
 
 function headingClassName(block: Extract<EditorBlock, { type: "heading" }>) {
   const align = block.level === 1 || block.metadata?.qcRole === "stageHeading" ? " text-center" : "";
-  if (block.level === 1) return `mb-4 mt-2 text-[22px] font-bold leading-9${align}`;
-  if (block.level === 2) return `mb-3 mt-4 text-[18px] font-bold leading-8${align}`;
-  if (block.level === 3) return `mb-2 mt-3 text-[16px] font-bold leading-7${align}`;
-  return `mb-2 mt-2 text-[14px] font-semibold leading-7${align}`;
+  const weight = block.bold === false ? "font-normal" : block.level === 4 ? "font-semibold" : "font-bold";
+  if (block.level === 1) return `mb-4 mt-2 text-[22px] ${weight} leading-9${align}`;
+  if (block.level === 2) return `mb-3 mt-4 text-[18px] ${weight} leading-8${align}`;
+  if (block.level === 3) return `mb-2 mt-3 text-[16px] ${weight} leading-7${align}`;
+  return `mb-2 mt-2 text-[14px] ${weight} leading-7${align}`;
 }
 
 function paragraphClassName(block: Extract<EditorBlock, { type: "paragraph" }>) {
@@ -92,14 +94,15 @@ function paragraphClassName(block: Extract<EditorBlock, { type: "paragraph" }>) 
 }
 
 function renderInline(part: EditorInline, context: RenderContext, key: string) {
-  if (part.type === "text") return <span key={key} className={annotationClassName(part.metadata)}>{part.bold || part.marks?.bold ? <strong>{part.text}</strong> : part.text}</span>;
-  const value = part.fieldKey ? context.values[part.fieldKey] : undefined;
-  const customSlot = context.renderSlot?.({ part, value, key, inTable: context.inTable });
+  if (part.type === "text") return renderTextInline(part, key);
+  const slotPart = inheritCellAlign(part, context.cellAlign);
+  const value = slotPart.fieldKey ? context.values[slotPart.fieldKey] : undefined;
+  const customSlot = context.renderSlot?.({ part: slotPart, value, key, inTable: context.inTable });
   if (customSlot != null) return <span key={key} className={annotationClassName(part.metadata)}>{customSlot}</span>;
-  if (isChoiceSlot(part)) {
+  if (isChoiceSlot(slotPart)) {
     return (
-      <span key={key} title={slotTitle(part)} className={`inline-block whitespace-nowrap text-slate-950 align-baseline ${annotationClassName(part.metadata)}`}>
-        {part.options.map((option) => (
+      <span key={key} title={slotTitle(slotPart)} className={`inline-block whitespace-nowrap text-slate-950 align-baseline ${annotationClassName(slotPart.metadata)}`}>
+        {slotPart.options.map((option) => (
           <span key={`${key}:${option}`} className="mr-6 inline-block whitespace-nowrap last:mr-0">
             {choiceMark(value, option)}{option}
           </span>
@@ -107,19 +110,50 @@ function renderInline(part: EditorInline, context: RenderContext, key: string) {
       </span>
     );
   }
-  const label = value == null || value === "" ? visibleSlotLabel(part) : String(value);
-  const width = cssSlotWidth(part.width);
+  const label = value == null || value === "" ? visibleSlotLabel(slotPart) : String(value);
+  const width = cssSlotWidth(slotPart.width);
   const autoWidth = width === "auto";
+  const underlined = slotPart.display !== "plain";
+  const multiline = label.includes("\n");
   return (
     <span
       key={key}
-      title={slotTitle(part)}
-      className={`mx-1 inline-block max-w-full overflow-hidden whitespace-nowrap px-1 leading-[1.25] text-slate-700 align-baseline ${autoWidth ? "border-b-0" : "border-b border-slate-500"} ${annotationClassName(part.metadata)}`}
-      style={{ width: autoWidth ? "auto" : `min(${width}, 100%)`, maxWidth: "100%", textAlign: slotTextAlign(part.align) }}
+      title={slotTitle(slotPart)}
+      className={`mx-1 inline-block max-w-full overflow-hidden px-1 leading-[1.25] text-slate-700 align-baseline ${multiline ? "whitespace-pre-line" : "whitespace-nowrap"} ${underlined && !autoWidth ? "border-b border-slate-500" : "border-b-0"} ${annotationClassName(slotPart.metadata)}`}
+      style={{ width: autoWidth ? "auto" : `min(${width}, 100%)`, maxWidth: "100%", textAlign: slotTextAlign(slotPart.align) }}
     >
       {label}
     </span>
   );
+}
+
+function renderTextInline(part: Extract<EditorInline, { type: "text" }>, key: string) {
+  const bold = part.bold || part.marks?.bold;
+  const italic = part.marks?.italic;
+  const underline = part.marks?.underline;
+  return (
+    <span
+      key={key}
+      className={`${part.text.includes("\n") ? "whitespace-pre-line" : ""} ${italic ? "italic" : ""} ${underline ? "underline underline-offset-2" : ""} ${annotationClassName(part.metadata)}`}
+    >
+      {bold ? <strong>{part.text}</strong> : part.text}
+    </span>
+  );
+}
+
+function inheritCellAlign<T extends Exclude<EditorInline, { type: "text" }>>(part: T, cellAlign: string | undefined): T {
+  if (part.align || !cellAlign) return part;
+  return { ...part, align: cellAlign };
+}
+
+function cellSemanticClassName(cell: Extract<EditorBlock, { type: "table" }>["rows"][number]["cells"][number]) {
+  const tokens = new Set((cell.className || "").split(/\s+/).filter(Boolean));
+  return [
+    cell.isEmpty || tokens.has("empty") ? "text-transparent" : "",
+    tokens.has("label-cell") ? "whitespace-nowrap font-semibold" : "",
+    tokens.has("basis-cell") ? "whitespace-pre-line leading-6" : "",
+    cell.className || "",
+  ].filter(Boolean).join(" ");
 }
 
 function isChoiceSlot(part: Exclude<EditorInline, { type: "text" }>): part is Exclude<EditorInline, { type: "text" }> & { options: string[] } {

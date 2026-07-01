@@ -126,7 +126,7 @@ export interface GenerateQcEditorTemplatesOptions {
 
 const DEFAULT_CONFIG_ROOT = "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc";
 const DEFAULT_SOURCE_SCHEMA_ROOT = path.join(DEFAULT_CONFIG_ROOT, "source", "source_docs", "schema");
-const DEFAULT_OUTPUT_ROOT = path.join(process.cwd(), "generated", "docs-editor", "qc");
+const DEFAULT_OUTPUT_ROOT = path.join(process.cwd(), "generated", "production", "qc", "template-snapshots");
 const STAGE_ORDER = ["intermediate", "packaging", "finished"];
 
 export async function generateQcEditorTemplates(options: GenerateQcEditorTemplatesOptions = {}) {

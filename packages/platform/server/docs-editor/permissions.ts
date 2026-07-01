@@ -16,6 +16,10 @@ import type {
   DocsEditorPermissionRole,
   DocsEditorSpaceKind,
 } from "./types";
+import {
+  HR_POSITION_DESCRIPTION_DEPARTMENT_CODE,
+  HR_POSITION_DESCRIPTION_DEPARTMENT_NAME,
+} from "./official-templates";
 
 export type DepartmentContext = {
   id: number;
@@ -116,6 +120,18 @@ export async function getQcDepartmentContext(): Promise<DepartmentContext | null
   if (byCode) return byCode;
   return prisma.department.findFirst({
     where: { name: "质量控制部", isArchived: false },
+    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+  });
+}
+
+export async function getHrDepartmentContext(): Promise<DepartmentContext | null> {
+  const byCode = await prisma.department.findFirst({
+    where: { code: HR_POSITION_DESCRIPTION_DEPARTMENT_CODE, isArchived: false },
+    select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
+  });
+  if (byCode) return byCode;
+  return prisma.department.findFirst({
+    where: { name: HR_POSITION_DESCRIPTION_DEPARTMENT_NAME, isArchived: false },
     select: { id: true, name: true, code: true, managerUserId: true, isArchived: true },
   });
 }

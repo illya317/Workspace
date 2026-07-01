@@ -1,6 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
+import { getPublishedHrPositionDescriptionOfficialTemplate } from "@workspace/platform/server/docs-editor";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchSearchFields } from "@workspace/platform/search";
@@ -19,32 +20,8 @@ function parseDetails(details: string | null) {
   }
 }
 
-function parseJson(value: string, fallback: unknown) {
-  try {
-    return JSON.parse(value);
-  } catch {
-    return fallback;
-  }
-}
-
 async function getPublishedPositionDescriptionTemplate() {
-  const template = await prisma.documentTemplate.findFirst({
-    where: {
-      sourceKind: "hr.position-description.official",
-      sourceProductKey: "hr.position-description.default",
-      status: "published",
-      deletedAt: null,
-    },
-    orderBy: [{ version: "desc" }, { updatedAt: "desc" }, { id: "desc" }],
-  });
-  if (!template) return null;
-  return {
-    id: template.id,
-    version: template.version,
-    title: template.title,
-    document: parseJson(template.documentJson, null),
-    fieldModel: parseJson(template.fieldModelJson, null),
-  };
+  return getPublishedHrPositionDescriptionOfficialTemplate();
 }
 
 export async function getPositionDescriptionTree() {

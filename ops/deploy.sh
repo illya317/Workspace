@@ -278,11 +278,15 @@ build_artifact() {
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
   cp -R generated/prisma .next/standalone/generated/prisma
+  rm -rf .next/standalone/generated/production/qc/template-snapshots
+  mkdir -p .next/standalone/generated/production/qc
+  cp -R generated/production/qc/template-snapshots .next/standalone/generated/production/qc/template-snapshots
   find .next/standalone \( -name '.DS_Store' -o -name '._*' \) -delete
 
   test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
   test -f .next/standalone/generated/prisma/client.ts
+  test -f .next/standalone/generated/production/qc/template-snapshots/products/allopurinol.json
 
   ARTIFACT_PATH=".next/workspace-standalone.tgz"
   rm -f "$ARTIFACT_PATH"

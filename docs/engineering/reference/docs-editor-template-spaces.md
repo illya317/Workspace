@@ -62,7 +62,7 @@ npm run docs-editor:content:migrate
 QC 官方模板属于真实部门空间，不再作为虚拟空间或虚拟模板 ID 暴露。
 
 - 部门解析优先使用 `Department.code = FUN701`，找不到时回退到 `Department.name = 质量控制部`。
-- `generated/docs-editor/qc/products/*.json` 是同步源快照，不是前端直接选择的模板空间。
+- `generated/production/qc/template-snapshots/products/*.json` 是 Production QC 生成的同步源快照，不是 Docs Editor 模板正文目录，也不是前端直接选择的模板空间。
 - Docs Editor 服务进入空间列表时会确保质量控制部空间，并把 QC 快照 upsert 成真实 `DocumentTemplate`；正文同样写入 `$WORKSPACE_CONFIG_DIR/data/docs-editor/templates`，DB 只保留文件引用。
 - 官方模板使用 `sourceKind=production.qc.official` 和 `sourceProductKey` 标识同一产品模板，重复同步更新同一真实模板。
 - 复制官方模板时，副本清空 `sourceKind/sourceProductKey`，避免用户副本参与官方同步。

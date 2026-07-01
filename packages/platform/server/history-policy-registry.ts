@@ -1,3 +1,6 @@
+import os from "os";
+import path from "path";
+import { readFile } from "fs/promises";
 import { FIELD_LABELS } from "../audit/field-labels";
 import type { PrismaClient } from "./prisma";
 
@@ -50,6 +53,7 @@ export type HistoryPolicy = {
   fieldLabels?: Record<string, string>;
   ignoredFields?: readonly string[];
   restore: false | HistoryRestorePolicy;
+  prepareSnapshot?: (record: Record<string, unknown>, client: HistoryClient) => Promise<Record<string, unknown>>;
   summarizeChanges?: (context: HistorySummaryContext) => HistoryChange[];
 };
 
@@ -151,6 +155,51 @@ const financeAccountLabels = {
   subjectLevel: "科目层级",
   reclassTargetCode: "重分类目标科目",
 } satisfies Record<string, string>;
+
+const documentTemplateLabels = {
+  title: "模板名称",
+  type: "模板类型",
+  status: "状态",
+  spaceId: "模板空间",
+  documentJson: "模板正文",
+  fieldModelJson: "字段模型",
+  sourceKind: "来源类型",
+  sourceProductKey: "来源标识",
+  publishedAt: "发布时间",
+  publishedByUserId: "发布人",
+} satisfies Record<string, string>;
+
+async function prepareDocumentTemplateSnapshot(record: Record<string, unknown>) {
+  const content = await readDocumentTemplateContentJson(record);
+  return {
+    ...record,
+    documentJson: content.documentJson,
+    fieldModelJson: content.fieldModelJson,
+  };
+}
+
+async function readDocumentTemplateContentJson(record: Record<string, unknown>) {
+  const documentJson = typeof record.documentJson === "string" ? record.documentJson : "{}";
+  const fieldModelJson = typeof record.fieldModelJson === "string" ? record.fieldModelJson : "{}";
+  const [documentContent, fieldModelContent] = await Promise.all([
+    readDocumentTemplateContentRef(typeof record.documentContentRef === "string" ? record.documentContentRef : null),
+    readDocumentTemplateContentRef(typeof record.fieldModelContentRef === "string" ? record.fieldModelContentRef : null),
+  ]);
+  return {
+    documentJson: documentContent ?? documentJson,
+    fieldModelJson: fieldModelContent ?? fieldModelJson,
+  };
+}
+
+async function readDocumentTemplateContentRef(ref: string | null) {
+  if (!ref) return null;
+  const rootRef = "data/docs-editor/templates";
+  if (path.isAbsolute(ref) || ref.includes("..") || !ref.startsWith(`${rootRef}/`)) return null;
+  const configured = process.env["WORKSPACE_CONFIG_DIR"]?.trim();
+  if (!configured) return null;
+  const root = configured === "~" ? os.homedir() : configured.startsWith("~/") ? path.join(os.homedir(), configured.slice(2)) : configured;
+  return readFile(path.join(root, ...ref.split("/")), "utf8").catch(() => null);
+}
 
 function parseContractSnapshots(value: unknown) {
   if (!value || typeof value !== "string") return [];
@@ -313,6 +362,29 @@ export const historyPolicyRegistry = {
     fieldLabels: financeAccountLabels,
     ignoredFields: AUDIT_FIELDS,
     restore: false,
+  },
+  DocumentTemplate: {
+    entityType: "DocumentTemplate",
+    modelKey: "documentTemplate",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "title", fallback: "未知模板" },
+    fieldLabels: documentTemplateLabels,
+    ignoredFields: [
+      "id",
+      "version",
+      "createdAt",
+      "updatedAt",
+      "deletedAt",
+      "documentContentRef",
+      "documentContentHash",
+      "documentContentBytes",
+      "fieldModelContentRef",
+      "fieldModelContentHash",
+      "fieldModelContentBytes",
+    ],
+    restore: false,
+    prepareSnapshot: prepareDocumentTemplateSnapshot,
   },
 } as const satisfies Record<string, HistoryPolicy>;
 

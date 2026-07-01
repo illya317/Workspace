@@ -21,7 +21,7 @@
 
 第一阶段做 Workspace 入口、权限、官方模板快照、批次台账和记录页面。QC 官方模板由 `/docs/editor` 发布，Production 运行态只读取批次快照中的 docs editor document。
 
-迁移期批次数据先落在 `WORKSPACE_CONFIG_DIR/data/qc.json`。QC 官方模板的编辑、复制、发布和权限管理归 `/docs/editor`，生成模板快照由 `generated/docs-editor/qc` 提供同步源，Docs Editor 会把它们 upsert 成质量控制部的真实部门模板。
+迁移期批次数据先落在 `WORKSPACE_CONFIG_DIR/data/qc.json`。QC 官方模板的编辑、复制、发布和权限管理归 `/docs/editor`，生成模板快照由 `generated/production/qc/template-snapshots` 提供同步源，Docs Editor 会把它们 upsert 成质量控制部的真实部门模板。
 
 当前已接入：
 
@@ -32,7 +32,7 @@
 5. `/production/qc/[batchId]/[stageKey]` 使用 docs editor document 的阶段切片展示检验前确认表，纸面渲染复用 `/docs` 的 `DocumentPreview`。
 6. `/production/qc/[batchId]/[stageKey]/[testName]` 使用 docs editor document 的检验项目切片展示纸面记录；公式和引用由 docs field model 驱动，Production 不再保留独立纸面 renderer。
 7. `/api/modules/production/qc*` 提供 JSON 批次台账读写接口。
-8. `/docs/editor` 把 `generated/docs-editor/qc` 中的 QC 官方模板快照同步到质量控制部部门空间，负责模板空间、纸面编辑、复制、发布和权限管理。
+8. `/docs/editor` 把 `generated/production/qc/template-snapshots` 中的 QC 官方模板快照同步到质量控制部部门空间，负责模板空间、纸面编辑、复制、发布和权限管理。
 
 QC 批次页面只使用批次固化的 docs editor 模板快照。模板编辑器入口不再通过 Production L2 暴露。
 

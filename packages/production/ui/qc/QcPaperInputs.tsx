@@ -49,15 +49,17 @@ function inputWidth(part: QcPaperSlotPart): CSSProperties {
 }
 
 function adaptiveInputWidth(part: QcPaperSlotPart): CSSProperties {
-  const configured = cssSlotWidth(part.width);
-  if (configured === "auto") return { width: "auto", minWidth: "3rem", maxWidth: "100%" };
-  return { width: "auto", minWidth: configured, maxWidth: "100%" };
+  return { width: "auto", minWidth: adaptiveMinWidth(part.width), maxWidth: "100%" };
 }
 
 function adaptiveSelectWidth(part: QcPaperSlotPart): CSSProperties {
-  const configured = cssSlotWidth(part.width);
-  if (configured === "auto") return { width: "auto", minWidth: "3rem", maxWidth: "100%", backgroundImage: "none" };
-  return { width: "auto", minWidth: configured, maxWidth: "100%", backgroundImage: "none" };
+  return { width: "auto", minWidth: adaptiveMinWidth(part.width), maxWidth: "100%", backgroundImage: "none" };
+}
+
+function adaptiveMinWidth(value: string | undefined) {
+  const configured = cssSlotWidth(value);
+  if (configured === "auto") return "3rem";
+  return `max(${configured}, 3rem)`;
 }
 
 export function qcRangeLabel(part: QcPaperSlotPart) {

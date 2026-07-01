@@ -42,7 +42,7 @@ export function createQcBatchCreateSection({
         options: {
           source: "static",
           mode: "autocomplete",
-          visibleCount: 8,
+          visibleCount: 5,
           items: products.map(product => ({ value: product.id, label: product.productName })),
         },
       },

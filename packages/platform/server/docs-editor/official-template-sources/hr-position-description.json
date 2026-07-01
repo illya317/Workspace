@@ -1,0 +1,1566 @@
+{
+  "schemaVersion": 1,
+  "kind": "hr-position-description-official-template",
+  "title": "岗位说明书",
+  "type": "position-description",
+  "sourceKind": "hr.position-description.official",
+  "sourceProductKey": "hr.position-description.default",
+  "sourceStageKeys": null,
+  "publishedAt": "2026-06-30 19:44:37",
+  "document": {
+    "schemaVersion": 1,
+    "kind": "editor-document",
+    "id": "hr-position-description-official-template",
+    "title": "岗位说明书",
+    "metadata": {
+      "sourceModel": "PositionDescription",
+      "layout": "position-description-official-table",
+      "note": "对象数组字段保留子字段路径：duties/title/items、major/category/specialty、experience/years/requirement、workEnvironments/area/factors。"
+    },
+    "blocks": [
+      {
+        "id": "position-description-layout",
+        "type": "table",
+        "title": "岗位说明书",
+        "columnWidths": [
+          "16%",
+          "7%",
+          "27%",
+          "16%",
+          "14%",
+          "20%"
+        ],
+        "metadata": {
+          "layout": "single-bordered-table",
+          "sourceModel": "PositionDescription",
+          "dynamicRegions": {
+            "duties": {
+              "renderer": "hierarchical-duty-groups",
+              "sourcePath": "details.duties",
+              "itemPath": "details.duties[]",
+              "titlePath": "details.duties[].title",
+              "itemsPath": "details.duties[].items[]",
+              "groupTitlePrefix": "职责",
+              "leftSectionLabel": "4 职责描述",
+              "itemLabel": "工作职责",
+              "sampleRows": [
+                "duties-title-template",
+                "duties-items-template"
+              ]
+            },
+            "major": {
+              "renderer": "object-list-subfields",
+              "sourcePath": "details.major",
+              "itemPath": "details.major[]",
+              "subfields": {
+                "category": "details.major[].category",
+                "specialty": "details.major[].specialty"
+              }
+            },
+            "experience": {
+              "renderer": "object-list-subfields",
+              "sourcePath": "details.experienceRequirements",
+              "itemPath": "details.experienceRequirements[]",
+              "subfields": {
+                "years": "details.experienceRequirements[].years",
+                "requirement": "details.experienceRequirements[].requirement"
+              }
+            },
+            "skills": {
+              "renderer": "numbered-list-rows",
+              "sourcePath": "details.skills",
+              "itemPath": "details.skills[]",
+              "leftLabel": "技能"
+            },
+            "workEnvironments": {
+              "renderer": "object-list-subfields",
+              "sourcePath": "details.workEnvironments",
+              "itemPath": "details.workEnvironments[]",
+              "subfields": {
+                "area": "details.workEnvironments[].area",
+                "factors": "details.workEnvironments[].factors[]"
+              }
+            }
+          }
+        },
+        "rows": [
+          {
+            "id": "section-basic",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "1 职位基本信息",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "basic-1",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "岗位名称"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.name",
+                    "label": "岗位名称",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.name"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.name"
+                },
+                "colspan": 2
+              },
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "岗位编号"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.code",
+                    "label": "岗位编号",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.code"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.code"
+                },
+                "colspan": 2
+              }
+            ]
+          },
+          {
+            "id": "basic-2",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "所属部门"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.departmentName",
+                    "label": "所属部门",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.departmentName"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.departmentName"
+                },
+                "colspan": 2
+              },
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "直接上级"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.reportTo",
+                    "label": "直接上级",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.reportTo"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.reportTo"
+                },
+                "colspan": 2
+              }
+            ]
+          },
+          {
+            "id": "basic-3",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "直接下级"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.subordinates",
+                    "label": "直接下级",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.subordinates"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.subordinates"
+                },
+                "colspan": 2
+              },
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "岗位编制"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.headcount",
+                    "label": "岗位编制",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.headcount"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.headcount"
+                },
+                "colspan": 2
+              }
+            ]
+          },
+          {
+            "id": "section-purpose",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "2 岗位目的",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "purpose-value",
+            "cells": [
+              {
+                "align": "left",
+                "colspan": 6,
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.purpose",
+                    "label": "岗位目的",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.purpose"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "section-value",
+                  "sourceFieldKey": "position.purpose"
+                }
+              }
+            ]
+          },
+          {
+            "id": "section-summary",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "3 岗位职责概要",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "summary-value",
+            "cells": [
+              {
+                "align": "left",
+                "colspan": 6,
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.summary",
+                    "label": "岗位职责概要",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.summary"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "section-value",
+                  "sourceFieldKey": "position.summary"
+                }
+              }
+            ]
+          },
+          {
+            "id": "duties-title-template",
+            "cells": [
+              {
+                "header": true,
+                "rowspan": 2,
+                "align": "center",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "4 职责描述",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title-merged",
+                  "dynamicRegion": "duties"
+                }
+              },
+              {
+                "header": true,
+                "colspan": 5,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "职责一：",
+                    "bold": true
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.duties.title",
+                    "label": "职责标题",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.duties.title",
+                      "sourcePath": "details.duties[].title",
+                      "dynamicRegion": "duties"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "duty-title-template",
+                  "dynamicRegion": "duties",
+                  "repeatFor": "details.duties[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "duties-items-template",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "工作"
+                  },
+                  {
+                    "type": "text",
+                    "text": "职责"
+                  }
+                ],
+                "metadata": {
+                  "role": "duty-item-label",
+                  "dynamicRegion": "duties"
+                }
+              },
+              {
+                "colspan": 4,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.duties.items",
+                    "label": "子职责列表",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.duties.items",
+                      "sourcePath": "details.duties[].items[]",
+                      "dynamicRegion": "duties",
+                      "listStyle": "decimal"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "duty-items-template",
+                  "dynamicRegion": "duties",
+                  "repeatFor": "details.duties[].items[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "section-collaboration",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "5 工作协作关系",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "collaboration-external",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "外部"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "position.externalCollaboration",
+                    "label": "外部",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "position.externalCollaboration"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "position.externalCollaboration"
+                },
+                "colspan": 5
+              }
+            ]
+          },
+          {
+            "id": "section-qualification",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "6 任职资格",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "qualification-education",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "教育水平"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.education",
+                    "label": "教育水平",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "qualification.education"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "qualification.education"
+                },
+                "colspan": 5
+              }
+            ]
+          },
+          {
+            "id": "qualification-major-template",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "专业"
+                  }
+                ],
+                "metadata": {
+                  "role": "label",
+                  "dynamicRegion": "major"
+                }
+              },
+              {
+                "colspan": 5,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "门类："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.major.category",
+                    "label": "专业门类",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "8rem",
+                    "metadata": {
+                      "templateFieldKey": "qualification.major.category",
+                      "sourcePath": "details.major[].category",
+                      "dynamicRegion": "major"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "  专业："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.major.specialty",
+                    "label": "专业类别",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "12rem",
+                    "metadata": {
+                      "templateFieldKey": "qualification.major.specialty",
+                      "sourcePath": "details.major[].specialty",
+                      "dynamicRegion": "major"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "dynamic-object-list",
+                  "dynamicRegion": "major",
+                  "repeatFor": "details.major[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "qualification-experience-template",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "经验"
+                  }
+                ],
+                "metadata": {
+                  "role": "label",
+                  "dynamicRegion": "experience"
+                }
+              },
+              {
+                "colspan": 5,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "年限："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.experience.years",
+                    "label": "经验年限",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "4rem",
+                    "metadata": {
+                      "templateFieldKey": "qualification.experience.years",
+                      "sourcePath": "details.experienceRequirements[].years",
+                      "dynamicRegion": "experience"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "  要求："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.experience.requirement",
+                    "label": "经验要求",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "24rem",
+                    "metadata": {
+                      "templateFieldKey": "qualification.experience.requirement",
+                      "sourcePath": "details.experienceRequirements[].requirement",
+                      "dynamicRegion": "experience"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "dynamic-object-list",
+                  "dynamicRegion": "experience",
+                  "repeatFor": "details.experienceRequirements[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "qualification-training",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "培训经历"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.training",
+                    "label": "培训经历",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "qualification.training"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "qualification.training"
+                },
+                "colspan": 5
+              }
+            ]
+          },
+          {
+            "id": "qualification-skills-template",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "技能"
+                  }
+                ],
+                "metadata": {
+                  "role": "dynamic-list-label",
+                  "dynamicRegion": "skills"
+                }
+              },
+              {
+                "colspan": 5,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.skills",
+                    "label": "技能",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "qualification.skills",
+                      "sourcePath": "details.skills[]",
+                      "dynamicRegion": "skills",
+                      "listStyle": "decimal"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "dynamic-list-items",
+                  "dynamicRegion": "skills",
+                  "repeatFor": "details.skills[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "qualification-other",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "其他要求"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "qualification.otherRequirements",
+                    "label": "其他要求",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "qualification.otherRequirements"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "qualification.otherRequirements"
+                },
+                "colspan": 5
+              }
+            ]
+          },
+          {
+            "id": "section-conditions",
+            "cells": [
+              {
+                "header": true,
+                "colspan": 6,
+                "align": "left",
+                "bold": true,
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "7 工作条件",
+                    "bold": true
+                  }
+                ],
+                "metadata": {
+                  "role": "section-title"
+                }
+              }
+            ]
+          },
+          {
+            "id": "conditions-environment-template",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "工作环境"
+                  }
+                ],
+                "metadata": {
+                  "role": "label",
+                  "dynamicRegion": "workEnvironments"
+                }
+              },
+              {
+                "colspan": 5,
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "区域："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "conditions.workEnvironment.area",
+                    "label": "环境区域",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "8rem",
+                    "metadata": {
+                      "templateFieldKey": "conditions.workEnvironment.area",
+                      "sourcePath": "details.workEnvironments[].area",
+                      "dynamicRegion": "workEnvironments"
+                    }
+                  },
+                  {
+                    "type": "text",
+                    "text": "  因素："
+                  },
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "conditions.workEnvironment.factors",
+                    "label": "环境因素",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "18rem",
+                    "metadata": {
+                      "templateFieldKey": "conditions.workEnvironment.factors",
+                      "sourcePath": "details.workEnvironments[].factors[]",
+                      "dynamicRegion": "workEnvironments",
+                      "listStyle": "join"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "dynamic-object-list",
+                  "dynamicRegion": "workEnvironments",
+                  "repeatFor": "details.workEnvironments[]"
+                }
+              }
+            ]
+          },
+          {
+            "id": "conditions-equipment",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "使用设备"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "conditions.equipment",
+                    "label": "使用设备",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "conditions.equipment"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "conditions.equipment"
+                },
+                "colspan": 5
+              }
+            ]
+          },
+          {
+            "id": "conditions-schedule",
+            "cells": [
+              {
+                "header": true,
+                "align": "center",
+                "parts": [
+                  {
+                    "type": "text",
+                    "text": "工作时间特征"
+                  }
+                ],
+                "metadata": {
+                  "role": "label"
+                }
+              },
+              {
+                "align": "left",
+                "parts": [
+                  {
+                    "type": "fieldSlot",
+                    "fieldKey": "conditions.workSchedule",
+                    "label": "工作时间特征",
+                    "slotKind": "plain",
+                    "display": "plain",
+                    "readonlyDisplay": true,
+                    "width": "100%",
+                    "metadata": {
+                      "templateFieldKey": "conditions.workSchedule"
+                    }
+                  }
+                ],
+                "metadata": {
+                  "role": "value",
+                  "sourceFieldKey": "conditions.workSchedule"
+                },
+                "colspan": 5
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "fieldModel": {
+    "schemaVersion": 1,
+    "fields": {
+      "position.name": {
+        "fieldKey": "position.name",
+        "label": "岗位名称",
+        "name": "岗位名称",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "name"
+        },
+        "metadata": {
+          "sourcePath": "name"
+        }
+      },
+      "position.code": {
+        "fieldKey": "position.code",
+        "label": "岗位编号",
+        "name": "岗位编号",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "code"
+        },
+        "metadata": {
+          "sourcePath": "code"
+        }
+      },
+      "position.departmentName": {
+        "fieldKey": "position.departmentName",
+        "label": "所属部门",
+        "name": "所属部门",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "departmentName"
+        },
+        "metadata": {
+          "sourcePath": "departmentName"
+        }
+      },
+      "position.reportTo": {
+        "fieldKey": "position.reportTo",
+        "label": "直接上级",
+        "name": "直接上级",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "reportTo"
+        },
+        "metadata": {
+          "sourcePath": "reportTo"
+        }
+      },
+      "position.subordinates": {
+        "fieldKey": "position.subordinates",
+        "label": "直接下级",
+        "name": "直接下级",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.subordinates",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.subordinates",
+          "format": "join"
+        }
+      },
+      "position.headcount": {
+        "fieldKey": "position.headcount",
+        "label": "岗位编制",
+        "name": "岗位编制",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "headcount"
+        },
+        "metadata": {
+          "sourcePath": "headcount"
+        }
+      },
+      "position.purpose": {
+        "fieldKey": "position.purpose",
+        "label": "岗位目的",
+        "name": "岗位目的",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "positionPurpose"
+        },
+        "metadata": {
+          "sourcePath": "positionPurpose"
+        }
+      },
+      "position.summary": {
+        "fieldKey": "position.summary",
+        "label": "岗位职责概要",
+        "name": "岗位职责概要",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "summary"
+        },
+        "metadata": {
+          "sourcePath": "summary"
+        }
+      },
+      "position.duties": {
+        "fieldKey": "position.duties",
+        "label": "岗位职责",
+        "name": "岗位职责",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.duties",
+          "format": "hierarchicalDuties"
+        },
+        "metadata": {
+          "sourcePath": "details.duties",
+          "format": "hierarchicalDuties",
+          "dynamicRegion": "duties"
+        }
+      },
+      "position.duties.title": {
+        "fieldKey": "position.duties.title",
+        "label": "职责标题",
+        "name": "职责标题",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.duties[].title"
+        },
+        "metadata": {
+          "sourcePath": "details.duties[].title",
+          "dynamicRegion": "duties",
+          "role": "groupTitle"
+        }
+      },
+      "position.duties.items": {
+        "fieldKey": "position.duties.items",
+        "label": "子职责列表",
+        "name": "子职责列表",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.duties[].items[]",
+          "format": "numberedList"
+        },
+        "metadata": {
+          "sourcePath": "details.duties[].items[]",
+          "format": "numberedList",
+          "dynamicRegion": "duties",
+          "role": "groupItems"
+        }
+      },
+      "position.externalCollaboration": {
+        "fieldKey": "position.externalCollaboration",
+        "label": "外部协作",
+        "name": "外部协作",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.externalCollaboration",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.externalCollaboration",
+          "format": "join"
+        }
+      },
+      "qualification.education": {
+        "fieldKey": "qualification.education",
+        "label": "教育水平",
+        "name": "教育水平",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.education"
+        },
+        "metadata": {
+          "sourcePath": "details.education"
+        }
+      },
+      "qualification.major": {
+        "fieldKey": "qualification.major",
+        "label": "专业",
+        "name": "专业",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.major",
+          "format": "objectList"
+        },
+        "metadata": {
+          "sourcePath": "details.major",
+          "format": "objectList",
+          "dynamicRegion": "major"
+        }
+      },
+      "qualification.major.category": {
+        "fieldKey": "qualification.major.category",
+        "label": "专业门类",
+        "name": "专业门类",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.major[].category"
+        },
+        "metadata": {
+          "sourcePath": "details.major[].category",
+          "dynamicRegion": "major",
+          "role": "itemField"
+        }
+      },
+      "qualification.major.specialty": {
+        "fieldKey": "qualification.major.specialty",
+        "label": "专业类别",
+        "name": "专业类别",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.major[].specialty"
+        },
+        "metadata": {
+          "sourcePath": "details.major[].specialty",
+          "dynamicRegion": "major",
+          "role": "itemField"
+        }
+      },
+      "qualification.experienceRequirements": {
+        "fieldKey": "qualification.experienceRequirements",
+        "label": "经验",
+        "name": "经验",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.experienceRequirements",
+          "format": "objectList"
+        },
+        "metadata": {
+          "sourcePath": "details.experienceRequirements",
+          "format": "objectList",
+          "dynamicRegion": "experience"
+        }
+      },
+      "qualification.experience.years": {
+        "fieldKey": "qualification.experience.years",
+        "label": "经验年限",
+        "name": "经验年限",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.experienceRequirements[].years"
+        },
+        "metadata": {
+          "sourcePath": "details.experienceRequirements[].years",
+          "dynamicRegion": "experience",
+          "role": "itemField"
+        }
+      },
+      "qualification.experience.requirement": {
+        "fieldKey": "qualification.experience.requirement",
+        "label": "经验要求",
+        "name": "经验要求",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.experienceRequirements[].requirement"
+        },
+        "metadata": {
+          "sourcePath": "details.experienceRequirements[].requirement",
+          "dynamicRegion": "experience",
+          "role": "itemField"
+        }
+      },
+      "qualification.training": {
+        "fieldKey": "qualification.training",
+        "label": "培训经历",
+        "name": "培训经历",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.training",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.training",
+          "format": "join"
+        }
+      },
+      "qualification.skills": {
+        "fieldKey": "qualification.skills",
+        "label": "技能",
+        "name": "技能",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.skills[]",
+          "format": "numberedList"
+        },
+        "metadata": {
+          "sourcePath": "details.skills[]",
+          "format": "numberedList",
+          "dynamicRegion": "skills"
+        }
+      },
+      "qualification.otherRequirements": {
+        "fieldKey": "qualification.otherRequirements",
+        "label": "其他要求",
+        "name": "其他要求",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.otherRequirements",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.otherRequirements",
+          "format": "join"
+        }
+      },
+      "conditions.workEnvironments": {
+        "fieldKey": "conditions.workEnvironments",
+        "label": "工作环境",
+        "name": "工作环境",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.workEnvironments",
+          "format": "objectList"
+        },
+        "metadata": {
+          "sourcePath": "details.workEnvironments",
+          "format": "objectList",
+          "dynamicRegion": "workEnvironments"
+        }
+      },
+      "conditions.workEnvironment.area": {
+        "fieldKey": "conditions.workEnvironment.area",
+        "label": "环境区域",
+        "name": "环境区域",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.workEnvironments[].area"
+        },
+        "metadata": {
+          "sourcePath": "details.workEnvironments[].area",
+          "dynamicRegion": "workEnvironments",
+          "role": "itemField"
+        }
+      },
+      "conditions.workEnvironment.factors": {
+        "fieldKey": "conditions.workEnvironment.factors",
+        "label": "环境因素",
+        "name": "环境因素",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.workEnvironments[].factors[]",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.workEnvironments[].factors[]",
+          "format": "join",
+          "dynamicRegion": "workEnvironments",
+          "role": "itemField"
+        }
+      },
+      "conditions.equipment": {
+        "fieldKey": "conditions.equipment",
+        "label": "使用设备",
+        "name": "使用设备",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.equipment",
+          "format": "join"
+        },
+        "metadata": {
+          "sourcePath": "details.equipment",
+          "format": "join"
+        }
+      },
+      "conditions.workSchedule": {
+        "fieldKey": "conditions.workSchedule",
+        "label": "工作时间特征",
+        "name": "工作时间特征",
+        "type": "text",
+        "valueType": "string",
+        "readonlyDisplay": true,
+        "valueSource": {
+          "type": "model_field",
+          "model": "PositionDescription",
+          "path": "details.workSchedule"
+        },
+        "metadata": {
+          "sourcePath": "details.workSchedule"
+        }
+      }
+    },
+    "formulas": {},
+    "formulaTemplates": []
+  }
+}

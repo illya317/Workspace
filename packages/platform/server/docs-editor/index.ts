@@ -2,6 +2,7 @@ export {
   copyTemplate,
   deleteDraft,
   getEditorBootstrap,
+  getPublishedHrPositionDescriptionOfficialTemplate,
   getTemplate,
   listSpaces,
   listTemplates,

@@ -15,7 +15,7 @@ function argValue(name: string) {
 }
 
 async function main() {
-  const outputRoot = path.resolve(argValue("output") || "generated/docs-editor/qc");
+  const outputRoot = path.resolve(argValue("output") || "generated/production/qc/template-snapshots");
   const configRoot = argValue("config-root") || process.env.WORKSPACE_QC_CONFIG_ROOT;
   const sourceSchemaRoot = argValue("source-schema-root") || process.env.QC_SOURCE_SCHEMA_ROOT;
   const productKeys = argValue("products")?.split(",").map((item) => item.trim()).filter(Boolean);
