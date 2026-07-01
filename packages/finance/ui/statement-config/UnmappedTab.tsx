@@ -206,7 +206,7 @@ function createUnmappedErrorSections(message: string, onRetry: () => void): Body
       body: { kind: "form", form: {
         kind: "filters",
         content: { items: [] },
-        commands: [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }],
+        commands: [{ key: "retry", label: "重试", icon: "refresh", variant: "danger", onClick: onRetry }],
       } },
     },
   ];

@@ -10,7 +10,7 @@
 | `hr.roster.generated` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access（查看生成入口/记录）, write（生成/刷新并发布派生资料） |
 | `finance` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete, admin |
 | `finance.ledger` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write, delete |
-| `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
+| `finance.statementConfig` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, create, write, delete, admin |
 | `finance.statementReview` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.statements` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
 | `finance.budget` | `visibleResourceKeys` / `visibleWriteResourceKeys` | access, write |
@@ -97,7 +97,7 @@
 | `/api/modules/finance/statement-config` | GET | `finance.statementConfig.access` |
 | `/api/modules/finance/statement-config` | PUT | `finance.statementConfig.write` |
 | `/api/modules/finance/statement-config/mappings` | GET | `finance.statementConfig.access` |
-| `/api/modules/finance/statement-config/mappings` | POST/DELETE | `finance.statementConfig.write/delete` |
+| `/api/modules/finance/statement-config/mappings` | POST/PATCH/DELETE | `finance.statementConfig.create/write/delete` |
 | `/api/modules/finance/statement-review/reviews` | GET | `finance.statementReview.access` |
 | `/api/modules/finance/statement-review/reviews` | POST/PUT | `finance.statementReview.write` |
 | `/api/modules/finance/statement-review/workpapers` | GET | `finance.statementReview.access` |

@@ -22,11 +22,19 @@ function toLineConfig(line: ApiLineCfg): LineCfg {
   };
 }
 export default function LineConfigTab() {
-  const sections = useLineConfigSections();
+  const sections = useLineConfigSections({ canCreate: false, canWrite: false, canDelete: false });
   return <PageSurface kind="standard" embedded body={createPageBody(sections)} />;
 }
 
-export function useLineConfigSections(): BodySurfaceSectionSpec[] {
+export function useLineConfigSections({
+  canCreate,
+  canWrite,
+  canDelete,
+}: {
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+}): BodySurfaceSectionSpec[] {
   const {
     company,
     year
@@ -103,7 +111,7 @@ export function useLineConfigSections(): BodySurfaceSectionSpec[] {
   useEffect(() => {
     load();
   }, [load]);
-  async function saveMapping(accountCode: string, lineCode: string, operator: StatementOperator) {
+  async function saveMapping(accountCode: string, lineCode: string, operator: StatementOperator, mode: "create" | "write" = "create") {
     if (!accountCode) return;
     const yearNum = parseInt(year, 10);
     if (Number.isNaN(yearNum)) {
@@ -113,7 +121,7 @@ export function useLineConfigSections(): BodySurfaceSectionSpec[] {
     const key = `${lineCode}:${accountCode}`;
     setSaving(previous => new Set(previous).add(key));
     const response = await fetch(workspacePath("/api/modules/finance/statement-config/mappings"), {
-      method: "POST",
+      method: mode === "write" ? "PATCH" : "POST",
       headers: {
         "Content-Type": "application/json"
       },
@@ -256,6 +264,9 @@ export function useLineConfigSections(): BodySurfaceSectionSpec[] {
     accountMap,
     accountSearch,
     addingFor,
+    canCreate,
+    canWrite,
+    canDelete,
     columns,
     expanded,
     filteredAccounts,
@@ -279,7 +290,7 @@ export function useLineConfigSections(): BodySurfaceSectionSpec[] {
 function createLineConfigErrorSections(message: string, onRetry: () => void): BodySurfaceSectionSpec[] {
   return [
     createMessageSection("line-config-error", { tone: "danger", content: message }),
-    createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: onRetry }], {  }),
+    createActionsSection("retry", [{ key: "retry", label: "重试", icon: "refresh", variant: "danger", onClick: onRetry }], {  }),
   ];
 }
 
@@ -287,6 +298,9 @@ function createLineConfigTableSection({
   accountMap,
   accountSearch,
   addingFor,
+  canCreate,
+  canWrite,
+  canDelete,
   columns,
   expanded,
   filteredAccounts,
@@ -304,6 +318,9 @@ function createLineConfigTableSection({
   accountMap: Map<string, AcctInfo>;
   accountSearch: string;
   addingFor: string | null;
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
   columns: DataSurfaceColumnSpec<LineTableRow>[];
   expanded: Set<string>;
   filteredAccounts: AcctInfo[];
@@ -313,7 +330,7 @@ function createLineConfigTableSection({
   onExpandedChange: (updater: (previous: Set<string>) => Set<string>) => void;
   onNewAccountChange: (value: string) => void;
   onRestoreDefault: (accountCode: string) => void;
-  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator, mode?: "create" | "write") => void;
   onStartAdding: (lineCode: string) => void;
   rows: LineTableRow[];
   saving: Set<string>;
@@ -343,6 +360,9 @@ function createLineConfigTableSection({
             <LineMappingsPanel
               line={row.line}
               mappings={row.mappings}
+              canCreate={canCreate}
+              canWrite={canWrite}
+              canDelete={canDelete}
               inheritedAccounts={row.inheritedAccounts}
               accountMap={accountMap}
               saving={saving}
@@ -352,7 +372,7 @@ function createLineConfigTableSection({
               filteredAccounts={filteredAccounts}
               onExcludeDefault={(accountCode, lineCode) => onSaveMapping(accountCode, lineCode, "exclude")}
               onRestoreDefault={onRestoreDefault}
-              onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add")}
+              onToggleOperator={(accountCode, lineCode, current) => onSaveMapping(accountCode, lineCode, current === "add" ? "subtract" : "add", "write")}
               onSaveMapping={onSaveMapping}
               onStartAdding={onStartAdding}
               onCancelAdding={onCancelAdding}

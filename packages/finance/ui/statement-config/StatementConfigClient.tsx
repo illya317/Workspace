@@ -49,7 +49,17 @@ function useStatementConfigToolbarItems() {
   return toolbarItems;
 }
 
-function TabContent({ user }: { user: SessionUser }) {
+function TabContent({
+  user,
+  canCreate,
+  canWrite,
+  canDelete,
+}: {
+  user: SessionUser;
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+}) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("statementConfig", user), [user]);
   const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "lines");
   useEffect(() => {
@@ -63,7 +73,7 @@ function TabContent({ user }: { user: SessionUser }) {
   }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("statementConfig");
   const toolbarItems = useStatementConfigToolbarItems();
-  const pageProps = { navigation, toolbarItems, lifecycleBlocks };
+  const pageProps = { navigation, toolbarItems, lifecycleBlocks, canCreate, canWrite, canDelete };
   if (activeTab === "unmapped") return <StatementConfigUnmappedPage {...pageProps} />;
   if (activeTab === "balance") return <StatementConfigBalancePage {...pageProps} />;
   return <StatementConfigLinesPage {...pageProps} />;
@@ -73,10 +83,17 @@ type StatementConfigPageProps = {
   navigation?: PageSurfaceNavigationSpec;
   toolbarItems: SurfaceToolbarItems;
   lifecycleBlocks: BodySurfaceSectionSpec[];
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
 };
 
 function StatementConfigLinesPage(props: StatementConfigPageProps) {
-  const sections = useLineConfigSections();
+  const sections = useLineConfigSections({
+    canCreate: props.canCreate,
+    canWrite: props.canWrite,
+    canDelete: props.canDelete,
+  });
   return <StatementConfigPageSurface {...props} sections={sections} />;
 }
 
@@ -122,10 +139,20 @@ function StatementConfigPageSurface({
   );
 }
 
-export default function StatementConfigClient({ user }: { user: SessionUser }) {
+export default function StatementConfigClient({
+  user,
+  canCreate,
+  canWrite,
+  canDelete,
+}: {
+  user: SessionUser;
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+}) {
   return (
     <StatementConfigProvider>
-      <TabContent user={user} />
+      <TabContent user={user} canCreate={canCreate} canWrite={canWrite} canDelete={canDelete} />
     </StatementConfigProvider>
   );
 }

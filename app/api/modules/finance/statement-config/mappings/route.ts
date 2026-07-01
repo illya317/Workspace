@@ -7,7 +7,12 @@ import {
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceStatementConfigAccess, checkFinanceStatementConfigWrite } from "@workspace/platform/server/auth";
+import {
+  checkFinanceStatementConfigAccess,
+  checkFinanceStatementConfigCreate,
+  checkFinanceStatementConfigDelete,
+  checkFinanceStatementConfigWrite,
+} from "@workspace/platform/server/auth";
 
 const mappingQuerySchema = z.object({
   companyCode: z.string().min(1),
@@ -32,6 +37,14 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
+  access: checkFinanceStatementConfigCreate,
+  bodySchema: saveMappingSchema,
+  bodyError: "companyCode, year, statementType, accountCode, lineCode 为必填",
+  buildCommand: ({ body }) => okCommand(body),
+  action: executeSaveStatementMappingCommand,
+});
+
+export const PATCH = createCommandRoute({
   access: checkFinanceStatementConfigWrite,
   bodySchema: saveMappingSchema,
   bodyError: "companyCode, year, statementType, accountCode, lineCode 为必填",
@@ -40,7 +53,7 @@ export const POST = createCommandRoute({
 });
 
 export const DELETE = createCommandRoute({
-  access: checkFinanceStatementConfigWrite,
+  access: checkFinanceStatementConfigDelete,
   querySchema: deleteMappingSchema,
   queryError: "companyCode, year, accountCode 为必填",
   buildCommand: ({ query }) => okCommand(query),

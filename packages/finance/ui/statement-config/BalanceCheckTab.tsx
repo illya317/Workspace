@@ -140,7 +140,7 @@ export function useBalanceCheckSections(): { sections: BodySurfaceSectionSpec[];
 
         content: error,
       }),
-      createActionsSection("retry", [{ key: "retry", label: "重试", variant: "danger", onClick: load }], {  }),
+      createActionsSection("retry", [{ key: "retry", label: "重试", icon: "refresh", variant: "danger", onClick: load }], {  }),
     ] : []),
     ...(!loading && !error && tree && flatNodes.length > 0 && summary ? [
       createMetricsSection("balance-summary", {

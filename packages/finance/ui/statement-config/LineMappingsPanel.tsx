@@ -1,12 +1,15 @@
 "use client";
 
 import { useMemo } from "react";
-import { createPageBody, PageSurface, createActionsSection, createPageDataSection, createInlineFieldsSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { createPageBody, PageSurface, createActionsSection, createPageDataSection, createInlineFieldsSection, type DataSurfaceColumnSpec, type DataSurfaceRowActionSpec } from "@workspace/core/ui";
 import type { AcctInfo, InheritedAcct, LineCfg, Mapping, StatementOperator } from "./types";
 import { formatStatementAmount, isDefaultMapping } from "./types";
 interface LineMappingsPanelProps {
   line: LineCfg;
   mappings: Mapping[];
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
   inheritedAccounts: InheritedAcct[];
   accountMap: Map<string, AcctInfo>;
   saving: Set<string>;
@@ -17,7 +20,7 @@ interface LineMappingsPanelProps {
   onExcludeDefault: (accountCode: string, lineCode: string) => void;
   onRestoreDefault: (accountCode: string) => void;
   onToggleOperator: (accountCode: string, lineCode: string, current: StatementOperator) => void;
-  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator, mode?: "create" | "write") => void;
   onStartAdding: (lineCode: string) => void;
   onCancelAdding: () => void;
   onNewAccountChange: (value: string) => void;
@@ -26,6 +29,9 @@ interface LineMappingsPanelProps {
 export default function LineMappingsPanel({
   line,
   mappings,
+  canCreate,
+  canWrite,
+  canDelete,
   inheritedAccounts,
   accountMap,
   saving,
@@ -43,30 +49,6 @@ export default function LineMappingsPanel({
   onAccountSearchChange
 }: LineMappingsPanelProps) {
   const mappingColumns = useMemo<DataSurfaceColumnSpec<Mapping>[]>(() => [{
-    key: "action",
-    label: "操作",
-    required: true,
-    cell: mapping => {
-      const isSaving = saving.has(`${line.lineCode}:${mapping.accountCode}`) || saving.has(mapping.accountCode);
-      if (mapping.operator === "exclude") {
-        return { kind: "action", action: { key: "restore", label: "恢复默认", size: "sm", disabled: isSaving, onClick: () => onRestoreDefault(mapping.accountCode) } };
-      }
-      if (isDefaultMapping(mapping)) {
-        return { kind: "action", action: { key: "exclude", label: "排除默认", size: "sm", disabled: isSaving, onClick: () => onExcludeDefault(mapping.accountCode, line.lineCode) } };
-      }
-      return {
-        kind: "action",
-        action: {
-          key: "toggle",
-          label: mapping.operator === "subtract" ? "减" : "加",
-          variant: mapping.operator === "subtract" ? "danger" : "secondary",
-          size: "sm",
-          disabled: isSaving,
-          onClick: () => onToggleOperator(mapping.accountCode, line.lineCode, mapping.operator),
-        },
-      };
-    }
-  }, {
     key: "accountCode",
     label: "科目编码",
     required: true,
@@ -107,19 +89,10 @@ export default function LineMappingsPanel({
       const isSaving = saving.has(mapping.accountCode);
       if (mapping.operator === "exclude") return { kind: "badge", label: "已排除", tone: "gray" };
       if (isDefaultMapping(mapping)) return { kind: "badge", label: "系统建议", tone: "yellow" };
-      return {
-        kind: "action",
-        action: {
-          key: "delete-config",
-          label: "删除配置",
-          variant: "danger",
-          size: "sm",
-          disabled: isSaving,
-          onClick: () => onRestoreDefault(mapping.accountCode),
-        },
-      };
+      if (isSaving) return { kind: "badge", label: "保存中", tone: "blue" };
+      return { kind: "badge", label: "手工配置", tone: "green" };
     }
-  }], [accountMap, line.lineCode, onExcludeDefault, onRestoreDefault, onToggleOperator, saving]);
+  }], [accountMap, saving]);
   const inheritedColumns = useMemo<DataSurfaceColumnSpec<InheritedAcct>[]>(() => [{
     key: "source",
     label: "来源",
@@ -151,30 +124,26 @@ export default function LineMappingsPanel({
     align: "right",
      tone: "muted",
     cell: account => formatStatementAmount(account.closingCredit)
-  }, {
-    key: "action",
-    label: "操作",
-    required: true,
-    align: "center",
-    cell: account => ({
-      kind: "action",
-      action: {
-        key: "exclude-inherited",
-        label: "排除",
-        size: "sm",
-        disabled: saving.has(`${line.lineCode}:${account.accountCode}`),
-        onClick: () => onSaveMapping(account.accountCode, line.lineCode, "exclude"),
-      },
-    })
-  }], [line.lineCode, onSaveMapping, saving]);
+  }], []);
   const isAdding = addingFor === line.lineCode;
   return <div className="space-y-3">
-      {mappings.length > 0 && <MappingTable mappings={mappings} columns={mappingColumns} />}
+      {mappings.length > 0 && <MappingTable
+        lineCode={line.lineCode}
+        mappings={mappings}
+        columns={mappingColumns}
+        saving={saving}
+        canCreate={canCreate}
+        canWrite={canWrite}
+        canDelete={canDelete}
+        onExcludeDefault={onExcludeDefault}
+        onRestoreDefault={onRestoreDefault}
+        onToggleOperator={onToggleOperator}
+      />}
       {inheritedAccounts.length > 0 && <div className="space-y-1">
           <p className="text-base text-gray-400">继承科目（来自 prefix/父级）</p>
-          <InheritedTable accounts={inheritedAccounts} columns={inheritedColumns} />
+          <InheritedTable accounts={inheritedAccounts} columns={inheritedColumns} lineCode={line.lineCode} saving={saving} canCreate={canCreate} onSaveMapping={onSaveMapping} />
         </div>}
-      {isAdding ? <div className="flex flex-col gap-2">
+      {canCreate && isAdding ? <div className="flex flex-col gap-2">
           <MappingEditor
             accountSearch={accountSearch}
             filteredAccounts={filteredAccounts}
@@ -185,11 +154,77 @@ export default function LineMappingsPanel({
             onNewAccountChange={onNewAccountChange}
             onSaveMapping={onSaveMapping}
           />
-        </div> : <AddMappingButton lineCode={line.lineCode} onStartAdding={onStartAdding} />}
+        </div> : canCreate ? <AddMappingButton lineCode={line.lineCode} onStartAdding={onStartAdding} /> : null}
     </div>;
 }
 
-function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: DataSurfaceColumnSpec<Mapping>[] }) {
+function MappingTable({
+  lineCode,
+  mappings,
+  columns,
+  saving,
+  canCreate,
+  canWrite,
+  canDelete,
+  onExcludeDefault,
+  onRestoreDefault,
+  onToggleOperator,
+}: {
+  lineCode: string;
+  mappings: Mapping[];
+  columns: DataSurfaceColumnSpec<Mapping>[];
+  saving: Set<string>;
+  canCreate: boolean;
+  canWrite: boolean;
+  canDelete: boolean;
+  onExcludeDefault: (accountCode: string, lineCode: string) => void;
+  onRestoreDefault: (accountCode: string) => void;
+  onToggleOperator: (accountCode: string, lineCode: string, current: StatementOperator) => void;
+}) {
+  const rowActions = (mapping: Mapping): DataSurfaceRowActionSpec[] => {
+    const isSaving = saving.has(`${lineCode}:${mapping.accountCode}`) || saving.has(mapping.accountCode);
+    const actions: DataSurfaceRowActionSpec[] = [];
+    if (mapping.operator === "exclude" || isDefaultMapping(mapping)) {
+      if (mapping.operator === "exclude" && canDelete) {
+        actions.push({
+          key: `restore-default-${mapping.accountCode}`,
+          kind: "delete",
+          label: "删除配置",
+          disabled: isSaving,
+          onClick: () => onRestoreDefault(mapping.accountCode),
+        });
+      }
+      if (mapping.operator !== "exclude" && canCreate) {
+        actions.push({
+          key: `exclude-default-${mapping.accountCode}`,
+          kind: "add",
+          label: "排除默认",
+          disabled: isSaving,
+          onClick: () => onExcludeDefault(mapping.accountCode, lineCode),
+        });
+      }
+      return actions;
+    }
+    if (canWrite) {
+      actions.push({
+        key: `toggle-${mapping.accountCode}`,
+        kind: "edit",
+        label: mapping.operator === "subtract" ? "切换为加项" : "切换为减项",
+        disabled: isSaving,
+        onClick: () => onToggleOperator(mapping.accountCode, lineCode, mapping.operator),
+      });
+    }
+    if (canDelete) {
+      actions.push({
+        key: `delete-${mapping.accountCode}`,
+        kind: "delete",
+        label: "删除配置",
+        disabled: isSaving,
+        onClick: () => onRestoreDefault(mapping.accountCode),
+      });
+    }
+    return actions;
+  };
   return (
     <PageSurface kind="standard"
       embedded
@@ -201,6 +236,8 @@ function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: Dat
           visibleColumns: columns.map(column => column.key),
           rowKey: mapping => mapping.accountCode,
                     presentation: { density: "compact" },
+          rowActions,
+          actionsColumn: { label: "操作", align: "center" },
 
 
           rowState: mapping => mapping.operator === "exclude" ? "muted" : "normal",
@@ -210,7 +247,28 @@ function MappingTable({ mappings, columns }: { mappings: Mapping[]; columns: Dat
   );
 }
 
-function InheritedTable({ accounts, columns }: { accounts: InheritedAcct[]; columns: DataSurfaceColumnSpec<InheritedAcct>[] }) {
+function InheritedTable({
+  accounts,
+  columns,
+  lineCode,
+  saving,
+  canCreate,
+  onSaveMapping,
+}: {
+  accounts: InheritedAcct[];
+  columns: DataSurfaceColumnSpec<InheritedAcct>[];
+  lineCode: string;
+  saving: Set<string>;
+  canCreate: boolean;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator, mode?: "create" | "write") => void;
+}) {
+  const rowActions = canCreate ? (account: InheritedAcct): DataSurfaceRowActionSpec[] => [{
+    key: `exclude-inherited-${account.accountCode}`,
+    kind: "add",
+    label: "排除",
+    disabled: saving.has(`${lineCode}:${account.accountCode}`),
+    onClick: () => onSaveMapping(account.accountCode, lineCode, "exclude"),
+  }] : undefined;
   return (
     <PageSurface kind="standard"
       embedded
@@ -222,6 +280,8 @@ function InheritedTable({ accounts, columns }: { accounts: InheritedAcct[]; colu
           visibleColumns: columns.map(column => column.key),
           rowKey: account => account.accountCode,
                     presentation: { density: "compact" },
+          rowActions,
+          actionsColumn: { label: "操作", align: "center" },
 
 
         }),
@@ -247,7 +307,7 @@ function MappingEditor({
   onAccountSearchChange: (value: string) => void;
   onCancelAdding: () => void;
   onNewAccountChange: (value: string) => void;
-  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator) => void;
+  onSaveMapping: (accountCode: string, lineCode: string, operator: StatementOperator, mode?: "create" | "write") => void;
 }) {
   return (
     <PageSurface kind="standard"
@@ -259,9 +319,9 @@ function MappingEditor({
         ], {
           kind: "filters",
           commands: [
-            { key: "add", label: "添加（加）", variant: "primary", onClick: () => onSaveMapping(newAccount, lineCode, "add"), disabled: !newAccount },
-            { key: "subtract", label: "添加（减）", variant: "danger", onClick: () => onSaveMapping(newAccount, lineCode, "subtract"), disabled: !newAccount },
-            { key: "cancel", label: "取消", onClick: onCancelAdding },
+            { key: "add", label: "添加（加）", icon: "add", variant: "primary", onClick: () => onSaveMapping(newAccount, lineCode, "add"), disabled: !newAccount },
+            { key: "subtract", label: "添加（减）", icon: "add", variant: "danger", onClick: () => onSaveMapping(newAccount, lineCode, "subtract"), disabled: !newAccount },
+            { key: "cancel", label: "取消", icon: "cancel", onClick: onCancelAdding },
           ],
         }),
       ])}
@@ -274,7 +334,7 @@ function AddMappingButton({ lineCode, onStartAdding }: { lineCode: string; onSta
     <PageSurface kind="standard"
       embedded
       body={createPageBody([
-        createActionsSection("add-mapping", [{ key: "add-account", label: "添加科目", onClick: () => onStartAdding(lineCode) }]),
+        createActionsSection("add-mapping", [{ key: "add-account", label: "添加科目", icon: "add", onClick: () => onStartAdding(lineCode) }]),
       ])}
     />
   );
