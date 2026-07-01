@@ -452,6 +452,7 @@ export default function WorksClient({ initialTarget }: {
         onOpenChange: setSideOpen,
         onDrawerOpenChange: setDrawerOpen,
         ratio: [0.3, 0.7],
+        showControls: false,
       })}
     />
   );

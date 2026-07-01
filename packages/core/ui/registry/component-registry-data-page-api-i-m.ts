@@ -165,11 +165,6 @@ export const page_api_registry_entries = [
     composes: ["PageSurface"],
   },
   {
-    name: "createPageScopeNavigation",
-    description: "页面空间/范围 scope 导航声明助手",
-    composes: ["PageSurface", "NavigationSurface"],
-  },
-  {
     name: "createTabbedPageBody",
     description: "页面正文 tabs sectioning 声明助手",
     composes: ["BodySurface", "createPageBody"],

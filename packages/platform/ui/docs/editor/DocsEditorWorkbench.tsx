@@ -283,6 +283,8 @@ export default function DocsEditorWorkbench() {
       }) : undefined}
       toolbar={activeSpace ? {
         items: [
+          { kind: "panel-toggle", key: "mobile-side-toggle", icon: "panel-open", label: "显示模板空间", visibility: "mobile", onClick: () => setDrawerOpen(true) },
+          { kind: "panel-toggle", key: "desktop-side-toggle", icon: sideOpen ? "panel-open" : "panel-close", label: `${sideOpen ? "隐藏" : "显示"}模板空间`, variant: sideOpen ? "primary" : "secondary", visibility: "desktop", onClick: () => setSideOpen(!sideOpen) },
           createSpaceViewToolbarItem({
             key: "docs-editor-view",
             value: activeTab,
@@ -301,6 +303,7 @@ export default function DocsEditorWorkbench() {
         onOpenChange: setSideOpen,
         onDrawerOpenChange: setDrawerOpen,
         ratio: [0.28, 0.72],
+        showControls: false,
       })}
     />
   );

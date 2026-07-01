@@ -2,7 +2,7 @@
 
 import {
   createBodySplitSection,
-  createPageScopeNavigation,
+  createPageTabsNavigation,
   type BodySurfaceProps,
   type BodySurfaceSelectorProps,
   type PageSurfaceNavigationSpec,
@@ -28,11 +28,12 @@ export function createSpaceKindNavigation({
   label?: string;
   ariaLabel?: string;
 }): PageSurfaceNavigationSpec {
-  return createPageScopeNavigation({
+  return createPageTabsNavigation({
     items: items.map((item) => ({ key: item.key, label: item.label })),
     active,
     onChange,
     label,
+    variant: "large",
     ariaLabel,
   });
 }
@@ -74,6 +75,7 @@ export function createSpaceWorkbenchBody({
   onOpenChange,
   onDrawerOpenChange,
   ratio = [0.28, 0.72],
+  showControls = true,
 }: {
   left: BodySurfaceSelectorProps;
   right: BodySurfaceProps;
@@ -83,6 +85,7 @@ export function createSpaceWorkbenchBody({
   onOpenChange: (open: boolean) => void;
   onDrawerOpenChange: (open: boolean) => void;
   ratio?: [number, number];
+  showControls?: boolean;
 }): BodySurfaceProps {
   return createBodySplitSection({
     left,
@@ -94,7 +97,7 @@ export function createSpaceWorkbenchBody({
       drawerOpen,
       onOpenChange,
       onDrawerOpenChange,
-      showControls: true,
+      showControls,
     },
     layout: { ratio },
   });

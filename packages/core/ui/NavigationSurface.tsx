@@ -5,7 +5,7 @@ import Pagination, { type PaginationProps } from "./internal/common/Pagination";
 import TabBar, { type TabBarProps, type TabBarVariant, type TabDef } from "./internal/common/TabBar";
 import { joinClassNames } from "./internal/common/card-utils";
 
-export type NavigationSurfaceKind = "tabs" | "scope" | "steps" | "pagination";
+export type NavigationSurfaceKind = "tabs" | "steps" | "pagination";
 export type NavigationSurfaceLooseItem = ReturnType<typeof JSON.parse>;
 type NavigationTabsVariant = Extract<TabBarVariant, "large" | "small">;
 
@@ -39,15 +39,6 @@ export interface NavigationSurfaceTabsProps {
   ariaLabel?: string;
 }
 
-export interface NavigationSurfaceScopeProps {
-  kind: "scope";
-  items: NavigationSurfaceItemSpec[];
-  active: string;
-  onChange: (key: string) => void;
-  label?: ReactNode;
-  ariaLabel?: string;
-}
-
 export interface NavigationSurfaceStepsProps {
   kind: "steps";
   steps: NavigationSurfaceStepSpec[];
@@ -74,7 +65,6 @@ export interface NavigationSurfacePaginationProps {
 
 export type NavigationSurfaceProps =
   | NavigationSurfaceTabsProps
-  | NavigationSurfaceScopeProps
   | NavigationSurfaceStepsProps
   | NavigationSurfacePaginationProps;
 
@@ -112,22 +102,6 @@ function renderTabs(props: NavigationSurfaceTabsProps) {
     <div className={props.label ? "flex flex-wrap items-center gap-3" : undefined}>
       {props.label ? <span className="shrink-0 text-sm font-semibold text-slate-500">{props.label}</span> : null}
       <TabBar {...tabProps} />
-    </div>
-  );
-}
-
-function renderScope(props: NavigationSurfaceScopeProps) {
-  const tabs = props.items.map(toTabDef);
-  return (
-    <div className={props.label ? "flex flex-wrap items-center gap-3" : undefined}>
-      {props.label ? <span className="shrink-0 text-sm font-semibold text-slate-500">{props.label}</span> : null}
-      <TabBar
-        tabs={tabs}
-        active={props.active}
-        onChange={props.onChange}
-        variant="micro"
-        ariaLabel={props.ariaLabel}
-      />
     </div>
   );
 }
@@ -183,7 +157,6 @@ function renderSteps(props: NavigationSurfaceStepsProps) {
 
 export default function NavigationSurface(props: NavigationSurfaceProps) {
   if (props.kind === "tabs") return renderTabs(props);
-  if (props.kind === "scope") return renderScope(props);
   if (props.kind === "steps") return renderSteps(props);
   return <Pagination {...props.pagination} />;
 }

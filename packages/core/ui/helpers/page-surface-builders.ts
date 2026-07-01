@@ -141,15 +141,6 @@ export function createPageTabsNavigation(
   };
 }
 
-export function createPageScopeNavigation(
-  navigation: Omit<Extract<PageSurfaceNavigationSpec, { kind: "scope" }>, "kind">,
-): PageSurfaceNavigationSpec {
-  return {
-    kind: "scope",
-    ...navigation,
-  };
-}
-
 export function createPageCommand(command: BodySurfaceCommandSpec): BodySurfaceCommandSpec {
   return command;
 }
