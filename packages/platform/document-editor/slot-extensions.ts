@@ -58,7 +58,7 @@ function slotClassName(name: EditorSlotType, attrs: Record<string, unknown>) {
   if (attrs.slotKind === "reference" || attrs.referenceFieldKey) {
     return `${base} border-rose-400 bg-rose-50 text-rose-800 ring-rose-200`;
   }
-  if (attrs.slotKind === "date" || name === "dateSlot") {
+  if (attrs.inputType === "date" || attrs.slotKind === "date" || name === "dateSlot") {
     return `${base} border-sky-500 bg-sky-50 text-sky-900 ring-sky-200`;
   }
   if (name === "formulaSlot" || attrs.slotKind === "formula") {

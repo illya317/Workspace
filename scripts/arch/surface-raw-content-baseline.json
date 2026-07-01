@@ -311,13 +311,6 @@
     "data-cell-callback: packages/platform/ui/settings/SettingsApiClient.tsx: structured-return#2",
     "data-cell-callback: packages/platform/ui/settings/SettingsApiClient.tsx: structured-return#3",
     "data-cell-callback: packages/platform/ui/settings/SettingsApiClient.tsx: structured-return#4",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#1",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#2",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#3",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#4",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#5",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#6",
-    "data-cell-callback: packages/production/ui/qc/QcBatchTable.tsx: structured-return#7",
     "data-cell-callback: packages/work/ui/tabs/project/ProjectPlanPhasePanel.tsx: callback#1",
     "data-cell-callback: packages/work/ui/tabs/project/ProjectPlanPhasePanel.tsx: callback#2",
     "data-cell-callback: packages/work/ui/tabs/project/ProjectPlanPhasePanel.tsx: callback#3",
@@ -408,10 +401,9 @@
     "surface-content-jsx: packages/platform/ui/settings/AccountSettingsPanel.tsx: jsx-content#8",
     "surface-content-jsx: packages/platform/ui/settings/ApiAccessClient.tsx: jsx-content#1",
     "surface-content-jsx: packages/platform/ui/settings/SettingsApiClient.tsx: jsx-content#1",
-    "surface-content-jsx: packages/production/ui/qc/QcBatchRecordStageList.tsx: jsx-content#1",
+    "surface-content-jsx: packages/production/ui/qc/QcBatchListClient.tsx: jsx-content#1",
     "surface-content-jsx: packages/production/ui/qc/QcBatchStagePrecheck.tsx: jsx-content#1",
     "surface-content-jsx: packages/production/ui/qc/QcBatchTestRecord.tsx: jsx-content#1",
-    "surface-content-jsx: packages/production/ui/qc/QcMethodFieldTable.tsx: jsx-content#1",
     "surface-content-jsx: packages/work/ui/tabs/project/ProjectDetailEditor.tsx: jsx-content#1"
   ]
 }

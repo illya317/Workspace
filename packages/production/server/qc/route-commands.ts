@@ -13,6 +13,7 @@ import {
   listQcBatches,
   submitQcBatch,
   updateQcBatch,
+  updateQcBatchPrecheck,
   updateQcBatchWorkflow,
 } from "./batches";
 
@@ -20,9 +21,9 @@ export type QcBatchPatchCommand =
   | {
       kind: "workflow";
       batchId: number;
-      action: "save_inspection" | "approve_review";
+      action: "save_precheck" | "save_inspection" | "approve_review";
       stageKey: string;
-      testName: string;
+      testName?: string;
       actorName: string;
       fields?: Record<string, unknown>;
     }
@@ -70,14 +71,14 @@ export async function buildQcBatchPatchCommand(input: {
   userId: number;
   userName?: string | null;
   body: Record<string, unknown> & {
-    action?: "save_inspection" | "approve_review";
+    action?: "save_precheck" | "save_inspection" | "approve_review";
     stageKey?: string;
     testName?: string;
     fields?: unknown;
   };
 }): Promise<DomainValidationResult<QcBatchPatchCommand>> {
   if (input.body.action) {
-    if (!input.body.stageKey || !input.body.testName) return failCommand("缺少检验项目信息");
+    if (!input.body.stageKey || (input.body.action !== "save_precheck" && !input.body.testName)) return failCommand("缺少检验项目信息");
     const actorName = await getUserEmployeeSignatureName(input.userId, input.userName ?? undefined);
     return okCommand({
       kind: "workflow",
@@ -95,15 +96,26 @@ export async function buildQcBatchPatchCommand(input: {
 
 export async function executeQcBatchPatchCommand(command: QcBatchPatchCommand) {
   try {
-    const batch = command.kind === "workflow"
-      ? await updateQcBatchWorkflow(command.batchId, {
-        action: command.action,
+    if (command.kind !== "workflow") {
+      const batch = await updateQcBatch(command.batchId, command.body);
+      if (!batch) return serviceError("批次不存在", 404);
+      return serviceOk({ data: batch });
+    }
+    if (command.action === "save_precheck") {
+      const batch = await updateQcBatchPrecheck(command.batchId, {
         stageKey: command.stageKey,
-        testName: command.testName,
-        actorName: command.actorName,
         fields: command.fields,
-      })
-      : await updateQcBatch(command.batchId, command.body);
+      });
+      if (!batch) return serviceError("批次不存在", 404);
+      return serviceOk({ data: batch });
+    }
+    const batch = await updateQcBatchWorkflow(command.batchId, {
+      action: command.action,
+      stageKey: command.stageKey,
+      testName: command.testName || "",
+      actorName: command.actorName,
+      fields: command.fields,
+    });
     if (!batch) return serviceError("批次不存在", 404);
     return serviceOk({ data: batch });
   } catch (error) {

@@ -29,13 +29,10 @@ const ALLOW_PATH_PREFIXES = [
 
 const ALLOW_PATH_INCLUDES = [
   "/showcase/",
-  "packages/production/ui/qc/qc-layout-paper/",
-  "packages/production/ui/qc/qc-layout-table/",
 ];
 
 const ALLOW_FILES = new Set([
   "packages/platform/ui/LoginClient.tsx",
-  "packages/production/ui/qc/QcMethodFieldTable.tsx",
   "packages/production/ui/qc/QcPaperDateInput.tsx",
   "packages/production/ui/qc/QcPaperInputs.tsx",
 ]);

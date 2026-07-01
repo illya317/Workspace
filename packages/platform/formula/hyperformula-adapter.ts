@@ -64,17 +64,17 @@ class RdPlugin extends FunctionPlugin {
   static implementedFunctions = {
     RD: {
       method: "rd",
-      parameters: [{ argumentType: FunctionArgumentType.NUMBER }, { argumentType: FunctionArgumentType.NUMBER }],
+      parameters: [{ argumentType: FunctionArgumentType.NUMBER }],
+      repeatLastArgs: 1,
     },
   };
 
   rd(ast: { args: unknown[] }, state: unknown) {
     return this.runFunction(ast.args as never[], state as never, this.metadata("RD"), (...args: number[]) => {
-      if (args.length !== 2) return new CellError(ErrorType.VALUE, "RD received an invalid argument count.");
-      const [left, right] = args;
-      const denominator = calculateAverage([left, right]);
+      if (args.length < 2) return new CellError(ErrorType.VALUE, "RD received an invalid argument count.");
+      const denominator = calculateAverage(args);
       if (denominator === 0) return new CellError(ErrorType.DIV_BY_ZERO, "RD denominator is zero.");
-      return (Math.abs(left - right) / Math.abs(denominator)) * 100;
+      return ((Math.max(...args) - Math.min(...args)) / Math.abs(denominator)) * 100;
     });
   }
 }

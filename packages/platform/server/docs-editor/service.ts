@@ -332,8 +332,7 @@ export async function listTemplates(input: ListTemplatesInput): Promise<ServiceR
   return serviceOk(rows);
 }
 
-async function getTemplateWithRole(userId: number, templateId: number) {
-  const db = docsEditorDb();
+async function getTemplateWithRole(userId: number, templateId: number, db: DocsEditorDb = docsEditorDb()) {
   const template = await db.documentTemplate.findFirst({
     where: { id: templateId, deletedAt: null },
   });
@@ -346,7 +345,9 @@ async function getTemplateWithRole(userId: number, templateId: number) {
 export async function getTemplate(input: TemplateIdInput): Promise<ServiceResult<DocsEditorTemplateDetailDto>> {
   const command = buildTemplateIdCommand(input);
   if (command.ok === false) return serviceError(command.issue.message, command.issue.status);
-  const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
+  const db = docsEditorDb();
+  await ensureQcOfficialTemplates(db);
+  const current = await getTemplateWithRole(command.data.userId, command.data.templateId, db);
   if (!current) return serviceError("模板不存在", 404);
   if (!current.role) return serviceError("无权限", 403);
   return serviceOk(await templateDetailDto(current.template, current.role));
@@ -380,14 +381,15 @@ export async function saveDraft(input: SaveDraftInput): Promise<ServiceResult<Do
     const current = await getTemplateWithRole(command.data.userId, command.data.templateId);
     if (!current) return serviceError("模板不存在", 404);
     if (!isDocsEditorRoleAtLeast(current.role, "editor")) return serviceError("无权限", 403);
-    if (current.template.status === "published" || current.template.status === "archived") {
-      return serviceError("已发布或归档模板不能直接保存草稿", 409);
+    if (current.template.status === "archived") {
+      return serviceError("已归档模板不能直接保存", 409);
     }
     const updated = await db.documentTemplate.update({
       where: { id: command.data.templateId },
       data: {
         ...command.data.data,
-        status: "draft",
+        status: current.template.status === "published" ? "published" : "draft",
+        ...(current.template.status === "published" ? { publishedAt: new Date(), publishedByUserId: command.data.userId } : {}),
         version: { increment: 1 },
       },
     });

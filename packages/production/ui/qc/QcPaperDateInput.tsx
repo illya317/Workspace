@@ -1,7 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import type { QcLayoutPart } from "@workspace/production/server/qc";
+import { InputSurface } from "@workspace/core/ui";
+import type { QcPaperSlotPart } from "./QcPaperInputs";
 
 function todayValue() {
   const date = new Date();
@@ -13,7 +14,8 @@ function todayValue() {
 
 function normalizeDateParts(year: string, month: string, day: string) {
   const fallback = todayValue().split("-");
-  const normalizedYear = (year.replace(/\D/g, "").slice(0, 4) || fallback[0]).padStart(4, "0");
+  const yearDigits = year.replace(/\D/g, "").slice(0, 4);
+  const normalizedYear = normalizeYear(yearDigits || fallback[0]);
   const rawMonth = Number(month.replace(/\D/g, "").slice(0, 2) || fallback[1]);
   const rawDay = Number(day.replace(/\D/g, "").slice(0, 2) || fallback[2]);
   return {
@@ -21,6 +23,37 @@ function normalizeDateParts(year: string, month: string, day: string) {
     month: String(Math.min(12, Math.max(1, rawMonth))).padStart(2, "0"),
     day: String(Math.min(31, Math.max(1, rawDay))).padStart(2, "0"),
   };
+}
+
+function normalizeYear(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length <= 2) return `20${digits.padStart(2, "0")}`;
+  return digits.slice(0, 4).padStart(4, "0");
+}
+
+function compactYear(value: string) {
+  return normalizeYear(value).slice(-2);
+}
+
+function displayYearInput(value: string) {
+  const digits = value.replace(/\D/g, "");
+  if (digits.length < 2) return digits;
+  return compactYear(digits);
+}
+
+function cssSlotWidth(value: string | undefined) {
+  const width = value?.trim();
+  return width || "3rem";
+}
+
+function dateRootStyle(part: QcPaperSlotPart) {
+  return { width: `min(${cssSlotWidth(part.width)}, 100%)`, maxWidth: "100%" };
+}
+
+function dateAlignClass(part: QcPaperSlotPart) {
+  if (part.align === "left") return "justify-start";
+  if (part.align === "right") return "justify-end";
+  return "justify-center";
 }
 
 function offsetDateValue(offsetDays?: number) {
@@ -48,7 +81,7 @@ function DatePartInput({
   onBlur: () => void;
   readOnly?: boolean;
 }) {
-  const widthClass = maxLength === 4 ? "w-[4ch]" : "w-[2ch]";
+  const widthClass = "w-[2ch]";
   return (
     <input
       aria-label={label}
@@ -58,7 +91,7 @@ function DatePartInput({
       onChange={(event) => onChange(event.target.value.replace(/\D/g, "").slice(0, maxLength))}
       onBlur={onBlur}
       readOnly={readOnly}
-      className={`border-0 bg-transparent p-0 text-center tabular-nums outline-none ${widthClass}`}
+      className={`border-0 bg-transparent p-0 text-center text-inherit tabular-nums outline-none ${widthClass}`}
     />
   );
 }
@@ -72,7 +105,7 @@ export function QcPaperDateInput({
   readOnly,
   inTable,
 }: {
-  part: QcLayoutPart;
+  part: QcPaperSlotPart;
   value?: string;
   hourValue?: string;
   onChange?: (value: string) => void;
@@ -94,18 +127,21 @@ export function QcPaperDateInput({
     onChange?.(`${next.year}-${next.month}-${next.day}`);
   }
 
-  const dateValue = `${date.year}-${date.month}-${date.day}`;
+  const normalizedDate = normalizeDateParts(date.year, date.month, date.day);
+  const dateValue = `${normalizedDate.year}-${normalizedDate.month}-${normalizedDate.day}`;
   const key = part.fieldKey || "date";
   const isReadOnly = readOnly || part.readonlyDisplay;
   return (
-    <span className={`inline-flex max-w-full items-center whitespace-nowrap align-baseline ${inTable ? "gap-0.5 text-[14px] leading-7" : "gap-1"}`}>
-      <DatePartInput label="年" maxLength={4} value={date.year} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
-      <span>年</span>
+    <span
+      className={`inline-flex max-w-full items-center whitespace-nowrap text-inherit align-baseline ${dateAlignClass(part)} ${inTable ? "gap-0 leading-7" : "gap-0.5"}`}
+      style={dateRootStyle(part)}
+    >
+      <DatePartInput label="年" maxLength={2} value={displayYearInput(date.year)} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
+      <span>/</span>
       <DatePartInput label="月" maxLength={2} value={date.month} onChange={(month) => setDate((current) => ({ ...current, month }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
-      <span>月</span>
+      <span>/</span>
       <DatePartInput label="日" maxLength={2} value={date.day} onChange={(day) => setDate((current) => ({ ...current, day }))} onBlur={() => commit(true)} readOnly={isReadOnly} />
-      <span>日</span>
-      <input type="hidden" data-field-key={key} value={dateValue} readOnly />
+      <InputSurface spec={{ valueType: "date", control: "temporal", state: "hidden" }} value={dateValue} dataFieldKey={key} readOnly />
       {part.withTime && (
         <DatePartInput
           label="时"

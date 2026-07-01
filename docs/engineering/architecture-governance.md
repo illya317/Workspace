@@ -219,8 +219,8 @@ app/* route shell
 - API route 只做认证、权限、Zod 参数校验、调用 service、返回 DTO；复杂业务逻辑必须进入领域 service 或业务包。
 - `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/module-registry.ts`。`packages/platform/modules.tsx` 只消费 registry 并生成运行时聚合，不直接 import domain 包。
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
-- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*]` 是 L2 业务入口单元，必须是直接二级页面 route，例如 `/work/tasks`、`/finance/statement-config`、`/production/qc-batches`。禁止用嵌套三级页面伪装 L2，也禁止在 app 顶层另建绕开 L1/L2 registry 的 route shell。
-- L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`、`finance.statementReview`、`production.qcBatches`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
+- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*]` 是 L2 业务入口单元，必须是直接二级页面 route，例如 `/work/tasks`、`/finance/statement-config`、`/production/qc`。禁止用嵌套三级页面伪装 L2，也禁止在 app 顶层另建绕开 L1/L2 registry 的 route shell。
+- L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`、`finance.statementReview`、`production.qc`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
 - 每个 L2 必须声明 `apiPrefixes` 或明确 `noApiReason`。`apiPrefixes` 必须绑定到同一个 L2 resource 的 API contract；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/tasks/page.tsx`，但对外 route 仍必须是 `/work/tasks`。禁止重新创建绕开 L1 的顶层 route shell。
 - `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；L1 目录页也通过 Platform/Package UI 承接，Core UI 使用必须收口到 package UI 的声明组件里。

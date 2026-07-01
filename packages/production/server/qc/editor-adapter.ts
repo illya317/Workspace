@@ -24,6 +24,7 @@ import {
 import { normalizeLegacyInput } from "./editor-adapter-normalize";
 import { expandPrecheckLayoutBlock } from "./editor-adapter-precheck";
 import { annotateEditorSlots } from "./editor-adapter-slots";
+import { normalizeEditorFieldKeys } from "./editor-field-key-normalize";
 import type {
   EditorBlock,
   EditorDocument,
@@ -55,6 +56,7 @@ interface ConversionContext {
 interface FieldResolver {
   byKey: Map<string, QcTemplateMethodField>;
   byName: Map<string, QcTemplateMethodField[]>;
+  byShortName: Map<string, QcTemplateMethodField[]>;
 }
 
 const CHINESE_ORDER = ["一", "二", "三", "四", "五", "六"];
@@ -119,6 +121,7 @@ export function legacyQcToEditorDocument(legacy: LegacyQcInput): QcEditorConvers
       });
     });
   });
+  normalizeEditorFieldKeys(blocks, fieldModel);
   annotateEditorSlots(blocks, fieldModel);
 
   const document: EditorDocument = {
@@ -233,10 +236,10 @@ function registerMethodFields(fieldModel: EditorFieldModel, test: QcTemplateTest
       source: sourceContext(context),
       metadata: { legacyMethodField: field },
     });
-    if (field.formula || field.rule || field.attr === "calculated") {
+    if (field.formula || field.rule) {
       upsertFormula(fieldModel, fieldKey, {
         fieldKey,
-        formulaText: field.formula,
+        formulaText: field.formula || field.rule,
         rule: field.rule,
         dependencyFieldKeys: methodFieldDependencies(field, fields),
         referenceFieldKey: configuredReferenceKey(field),
@@ -357,9 +360,8 @@ function partToEditorParts(part: QcLayoutPart, context: ConversionContext): Edit
     || part.type === "duration_days"
     || part.type === "duration_hours"
     || part.type === "microbial_selected_total"
-    || field?.attr === "calculated"
   );
-  if (fieldKey && (hasFormulaMetadata || isReference || part.readonlyDisplay)) {
+  if (fieldKey && (hasFormulaMetadata || isReference)) {
     upsertFormula(context.fieldModel, fieldKey, {
       fieldKey,
       formulaText: formulaText || durationFormulaText(part),
@@ -471,26 +473,29 @@ function makeId(value: string) {
 function fieldResolver(test?: QcTemplateTestItem): FieldResolver {
   const byKey = new Map<string, QcTemplateMethodField>();
   const byName = new Map<string, QcTemplateMethodField[]>();
+  const byShortName = new Map<string, QcTemplateMethodField[]>();
   for (const field of test?.methodGroups.flatMap((group) => group.fields) || []) {
     if (field.fieldKey) byKey.set(field.fieldKey, field);
     if (field.name) {
-      const list = byName.get(field.name) || [];
-      list.push(field);
-      byName.set(field.name, list);
+      pushField(byName, field.name, field);
+      const shortName = field.name.split("/").at(-1);
+      if (shortName && shortName !== field.name) pushField(byShortName, shortName, field);
     }
   }
-  return { byKey, byName };
+  return { byKey, byName, byShortName };
 }
 
 function resolvePartFieldKey(part: QcLayoutPart, resolver: FieldResolver) {
   if (part.fieldKey) return part.fieldKey;
   if (part.field) {
-    const matches = resolver.byName.get(part.field) || [];
+    const matches = resolver.byName.get(part.field) || resolver.byShortName.get(part.field) || [];
     const field = matches[Math.max(1, part.occurrence || 1) - 1] || matches[0];
     if (field?.fieldKey) return field.fieldKey;
   }
   return part.field || part.name || "";
 }
+
+function pushField(map: Map<string, QcTemplateMethodField[]>, key: string, field: QcTemplateMethodField) { map.set(key, [...(map.get(key) || []), field]); }
 
 function methodFieldDependencies(field: QcTemplateMethodField, fields: QcTemplateMethodField[]) {
   const expr = `${field.formula || ""} ${field.rule || ""}`;

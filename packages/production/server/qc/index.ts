@@ -1,9 +1,10 @@
 export {
   buildQcTemplateCache,
-  getQcConfigOverviewCached as getQcConfigOverview,
-  getQcTemplateDetail,
-  getQcTemplateSummaries,
 } from "./template-cache";
+export {
+  getQcBatchEditorRuntimeTemplate,
+  listQcOfficialTemplateProducts,
+} from "./editor-runtime-template";
 export {
   countEditorDocument,
   editorDocumentToEnhancedQc,
@@ -16,13 +17,21 @@ export {
   listQcBatches,
   submitQcBatch,
   updateQcBatch,
+  updateQcBatchPrecheck,
   updateQcBatchWorkflow,
 } from "./batches";
 export * from "./route-commands";
 export type {
+  QcEditorRuntimeStage,
+  QcEditorRuntimeTemplate,
+  QcEditorRuntimeTest,
+  QcOfficialTemplateProduct,
+} from "./editor-runtime-template";
+export type {
   QcBatchCreateInput,
   QcBatchList,
   QcBatchSummary,
+  QcBatchTemplateSnapshot,
   QcConfigOverview,
   QcLayoutMappingSummary,
   QcLayoutBlock,

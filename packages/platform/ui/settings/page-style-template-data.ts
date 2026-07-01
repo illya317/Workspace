@@ -64,7 +64,7 @@ const baseModuleTemplates: ModuleTemplate[] = [
     overviewLabel: "生产管理",
     entryRoutes: ["/production"],
     pages: [
-      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["/production/qc-batches"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"], embedded: { title: "检验记录", kind: "production", paperMode: "record", previewAction: true, routes: ["/production/qc-batches/[batchId]", "/production/qc-batches/[batchId]/[stageKey]", "/production/qc-batches/[batchId]/[stageKey]/[testName]"] } },
+      { key: "batches", label: "批次列表", title: "批次检验记录", kind: "table", section: "批次检验", group: "检验记录", routes: ["/production/qc"], tableColumns: ["批号", "产品", "规格", "阶段", "负责人", "状态"], embedded: { title: "检验记录", kind: "production", paperMode: "record", previewAction: true, routes: ["/production/qc/[batchId]/[stageKey]", "/production/qc/[batchId]/[stageKey]/[testName]"] } },
     ],
   },
   {

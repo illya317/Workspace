@@ -176,7 +176,7 @@ function formulaFields(fieldModel: FieldModel): FormulaField[] {
     byKey.set(key, {
       fieldKey: key,
       label: existing?.label ?? key,
-      aliases: existing?.aliases ?? fieldAliases(key),
+      aliases: Array.from(new Set([...(existing?.aliases ?? fieldAliases(key)), formula.alias].filter((value): value is string => Boolean(value)))),
       formula: existing?.formula ?? formula.formulaText ?? formula.rule ?? null,
       value: existing?.value,
       slotKind: existing?.slotKind ?? formula.slotKind,
@@ -194,6 +194,7 @@ function fieldAliases(key: string, field?: FieldDefinition) {
     key.split("/").at(-1) ?? key,
     field?.name,
     field?.label,
+    field?.alias,
     field?.fieldKey,
     field?.key,
   ].filter((value): value is string => Boolean(value))));

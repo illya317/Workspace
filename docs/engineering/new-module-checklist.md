@@ -27,7 +27,7 @@
 ## 3. 页面
 
 - [ ] `app/(modules)/<domain>/<l2>/page.tsx` 服务端组件 facade，只组合 `packages/<domain>/ui` 导出的组件
-- [ ] L2 app route 必须是直接二级路径，例如 `/production/qc-batches`，禁止用嵌套三级路径作为 L2。
+- [ ] L2 app route 必须是直接二级路径，例如 `/production/qc`，禁止用嵌套三级路径作为 L2。
 - [ ] 目录下有子页面的，加 `layout.tsx` 统一做路由级门禁：
   ```tsx
   import { requireRouteAccess } from "@workspace/platform/server/auth";

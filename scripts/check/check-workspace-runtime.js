@@ -339,7 +339,7 @@ async function main() {
     "assets/agent/avatar/00_main-transparent.webp",
     "agent avatar"
   );
-  validateOptionalFile(workspaceDir, "data/qc-batches.json", "QC batch store");
+  validateOptionalFile(workspaceDir, "data/qc.json", "QC batch store");
   validateRequiredFile(
     workspaceDir,
     "config/pharma-qc/product_stage_tests.json",

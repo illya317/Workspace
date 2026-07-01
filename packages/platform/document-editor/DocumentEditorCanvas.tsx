@@ -55,6 +55,7 @@ import type { DocumentEditorCanvasProps, EditorSlotInline, EditorSlotType } from
 
 const DEFAULT_STICKY_HEADER_OFFSET = 44;
 const SLOT_INSPECTOR_WIDTH = 320;
+const SLOT_INSPECTOR_ESTIMATED_HEIGHT = 460;
 const SLOT_INSPECTOR_EDGE_PADDING = 8;
 const PAPER_FONT_FAMILY = "\"FangSong\", \"仿宋\", \"STFangsong\", serif";
 type TiptapEditor = NonNullable<ReturnType<typeof useEditor>>;
@@ -182,11 +183,12 @@ export default function DocumentEditorCanvas({
         style={{ top: stickyHeaderOffset }}
       >
         <div className="flex min-h-14 flex-wrap items-center gap-3 border-b border-slate-100 pb-2">
-          {renderHomeRibbon(editor, editable)}
+          {renderTableRibbon(editor, editable)}
+          {renderTextRibbon(editor, editable)}
         </div>
         <div className="flex min-h-14 flex-wrap items-center gap-3 pt-2">
+          {renderStyleRibbon(editor, editable)}
           {renderInsertRibbon(editor, editable, document)}
-          {renderTableRibbon(editor, editable)}
         </div>
       </div>
       <div ref={editorScrollRef} className="relative overflow-auto px-4 py-5">
@@ -227,7 +229,7 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function renderHomeRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean) {
+function renderTextRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean) {
   return (
     <>
       <ToolbarGroup label="字体">
@@ -249,6 +251,13 @@ function renderHomeRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, edi
         <ToolbarButton label="项目符号" active={editor.isActive("bulletList")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleBulletList().run()}><List size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="编号列表" active={editor.isActive("orderedList")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleOrderedList().run()}><ListOrdered size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
+    </>
+  );
+}
+
+function renderStyleRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean) {
+  return (
+    <>
       <ToolbarGroup label="样式">
         <ToolbarButton label="正文" active={editor.isActive("paragraph")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setParagraph().run()}><Pilcrow size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="标题 1" active={editor.isActive("heading", { level: 1 })} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleHeading({ level: 1 }).run()}><Heading1 size={16} strokeWidth={1.9} /></ToolbarButton>
@@ -270,7 +279,7 @@ function renderInsertRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, e
         <ToolbarButton label="单选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "是否", slotKind: "choice", inputType: "radio", options: ["是", "否"] })}><CircleCheck size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="多选框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "多选", slotKind: "choice", inputType: "checkbox", options: ["选项1", "选项2"] })}><SquareCheck size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="选择框" disabled={!editable} onClick={() => insertSlot(editor, document, "fieldSlot", { alias: "i", label: "选择", slotKind: "choice", inputType: "select", options: ["选项1", "选项2"] })}><ListChecks size={16} strokeWidth={1.9} /></ToolbarButton>
-        <ToolbarButton label="日期" disabled={!editable} onClick={() => insertSlot(editor, document, "dateSlot", { alias: "日期", label: "日期", slotKind: "date" })}><CalendarDays size={16} strokeWidth={1.9} /></ToolbarButton>
+        <ToolbarButton label="日期" disabled={!editable} onClick={() => insertSlot(editor, document, "dateSlot", { alias: "i", label: "日期", slotKind: "plain", inputType: "date" })}><CalendarDays size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="分页占位符" disabled={!editable} onClick={() => insertPageBreak(editor)}><SquareDashedBottom size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
     </>
@@ -428,25 +437,36 @@ function anchorFromElement(element: HTMLElement, container: HTMLElement | null):
   return anchorFromRect(element.getBoundingClientRect(), container);
 }
 
-function anchorFromRect(rect: { top: number; left: number; right: number }, container: HTMLElement | null): SlotAnchor {
+function anchorFromRect(rect: { top: number; left: number; right: number; bottom?: number }, container: HTMLElement | null): SlotAnchor {
   const gap = 2;
   if (!container) {
+    const scrollY = typeof window === "undefined" ? 0 : window.scrollY;
+    const viewportBottom = scrollY + (typeof window === "undefined" ? SLOT_INSPECTOR_ESTIMATED_HEIGHT : window.innerHeight) - SLOT_INSPECTOR_EDGE_PADDING;
+    const preferredTop = rect.top + scrollY;
+    const fallbackTop = rect.top + scrollY - SLOT_INSPECTOR_ESTIMATED_HEIGHT - gap;
     return {
-      top: rect.top + (typeof window === "undefined" ? 0 : window.scrollY),
+      top: preferredTop + SLOT_INSPECTOR_ESTIMATED_HEIGHT <= viewportBottom ? preferredTop : Math.max(scrollY + SLOT_INSPECTOR_EDGE_PADDING, fallbackTop),
       left: rect.right + gap + (typeof window === "undefined" ? 0 : window.scrollX),
     };
   }
   const containerRect = container.getBoundingClientRect();
   const viewportLeft = container.scrollLeft + SLOT_INSPECTOR_EDGE_PADDING;
   const viewportRight = container.scrollLeft + container.clientWidth - SLOT_INSPECTOR_EDGE_PADDING;
+  const viewportTop = container.scrollTop + SLOT_INSPECTOR_EDGE_PADDING;
+  const viewportBottom = container.scrollTop + container.clientHeight - SLOT_INSPECTOR_EDGE_PADDING;
   const preferredLeft = rect.right - containerRect.left + container.scrollLeft + gap;
   const fallbackLeft = rect.left - containerRect.left + container.scrollLeft - SLOT_INSPECTOR_WIDTH - gap;
   const maxLeft = viewportRight - SLOT_INSPECTOR_WIDTH;
   const resolvedLeft = preferredLeft + SLOT_INSPECTOR_WIDTH <= viewportRight
     ? preferredLeft
     : Math.min(Math.max(fallbackLeft, viewportLeft), Math.max(viewportLeft, maxLeft));
+  const preferredTop = rect.top - containerRect.top + container.scrollTop;
+  const fallbackTop = rect.top - containerRect.top + container.scrollTop - SLOT_INSPECTOR_ESTIMATED_HEIGHT - gap;
+  const resolvedTop = preferredTop + SLOT_INSPECTOR_ESTIMATED_HEIGHT <= viewportBottom
+    ? preferredTop
+    : Math.max(viewportTop, fallbackTop);
   return {
-    top: rect.top - containerRect.top + container.scrollTop,
+    top: resolvedTop,
     left: resolvedLeft,
   };
 }

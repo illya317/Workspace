@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createPageBody,
   createStatusSection,
@@ -110,21 +110,45 @@ export function useSpacePermissionsSections<TTarget>({
     userName: "",
     role: defaultRole,
   });
+  const targetKey = useMemo(() => spacePermissionTargetKey(target), [target]);
+  const latest = useRef({
+    target,
+    onToast,
+    listPermissions,
+    savePermissions,
+    loadErrorText,
+    saveErrorText,
+    saveSuccessText,
+  });
+
+  useEffect(() => {
+    latest.current = {
+      target,
+      onToast,
+      listPermissions,
+      savePermissions,
+      loadErrorText,
+      saveErrorText,
+      saveSuccessText,
+    };
+  }, [target, onToast, listPermissions, savePermissions, loadErrorText, saveErrorText, saveSuccessText]);
 
   const load = useCallback(async () => {
-    if (!target || !canManage || !enabled) return;
+    void targetKey;
+    const current = latest.current;
+    if (!current.target || !canManage || !enabled) return;
     setLoading(true);
     try {
-      setRows(await listPermissions(target));
+      setRows(await current.listPermissions(current.target));
     } catch (err) {
-      onToast({
+      latest.current.onToast({
         type: "error",
-        message: err instanceof Error ? err.message : loadErrorText,
+        message: err instanceof Error ? err.message : latest.current.loadErrorText,
       });
     } finally {
       setLoading(false);
     }
-  }, [canManage, enabled, listPermissions, loadErrorText, onToast, target]);
+  }, [canManage, enabled, targetKey]);
 
   useEffect(() => {
     void load();
@@ -200,16 +224,17 @@ export function useSpacePermissionsSections<TTarget>({
   }
 
   async function save() {
-    if (!target || saving) return;
+    const current = latest.current;
+    if (!current.target || saving) return;
     setSaving(true);
     try {
-      await savePermissions(target, explicitRows.map((row) => ({ userId: row.userId, role: row.role })));
+      await current.savePermissions(current.target, explicitRows.map((row) => ({ userId: row.userId, role: row.role })));
       await load();
-      onToast({ type: "success", message: saveSuccessText });
+      latest.current.onToast({ type: "success", message: latest.current.saveSuccessText });
     } catch (err) {
-      onToast({
+      latest.current.onToast({
         type: "error",
-        message: err instanceof Error ? err.message : saveErrorText,
+        message: err instanceof Error ? err.message : latest.current.saveErrorText,
       });
     } finally {
       setSaving(false);
@@ -317,4 +342,23 @@ export function useSpacePermissionsSections<TTarget>({
       },
     },
   ];
+}
+
+function spacePermissionTargetKey(target: unknown): string {
+  if (target == null) return "";
+  if (typeof target !== "object") return String(target);
+  const record = target as Record<string, unknown>;
+  if (record.id != null) return `id:${String(record.id)}`;
+  if (record.key != null) return `key:${String(record.key)}`;
+  if (record.targetType != null && record.targetId != null) {
+    return `target:${String(record.targetType)}:${String(record.targetId)}`;
+  }
+  return stableTargetJson(record);
+}
+
+function stableTargetJson(value: unknown): string {
+  if (value == null || typeof value !== "object") return JSON.stringify(value);
+  if (Array.isArray(value)) return `[${value.map((item) => stableTargetJson(item)).join(",")}]`;
+  const record = value as Record<string, unknown>;
+  return `{${Object.keys(record).sort().map((key) => `${JSON.stringify(key)}:${stableTargetJson(record[key])}`).join(",")}}`;
 }

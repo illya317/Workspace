@@ -152,13 +152,12 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/production/qc-batches",
+    route: "/production/qc",
     moduleKey: "production",
     label: "批次检验",
     recordRoutes: [
-      "/production/qc-batches/[batchId]",
-      "/production/qc-batches/[batchId]/[stageKey]",
-      "/production/qc-batches/[batchId]/[stageKey]/[testName]",
+      "/production/qc/[batchId]/[stageKey]",
+      "/production/qc/[batchId]/[stageKey]/[testName]",
     ],
     views: [],
   },

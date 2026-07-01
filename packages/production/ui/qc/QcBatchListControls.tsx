@@ -1,7 +1,7 @@
 "use client";
 
 import { createFieldsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
-export { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-batch-options";
+export { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-options";
 
 interface QcProductOption {
   id: string;
@@ -31,7 +31,7 @@ export function createQcBatchCreateSection({
   onCancel
 }: QcBatchCreatePanelProps): BodySurfaceSectionSpec | null {
   if (!open) return null;
-  return createFieldsSection("qc-batch-create", [
+  return createFieldsSection("qc-create", [
         { kind: "groupTitle", key: "title", title: "新建批次" },
         {
           key: "product",

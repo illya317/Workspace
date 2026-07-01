@@ -90,7 +90,7 @@ function evaluateCall(functionName: SupportedFormulaFunction, args: FormulaValue
       expectArgCount(functionName, numbers, 1);
       return calculateAverage(numbers);
     case "RD":
-      expectArgCount(functionName, numbers, 2, 2);
+      expectArgCount(functionName, numbers, 2);
       return calculateRd(numbers);
     case "RSD":
       expectArgCount(functionName, numbers, 1);
@@ -154,10 +154,9 @@ function calculateAverage(numbers: number[]) {
 }
 
 function calculateRd(numbers: number[]) {
-  const [left, right] = numbers;
-  const denominator = calculateAverage([left, right]);
+  const denominator = calculateAverage(numbers);
   if (denominator === 0) throw new FormulaParseError("invalid_expression", "RD denominator is zero.");
-  return (Math.abs(left - right) / Math.abs(denominator)) * 100;
+  return ((Math.max(...numbers) - Math.min(...numbers)) / Math.abs(denominator)) * 100;
 }
 
 function expectArgCount(functionName: string, args: unknown[], min: number, max = Number.POSITIVE_INFINITY) {

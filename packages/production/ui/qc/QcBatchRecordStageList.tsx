@@ -1,83 +1,167 @@
 import Link from "next/link";
-import { createMessageSection, createPageBody, PageSurface } from "@workspace/core/ui";
-import type { QcBatchSummary, QcTemplateDetail } from "@workspace/production/types";
-import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
-import QcBatchNumberInput from "./QcBatchNumberInput";
+import { ArrowRight, CheckCircle2, ClipboardList, LockKeyhole, RotateCcw } from "lucide-react";
+import type { QcBatchSummary } from "@workspace/production/types";
+import type { QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import { buildQcBatchWorkflow, type QcStageWorkflowStatus, type QcTestWorkflowStatus } from "@workspace/production/qc/workflow";
+import { qcBatchStagePath } from "./qc-routes";
 
 interface QcBatchRecordStageListProps {
   batch: QcBatchSummary;
-  detail: QcTemplateDetail;
+  runtimeTemplate: QcEditorRuntimeTemplate;
+  embedded?: boolean;
 }
 
 const numerals = ["一", "二", "三", "四", "五", "六"];
 
-export default function QcBatchRecordStageList({ batch, detail }: QcBatchRecordStageListProps) {
-  const workflow = buildQcBatchWorkflow(detail, batch);
-  return (
-    <section>
-      <div className="qc-paper-font qc-paper-stage-shell mx-auto">
-        <PageSurface kind="standard"
-          embedded
-          body={createPageBody([
-            createMessageSection("qc-batch-record-summary", {
-              content: (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-slate-900">批号：</span>
-                  <QcBatchNumberInput batchId={batch.id} initialValue={batch.batchNumber} />
-                  <span className="text-xs text-slate-500">批次ID: {batch.id}</span>
-                </div>
-              ),
-            }),
-          ])}
-        />
+export default function QcBatchRecordStageList({ batch, runtimeTemplate, embedded = false }: QcBatchRecordStageListProps) {
+  const workflow = buildQcBatchWorkflow(runtimeTemplate, batch);
+  const completedStages = workflow.stages.filter((stage) => stage.complete).length;
+  const totalTests = workflow.tests.length;
+  const completedTests = workflow.tests.filter((test) => test.complete).length;
+  const pendingReview = workflow.tests.filter((test) => test.inspected && !test.reviewed).length;
+  const summaryItems = [
+    { key: "batch", label: "批号", value: batch.batchNumber },
+    { key: "id", label: "批次ID", value: String(batch.id) },
+    { key: "product", label: "产品", value: batch.productName },
+    { key: "progress", label: "进度", value: `${completedTests}/${totalTests} 项完成` },
+  ];
 
-        <div className="border-2 border-slate-950 bg-white text-slate-950 shadow-sm">
-          <div className="border-b-2 border-slate-950 px-6 py-4 text-center text-2xl font-semibold tracking-wide">
-            {batch.productName}批检验记录
+  return (
+    <section className={`${embedded ? "w-full" : "mx-auto w-full max-w-6xl px-4 py-6"} font-sans text-slate-950`}>
+      <div className="overflow-hidden rounded-xl border border-emerald-100 bg-white shadow-sm">
+        <div className="grid gap-5 border-b border-emerald-100 bg-white px-5 py-5 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div className="min-w-0">
+            <div className="mb-2 inline-flex items-center gap-2 rounded-sm border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-800">
+              <ClipboardList size={14} strokeWidth={1.9} />
+              批次检验记录
+            </div>
+            <h1 className="text-2xl font-semibold text-slate-950">{batch.productName}</h1>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              {summaryItems.map((item) => (
+                <div key={item.key} className="border-l border-emerald-100 pl-3">
+                  <div className="text-xs font-medium text-slate-500">{item.label}</div>
+                  <div className="mt-1 break-words text-base font-semibold text-slate-900">{item.value}</div>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="hidden grid-cols-[12rem_8rem_1fr] border-b-2 border-slate-950 text-center text-lg font-semibold md:grid">
-            <div className="border-r-2 border-slate-950 px-4 py-3">阶段</div>
-            <div className="border-r-2 border-slate-950 px-4 py-3">检测项</div>
-            <div className="px-4 py-3">项目清单</div>
+          <div className="grid min-w-64 grid-cols-2 overflow-hidden rounded-lg border border-emerald-100 bg-emerald-50/40 text-sm">
+            <div className="border-r border-emerald-100 p-3">
+              <div className="text-xs text-slate-500">阶段完成</div>
+              <div className="mt-1 text-xl font-semibold text-slate-950">{completedStages}/{workflow.stages.length}</div>
+            </div>
+            <div className="p-3">
+              <div className="text-xs text-slate-500">待复核</div>
+              <div className="mt-1 text-xl font-semibold text-amber-700">{pendingReview}</div>
+            </div>
           </div>
-          <div>
-            {detail.stages.map((stage, index) => {
-              const stageStatus = workflow.stages[index];
-              const completed = stageStatus?.complete;
-              const locked = !stageStatus?.unlocked;
-              const content = (
-                <>
-                <div className="flex min-h-24 items-center justify-center border-b border-slate-200 px-4 py-4 text-xl font-semibold tracking-wide md:border-b-0 md:border-r-2 md:border-slate-950">
-                  {numerals[index] ?? index + 1}、{stage.label}
-                </div>
-                <div className="flex items-center justify-center border-b border-slate-200 px-4 py-3 text-lg text-slate-700 md:border-b-0 md:border-r-2 md:border-slate-950">
-                  {stage.tests.length} 项
-                </div>
-                <div className="flex flex-col justify-center gap-2 px-5 py-4 text-lg leading-9 text-slate-700 group-hover:text-slate-950">
-                  <span>{stage.tests.map((test) => `${test.sequence} ${test.name}`).join(" / ")}</span>
-                  <span className="font-sans text-xs leading-5 text-slate-500">
-                    {locked ? "前一阶段复核完成后解锁" : completed ? "已全部复核" : "可检验 / 待复核"}
-                  </span>
-                </div>
-                </>
-              );
-              return locked ? (
-                <div key={stage.key} className="grid border-b-2 border-slate-950 bg-slate-100 text-slate-400 last:border-b-0 md:grid-cols-[12rem_8rem_1fr]">
-                  {content}
-                </div>
-              ) : (
-                <Link
-                  key={stage.key}
-                  href={`/production/qc-batches/${batch.id}/${stage.key}`}
-                  className="group grid border-b-2 border-slate-950 transition last:border-b-0 hover:bg-slate-100 md:grid-cols-[12rem_8rem_1fr]"
-                >
-                  {content}
-                </Link>
-              );
-            })}
-          </div>
+        </div>
+
+        <div className="divide-y divide-emerald-50">
+          {runtimeTemplate.stages.map((stage, index) => {
+            const stageStatus = workflow.stages[index];
+            const locked = !stageStatus?.unlocked;
+            const row = (
+              <StageRow
+                index={index}
+                label={stage.label}
+                testCount={stage.tests.length}
+                status={stageStatus}
+                locked={locked}
+              />
+            );
+            if (locked) return <div key={stage.key}>{row}</div>;
+            return (
+              <Link key={stage.key} href={qcBatchStagePath(batch.id, stage.key)} className="group block transition hover:bg-emerald-50/40 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-emerald-600">
+                {row}
+              </Link>
+            );
+          })}
         </div>
       </div>
     </section>
   );
+}
+
+function StageRow({
+  index,
+  label,
+  testCount,
+  status,
+  locked,
+}: {
+  index: number;
+  label: string;
+  testCount: number;
+  status?: QcStageWorkflowStatus;
+  locked: boolean;
+}) {
+  const completed = !!status?.complete;
+  const state = stageState(status, locked);
+  return (
+    <div className={`grid gap-4 px-5 py-5 md:grid-cols-[13rem_1fr_9rem] md:items-center ${locked ? "bg-slate-50/70 text-slate-400" : "bg-white"}`}>
+      <div className="flex min-w-0 items-center gap-3">
+        <span className={`inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border text-sm font-semibold ${completed ? "border-emerald-200 bg-emerald-50 text-emerald-700" : locked ? "border-slate-200 bg-white text-slate-400" : "border-emerald-200 bg-emerald-600 text-white"}`}>
+          {numerals[index] ?? index + 1}
+        </span>
+        <div className="min-w-0">
+          <div className={`truncate text-lg font-semibold ${locked ? "text-slate-400" : "text-slate-950"}`}>{label}</div>
+          <div className="mt-1 text-xs text-slate-500">{testCount} 项检测</div>
+        </div>
+      </div>
+
+      <div className="min-w-0">
+        <div className="mb-3 flex flex-wrap items-center gap-2">
+          <span className={`inline-flex items-center gap-1.5 rounded-md border px-2 py-1 text-xs font-medium ${state.className}`}>
+            {state.icon}
+            {state.text}
+          </span>
+          {status?.tests.some((test) => test.waitingSourceReview) ? (
+            <span className="rounded-md border border-sky-200 bg-sky-50 px-2 py-1 text-xs font-medium text-sky-700">等待来源复核</span>
+          ) : null}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {status?.tests.map((test) => <TestChip key={test.testName} test={test} locked={locked} />)}
+        </div>
+      </div>
+
+      <div className="flex md:justify-end">
+        {locked ? (
+          <span className="inline-flex h-10 items-center gap-2 rounded-lg border border-slate-200 bg-white px-3 text-sm font-medium text-slate-400">
+            <LockKeyhole size={15} strokeWidth={1.9} />
+            待解锁
+          </span>
+        ) : (
+          <span className="inline-flex h-10 items-center gap-2 rounded-lg bg-emerald-600 px-3 text-sm font-medium text-white shadow-sm transition group-hover:bg-emerald-700">
+            进入阶段
+            <ArrowRight size={15} strokeWidth={1.9} />
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function TestChip({ test, locked }: { test: QcTestWorkflowStatus; locked: boolean }) {
+  const state = testState(test, locked);
+  return (
+    <span className={`inline-flex min-h-8 items-center gap-1.5 rounded-md border px-2.5 py-1 text-sm ${state.className}`}>
+      {state.icon}
+      <span>{test.sequence} {test.name}</span>
+    </span>
+  );
+}
+
+function stageState(status: QcStageWorkflowStatus | undefined, locked: boolean) {
+  if (locked) return { text: "前一阶段复核完成后解锁", icon: <LockKeyhole size={14} strokeWidth={1.9} />, className: "border-slate-200 bg-white text-slate-500" };
+  if (status?.complete) return { text: "已全部复核", icon: <CheckCircle2 size={14} strokeWidth={1.9} />, className: "border-emerald-200 bg-emerald-50 text-emerald-700" };
+  if (status?.tests.some((test) => test.inspected && !test.reviewed)) return { text: "有项目待复核", icon: <RotateCcw size={14} strokeWidth={1.9} />, className: "border-amber-200 bg-amber-50 text-amber-700" };
+  return { text: "可检验", icon: <ClipboardList size={14} strokeWidth={1.9} />, className: "border-slate-200 bg-slate-50 text-slate-700" };
+}
+
+function testState(test: QcTestWorkflowStatus, locked: boolean) {
+  if (locked) return { icon: <LockKeyhole size={13} strokeWidth={1.9} />, className: "border-slate-200 bg-white text-slate-400" };
+  if (test.complete) return { icon: <CheckCircle2 size={13} strokeWidth={1.9} />, className: "border-emerald-200 bg-emerald-50 text-emerald-700" };
+  if (test.inspected && !test.reviewed) return { icon: <RotateCcw size={13} strokeWidth={1.9} />, className: "border-amber-200 bg-amber-50 text-amber-700" };
+  return { icon: <ClipboardList size={13} strokeWidth={1.9} />, className: "border-slate-200 bg-white text-slate-700" };
 }

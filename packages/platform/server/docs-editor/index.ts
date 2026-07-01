@@ -15,6 +15,12 @@ export {
   executeDocsEditorReferenceOptionsCommand,
 } from "./reference-options";
 export {
+  getPublishedQcOfficialTemplateByProductKey,
+  listPublishedQcOfficialTemplateSummaries,
+  type PublishedQcOfficialTemplate,
+  type PublishedQcOfficialTemplateSummary,
+} from "./qc-official-template";
+export {
   copyDocumentTemplate,
   createDocumentTemplate,
   deleteDocumentTemplateDraft,

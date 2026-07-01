@@ -53,7 +53,7 @@
 | `/administration` | `requireResourceAccess("administration")` | redirect `/portal` |
 | `/administration/contracts` | `requireResourceAccess("administration.contracts")` | redirect `/portal` |
 | `/production` | `requireResourceAccess("production")` | redirect `/portal` |
-| `/production/qc-batches` | `requireResourceAccess("production.qcBatches")` | redirect `/portal` |
+| `/production/qc` | `requireResourceAccess("production.qc")` | redirect `/portal` |
 | `/work` | `requireResourceAccess("work")` + module enabled | redirect `/portal` 或模块未启用页 |
 | `/work/projects` | `requireResourceAccess("work.projects")` + module enabled + 项目对象级过滤 | redirect `/portal` 或模块未启用页 |
 | `/work/tasks` | `requireResourceAccess("work.tasks")` + module enabled | redirect `/portal` 或模块未启用页 |
@@ -95,12 +95,12 @@
 | `/api/modules/finance/cost/*` | GET | `finance.cost.access` |
 | `/api/modules/finance/cost/*` | POST/PUT | `finance.cost.write` |
 | `/api/modules/finance/cost/*` | DELETE | `finance.cost.delete` |
-| `/api/modules/production/qc-batches` | GET | `production.qcBatches.access` |
-| `/api/modules/production/qc-batches` | POST | `production.qcBatches.write` |
-| `/api/modules/production/qc-batches/[batchId]` | GET | `production.qcBatches.access` |
-| `/api/modules/production/qc-batches/[batchId]` | PATCH | `production.qcBatches.write` |
-| `/api/modules/production/qc-batches/[batchId]` | DELETE | `production.qcBatches.delete` |
-| `/api/modules/production/qc-batches/[batchId]/submit` | POST | `production.qcBatches.write` |
+| `/api/modules/production/qc` | GET | `production.qc.access` |
+| `/api/modules/production/qc` | POST | `production.qc.write` |
+| `/api/modules/production/qc/[batchId]` | GET | `production.qc.access` |
+| `/api/modules/production/qc/[batchId]` | PATCH | `production.qc.write` |
+| `/api/modules/production/qc/[batchId]` | DELETE | `production.qc.delete` |
+| `/api/modules/production/qc/[batchId]/submit` | POST | `production.qc.write` |
 | `/api/modules/administration/contracts*` | GET | `administration.contracts.access` |
 | `/api/modules/administration/contracts*` | POST/PUT | `administration.contracts.write` |
 | `/api/modules/administration/contracts*` | DELETE | `administration.contracts.delete` |

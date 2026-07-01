@@ -146,7 +146,7 @@ function sourceStageKeys(value: string[] | null | undefined) {
   return okCommand(JSON.stringify(normalized));
 }
 
-const referenceAliasPattern = /^x\d+$/i;
+const referenceAliasPattern = /^[xy]\d+$/i;
 
 type ReferenceCandidate = {
   alias: string;
@@ -154,10 +154,10 @@ type ReferenceCandidate = {
   context: string;
 };
 
-function normalizeDocumentReferences(value: unknown): DomainValidationResult<unknown> {
+function normalizeDocumentReferences(value: unknown, fieldModel?: unknown): DomainValidationResult<unknown> {
   if (value === undefined) return okCommand(undefined);
   const candidates = collectReferenceCandidates(value);
-  const byFieldKey = new Set(candidates.map((candidate) => candidate.fieldKey));
+  const byFieldKey = new Set([...candidates.map((candidate) => candidate.fieldKey), ...collectFieldModelKeys(fieldModel)]);
   const byAlias = new Map<string, string>();
   const byContextFieldKey = new Map<string, Set<string>>();
   const byContextAlias = new Map<string, Map<string, string>>();
@@ -182,6 +182,26 @@ function collectReferenceCandidates(value: unknown) {
     candidates.push({ alias, fieldKey, context: slotContextLabel(node) });
   });
   return candidates;
+}
+
+function collectFieldModelKeys(value: unknown) {
+  if (!isRecord(value)) return [];
+  const keys = new Set<string>();
+  const fields = value.fields;
+  if (Array.isArray(fields)) {
+    fields.forEach((field) => {
+      if (!isRecord(field)) return;
+      const key = stringField(field.fieldKey) || stringField(field.key);
+      if (key) keys.add(key);
+    });
+  } else if (isRecord(fields)) {
+    Object.keys(fields).forEach((key) => keys.add(key));
+  }
+  const formulas = value.formulas;
+  if (isRecord(formulas)) {
+    Object.keys(formulas).forEach((key) => keys.add(key));
+  }
+  return Array.from(keys);
 }
 
 function normalizeReferenceNodes(
@@ -213,10 +233,14 @@ function normalizeReferenceNodes(
   if (!isReferenceNode(next)) return okCommand(next);
 
   const referenceFieldKey = stringField(next.referenceFieldKey);
+  if (!referenceFieldKey && isLegacyBatchNumberReference(next)) {
+    return okCommand({ ...next, slotKind: "plain", alias: "i" });
+  }
   if (!referenceFieldKey) return failCommand("请输入引用来源编号", 400, "document.referenceFieldKey");
   const nodeContext = slotContextLabel(next);
   const fieldKeys = nodeContext ? context.byContextFieldKey.get(nodeContext) ?? new Set<string>() : context.byFieldKey;
-  if (fieldKeys.has(referenceFieldKey)) return okCommand({ ...next, referenceFieldKey });
+  if (fieldKeys.has(referenceFieldKey) || context.byFieldKey.has(referenceFieldKey)) return okCommand({ ...next, referenceFieldKey });
+  if (isSystemReference(referenceFieldKey)) return okCommand({ ...next, referenceFieldKey });
 
   const alias = referenceAlias(referenceFieldKey);
   if (!alias) return failCommand("请输入引用来源编号", 400, "document.referenceFieldKey");
@@ -242,6 +266,14 @@ function referenceAlias(value: unknown) {
 
 function isReferenceNode(node: Record<string, unknown>) {
   return node.slotKind === "reference" || !!stringField(node.referenceFieldKey);
+}
+
+function isLegacyBatchNumberReference(node: Record<string, unknown>) {
+  return stringField(node.fieldKey) === "batch_number";
+}
+
+function isSystemReference(referenceFieldKey: string) {
+  return referenceFieldKey.startsWith("auth/");
 }
 
 function slotContextLabel(node: Record<string, unknown>) {
@@ -297,7 +329,7 @@ export function buildSaveDraftCommand(input: SaveDraftInput): DomainValidationRe
   if (title.ok === false) return failFrom(title);
   const type = optionalText(input.type, 40, "type");
   if (type.ok === false) return failFrom(type);
-  const document = normalizeDocumentReferences(input.document);
+  const document = normalizeDocumentReferences(input.document, input.fieldModel);
   if (document.ok === false) return failFrom(document);
   const documentJson = jsonString(document.data, "document");
   if (documentJson.ok === false) return failFrom(documentJson);

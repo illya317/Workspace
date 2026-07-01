@@ -8,8 +8,9 @@ import {
   buildDeleteQcBatchCommand,
   buildSubmitQcBatchCommand,
   buildUpdateQcBatchCommand,
+  buildUpdateQcBatchPrecheckCommand,
   buildUpdateQcBatchWorkflowCommand,
-} from "./domain/qc-batch-validation";
+} from "./domain/qc-validation";
 
 interface QcBatchStore {
   nextId: number;
@@ -17,7 +18,7 @@ interface QcBatchStore {
 }
 
 function dataPath() {
-  return qcRuntimeDataPath("qc-batches.json");
+  return qcRuntimeDataPath("qc.json");
 }
 
 function emptyStore(): QcBatchStore {
@@ -74,6 +75,7 @@ export async function createQcBatch(input: QcBatchCreateInput): Promise<QcBatchS
     batchNumber: command.data.batchNumber,
     productKey: command.data.productKey,
     productName: command.data.productName,
+    templateSnapshot: command.data.templateSnapshot,
     inspector: "",
     status: "draft",
     createdAt: now,
@@ -118,6 +120,21 @@ export async function updateQcBatchWorkflow(batchId: number, input: {
   const batch = store.batches.find((item) => item.id === batchId);
   if (!batch) return null;
   const command = await buildUpdateQcBatchWorkflowCommand(batch, input);
+  if (!command.ok) throw new Error(command.issue.message);
+  Object.assign(batch.fields, command.data.fields);
+  batch.updatedAt = new Date().toISOString();
+  await writeStore(store);
+  return batch;
+}
+
+export async function updateQcBatchPrecheck(batchId: number, input: {
+  stageKey: string;
+  fields?: Record<string, unknown>;
+}): Promise<QcBatchSummary | null> {
+  const store = await readStore();
+  const batch = store.batches.find((item) => item.id === batchId);
+  if (!batch) return null;
+  const command = await buildUpdateQcBatchPrecheckCommand(batch, input);
   if (!command.ok) throw new Error(command.issue.message);
   Object.assign(batch.fields, command.data.fields);
   batch.updatedAt = new Date().toISOString();

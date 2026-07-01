@@ -59,7 +59,7 @@ administration      admin   行政管理
   administration.contracts admin 合同台账
 
 production          admin   生产管理
-  production.qcBatches   admin 批次检验
+  production.qc   admin 批次检验
 
 docs                access  文档中心
   docs.company      access  公司管理

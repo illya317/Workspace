@@ -64,6 +64,21 @@ async function upsertGeneratedQcTemplate(
     publishedByUserId: null,
   };
   if (existing) {
+    if (existing.publishedByUserId !== null) return;
+    if (
+      existing.title === data.title
+      && existing.type === data.type
+      && existing.status === data.status
+      && existing.ownerUserId === data.ownerUserId
+      && existing.spaceId === data.spaceId
+      && existing.documentJson === data.documentJson
+      && existing.fieldModelJson === data.fieldModelJson
+      && existing.sourceKind === data.sourceKind
+      && existing.sourceProductKey === data.sourceProductKey
+      && existing.sourceStageKeys === data.sourceStageKeys
+      && sameTime(existing.publishedAt, data.publishedAt)
+      && existing.publishedByUserId === data.publishedByUserId
+    ) return;
     await db.documentTemplate.update({
       where: { id: existing.id },
       data: {
@@ -74,6 +89,10 @@ async function upsertGeneratedQcTemplate(
     return;
   }
   await db.documentTemplate.create({ data });
+}
+
+function sameTime(left: Date | null, right: Date | null) {
+  return (left?.getTime() ?? null) === (right?.getTime() ?? null);
 }
 
 function generatedQcProductsRoot() {

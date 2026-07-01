@@ -5,14 +5,7 @@ import type { Editor } from "@tiptap/core";
 import { Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { normalizeFormulaDisplayText } from "./formula-display";
-import {
-  nextAvailableSlotAlias,
-  numberedSlotKind,
-  slotContextLabel,
-  validateNumberedAlias,
-  walkEditorSlots,
-  type NumberedSlotKind,
-} from "./slot-numbering";
+import { nextAvailableSlotAlias, numberedSlotKind, slotContextLabel, validateNumberedAlias, walkEditorSlots, type NumberedSlotKind } from "./slot-numbering";
 import type { EditorDocument, EditorSlotInline, EditorSlotType } from "./types";
 
 export type SlotAnchor = { top: number; left: number };
@@ -182,6 +175,13 @@ function createInspectorSections({
             },
           },
       ...(supportsAlias(attrs, selectedType) ? [{ key: "alias", label: "编号", spec: { valueType: "string", control: "text", state: aliasState }, value: attrs.alias ?? "", visualState: validationError.startsWith("编号") ? "error" : "default", error: validationError.startsWith("编号") ? validationError : undefined, onChange: (value) => update({ alias: String(value ?? "") }) } satisfies InspectorField] : []),
+      ...(supportsInputMethod(attrs, selectedType) ? [{
+        key: "inputMethod",
+        label: "输入方式",
+        spec: { valueType: "string", control: "choice", options: { source: "static", items: inputMethodOptions(), mode: "dropdown", searchPlaceholder: "选择输入方式" }, state: disabledState },
+        value: inputMethod(attrs),
+        onChange: (value) => update(inputMethodPatch(String(value || "text"), attrs)),
+      } satisfies InspectorField] : []),
       { key: "label", label: "标签", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.label ?? "", onChange: (value) => update({ label: String(value ?? "") }) },
       ...(supportsPlaceholder(attrs) ? [{ key: "placeholder", label: "占位提示", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.placeholder ?? "", onChange: (value) => update({ placeholder: String(value ?? "") }) } satisfies InspectorField] : []),
       { key: "width", label: "下划线", spec: { valueType: "number", control: "number", validation: { min: 0 }, state: disabledState }, value: widthNumber(attrs.width), onChange: (value) => update({ width: remWidth(value) }) },
@@ -243,7 +243,7 @@ export function collectReferenceTokens(document: EditorDocument) {
     if (part.slotKind === "plain" || part.slotKind === "choice" || part.slotKind === "date") return;
     const context = slotContextLabel(part);
     const mainLabel = part.alias ?? fallbackReferenceAlias(part);
-    if (!/^x\d+$/i.test(mainLabel)) return;
+    if (!/^[xy]\d+$/i.test(mainLabel)) return;
     tokens.push({
       fieldKey: part.fieldKey,
       label: [context, mainLabel].filter(Boolean).join(" · "),
@@ -264,7 +264,7 @@ export function collectFormulaDisplayTokens(document: EditorDocument) {
     return [{
       fieldKey: part.fieldKey,
       alias,
-      labels: [part.label, part.fieldKey.split("/").at(-1)].filter((value): value is string => Boolean(value)),
+      labels: [part.label, part.fieldKey, part.fieldKey.split("/").at(-1)].filter((value): value is string => Boolean(value)),
       context: slotContextLabel(part),
       formulaText: part.formulaText,
     }];
@@ -310,7 +310,7 @@ function scopedReferenceTokens(attrs: EditorSlotInline, tokens: ReferenceToken[]
 
 function selectedReferenceInputValue(attrs: EditorSlotInline, tokens: ReferenceToken[]) {
   if (!attrs.referenceFieldKey) return "";
-  if (/^x\d+$/i.test(attrs.referenceFieldKey)) return attrs.referenceFieldKey.toLowerCase();
+  if (/^[xy]\d+$/i.test(attrs.referenceFieldKey)) return attrs.referenceFieldKey.toLowerCase();
   const selected = tokens.find((token) => token.fieldKey === attrs.referenceFieldKey);
   return selected?.alias ?? attrs.referenceFieldKey;
 }
@@ -320,6 +320,7 @@ function normalizeReferenceInput(value: unknown) {
 }
 
 function allocateAlias(kind: NumberedSlotKind, attrs: EditorSlotInline, document?: EditorDocument) {
+  if (kind === "plain" || kind === "choice") return "i";
   if (!document) return `${kind === "variable" ? "x" : kind === "formula" ? "y" : "z"}1`;
   return nextAvailableSlotAlias(document, kind, slotContextLabel(attrs), attrs.fieldKey);
 }
@@ -333,7 +334,7 @@ function validateSlotDraft(attrs: EditorSlotInline, tokens: ReferenceToken[], do
   if (!value) return { ok: false as const, error: "请输入引用来源编号" };
   const existing = referenceTokens.find((token) => token.fieldKey === value);
   if (existing) return { ok: true as const, attrs: { ...attrs, referenceFieldKey: existing.fieldKey } };
-  if (!/^x\d+$/i.test(value)) return { ok: false as const, error: "引用来源已失效，请重新填写本检测项目内的 x 编号" };
+  if (!/^[xy]\d+$/i.test(value)) return { ok: false as const, error: "引用来源已失效，请重新填写本检测项目内的 x/y 编号" };
   const selected = referenceTokens.find((token) => token.alias.toLowerCase() === value);
   if (!selected) return { ok: false as const, error: `本检测项目内不存在引用来源编号：${value}` };
   return { ok: true as const, attrs: { ...attrs, referenceFieldKey: selected.fieldKey } };
@@ -369,16 +370,14 @@ function splitOptions(value: string) {
   return value.split(/[\n,，]/).map((item) => item.trim()).filter(Boolean);
 }
 
-function slotKindOptions() {
-  return [{ value: "plain", label: "普通" }, { value: "variable", label: "输入" }, { value: "formula", label: "输出" }, { value: "reference", label: "引用" }, { value: "choice", label: "选择" }, { value: "date", label: "日期" }];
-}
+function slotKindOptions() { return [{ value: "plain", label: "普通" }, { value: "variable", label: "输入" }, { value: "formula", label: "输出" }, { value: "reference", label: "引用" }]; }
+
+function inputMethodOptions() { return [{ value: "text", label: "文本" }, { value: "date", label: "日期" }, { value: "datetime", label: "日期+时间" }, { value: "radio", label: "单选" }]; }
 
 function slotKindShortName(attrs: EditorSlotInline) {
   if (effectiveSlotKind(attrs) === "reference") return "z";
   if (attrs.slotKind === "variable") return "x";
   if (attrs.slotKind === "formula" || attrs.type === "formulaSlot") return "y";
-  if (attrs.slotKind === "choice") return "选";
-  if (attrs.slotKind === "date" || attrs.type === "dateSlot") return "日期";
   return "i";
 }
 
@@ -392,7 +391,7 @@ function slotToneClass(attrs: EditorSlotInline) {
   if (effectiveSlotKind(attrs) === "reference") return "border-rose-200 bg-rose-50 text-rose-700";
   if (attrs.slotKind === "formula" || attrs.type === "formulaSlot") return "border-violet-200 bg-violet-50 text-violet-700";
   if (attrs.slotKind === "variable") return "border-emerald-200 bg-emerald-50 text-emerald-700";
-  if (attrs.slotKind === "choice") return "border-amber-200 bg-amber-50 text-amber-700";
+  if (inputMethod(attrs) === "radio") return "border-amber-200 bg-amber-50 text-amber-700";
   return "border-cyan-200 bg-cyan-50 text-cyan-700";
 }
 
@@ -405,7 +404,9 @@ function fallbackReferenceAlias(part: EditorSlotInline) {
 
 function effectiveSlotKind(attrs: EditorSlotInline) {
   if (isReferenceSlot(attrs)) return "reference";
-  return attrs.slotKind ?? inferredSlotKind(attrs);
+  const kind = attrs.slotKind ?? inferredSlotKind(attrs);
+  if (kind === "choice" || kind === "date") return "plain";
+  return kind;
 }
 
 function ruleSectionTitle(attrs: EditorSlotInline, type: EditorSlotType) {
@@ -419,16 +420,22 @@ function slotKindPatch(value: string, attrs: EditorSlotInline, alias?: string): 
     formulaText: null,
     formula: null,
     referenceFieldKey: null,
-    inputType: null,
-    options: null,
     placeholder: null,
   };
-  if (value === "choice") return { ...reset, slotKind: "choice", inputType: attrs.inputType || "radio", options: attrs.options?.length ? attrs.options : ["是", "否"] };
-  if (value === "plain") return { ...reset, slotKind: "plain", placeholder: attrs.placeholder };
-  if (value === "variable") return { ...reset, slotKind: "variable", inputType: "number", placeholder: attrs.placeholder, alias };
-  if (value === "formula") return { ...reset, slotKind: "formula", alias };
-  if (value === "reference") return { ...reset, slotKind: "reference", alias };
+  if (value === "plain") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "plain", placeholder: attrs.placeholder, alias };
+  if (value === "variable") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), slotKind: "variable", placeholder: attrs.placeholder, alias };
+  if (value === "formula") return { ...reset, inputType: null, options: null, slotKind: "formula", alias };
+  if (value === "reference") return { ...reset, inputType: null, options: null, slotKind: "reference", alias };
   return { ...reset, slotKind: value as EditorSlotInline["slotKind"] };
+}
+
+function inputMethod(attrs: EditorSlotInline) { return attrs.withTime ? "datetime" : attrs.inputType === "date" || attrs.slotKind === "date" || attrs.type === "dateSlot" ? "date" : isOptionSlot(attrs) ? "radio" : "text"; }
+
+function inputMethodPatch(value: string, attrs: EditorSlotInline): SlotPatch {
+  if (value === "date") return { inputType: "date", withTime: null, options: null, placeholder: attrs.placeholder };
+  if (value === "datetime") return { inputType: "date", withTime: true, options: null, placeholder: attrs.placeholder };
+  if (value === "radio") return { inputType: "radio", options: attrs.options?.length ? attrs.options : ["是", "否"], placeholder: null };
+  return { inputType: "text", withTime: null, options: null, placeholder: attrs.placeholder };
 }
 
 function mergeSlotAttrs(attrs: EditorSlotInline, patch: SlotPatch): EditorSlotInline {
@@ -444,7 +451,9 @@ function mergeSlotAttrs(attrs: EditorSlotInline, patch: SlotPatch): EditorSlotIn
 }
 
 function cloneSlotAttrs(attrs: EditorSlotInline, type: EditorSlotType): EditorSlotInline {
-  return { ...attrs, type };
+  const next = { ...attrs, type };
+  const kind = effectiveSlotKind(next);
+  return kind === "plain" ? { ...next, alias: "i" } : next;
 }
 
 function nodeAttributes(attrs: EditorSlotInline) {
@@ -466,30 +475,23 @@ function remWidth(value: unknown) {
 
 function inferredSlotKind(attrs: EditorSlotInline) {
   if (attrs.type === "signatureSlot") return "person";
-  if (attrs.type === "dateSlot") return "date";
   if (attrs.referenceFieldKey) return "reference";
   if (attrs.type === "formulaSlot") return "formula";
-  if (isOptionSlot(attrs)) return "choice";
   return "plain";
 }
 
-function isOptionSlot(attrs: EditorSlotInline) {
-  return attrs.inputType === "radio" || attrs.inputType === "checkbox" || attrs.inputType === "select";
-}
+function isOptionSlot(attrs: EditorSlotInline) { return attrs.inputType === "radio" || attrs.inputType === "checkbox" || attrs.inputType === "select"; }
 
 function supportsPlaceholder(attrs: EditorSlotInline) {
-  return attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot" && !isOptionSlot(attrs));
+  return (attrs.slotKind === "plain" || attrs.slotKind === "variable" || (!attrs.slotKind && attrs.type === "fieldSlot")) && inputMethod(attrs) === "text";
 }
 
 function supportsAlias(attrs: EditorSlotInline, type: EditorSlotType) {
-  return attrs.slotKind === "plain" || attrs.slotKind === "variable" || attrs.slotKind === "formula" || attrs.slotKind === "reference" || type === "formulaSlot";
+  return effectiveSlotKind(attrs) === "plain" || effectiveSlotKind(attrs) === "variable" || effectiveSlotKind(attrs) === "formula" || effectiveSlotKind(attrs) === "reference" || type === "formulaSlot";
 }
 
-function isFormulaSlot(attrs: EditorSlotInline, type: EditorSlotType) {
-  if (isReferenceSlot(attrs)) return false;
-  return attrs.slotKind === "formula" || (!attrs.slotKind && type === "formulaSlot");
-}
+function supportsInputMethod(attrs: EditorSlotInline, type: EditorSlotType) { const kind = effectiveSlotKind(attrs); return type !== "signatureSlot" && (kind === "plain" || kind === "variable"); }
 
-function isReferenceSlot(attrs: EditorSlotInline) {
-  return attrs.slotKind === "reference" || !!attrs.referenceFieldKey;
-}
+function isFormulaSlot(attrs: EditorSlotInline, type: EditorSlotType) { return !isReferenceSlot(attrs) && (attrs.slotKind === "formula" || (!attrs.slotKind && type === "formulaSlot")); }
+
+function isReferenceSlot(attrs: EditorSlotInline) { return attrs.slotKind === "reference" || !!attrs.referenceFieldKey; }

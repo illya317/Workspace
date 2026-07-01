@@ -158,6 +158,7 @@ export interface FieldDefinition {
   readonlyDisplay?: boolean;
   referenceFieldKey?: string;
   valueSource?: Record<string, unknown>;
+  alias?: string;
   slotKind?: string;
   mode?: "manual" | "formula" | "readonly";
   required?: boolean;
@@ -171,6 +172,7 @@ export interface FormulaDefinition {
   dependencyFieldKeys?: string[];
   referenceFieldKey?: string;
   readonlyDisplay?: boolean;
+  alias?: string;
   slotKind?: string;
   metadata?: Record<string, unknown>;
 }
@@ -187,4 +189,10 @@ export interface DocumentPreviewProps {
   document: EditorDocument;
   values?: Record<string, unknown>;
   toolbar?: ReactNode;
+  renderSlot?: (input: {
+    part: EditorSlotInline;
+    value: unknown;
+    key: string;
+    inTable: boolean;
+  }) => ReactNode;
 }

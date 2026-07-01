@@ -83,6 +83,7 @@ export default function SearchableOptionInput({
   const current = normalizeValue(value);
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState(current);
+  const [queryActive, setQueryActive] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
@@ -113,9 +114,10 @@ export default function SearchableOptionInput({
       ? optionLabel(currentOption)
       : current;
   const listVisible = presentation === "inline" || open;
+  const filterQuery = queryActive ? query : "";
 
   const filteredOptions = useMemo(() => {
-    const keyword = query.trim();
+    const keyword = filterQuery.trim();
     const limit = maxResults ?? visibleCount;
     if (!keyword) return options.slice(0, limit);
     const directHits: SearchableOption[] = [];
@@ -128,28 +130,30 @@ export default function SearchableOptionInput({
       if (directHits.length + fuzzyHits.length >= limit) break;
     }
     return [...directHits, ...fuzzyHits].slice(0, limit);
-  }, [maxResults, options, query, visibleCount]);
+  }, [filterQuery, maxResults, options, visibleCount]);
 
   useEffect(() => {
-    if (open && multiple) return;
+    if (open && (multiple || queryActive)) return;
     setQuery(currentLabel);
-  }, [currentLabel, multiple, open]);
+  }, [currentLabel, multiple, open, queryActive]);
 
   useEffect(() => {
     setActiveIndex(0);
-  }, [query]);
+  }, [filterQuery]);
 
   useEffect(() => {
     if (!open || presentation === "inline") return;
     function onPointerDown(event: PointerEvent) {
       if (!rootRef.current?.contains(event.target as Node)) {
         setOpen(false);
+        setQueryActive(false);
         setQuery(currentLabel);
       }
     }
     function onKeyDown(event: KeyboardEvent) {
       if (event.key === "Escape") {
         setOpen(false);
+        setQueryActive(false);
         setQuery(currentLabel);
       }
     }
@@ -167,6 +171,7 @@ export default function SearchableOptionInput({
       if (!option) {
         choiceProps.onChange([]);
         setQuery("");
+        setQueryActive(false);
         setOpen(false);
         return;
       }
@@ -175,17 +180,20 @@ export default function SearchableOptionInput({
       else next.add(option.value);
       choiceProps.onChange(Array.from(next), option);
       setQuery("");
+      setQueryActive(false);
       setOpen(true);
       return;
     }
     choiceProps.onChange(option?.value ?? null, option ?? undefined);
     setQuery(option ? optionLabel(option) : "");
+    setQueryActive(false);
     setOpen(false);
   }
 
   function handleKeyDown(event: React.KeyboardEvent<HTMLInputElement>) {
     if (!listVisible && ["ArrowDown", "Enter"].includes(event.key)) {
       setOpen(true);
+      setQueryActive(false);
       return;
     }
     if (event.key === "ArrowDown") {
@@ -215,11 +223,13 @@ export default function SearchableOptionInput({
           placeholder={placeholder}
           onFocus={() => {
             setOpen(true);
+            setQueryActive(false);
             if (multiple) setQuery("");
           }}
           onChange={(event) => {
             const next = event.target.value;
             setQuery(next);
+            setQueryActive(true);
             setOpen(true);
             onQueryChange?.(next);
           }}

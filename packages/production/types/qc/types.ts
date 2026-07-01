@@ -80,6 +80,7 @@ export interface QcLayoutPart {
   name?: string;
   options?: string[];
   width?: string;
+  align?: "left" | "center" | "right" | string;
   underline?: boolean;
   placeholder?: string;
   multiline?: boolean;
@@ -243,11 +244,22 @@ export interface QcBatchSummary {
   batchNumber: string;
   productKey: string;
   productName: string;
+  templateSnapshot?: QcBatchTemplateSnapshot;
   inspector: string;
   status: QcBatchStatus;
   createdAt: string;
   updatedAt: string;
   fields: Record<string, string>;
+}
+
+export interface QcBatchTemplateSnapshot {
+  templateId: number;
+  templateVersion: number;
+  productKey: string;
+  productName: string;
+  document: unknown;
+  fieldModel: unknown;
+  capturedAt: string;
 }
 
 export interface QcBatchList {

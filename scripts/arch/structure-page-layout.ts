@@ -64,9 +64,7 @@ const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([
 
 function isDocumentUiPatternException(relPath: string) {
   return relPath.startsWith("app/(docs)/")
-    || relPath.startsWith("packages/platform/ui/docs/")
-    || relPath.startsWith("packages/production/ui/qc/qc-layout-paper/")
-    || /^packages\/production\/ui\/qc\/Qc(Layout|Paper)/.test(relPath);
+    || relPath.startsWith("packages/platform/ui/docs/");
 }
 
 function isPageSurfaceLayoutProtocolScanFile(file: SourceInfo) {

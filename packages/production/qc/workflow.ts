@@ -1,6 +1,25 @@
-import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "../types";
+import type { EditorBlock, EditorSlotInline } from "@workspace/platform/document-editor";
+import type { QcBatchSummary } from "../types";
 
 export type QcBatchStatusLabel = "异常" | "已验收" | "检验中" | "待复核";
+
+export interface QcWorkflowTestTemplate {
+  key: string;
+  sequence: string;
+  name: string;
+  blocks: EditorBlock[];
+}
+
+export interface QcWorkflowStageTemplate {
+  key: string;
+  label: string;
+  index: number;
+  tests: QcWorkflowTestTemplate[];
+}
+
+export interface QcWorkflowTemplate {
+  stages: QcWorkflowStageTemplate[];
+}
 
 export interface QcTestSignatureKeys {
   inspector: string;
@@ -51,88 +70,13 @@ export function qcSignatureKeys(stageKey: string, testName: string): QcTestSigna
   };
 }
 
-export function qcReusedPackagingSource(test: QcTemplateTestItem) {
-  if (test.copyFromPackaging && test.copiedFrom?.stage === "packaging" && test.copiedFrom.key) {
-    return { stageKey: "packaging", testName: test.copiedFrom.key };
-  }
-  const reusedFrom = test.layout?.reusedFrom || "";
-  const layoutKey = test.layout?.key || "";
-  const sourceMatch = reusedFrom.match(/^products\/([^/]+)\/packaging\/([^/]+)$/);
-  const currentMatch = layoutKey.match(/^products\/([^/]+)\/finished\/([^/]+)$/);
-  if (!sourceMatch || !currentMatch || test.layout?.status !== "reused_packaging") return undefined;
-  return sourceMatch[1] === currentMatch[1] && sourceMatch[2] === currentMatch[2]
-    ? { stageKey: "packaging", testName: sourceMatch[2] }
-    : undefined;
-}
-
 export function uniqueQcNames(names: string[]) {
   return [...new Set(names.map((name) => name.trim()).filter(Boolean))];
 }
 
-function fieldValue(batch: QcBatchSummary, key?: string) {
-  return key ? String(batch.fields[key] || "").trim() : "";
-}
-
-function testHasRejectedResult(batch: QcBatchSummary, stageKey: string, test: QcTemplateTestItem) {
-  const prefix = `${stageKey}/${test.englishName}/`;
-  const explicitKeys = new Set([test.conclusionFieldKey].filter(Boolean));
-  return Object.entries(batch.fields).some(([key, value]) => (
-    (key.startsWith(prefix) || explicitKeys.has(key))
-    && !key.includes("/signature/")
-    && String(value).includes("不符合")
-  ));
-}
-
-function findSourceKeys(detail: QcTemplateDetail, test: QcTemplateTestItem) {
-  const source = qcReusedPackagingSource(test);
-  if (!source) return undefined;
-  const sourceStage = detail.stages.find((stage) => stage.key === source.stageKey);
-  const sourceTest = sourceStage?.tests.find((item) => item.englishName === source.testName);
-  return sourceStage && sourceTest ? qcSignatureKeys(sourceStage.key, sourceTest.englishName) : undefined;
-}
-
-function testStatus(batch: QcBatchSummary, detail: QcTemplateDetail, stage: QcTemplateStage, stageIndex: number, test: QcTemplateTestItem, actorName?: string): QcTestWorkflowStatus {
-  const keys = qcSignatureKeys(stage.key, test.englishName);
-  const sourceKeys = findSourceKeys(detail, test);
-  const automatic = !!sourceKeys;
-  const ownInspector = fieldValue(batch, keys.inspector);
-  const ownReviewer = fieldValue(batch, keys.reviewer);
-  const sourceInspector = fieldValue(batch, sourceKeys?.inspector);
-  const sourceReviewer = fieldValue(batch, sourceKeys?.reviewer);
-  const inspectorName = automatic ? sourceInspector : ownInspector;
-  const reviewerName = automatic ? sourceReviewer : ownReviewer;
-  const inspected = automatic ? !!sourceInspector : !!ownInspector;
-  const reviewed = automatic ? !!sourceReviewer : !!ownReviewer;
-  const rejected = automatic
-    ? !!sourceReviewer && detail.stages.some((sourceStage) => sourceStage.tests.some((sourceTest) => (
-      sourceKeys?.inspector === qcSignatureKeys(sourceStage.key, sourceTest.englishName).inspector
-      && testHasRejectedResult(batch, sourceStage.key, sourceTest)
-    )))
-    : !!ownReviewer && testHasRejectedResult(batch, stage.key, test);
-  return {
-    stageKey: stage.key,
-    stageIndex,
-    testName: test.englishName,
-    sequence: test.sequence,
-    name: test.name,
-    keys,
-    sourceKeys,
-    automatic,
-    inspected,
-    reviewed,
-    complete: reviewed,
-    rejected,
-    waitingSourceReview: automatic && !reviewed,
-    inspectorName,
-    reviewerName,
-    canSaveInspection: !automatic && !ownReviewer && (!ownInspector || (!!actorName && actorName.trim() === ownInspector)),
-    canApproveReview: !automatic && !!ownInspector && !ownReviewer && !!actorName && actorName.trim() !== ownInspector,
-  };
-}
-
-export function buildQcBatchWorkflow(detail: QcTemplateDetail, batch: QcBatchSummary, actorName?: string): QcBatchWorkflow {
-  const stageTests = detail.stages.map((stage, stageIndex) => stage.tests.map((test) => testStatus(batch, detail, stage, stageIndex, test, actorName)));
-  const stages = detail.stages.map((stage, index) => {
+export function buildQcBatchWorkflow(template: QcWorkflowTemplate, batch: QcBatchSummary, actorName?: string): QcBatchWorkflow {
+  const stageTests = template.stages.map((stage, stageIndex) => stage.tests.map((test) => testStatus(batch, template, stage, stageIndex, test, actorName)));
+  const stages = template.stages.map((stage, index) => {
     const previousComplete = stageTests.slice(0, index).every((tests) => tests.every((test) => test.complete));
     const tests = stageTests[index] || [];
     return {
@@ -170,4 +114,100 @@ export function buildQcBatchWorkflow(detail: QcTemplateDetail, batch: QcBatchSum
 
 export function qcWorkflowStatusText(statusLabels: QcBatchStatusLabel[]) {
   return statusLabels.length ? statusLabels.join(" / ") : "检验中";
+}
+
+function testStatus(
+  batch: QcBatchSummary,
+  template: QcWorkflowTemplate,
+  stage: QcWorkflowStageTemplate,
+  stageIndex: number,
+  test: QcWorkflowTestTemplate,
+  actorName?: string,
+): QcTestWorkflowStatus {
+  const keys = qcSignatureKeys(stage.key, test.key);
+  const sourceKeys = findSourceKeys(template, stage, test);
+  const automatic = !hasWritableSlots(test) && !!sourceKeys;
+  const ownInspector = fieldValue(batch, keys.inspector);
+  const ownReviewer = fieldValue(batch, keys.reviewer);
+  const sourceInspector = fieldValue(batch, sourceKeys?.inspector);
+  const sourceReviewer = fieldValue(batch, sourceKeys?.reviewer);
+  const inspectorName = automatic ? sourceInspector : ownInspector;
+  const reviewerName = automatic ? sourceReviewer : ownReviewer;
+  const inspected = automatic ? !!sourceInspector : !!ownInspector;
+  const reviewed = automatic ? !!sourceReviewer : !!ownReviewer;
+  const rejected = automatic
+    ? !!sourceReviewer && !!sourceKeys && template.stages.some((sourceStage) => sourceStage.tests.some((sourceTest) => (
+      sourceKeys.inspector === qcSignatureKeys(sourceStage.key, sourceTest.key).inspector
+      && testHasRejectedResult(batch, sourceTest)
+    )))
+    : !!ownReviewer && testHasRejectedResult(batch, test);
+  return {
+    stageKey: stage.key,
+    stageIndex,
+    testName: test.key,
+    sequence: test.sequence,
+    name: test.name,
+    keys,
+    sourceKeys,
+    automatic,
+    inspected,
+    reviewed,
+    complete: reviewed,
+    rejected,
+    waitingSourceReview: automatic && !reviewed,
+    inspectorName,
+    reviewerName,
+    canSaveInspection: !automatic && !ownReviewer && (!ownInspector || (!!actorName && actorName.trim() === ownInspector)),
+    canApproveReview: !automatic && !!ownInspector && !ownReviewer && !!actorName && actorName.trim() !== ownInspector,
+  };
+}
+
+function fieldValue(batch: QcBatchSummary, key?: string) {
+  return key ? String(batch.fields[key] || "").trim() : "";
+}
+
+function testHasRejectedResult(batch: QcBatchSummary, test: QcWorkflowTestTemplate) {
+  return testValueKeys(test).some((key) => String(batch.fields[key] || "").includes("不符合"));
+}
+
+function findSourceKeys(template: QcWorkflowTemplate, currentStage: QcWorkflowStageTemplate, currentTest: QcWorkflowTestTemplate) {
+  const references = new Set<string>();
+  forEachSlot(currentTest, (slot) => {
+    if (slot.referenceFieldKey) references.add(slot.referenceFieldKey);
+  });
+  for (const stage of template.stages) {
+    for (const test of stage.tests) {
+      if (stage.key === currentStage.key && test.key === currentTest.key) continue;
+      if (testValueKeys(test).some((key) => references.has(key))) return qcSignatureKeys(stage.key, test.key);
+    }
+  }
+  return undefined;
+}
+
+function hasWritableSlots(test: QcWorkflowTestTemplate) {
+  let writable = false;
+  forEachSlot(test, (slot) => {
+    if (!slot.referenceFieldKey && !slot.fieldKey.includes("/signature/") && slot.slotKind !== "formula" && slot.slotKind !== "reference" && !slot.readonlyDisplay) writable = true;
+  });
+  return writable;
+}
+
+function testValueKeys(test: QcWorkflowTestTemplate) {
+  const keys = new Set<string>();
+  forEachSlot(test, (slot) => {
+    if (!slot.fieldKey.includes("/signature/")) keys.add(slot.fieldKey);
+    if (slot.referenceFieldKey) keys.add(slot.referenceFieldKey);
+  });
+  return [...keys];
+}
+
+function forEachSlot(test: QcWorkflowTestTemplate, visit: (slot: EditorSlotInline) => void) {
+  for (const block of test.blocks) {
+    if (block.type === "paragraph") block.parts.forEach((part) => { if (part.type !== "text") visit(part); });
+    if (block.type === "table") {
+      block.rows.forEach((row) => row.cells.forEach((cell) => cell.parts.forEach((part) => {
+        if (part.type !== "text") visit(part);
+      })));
+    }
+  }
 }

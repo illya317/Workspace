@@ -48,7 +48,7 @@ export const RES = {
   },
   production: {
     root: "production",
-    qcBatches: "production.qcBatches",
+    qc: "production.qc",
   },
   administration: {
     root: "administration",

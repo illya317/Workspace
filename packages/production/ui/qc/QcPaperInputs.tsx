@@ -1,54 +1,55 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
-import type { QcLayoutPart } from "@workspace/production/server/qc";
 
-const PAPER_INPUT_TEXT_CLASS = "text-[15px]";
+const PAPER_INPUT_TEXT_CLASS = "text-inherit";
 
-function visualLength(value: string) {
-  return Array.from(value).reduce((total, char) => total + (char.charCodeAt(0) > 255 ? 2 : 1), 0);
+export interface QcPaperSlotPart {
+  type: string;
+  fieldKey?: string;
+  field?: string;
+  name?: string;
+  width?: string;
+  align?: "left" | "center" | "right" | string;
+  underline?: boolean;
+  placeholder?: string;
+  multiline?: boolean;
+  rows?: number;
+  withTime?: boolean;
+  inputType?: string;
+  defaultValue?: string;
+  defaultOffsetDays?: number;
+  readonlyDisplay?: boolean;
+  recommendedRange?: { min?: number | null; max?: number | null };
 }
 
-function fitContentWidth(value?: string, fallback = "1.5rem"): CSSProperties {
-  const displayValue = String(value || "");
-  if (!displayValue) return { width: fallback, minWidth: fallback };
-  const contentCh = Math.min(48, Math.max(3, visualLength(displayValue) + 2));
-  return { width: `calc(${contentCh}ch + 0.75rem)`, minWidth: fallback, maxWidth: "100%" };
+function cssSlotWidth(value: string | undefined) {
+  const width = value?.trim();
+  return width || "3rem";
 }
 
-function underlineBaseWidth(part: QcLayoutPart) {
-  return part.width || "3rem";
+function documentSlotWidth(part: QcPaperSlotPart): CSSProperties {
+  return { width: `min(${cssSlotWidth(part.width)}, 100%)`, maxWidth: "100%" };
 }
 
-function looksNumericValue(value?: string) {
-  const text = String(value || "").trim();
-  if (!text) return false;
-  return /^[-+]?[\d.,]+$/.test(text);
-}
-
-function inputAlignClass(part: QcLayoutPart, value?: string) {
-  if (part.underline === true && looksNumericValue(value)) return "text-right tabular-nums";
+function inputAlignClass(part: QcPaperSlotPart) {
+  if (part.align === "left") return "text-left tabular-nums";
+  if (part.align === "right") return "text-right tabular-nums";
   return "text-center tabular-nums";
 }
 
-function inputPaddingClass(part: QcLayoutPart, value?: string) {
-  if (part.underline === true && looksNumericValue(value)) return "pl-0.5 pr-0";
+function inputPaddingClass() {
   return "px-1";
 }
 
-function inputWidth(part: QcLayoutPart, value?: string): CSSProperties {
-  const current = String(value || "");
-  if (part.underline === true) return fitContentWidth(current, underlineBaseWidth(part));
-  return fitContentWidth(value);
+function inputWidth(part: QcPaperSlotPart): CSSProperties {
+  return documentSlotWidth(part);
 }
 
-function selectWidth(part: QcLayoutPart, value?: string, inTable?: boolean): CSSProperties {
-  const current = value || part.defaultValue || "";
-  if (part.underline === true) return { ...fitContentWidth(current, underlineBaseWidth(part)), backgroundImage: "none" };
-  const fallback = inTable ? "2.5rem" : "3rem";
-  return { ...fitContentWidth(current, fallback), backgroundImage: "none" };
+function selectWidth(part: QcPaperSlotPart): CSSProperties {
+  return { ...documentSlotWidth(part), backgroundImage: "none" };
 }
 
-export function qcRangeLabel(part: QcLayoutPart) {
+export function qcRangeLabel(part: QcPaperSlotPart) {
   const range = part.recommendedRange;
   if (!range) return "";
   if (range.min != null && range.max != null) return range.min === range.max ? String(range.min) : `${range.min}～${range.max}`;
@@ -57,7 +58,7 @@ export function qcRangeLabel(part: QcLayoutPart) {
   return "";
 }
 
-export function qcRangeError(part: QcLayoutPart, value?: string) {
+export function qcRangeError(part: QcPaperSlotPart, value?: string) {
   const range = part.recommendedRange;
   if (!range || value == null || String(value).trim() === "") return undefined;
   const match = String(value).replace(/,/g, "").match(/-?\d+(?:\.\d+)?/);
@@ -70,17 +71,17 @@ export function qcRangeError(part: QcLayoutPart, value?: string) {
   return undefined;
 }
 
-function underlineClass(part: QcLayoutPart, inTable?: boolean) {
+function underlineClass(part: QcPaperSlotPart, inTable?: boolean) {
   if (inTable) return "border-b-0";
   return part.underline === true ? "border-b border-slate-950" : "border-b-0";
 }
 
-function selectRootBorderClass(part: QcLayoutPart, inTable?: boolean) {
+function selectRootBorderClass(part: QcPaperSlotPart, inTable?: boolean) {
   if (inTable || part.underline !== true) return "!border-0";
   return "border-b border-slate-950";
 }
 
-function textInputType(part: QcLayoutPart) {
+function textInputType(part: QcPaperSlotPart) {
   if (part.inputType === "date") return "date";
   return "text";
 }
@@ -92,7 +93,7 @@ export function QcPaperLineInput({
   onChange,
   inTable,
 }: {
-  part: QcLayoutPart;
+  part: QcPaperSlotPart;
   readOnly?: boolean;
   value?: string;
   onChange?: (value: string) => void;
@@ -114,8 +115,8 @@ export function QcPaperLineInput({
         readOnly={isReadOnly}
         rows={part.rows || 2}
         title={error}
-        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-[8em] resize-y border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-        style={inputWidth(part, currentValue)}
+        className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block min-w-0 resize-y overflow-hidden border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+        style={inputWidth(part)}
       />
     );
   }
@@ -130,8 +131,8 @@ export function QcPaperLineInput({
       inputMode={part.inputType === "number" ? "decimal" : undefined}
       type={textInputType(part)}
       title={error}
-      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-[4.5em] border-0 bg-transparent ${inputPaddingClass(part, currentValue)} ${inputAlignClass(part, currentValue)} align-middle leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-      style={inputWidth(part, currentValue)}
+      className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} inline-block h-7 min-w-0 overflow-hidden border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
+      style={inputWidth(part)}
     />
   );
 }
@@ -144,7 +145,7 @@ export function QcPaperSelectInput({
   onChange,
   inTable,
 }: {
-  part: QcLayoutPart;
+  part: QcPaperSlotPart;
   options?: string[];
   readOnly?: boolean;
   value?: string;
@@ -181,8 +182,8 @@ export function QcPaperSelectInput({
   return (
     <span
       ref={rootRef}
-      className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-middle ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
-      style={selectWidth(part, value ?? part.defaultValue, inTable)}
+      className={`${inTable ? "mx-0" : "mx-1"} relative inline-flex h-7 items-center justify-center align-baseline ${selectRootBorderClass(part, inTable)} ${error ? "text-red-700" : ""}`}
+      style={selectWidth(part)}
     >
       <button
         type="button"
@@ -192,12 +193,12 @@ export function QcPaperSelectInput({
         data-field-key={part.fieldKey || part.field || part.name}
         disabled={readOnly || part.readonlyDisplay}
         onClick={() => setOpen((current) => !current)}
-        className={`${PAPER_INPUT_TEXT_CLASS} h-7 w-full border-0 bg-transparent px-0.5 text-center font-normal tabular-nums leading-7 outline-none disabled:cursor-default disabled:opacity-100`}
+        className={`${PAPER_INPUT_TEXT_CLASS} h-7 w-full border-0 bg-transparent px-0.5 ${inputAlignClass(part)} font-normal leading-7 outline-none disabled:cursor-default disabled:opacity-100`}
       >
         {display || "\u00A0"}
       </button>
       {open && !readOnly && !part.readonlyDisplay ? (
-        <div className="absolute left-0 top-[calc(100%+0.25rem)] z-50 min-w-full border border-slate-200 bg-white p-1 font-sans" role="listbox">
+        <span className="absolute left-0 top-[calc(100%+0.25rem)] z-50 block min-w-full border border-slate-200 bg-white p-1 font-sans" role="listbox">
           {options.map((option) => (
             <button
               key={option}
@@ -210,7 +211,7 @@ export function QcPaperSelectInput({
               {option}
             </button>
           ))}
-        </div>
+        </span>
       ) : null}
     </span>
   );

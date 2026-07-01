@@ -70,13 +70,20 @@ export default function DocsEditorWorkbench() {
   const activeSpace = spaces.find((space) => space.id === activeSpaceId) ?? spaces[0] ?? null;
   const canCreateTemplate = Boolean(activeSpace && isEditableSpace(activeSpace));
   const canManageSpace = canManage(activeSpace?.role);
+  const handlePermissionToast = useCallback((toast: { message: string }) => setMessage(toast.message), []);
+  const listSpacePermissions = useCallback((space: EditorSpaceDto) => (
+    fetchEditorSpacePermissions(space.id) as Promise<SpacePermissionRow[]>
+  ), []);
+  const saveSpacePermissions = useCallback((space: EditorSpaceDto, permissions: Array<{ userId: number; role: SpacePermissionRow["role"] }>) => (
+    saveEditorSpacePermissions(space.id, permissions)
+  ), []);
   const permissionSections = useSpacePermissionsSections({
     target: activeSpace,
     canManage: canManageSpace,
     enabled: activeTab === "permissions",
-    onToast: (toast) => setMessage(toast.message),
-    listPermissions: async (space) => fetchEditorSpacePermissions(space.id) as Promise<SpacePermissionRow[]>,
-    savePermissions: (space, permissions) => saveEditorSpacePermissions(space.id, permissions),
+    onToast: handlePermissionToast,
+    listPermissions: listSpacePermissions,
+    savePermissions: saveSpacePermissions,
     referenceEndpoint: DOCS_EDITOR_REFERENCE_OPTIONS_ENDPOINT,
     userFkKey: "docs.editor.permission.user",
     permissionKind: "template",

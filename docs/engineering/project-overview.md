@@ -120,7 +120,7 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 | HR `hr` | `@workspace/hr` domain | `hr.roster`, `hr.performance`, `hr.analytics` | roster has module API; performance/analytics currently reuse roster data or page-only behavior |
 | Administration `administration` | `@workspace/administration` domain | `administration.contracts` | contracts module API |
 | Finance `finance` | `@workspace/finance` domain | ledger, statement config/review/statements, analysis, budget, cost, import, tax, treasury | most have module API; tax/treasury are planned page entries |
-| Production `production` | `@workspace/production` domain | `production.qcBatches` | QC batches module APIs; QC template editing is handled by Docs `docs.editor` |
+| Production `production` | `@workspace/production` domain | `production.qc` | QC batches module APIs; QC template editing is handled by Docs `docs.editor` |
 | External `external` | `@workspace/external` domain | investors, customers, suppliers | currently page entries without independent API |
 | Docs `docs` | Platform docs module | positions, company, expense | static/product docs pages, no independent business API |
 | Library `library` | `@workspace/library` domain | `library.basicInfo` | basic-info module API |

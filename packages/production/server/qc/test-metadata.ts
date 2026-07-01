@@ -1,4 +1,5 @@
 import { asArray, asRecord, asString } from "./layout-block-utils";
+import { standardCleanupItems } from "./editor-adapter-layout";
 
 export function summarizeStandard(test: Record<string, unknown>) {
   if (typeof test["标准规定"] === "string") return test["标准规定"];
@@ -30,12 +31,7 @@ export function cleanupItems(test: Record<string, unknown>) {
     .filter(Boolean);
   if (configured.length) return configured;
   if (asString(test["清场模板"]) === "standard_cleanup") {
-    return [
-      "关闭电源",
-      "清洁设备及房间",
-      "检查仪器、设备，填写《仪器使用记录》",
-      "更换仪器、设备状态标识",
-    ];
+    return standardCleanupItems();
   }
   return [];
 }

@@ -4,42 +4,52 @@ import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createFormSection, createHeadingSection, createMessageSection, createPageBody, type FormSurfaceCommandSpec, PageSurface } from "@workspace/core/ui";
-import type { QcBatchSummary, QcTemplateDetail, QcTemplateStage, QcTemplateTestItem } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate, QcEditorRuntimeTest } from "@workspace/production/server/qc";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
-import QcLayoutPaper from "./QcLayoutPaper";
-import QcMethodFieldTable from "./QcMethodFieldTable";
-import { useQcFormulaEngine } from "./useQcFormulaEngine";
+import QcEditorRuntimePaper from "./QcEditorRuntimePaper";
+import { qcAnchorHref, qcBatchStageAnchorHref, qcBatchTestAnchorHref } from "./qc-routes";
+import { useEditorRuntimeFormulaEngine } from "./useEditorRuntimeFormulaEngine";
 interface Props {
   batch: QcBatchSummary;
   productName: string;
-  detail: QcTemplateDetail;
-  stage: QcTemplateStage;
-  test: QcTemplateTestItem;
+  runtimeTemplate: QcEditorRuntimeTemplate;
+  runtimeStage: QcEditorRuntimeStage;
+  runtimeTest: QcEditorRuntimeTest;
   currentUserName: string;
 }
-function writableInspectionValues(values: Record<string, string>, stageKey: string, testName: string) {
-  const prefix = `${stageKey}/${testName}/`;
-  return Object.fromEntries(Object.entries(values).filter(([key]) => key.startsWith(prefix) && !key.includes("/signature/")));
+
+function writableRuntimeValues(values: Record<string, string>, runtimeTest: QcEditorRuntimeTest) {
+  const keys = new Set<string>();
+  for (const block of runtimeTest.blocks) {
+    if (block.type === "paragraph") block.parts.forEach((part) => { if (part.type !== "text" && !part.referenceFieldKey && !part.fieldKey.includes("/signature/") && part.slotKind !== "formula" && part.slotKind !== "reference" && !part.readonlyDisplay) keys.add(part.fieldKey); });
+    if (block.type === "table") {
+      block.rows.forEach((row) => row.cells.forEach((cell) => cell.parts.forEach((part) => {
+        if (part.type !== "text" && !part.referenceFieldKey && !part.fieldKey.includes("/signature/") && part.slotKind !== "formula" && part.slotKind !== "reference" && !part.readonlyDisplay) keys.add(part.fieldKey);
+      })));
+    }
+  }
+  return Object.fromEntries(Object.entries(values).filter(([key]) => keys.has(key)));
 }
 export default function QcBatchTestRecord({
   batch,
   productName,
-  detail,
-  stage,
-  test,
+  runtimeTemplate,
+  runtimeStage,
+  runtimeTest,
   currentUserName
 }: Props) {
   const router = useRouter();
   const [saveState, setSaveState] = useState<"idle" | "saved" | "error">("idle");
   const [statusText, setStatusText] = useState("");
   const [isPending, startTransition] = useTransition();
-  const form = useQcFormulaEngine(test, {
-    ...batch.fields,
-    batch_number: batch.batchNumber
-  });
-  const workflow = useMemo(() => buildQcBatchWorkflow(detail, batch, currentUserName), [batch, currentUserName, detail]);
-  const stageStatus = workflow.stages.find(item => item.key === stage.key);
-  const testStatus = workflow.tests.find(item => item.stageKey === stage.key && item.testName === test.englishName);
+  const form = useEditorRuntimeFormulaEngine(
+    runtimeTemplate.fieldModel,
+    runtimeTemplate.document,
+    { ...batch.fields, batch_number: batch.batchNumber }
+  );
+  const workflow = useMemo(() => buildQcBatchWorkflow(runtimeTemplate, batch, currentUserName), [batch, currentUserName, runtimeTemplate]);
+  const stageStatus = workflow.stages.find(item => item.key === runtimeStage.key);
+  const testStatus = workflow.tests.find(item => item.stageKey === runtimeStage.key && item.testName === runtimeTest.key);
   const inspectorName = testStatus?.inspectorName || currentUserName;
   const reviewerName = testStatus?.reviewerName || "";
   const locked = !stageStatus?.unlocked;
@@ -47,22 +57,25 @@ export default function QcBatchTestRecord({
   const referenceValues = {
     "__qc_ref/batch_number": batch.batchNumber,
     "__qc_ref/inspector": inspectorName,
-    "__qc_ref/reviewer": reviewerName
+    "__qc_ref/reviewer": reviewerName,
+    "__qc_ref_batch_number": batch.batchNumber,
+    "__qc_ref_inspector": inspectorName,
+    "__qc_ref_reviewer": reviewerName
   };
   function save() {
     setSaveState("idle");
     setStatusText("");
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/modules/production/qc-batches/${batch.id}`), {
+      const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           action: "save_inspection",
-          stageKey: stage.key,
-          testName: test.englishName,
-          fields: writableInspectionValues(form.values, stage.key, test.englishName)
+          stageKey: runtimeStage.key,
+          testName: runtimeTest.key,
+          fields: writableRuntimeValues(form.values, runtimeTest)
         })
       });
       const body = await response.json().catch(() => null);
@@ -75,15 +88,15 @@ export default function QcBatchTestRecord({
     setSaveState("idle");
     setStatusText("");
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/modules/production/qc-batches/${batch.id}`), {
+      const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
           action: "approve_review",
-          stageKey: stage.key,
-          testName: test.englishName
+          stageKey: runtimeStage.key,
+          testName: runtimeTest.key
         })
       });
       const body = await response.json().catch(() => null);
@@ -116,19 +129,19 @@ export default function QcBatchTestRecord({
   const recordSteps = [
     {
       key: "batch",
-      label: "返回批次主页",
-      href: `/production/qc-batches/${batch.id}`,
+      label: "返回批次列表",
+      href: qcAnchorHref(),
       tone: "primary" as const,
     },
     {
       key: "precheck",
       label: "检验前确认",
-      href: `/production/qc-batches/${batch.id}/${stage.key}`,
+      href: qcBatchStageAnchorHref(batch.id, runtimeStage.key),
     },
-    ...stage.tests.map(item => ({
-      key: item.englishName,
+    ...runtimeStage.tests.map(item => ({
+      key: item.key,
       label: `${item.sequence} ${item.name}`,
-      href: `/production/qc-batches/${batch.id}/${stage.key}/${item.englishName}`,
+      href: qcBatchTestAnchorHref(batch.id, runtimeStage.key, item.key),
     })),
   ];
   return <PageSurface kind="standard"
@@ -140,7 +153,7 @@ export default function QcBatchTestRecord({
           kind: "navigation",
           navigation: {
             kind: "steps",
-            active: test.englishName,
+            active: runtimeTest.key,
             ariaLabel: "质检阶段导航",
 
             steps: recordSteps,
@@ -149,7 +162,7 @@ export default function QcBatchTestRecord({
       },
       createHeadingSection("test-heading", {
 
-        title: `${productName}${stage.label} - ${test.name}`,
+        title: `${productName}${runtimeStage.label} - ${runtimeTest.name}`,
       }),
       {
         key: "test-record-paper",
@@ -159,9 +172,7 @@ export default function QcBatchTestRecord({
             items: [{
               key: "paper",
               size: "a4",
-              content: test.layoutBlocks?.length ? <QcLayoutPaper blocks={test.layoutBlocks} test={test} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} fieldScopePrefix={`${stage.key}/${test.englishName}`} /> : <div className="qc-a4-page qc-paper-font qc-paper-page mx-auto box-border overflow-visible bg-white text-slate-950">
-                    <QcMethodFieldTable test={test} values={form.values} onFieldChange={form.setValue} readOnly={readOnly} />
-                  </div>,
+              content: <QcEditorRuntimePaper blocks={runtimeTest.blocks} fieldModel={runtimeTemplate.fieldModel} values={form.values} referenceValues={referenceValues} onFieldChange={form.setValue} readOnly={readOnly} />,
             }],
           },
         } },

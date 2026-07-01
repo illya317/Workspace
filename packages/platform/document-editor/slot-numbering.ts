@@ -1,15 +1,17 @@
 import type { EditorDocument, EditorSlotInline } from "./types";
 
-export type NumberedSlotKind = "variable" | "formula" | "reference";
+export type NumberedSlotKind = "plain" | "choice" | "variable" | "formula" | "reference";
 
-const numberedPrefixes: Record<NumberedSlotKind, "x" | "y" | "z"> = {
+const numberedPrefixes: Record<NumberedSlotKind, "i" | "x" | "y" | "z"> = {
+  plain: "i",
+  choice: "i",
   variable: "x",
   formula: "y",
   reference: "z",
 };
 
 export function numberedSlotKind(value: unknown): NumberedSlotKind | null {
-  return value === "variable" || value === "formula" || value === "reference" ? value : null;
+  return value === "plain" || value === "choice" || value === "variable" || value === "formula" || value === "reference" ? value : null;
 }
 
 export function numberedSlotPrefix(kind: NumberedSlotKind) {
@@ -18,11 +20,13 @@ export function numberedSlotPrefix(kind: NumberedSlotKind) {
 
 export function nextAvailableSlotAlias(document: EditorDocument, kind: NumberedSlotKind, context: string, excludeFieldKey?: string) {
   const prefix = numberedSlotPrefix(kind);
+  if (usesFixedAlias(kind)) return prefix;
   const used = new Set<number>();
   walkEditorSlots(document, (part) => {
     if (excludeFieldKey && part.fieldKey === excludeFieldKey) return;
     if (slotContextLabel(part) !== context) return;
-    if (numberedSlotKind(effectiveNumberedKind(part)) !== kind) return;
+    const partKind = numberedSlotKind(effectiveNumberedKind(part));
+    if (!partKind || numberedSlotPrefix(partKind) !== prefix) return;
     const match = part.alias?.trim().match(new RegExp(`^${prefix}(\\d+)$`, "i"));
     if (match) used.add(Number(match[1]));
   });
@@ -36,6 +40,9 @@ export function validateNumberedAlias(attrs: EditorSlotInline, document?: Editor
   if (!kind) return null;
   const alias = attrs.alias?.trim().toLowerCase() ?? "";
   const prefix = numberedSlotPrefix(kind);
+  if (usesFixedAlias(kind)) {
+    return alias === prefix ? null : `编号必须是 ${prefix}`;
+  }
   if (!new RegExp(`^${prefix}\\d+$`, "i").test(alias)) {
     return `编号必须是 ${prefix}+数字`;
   }
@@ -69,9 +76,20 @@ export function walkEditorSlots(document: EditorDocument, visit: (part: EditorSl
 
 function effectiveNumberedKind(attrs: EditorSlotInline) {
   if (attrs.slotKind === "reference" || attrs.referenceFieldKey) return "reference";
+  if (attrs.slotKind === "date" || attrs.type === "dateSlot") return "plain";
+  if (attrs.slotKind === "plain") return "plain";
+  if (attrs.slotKind === "choice" || isOptionSlot(attrs)) return "choice";
   if (attrs.slotKind === "variable") return "variable";
   if (attrs.slotKind === "formula" || attrs.type === "formulaSlot") return "formula";
   return attrs.slotKind;
+}
+
+function isOptionSlot(attrs: EditorSlotInline) {
+  return attrs.inputType === "radio" || attrs.inputType === "checkbox" || attrs.inputType === "select";
+}
+
+function usesFixedAlias(kind: NumberedSlotKind) {
+  return kind === "plain" || kind === "choice";
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

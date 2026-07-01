@@ -3,7 +3,7 @@
 import { workspacePath } from "@workspace/core/routing";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type KeyboardEvent } from "react";
-import { createMessageSection, createSectionsSection, createPageBody, createSectionSection, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createMessageSection, createSectionsSection, createPageBody, PageSurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useApiAccessSection, type ApiAccessModuleRow } from "./ApiAccessClient";
 type Message = {
@@ -200,12 +200,10 @@ export default function AccountSettingsPanel({
       gridColumns: 3,
 
       sections: [
-        createSectionSection("profile", {
-          title: "修改账号",
-
-          sections: [{
-            key: "profile-form",
-            body: { kind: "form", form: {
+        {
+          key: "profile",
+          header: { title: "修改账号" },
+          body: { kind: "form", form: {
               kind: "fields",
               content: {
                 layout: { columns: 1 },
@@ -244,14 +242,11 @@ export default function AccountSettingsPanel({
                 ],
               },
             } },
-          }],
-        }),
-        createSectionSection("password", {
-          title: "修改密码",
-
-          sections: [{
-            key: "password-form",
-            body: { kind: "form", form: {
+        },
+        {
+          key: "password",
+          header: { title: "修改密码" },
+          body: { kind: "form", form: {
               kind: "fields",
               content: {
                 layout: { columns: 1 },
@@ -294,14 +289,11 @@ export default function AccountSettingsPanel({
               },
               commands: [{ key: "save-password", label: "保存密码", variant: "secondary", onClick: () => void savePassword() }],
             } },
-          }],
-        }),
-        createSectionSection("avatar", {
-          title: "修改头像",
-
-          sections: [{
-            key: "avatar-form",
-            body: { kind: "form", form: {
+        },
+        {
+          key: "avatar",
+          header: { title: "修改头像" },
+          body: { kind: "form", form: {
               kind: "fields",
               content: {
                 layout: { columns: 1 },
@@ -310,8 +302,8 @@ export default function AccountSettingsPanel({
                   kind: "note" as const,
                   key: "avatar-preview",
                   content: (
-                    <div className="flex justify-center">
-                      <span className="flex h-36 w-36 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 bg-cover bg-center text-3xl font-semibold text-emerald-700 shadow-inner" style={avatarPreviewUrl || avatar ? {
+                    <div className="flex h-32 items-center justify-center">
+                      <span className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border border-emerald-100 bg-emerald-50 bg-cover bg-center text-2xl font-semibold text-emerald-700 shadow-inner" style={avatarPreviewUrl || avatar ? {
                       backgroundImage: `url(${avatarPreviewUrl || avatar})`
                     } : undefined} aria-hidden="true">
                         {avatarPreviewUrl || avatar ? null : user.nickname?.slice(0, 1) || "?"}
@@ -338,8 +330,7 @@ export default function AccountSettingsPanel({
               },
               commands: [{ key: "save-avatar", label: avatarSaving ? "保存中..." : "保存头像", variant: "primary", disabled: !avatarFile || avatarSaving, onClick: () => void saveAvatar() }],
             } },
-          }],
-        }),
+        },
       ],
     }),
     ...(apiAccessSection ? [createSectionsSection("api-access", { sections: [apiAccessSection] })] : []),

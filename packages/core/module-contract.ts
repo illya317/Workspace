@@ -45,7 +45,7 @@ export type ModuleIconKey =
   | "tax"
   | "treasury"
   | "import"
-  | "qcBatches"
+  | "qc"
   | "investors"
   | "users"
   | "suppliers"

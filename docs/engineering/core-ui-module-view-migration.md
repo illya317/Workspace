@@ -15,7 +15,7 @@
 |---|---|
 | `visualization-surface` | 已补 `VisualizationSurface kind="chart/gantt"`：轻量 bar/grouped/comparison/tree 图表和 Work 甘特图入口；旧 `DataSurface kind="visual"` 已从顶层 DataSurface 类型删除。 |
 | `data-record-detail-surface` | 已补 `DataSurface records.detailSurface` + `display.stack`：展开记录内嵌 typed data surface，不再用 ReactNode 包 `<DataSurface>` |
-| `document-block-spec` | 已补 `PageSurface` `document` block + Core `DocumentSurface` v1：治理 A4/纸面文档宿主、宽度、字体和多页容器；QC rows/cells/parts/fields/anchors 仍由 domain renderer 承担，作为后续 L3 document sub-spec 继续演进 |
+| `document-block-spec` | 已补 `PageSurface` `document` block + Core `DocumentSurface` v1：治理 A4/纸面文档宿主、宽度、字体和多页容器；Production QC 运行态复用 docs editor `DocumentPreview`，不再保留独立纸面 renderer |
 | `page-split-slot` | split side / drawer / main content 的结构化 slot，不允许变成 generic render |
 | `page-content-slot` | 页面主内容边界；只有在子内容已变成 blocks/surface contract 后才能接入 |
 | `toolbar-menu-item` | 已补 Toolbar `kind="menu"`：trailing menu/dropdown trigger，例如账号菜单；Core 只表达菜单，不依赖 SessionUser/auth |
@@ -84,9 +84,9 @@
 | `packages/hr/ui/tabs/department-position/position-description-template-editor.tsx:fields` | migrated | existing `form.inline` checkbox fields | Template field groups converted to typed form fields |
 | `packages/hr/ui/tabs/department-position/position-editor.tsx:content` | migrated | `FormSurface` segmentedCode/tagList/fields + panel actions | Position info panel now uses typed `PageSurface` panel chrome and `FormSurface` fields; description panel remains separately tracked |
 | `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-header` | migrated | `NavigationSurface` link steps + `PageSurface` heading | QC precheck navigation now uses typed href/disabled steps and heading block |
-| `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-paper` | migrated | `PageSurface` document block + `DocumentSurface` v1 | Precheck paper now uses the document block host; QC layout rows/cells/reference values remain inside the domain document renderer |
+| `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-paper` | migrated | `PageSurface` document block + docs `DocumentPreview` | Precheck paper uses the docs editor runtime renderer |
 | `packages/production/ui/qc/QcBatchStagePrecheck.tsx:precheck-actions` | migrated | existing `form.inline` block | Save action converted |
-| `packages/production/ui/qc/QcBatchTestRecord.tsx:test-record-paper` | migrated | `PageSurface` document block + `DocumentSurface` v1 | Test record paper and fallback method table now use the document block host; formula/reference/readOnly internals remain domain document sub-spec work |
+| `packages/production/ui/qc/QcBatchTestRecord.tsx:test-record-paper` | migrated | `PageSurface` document block + docs `DocumentPreview` | Test record paper uses the docs editor runtime renderer; legacy fallback method table removed |
 | `packages/production/ui/qc/QcModuleShell.tsx:content` | migrated | shell chrome `PageSurface` + direct AppShell content region | QC shell summary/panels remain typed `PageSurface` blocks; child content is no longer tunneled through `PageSurface.moduleView` |
 | `packages/work/ui/meetings/MeetingsPage.tsx:meeting-detail` | migrated | `PageSurface` panel/form block shell | Meeting detail now exposes a typed block; proposal/vote/decision/candidate workflows remain scoped composition gaps inside the detail block |
 | `packages/work/ui/tabs/ProjectTab.tsx:activeChild` | migrated | direct child `PageSurface` selection + typed blocks | Project child views now render their own `PageSurface` with shared tabs; top-level activeChild `moduleView` host removed |

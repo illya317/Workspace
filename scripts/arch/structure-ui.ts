@@ -83,9 +83,7 @@ const UI_PATTERN_RULES: Array<{ name: string; regex: RegExp }> = [
 
 function isDocumentUiPatternException(relPath: string) {
   return relPath.startsWith("app/(docs)/")
-    || relPath.startsWith("packages/platform/ui/docs/")
-    || relPath.startsWith("packages/production/ui/qc/qc-layout-paper/")
-    || /^packages\/production\/ui\/qc\/Qc(Layout|Paper)/.test(relPath);
+    || relPath.startsWith("packages/platform/ui/docs/");
 }
 
 const PLATFORM_SYSTEM_SHELL_PAGE_DESIGN_FILES = new Set([

@@ -47,7 +47,7 @@ export function verificationRows(block: QcLayoutBlock, items: Array<{ name: stri
 }
 
 export function cleanupRows(block: QcLayoutBlock, test?: QcTemplateTestItem): QcLayoutCell[][] {
-  const items = test?.cleanupItems?.length ? test.cleanupItems : block.items || ["YAML 未配置清场项目"];
+  const items = test?.cleanupItems?.length ? test.cleanupItems : block.items?.length ? block.items : standardCleanupItems();
   const prefix = block.fieldPrefix || "layout/cleanup";
   return [
     [cell("清场", [], 2, { bold: true, align: "left" })],
@@ -56,6 +56,16 @@ export function cleanupRows(block: QcLayoutBlock, test?: QcTemplateTestItem): Qc
       cell(item.replace(/[。.]?$/, "。")),
       cell("", [{ type: "radio", fieldKey: `${prefix}/item_${index + 1}`, options: ["是", "否"] }]),
     ]),
+  ];
+}
+
+export function standardCleanupItems() {
+  return [
+    "将检验用具及废弃物分类",
+    "关闭电源",
+    "清洁设备及房间",
+    "检查仪器、设备，填写《仪器使用记录》",
+    "更换仪器、设备状态标识",
   ];
 }
 

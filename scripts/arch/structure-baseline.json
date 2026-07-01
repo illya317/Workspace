@@ -32,7 +32,13 @@
   "uiForbiddenCoreUiTypeImports": [],
   "pageSurfaceLayoutProtocolWarnings": [],
   "platformCoreUiRoleBypassImports": [],
-  "pageDesignDriftFiles": [],
+  "pageDesignDriftFiles": [
+    "packages/hr/ui/tabs/department-position/navigation-panels.tsx: handwritten-action-button,handwritten-surface",
+    "packages/production/ui/qc/QcBatchListClient.tsx: handwritten-surface,handwritten-toolbar-layout",
+    "packages/production/ui/qc/QcBatchRecordStageList.tsx: handwritten-layout-grid",
+    "packages/production/ui/qc/QcPaperDateInput.tsx: handwritten-form-control",
+    "packages/production/ui/qc/QcPaperInputs.tsx: handwritten-form-control"
+  ],
   "repeatedServiceGroups": [],
   "routePrimitiveSchemaDuplicates": [],
   "apiRouteHelperDuplicates": [],

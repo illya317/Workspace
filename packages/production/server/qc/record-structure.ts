@@ -1,6 +1,7 @@
 import "server-only";
 import path from "path";
 import { loadQcLayoutBlocks } from "./layout-blocks";
+import { standardCleanupItems } from "./editor-adapter-layout";
 import { asArray, asRecord, asString, readJson, values } from "./layout-block-utils";
 import { resolvePharmaOpsRoot } from "./source";
 import type {
@@ -31,6 +32,7 @@ function sourceRef(value: unknown) {
 function standardText(recordConfig: Record<string, unknown>) {
   const template = asString(recordConfig.standard_template);
   const params = asRecord(recordConfig.standard_params);
+  if (!template || template === "empty_standard") return undefined;
   if (template === "variation_difference_limit") {
     const basis = asString(params.basis, "平均片重");
     const limit = asString(params.limit, "7.0");
@@ -44,9 +46,23 @@ function standardText(recordConfig: Record<string, unknown>) {
   if (template === "appearance_description") return asString(params.description);
   if (template === "plain_text") return asString(params.text);
   if (template === "dissolution_release_limit") return `限度为标示量的${asString(params.limit)}%。`;
+  if (template === "release_upper_limit") return `释放度不得过标示量的${asString(params.limit)}%。`;
+  if (template === "average_content_lower_limit") return `平均含量不得低于标示量的${asString(params.limit)}%。`;
+  if (template === "friability_loss_limit") return `减失重量不得过${asString(params.loss_limit)}%，且不得检出断裂、龟裂及粉碎的片。`;
+  if (template === "disintegration_time_limit") return `应在${asString(params.limit_minutes)}分钟内全部崩解。`;
+  if (template === "content_uniformity_a_2_2s") return `A+${asString(params.factor, "2.2")}S应不大于${asString(params.limit, "13")}。`;
+  if (template === "identification_retention_time") return "供试品溶液主峰的保留时间应与对照品溶液主峰的保留时间一致。";
+  if (template === "identification_tlc_spot_match") return "供试品色谱中，在与对照品色谱相应的位置上，应显相同颜色的斑点。";
+  if (template === "numbered_standard_items") return numberedItemsText(asArray(params.items), asString(params.numbering_style));
+  if (template === "grouped_numbered_standard_items") return groupedNumberedItemsText(asArray(params.groups));
   if (template === "content_assay_range") {
     return `${asString(params.subject, "含量")}${asString(params.phrase, "应为")} ${asString(params.lower)}%～${asString(params.upper)}%。`;
   }
+  if (template === "multi_component_content_assay_range") return multiComponentContentText(asArray(params.components));
+  if (template === "related_substances_total_peak_area_limit") return relatedTotalPeakText(params);
+  if (template === "related_substances_single_peak_limit") return relatedSinglePeakText(params);
+  if (template === "related_substances_single_total_limits") return relatedSingleTotalText(params);
+  if (template === "allopurinol_related_substances_limits") return allopurinolRelatedLimitsText(params);
   if (template === "microbial_limit_standard") {
     const amount = asString(params.sample_amount, "1");
     const unit = asString(params.sample_unit, "g");
@@ -54,18 +70,72 @@ function standardText(recordConfig: Record<string, unknown>) {
     const yeastMoldLimit = asString(params.yeast_mold_limit, "10²");
     return `每${amount}${unit}供试品中，大肠埃希菌不得检出；需氧菌总数不得过${aerobicLimit}cfu，霉菌和酵母菌总数不得过${yeastMoldLimit}cfu。`;
   }
-  const values = Object.entries(params).map(([key, value]) => `${key}=${String(value)}`);
-  return values.length ? `${template} (${values.join(", ")})` : template || undefined;
+  return undefined;
+}
+
+function numberedItemsText(items: unknown[], numberingStyle?: string) {
+  const marker = numberingStyle === "arabic_colon" ? (index: number) => `${index + 1}.` : (index: number) => `${index + 1}、`;
+  return items.map((item, index) => `${marker(index)}${asString(item)}`).filter(Boolean).join(" ");
+}
+
+function groupedNumberedItemsText(groups: unknown[]) {
+  return groups.map((rawGroup, index) => {
+    const group = asRecord(rawGroup);
+    const prefix = asString(group.prefix, `${index + 1}、`);
+    const text = asString(group.text) || asArray(group.items).map((item) => asString(item)).filter(Boolean).join(" ");
+    return text ? `${prefix}${text}` : "";
+  }).filter(Boolean).join(" ");
+}
+
+function multiComponentContentText(components: unknown[]) {
+  return components.map((raw) => {
+    const item = asRecord(raw);
+    return `${asString(item.subject, "含量")}应为标示量的${asString(item.lower)}%～${asString(item.upper)}%`;
+  }).filter(Boolean).join("；") + "。";
+}
+
+function relatedTotalPeakText(params: Record<string, unknown>) {
+  const scope = asString(params.peak_scope);
+  const excluded = asString(params.excluded_peaks);
+  const prefix = scope ? `${scope}各杂质峰面积的和` : "各杂质峰面积的和";
+  const excludedText = excluded ? `（${excluded}除外）` : "";
+  return `${prefix}${excludedText}不得大于${comparisonLimit(params.comparison, params.limit)}。`;
+}
+
+function relatedSinglePeakText(params: Record<string, unknown>) {
+  return `${asString(params.label, "单个杂质峰面积")}不得大于${comparisonLimit(params.comparison, params.multiple, params.limit)}。`;
+}
+
+function relatedSingleTotalText(params: Record<string, unknown>) {
+  const comparison = params.comparison;
+  const ignore = asString(params.ignore_note);
+  const ignoreText = ignore ? `；${ignore}` : "";
+  return `单个杂质峰面积不得大于${comparisonLimit(comparison, params.single_multiple, params.single_limit)}；各杂质峰面积的和不得大于${comparisonLimit(comparison, params.total_multiple, params.total_limit)}${ignoreText}。`;
+}
+
+function allopurinolRelatedLimitsText(params: Record<string, unknown>) {
+  const named = asArray(params.named_impurities).map((raw) => {
+    const item = asRecord(raw);
+    return `${asString(item.name)}不得过${asString(item.limit)}%`;
+  }).filter(Boolean).join("，");
+  return `供试品溶液中如有与${namedImpurityNames(params)}保留时间一致的峰，其含量按外标法以峰面积计算，其中${named}；供试品溶液色谱图中如有其它杂质峰，按外标法以${asString(params.reference_name)}峰面积计算，其它单个杂质不得过${asString(params.other_single_limit)}%；其它杂质总量不得过${asString(params.total_limit)}%。`;
+}
+
+function namedImpurityNames(params: Record<string, unknown>) {
+  return asArray(params.named_impurities).map((raw) => asString(asRecord(raw).name)).filter(Boolean).join("、");
+}
+
+function comparisonLimit(comparison: unknown, multiple: unknown, limit?: unknown) {
+  const target = asString(comparison, "对照溶液主峰面积");
+  const multipleText = asString(multiple);
+  const limitText = asString(limit);
+  if (!multipleText || multipleText === "1") return limitText ? `${target}（${limitText}%）` : target;
+  return limitText ? `${target}的${multipleText}倍（${limitText}%）` : `${target}的${multipleText}倍`;
 }
 
 function cleanupItems(recordConfig: Record<string, unknown>) {
   if (asString(recordConfig.cleanup_template) !== "standard_cleanup") return [];
-  return [
-    "关闭电源",
-    "清洁设备及房间",
-    "检查仪器、设备，填写《仪器使用记录》",
-    "更换仪器、设备状态标识",
-  ];
+  return standardCleanupItems();
 }
 
 function methodField(rawField: unknown): QcTemplateMethodField {
