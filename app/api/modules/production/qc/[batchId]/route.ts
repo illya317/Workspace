@@ -14,7 +14,7 @@ const paramsSchema = z.object({
 });
 
 const updateQcBatchSchema = z.object({
-  action: z.enum(["save_precheck", "save_inspection", "approve_review"]).optional(),
+  action: z.enum(["save_precheck", "save_inspection"]).optional(),
   stageKey: z.string().optional(),
   testName: z.string().optional(),
   batchNumber: z.string().optional(),

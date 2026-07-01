@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { actionImplies, getPermissionActionGlyph, PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
 import { getApiContracts, findApiContract } from "@workspace/platform/api-registry";
 import { PERMISSION_RESOURCE_ACTION_POLICIES } from "@workspace/platform/permission-resource-policy";
-import { PERMISSION_API_ACTION_POLICY_LIST, resolvePermissionApiAction } from "@workspace/platform/permission-api-action-policy";
+import { PERMISSION_API_ACTION_POLICY_LIST, resolvePermissionApiActionPolicy } from "@workspace/platform/permission-api-action-policy";
 import { registeredModuleDefinitions } from "@workspace/platform/module-registry";
 
 assert.equal(actionImplies("delete", "write"), true);
@@ -54,21 +54,20 @@ for (const policy of PERMISSION_RESOURCE_ACTION_POLICIES) {
 
 for (const contract of getApiContracts()) {
   if (!contract.resourceKey) continue;
-  assert.equal(Boolean(contract.permissionAction), true, `${contract.method} ${contract.pathPrefix} should have permissionAction`);
-  assert.equal(
-    resolvePermissionApiAction({
-      method: contract.method,
-      apiPath: contract.pathPrefix,
-      resourceKey: contract.resourceKey,
-      legacyAction: contract.action,
-    }),
-    contract.permissionAction,
-    `${contract.method} ${contract.pathPrefix} permissionAction should be stable`,
-  );
+  assert.equal(Boolean(contract.action), true, `${contract.method} ${contract.pathPrefix} should have base action`);
+  const resolved = resolvePermissionApiActionPolicy({
+    method: contract.method,
+    apiPath: contract.pathPrefix,
+    resourceKey: contract.resourceKey,
+    defaultBaseAction: contract.action,
+  });
+  assert.equal(resolved.baseAction, contract.action, `${contract.method} ${contract.pathPrefix} base action should be stable`);
+  assert.equal(resolved.additionalAction, contract.additionalAction, `${contract.method} ${contract.pathPrefix} additional action should be stable`);
+  const foundContract = findApiContract(contract.method, contract.pathPrefix);
   assert.deepEqual(
-    findApiContract(contract.method, contract.pathPrefix)?.permissionAction,
-    contract.permissionAction,
-    `${contract.method} ${contract.pathPrefix} lookup should preserve permissionAction`,
+    foundContract?.additionalAction,
+    contract.additionalAction,
+    `${contract.method} ${contract.pathPrefix} lookup should preserve additional action`,
   );
 }
 
@@ -80,11 +79,17 @@ for (const policy of PERMISSION_API_ACTION_POLICY_LIST) {
     true,
     `${policy.method} ${policy.pathPrefix} uses unknown resource ${policy.resourceKey}`,
   );
+  assert.equal(
+    Boolean(policy.baseAction || policy.additionalAction),
+    true,
+    `${policy.method} ${policy.pathPrefix} must set baseAction or additionalAction`,
+  );
+  if (!policy.additionalAction) continue;
   const resourcePolicy = PERMISSION_RESOURCE_ACTION_POLICIES.find((item) => item.resourceKey === policy.resourceKey);
   assert.equal(
-    Boolean((resourcePolicy?.supportedActions as readonly string[] | undefined)?.includes(policy.action)),
+    Boolean((resourcePolicy?.supportedActions as readonly string[] | undefined)?.includes(policy.additionalAction)),
     true,
-    `${policy.method} ${policy.pathPrefix} maps ${policy.resourceKey} to unsupported action ${policy.action}`,
+    `${policy.method} ${policy.pathPrefix} maps ${policy.resourceKey} to unsupported action ${policy.additionalAction}`,
   );
 }
 

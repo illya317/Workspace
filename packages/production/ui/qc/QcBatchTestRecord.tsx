@@ -87,13 +87,12 @@ export default function QcBatchTestRecord({
   }
   function approveReview() {
     startTransition(async () => {
-      const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}`), {
-        method: "PATCH",
+      const response = await fetch(workspacePath(`/api/modules/production/qc/${batch.id}/approve-review`), {
+        method: "POST",
         headers: {
           "Content-Type": "application/json"
         },
         body: JSON.stringify({
-          action: "approve_review",
           stageKey: runtimeStage.key,
           testName: runtimeTest.key
         })
@@ -123,7 +122,7 @@ export default function QcBatchTestRecord({
     recordActions.push({
       key: "approve-review",
       label: isPending ? "复核中" : "复核通过",
-      kind: "check",
+      kind: "verified",
       onClick: approveReview,
       disabled: isPending,
       variant: "primary",

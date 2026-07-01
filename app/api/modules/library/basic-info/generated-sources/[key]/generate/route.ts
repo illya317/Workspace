@@ -5,7 +5,6 @@ import {
   executeGenerateLibraryDocumentCommand,
 } from "@workspace/library/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkLibraryWrite } from "@workspace/platform/server/auth";
 
 const paramsSchema = z.object({
   key: z.string().trim().min(1),
@@ -18,7 +17,6 @@ const generateRequestSchema = z.object({
 }).passthrough();
 
 export const POST = createCommandRoute({
-  access: checkLibraryWrite,
   paramsSchema,
   paramsError: "Invalid key",
   bodySchema: generateRequestSchema,

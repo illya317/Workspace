@@ -168,9 +168,12 @@ checkPermission(userId, resourceKey, roleKey)
 
 新权限动作的资源映射由 `@workspace/platform/permission-resource-policy` 维护。该 catalog 只说明某个 `resourceKey` 支持哪些 action、哪些 action 可以从祖先资源继承、哪些高风险 action 必须在当前资源或 capability 上显式授权。
 
-当前阶段 policy 只用于权限管理 UI 和 action record 解释：未被当前 resource policy 支持的 action 显示为“业务待接入”。它不替换现有业务 guard；页面/API 的实际授权仍按当前 `access/write/delete/admin` 路径执行，直到后续任务显式把某个业务动作接入对应 service/route。
+页面和 API 的实际授权分两层执行：
 
-API 的新动作语义由 `@workspace/platform/permission-api-action-policy` 维护。`api-registry` 会为每个 contract 计算 `permissionAction`，用于表达该 API 的业务动作归属，例如导入确认是 `import`、QC 提交是 `submit`、报表导出/下载是 `export`。当前 `permissionAction` 是后端 contract 语义，不参与 `requireApiAccess()` 的旧 guard 判定；旧判定仍读取 `contract.action`，保持现有运行行为不变。
+- `packages/platform/module-registry.ts` 继续登记 API 前缀、`resourceKey` 和旧四级基础动作。`api-registry` 会把它解析成 `baseAction`，例如 `GET -> access`、`POST/PUT/PATCH -> write`、`DELETE -> delete`。
+- `@workspace/platform/permission-api-action-policy` 是 API 新动作注册表，只登记需要覆盖默认基础动作或需要额外业务动作的端点。`api-registry` 会把它解析成 `additionalAction`，例如导入是 `import`、QC 提交是 `submit`、审批确认是 `approve`、归档/恢复/导出是 `archive/revise/export`。
+
+`requireApiAccess()` 先检查 `baseAction`，再检查 `additionalAction`。route 文件不得直接调用 `evaluatePermissionAction()`；新增动作必须先出现在 `permission-resource-policy` 的 resource 支持清单中，再在 `permission-api-action-policy` 登记 API 端点，由 gate 统一校验。普通请求形状仍在 route 的 Zod schema 处理，业务可写字段、状态、FK、归属和跨字段规则仍按 `Zod -> domain validator -> service/Prisma` 链路处理。
 
 ## 表结构（当前）
 

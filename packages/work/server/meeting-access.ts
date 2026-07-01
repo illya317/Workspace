@@ -1,4 +1,4 @@
-import { authorize, isSuperAdmin } from "@workspace/platform/server/auth";
+import { authorize, evaluatePermissionAction, isSuperAdmin } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 
 export type MeetingAccessRole = "access" | "write" | "delete" | "admin";
@@ -122,6 +122,13 @@ export async function canViewMeeting(userId: number, meetingId: number) {
 export async function canEditMeeting(userId: number, meetingId: number) {
   const permissions = await getMeetingPermissionsById(userId, meetingId);
   return Boolean(permissions?.canEdit);
+}
+
+export async function canApproveMeeting(userId: number, meetingId: number) {
+  if (await isSuperAdmin(userId)) return true;
+  if (!(await evaluatePermissionAction(userId, "work.meetings", "approve"))) return false;
+  const permissions = await getMeetingPermissionsById(userId, meetingId);
+  return Boolean(permissions?.canManage || permissions?.participantRole === "secretary");
 }
 
 export async function canDeleteMeeting(userId: number, meetingId: number) {

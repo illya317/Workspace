@@ -1,5 +1,5 @@
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { checkFinanceBudgetAccess, checkFinanceBudgetWrite } from "@workspace/platform/server/auth";
+import { checkFinanceBudgetAccess } from "@workspace/platform/server/auth";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { listBudgetVersions, createBudgetVersion } from "@workspace/finance/server/budget/budget-version";
 import {
@@ -18,7 +18,6 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceBudgetWrite,
   bodySchema: createBudgetVersionSchema,
   bodyError: "year 和 name 为必填",
   buildCommand: ({ body }) => okCommand(body),

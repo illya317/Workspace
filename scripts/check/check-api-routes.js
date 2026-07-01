@@ -77,6 +77,7 @@ const API_ACCESS_IMPORTS = [
 ];
 const API_ROUTE_HELPER_IMPORT = "@workspace/platform/server/api-route";
 const WITH_AUTH_IMPORT = "@workspace/platform/server/with-auth";
+const DIRECT_PERMISSION_ACTION_CALL = /\bevaluatePermissionAction\s*\(/;
 
 function escapeRegExp(value) {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -164,6 +165,11 @@ for (const file of allRoutes) {
   const usesAuthWrapper = hasWithAuthImport(content) && (/with[A-Za-z]*(Access|Write|Delete|Auth)\s*\(/.test(content) || /withAuth\s*\(/.test(content));
   const usesRegistryGate = usesImportedApiGate(content) || usesApiRouteHelperGate(content) || usesAuthWrapper;
   const usesAdminGate = usesImportedAdminApiGate(content);
+
+  if (DIRECT_PERMISSION_ACTION_CALL.test(content)) {
+    console.error(`❌ ${rel} 禁止直接调用 evaluatePermissionAction()；API 动作权限必须在 permission-api-action-policy 注册为 additionalAction，由 requireApiAccess() 统一执行`);
+    errors++;
+  }
 
   if (firstSegment === "modules") {
     const parts = rel.split("/");

@@ -5,7 +5,6 @@ import {
   executeReconcileBalanceSheetCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
 
 const reconcileFormSchema = z.object({
   file: z.instanceof(File),
@@ -13,7 +12,6 @@ const reconcileFormSchema = z.object({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceLedgerWrite,
   bodyParser: "formData",
   bodySchema: reconcileFormSchema,
   bodyError: "参数无效",

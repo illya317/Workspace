@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 import { buildRosterGeneratedCsvCommand, executeRosterGeneratedCsvCommand } from "@workspace/hr/server";
-import { authorize } from "@workspace/platform/server/auth";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const exportQuerySchema = z.object({
@@ -15,7 +14,6 @@ const exportQuerySchema = z.object({
 });
 
 export const GET = createCommandRoute({
-  access: (userId: number) => authorize({ user: userId, resourceKey: "hr.roster.generated", action: "access" }),
   querySchema: exportQuerySchema,
   queryError: "参数错误",
   buildCommand: ({ query }) => buildRosterGeneratedCsvCommand(query),

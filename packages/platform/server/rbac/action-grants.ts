@@ -1,13 +1,13 @@
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import {
-  PERMISSION_ACTION_DEFS,
+  PERMISSION_ACTION_KEYS,
   isLegacyPermissionActionKey,
   isPermissionActionKey,
+  actionImplies,
   type PermissionActionKey,
 } from "@workspace/platform/permission-actions";
 import {
   canPermissionActionInheritFromAncestor,
-  isPermissionActionGrantableForResource,
   isPermissionActionSupported,
 } from "@workspace/platform/permission-resource-policy";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -96,12 +96,6 @@ export async function setSubjectPermissionActionGrant(
   if (!isResourceEnabled(resourceKey)) {
     throw new Error("模块未启用，不能配置该资源权限");
   }
-  if (!isPermissionActionGrantableForResource(resourceKey, actionKey)) {
-    throw new Error("该资源尚未接入该权限动作");
-  }
-  if (value && !PERMISSION_ACTION_DEFS[actionKey].directGrantable) {
-    throw new Error("该权限动作不能直接授予");
-  }
   if (subjectType === "user" && await isRootAdminUser(subjectId)) {
     throw new Error("内置 admin 账号不参与 RBAC 授权");
   }
@@ -143,12 +137,10 @@ export async function evaluatePermissionAction(
   resourceKey: string,
   actionKey: PermissionActionKey,
 ) {
-  if (isLegacyPermissionActionKey(actionKey)) {
-    return evaluatePermission(userId, resourceKey, actionKey);
-  }
   if (await isRootAdminUser(userId)) return true;
   if (!isResourceEnabled(resourceKey)) return false;
   if (!isPermissionActionSupported(resourceKey, actionKey)) return false;
+  if (isLegacyPermissionActionKey(actionKey) && await evaluatePermission(userId, resourceKey, actionKey)) return true;
 
   if (await evaluatePermission(userId, resourceKey, "admin")) return true;
   if (actionKey === "create" && await evaluatePermission(userId, resourceKey, "write")) return true;
@@ -164,9 +156,9 @@ export async function evaluatePermissionAction(
     getUserPositionIds(userId),
     getUserDepartmentIds(userId),
   ]);
-  const matchingActionKeys = ["admin", actionKey];
-  if (actionKey === "withdraw") matchingActionKeys.push("submit");
-  if (actionKey === "reject") matchingActionKeys.push("approve");
+  const matchingActionKeys = PERMISSION_ACTION_KEYS.filter((grantedActionKey) =>
+    actionImplies(grantedActionKey, actionKey),
+  );
 
   const [userGrant, positionGrant, departmentGrant] = await Promise.all([
     prisma.userResourceActionGrant.findFirst({

@@ -5,7 +5,7 @@ import {
   executeUnsupportedCostImportCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceCostAccess, checkFinanceCostWrite } from "@workspace/platform/server/auth";
+import { checkFinanceCostAccess } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const costImportsQuerySchema = z.object({
@@ -21,7 +21,6 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceCostWrite,
   buildCommand: () => okCommand({}),
   action: executeUnsupportedCostImportCommand,
 });

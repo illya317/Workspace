@@ -28,29 +28,29 @@ export const PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "work.projects.viewAll", status: "capability", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "export", "admin"] },
   { resourceKey: "work.meetings.viewAll", status: "capability", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "export", "admin"] },
   { resourceKey: "hr", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
-  { resourceKey: "hr.roster", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "import", "export", "admin"] },
-  { resourceKey: "hr.performance", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "export", "admin"] },
-  { resourceKey: "hr.analytics", status: "business", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["export", "admin"] },
-  { resourceKey: "hr.roster.generated", status: "capability", supportedActions: ["access", "write", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "write", "export", "admin"] },
+  { resourceKey: "hr.roster", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "admin"] },
+  { resourceKey: "hr.performance", status: "business", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "hr.analytics", status: "business", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "hr.roster.generated", status: "capability", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["access", "export", "admin"] },
   { resourceKey: "administration", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
-  { resourceKey: "administration.contracts", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "export", "admin"] },
+  { resourceKey: "administration.contracts", status: "business", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["admin"] },
   { resourceKey: "finance", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "finance.ledger", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "revise", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "revise", "import", "export", "admin"] },
   { resourceKey: "finance.statementConfig", status: "business", supportedActions: ["access", "create", "write", "delete", "revise", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["revise", "import", "export", "admin"] },
-  { resourceKey: "finance.statementReview", status: "business", supportedActions: ["access", "create", "write", "submit", "withdraw", "approve", "reject", "revise", "export", "admin"], ancestorInheritedActions: ["access", "create", "write"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "revise", "export", "admin"] },
-  { resourceKey: "finance.statements", status: "business", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["export", "admin"] },
-  { resourceKey: "finance.analysis", status: "business", supportedActions: ["access", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["export", "admin"] },
-  { resourceKey: "finance.budget", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "archive", "revise", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "archive", "revise", "import", "export", "admin"] },
+  { resourceKey: "finance.statementReview", status: "business", supportedActions: ["access", "create", "write", "approve", "admin"], ancestorInheritedActions: ["access", "create", "write"], explicitOnlyActions: ["approve", "admin"] },
+  { resourceKey: "finance.statements", status: "business", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "finance.analysis", status: "business", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "finance.budget", status: "business", supportedActions: ["access", "create", "import", "approve", "admin"], ancestorInheritedActions: ["access", "create"], explicitOnlyActions: ["import", "approve", "admin"] },
   { resourceKey: "finance.cost", status: "business", supportedActions: ["access", "create", "write", "delete", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["import", "export", "admin"] },
-  { resourceKey: "finance.tax", status: "planned", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "import", "export", "admin"] },
-  { resourceKey: "finance.treasury", status: "planned", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "import", "export", "admin"] },
+  { resourceKey: "finance.tax", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "finance.treasury", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "finance.import", status: "business", supportedActions: ["access", "import", "export", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["import", "export", "admin"] },
   { resourceKey: "production", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "production.qc", status: "business", supportedActions: ["access", "create", "write", "delete", "submit", "withdraw", "approve", "reject", "archive", "revise", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["submit", "withdraw", "approve", "reject", "archive", "revise", "export", "admin"] },
   { resourceKey: "external", status: "container", supportedActions: ["access", "create", "write", "delete", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
-  { resourceKey: "external.investors", status: "business", supportedActions: ["access", "create", "write", "delete", "archive", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "export", "admin"] },
-  { resourceKey: "external.customers", status: "planned", supportedActions: ["access", "create", "write", "delete", "archive", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "import", "export", "admin"] },
-  { resourceKey: "external.suppliers", status: "planned", supportedActions: ["access", "create", "write", "delete", "archive", "import", "export", "admin"], ancestorInheritedActions: ["access", "create", "write", "delete"], explicitOnlyActions: ["archive", "import", "export", "admin"] },
+  { resourceKey: "external.investors", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "external.customers", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
+  { resourceKey: "external.suppliers", status: "planned", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "docs", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: [], explicitOnlyActions: ["admin"] },
   { resourceKey: "docs.company", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
   { resourceKey: "docs.expense", status: "docs", supportedActions: ["access", "admin"], ancestorInheritedActions: ["access"], explicitOnlyActions: ["admin"] },
@@ -84,7 +84,7 @@ export function isPermissionActionSupported(resourceKey: string | null | undefin
 }
 
 export function isPermissionActionGrantableForResource(resourceKey: string | null | undefined, actionKey: PermissionActionKey) {
-  return isPermissionActionSupported(resourceKey, actionKey);
+  return Boolean(resourceKey && actionKey);
 }
 
 export function isPermissionActionExplicitOnly(resourceKey: string | null | undefined, actionKey: PermissionActionKey) {

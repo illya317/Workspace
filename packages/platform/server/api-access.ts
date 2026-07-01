@@ -4,6 +4,7 @@ import type { NextResponse } from "next/server";
 import { findApiContract, type ApiContract } from "../api-registry";
 import { authenticate, isKicked } from "./auth/authenticate";
 import { authorize } from "./auth/authorize";
+import { evaluatePermissionAction } from "./rbac/action-grants";
 import type { AuthPayload } from "./auth-token";
 import { disabledApiResponseForRequest } from "./module-runtime";
 import { jsonErrorResponse } from "./api";
@@ -54,11 +55,11 @@ export async function requireApiAccess(request: Request): Promise<ApiAccessResul
   if (!payload) return { ok: false, response: await unauthenticatedResponse(request) };
 
   if (contract.resourceKey && contract.action) {
-    const allowed = await authorize({
-      user: payload.userId,
-      resourceKey: contract.resourceKey,
-      action: contract.action,
-    });
+    const allowed = await authorize({ user: payload.userId, resourceKey: contract.resourceKey, action: contract.action });
+    if (!allowed) return { ok: false, response: jsonError("无权限", 403) };
+  }
+  if (contract.resourceKey && contract.additionalAction) {
+    const allowed = await evaluatePermissionAction(payload.userId, contract.resourceKey, contract.additionalAction);
     if (!allowed) return { ok: false, response: jsonError("无权限", 403) };
   }
 

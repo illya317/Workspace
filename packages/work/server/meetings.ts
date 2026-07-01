@@ -3,6 +3,7 @@ import type { DomainServiceResult } from "@workspace/platform/server/domain-vali
 import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildVisibleMeetingWhere,
+  canApproveMeeting,
   canDeleteMeeting,
   canEditMeeting,
   canUseMeetings,
@@ -221,7 +222,7 @@ export async function castMeetingVote(input: { userId: number; meetingId: number
 export async function closeMeetingProposal(input: { userId: number; meetingId: number; proposalId: number }) {
   const command = validateMeetingProposalClose({ proposalId: input.proposalId });
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canEditMeeting(input.userId, input.meetingId))) return serviceError("无权限", 403);
+  if (!(await canApproveMeeting(input.userId, input.meetingId))) return serviceError("无权限", 403);
   const proposal = await prisma.meetingProposal.findUnique({
     where: { id: command.data.proposalId },
     include: { votes: true },

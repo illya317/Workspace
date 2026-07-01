@@ -9,7 +9,7 @@ import {
   listReclassResultsSchema,
 } from "@workspace/finance/server/ledger/reclass-results/schemas";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkFinanceLedgerAccess, checkFinanceLedgerWrite } from "@workspace/platform/server/auth";
+import { checkFinanceLedgerAccess } from "@workspace/platform/server/auth";
 
 export const GET = createCommandRoute({
   access: checkFinanceLedgerAccess,
@@ -20,7 +20,6 @@ export const GET = createCommandRoute({
 });
 
 export const POST = createCommandRoute({
-  access: checkFinanceLedgerWrite,
   bodySchema: buildReclassResultsSchema,
   bodyError: "periodId 为必填且为数字",
   buildCommand: ({ body }) => buildBuildReclassResultsCommand(body),

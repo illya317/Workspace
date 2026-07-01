@@ -7,7 +7,7 @@ import type {
 
 import { effectiveModuleDefinitions, isApiGuardEnabled } from "./effective-module-registry";
 import { defaultApiActionForMethod } from "./module-registry-utils";
-import { resolvePermissionApiAction, assertPermissionApiActionSupported } from "./permission-api-action-policy";
+import { resolvePermissionApiActionPolicy, assertPermissionApiActionPolicySupported } from "./permission-api-action-policy";
 import type { PermissionActionKey } from "./permission-actions";
 
 export type ApiMethod = ApiGuardRegistration["method"];
@@ -22,7 +22,7 @@ export interface ApiContract {
   access: ApiRouteAccessMode;
   resourceKey: string | null;
   action: ApiAction | null;
-  permissionAction: PermissionActionKey | null;
+  additionalAction: PermissionActionKey | null;
   ownerPackage: string;
   ownerLayer: WorkspacePackageRegistration["layer"];
   ownerModuleKey: string | null;
@@ -76,19 +76,21 @@ function buildApiContracts(
         throw new Error(`Invalid API contract method: ${guard.method}`);
       }
 
+      const actionPolicy = resolvePermissionApiActionPolicy({
+        method: guard.method,
+        apiPath: normalizePathPrefix(guard.pathPrefix),
+        resourceKey: guard.resourceKey,
+        defaultBaseAction: guard.action,
+      });
+
       contracts.push({
         key: createApiContractKey(definition, { ...guard, access: isApiGuardEnabled(guard) ? "protected" : "disabled" }),
         method: guard.method,
         pathPrefix: normalizePathPrefix(guard.pathPrefix),
         access: isApiGuardEnabled(guard) ? "protected" : "disabled",
         resourceKey: guard.resourceKey,
-        action: guard.action,
-        permissionAction: resolvePermissionApiAction({
-          method: guard.method,
-          apiPath: normalizePathPrefix(guard.pathPrefix),
-          resourceKey: guard.resourceKey,
-          legacyAction: guard.action,
-        }),
+        action: actionPolicy.baseAction,
+        additionalAction: actionPolicy.additionalAction,
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,
@@ -105,21 +107,22 @@ function buildApiContracts(
       if (!route.resourceKey && route.action) {
         throw new Error(`API route contract cannot set action without resourceKey: ${route.method} ${route.pathPrefix}`);
       }
-      const action = route.action ?? (route.resourceKey ? defaultApiActionForMethod(route.method) : null);
+      const defaultAction = route.action ?? (route.resourceKey ? defaultApiActionForMethod(route.method) : null);
+      const actionPolicy = resolvePermissionApiActionPolicy({
+        method: route.method,
+        apiPath: normalizePathPrefix(route.pathPrefix),
+        resourceKey: route.resourceKey ?? null,
+        defaultBaseAction: defaultAction,
+      });
 
       contracts.push({
-        key: createApiContractKey(definition, { ...route, action: action ?? undefined }),
+        key: createApiContractKey(definition, { ...route, action: actionPolicy.baseAction ?? undefined }),
         method: route.method,
         pathPrefix: normalizePathPrefix(route.pathPrefix),
         access: route.access,
         resourceKey: route.resourceKey ?? null,
-        action,
-        permissionAction: resolvePermissionApiAction({
-          method: route.method,
-          apiPath: normalizePathPrefix(route.pathPrefix),
-          resourceKey: route.resourceKey ?? null,
-          legacyAction: action,
-        }),
+        action: actionPolicy.baseAction,
+        additionalAction: actionPolicy.additionalAction,
         ownerPackage: definition.packageName,
         ownerLayer: definition.layer,
         ownerModuleKey: definition.moduleDef?.key ?? null,
@@ -150,11 +153,10 @@ function validateApiContracts(contracts: readonly ApiContract[]) {
     }
     seenRouteOwners.set(routeOwnerKey, contract);
 
-    assertPermissionApiActionSupported({
+    assertPermissionApiActionPolicySupported({
       method: contract.method,
       apiPath: contract.pathPrefix,
       resourceKey: contract.resourceKey,
-      legacyAction: contract.action,
     });
   }
 }
@@ -180,11 +182,11 @@ export function findApiContract(method: ApiMethod, apiPath: string) {
   if (!contract) return null;
   return {
     ...contract,
-    permissionAction: resolvePermissionApiAction({
+    ...resolvePermissionApiActionPolicy({
       method,
       apiPath: normalizedPath,
       resourceKey: contract.resourceKey,
-      legacyAction: contract.action,
+      defaultBaseAction: contract.action,
     }),
   };
 }

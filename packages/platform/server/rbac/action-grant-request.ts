@@ -1,6 +1,5 @@
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
 import { isLegacyPermissionActionKey, isPermissionActionKey, roleKeyToActionKey } from "@workspace/platform/permission-actions";
-import { isPermissionActionGrantableForResource } from "@workspace/platform/permission-resource-policy";
 import { canManageResourceGrant } from "./admin-scope";
 import { setSubjectPermissionActionGrant } from "./action-grants";
 import { getResourceMaxRole, isRoleAllowedForResource } from "./maxRole";
@@ -39,9 +38,6 @@ export async function setPermissionGrantFromRequest(input: PermissionGrantReques
   const actionKey = resolveActionKey(input);
   if (!actionKey) return { ok: false, error: "参数错误: actionKey 不支持", status: 400 };
   if (!isResourceEnabled(input.resourceKey)) return { ok: false, error: "模块未启用，不能配置该资源权限", status: 403 };
-  if (!isPermissionActionGrantableForResource(input.resourceKey, actionKey)) {
-    return { ok: false, error: "该资源尚未接入该权限动作", status: 400 };
-  }
   if (actionKey === "admin" && !input.isSystemAdmin) {
     return { ok: false, error: "仅系统管理员可管理 admin 权限", status: 403 };
   }

@@ -3,7 +3,6 @@ import { z } from "zod";
 import { HR_AUDIT_ENTITY_TYPES } from "@workspace/hr/server/audit-entities";
 import { restoreAuditLogSnapshot } from "@workspace/platform/server/audit-log";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkHRWrite } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 export const runtime = "nodejs";
@@ -14,7 +13,6 @@ const restoreBodySchema = z.object({
 });
 
 export const POST = createCommandRoute({
-  access: (userId: number) => checkHRWrite(userId, "hr.roster"),
   bodySchema: restoreBodySchema,
   bodyError: "缺少 historyId",
   buildCommand: ({ body, user }) => okCommand({

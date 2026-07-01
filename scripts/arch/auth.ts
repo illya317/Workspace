@@ -4,6 +4,7 @@ import { runCommand } from "./command";
 export function checkAuth() {
   const checks: Array<[string, string, string[]]> = [
     ["Authorize/API gate", "node", ["scripts/check/check-authorize-usage.js"]],
+    ["Permission action registry", "npx", ["tsx", "scripts/check/check-permission-actions.ts"]],
     ["Notification registry", "node", ["scripts/check/check-notification-registry.js"]],
   ];
 

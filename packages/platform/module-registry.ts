@@ -219,7 +219,7 @@ export const registeredModuleDefinitions = [
       ...apiResourceGuards("/api/modules/finance/statement-config", "finance.statementConfig"),
       ...apiResourceGuards("/api/modules/finance/statement-review", "finance.statementReview", ["GET", "POST", "PUT", "PATCH"]),
       ...apiResourceGuards("/api/modules/finance/statements", "finance.statements", ["GET"]),
-      ...apiResourceGuards("/api/modules/finance/budget", "finance.budget"),
+      ...apiResourceGuards("/api/modules/finance/budget", "finance.budget", ["GET", "POST"]),
       ...apiResourceGuards("/api/modules/finance/analysis", "finance.analysis", ["GET"]),
       ...apiResourceGuards("/api/modules/finance/cost", "finance.cost"),
       ...apiResourceGuards("/api/modules/finance/import", "finance.import", ["POST"]),

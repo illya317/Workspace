@@ -4,13 +4,11 @@ import {
   executeScanLibraryCommand,
 } from "@workspace/library/server";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { checkLibraryWrite } from "@workspace/platform/server/auth";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const scanRequestSchema = z.object({}).passthrough();
 
 export const POST = createCommandRoute({
-  access: checkLibraryWrite,
   bodySchema: scanRequestSchema,
   optionalJsonBody: true,
   bodyError: "Invalid request body",
