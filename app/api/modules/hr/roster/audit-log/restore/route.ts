@@ -1,0 +1,22 @@
+import { z } from "zod";
+
+import { executeHrAuditRestoreCommand } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
+const restoreBodySchema = z.object({
+  historyId: z.coerce.number().int().positive(),
+});
+
+export const POST = createCommandRoute({
+  bodySchema: restoreBodySchema,
+  bodyError: "缺少 historyId",
+  buildCommand: ({ body, user }) => okCommand({
+    historyId: body.historyId,
+    userId: user.userId,
+  }),
+  action: executeHrAuditRestoreCommand,
+});

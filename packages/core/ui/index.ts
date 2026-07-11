@@ -1,0 +1,296 @@
+export type { CoreUiCompositionGraph, CoreUiComponentRegistration } from "./registry/component-registry";
+export { default as CreateSurface } from "./CreateSurface";
+export type {
+  CreateSurfaceBlockProps,
+  CreateSurfaceContentSpec,
+  CreateSurfaceFeedbackSpec,
+  CreateSurfaceFormLayoutSpec,
+  CreateSurfaceFormSpec,
+  CreateSurfaceInlineProps,
+  CreateSurfaceModalProps,
+  CreateSurfacePresentation,
+  CreateSurfaceProps,
+  CreateSurfaceSectionSpec,
+  CreateSurfaceSubmissionAction,
+  CreateSurfaceSubmissionOutcome,
+  CreateSurfaceSubmissionResult,
+  CreateSurfaceSubmissionSpec,
+  CreateSurfaceSurfaceProps,
+  CreateSurfaceToolbarProps,
+  CreateSurfaceTwoStageSpec,
+  CreateSurfaceTrigger,
+} from "./CreateSurface";
+export { default as BodySurface } from "./BodySurface";
+export type {
+  BodySurfaceActionSize,
+  BodySurfaceBadgeSpec,
+  BodySurfaceCardItemSpec,
+  BodySurfaceCommandSpec,
+  BodySurfaceComposedSectionProps,
+  BodySurfaceCreateProps,
+  BodySurfaceDataProps,
+  BodySurfaceDocumentProps,
+  BodySurfaceEmptySpec,
+  BodySurfaceFormProps,
+  BodySurfaceKind,
+  BodySurfaceListItemSpec,
+  BodySurfaceListSpec,
+  BodySurfaceMessageSpec,
+  BodySurfaceModalSpec,
+  BodySurfaceModuleGridItemSpec,
+  BodySurfaceModuleGridSpec,
+  BodySurfaceProps,
+  BodySurfaceSelectorProps,
+  BodySurfaceSectionGridColumns,
+  BodySurfaceSectionHeaderSpec,
+  BodySurfaceSectionLayout,
+  BodySurfaceSectionProps,
+  BodySurfaceSectionSpec,
+  BodySurfaceSplitSectionProps,
+  BodySurfaceStatusSpec,
+  BodySurfaceVisualizationProps,
+} from "./BodySurface";
+export { default as DataSurface } from "./DataSurface";
+export type {
+  DataSurfaceCellActionSpec,
+  DataSurfaceCellGroupSpec,
+  DataSurfaceCellInputSpec,
+  DataSurfaceCellSelectionGridSpec,
+  DataSurfaceCellSpec,
+  DataSurfaceColumnSpec,
+  DataSurfaceCommandSpec,
+  DataSurfaceDisplaySpec,
+  DataSurfaceKind,
+  DataSurfaceLooseRow,
+  DataSurfaceActionsColumnSpec,
+  DataSurfacePresentationSpec,
+  DataSurfaceProps,
+  DataSurfaceRecordActionSpec,
+  DataSurfaceRecordProps,
+  DataSurfaceRecordSpec,
+  DataSurfaceRowActionSpec,
+  DataSurfaceRowEditActionSpec,
+  DataSurfaceStructuredCellSpec,
+  DataSurfaceStructuredDimension,
+  DataSurfaceStructuredFormatSpec,
+  DataSurfaceStructuredMatrixFormatSpec,
+  DataSurfaceStructuredProps,
+  DataSurfaceStructuredRowInteractionSpec,
+  DataSurfaceTableFormatSpec,
+  DataSurfaceTableMatrixFormatSpec,
+  DataSurfaceTableProps,
+} from "./DataSurface";
+export { default as DocumentSurface } from "./DocumentSurface";
+export type {
+  DocumentSurfaceKind,
+  DocumentSurfacePageSpec,
+  DocumentSurfacePagesProps,
+  DocumentSurfacePagesSpec,
+  DocumentSurfaceProps,
+} from "./DocumentSurface";
+export { default as SelectorSurface } from "./SelectorSurface";
+export {
+  createSelectorTreeCollapsedIds,
+  createSelectorTreeExpandedIds,
+  setSelectorTreeNodeExpanded,
+} from "./selector-tree-expansion";
+export type { SelectorTreeNodeKey } from "./selector-tree-expansion";
+export type {
+  SelectorSurfaceProps,
+  SelectorSurfaceStatusSpec,
+  SelectorSurfaceStructuredTreeItemSpec,
+} from "./SelectorSurface.types";
+export { default as VisualizationSurface } from "./VisualizationSurface";
+export type {
+  VisualizationBarChartSpec,
+  VisualizationBarSpec,
+  VisualizationComparisonBarItemSpec,
+  VisualizationComparisonBarSectionSpec,
+  VisualizationComparisonBarsSpec,
+  VisualizationSurfaceChartSpec,
+  VisualizationSurfaceFrameSpec,
+  VisualizationSurfaceGanttSpec,
+  VisualizationGroupedBarChartSpec,
+  VisualizationGroupedBarGroupSpec,
+  VisualizationLegendSpec,
+  VisualizationSpec,
+  VisualizationSurfaceKind,
+  VisualizationSurfaceChartProps,
+  VisualizationSurfaceGanttProps,
+  VisualizationSurfaceProps,
+  VisualizationTone,
+  VisualizationTreeBadgeSpec,
+  VisualizationTreeNodeSpec,
+  VisualizationTreeSpec,
+} from "./VisualizationSurface";
+export type {
+  VisualizationGanttBarTone,
+  VisualizationGanttDependencySpec,
+  VisualizationGanttMilestoneSpec,
+  VisualizationGanttRowKind,
+  VisualizationGanttRowSpec,
+  VisualizationGanttSegmentSpec,
+  VisualizationGanttSpec,
+  VisualizationGanttZoom,
+} from "./internal/visualization/VisualizationGanttTypes";
+export type {
+  ReferenceOption,
+  SurfaceAutocompleteOptionSpec,
+  SurfaceColumnOptionSpec,
+  SurfaceDataRowEditActionSpec,
+  SurfaceDataRowActionSpec,
+  SurfaceFilterFieldSpec,
+  SurfaceNavigationTabSpec,
+  SurfaceOptionSpec,
+  SurfaceSelectOptionSpec,
+  SurfaceToolbarActionGroupActionSpec,
+  SurfaceToolbarItem,
+  SurfaceToolbarItems,
+} from "./SurfaceContractTypes";
+export { default as FormSurface } from "./FormSurface";
+export type {
+  FormSurfaceActionSpec,
+  FormSurfaceCommandSpec,
+  FormSurfaceContentSpec,
+  FormSurfaceDetailProps,
+  FormSurfaceFieldSpec,
+  FormSurfaceFilterContentSpec,
+  FormSurfaceFilterLayoutSpec,
+  FormSurfaceFieldsProps,
+  FormSurfaceFiltersProps,
+  FormSurfaceGroupTitleSpec,
+  FormSurfaceHeaderSpec,
+  FormSurfaceItemSpec,
+  FormSurfaceKind,
+  FormSurfaceLayoutFlow,
+  FormSurfaceLayoutSpec,
+  FormSurfaceLooseItem,
+  FormSurfaceLoginProps,
+  FormSurfaceNoteSpec,
+  FormSurfaceProps,
+  FormSurfaceReadOnlyFieldSpec,
+  FormSurfaceRepeatableItemSpec,
+  FormSurfaceRepeatableSpec,
+  FormSurfaceSectionSpec,
+  FormSurfaceSubmitSpec,
+  FormSurfaceTagListAppendSpec,
+  FormSurfaceTagListFieldSpec,
+} from "./FormSurface";
+export { default as NavigationContextSelector } from "./NavigationContextSelector";
+export type { NavigationContextSelectorProps } from "./NavigationContextSelector";
+export type { NavigationSurfaceSelectorSpec } from "./NavigationSurface.types";
+export { default as PageSurface } from "./PageSurface";
+export type {
+  PageSurfaceBodySpec,
+  PageSurfaceFooterSpec,
+  PageSurfaceKind,
+  PageSurfaceTabBarItemSpec,
+  PageSurfaceTabBarSpec,
+  PageSurfaceProps,
+  PageSurfaceStandardProps,
+  PageSurfaceDirectoryProps,
+  PageSurfaceLoginProps,
+  PageSurfaceLoginBrandSpec,
+  PageSurfaceToolbarSpec,
+} from "./PageSurface";
+export { default as PaperInputSurface } from "./PaperInputSurface";
+export type {
+  PaperInputLayoutSpec,
+  PaperInputRangeSpec,
+  PaperInputSurfaceChoiceProps,
+  PaperInputSurfaceDateProps,
+  PaperInputSurfaceLineProps,
+  PaperInputSurfaceProps,
+  PaperInputSurfaceSelectProps,
+  PaperInputValueType,
+} from "./PaperInputSurface";
+export {
+  createActionsSection,
+  createAnalysisSection,
+  createEmptySection,
+  createSectionsSection,
+  createHeadingSection,
+  createListSection,
+  createMessageSection,
+  createMetricsSection,
+  createModuleGridSection,
+  createBodySplitSection,
+  createPageBody,
+  createPageActionsSection,
+  createPageCommand,
+  createPageDataSection,
+  createDocumentSection,
+  createFieldsSection,
+  createFixedSidebarBody,
+  createFormSection,
+  createInlineFieldsSection,
+  createPageModalSection,
+  createPanelSection,
+  createRecordSection,
+  createPageTableSection,
+  createPageTabBar,
+  createSectionSection,
+  createStatusSection,
+  createVisualizationSection,
+} from "./helpers/page-surface-builders";
+export type {
+  BodySplitSectionOptions,
+  FixedSidebarBodyOptions,
+  BodySurfaceBodyInputSpec,
+} from "./helpers/page-surface-builders";
+
+export { default as FeedbackProvider, useFeedback } from "./services/FeedbackProvider";
+export type { ConfirmOptions, FeedbackApi, FeedbackHookOptions, FeedbackToastState, FeedbackToastType } from "./services/FeedbackProvider";
+export { PageAssistantProvider, usePageAssistant } from "./services/PageAssistantProvider";
+export type { PageAssistantContextValue, PageAssistantOpenInput } from "./services/PageAssistantProvider";
+export {
+  announceFloatingOverlayOpen,
+  FLOATING_OVERLAY_OPEN_EVENT,
+  getFloatingOverlayOpenDetail,
+} from "./internal/common/overlay-events";
+export type { FloatingOverlayOpenDetail } from "./internal/common/overlay-events";
+export { ModuleCard, ModuleGridPage } from "./internal/common/Card";
+export type { ModuleCardColor, ModuleCardProps, ModuleGridPageProps } from "./internal/common/Card";
+export { default as InputSurface } from "./InputSurface";
+export { createInputOption } from "./InputSurface";
+export type {
+  InputSurfaceProps,
+  InputBooleanPresentation,
+  InputCollectionItemControl,
+  InputSurfaceDimension,
+  InputSurfaceKind,
+  InputDependencies,
+  InputDependencyDimension,
+  InputFieldSpec,
+  InputFormat,
+  InputMask,
+  InputOption,
+  InputOptionDimension,
+  InputOptionGroup,
+  InputOptions,
+  InputPresentationDimension,
+  InputState,
+  InputStateDimension,
+  InputTemporalPrecision,
+  InputUsage,
+  InputUsageDimension,
+  InputValidation,
+  InputValidationDimension,
+  InputValueDimension,
+  InputValueType,
+} from "./InputSurface";
+export { ActionGlyph } from "./internal/action/ActionGlyphs";
+export type {
+  ActionGlyphActionDefinition,
+  ActionGlyphActionKey,
+  ActionGlyphActionSection,
+  ActionGlyphActionVariant,
+  ActionGlyphGroup,
+  ActionGlyphGroupKey,
+  ActionGlyphIconAlias,
+  ActionGlyphKind,
+  ActionGlyphOrderItem,
+  ActionGlyphProps,
+  ActionGlyphToolbarGroup,
+  ActionGlyphToolbarGroupKey,
+} from "./internal/action/ActionGlyphs";

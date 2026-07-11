@@ -1,0 +1,28 @@
+import { z } from "zod";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildGovernanceOrganizationCreateCommand,
+  buildGovernanceOrganizationUpdateCommand,
+  createGovernanceOrganization,
+  listGovernanceOrganizations,
+  updateGovernanceOrganization,
+} from "@workspace/platform/server/organization-units";
+
+const organizationBodySchema = z.object({}).passthrough();
+
+export const GET = createCommandRoute({
+  buildCommand: () => ({ ok: true as const, data: {} }),
+  action: () => listGovernanceOrganizations(),
+});
+
+export const POST = createCommandRoute({
+  bodySchema: organizationBodySchema,
+  buildCommand: ({ body }) => buildGovernanceOrganizationCreateCommand(body),
+  action: (command, { user }) => createGovernanceOrganization(command, user.userId),
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: organizationBodySchema,
+  buildCommand: ({ body }) => buildGovernanceOrganizationUpdateCommand(body),
+  action: (command, { user }) => updateGovernanceOrganization(command, user.userId),
+});

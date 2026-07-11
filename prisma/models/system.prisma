@@ -1,0 +1,14 @@
+/// 系统配置键值对
+model SystemConfig {
+  key   String @id
+  value String
+}
+
+/// 登录尝试审计日志
+model LoginAttempt {
+  id        Int      @id @default(autoincrement())
+  username  String
+  ip        String
+  success   Boolean
+  createdAt DateTime @default(now())
+}

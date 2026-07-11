@@ -1,0 +1,135 @@
+"use client";
+
+import { workspacePath } from "@workspace/core/routing";
+import { useCallback, useEffect, useState } from "react";
+import { PageSurface, createPageBody, createStatusSection, createPageTableSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
+import { useCSV } from "@workspace/core/hooks";
+import { formatFinanceAmount } from "../formatters";
+interface ReclassEntry {
+  accountCode: string;
+  accountName: string;
+  fromSide: string;
+  toSide: string;
+  closingDebit: number;
+  closingCredit: number;
+  netAmount: number;
+  reason: string;
+}
+export default function ReclassTab({
+  canExport,
+  navigation,
+  lifecycleBlocks = [],
+}: {
+  canExport: boolean;
+  navigation?: PageSurfaceTabBarSpec;
+  lifecycleBlocks?: BodySurfaceSectionSpec[];
+}) {
+  const [companyFilter, setCompanyFilter] = useState("02");
+  const [yearFilter, setYearFilter] = useState("2025");
+  const [monthFilter, setMonthFilter] = useState("12");
+  const [entries, setEntries] = useState<ReclassEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const load = useCallback(async () => {
+    if (!companyFilter || !yearFilter || !monthFilter) return;
+    setLoading(true);
+    const res = await fetch(workspacePath(`/api/modules/finance/ledger/schedules/reclassify?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}`));
+    if (res.ok) setEntries((await res.json()).entries || []);
+    setLoading(false);
+  }, [companyFilter, monthFilter, yearFilter]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+  const sideLabel = (s: string) => s === "asset" ? "资产→负债" : "负债→资产";
+  const columns: DataSurfaceColumnSpec<ReclassEntry>[] = [{
+    key: "accountCode",
+    label: "科目编码",
+    required: true,
+    font: "mono",
+    cell: entry => entry.accountCode
+  }, {
+    key: "accountName",
+    label: "科目名称",
+    required: true,
+
+    cell: entry => entry.accountName
+  }, {
+    key: "direction",
+    label: "方向",
+    required: true,
+    cell: entry => ({ kind: "badge", label: sideLabel(entry.fromSide), tone: entry.fromSide === "asset" ? "orange" : "blue" })
+  }, {
+    key: "closingDebit",
+    label: "借方余额",
+    required: true,
+    align: "right",
+
+    cell: entry => formatFinanceAmount(entry.closingDebit)
+  }, {
+    key: "closingCredit",
+    label: "贷方余额",
+    required: true,
+    align: "right",
+
+    cell: entry => formatFinanceAmount(entry.closingCredit)
+  }, {
+    key: "netAmount",
+    label: "净额",
+    required: true,
+    align: "right",
+     emphasis: "medium",
+    cell: entry => formatFinanceAmount(Math.abs(entry.netAmount))
+  }, {
+    key: "reason",
+    label: "说明",
+    required: true,
+    tone: "muted", wrap: "truncate",
+    cell: entry => ({ kind: "text", value: entry.reason, tone: "muted", wrap: "truncate" })
+  }];
+  const exportCSV = useCSV(`重分类_${companyFilter}_${yearFilter}${monthFilter}.csv`, "科目编码,科目名称,方向,借方余额,贷方余额,净额,说明\n", () => entries.map(e => `"${e.accountCode}","${e.accountName}","${sideLabel(e.fromSide)}",${e.closingDebit},${e.closingCredit},${Math.abs(e.netAmount)},"${e.reason}"`).join("\n"));
+  const extraToolbarItems: SurfaceToolbarItems = [
+    ...(canExport ? [{
+      kind: "action-group" as const,
+      key: "reclass-export",
+      actions: [{ key: "export", kind: "download" as const, label: "导出CSV", onClick: exportCSV, disabled: entries.length === 0 }],
+    }] : []),
+    {
+      kind: "text",
+      key: "reclass-count",
+      content: `${entries.length} 项`,
+    },
+  ];
+  const toolbarItems = useFinanceFilterToolbarItems({
+    companyFilter,
+    yearFilter,
+    monthFilter,
+    onCompanyChange: setCompanyFilter,
+    onYearChange: setYearFilter,
+    onMonthChange: setMonthFilter,
+    showPageSize: false,
+    extraItems: extraToolbarItems,
+  });
+  return (
+    <PageSurface kind="standard"
+      tabbar={navigation}
+      toolbar={{ items: toolbarItems }}
+      body={createPageBody([
+          ...lifecycleBlocks,
+          ...(loading
+            ? [createStatusSection("reclass-loading", { kind: "loading", content: "加载中..." })]
+            : entries.length === 0
+              ? [createStatusSection("reclass-empty", { kind: "empty", content: "未发现需重分类的科目" })]
+              : [createPageTableSection("reclass-entries", {
+
+
+                rows: entries,
+                columns,
+                visibleColumns: columns.map(column => column.key),
+                rowKey: entry => entry.accountCode,
+              })]),
+        ])}
+    />
+  );
+}

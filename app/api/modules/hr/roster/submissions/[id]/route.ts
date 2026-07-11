@@ -1,0 +1,27 @@
+import { z } from "zod";
+
+import {
+  buildHrDepartmentSubmissionActionRouteCommand,
+  executeReviseHrDepartmentSubmissionRouteCommand,
+} from "@workspace/hr/server";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const updateSubmissionSchema = z.object({
+  payload: z.object({}).passthrough().optional(),
+  comment: z.string().nullable().optional(),
+  version: z.coerce.number().nullable().optional(),
+});
+
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "流程单 ID 无效",
+  bodySchema: updateSubmissionSchema,
+  bodyError: "流程草稿参数无效",
+  buildCommand: ({ params, body, user }) => buildHrDepartmentSubmissionActionRouteCommand({
+    userId: user.userId,
+    requestId: params.id,
+    body,
+  }),
+  action: executeReviseHrDepartmentSubmissionRouteCommand,
+});

@@ -1,0 +1,43 @@
+/// Docs 模板空间：入口权限来自 docs.editor，空间只决定模板产物可见/可管范围
+model DocumentTemplateSpace {
+  id          Int                @id @default(autoincrement())
+  targetType  String
+  targetId    Int
+  title       String
+  description String?
+  createdAt   DateTime           @default(now())
+  updatedAt   DateTime           @default(now()) @updatedAt
+  deletedAt   DateTime?
+  templates   DocumentTemplate[]
+
+  @@unique([targetType, targetId])
+  @@index([targetType, targetId, deletedAt])
+  @@index([deletedAt])
+}
+
+/// 可编辑模板。EditorDocument/FieldModel 是持久化真相，DOCX/QC JSON 只作为显式导入或输出格式
+model DocumentTemplate {
+  id                   Int                   @id @default(autoincrement())
+  title                String
+  type                 String
+  status               String                @default("draft")
+  ownerUserId          Int?
+  spaceId              Int
+  documentContentRef   String?
+  fieldModelContentRef String?
+  sourceKind           String?
+  sourceProductKey     String?
+  sourceStageKeys      String?
+  version              Int                   @default(1)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @default(now()) @updatedAt
+  deletedAt            DateTime?
+  publishedAt          DateTime?
+  publishedByUserId    Int?
+  space                DocumentTemplateSpace @relation(fields: [spaceId], references: [id], onDelete: Cascade)
+
+  @@index([spaceId, deletedAt])
+  @@index([ownerUserId])
+  @@index([sourceKind, sourceProductKey])
+  @@index([documentContentRef])
+}

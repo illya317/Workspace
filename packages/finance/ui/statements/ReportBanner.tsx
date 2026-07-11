@@ -1,0 +1,41 @@
+"use client";
+
+import { createMessageSection, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+
+const DIAG_MESSAGES: Record<string, string> = {
+  missingConfirmedReview: "当前期间尚未确认校对，请先在「报表校对」页生成并确认校对。",
+  staleConfirmedReview: "底稿已更新，当前校对快照已过期，请重新生成校对并确认。",
+};
+
+type ReportBannerProps = {
+  source?: string;
+  diagnostics?: { type: string; message: string }[];
+  reviewHref: string;
+};
+
+export function createReportBannerSection(key: string, props: ReportBannerProps): BodySurfaceSectionSpec | null {
+  const { source, diagnostics, reviewHref } = props;
+  if (source === "review") {
+    return createMessageSection(key, {
+      tone: "success",
+
+      content: "校对已确认，当前报表来自已确认校对结果。",
+    });
+  }
+  if (source && source !== "review" && diagnostics?.length) {
+    const diag = diagnostics.find((item) => item.type in DIAG_MESSAGES) || diagnostics[0];
+    return createMessageSection(key, {
+      tone: "warning",
+
+      content: DIAG_MESSAGES[diag.type] || diag.message,
+      link: { label: "去报表校对", href: reviewHref },
+    });
+  }
+  return null;
+}
+
+export default function ReportBanner(props: ReportBannerProps) {
+  const block = createReportBannerSection("report-banner", props);
+  if (!block || block.body.kind !== "section" || !block.body.message) return null;
+  return <div>{block.body.message.content}</div>;
+}

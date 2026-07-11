@@ -1,0 +1,43 @@
+/// OKR 周期事实表（系统生成/管理员确认；统一维护年、半年、季度、月、周的固定起止）
+model WorkOkrCycle {
+  id         Int                    @id @default(autoincrement())
+  periodType String
+  code       String                 @unique
+  label      String
+  year       Int
+  sequence   Int
+  parentId   Int?
+  startDate  DateTime
+  endDate    DateTime
+  createdAt  DateTime               @default(now())
+  updatedAt  DateTime               @default(now()) @updatedAt
+  parent     WorkOkrCycle?          @relation("WorkOkrCycleHierarchy", fields: [parentId], references: [id], onDelete: SetNull)
+  children   WorkOkrCycle[]         @relation("WorkOkrCycleHierarchy")
+  plans      WorkPlan[]
+  policies   WorkOkrControlPolicy[]
+
+  @@index([periodType, year, sequence])
+  @@index([parentId])
+  @@index([startDate, endDate])
+}
+
+/// OKR 周期管控策略（管理员配置；只控制锁定/开放，不替代空间权限或流程策略）
+model WorkOkrControlPolicy {
+  id                      Int          @id @default(autoincrement())
+  cycleId                 Int
+  scopeType               String       @default("global")
+  scopeId                 String       @default("")
+  isLocked                Boolean      @default(false)
+  objectiveSubmitDeadline DateTime?
+  krReviewOpensAt         DateTime?
+  krSubmitDeadline        DateTime?
+  createdByUserId         Int?
+  updatedByUserId         Int?
+  createdAt               DateTime     @default(now())
+  updatedAt               DateTime     @default(now()) @updatedAt
+  cycle                   WorkOkrCycle @relation(fields: [cycleId], references: [id], onDelete: Cascade)
+
+  @@unique([cycleId, scopeType, scopeId])
+  @@index([scopeType, scopeId])
+  @@index([krReviewOpensAt])
+}

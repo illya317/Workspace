@@ -1,0 +1,91 @@
+/// 通用单步审批单。业务 payload 存 JSON 字符串，正式落库由业务 adapter 提交。
+model ApprovalRequest {
+  id                         Int       @id @default(autoincrement())
+  resourceKey                String
+  scopeId                    String?
+  businessActionKey          String    @default("legacy.approval")
+  flowType                   String    @default("approval")
+  separationPolicy           String    @default("auto_pass_if_authorized")
+  handlerSource              String    @default("permission")
+  workflowNodesJson          String    @default("[]")
+  activeWorkflowNodeKey      String?
+  activeWorkflowNodeKeysJson String    @default("[]")
+  workflowJoinStateJson      String    @default("{}")
+  handlerCanRevise           Boolean   @default(true)
+  requestCanWithdraw         Boolean   @default(true)
+  requestCanResubmit         Boolean   @default(true)
+  requestCanCancel           Boolean   @default(true)
+  requestCanRevise           Boolean   @default(true)
+  subjectType                String
+  subjectId                  String?
+  operation                  String
+  status                     String    @default("draft")
+  latestPayloadJson          String    @default("{}")
+  submitterUserId            Int
+  submittedAt                DateTime?
+  resolvedByUserId           Int?
+  resolvedAt                 DateTime?
+  committedEntityType        String?
+  committedEntityId          String?
+  committedAt                DateTime?
+  version                    Int       @default(1)
+  createdAt                  DateTime  @default(now())
+  updatedAt                  DateTime  @default(now()) @updatedAt
+
+  submitter User            @relation("ApprovalRequestSubmitter", fields: [submitterUserId], references: [id], onDelete: Cascade)
+  resolver  User?           @relation("ApprovalRequestResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)
+  events    ApprovalEvent[]
+
+  @@index([resourceKey, scopeId, status, updatedAt])
+  @@index([businessActionKey, scopeId, status, updatedAt])
+  @@index([submitterUserId, status, updatedAt])
+  @@index([subjectType, subjectId])
+}
+
+/// 审批 append-only 流转事件，包含审批动作备注、自由评论和 payload snapshot。
+model ApprovalEvent {
+  id              Int      @id @default(autoincrement())
+  requestId       Int
+  sequence        Int
+  eventType       String
+  actorUserId     Int
+  workflowNodeKey String?
+  fromStatus      String?
+  toStatus        String?
+  comment         String?
+  payloadJson     String?
+  createdAt       DateTime @default(now())
+
+  request ApprovalRequest @relation(fields: [requestId], references: [id], onDelete: Cascade)
+  actor   User            @relation("ApprovalEventActor", fields: [actorUserId], references: [id], onDelete: Cascade)
+
+  @@unique([requestId, sequence])
+  @@index([actorUserId, createdAt])
+  @@index([requestId, createdAt])
+}
+
+/// 流程策略覆盖表（事实表，来源于管理员配置；只决定流程模式，不替代 RBAC 授权）
+model WorkflowPolicy {
+  id                 Int      @id @default(autoincrement())
+  businessActionKey  String
+  scopeType          String
+  scopeId            String   @default("")
+  mode               String   @default("optional")
+  flowType           String   @default("approval")
+  separationPolicy   String   @default("auto_pass_if_authorized")
+  handlerSource      String   @default("permission")
+  workflowNodesJson  String   @default("[]")
+  handlerCanRevise   Boolean  @default(true)
+  requestCanWithdraw Boolean  @default(true)
+  requestCanResubmit Boolean  @default(true)
+  requestCanCancel   Boolean  @default(true)
+  requestCanRevise   Boolean  @default(true)
+  version            Int      @default(1)
+  createdByUserId    Int?
+  updatedByUserId    Int?
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @default(now()) @updatedAt
+
+  @@unique([businessActionKey, scopeType, scopeId])
+  @@index([businessActionKey, scopeType])
+}

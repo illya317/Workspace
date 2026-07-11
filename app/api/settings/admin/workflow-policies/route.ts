@@ -1,0 +1,69 @@
+import { NextResponse } from "next/server";
+
+import { jsonErrorResponse, parseJson, serviceResponse } from "@workspace/platform/server/api";
+import { requireAdminApiAccess } from "@workspace/platform/server/auth";
+import { canManageWorkflowBusinessAction, getWorkflowAdminAccess, hasWorkflowAdminAccess } from "@workspace/platform/server/workflow-admin-access";
+import {
+  deleteWorkflowPolicy,
+  listWorkflowPolicySettings,
+  upsertWorkflowPolicy,
+} from "@workspace/platform/server/workflows";
+import { workflowPolicyDeleteSchema, workflowPolicyUpsertSchema } from "./schemas";
+
+async function requireWorkflowPolicyAdmin(request: Request) {
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth;
+  const access = await getWorkflowAdminAccess(auth.user.userId);
+  if (!hasWorkflowAdminAccess(access)) return { ok: false as const, response: jsonErrorResponse("无权限", 403) };
+  return { ...auth, access };
+}
+
+export async function GET(request: Request) {
+  const auth = await requireWorkflowPolicyAdmin(request);
+  if (!auth.ok) return auth.response;
+  return NextResponse.json(await listWorkflowPolicySettings({
+    allowedBusinessActionKeys: auth.access.allowedBusinessActionKeys,
+  }));
+}
+
+export async function PUT(request: Request) {
+  const auth = await requireWorkflowPolicyAdmin(request);
+  if (!auth.ok) return auth.response;
+
+  const parsed = await parseJson(request, workflowPolicyUpsertSchema);
+  if (!parsed.ok) return jsonErrorResponse(parsed.error, 400);
+  if (!canManageWorkflowBusinessAction(auth.access, parsed.data.businessActionKey)) {
+    return jsonErrorResponse("无权限管理该流程", 403);
+  }
+
+  return serviceResponse(await upsertWorkflowPolicy({
+    ...parsed.data,
+    actorUserId: auth.user.userId,
+  }));
+}
+
+export async function DELETE(request: Request) {
+  const auth = await requireWorkflowPolicyAdmin(request);
+  if (!auth.ok) return auth.response;
+
+  const parsed = await parseJson(request, workflowPolicyDeleteSchema);
+  if (!parsed.ok) return jsonErrorResponse(parsed.error, 400);
+  if (!auth.access.isSystemAdmin && !parsed.data.businessActionKey) {
+    return jsonErrorResponse("需要提供业务行为", 400);
+  }
+  if (parsed.data.businessActionKey && !canManageWorkflowBusinessAction(auth.access, parsed.data.businessActionKey)) {
+    return jsonErrorResponse("无权限管理该流程", 403);
+  }
+
+  if (parsed.data.id && auth.access.isSystemAdmin) {
+    return serviceResponse(await deleteWorkflowPolicy({
+      id: parsed.data.id,
+      actorUserId: auth.user.userId,
+    }));
+  }
+
+  return serviceResponse(await deleteWorkflowPolicy({
+    businessActionKey: parsed.data.businessActionKey ?? "",
+    actorUserId: auth.user.userId,
+  }));
+}

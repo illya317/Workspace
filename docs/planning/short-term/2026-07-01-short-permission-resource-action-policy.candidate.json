@@ -1,0 +1,877 @@
+{
+  "status": "runtime-catalog-snapshot",
+  "owner": "Architecture / Permission follow-up",
+  "created": "2026-07-01",
+  "updated": "2026-07-02",
+  "runtime": false,
+  "sourceOfTruth": "packages/platform/permission-resource-policy.ts",
+  "note": "Snapshot of registered non-space resources only. Runtime also derives space.* projection resources from spaceRegistrations.",
+  "actionKeys": [
+    "access",
+    "create",
+    "write",
+    "delete",
+    "archive",
+    "revise",
+    "submit",
+    "withdraw",
+    "approve",
+    "reject",
+    "import",
+    "export",
+    "grant",
+    "admin"
+  ],
+  "groupKeys": [
+    "basic",
+    "workflowSubmit",
+    "workflowApprove",
+    "lifecycle",
+    "exchange",
+    "admin"
+  ],
+  "defaultAncestorInheritedActions": [
+    "access",
+    "create",
+    "write",
+    "delete"
+  ],
+  "policies": [
+    {
+      "resourceKey": "administration",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "administration.contracts",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "agent",
+      "status": "headless",
+      "supportedActions": [
+        "access",
+        "submit",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "submit",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "docs",
+      "status": "docs",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "docs.company",
+      "status": "docs",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "docs.editor",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "create",
+        "write",
+        "delete",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "scopeTypes": [
+        "personal",
+        "company",
+        "committee",
+        "department"
+      ],
+      "scopeInheritanceMode": "self_only",
+      "notes": "Template create/write/delete/export APIs require matching resource actions, then docs-editor space roles narrow object access."
+    },
+    {
+      "resourceKey": "docs.expense",
+      "status": "docs",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "external",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ],
+      "notes": "External pages are navigation/analysis placeholders until business APIs land."
+    },
+    {
+      "resourceKey": "external.customers",
+      "status": "planned",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "external.investors",
+      "status": "planned",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "external.suppliers",
+      "status": "planned",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.analysis",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.budget",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "import",
+        "approve",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create"
+      ],
+      "explicitOnlyActions": [
+        "import",
+        "approve",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.cost",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "delete",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "notes": "Current cost APIs are read models plus import history deletion; ingestion is script/import scoped, not general create/write CRUD."
+    },
+    {
+      "resourceKey": "finance.import",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.ledger",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "revise",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "revise",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.statementConfig",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ],
+      "notes": "Current routes only edit statement line and mapping configuration; reclass/import/export stay on ledger/import/report resources."
+    },
+    {
+      "resourceKey": "finance.statementReview",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "approve",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write"
+      ],
+      "explicitOnlyActions": [
+        "approve",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.statements",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.tax",
+      "status": "planned",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "finance.treasury",
+      "status": "planned",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "hr",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "hr.analytics",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "hr.performance",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "hr.roster",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "archive",
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "archive",
+        "revise",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "hr.roster.generated",
+      "status": "capability",
+      "supportedActions": [
+        "access",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "access",
+        "export",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "library",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "write",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "library.basicInfo",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "write",
+        "archive",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "write"
+      ],
+      "explicitOnlyActions": [
+        "archive",
+        "import",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "notes": "Document removal is soft archive; scan and generated documents are import-like ingestion paths."
+    },
+    {
+      "resourceKey": "production",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "production.qc",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "submit",
+        "approve",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "submit",
+        "approve",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "notes": "create=batch creation, write=inspection/precheck saves, submit=batch submission, approve=review approval, export=QC list export."
+    },
+    {
+      "resourceKey": "settings",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.account",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "write",
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "write",
+        "revise",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.account.apiAccess",
+      "status": "capability",
+      "supportedActions": [
+        "access",
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "access",
+        "revise",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.admin",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.api",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "export",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "export",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.api.manage",
+      "status": "capability",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "revise",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "settings.ui",
+      "status": "docs",
+      "supportedActions": [
+        "access",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access"
+      ],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "work",
+      "status": "container",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [],
+      "explicitOnlyActions": [
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "work.meetings",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "submit",
+        "approve",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "submit",
+        "approve",
+        "grant",
+        "admin"
+      ]
+    },
+    {
+      "resourceKey": "work.projects",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "revise",
+        "grant",
+        "admin"
+      ],
+      "scopeTypes": [
+        "personal",
+        "company",
+        "committee",
+        "department"
+      ],
+      "scopeInheritanceMode": "self_only",
+      "notes": "Project data uses the standard personal/department/committee/company space scopes; action policy only declares actions with current business support."
+    },
+    {
+      "resourceKey": "work.tasks",
+      "status": "business",
+      "supportedActions": [
+        "access",
+        "create",
+        "write",
+        "delete",
+        "archive",
+        "submit",
+        "withdraw",
+        "approve",
+        "reject",
+        "grant",
+        "admin"
+      ],
+      "ancestorInheritedActions": [
+        "access",
+        "create",
+        "write",
+        "delete"
+      ],
+      "explicitOnlyActions": [
+        "archive",
+        "submit",
+        "withdraw",
+        "approve",
+        "reject",
+        "grant",
+        "admin"
+      ],
+      "scopeTypes": [
+        "personal",
+        "company",
+        "committee",
+        "department"
+      ],
+      "scopeInheritanceMode": "self_only",
+      "notes": "Work task data uses the standard personal/department/committee/company space scopes; submit/approve drive the reusable approval chain for organization spaces."
+    }
+  ],
+  "openQuestions": [
+    "Should object-level resources such as Work projects eventually get scoped action policies rather than module-level only?",
+    "How much of the historical business-space role vocabulary should remain after scoped action grants cover all active flows?"
+  ]
+}

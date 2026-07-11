@@ -1,0 +1,7 @@
+{
+  "missingDomainValidatorImport": [],
+  "serviceUsesLowLevelRule": [],
+  "routeImportsDomainValidator": [],
+  "serverRootReexportsDomainValidator": [],
+  "archiveEntryBypassesGuard": []
+}

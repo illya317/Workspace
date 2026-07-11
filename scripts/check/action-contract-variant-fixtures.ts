@@ -1,0 +1,83 @@
+import type { ActionContractMetadata } from "../../packages/platform/action-contract";
+
+const RESOURCE = { resourceKey: "test.resource", moduleKey: "test", directPermissionAction: "update" } as const;
+const PAYLOAD = { cardinality: "single", shape: "field_patch", target: "existing_record", targetIdKey: "id" } as const;
+const PERSISTENCE = { strategy: "active_table_state", activeEntity: "TestRecord", commitMode: "native_transition" } as const;
+const DOMAIN = { validatorKey: "test.validate", commitKey: "test.commit" } as const;
+const WORKFLOW = { kind: "not_applicable", reason: "Fixture stays direct-only." } as const;
+const DISPLAY = { titleTemplate: "Fixture {id}", hrefPattern: "/fixture/{id}" } as const;
+
+export const ACTION_CONTRACT_VARIANT_FIXTURES = [
+  {
+    key: "test.record.archive",
+    version: 1,
+    kind: "lifecycle",
+    label: "Archive fixture",
+    targetKind: "TestRecord",
+    resource: RESOURCE,
+    payload: PAYLOAD,
+    lifecycle: {
+      operation: "archive",
+      targetIdKey: "id",
+      versionKey: "version",
+      fromStatuses: ["active"],
+      toStatus: "archived",
+      referencePolicy: "guarded",
+      auditPolicy: "history",
+    },
+    persistence: PERSISTENCE,
+    domain: DOMAIN,
+    api: { directRoutes: ["POST /fixture/:id/archive"], envelopeVersion: 1 },
+    workflow: WORKFLOW,
+    display: DISPLAY,
+  },
+  {
+    key: "test.relationship.configure",
+    version: 1,
+    kind: "governance",
+    label: "Governance fixture",
+    targetKind: "TestRelationship",
+    resource: RESOURCE,
+    payload: PAYLOAD,
+    governance: { subject: "relationship", scope: "organization", auditPolicy: "event" },
+    persistence: { ...PERSISTENCE, commitMode: "apply_patch" },
+    domain: DOMAIN,
+    api: { directRoutes: ["PUT /fixture/relationships"], envelopeVersion: 1 },
+    workflow: WORKFLOW,
+    display: DISPLAY,
+  },
+  {
+    key: "test.records.import",
+    version: 1,
+    kind: "exchange",
+    label: "Import fixture",
+    targetKind: "TestImportBatch",
+    resource: RESOURCE,
+    payload: {
+      cardinality: "batch",
+      shape: "full_record",
+      target: "mixed",
+      batch: { itemKey: "row", atomicity: "all_or_nothing", partialFailurePolicy: "reject_all" },
+    },
+    exchange: { direction: "import", transport: "file", result: "batch", atomicity: "all_or_nothing" },
+    persistence: { ...PERSISTENCE, commitMode: "copy_to_active" },
+    domain: DOMAIN,
+    api: { directRoutes: ["POST /fixture/import"], envelopeVersion: 1 },
+    workflow: WORKFLOW,
+    display: DISPLAY,
+  },
+  {
+    key: "test.records.export",
+    version: 1,
+    kind: "exchange",
+    label: "Export fixture",
+    targetKind: "TestExport",
+    resource: RESOURCE,
+    payload: { cardinality: "single", shape: "full_record", target: "mixed" },
+    exchange: { direction: "export", transport: "stream", result: "file", contentTypes: ["text/csv"] },
+    domain: { validatorKey: "test.validateExport", executeKey: "test.produceExport" },
+    api: { directRoutes: ["GET /fixture/export"], envelopeVersion: 1 },
+    workflow: WORKFLOW,
+    display: DISPLAY,
+  },
+] as const satisfies readonly ActionContractMetadata[];

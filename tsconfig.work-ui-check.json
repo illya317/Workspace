@@ -1,0 +1,12 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "next-env.d.ts",
+    "packages/work/ui/meetings/MeetingsPage.tsx",
+    "packages/core/ui/**/*.ts",
+    "packages/core/ui/**/*.tsx",
+    "packages/core/routing/**/*.ts",
+    "packages/platform/types/**/*.ts"
+  ],
+  "exclude": ["node_modules"]
+}

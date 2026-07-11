@@ -1,0 +1,39 @@
+import { z } from "zod";
+
+import {
+  buildWorkTaskSubmissionViewRouteCommand,
+  buildWorkTaskSubmissionActionRouteCommand,
+  executeGetWorkTaskSubmissionRouteCommand,
+  executeReviseWorkTaskSubmissionRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+
+const updateSubmissionSchema = z.object({
+  payload: z.object({}).passthrough().optional(),
+  comment: z.string().nullable().optional(),
+  version: z.coerce.number().nullable().optional(),
+});
+
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "审批单 ID 无效",
+  buildCommand: ({ params, user }) => buildWorkTaskSubmissionViewRouteCommand({
+    userId: user.userId,
+    requestId: params.id,
+  }),
+  action: executeGetWorkTaskSubmissionRouteCommand,
+});
+
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "审批单 ID 无效",
+  bodySchema: updateSubmissionSchema,
+  bodyError: "审批草稿参数无效",
+  buildCommand: ({ params, body, user }) => buildWorkTaskSubmissionActionRouteCommand({
+    userId: user.userId,
+    requestId: params.id,
+    body,
+  }),
+  action: executeReviseWorkTaskSubmissionRouteCommand,
+});

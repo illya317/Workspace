@@ -1,0 +1,43 @@
+import { NextResponse } from "next/server";
+import { z } from "zod";
+
+import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
+import { listPermissionGrantLedgerEvents } from "@workspace/platform/server/rbac/permission-grant-ledger";
+
+const ledgerQuerySchema = z.object({
+  page: z.coerce.number().int().min(0).optional(),
+  pageSize: z.coerce.number().int().positive().optional(),
+  query: z.string().trim().optional(),
+  eventType: z.enum(["all", "grant", "revoke", "baseline"]).optional(),
+  subjectType: z.enum(["all", "user", "position", "department"]).optional(),
+  resourceKey: z.string().trim().optional(),
+  actionKey: z.string().trim().optional(),
+  scopeId: z.string().trim().optional(),
+});
+
+export async function GET(request: Request) {
+  const auth = await requireAdminApiAccess(request);
+  if (!auth.ok) return auth.response;
+  const payload = auth.user;
+
+  const parsed = ledgerQuerySchema.safeParse(Object.fromEntries(new URL(request.url).searchParams.entries()));
+  if (!parsed.success) return jsonErrorResponse("台账查询参数无效", 400);
+
+  const [isSystemAdmin, manageableKeys] = await Promise.all([
+    isSuperAdmin(payload.userId),
+    getManageableResourceKeys(payload.userId),
+  ]);
+
+  if (!isSystemAdmin && manageableKeys.size === 0) {
+    return jsonErrorResponse("无权限", 403);
+  }
+
+  return NextResponse.json(
+    await listPermissionGrantLedgerEvents({
+      ...parsed.data,
+      isSystemAdmin,
+      manageableResourceKeys: manageableKeys,
+    }),
+  );
+}

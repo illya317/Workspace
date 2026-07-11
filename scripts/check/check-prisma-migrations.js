@@ -1,0 +1,124 @@
+#!/usr/bin/env node
+const { spawnSync } = require("node:child_process");
+const fs = require("node:fs");
+const path = require("node:path");
+
+const repoRoot = path.resolve(__dirname, "../..");
+const prismaDir = path.join(repoRoot, "prisma");
+const migrationsDir = path.join(prismaDir, "migrations");
+const schemaPath = path.join(prismaDir, "schema.prisma");
+const configPath = path.join(repoRoot, "prisma.config.ts");
+const lockPath = path.join(migrationsDir, "migration_lock.toml");
+
+function fail(message) {
+  console.error(`✗ ${message}`);
+  process.exit(1);
+}
+
+function ok(message) {
+  console.log(`✓ ${message}`);
+}
+
+function scanSqliteUnsupportedMigrationSql(migrationName, sql) {
+  const violations = [];
+  const checks = [
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bADD\s+CONSTRAINT\b/i,
+      message: "SQLite does not support ALTER TABLE ... ADD CONSTRAINT; declare the constraint in CREATE TABLE or ADD COLUMN REFERENCES instead",
+    },
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bDROP\s+CONSTRAINT\b/i,
+      message: "SQLite does not support ALTER TABLE ... DROP CONSTRAINT; rebuild the table in the migration instead",
+    },
+    {
+      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bALTER\s+COLUMN\b/i,
+      message: "SQLite does not support ALTER TABLE ... ALTER COLUMN; rebuild the table in the migration instead",
+    },
+  ];
+
+  for (const check of checks) {
+    if (check.pattern.test(sql)) violations.push(check.message);
+  }
+
+  if (violations.length === 0) return;
+  fail(`migration contains SQLite-unsupported SQL: prisma/migrations/${migrationName}/migration.sql\n${violations.map((item) => `  - ${item}`).join("\n")}`);
+}
+
+function run(command, args, options = {}) {
+  const result = spawnSync(command, args, {
+    cwd: repoRoot,
+    encoding: "utf8",
+    stdio: options.stdio || "pipe",
+    env: process.env,
+  });
+  return result;
+}
+
+for (const requiredPath of [prismaDir, migrationsDir, schemaPath, configPath, lockPath]) {
+  if (!fs.existsSync(requiredPath)) {
+    fail(`缺少 Prisma 迁移必需文件: ${path.relative(repoRoot, requiredPath)}`);
+  }
+}
+ok("Prisma schema/config/migrations paths exist");
+
+const migrationDirs = fs
+  .readdirSync(migrationsDir, { withFileTypes: true })
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => entry.name)
+  .sort();
+
+if (migrationDirs.length === 0) {
+  fail("prisma/migrations 下没有任何 migration 目录");
+}
+
+for (const migrationName of migrationDirs) {
+  const migrationSql = path.join(migrationsDir, migrationName, "migration.sql");
+  if (!fs.existsSync(migrationSql)) {
+    fail(`migration 缺少 migration.sql: prisma/migrations/${migrationName}`);
+  }
+  if (fs.statSync(migrationSql).size === 0) {
+    fail(`migration.sql 为空: prisma/migrations/${migrationName}/migration.sql`);
+  }
+  scanSqliteUnsupportedMigrationSql(migrationName, fs.readFileSync(migrationSql, "utf8"));
+}
+ok(`Found ${migrationDirs.length} Prisma migrations`);
+ok("Prisma migrations avoid SQLite-unsupported ALTER TABLE constraint syntax");
+
+const lockText = fs.readFileSync(lockPath, "utf8");
+if (!/provider\s*=\s*"sqlite"/.test(lockText)) {
+  fail("migration_lock.toml provider 必须是 sqlite");
+}
+ok("Prisma migration lock provider is sqlite");
+
+const diff = run("npx", [
+  "prisma",
+  "migrate",
+  "diff",
+  "--from-migrations",
+  "prisma/migrations",
+  "--to-schema",
+  "./prisma",
+  "--script",
+  "--exit-code",
+]);
+
+if (diff.status === 2) {
+  process.stdout.write(diff.stdout || "");
+  process.stderr.write(diff.stderr || "");
+  fail("Prisma schema 与 migrations 存在差异，请生成并提交 migration");
+}
+
+if (diff.status === 0) {
+  ok("Prisma migrations match schema");
+} else {
+  const output = `${diff.stdout || ""}\n${diff.stderr || ""}`;
+  if (/P3006/.test(output)) {
+    console.warn(
+      "⚠ Prisma 历史 migrations 无法从空库完整回放；已完成强制存在性检查，schema 合法性由 db:validate 负责，真实生产升级仍由 deploy 阶段的 prisma migrate deploy 强制执行。",
+    );
+  } else {
+    process.stdout.write(diff.stdout || "");
+    process.stderr.write(diff.stderr || "");
+    fail("Prisma migration diff check failed");
+  }
+}

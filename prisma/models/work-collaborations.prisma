@@ -1,0 +1,65 @@
+/// 部门间固定协作通道；执行计划和任务仍由 WorkPlan / WorkItem 承载。
+model DepartmentCollaboration {
+  id                      Int                                  @id @default(autoincrement())
+  title                   String
+  description             String                              @default("")
+  collaborationType       String                              @default("routine")
+  triggerRule             String                              @default("")
+  scopeDescription        String                              @default("")
+  inputRequirement        String                              @default("")
+  deliverable             String                              @default("")
+  acceptanceCriteria      String                              @default("")
+  responseTargetHours     Int?
+  deliveryTargetDays      Int?
+  effectiveFrom           DateTime?
+  effectiveTo             DateTime?
+  escalationPolicy        String                              @default("")
+  responsibleDepartmentId Int
+  status                  String                              @default("active")
+  isArchived              Boolean                             @default(false)
+  createdByUserId         Int?
+  createdAt               DateTime                            @default(now())
+  updatedAt               DateTime                            @default(now()) @updatedAt
+  responsibleDepartment   Department                          @relation("DepartmentCollaborationResponsibleDepartment", fields: [responsibleDepartmentId], references: [id], onDelete: Restrict)
+  createdBy               User?                               @relation("DepartmentCollaborationCreator", fields: [createdByUserId], references: [id], onDelete: SetNull)
+  enablingDepartments     DepartmentCollaborationDepartment[]
+  positions               DepartmentCollaborationPosition[]
+  workPlans               WorkPlan[]
+  workItems               WorkItem[]
+
+  @@index([responsibleDepartmentId, status, isArchived])
+  @@index([createdByUserId])
+}
+
+/// 赋能部门对固定协作通道的部门级响应。
+model DepartmentCollaborationDepartment {
+  id                Int                     @id @default(autoincrement())
+  collaborationId   Int
+  departmentId      Int
+  responseStatus    String                  @default("pending")
+  responseNote      String                  @default("")
+  respondedByUserId Int?
+  respondedAt       DateTime?
+  invitedAt         DateTime                @default(now())
+  collaboration     DepartmentCollaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  department        Department              @relation("DepartmentCollaborationEnablingDepartment", fields: [departmentId], references: [id], onDelete: Restrict)
+  respondedBy       User?                   @relation("DepartmentCollaborationResponder", fields: [respondedByUserId], references: [id], onDelete: SetNull)
+
+  @@unique([collaborationId, departmentId])
+  @@index([departmentId, responseStatus])
+  @@index([respondedByUserId])
+}
+
+/// 部门协作通道岗位池；负责岗位可引用通道，执行岗位可被选为负责人。
+model DepartmentCollaborationPosition {
+  id              Int                     @id @default(autoincrement())
+  collaborationId Int
+  kind            String
+  positionId      Int
+  createdAt       DateTime                @default(now())
+  collaboration   DepartmentCollaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  position        Position                @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([collaborationId, kind, positionId])
+  @@index([positionId, kind])
+}

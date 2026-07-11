@@ -1,0 +1,19 @@
+{
+  "name": "@workspace/library",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./index.ts",
+    "./constants": "./constants/index.ts",
+    "./import": "./import/index.ts",
+    "./module": "./module.ts",
+    "./server": "./server/index.ts",
+    "./server/*": "./server/*.ts",
+    "./server/generators/*": "./server/generators/*.ts",
+    "./types": "./types/index.ts",
+    "./ui": "./ui/index.ts",
+    "./ui/components/*": "./ui/components/*.tsx",
+    "./ui/hooks/*": "./ui/hooks/*.ts"
+  }
+}

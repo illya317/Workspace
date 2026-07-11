@@ -1,0 +1,286 @@
+import type { ActionContractMetadata } from "./action-contract";
+import {
+  getWorkGoalActionDescriptor,
+  type WorkGoalActionKey,
+} from "./work-goal-action-descriptors";
+
+const WORK_TASKS_RESOURCE = {
+  resourceKey: "work.tasks",
+  moduleKey: "work",
+  scopeTypes: ["personal", "company", "committee", "department"],
+  directPermissionAction: "update",
+  submitPermissionAction: "submit",
+  processPermissionAction: "approve",
+} as const;
+
+const WORK_TASKS_WORKFLOW_MUTATION = {
+  handlerCanRevise: true,
+  requestCanWithdraw: true,
+  requestCanRevise: true,
+  requestCanCancel: true,
+  requestCanResubmit: true,
+} as const;
+
+const WORK_TASKS_WORKFLOW_CONFIGURATION = {
+  nodeKinds: ["approval"],
+  assigneeKinds: ["permission_holders", "direct_manager", "department_owner", "position", "employee"],
+  approvalModes: ["any_one", "all"],
+  separationPolicies: ["auto_pass_if_authorized", "independent_required"],
+  allowNodeAddRemove: true,
+  allowBypassConditions: true,
+  maxNodes: 8,
+} as const;
+
+const WORK_TASKS_WORKFLOW_ROUTES = [
+  "POST /api/modules/work/tasks/submissions",
+  "POST /api/modules/work/tasks/submissions/:id/submit",
+  "POST /api/modules/work/tasks/submissions/:id/approve",
+] as const;
+
+function workGoalContract(input: {
+  key: WorkGoalActionKey; activeEntity: string;
+  target: ActionContractMetadata["payload"]["target"]; targetIdKey?: string; statusField?: string;
+  commitMode: NonNullable<ActionContractMetadata["persistence"]>["commitMode"]; adapterKey: string;
+  surfaceKey?: string; snapshotPath?: string; workflowRole?: "submitter" | "processor" | "observer" | "none";
+  editPolicy?: "editable" | "readonly" | "workflowConfigured"; validatorKey: string; commitKey: string;
+  nodeKey: string; payloadNotes: string; persistenceNotes: string;
+  formNotes: string; domainNotes: string; displayTitleTemplate: string; displaySummaryTemplate: string;
+  directRoutes?: readonly string[];
+}): ActionContractMetadata {
+  const descriptor = getWorkGoalActionDescriptor(input.key);
+  const validatorKeys = input.validatorKey.split(" | ");
+  const commitKeys = input.commitKey.split(" | ");
+  const domain = validatorKeys.length === 1
+    ? { validatorKey: validatorKeys[0], commitKey: commitKeys[0], notes: input.domainNotes }
+    : {
+        bindings: validatorKeys.map((validatorKey, index) => ({
+          validatorKey,
+          commitKey: commitKeys[index],
+        })) as [{ validatorKey: string; commitKey: string }, ...Array<{ validatorKey: string; commitKey: string }>],
+        notes: input.domainNotes,
+      };
+  return {
+    key: descriptor.key,
+    version: 1,
+    kind: "write",
+    label: descriptor.label,
+    targetKind: descriptor.targetKind,
+    resource: WORK_TASKS_RESOURCE,
+    payload: {
+      cardinality: "single",
+      shape: "full_record",
+      target: input.target,
+      ...(input.targetIdKey ? { targetIdKey: input.targetIdKey } : {}),
+      notes: input.payloadNotes,
+    },
+    persistence: {
+      strategy: "approval_payload",
+      activeEntity: input.activeEntity,
+      draftEntity: "ApprovalRequest",
+      supportedPersistenceModes: ["workflowDraft"],
+      defaultMode: "workflowDraft",
+      ...(input.statusField ? { statusField: input.statusField } : {}),
+      commitMode: input.commitMode,
+      notes: input.persistenceNotes,
+    },
+    form: {
+      adapterKey: input.adapterKey,
+      payloadVersion: 1,
+      ...(input.surfaceKey ? { surfaceKey: input.surfaceKey } : {}),
+      ...(input.snapshotPath ? { snapshotPath: input.snapshotPath } : {}),
+      supportedPersistenceModes: ["workflowDraft"],
+      supportedModes: ["workflow"],
+      ...(input.workflowRole ? { workflowRole: input.workflowRole } : {}),
+      ...(input.editPolicy ? { editPolicy: input.editPolicy } : {}),
+      notes: input.formNotes,
+    },
+    domain,
+    api: {
+      ...(input.directRoutes ? { directRoutes: input.directRoutes } : {}),
+      workflowRoutes: WORK_TASKS_WORKFLOW_ROUTES,
+      envelopeVersion: 1,
+    },
+    workflow: {
+      kind: "configurable",
+      defaultExecutionMode: "workflow",
+      allowDirectOverride: false,
+      statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
+      transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
+      mutationPolicy: WORK_TASKS_WORKFLOW_MUTATION,
+      routing: { handlerSource: "permission", separationPolicy: "auto_pass_if_authorized", approvalMode: "any_one" },
+      defaultDefinition: {
+        version: 1,
+        nodes: [{
+          key: input.nodeKey,
+          label: descriptor.label,
+          kind: "approval",
+          assignee: { kind: "permission_holders", resourceKey: "work.tasks", action: "approve" },
+          approvalMode: "any_one",
+          separationPolicy: "auto_pass_if_authorized",
+          bypassable: true,
+        }],
+      },
+      configuration: WORK_TASKS_WORKFLOW_CONFIGURATION,
+      validateOn: ["draft", "submit", "commit"],
+      notes: "Work target 8-flow action. The workflow policy controls handlers; the Work adapter keeps the domain state transition.",
+    },
+    display: {
+      titleTemplate: input.displayTitleTemplate,
+      summaryTemplate: input.displaySummaryTemplate,
+      hrefPattern: "/settings/account?tab=inbox",
+    },
+  };
+}
+
+export const WORK_GOAL_ACTION_CONTRACTS = [
+  workGoalContract({
+    key: "work.tasks.goal.department.objective.submit",
+    activeEntity: "WorkPlan|WorkReport",
+    target: "mixed",
+    commitMode: "native_transition",
+    adapterKey: "work.tasks.goal.initial",
+    surfaceKey: "work.tasks.goalInitial",
+    snapshotPath: "latestPayload.data.approvalSnapshot",
+    workflowRole: "processor",
+    editPolicy: "workflowConfigured",
+    validatorKey: "packages/work/server/task-approval-okr.validateObjectivePlanApprovalPayload | packages/work/server/task-approval-reports.validateReportApprovalPayload",
+    commitKey: "packages/work/server/task-approval-okr.commitObjectivePlanApproval | packages/work/server/task-approval-reports.commitWorkReportApproval",
+    nodeKey: "work-task-goal-department-objective-submit",
+    payloadNotes: "组织期初目标可提交目标计划快照或周期期初目标表快照，reportStage=kr 时进入同一流程。",
+    persistenceNotes: "流程数据存在 ApprovalRequest.latestPayload；目标计划通过后推进阶段，期初目标表通过后保存正式 WorkReport。",
+    formNotes: "目标确认详情按 payload entityType 复用目标计划 renderer 或期初目标表格。",
+    domainNotes: "提交和通过均校验目标计划阶段或目标/考核表工作空间、周期和管控 scope。",
+    displayTitleTemplate: "部门期初目标：{title}",
+    displaySummaryTemplate: "{title}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.personal.objective.submit",
+    activeEntity: "WorkPlan|WorkReport",
+    target: "mixed",
+    commitMode: "native_transition",
+    adapterKey: "work.tasks.goal.initial",
+    surfaceKey: "work.tasks.goalInitial",
+    snapshotPath: "latestPayload.data.approvalSnapshot",
+    workflowRole: "processor",
+    editPolicy: "workflowConfigured",
+    validatorKey: "packages/work/server/task-approval-okr.validateObjectivePlanApprovalPayload | packages/work/server/task-approval-reports.validateReportApprovalPayload",
+    commitKey: "packages/work/server/task-approval-okr.commitObjectivePlanApproval | packages/work/server/task-approval-reports.commitWorkReportApproval",
+    nodeKey: "work-task-goal-personal-objective-submit",
+    payloadNotes: "个人期初目标可提交个人目标计划快照或周期期初目标表快照，审批归属解析到管控部门。",
+    persistenceNotes: "流程数据存在 ApprovalRequest.latestPayload；目标计划通过后推进阶段，期初目标表通过后保存正式 WorkReport。",
+    formNotes: "个人期初目标流程详情按 payload entityType 复用目标计划 renderer 或期初目标表格。",
+    domainNotes: "提交和通过均校验目标计划阶段、个人所属管控部门、目标/考核表周期和审批快照。",
+    displayTitleTemplate: "个人期初目标：{title}",
+    displaySummaryTemplate: "{title}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.department.report.submit",
+    directRoutes: ["PUT /api/modules/work/tasks/reports"],
+    activeEntity: "WorkReport",
+    target: "mixed",
+    targetIdKey: "reportId",
+    statusField: "status",
+    commitMode: "copy_to_active",
+    adapterKey: "work.tasks.report",
+    validatorKey: "packages/work/server/task-approval-reports.validateReportApprovalPayload",
+    commitKey: "packages/work/server/task-approval-reports.commitWorkReportApproval",
+    nodeKey: "work-task-goal-department-report-submit",
+    payloadNotes: "组织目标考核结果提交周期、阶段和汇报明细。",
+    persistenceNotes: "流程数据存在 ApprovalRequest.latestPayload；通过后保存正式 WorkReport 并固化快照。",
+    formNotes: "结果汇报审批复用汇报表格 payload。",
+    domainNotes: "提交和通过均校验汇报对象、周期、阶段和工作空间边界。",
+    displayTitleTemplate: "部门考核结果：{periodStart}",
+    displaySummaryTemplate: "{reportStage} · {periodType}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.personal.report.submit",
+    directRoutes: ["PUT /api/modules/work/tasks/reports"],
+    activeEntity: "WorkReport",
+    target: "mixed",
+    targetIdKey: "reportId",
+    statusField: "status",
+    commitMode: "copy_to_active",
+    adapterKey: "work.tasks.report",
+    validatorKey: "packages/work/server/task-approval-reports.validateReportApprovalPayload",
+    commitKey: "packages/work/server/task-approval-reports.commitWorkReportApproval",
+    nodeKey: "work-task-goal-personal-report-submit",
+    payloadNotes: "个人目标或个人考核结果提交周期、阶段和明细。",
+    persistenceNotes: "流程数据存在 ApprovalRequest.latestPayload；通过后保存正式 WorkReport 并固化快照。",
+    formNotes: "个人考核结果审批复用汇报表格 payload。",
+    domainNotes: "提交和通过均校验汇报对象、周期、阶段和工作空间边界。",
+    displayTitleTemplate: "个人考核结果：{periodStart}",
+    displaySummaryTemplate: "{reportStage} · {periodType}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.department.objective.revise",
+    activeEntity: "WorkPlan",
+    target: "existing_record",
+    targetIdKey: "planId",
+    statusField: "status",
+    commitMode: "apply_patch",
+    adapterKey: "work.tasks.revision",
+    validatorKey: "packages/work/server/task-approval-adapter.validateRevisionApprovalPayload",
+    commitKey: "packages/work/server/task-approval-adapter.commitRevisionApproval",
+    nodeKey: "work-task-goal-department-objective-revise",
+    payloadNotes: "已确认组织目标口径的修订 payload，changeTarget=okr_plan。",
+    persistenceNotes: "修订草稿存在 ApprovalRequest.latestPayload；通过后写回正式 WorkPlan。",
+    formNotes: "修订表单复用目标计划 UI，并在审批详情展示差异和原因。",
+    domainNotes: "提交和通过均校验原计划、工作空间、来源边界和项目可见性。",
+    displayTitleTemplate: "部门期初目标修订：{title}",
+    displaySummaryTemplate: "{reason}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.personal.objective.revise",
+    activeEntity: "WorkPlan",
+    target: "existing_record",
+    targetIdKey: "planId",
+    statusField: "status",
+    commitMode: "apply_patch",
+    adapterKey: "work.tasks.revision",
+    validatorKey: "packages/work/server/task-approval-adapter.validateRevisionApprovalPayload",
+    commitKey: "packages/work/server/task-approval-adapter.commitRevisionApproval",
+    nodeKey: "work-task-goal-personal-objective-revise",
+    payloadNotes: "已确认个人期初目标或个人重点计划的修订 payload，changeTarget=okr_plan。",
+    persistenceNotes: "修订草稿存在 ApprovalRequest.latestPayload；通过后写回正式 WorkPlan。",
+    formNotes: "个人期初目标修订表单复用目标计划 UI，并在审批详情展示差异和原因。",
+    domainNotes: "提交和通过均校验原计划、工作空间、来源边界和项目可见性。",
+    displayTitleTemplate: "个人期初目标修订：{title}",
+    displaySummaryTemplate: "{reason}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.department.report.correct",
+    activeEntity: "WorkReport",
+    target: "existing_record",
+    targetIdKey: "reportId",
+    statusField: "status",
+    commitMode: "apply_patch",
+    adapterKey: "work.tasks.revision",
+    validatorKey: "packages/work/server/task-approval-adapter.validateRevisionApprovalPayload",
+    commitKey: "packages/work/server/task-approval-adapter.commitRevisionApproval",
+    nodeKey: "work-task-goal-department-report-correct",
+    payloadNotes: "已确认组织考核结果的修订 payload，changeTarget=work_report。",
+    persistenceNotes: "更正草稿存在 ApprovalRequest.latestPayload；通过后写回正式 WorkReport。",
+    formNotes: "考核结果修订表单复用汇报 UI，并在审批详情展示差异和原因。",
+    domainNotes: "提交和通过均校验原汇报、周期、阶段和工作空间边界。",
+    displayTitleTemplate: "部门考核结果修订：{periodStart}",
+    displaySummaryTemplate: "{reason}",
+  }),
+  workGoalContract({
+    key: "work.tasks.goal.personal.report.correct",
+    activeEntity: "WorkReport",
+    target: "existing_record",
+    targetIdKey: "reportId",
+    statusField: "status",
+    commitMode: "apply_patch",
+    adapterKey: "work.tasks.revision",
+    validatorKey: "packages/work/server/task-approval-adapter.validateRevisionApprovalPayload",
+    commitKey: "packages/work/server/task-approval-adapter.commitRevisionApproval",
+    nodeKey: "work-task-goal-personal-report-correct",
+    payloadNotes: "已确认个人考核结果的修订 payload，changeTarget=work_report。",
+    persistenceNotes: "更正草稿存在 ApprovalRequest.latestPayload；通过后写回正式 WorkReport。",
+    formNotes: "个人考核结果修订表单复用汇报 UI，并在审批详情展示差异和原因。",
+    domainNotes: "提交和通过均校验原汇报、周期、阶段和工作空间边界。",
+    displayTitleTemplate: "个人考核结果修订：{periodStart}",
+    displaySummaryTemplate: "{reason}",
+  }),
+] as const;

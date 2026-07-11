@@ -1,0 +1,25 @@
+export type WorkReportItemInput = {
+  workPlanId?: number | null;
+  workItemId?: number | null;
+  title?: string | null;
+  workPlanTitle?: string | null;
+  workPlanKind?: string | null;
+  workItemType?: string | null;
+  parentWorkItemId?: number | null;
+  parentTitle?: string | null;
+  objectiveTitleSnapshot?: string | null;
+  keyResultTitleSnapshot?: string | null;
+  reportItemKind?: string | null;
+  workItemStatusSnapshot?: string | null;
+  snapshotPlannedStartDate?: string | null;
+  snapshotPlannedEndDate?: string | null;
+  snapshotActualEndDate?: string | null;
+  snapshotCompletedAt?: string | null;
+  previousPlanSnapshot?: string | null;
+  currentKeyResult?: string | null;
+  nextObjective?: string | null;
+  note?: string | null;
+  selfScore?: number | null;
+  performanceScore?: number | null;
+  sortOrder?: number | null;
+};

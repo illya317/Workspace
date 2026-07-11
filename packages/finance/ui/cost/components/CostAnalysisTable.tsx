@@ -1,0 +1,44 @@
+"use client";
+
+import { useState } from "react";
+import { type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { BodySurfaceModalSpec, BodySurfaceSectionSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
+import { useCostData } from "../hooks/useFinanceCostData";
+import type { CostFiltersState, SourceTraceInfo } from "../types";
+import { createCostDataSurface, createCostTraceAction, formatCostNumber, type CostRecord } from "./CostDataTable";
+import { createSourceTraceModal } from "./SourceTraceModal";
+
+export function useCostAnalysisSurface(filters: CostFiltersState): {
+  sections: BodySurfaceSectionSpec[];
+  footer?: PageSurfaceFooterSpec;
+  modals: BodySurfaceModalSpec[];
+} {
+  const [page, setPage] = useState(1);
+  const [trace, setTrace] = useState<{ open: boolean; info: SourceTraceInfo | null }>({ open: false, info: null });
+  const { data, pagination, loading, error } = useCostData<CostRecord>({
+    endpoint: "cost-analysis",
+    filters,
+    page,
+    pageSize: 50,
+  });
+
+  const columns: DataSurfaceColumnSpec<CostRecord>[] = [
+    { key: "tableName", label: "表名", required: true, cell: (row) => String(row.tableName ?? "—") },
+    { key: "rowLabel", label: "行标签", required: true, cell: (row) => String(row.rowLabel ?? "—") },
+    { key: "metricName", label: "指标", required: true, cell: (row) => String(row.metricName ?? row.metricKey ?? "—") },
+    { key: "value", label: "数值", required: true, align: "right",  cell: (row) => formatCostNumber(row.value as number) },
+  ];
+
+  const table = createCostDataSurface({
+    rows: data,
+    columns,
+    loading,
+    error,
+    pagination,
+    page,
+    onPageChange: setPage,
+    rowActions: (row) => [createCostTraceAction({ row, onTrace: (info) => setTrace({ open: true, info }) })],
+  });
+  const modal = createSourceTraceModal({ open: trace.open, info: trace.info, onClose: () => setTrace({ ...trace, open: false }) });
+  return { sections: table.sections, footer: table.footer, modals: modal ? [modal] : [] };
+}

@@ -1,0 +1,31 @@
+#!/bin/sh
+# Pre-commit hook: keep local commits incremental and cache-friendly.
+# Use PRE_COMMIT_FULL=1 git commit ... to mirror GitHub CI locally.
+
+if [ "${PRE_COMMIT_FULL:-0}" = "1" ]; then
+  echo "→ Running full CI checks before commit..."
+  npm run check:ci || {
+    echo "✗ CI checks failed. Commit aborted."
+    exit 1
+  }
+
+  ci_tree="$(git write-tree)"
+  ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
+  printf '%s\n' "$ci_tree" > "$ci_stamp"
+
+  echo "✓ Pre-commit full CI checks passed."
+  exit 0
+fi
+
+echo "→ Running incremental pre-commit checks..."
+node scripts/check/check-core-ui-guard.js --staged || {
+  echo "✗ Core UI guard failed. Commit aborted."
+  exit 1
+}
+
+npm run check:precommit || {
+  echo "✗ Incremental pre-commit checks failed. Commit aborted."
+  exit 1
+}
+
+echo "✓ Incremental pre-commit checks passed."

@@ -1,0 +1,4 @@
+export const PAGE_SURFACE_STACK_CLASS = "space-y-5";
+export const PAGE_SURFACE_BODY_SECTION_STACK_CLASS = "space-y-0";
+export const PAGE_SURFACE_TABBED_BODY_STACK_CLASS = PAGE_SURFACE_BODY_SECTION_STACK_CLASS;
+export const PAGE_SURFACE_TABBED_BODY_TAB_CLASS = "relative z-10 !rounded-b-none";

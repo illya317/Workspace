@@ -1,0 +1,6 @@
+ALTER TABLE "Resource" DROP COLUMN "maxRoleKey";
+
+CREATE TABLE IF NOT EXISTS "PermissionActionNormalization" (
+  "key" TEXT NOT NULL PRIMARY KEY,
+  "appliedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

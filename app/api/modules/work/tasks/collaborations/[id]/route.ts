@@ -1,0 +1,20 @@
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildUpdateDepartmentCollaborationCommand,
+  executeUpdateDepartmentCollaborationCommand,
+} from "@workspace/work/server";
+import { departmentCollaborationWriteSchema } from "../write-schema";
+
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: departmentCollaborationWriteSchema,
+  paramsError: "协作事项 ID 无效",
+  bodyError: "协作事项参数无效",
+  buildCommand: ({ user, params, body }) => buildUpdateDepartmentCollaborationCommand({
+    userId: user.userId,
+    collaborationId: params.id,
+    body,
+  }),
+  action: executeUpdateDepartmentCollaborationCommand,
+});

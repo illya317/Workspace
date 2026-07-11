@@ -1,0 +1,59 @@
+import { z } from "zod";
+
+import {
+  buildCreateWorkTaskSubmissionRouteCommand,
+  buildListWorkTaskSubmissionsRouteCommand,
+  executeCreateWorkTaskSubmissionRouteCommand,
+  executeListWorkTaskSubmissionsRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const optionalNumber = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().optional(),
+);
+
+const submissionsQuerySchema = z.object({
+  targetType: z.string().optional(),
+  targetId: optionalNumber,
+  status: z.string().optional(),
+  view: z.enum(["space", "mine"]).optional(),
+  filter: z.enum(["all", "todo", "originated"]).optional(),
+});
+
+const payloadSchema = z.object({}).passthrough();
+
+const createSubmissionSchema = z.object({
+  operation: z.enum(["create", "update"]),
+  targetType: z.string().optional(),
+  targetId: z.coerce.number().optional(),
+  entityType: z.enum(["item", "plan", "report", "objective_plan", "kr_review", "revision", "collaboration"]).nullable().optional(),
+  workId: z.coerce.number().nullable().optional(),
+  planId: z.coerce.number().nullable().optional(),
+  reportId: z.coerce.number().nullable().optional(),
+  periodType: z.string().nullable().optional(),
+  periodStart: z.string().nullable().optional(),
+  reportStage: z.enum(["kr", "final"]).nullable().optional(),
+  payload: payloadSchema,
+  comment: z.string().nullable().optional(),
+});
+
+export const GET = createCommandRoute({
+  querySchema: submissionsQuerySchema,
+  queryError: "审批查询参数无效",
+  buildCommand: ({ query, user }) => buildListWorkTaskSubmissionsRouteCommand({
+    userId: user.userId,
+    query,
+  }),
+  action: executeListWorkTaskSubmissionsRouteCommand,
+});
+
+export const POST = createCommandRoute({
+  bodySchema: createSubmissionSchema,
+  bodyError: "审批草稿参数无效",
+  buildCommand: ({ body, user }) => buildCreateWorkTaskSubmissionRouteCommand({
+    userId: user.userId,
+    body,
+  }),
+  action: executeCreateWorkTaskSubmissionRouteCommand,
+});

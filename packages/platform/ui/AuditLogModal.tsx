@@ -1,0 +1,140 @@
+"use client";
+
+import { workspacePath } from "@workspace/core/routing";
+import { useState, useEffect, useCallback } from "react";
+import { createInlineFieldsSection, createPageBody, createRecordSection, createStatusSection, BodySurface } from "@workspace/core/ui";
+import type { BodySurfaceModalSpec } from "@workspace/core/ui";
+import { createAuditLogRecord, type AuditEntry } from "./AuditLogEntry";
+
+export interface AuditLogModalProps {
+  open: boolean;
+  onClose: () => void;
+  entityType: string;
+  onRestored?: () => void;
+}
+
+export default function AuditLogModal({ open, onClose, entityType, onRestored }: AuditLogModalProps) {
+  const modal = useAuditLogModal({ open, onClose, entityType, onRestored });
+  return <BodySurface {...createPageBody([modal])} />;
+}
+
+export function useAuditLogModal({ open, onClose, entityType, onRestored }: AuditLogModalProps): BodySurfaceModalSpec {
+  const [entries, setEntries] = useState<AuditEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [dates, setDates] = useState<string[]>([]);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [restoring, setRestoring] = useState<number | null>(null);
+  const pageSize = 100;
+
+  const loadDates = useCallback(async () => {
+    try {
+      const res = await fetch(workspacePath(`/api/modules/hr/roster/audit-log?entityType=${entityType}&dates=1`));
+      if (res.ok) {
+        const d = await res.json();
+        setDates(d.dates || []);
+      }
+    } catch {}
+  }, [entityType]);
+
+  const load = useCallback(async (p: number, d: string) => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ entityType, page: String(p), pageSize: String(pageSize) });
+      if (d) params.set("date", d);
+      const res = await fetch(workspacePath(`/api/modules/hr/roster/audit-log?${params}`));
+      if (res.ok) {
+        const data = await res.json();
+        setEntries(data.entries || []);
+        setTotal(data.total || 0);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [entityType]);
+
+  const restore = useCallback(async (historyId: number) => {
+    setRestoring(historyId);
+    try {
+      const res = await fetch(workspacePath("/api/modules/hr/roster/audit-log/restore"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ historyId }),
+      });
+      if (res.ok) {
+        load(1, selectedDate);
+        loadDates();
+        onRestored?.();
+      }
+    } finally {
+      setRestoring(null);
+    }
+  }, [load, loadDates, selectedDate, onRestored]);
+
+  useEffect(() => {
+    if (open) {
+      setPage(1);
+      setSelectedDate("");
+      load(1, "");
+      loadDates();
+    }
+  }, [open, load, loadDates]);
+
+  useEffect(() => {
+    if (open) load(page, selectedDate);
+  }, [open, page, selectedDate, load]);
+
+  const totalPages = Math.ceil(total / pageSize);
+
+  return {
+        key: "audit-log",
+        open,
+        title: `编辑历史 · ${entityType}${selectedDate ? ` (${selectedDate})` : ""}`,
+        onClose,
+        size: "lg",
+        sections: [
+        ...(dates.length > 0 ? [
+          createInlineFieldsSection("audit-date", [{
+            key: "date",
+            label: "日期",
+            value: selectedDate,
+            placeholder: "全部日期",
+            spec: {
+              valueType: "date",
+              control: "temporal",
+              precision: "date",
+            },
+            onChange: (nextDate) => {
+              setSelectedDate(String(nextDate || ""));
+              setPage(1);
+            },
+          }], { kind: "filters" as const }),
+        ] : []),
+        loading
+          ? createStatusSection("entries-loading", { kind: "loading", content: "加载中..." })
+          : entries.length === 0
+            ? createStatusSection("entries-empty", { kind: "empty", content: "暂无编辑记录" })
+            : createRecordSection("entries", {
+                records: entries.map((entry) => createAuditLogRecord({
+                  entry,
+                  expanded: expandedId === entry.id,
+                  restoring: restoring === entry.id,
+                  onToggle: () => setExpandedId(expandedId === entry.id ? null : entry.id),
+                  onRestore: (event) => {
+                    event.stopPropagation();
+                    restore(entry.id);
+                  },
+                })),
+              }),
+        ],
+        pagination: totalPages > 1 ? {
+          page,
+          total,
+          totalPages,
+          onPageChange: setPage,
+          compact: true,
+        } : undefined,
+      };
+}

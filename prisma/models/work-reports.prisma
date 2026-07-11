@@ -1,0 +1,55 @@
+/// 工作计划空间汇报（事实表，来源于工作空间周期填报/审批）
+model WorkReport {
+  id          Int              @id @default(autoincrement())
+  targetType  String
+  targetId    Int
+  periodType  String           @default("weekly")
+  reportStage String           @default("final")
+  periodStart DateTime
+  periodEnd   DateTime
+  submittedBy Int
+  submittedAt DateTime?
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @default(now()) @updatedAt
+  submitter   User             @relation("WorkReportSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade)
+  items       WorkReportItem[]
+
+  @@unique([targetType, targetId, periodType, periodStart, reportStage])
+  @@index([submittedBy])
+}
+
+/// 工作计划空间汇报事项（事实表，来源于 WorkItem/WorkPlan 快照和手工填报）
+model WorkReportItem {
+  id                       Int        @id @default(autoincrement())
+  reportId                 Int
+  workPlanId               Int?
+  workItemId               Int?
+  title                    String
+  workPlanTitleSnapshot    String     @default("")
+  workPlanKindSnapshot     String     @default("")
+  workItemTypeSnapshot     String     @default("")
+  parentWorkItemIdSnapshot Int?
+  parentTitleSnapshot      String     @default("")
+  objectiveTitleSnapshot   String     @default("")
+  keyResultTitleSnapshot   String     @default("")
+  reportItemKindSnapshot   String     @default("")
+  workItemStatusSnapshot   String     @default("")
+  snapshotPlannedStartDate DateTime?
+  snapshotPlannedEndDate   DateTime?
+  snapshotActualEndDate    DateTime?
+  snapshotCompletedAt      DateTime?
+  previousPlanSnapshot     String     @default("")
+  doneThisWeek             String     @default("")
+  planNextWeek             String     @default("")
+  note                     String     @default("")
+  selfScore                Int?
+  performanceScore         Int?
+  sortOrder                Int        @default(0)
+  report                   WorkReport @relation(fields: [reportId], references: [id], onDelete: Cascade)
+  workPlan                 WorkPlan?  @relation(fields: [workPlanId], references: [id], onDelete: SetNull)
+  workItem                 WorkItem?  @relation(fields: [workItemId], references: [id], onDelete: SetNull)
+
+  @@index([reportId])
+  @@index([workPlanId])
+  @@index([workItemId])
+}

@@ -1,0 +1,35 @@
+import { z } from "zod";
+
+import {
+  buildWorkPeriodCollectionRouteCommand,
+  executeWorkPeriodCollectionRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+
+const optionalNumber = z.preprocess(
+  (value) => (value === null || value === undefined || value === "" ? undefined : Number(value)),
+  z.number().optional(),
+);
+
+const optionalBoolean = z.preprocess(
+  (value) => value === true || value === "true",
+  z.boolean().optional(),
+);
+
+const periodCollectionQuerySchema = z.object({
+  targetType: z.string().optional(),
+  targetId: optionalNumber,
+  deptId: optionalNumber,
+  cycleId: z.coerce.number().int().positive(),
+  displayPeriodType: z.string().nullable().optional(),
+  includeItems: optionalBoolean,
+});
+
+export const GET = createCommandRoute({
+  querySchema: periodCollectionQuerySchema,
+  buildCommand: ({ query, user }) => buildWorkPeriodCollectionRouteCommand({
+    user,
+    query,
+  }),
+  action: executeWorkPeriodCollectionRouteCommand,
+});

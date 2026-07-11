@@ -1,0 +1,77 @@
+"use client";
+
+import { InputSurface } from "@workspace/core/ui";
+import { normalizeDepartmentCodeInput, type OrganizationHierarchyKind } from "./utils";
+
+export function departmentCodeEditableSegment(level: 1 | 2 | 3, hierarchyKind: OrganizationHierarchyKind = "M") {
+  if (hierarchyKind === "G") {
+    return {
+      extract: (code: string) => code.slice(0, 3),
+      compose: (segment: string) => segment.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 3),
+      normalize: (segment: string) => normalizeDepartmentCodeInput(level, segment, hierarchyKind),
+      placeholder: "缩写如 OPS",
+    };
+  }
+  if (level === 1) {
+    return {
+      extract: (code: string) => code.slice(0, 3),
+      compose: (segment: string) => {
+        const prefix = segment.slice(0, 3).toUpperCase();
+        return prefix ? `${prefix}001` : segment;
+      },
+      normalize: (segment: string) => segment.replace(/[^a-zA-Z]/g, "").toUpperCase().slice(0, 3),
+      placeholder: "前缀如 FUN",
+    };
+  }
+  if (level === 2) {
+    return {
+      extract: (code: string) => code.slice(3, -2),
+      compose: (segment: string, code: string) => {
+        const prefix = code.slice(0, 3);
+        const numberPart = segment.replace(/\D/g, "").slice(0, 4);
+        return numberPart ? `${prefix}${numberPart}00` : code;
+      },
+      normalize: (segment: string) => segment.replace(/\D/g, "").slice(0, 4),
+      placeholder: "序号如 1 或 12",
+    };
+  }
+  return {
+    extract: (code: string) => code.slice(-2),
+    compose: (segment: string, code: string) => {
+      const prefix = code.slice(0, 3);
+      const stem = code.slice(3, -2) || "1";
+      const tail = segment.replace(/\D/g, "").slice(0, 2).padStart(2, "0");
+      return tail && tail !== "00" ? `${prefix}${stem}${tail}` : code;
+    },
+    normalize: (segment: string) => normalizeDepartmentCodeInput(3, segment),
+    placeholder: "尾号如 01",
+  };
+}
+
+export function DepartmentCodeInput({
+  value,
+  hierarchyKind = "M",
+  level,
+  disabled,
+  onChange,
+}: {
+  value: string;
+  hierarchyKind?: OrganizationHierarchyKind;
+  level: 1 | 2 | 3;
+  disabled?: boolean;
+  onChange: (fullCode: string) => void;
+  className?: string;
+}) {
+  return (
+    <InputSurface
+      spec={{
+        valueType: "string",
+        control: "text",
+        mask: { kind: "editableSegment", ...departmentCodeEditableSegment(level, hierarchyKind) },
+        state: disabled ? "disabled" : "normal",
+      }}
+      value={value}
+      onChange={(next) => onChange(String(next ?? ""))}
+    />
+  );
+}

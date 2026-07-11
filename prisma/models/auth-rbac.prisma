@@ -1,0 +1,183 @@
+/// 用户与认证
+model User {
+  id                          Int                          @id @default(autoincrement())
+  wxUserId                    String?                      @unique
+  username                    String                       @unique
+  password                    String?
+  avatar                      String?
+  alias                       String?
+  phone                       String?
+  routineItems                String?
+  preferredDepartmentIds      String?
+  preferredProjectIds         String?
+  portalSlots                 String?
+  canLogin                    Boolean                      @default(true)
+  apiKeyHash                  String?                      @unique(map: "User_apiKey_key") @map("apiKey")
+  employeeId                  String?
+  createdAt                   DateTime                     @default(now())
+  sessionVersion              Int                          @default(0)
+  editedContracts             Contract[]                   @relation("ContractEditor")
+  editHistories               EditHistory[]                @relation("EditHistoryEditor")
+  employees                   Employee[]                   @relation("EmployeeUser")
+  editedFinanceAccounts       FinanceAccount[]             @relation("FinanceAccountEditor")
+  editedFinanceVouchers       FinanceVoucher[]             @relation("FinanceVoucherEditor")
+  editedStockFinishedGoods    StockFinishedGoods[]         @relation("StockFinishedGoodsEditor")
+  stockOperations             StockOperation[]             @relation("StockOperationEditor")
+  editedStockPackagings       StockPackaging[]             @relation("StockPackagingEditor")
+  editedStockRawMaterials     StockRawMaterial[]           @relation("StockRawMaterialEditor")
+  snapshotImports             FinanceBalanceSnapshot[]     @relation("SnapshotImporter")
+  snapshotEdits               FinanceBalanceSnapshot[]     @relation("SnapshotEditor")
+  editedLibraryDocuments      LibraryDocument[]            @relation("LibraryDocumentEditor")
+  ownedLibraryDocuments       LibraryDocument[]            @relation("LibraryDocumentOwner")
+  reviewedLibraryDocuments    LibraryDocument[]            @relation("LibraryDocumentReviewer")
+  createdLibraryVersions      LibraryDocumentVersion[]     @relation("LibraryDocumentVersionCreator")
+  createdLibraryDocumentTags  LibraryDocumentTag[]         @relation("LibraryDocumentTagCreator")
+  resourceActionGrants        UserResourceActionGrant[]
+  departmentAssignees         DepartmentWorkAssignee[]
+  projectAssignees            ProjectWorkAssignee[]
+  createdDepartmentCollaborations DepartmentCollaboration[]           @relation("DepartmentCollaborationCreator")
+  departmentCollaborationResponses DepartmentCollaborationDepartment[] @relation("DepartmentCollaborationResponder")
+  reviewedReclassResults      ReclassResult[]              @relation("ReclassResultReviewer")
+  confirmedReclassRules       FinanceReclassRule[]         @relation("FinanceReclassRuleConfirmer")
+  ledgerImports               FinanceLedgerImport[]        @relation("FinanceLedgerImportImporter")
+  editedWorkpapers            FinanceStatementWorkpaper[]  @relation("WorkpaperEditor")
+  editedReviews               FinanceStatementReview[]     @relation("ReviewEditor")
+  reviewedReviews             FinanceStatementReview[]     @relation("ReviewReviewer")
+  notifications               Notification[]               @relation("NotificationRecipient")
+  createdNotifications        Notification[]               @relation("NotificationActor")
+  permissionGrantLedgerEvents PermissionGrantLedgerEvent[] @relation("PermissionGrantLedgerActor")
+  submittedApprovalRequests   ApprovalRequest[]            @relation("ApprovalRequestSubmitter")
+  resolvedApprovalRequests    ApprovalRequest[]            @relation("ApprovalRequestResolver")
+  approvalEvents              ApprovalEvent[]              @relation("ApprovalEventActor")
+  workReports                 WorkReport[]                 @relation("WorkReportSubmitter")
+  ownedMeetings               Meeting[]                    @relation("MeetingOwner")
+  secretariedMeetings         Meeting[]                    @relation("MeetingSecretary")
+  meetingParticipations       MeetingParticipant[]         @relation("MeetingParticipantUser")
+  meetingVotes                MeetingVote[]                @relation("MeetingVoteUser")
+}
+
+/// RBAC 资源定义，详见 docs/rbac.md
+model Resource {
+  id                          Int                             @id @default(autoincrement())
+  key                         String                          @unique
+  name                        String
+  description                 String?
+  level                       Int                             @default(1)
+  sortOrder                   Int                             @default(0)
+  parentId                    Int?
+  /// 逗号分隔的 scope 类型，如 "department,project"。null 表示不支持 scoped 授权
+  scopeTypes                  String?
+  /// 权限继承模式：inherit=查祖先, self_only=数据权限只查自身（父资源仅做入口）
+  scopeInheritanceMode        String                          @default("inherit")
+  departmentActionGrants      DepartmentResourceActionGrant[]
+  positionActionGrants        PositionResourceActionGrant[]
+  parent                      Resource?                       @relation("ResHierarchy", fields: [parentId], references: [id])
+  children                    Resource[]                      @relation("ResHierarchy")
+  userActionGrants            UserResourceActionGrant[]
+  permissionGrantLedgerEvents PermissionGrantLedgerEvent[]
+}
+
+/// 权限 action 语义迁移标记；用于保证一次性旧语义扩展可重复部署但不会反复扩大新授权
+model PermissionActionNormalization {
+  key       String   @id
+  appliedAt DateTime @default(now())
+}
+
+/// 用户-资源-动作授权关系（事实表，手工配置；用于当前 grant/configure 和细粒度权限动作）
+model UserResourceActionGrant {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, resourceId, actionKey, scopeId])
+}
+
+/// 岗位-资源-动作授权关系（事实表，手工配置；用于当前 grant/configure 和细粒度权限动作继承到岗位成员）
+model PositionResourceActionGrant {
+  id         Int      @id @default(autoincrement())
+  positionId Int
+  resourceId Int
+  actionKey  String
+  scopeId    String?
+  resource   Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  position   Position @relation(fields: [positionId], references: [id], onDelete: Cascade)
+
+  @@unique([positionId, resourceId, actionKey, scopeId])
+}
+
+/// 部门-资源-动作授权关系（事实表，手工配置；用于当前 grant/configure 和细粒度权限动作继承到部门成员）
+model DepartmentResourceActionGrant {
+  id           Int        @id @default(autoincrement())
+  departmentId Int
+  resourceId   Int
+  actionKey    String
+  scopeId      String?
+  resource     Resource   @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+
+  @@unique([departmentId, resourceId, actionKey, scopeId])
+}
+
+/// 权限授予记录台账（事实表，来源于内部 RBAC action grant 显式写入；只做审计证据，不参与运行时判权）
+model PermissionGrantLedgerEvent {
+  id                  Int       @id @default(autoincrement())
+  eventType           String
+  actorUserId         Int?
+  actorLabel          String?
+  actorSnapshotJson   String?
+  subjectType         String
+  subjectId           Int
+  subjectLabel        String?
+  subjectSnapshotJson String?
+  resourceId          Int?
+  resourceKey         String
+  resourceName        String?
+  actionKey           String
+  scopeId             String?
+  beforeValue         Boolean
+  afterValue          Boolean
+  source              String    @default("permission_request")
+  reason              String?
+  batchId             String?
+  metadataJson        String?
+  createdAt           DateTime  @default(now())
+  actor               User?     @relation("PermissionGrantLedgerActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  resource            Resource? @relation(fields: [resourceId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([subjectType, subjectId, createdAt])
+  @@index([resourceKey, actionKey, createdAt])
+  @@index([eventType, createdAt])
+  @@index([batchId])
+}
+
+/// 站内通知/待确认事项
+model Notification {
+  id                      Int       @id @default(autoincrement())
+  recipientUserId         Int
+  actorUserId             Int?
+  type                    String
+  title                   String
+  body                    String
+  href                    String?
+  payloadJson             String?
+  isImportant             Boolean   @default(false)
+  isStrongReminder        Boolean   @default(false)
+  requiresAcknowledgement Boolean   @default(false)
+  readAt                  DateTime?
+  acknowledgedAt          DateTime?
+  rejectedAt              DateTime?
+  clearedAt               DateTime?
+  createdAt               DateTime  @default(now())
+  updatedAt               DateTime  @default(now()) @updatedAt
+  recipient               User      @relation("NotificationRecipient", fields: [recipientUserId], references: [id], onDelete: Cascade)
+  actor                   User?     @relation("NotificationActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+
+  @@index([recipientUserId, clearedAt, readAt, acknowledgedAt, createdAt])
+  @@index([type])
+}

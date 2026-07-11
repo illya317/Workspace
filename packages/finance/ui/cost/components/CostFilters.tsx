@@ -1,0 +1,60 @@
+"use client";
+
+import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import type { CostFiltersState } from "../types";
+
+interface Props {
+  filters: CostFiltersState;
+  onChange: (filters: CostFiltersState) => void;
+}
+
+export function useCostFilterToolbarItems({ filters, onChange }: Props) {
+  const update = (key: keyof CostFiltersState, value: string | number | undefined) => {
+    onChange({ ...filters, [key]: value });
+  };
+
+  const years = [2026, 2025, 2024];
+  const months = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+
+  const items: SurfaceToolbarItems = [
+    {
+      kind: "select",
+      key: "year",
+      label: "年份",
+      value: filters.year == null ? "" : String(filters.year),
+      onChange: (nextValue) => update("year", nextValue ? parseInt(nextValue) : undefined),
+      placeholder: "全部",
+      options: years.map((y) => ({ value: String(y), label: String(y) })),
+    },
+    {
+      kind: "select",
+      key: "month",
+      label: "月份",
+      value: filters.month == null ? "" : String(filters.month),
+      onChange: (nextValue) => update("month", nextValue ? parseInt(nextValue) : undefined),
+      placeholder: "全部",
+      options: months.map((m) => ({ value: String(m), label: `${m}月` })),
+    },
+    {
+      kind: "search",
+      key: "product",
+      value: filters.productName,
+      onChange: (value) => update("productName", value),
+      placeholder: "产品名称",
+    },
+    {
+      kind: "search",
+      key: "customer",
+      value: filters.customerName,
+      onChange: (value) => update("customerName", value),
+      placeholder: "客户名称",
+    },
+  ];
+
+  return items;
+}
+
+export default function CostFilters(props: Props) {
+  useCostFilterToolbarItems(props);
+  return null;
+}

@@ -1,0 +1,59 @@
+import type { ModuleDef, ModuleRegistration, SubModuleDef } from "@workspace/core";
+import type { SessionUser } from "./types";
+import { moduleIcons } from "./icons";
+import { workspacePackages } from "./modules";
+
+function toModuleDef(moduleDef: ModuleRegistration): ModuleDef {
+  return {
+    ...moduleDef,
+    icon: moduleIcons[moduleDef.iconKey],
+    children: moduleDef.children?.filter((child) => child.enabled !== false && !child.hidden) as SubModuleDef[] | undefined,
+  };
+}
+
+export const MODULES: ModuleDef[] = workspacePackages
+  .map((pkg) => pkg.moduleDef)
+  .filter((moduleDef): moduleDef is ModuleRegistration => Boolean(moduleDef))
+  .filter((moduleDef) => moduleDef.presentation !== "headless")
+  .filter((moduleDef) => moduleDef.enabled !== false && !moduleDef.hidden)
+  .map(toModuleDef);
+
+function isResourceVisible(user: SessionUser, resourceKey?: string, moduleKey?: string): boolean {
+  void moduleKey;
+  if (resourceKey) {
+    return (user.visibleResourceKeys || []).includes(resourceKey);
+  }
+  return true;
+}
+
+export function getAccessibleModules(user: SessionUser): ModuleDef[] {
+  return MODULES.flatMap((m) => {
+    const children = m.children?.filter((c) => isResourceVisible(user, c.resourceKey, m.key));
+    const moduleVisible = isResourceVisible(user, m.resourceKey, m.key);
+    if (!moduleVisible && !children?.length) return [];
+    return [{ ...m, children }];
+  });
+}
+
+export function getSubModules(user: SessionUser, moduleKey: string): SubModuleDef[] {
+  const mod = MODULES.find((m) => m.key === moduleKey);
+  if (!mod?.children) return [];
+  return mod.children.filter((c) => isResourceVisible(user, c.resourceKey, mod.key));
+}
+
+export function getModuleEmptyMessage(module: Pick<ModuleDef, "label">): string {
+  return `${module.label}模块开发中...`;
+}
+
+if (typeof window === "undefined") {
+  for (const m of MODULES) {
+    if (!m.resourceKey && m.key !== "settings") {
+      console.error(`[module-nav] ${m.key}: 缺少 resourceKey，将全员可见`);
+    }
+    for (const c of m.children || []) {
+      if (!c.resourceKey) console.error(`[module-nav] ${m.key}.${c.key}: 缺少 resourceKey，将全员可见`);
+    }
+  }
+}
+
+export type { ModuleDef, SubModuleDef };

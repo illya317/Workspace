@@ -1,0 +1,14 @@
+import { z } from "zod";
+
+import { executeEmployeeAccountSearchCommand } from "@workspace/hr/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";import { okCommand } from "@workspace/platform/server/domain-validation";
+
+const employeeSearchQuerySchema = z.object({
+  q: z.string().catch("").transform((value) => value.trim()),
+});
+
+export const GET = createCommandRoute({
+  querySchema: employeeSearchQuerySchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeEmployeeAccountSearchCommand,
+});

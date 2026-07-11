@@ -1,0 +1,26 @@
+import { z } from "zod";
+
+import {
+  buildWorkTaskSubmissionActionRouteCommand,
+  executeCommentWorkTaskSubmissionRouteCommand,
+} from "@workspace/work/server";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+
+const actionBodySchema = z.object({
+  comment: z.string().nullable().optional(),
+  version: z.coerce.number().nullable().optional(),
+});
+
+export const POST = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "审批单 ID 无效",
+  bodySchema: actionBodySchema,
+  bodyError: "评论参数无效",
+  buildCommand: ({ params, body, user }) => buildWorkTaskSubmissionActionRouteCommand({
+    userId: user.userId,
+    requestId: params.id,
+    body,
+  }),
+  action: executeCommentWorkTaskSubmissionRouteCommand,
+});

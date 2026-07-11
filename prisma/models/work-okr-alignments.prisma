@@ -1,0 +1,20 @@
+/// OKR 计划包对齐来源（事实表，来源于工作计划手工维护）
+model WorkPlanAlignment {
+  id               Int       @id @default(autoincrement())
+  childPlanId      Int
+  sourceType       String
+  sourcePlanId     Int?
+  sourceWorkItemId Int?
+  relationKind     String    @default("decompose")
+  note             String    @default("")
+  sortOrder        Int       @default(0)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @default(now()) @updatedAt
+  childPlan        WorkPlan  @relation("WorkPlanAlignmentChildPlan", fields: [childPlanId], references: [id], onDelete: Cascade)
+  sourcePlan       WorkPlan? @relation("WorkPlanAlignmentSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  sourceWorkItem   WorkItem? @relation("WorkPlanAlignmentSourceItem", fields: [sourceWorkItemId], references: [id], onDelete: SetNull)
+
+  @@index([childPlanId, relationKind, sortOrder])
+  @@index([sourceType, sourcePlanId])
+  @@index([sourceType, sourceWorkItemId])
+}
