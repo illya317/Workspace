@@ -20,6 +20,7 @@ REMOTE_AGENT_SOURCE_BRANCH="${REMOTE_AGENT_SOURCE_BRANCH:-${AGENT_SOURCE_BRANCH:
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-20}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
+INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
 REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
@@ -339,6 +340,7 @@ replacements = {
     'DATABASE_URL': '\"file:$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db\"',
     'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
     'AGENT_SOURCE_WORKTREE': '$REMOTE_AGENT_SOURCE_DIR',
+    'LIBRARY_SOURCE_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals',
     'LIBRARY_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library',
 }
 for key, value in replacements.items():
@@ -361,10 +363,29 @@ sync_remote_library_source() {
     echo "[错误] LIBRARY_SYNC_SOURCE 不是可读目录: $LIBRARY_SYNC_SOURCE"
     exit 1
   fi
-  echo "==> 同步资料库源文件到服务器持久化目录..."
+  echo "==> 同步资料库源文件到服务器只读导入目录..."
+  ssh_cmd "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals'"
   rsync -az --checksum --exclude='.versions/' \
     -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
-    "$LIBRARY_SYNC_SOURCE/" "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/library/"
+    "$LIBRARY_SYNC_SOURCE/" "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/library/originals/"
+}
+
+ensure_remote_library_runtime_deps() {
+  if [ "$INSTALL_LIBRARY_RUNTIME_DEPS" != "1" ]; then
+    echo "==> 跳过服务器 OCR/PDF 依赖安装（INSTALL_LIBRARY_RUNTIME_DEPS=$INSTALL_LIBRARY_RUNTIME_DEPS）"
+    return
+  fi
+
+  local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/library-worker"
+  echo "==> 同步并安装服务器 OCR/PDF 依赖..."
+  ssh_cmd "mkdir -p '$remote_tool_dir'"
+  rsync -az -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+    ops/install-library-runtime-deps.sh \
+    ops/install-library-embedding-model.sh \
+    ops/library-worker-requirements.txt \
+    ops/library-runtime-smoke.py \
+    "$SERVER:$remote_tool_dir/"
+  ssh_cmd "chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py' && '$remote_tool_dir/install-library-runtime-deps.sh' --server && '$remote_tool_dir/install-library-embedding-model.sh'"
 }
 
 sync_remote_agent_source() {
@@ -400,6 +421,7 @@ validate_remote_runtime() {
     grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^AGENT_SOURCE_WORKTREE=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     test -d '$REMOTE_AGENT_SOURCE_DIR/.git'
     python3 - <<'PY'
@@ -417,6 +439,7 @@ for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
 workspace = env.get('WORKSPACE_CONFIG_DIR', '')
 database = env.get('DATABASE_URL', '')
 agent_source = env.get('AGENT_SOURCE_WORKTREE', '')
+library_source_root = env.get('LIBRARY_SOURCE_ROOT', '')
 library_root = env.get('LIBRARY_ROOT', '')
 if not workspace:
     sys.exit('WORKSPACE_CONFIG_DIR missing from remote .env')
@@ -434,6 +457,11 @@ if not os.path.isabs(library_root):
     sys.exit(f'LIBRARY_ROOT must be absolute: {library_root}')
 if not library_root.startswith(os.path.join(workspace, 'library') + os.sep) and library_root != os.path.join(workspace, 'library'):
     sys.exit(f'LIBRARY_ROOT must live under WORKSPACE_CONFIG_DIR/library: {library_root}')
+if not os.path.isabs(library_source_root):
+    sys.exit(f'LIBRARY_SOURCE_ROOT must be absolute: {library_source_root}')
+expected_library_source = os.path.join(workspace, 'library', 'originals')
+if library_source_root != expected_library_source:
+    sys.exit(f'LIBRARY_SOURCE_ROOT must equal WORKSPACE_CONFIG_DIR/library/originals: {library_source_root}')
 if not agent_source:
     sys.exit('AGENT_SOURCE_WORKTREE missing from remote .env')
 if not os.path.isabs(agent_source):
@@ -681,6 +709,7 @@ echo "==> 验证服务器连接..."
 ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
 
 prepare_remote_runtime
+ensure_remote_library_runtime_deps
 sync_remote_library_source
 sync_remote_agent_source
 validate_remote_runtime

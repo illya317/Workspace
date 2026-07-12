@@ -4,6 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import type { LibraryMetadataUpdateInput } from "../schemas";
+import { canonicalizeLibraryTagNames } from "./tag-taxonomy";
 
 export interface UpdateDocumentMetadataCommand {
   id: number;
@@ -16,6 +17,11 @@ export interface SetDocumentLifecycleCommand {
   id: number;
   userId: number;
   status: "active" | "archived";
+}
+
+export interface DeleteLibraryDocumentCommand {
+  id: number;
+  userId: number;
 }
 
 function positiveInt(value: number, field: string) {
@@ -42,15 +48,16 @@ export function buildUpdateDocumentMetadataCommand(
   if (input.summary !== undefined) data.summary = input.summary;
   if (input.categoryCode !== undefined) data.categoryCode = input.categoryCode;
   if (input.categoryName !== undefined) data.categoryName = input.categoryName;
+  if (input.directoryPath !== undefined) data.directoryPath = input.directoryPath;
   if (input.subcategoryPath !== undefined) data.subcategoryPath = input.subcategoryPath;
   if (input.confidentialityLevel !== undefined) data.confidentialityLevel = input.confidentialityLevel;
 
   const tags = input.tags === undefined
     ? undefined
-    : [...new Set(input.tags.map((tag) => tag.trim()).filter(Boolean))];
+    : canonicalizeLibraryTagNames(input.tags);
 
   if (Object.keys(data).length === 0 && tags === undefined) {
-    return failCommand("At least one metadata field is required", 400);
+    return failCommand("至少需要修改一个资料字段", 400);
   }
 
   return okCommand({ id: validId.data, userId: validUserId.data, data, tags });
@@ -70,4 +77,15 @@ export function buildSetDocumentLifecycleCommand(
     userId: validUserId.data,
     status: archived ? "archived" : "active",
   });
+}
+
+export function buildDeleteLibraryDocumentCommand(
+  id: number,
+  userId: number,
+): DomainValidationResult<DeleteLibraryDocumentCommand> {
+  const validId = positiveInt(id, "id");
+  if (!validId.ok) return validId;
+  const validUserId = positiveInt(userId, "userId");
+  if (!validUserId.ok) return validUserId;
+  return okCommand({ id: validId.data, userId: validUserId.data });
 }

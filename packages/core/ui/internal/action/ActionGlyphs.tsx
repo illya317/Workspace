@@ -75,14 +75,16 @@ export const ACTION_GLYPH_GROUPS = [
   { key: "edit", label: "编辑保存", representative: "edit", kinds: ["edit", "revise", "withdraw", "save"] },
   { key: "confirm", label: "确认状态", representative: "check", kinds: ["check", "double-check", "approve", "reject", "verified", "cancel", "x"] },
   { key: "delete", label: "删除", representative: "delete-bin", kinds: ["delete", "delete-bin", "delete-minus"] },
-  { key: "view", label: "查看显示", representative: "view", kinds: ["view", "eye-off", "back", "list", "tree-expand", "tree-collapse", "panel-open", "panel-close"] },
+  { key: "navigation", label: "页面导航", representative: "back", kinds: ["back"] },
+  { key: "view", label: "查看显示", representative: "view", kinds: ["view", "eye-off", "list", "tree-expand", "tree-collapse", "panel-open", "panel-close"] },
   { key: "filter", label: "搜索筛选", representative: "search", kinds: ["search", "filter", "sort"] },
   { key: "refresh", label: "刷新恢复", representative: "refresh", kinds: ["refresh", "reset", "history"] },
   { key: "transfer", label: "传输归档", representative: "download", kinds: ["download", "upload", "archive", "restore"] },
   { key: "relation", label: "关联复制", representative: "link", kinds: ["link", "unlink", "share", "copy"] },
   { key: "system", label: "系统权限", representative: "settings", kinds: ["settings", "lock", "unlock", "permission-organization", "permission-derived"] },
   { key: "output", label: "生成打印", representative: "generate", kinds: ["generate", "print", "reclass"] },
-  { key: "more", label: "更多", representative: "more", kinds: ["more", "assistant"] },
+  { key: "more", label: "更多", representative: "more", kinds: ["more"] },
+  { key: "assistant", label: "智能助手", representative: "assistant", kinds: ["assistant"] },
 ] as const satisfies readonly ActionGlyphGroup[];
 
 export type ActionGlyphGroupKey = (typeof ACTION_GLYPH_GROUPS)[number]["key"];
@@ -97,8 +99,8 @@ export interface ActionGlyphToolbarGroup {
 
 export const ACTION_GLYPH_TOOLBAR_GROUPS = [
   { key: "primary", label: "核心操作", groupKeys: ["create", "input", "edit", "confirm", "delete"] },
-  { key: "browse", label: "浏览筛选", groupKeys: ["view", "filter", "refresh"] },
-  { key: "extended", label: "扩展动作", groupKeys: ["transfer", "relation", "system", "output", "more"] },
+  { key: "browse", label: "浏览筛选", groupKeys: ["navigation", "view", "filter", "refresh"] },
+  { key: "extended", label: "扩展动作", groupKeys: ["transfer", "relation", "system", "output", "more", "assistant"] },
 ] as const satisfies readonly ActionGlyphToolbarGroup[];
 
 export type ActionGlyphToolbarGroupKey = (typeof ACTION_GLYPH_TOOLBAR_GROUPS)[number]["key"];
@@ -131,7 +133,7 @@ export const ACTION_GLYPH_ORDER = [
 
   { icon: "view", group: "browse", subgroup: "view", order: 20000 },
   { icon: "eye-off", group: "browse", subgroup: "view", order: 20100 },
-  { icon: "back", group: "browse", subgroup: "view", order: 20150 },
+  { icon: "back", group: "browse", subgroup: "navigation", order: 20150 },
   { icon: "list", group: "browse", subgroup: "view", order: 20200 },
   { icon: "tree-expand", group: "browse", subgroup: "view", order: 20220 },
   { icon: "tree-collapse", group: "browse", subgroup: "view", order: 20240 },
@@ -161,7 +163,7 @@ export const ACTION_GLYPH_ORDER = [
   { icon: "generate", group: "extended", subgroup: "output", order: 33000 },
   { icon: "print", group: "extended", subgroup: "output", order: 33100 },
   { icon: "more", group: "extended", subgroup: "more", order: 34000 },
-  { icon: "assistant", group: "extended", subgroup: "more", order: 34100 },
+  { icon: "assistant", group: "extended", subgroup: "assistant", order: 34100 },
 ] as const satisfies readonly ActionGlyphOrderItem[];
 
 type ActionGlyphOrderDefinition = (typeof ACTION_GLYPH_ORDER)[number];

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type CSSProperties, type KeyboardEventHandler } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, type CSSProperties, type KeyboardEventHandler } from "react";
 import { getTextareaInputClassName } from "../form/FormStyles";
 import { joinClassNames } from "../common/card-utils";
 
@@ -8,6 +8,7 @@ export interface TextareaFieldProps {
   value?: string;
   onChange?: (value: string) => void;
   rows?: number;
+  autoGrow?: boolean;
   className?: string;
   autoFocus?: boolean;
   placeholder?: string;
@@ -28,6 +29,7 @@ export default function TextareaField({
   value = "",
   onChange,
   rows = 3,
+  autoGrow = false,
   className = "",
   autoFocus,
   placeholder,
@@ -44,6 +46,41 @@ export default function TextareaField({
   resize = "both",
 }: TextareaFieldProps) {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const resizeToContent = useCallback(() => {
+    const textarea = textareaRef.current;
+    if (!autoGrow || !textarea) return;
+
+    textarea.style.height = "auto";
+    const computedStyle = window.getComputedStyle(textarea);
+    const borderHeight = Number.parseFloat(computedStyle.borderTopWidth)
+      + Number.parseFloat(computedStyle.borderBottomWidth);
+    textarea.style.height = `${Math.ceil(textarea.scrollHeight + borderHeight)}px`;
+  }, [autoGrow]);
+
+  useLayoutEffect(() => {
+    resizeToContent();
+  }, [resizeToContent, value]);
+
+  useLayoutEffect(() => {
+    if (!autoGrow || !textareaRef.current) return;
+
+    const textarea = textareaRef.current;
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", resizeToContent);
+      return () => window.removeEventListener("resize", resizeToContent);
+    }
+
+    let observedWidth = textarea.getBoundingClientRect().width;
+    const resizeObserver = new ResizeObserver(([entry]) => {
+      const nextWidth = entry?.contentRect.width ?? 0;
+      if (nextWidth === observedWidth) return;
+      observedWidth = nextWidth;
+      resizeToContent();
+    });
+    resizeObserver.observe(textarea);
+    return () => resizeObserver.disconnect();
+  }, [autoGrow, resizeToContent]);
+
   useEffect(() => {
     if (!autoFocus || disabled || !textareaRef.current) return;
     textareaRef.current.focus({ preventScroll: true });
@@ -54,7 +91,13 @@ export default function TextareaField({
     : state === "info"
       ? "border-sky-200 focus:border-sky-500 focus:ring-sky-500 disabled:bg-sky-100/60"
       : "";
-  const resizeClass = resize === "vertical" ? "resize-y" : resize === "none" ? "resize-none" : "";
+  const resizeClass = autoGrow
+    ? "resize-none overflow-y-hidden"
+    : resize === "vertical"
+      ? "resize-y"
+      : resize === "none"
+        ? "resize-none"
+        : "";
   const semanticClassName = joinClassNames(fontClass, stateClass, resizeClass, className);
   return (
     <textarea

@@ -21,6 +21,7 @@ export const page_api_registry_entries = [
       { name: "format", description: "展示和输入格式：percent / currency / date / time / datetime。" },
       { name: "mask", description: "输入约束和格式；可编辑片段使用 mask.kind=editableSegment。" },
       { name: "validation", description: "必填、数值范围、日期上下限和格式校验；日期使用 minDate / maxDate。" },
+      { name: "autoGrow", description: "多行文本随内容和可用宽度自动增高，避免字段内部滚动。" },
     ],
     composes: ["CalendarDateInput", "CheckboxField", "ChoiceGroup", "FileField", "FkFieldInput", "PercentField", "RatingControl", "ReadOnlyField", "SearchableOptionInput", "SegmentedCodeInput", "SwitchField", "TagStringInput", "TextField", "TextareaField", "TimeField"],
   },

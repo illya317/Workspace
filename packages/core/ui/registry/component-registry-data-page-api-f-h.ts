@@ -24,6 +24,7 @@ export const page_api_registry_entries = [
         description: "文档正文类型。",
         children: [
           { name: "pages", description: "纸面页列表。" },
+          { name: "viewer", description: "内嵌文档阅读器宿主。" },
         ],
       },
       {
@@ -33,6 +34,14 @@ export const page_api_registry_entries = [
           { name: "items", description: "纸面页列表，承载 A4、fluid 或宽幅纸面内容。" },
           { name: "item.size", description: "页面尺寸：a4 / fluid / wide。" },
           { name: "item.content", description: "页面正文内容。" },
+        ],
+      },
+      {
+        name: "viewer",
+        description: "viewer 专属 payload。",
+        children: [
+          { name: "src", description: "可访问的文档阅读器地址或对象 URL。" },
+          { name: "title", description: "阅读器的无障碍标题。" },
         ],
       },
     ],

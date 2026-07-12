@@ -86,6 +86,8 @@ export type {
   DocumentSurfacePageSpec,
   DocumentSurfacePagesProps,
   DocumentSurfacePagesSpec,
+  DocumentSurfaceViewerProps,
+  DocumentSurfaceViewerSpec,
   DocumentSurfaceProps,
 } from "./DocumentSurface";
 export { default as SelectorSurface } from "./SelectorSurface";
@@ -96,6 +98,7 @@ export {
 } from "./selector-tree-expansion";
 export type { SelectorTreeNodeKey } from "./selector-tree-expansion";
 export type {
+  SelectorSurfaceInlineEditSpec,
   SelectorSurfaceProps,
   SelectorSurfaceStatusSpec,
   SelectorSurfaceStructuredTreeItemSpec,
@@ -253,6 +256,7 @@ export { ModuleCard, ModuleGridPage } from "./internal/common/Card";
 export type { ModuleCardColor, ModuleCardProps, ModuleGridPageProps } from "./internal/common/Card";
 export { default as InputSurface } from "./InputSurface";
 export { createInputOption } from "./InputSurface";
+export { compactFileNameForDisplay } from "./internal/input/FileField";
 export type {
   InputSurfaceProps,
   InputBooleanPresentation,

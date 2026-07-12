@@ -540,6 +540,8 @@ export type LibraryDocumentWhereInput = {
   currentVersion?: Prisma.XOR<Prisma.LibraryDocumentVersionNullableScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput> | null
   versions?: Prisma.LibraryDocumentVersionListRelationFilter
   tags?: Prisma.LibraryDocumentTagListRelationFilter
+  tagCandidates?: Prisma.LibraryTagCandidateListRelationFilter
+  metadataCandidates?: Prisma.LibraryMetadataCandidateListRelationFilter
   materialSelections?: Prisma.DueDiligenceMaterialSelectionListRelationFilter
 }
 
@@ -592,6 +594,8 @@ export type LibraryDocumentOrderByWithRelationInput = {
   currentVersion?: Prisma.LibraryDocumentVersionOrderByWithRelationInput
   versions?: Prisma.LibraryDocumentVersionOrderByRelationAggregateInput
   tags?: Prisma.LibraryDocumentTagOrderByRelationAggregateInput
+  tagCandidates?: Prisma.LibraryTagCandidateOrderByRelationAggregateInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateOrderByRelationAggregateInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionOrderByRelationAggregateInput
 }
 
@@ -647,6 +651,8 @@ export type LibraryDocumentWhereUniqueInput = Prisma.AtLeast<{
   currentVersion?: Prisma.XOR<Prisma.LibraryDocumentVersionNullableScalarRelationFilter, Prisma.LibraryDocumentVersionWhereInput> | null
   versions?: Prisma.LibraryDocumentVersionListRelationFilter
   tags?: Prisma.LibraryDocumentTagListRelationFilter
+  tagCandidates?: Prisma.LibraryTagCandidateListRelationFilter
+  metadataCandidates?: Prisma.LibraryMetadataCandidateListRelationFilter
   materialSelections?: Prisma.DueDiligenceMaterialSelectionListRelationFilter
 }, "id" | "documentUid" | "docId" | "stableKey" | "currentVersionId">
 
@@ -786,6 +792,8 @@ export type LibraryDocumentCreateInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -832,6 +840,8 @@ export type LibraryDocumentUncheckedCreateInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -877,6 +887,8 @@ export type LibraryDocumentUpdateInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -923,6 +935,8 @@ export type LibraryDocumentUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -1056,6 +1070,11 @@ export type LibraryDocumentListRelationFilter = {
 
 export type LibraryDocumentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type LibraryDocumentScalarRelationFilter = {
+  is?: Prisma.LibraryDocumentWhereInput
+  isNot?: Prisma.LibraryDocumentWhereInput
 }
 
 export type LibraryDocumentCountOrderByAggregateInput = {
@@ -1213,11 +1232,6 @@ export type LibraryDocumentSumOrderByAggregateInput = {
   version?: Prisma.SortOrder
 }
 
-export type LibraryDocumentScalarRelationFilter = {
-  is?: Prisma.LibraryDocumentWhereInput
-  isNot?: Prisma.LibraryDocumentWhereInput
-}
-
 export type LibraryDocumentNullableScalarRelationFilter = {
   is?: Prisma.LibraryDocumentWhereInput | null
   isNot?: Prisma.LibraryDocumentWhereInput | null
@@ -1347,6 +1361,34 @@ export type LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput = {
   update?: Prisma.LibraryDocumentUpdateWithWhereUniqueWithoutReviewerInput | Prisma.LibraryDocumentUpdateWithWhereUniqueWithoutReviewerInput[]
   updateMany?: Prisma.LibraryDocumentUpdateManyWithWhereWithoutReviewerInput | Prisma.LibraryDocumentUpdateManyWithWhereWithoutReviewerInput[]
   deleteMany?: Prisma.LibraryDocumentScalarWhereInput | Prisma.LibraryDocumentScalarWhereInput[]
+}
+
+export type LibraryDocumentCreateNestedOneWithoutTagCandidatesInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutTagCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentCreateOrConnectWithoutTagCandidatesInput
+  connect?: Prisma.LibraryDocumentWhereUniqueInput
+}
+
+export type LibraryDocumentUpdateOneRequiredWithoutTagCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutTagCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentCreateOrConnectWithoutTagCandidatesInput
+  upsert?: Prisma.LibraryDocumentUpsertWithoutTagCandidatesInput
+  connect?: Prisma.LibraryDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentUpdateToOneWithWhereWithoutTagCandidatesInput, Prisma.LibraryDocumentUpdateWithoutTagCandidatesInput>, Prisma.LibraryDocumentUncheckedUpdateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentCreateNestedOneWithoutMetadataCandidatesInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutMetadataCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentCreateOrConnectWithoutMetadataCandidatesInput
+  connect?: Prisma.LibraryDocumentWhereUniqueInput
+}
+
+export type LibraryDocumentUpdateOneRequiredWithoutMetadataCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutMetadataCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentCreateOrConnectWithoutMetadataCandidatesInput
+  upsert?: Prisma.LibraryDocumentUpsertWithoutMetadataCandidatesInput
+  connect?: Prisma.LibraryDocumentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentUpdateToOneWithWhereWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUpdateWithoutMetadataCandidatesInput>, Prisma.LibraryDocumentUncheckedUpdateWithoutMetadataCandidatesInput>
 }
 
 export type LibraryDocumentCreateNestedOneWithoutVersionsInput = {
@@ -1548,6 +1590,8 @@ export type LibraryDocumentCreateWithoutEditorInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -1593,6 +1637,8 @@ export type LibraryDocumentUncheckedCreateWithoutEditorInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -1646,6 +1692,8 @@ export type LibraryDocumentCreateWithoutOwnerInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -1691,6 +1739,8 @@ export type LibraryDocumentUncheckedCreateWithoutOwnerInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -1744,6 +1794,8 @@ export type LibraryDocumentCreateWithoutReviewerInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -1789,6 +1841,8 @@ export type LibraryDocumentUncheckedCreateWithoutReviewerInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -1895,6 +1949,410 @@ export type LibraryDocumentUpdateManyWithWhereWithoutReviewerInput = {
   data: Prisma.XOR<Prisma.LibraryDocumentUpdateManyMutationInput, Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerInput>
 }
 
+export type LibraryDocumentCreateWithoutTagCandidatesInput = {
+  documentUid?: string
+  docId: string
+  stableKey: string
+  rootKey?: string
+  relativePath: string
+  fileName: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  fileMtime?: Date | string | null
+  checksumSha256?: string | null
+  categoryCode?: string | null
+  categoryName?: string | null
+  subcategoryPath?: string | null
+  directoryPath?: string | null
+  title?: string | null
+  summary?: string | null
+  categorySource?: string
+  confidentialityLevel?: number
+  status?: string
+  origin?: string
+  generatorKey?: string | null
+  versionLabel?: string | null
+  asOfDate?: Date | string | null
+  reviewStatus?: string
+  reviewedAt?: Date | string | null
+  gitRepo?: string | null
+  gitCommit?: string | null
+  gitPath?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedLibraryDocumentsInput
+  owner?: Prisma.UserCreateNestedOneWithoutOwnedLibraryDocumentsInput
+  reviewer?: Prisma.UserCreateNestedOneWithoutReviewedLibraryDocumentsInput
+  category?: Prisma.LibraryCategoryCreateNestedOneWithoutDocumentsInput
+  currentDirectory?: Prisma.LibraryDirectoryCreateNestedOneWithoutDocumentsInput
+  currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
+  versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
+  tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
+}
+
+export type LibraryDocumentUncheckedCreateWithoutTagCandidatesInput = {
+  id?: number
+  documentUid?: string
+  docId: string
+  stableKey: string
+  rootKey?: string
+  relativePath: string
+  fileName: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  fileMtime?: Date | string | null
+  checksumSha256?: string | null
+  categoryCode?: string | null
+  categoryName?: string | null
+  subcategoryPath?: string | null
+  directoryPath?: string | null
+  title?: string | null
+  summary?: string | null
+  categoryId?: number | null
+  currentDirectoryId?: number | null
+  categorySource?: string
+  currentVersionId?: number | null
+  confidentialityLevel?: number
+  status?: string
+  origin?: string
+  generatorKey?: string | null
+  versionLabel?: string | null
+  ownerUserId?: number | null
+  asOfDate?: Date | string | null
+  reviewStatus?: string
+  reviewedAt?: Date | string | null
+  reviewedBy?: number | null
+  gitRepo?: string | null
+  gitCommit?: string | null
+  gitPath?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
+  tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
+}
+
+export type LibraryDocumentCreateOrConnectWithoutTagCandidatesInput = {
+  where: Prisma.LibraryDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentUpsertWithoutTagCandidatesInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentUpdateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedUpdateWithoutTagCandidatesInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutTagCandidatesInput>
+  where?: Prisma.LibraryDocumentWhereInput
+}
+
+export type LibraryDocumentUpdateToOneWithWhereWithoutTagCandidatesInput = {
+  where?: Prisma.LibraryDocumentWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentUpdateWithoutTagCandidatesInput, Prisma.LibraryDocumentUncheckedUpdateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentUpdateWithoutTagCandidatesInput = {
+  documentUid?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  stableKey?: Prisma.StringFieldUpdateOperationsInput | string
+  rootKey?: Prisma.StringFieldUpdateOperationsInput | string
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileMtime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categorySource?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generatorKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  asOfDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gitRepo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedLibraryDocumentsNestedInput
+  owner?: Prisma.UserUpdateOneWithoutOwnedLibraryDocumentsNestedInput
+  reviewer?: Prisma.UserUpdateOneWithoutReviewedLibraryDocumentsNestedInput
+  category?: Prisma.LibraryCategoryUpdateOneWithoutDocumentsNestedInput
+  currentDirectory?: Prisma.LibraryDirectoryUpdateOneWithoutDocumentsNestedInput
+  currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
+  versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
+  tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
+}
+
+export type LibraryDocumentUncheckedUpdateWithoutTagCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  documentUid?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  stableKey?: Prisma.StringFieldUpdateOperationsInput | string
+  rootKey?: Prisma.StringFieldUpdateOperationsInput | string
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileMtime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentDirectoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  categorySource?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generatorKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  asOfDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gitRepo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
+  tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
+}
+
+export type LibraryDocumentCreateWithoutMetadataCandidatesInput = {
+  documentUid?: string
+  docId: string
+  stableKey: string
+  rootKey?: string
+  relativePath: string
+  fileName: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  fileMtime?: Date | string | null
+  checksumSha256?: string | null
+  categoryCode?: string | null
+  categoryName?: string | null
+  subcategoryPath?: string | null
+  directoryPath?: string | null
+  title?: string | null
+  summary?: string | null
+  categorySource?: string
+  confidentialityLevel?: number
+  status?: string
+  origin?: string
+  generatorKey?: string | null
+  versionLabel?: string | null
+  asOfDate?: Date | string | null
+  reviewStatus?: string
+  reviewedAt?: Date | string | null
+  gitRepo?: string | null
+  gitCommit?: string | null
+  gitPath?: string | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  editor?: Prisma.UserCreateNestedOneWithoutEditedLibraryDocumentsInput
+  owner?: Prisma.UserCreateNestedOneWithoutOwnedLibraryDocumentsInput
+  reviewer?: Prisma.UserCreateNestedOneWithoutReviewedLibraryDocumentsInput
+  category?: Prisma.LibraryCategoryCreateNestedOneWithoutDocumentsInput
+  currentDirectory?: Prisma.LibraryDirectoryCreateNestedOneWithoutDocumentsInput
+  currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
+  versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
+  tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
+}
+
+export type LibraryDocumentUncheckedCreateWithoutMetadataCandidatesInput = {
+  id?: number
+  documentUid?: string
+  docId: string
+  stableKey: string
+  rootKey?: string
+  relativePath: string
+  fileName: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  fileMtime?: Date | string | null
+  checksumSha256?: string | null
+  categoryCode?: string | null
+  categoryName?: string | null
+  subcategoryPath?: string | null
+  directoryPath?: string | null
+  title?: string | null
+  summary?: string | null
+  categoryId?: number | null
+  currentDirectoryId?: number | null
+  categorySource?: string
+  currentVersionId?: number | null
+  confidentialityLevel?: number
+  status?: string
+  origin?: string
+  generatorKey?: string | null
+  versionLabel?: string | null
+  ownerUserId?: number | null
+  asOfDate?: Date | string | null
+  reviewStatus?: string
+  reviewedAt?: Date | string | null
+  reviewedBy?: number | null
+  gitRepo?: string | null
+  gitCommit?: string | null
+  gitPath?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
+  tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
+}
+
+export type LibraryDocumentCreateOrConnectWithoutMetadataCandidatesInput = {
+  where: Prisma.LibraryDocumentWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutMetadataCandidatesInput>
+}
+
+export type LibraryDocumentUpsertWithoutMetadataCandidatesInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentUpdateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedUpdateWithoutMetadataCandidatesInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedCreateWithoutMetadataCandidatesInput>
+  where?: Prisma.LibraryDocumentWhereInput
+}
+
+export type LibraryDocumentUpdateToOneWithWhereWithoutMetadataCandidatesInput = {
+  where?: Prisma.LibraryDocumentWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentUpdateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentUncheckedUpdateWithoutMetadataCandidatesInput>
+}
+
+export type LibraryDocumentUpdateWithoutMetadataCandidatesInput = {
+  documentUid?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  stableKey?: Prisma.StringFieldUpdateOperationsInput | string
+  rootKey?: Prisma.StringFieldUpdateOperationsInput | string
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileMtime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categorySource?: Prisma.StringFieldUpdateOperationsInput | string
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generatorKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  asOfDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  gitRepo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  editor?: Prisma.UserUpdateOneWithoutEditedLibraryDocumentsNestedInput
+  owner?: Prisma.UserUpdateOneWithoutOwnedLibraryDocumentsNestedInput
+  reviewer?: Prisma.UserUpdateOneWithoutReviewedLibraryDocumentsNestedInput
+  category?: Prisma.LibraryCategoryUpdateOneWithoutDocumentsNestedInput
+  currentDirectory?: Prisma.LibraryDirectoryUpdateOneWithoutDocumentsNestedInput
+  currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
+  versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
+  tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
+}
+
+export type LibraryDocumentUncheckedUpdateWithoutMetadataCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  documentUid?: Prisma.StringFieldUpdateOperationsInput | string
+  docId?: Prisma.StringFieldUpdateOperationsInput | string
+  stableKey?: Prisma.StringFieldUpdateOperationsInput | string
+  rootKey?: Prisma.StringFieldUpdateOperationsInput | string
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  fileMtime?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  subcategoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  directoryPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  title?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  summary?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  categoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  currentDirectoryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  categorySource?: Prisma.StringFieldUpdateOperationsInput | string
+  currentVersionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  confidentialityLevel?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generatorKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  ownerUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  asOfDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  gitRepo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitPath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
+  tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
+}
+
 export type LibraryDocumentCreateWithoutVersionsInput = {
   documentUid?: string
   docId: string
@@ -1936,6 +2394,8 @@ export type LibraryDocumentCreateWithoutVersionsInput = {
   currentDirectory?: Prisma.LibraryDirectoryCreateNestedOneWithoutDocumentsInput
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -1981,6 +2441,8 @@ export type LibraryDocumentUncheckedCreateWithoutVersionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -2030,6 +2492,8 @@ export type LibraryDocumentCreateWithoutCurrentVersionInput = {
   currentDirectory?: Prisma.LibraryDirectoryCreateNestedOneWithoutDocumentsInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -2075,6 +2539,8 @@ export type LibraryDocumentUncheckedCreateWithoutCurrentVersionInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -2135,6 +2601,8 @@ export type LibraryDocumentUpdateWithoutVersionsInput = {
   currentDirectory?: Prisma.LibraryDirectoryUpdateOneWithoutDocumentsNestedInput
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -2180,6 +2648,8 @@ export type LibraryDocumentUncheckedUpdateWithoutVersionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -2235,6 +2705,8 @@ export type LibraryDocumentUpdateWithoutCurrentVersionInput = {
   currentDirectory?: Prisma.LibraryDirectoryUpdateOneWithoutDocumentsNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -2280,6 +2752,8 @@ export type LibraryDocumentUncheckedUpdateWithoutCurrentVersionInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -2324,6 +2798,8 @@ export type LibraryDocumentCreateWithoutCategoryInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -2369,6 +2845,8 @@ export type LibraryDocumentUncheckedCreateWithoutCategoryInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -2438,6 +2916,8 @@ export type LibraryDocumentCreateWithoutCurrentDirectoryInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -2483,6 +2963,8 @@ export type LibraryDocumentUncheckedCreateWithoutCurrentDirectoryInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -2553,6 +3035,8 @@ export type LibraryDocumentCreateWithoutMaterialSelectionsInput = {
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
 }
 
 export type LibraryDocumentUncheckedCreateWithoutMaterialSelectionsInput = {
@@ -2598,6 +3082,8 @@ export type LibraryDocumentUncheckedCreateWithoutMaterialSelectionsInput = {
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
   tags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
 }
 
 export type LibraryDocumentCreateOrConnectWithoutMaterialSelectionsInput = {
@@ -2658,6 +3144,8 @@ export type LibraryDocumentUpdateWithoutMaterialSelectionsInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
 }
 
 export type LibraryDocumentUncheckedUpdateWithoutMaterialSelectionsInput = {
@@ -2703,6 +3191,8 @@ export type LibraryDocumentUncheckedUpdateWithoutMaterialSelectionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
 export type LibraryDocumentCreateWithoutTagsInput = {
@@ -2746,6 +3236,8 @@ export type LibraryDocumentCreateWithoutTagsInput = {
   currentDirectory?: Prisma.LibraryDirectoryCreateNestedOneWithoutDocumentsInput
   currentVersion?: Prisma.LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput
   versions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentInput
 }
 
@@ -2791,6 +3283,8 @@ export type LibraryDocumentUncheckedCreateWithoutTagsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutDocumentInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutDocumentInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutDocumentInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentInput
 }
 
@@ -2851,6 +3345,8 @@ export type LibraryDocumentUpdateWithoutTagsInput = {
   currentDirectory?: Prisma.LibraryDirectoryUpdateOneWithoutDocumentsNestedInput
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -2896,6 +3392,8 @@ export type LibraryDocumentUncheckedUpdateWithoutTagsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3066,6 +3564,8 @@ export type LibraryDocumentUpdateWithoutEditorInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3111,6 +3611,8 @@ export type LibraryDocumentUncheckedUpdateWithoutEditorInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3197,6 +3699,8 @@ export type LibraryDocumentUpdateWithoutOwnerInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3242,6 +3746,8 @@ export type LibraryDocumentUncheckedUpdateWithoutOwnerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3328,6 +3834,8 @@ export type LibraryDocumentUpdateWithoutReviewerInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3373,6 +3881,8 @@ export type LibraryDocumentUncheckedUpdateWithoutReviewerInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3501,6 +4011,8 @@ export type LibraryDocumentUpdateWithoutCategoryInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3546,6 +4058,8 @@ export type LibraryDocumentUncheckedUpdateWithoutCategoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3674,6 +4188,8 @@ export type LibraryDocumentUpdateWithoutCurrentDirectoryInput = {
   currentVersion?: Prisma.LibraryDocumentVersionUpdateOneWithoutCurrentForDocumentNestedInput
   versions?: Prisma.LibraryDocumentVersionUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3719,6 +4235,8 @@ export type LibraryDocumentUncheckedUpdateWithoutCurrentDirectoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   versions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentNestedInput
   tags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutDocumentNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutDocumentNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutDocumentNestedInput
   materialSelections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentNestedInput
 }
 
@@ -3772,12 +4290,16 @@ export type LibraryDocumentUncheckedUpdateManyWithoutCurrentDirectoryInput = {
 export type LibraryDocumentCountOutputType = {
   versions: number
   tags: number
+  tagCandidates: number
+  metadataCandidates: number
   materialSelections: number
 }
 
 export type LibraryDocumentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   versions?: boolean | LibraryDocumentCountOutputTypeCountVersionsArgs
   tags?: boolean | LibraryDocumentCountOutputTypeCountTagsArgs
+  tagCandidates?: boolean | LibraryDocumentCountOutputTypeCountTagCandidatesArgs
+  metadataCandidates?: boolean | LibraryDocumentCountOutputTypeCountMetadataCandidatesArgs
   materialSelections?: boolean | LibraryDocumentCountOutputTypeCountMaterialSelectionsArgs
 }
 
@@ -3803,6 +4325,20 @@ export type LibraryDocumentCountOutputTypeCountVersionsArgs<ExtArgs extends runt
  */
 export type LibraryDocumentCountOutputTypeCountTagsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LibraryDocumentTagWhereInput
+}
+
+/**
+ * LibraryDocumentCountOutputType without action
+ */
+export type LibraryDocumentCountOutputTypeCountTagCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryTagCandidateWhereInput
+}
+
+/**
+ * LibraryDocumentCountOutputType without action
+ */
+export type LibraryDocumentCountOutputTypeCountMetadataCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryMetadataCandidateWhereInput
 }
 
 /**
@@ -3862,6 +4398,8 @@ export type LibraryDocumentSelect<ExtArgs extends runtime.Types.Extensions.Inter
   currentVersion?: boolean | Prisma.LibraryDocument$currentVersionArgs<ExtArgs>
   versions?: boolean | Prisma.LibraryDocument$versionsArgs<ExtArgs>
   tags?: boolean | Prisma.LibraryDocument$tagsArgs<ExtArgs>
+  tagCandidates?: boolean | Prisma.LibraryDocument$tagCandidatesArgs<ExtArgs>
+  metadataCandidates?: boolean | Prisma.LibraryDocument$metadataCandidatesArgs<ExtArgs>
   materialSelections?: boolean | Prisma.LibraryDocument$materialSelectionsArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["libraryDocument"]>
@@ -4017,6 +4555,8 @@ export type LibraryDocumentInclude<ExtArgs extends runtime.Types.Extensions.Inte
   currentVersion?: boolean | Prisma.LibraryDocument$currentVersionArgs<ExtArgs>
   versions?: boolean | Prisma.LibraryDocument$versionsArgs<ExtArgs>
   tags?: boolean | Prisma.LibraryDocument$tagsArgs<ExtArgs>
+  tagCandidates?: boolean | Prisma.LibraryDocument$tagCandidatesArgs<ExtArgs>
+  metadataCandidates?: boolean | Prisma.LibraryDocument$metadataCandidatesArgs<ExtArgs>
   materialSelections?: boolean | Prisma.LibraryDocument$materialSelectionsArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryDocumentCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -4048,6 +4588,8 @@ export type $LibraryDocumentPayload<ExtArgs extends runtime.Types.Extensions.Int
     currentVersion: Prisma.$LibraryDocumentVersionPayload<ExtArgs> | null
     versions: Prisma.$LibraryDocumentVersionPayload<ExtArgs>[]
     tags: Prisma.$LibraryDocumentTagPayload<ExtArgs>[]
+    tagCandidates: Prisma.$LibraryTagCandidatePayload<ExtArgs>[]
+    metadataCandidates: Prisma.$LibraryMetadataCandidatePayload<ExtArgs>[]
     materialSelections: Prisma.$DueDiligenceMaterialSelectionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -4493,6 +5035,8 @@ export interface Prisma__LibraryDocumentClient<T, Null = never, ExtArgs extends 
   currentVersion<T extends Prisma.LibraryDocument$currentVersionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$currentVersionArgs<ExtArgs>>): Prisma.Prisma__LibraryDocumentVersionClient<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentVersionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   versions<T extends Prisma.LibraryDocument$versionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$versionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   tags<T extends Prisma.LibraryDocument$tagsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$tagsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tagCandidates<T extends Prisma.LibraryDocument$tagCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$tagCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryTagCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  metadataCandidates<T extends Prisma.LibraryDocument$metadataCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$metadataCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryMetadataCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   materialSelections<T extends Prisma.LibraryDocument$materialSelectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocument$materialSelectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DueDiligenceMaterialSelectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -5121,6 +5665,54 @@ export type LibraryDocument$tagsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.LibraryDocumentTagScalarFieldEnum | Prisma.LibraryDocumentTagScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocument.tagCandidates
+ */
+export type LibraryDocument$tagCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryTagCandidate
+   */
+  select?: Prisma.LibraryTagCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryTagCandidate
+   */
+  omit?: Prisma.LibraryTagCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryTagCandidateInclude<ExtArgs> | null
+  where?: Prisma.LibraryTagCandidateWhereInput
+  orderBy?: Prisma.LibraryTagCandidateOrderByWithRelationInput | Prisma.LibraryTagCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryTagCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryTagCandidateScalarFieldEnum | Prisma.LibraryTagCandidateScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocument.metadataCandidates
+ */
+export type LibraryDocument$metadataCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryMetadataCandidate
+   */
+  select?: Prisma.LibraryMetadataCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryMetadataCandidate
+   */
+  omit?: Prisma.LibraryMetadataCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryMetadataCandidateInclude<ExtArgs> | null
+  where?: Prisma.LibraryMetadataCandidateWhereInput
+  orderBy?: Prisma.LibraryMetadataCandidateOrderByWithRelationInput | Prisma.LibraryMetadataCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryMetadataCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryMetadataCandidateScalarFieldEnum | Prisma.LibraryMetadataCandidateScalarFieldEnum[]
 }
 
 /**

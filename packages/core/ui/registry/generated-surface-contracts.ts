@@ -2070,49 +2070,71 @@ export const generatedCoreUiSurfaceContracts = {
           children: [
             {
               name: "document",
-              description: "类型：DocumentSurfacePagesProps。",
+              description: "类型：DocumentSurfaceProps。",
               children: [
                 {
-                  name: "pages",
-                  description: "类型：DocumentSurfacePagesSpec。",
+                  name: "kind",
+                  description: "可选值：pages / viewer。",
                   children: [
                     {
-                      name: "items",
-                      description: "类型：DocumentSurfacePageSpec[]。",
+                      name: "pages",
+                      description: "pages 分支声明。",
                       children: [
                         {
-                          name: "key",
-                          description: "类型：string。",
-                        },
-                        {
-                          name: "size",
-                          description: "可选值：a4 / fluid / wide。",
+                          name: "pages",
+                          description: "类型：DocumentSurfacePagesSpec。",
                           children: [
                             {
-                              name: "a4",
-                              description: "字面量取值。",
-                            },
-                            {
-                              name: "fluid",
-                              description: "字面量取值。",
-                            },
-                            {
-                              name: "wide",
-                              description: "字面量取值。",
+                              name: "items",
+                              description: "类型：DocumentSurfacePageSpec[]。",
+                              children: [
+                                {
+                                  name: "key",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "size",
+                                  description: "可选值：a4 / fluid / wide。",
+                                  children: [
+                                    {
+                                      name: "a4",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "fluid",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "wide",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                              ],
                             },
                           ],
                         },
                       ],
                     },
-                  ],
-                },
-                {
-                  name: "kind",
-                  description: "可选值：pages。",
-                  children: [
                     {
-                      name: "pages",
-                      description: "pages 分支声明。",
+                      name: "viewer",
+                      description: "viewer 分支声明。",
+                      children: [
+                        {
+                          name: "viewer",
+                          description: "类型：DocumentSurfaceViewerSpec。",
+                          children: [
+                            {
+                              name: "src",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "title",
+                              description: "类型：string。",
+                            },
+                          ],
+                        },
+                      ],
                     },
                   ],
                 },
@@ -2721,6 +2743,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       description: "字面量取值。",
                                     },
                                   ],
+                                },
+                                {
+                                  name: "autoGrow",
+                                  description: "类型：boolean。",
                                 },
                                 {
                                   name: "minLength",
@@ -4619,6 +4645,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "字面量取值。",
                                             },
                                           ],
+                                        },
+                                        {
+                                          name: "autoGrow",
+                                          description: "类型：boolean。",
                                         },
                                         {
                                           name: "minLength",
@@ -7069,6 +7099,10 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "引用 BodySurfaceSectionSpec 声明。",
                 },
                 {
+                  name: "actions",
+                  description: "类型：BodySurfaceCommandSpec[]。",
+                },
+                {
                   name: "pagination",
                   description: "类型：SurfacePaginationSpec。",
                   children: [
@@ -8141,6 +8175,10 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "sections",
                   description: "引用 BodySurfaceSectionSpec 声明。",
+                },
+                {
+                  name: "actions",
+                  description: "类型：BodySurfaceCommandSpec[]。",
                 },
                 {
                   name: "pagination",
@@ -10264,49 +10302,71 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "document",
-                          description: "类型：DocumentSurfacePagesProps。",
+                          description: "类型：DocumentSurfaceProps。",
                           children: [
                             {
-                              name: "pages",
-                              description: "类型：DocumentSurfacePagesSpec。",
+                              name: "kind",
+                              description: "可选值：pages / viewer。",
                               children: [
                                 {
-                                  name: "items",
-                                  description: "类型：DocumentSurfacePageSpec[]。",
+                                  name: "pages",
+                                  description: "pages 分支声明。",
                                   children: [
                                     {
-                                      name: "key",
-                                      description: "类型：string。",
-                                    },
-                                    {
-                                      name: "size",
-                                      description: "可选值：a4 / fluid / wide。",
+                                      name: "pages",
+                                      description: "类型：DocumentSurfacePagesSpec。",
                                       children: [
                                         {
-                                          name: "a4",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "fluid",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "wide",
-                                          description: "字面量取值。",
+                                          name: "items",
+                                          description: "类型：DocumentSurfacePageSpec[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "size",
+                                              description: "可选值：a4 / fluid / wide。",
+                                              children: [
+                                                {
+                                                  name: "a4",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "fluid",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wide",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
                                   ],
                                 },
-                              ],
-                            },
-                            {
-                              name: "kind",
-                              description: "可选值：pages。",
-                              children: [
                                 {
-                                  name: "pages",
-                                  description: "pages 分支声明。",
+                                  name: "viewer",
+                                  description: "viewer 分支声明。",
+                                  children: [
+                                    {
+                                      name: "viewer",
+                                      description: "类型：DocumentSurfaceViewerSpec。",
+                                      children: [
+                                        {
+                                          name: "src",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "title",
+                                          description: "类型：string。",
+                                        },
+                                      ],
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -10915,6 +10975,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
+                                            },
+                                            {
+                                              name: "autoGrow",
+                                              description: "类型：boolean。",
                                             },
                                             {
                                               name: "minLength",
@@ -12813,6 +12877,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "autoGrow",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "minLength",
@@ -15263,6 +15331,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -16337,6 +16409,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -16565,6 +16641,52 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "actions",
                                       description: "类型：SelectorSurfaceCommandSpec[]。",
+                                    },
+                                    {
+                                      name: "inlineEdit",
+                                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                                      children: [
+                                        {
+                                          name: "value",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(value: string) => void。",
+                                        },
+                                        {
+                                          name: "onSave",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "onCancel",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "dirty",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "saving",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "placeholder",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "maxLength",
+                                          description: "类型：number。",
+                                        },
+                                        {
+                                          name: "ariaLabel",
+                                          description: "类型：string。",
+                                        },
+                                      ],
                                     },
                                     {
                                       name: "status",
@@ -19776,49 +19898,71 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "document",
-                          description: "类型：DocumentSurfacePagesProps。",
+                          description: "类型：DocumentSurfaceProps。",
                           children: [
                             {
-                              name: "pages",
-                              description: "类型：DocumentSurfacePagesSpec。",
+                              name: "kind",
+                              description: "可选值：pages / viewer。",
                               children: [
                                 {
-                                  name: "items",
-                                  description: "类型：DocumentSurfacePageSpec[]。",
+                                  name: "pages",
+                                  description: "pages 分支声明。",
                                   children: [
                                     {
-                                      name: "key",
-                                      description: "类型：string。",
-                                    },
-                                    {
-                                      name: "size",
-                                      description: "可选值：a4 / fluid / wide。",
+                                      name: "pages",
+                                      description: "类型：DocumentSurfacePagesSpec。",
                                       children: [
                                         {
-                                          name: "a4",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "fluid",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "wide",
-                                          description: "字面量取值。",
+                                          name: "items",
+                                          description: "类型：DocumentSurfacePageSpec[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "size",
+                                              description: "可选值：a4 / fluid / wide。",
+                                              children: [
+                                                {
+                                                  name: "a4",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "fluid",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wide",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
                                   ],
                                 },
-                              ],
-                            },
-                            {
-                              name: "kind",
-                              description: "可选值：pages。",
-                              children: [
                                 {
-                                  name: "pages",
-                                  description: "pages 分支声明。",
+                                  name: "viewer",
+                                  description: "viewer 分支声明。",
+                                  children: [
+                                    {
+                                      name: "viewer",
+                                      description: "类型：DocumentSurfaceViewerSpec。",
+                                      children: [
+                                        {
+                                          name: "src",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "title",
+                                          description: "类型：string。",
+                                        },
+                                      ],
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -20427,6 +20571,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
+                                            },
+                                            {
+                                              name: "autoGrow",
+                                              description: "类型：boolean。",
                                             },
                                             {
                                               name: "minLength",
@@ -22325,6 +22473,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "autoGrow",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "minLength",
@@ -24775,6 +24927,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -25849,6 +26005,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -26077,6 +26237,52 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "actions",
                                       description: "类型：SelectorSurfaceCommandSpec[]。",
+                                    },
+                                    {
+                                      name: "inlineEdit",
+                                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                                      children: [
+                                        {
+                                          name: "value",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(value: string) => void。",
+                                        },
+                                        {
+                                          name: "onSave",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "onCancel",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "dirty",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "saving",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "placeholder",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "maxLength",
+                                          description: "类型：number。",
+                                        },
+                                        {
+                                          name: "ariaLabel",
+                                          description: "类型：string。",
+                                        },
+                                      ],
                                     },
                                     {
                                       name: "status",
@@ -29288,49 +29494,71 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "document",
-                          description: "类型：DocumentSurfacePagesProps。",
+                          description: "类型：DocumentSurfaceProps。",
                           children: [
                             {
-                              name: "pages",
-                              description: "类型：DocumentSurfacePagesSpec。",
+                              name: "kind",
+                              description: "可选值：pages / viewer。",
                               children: [
                                 {
-                                  name: "items",
-                                  description: "类型：DocumentSurfacePageSpec[]。",
+                                  name: "pages",
+                                  description: "pages 分支声明。",
                                   children: [
                                     {
-                                      name: "key",
-                                      description: "类型：string。",
-                                    },
-                                    {
-                                      name: "size",
-                                      description: "可选值：a4 / fluid / wide。",
+                                      name: "pages",
+                                      description: "类型：DocumentSurfacePagesSpec。",
                                       children: [
                                         {
-                                          name: "a4",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "fluid",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "wide",
-                                          description: "字面量取值。",
+                                          name: "items",
+                                          description: "类型：DocumentSurfacePageSpec[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "size",
+                                              description: "可选值：a4 / fluid / wide。",
+                                              children: [
+                                                {
+                                                  name: "a4",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "fluid",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wide",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
                                   ],
                                 },
-                              ],
-                            },
-                            {
-                              name: "kind",
-                              description: "可选值：pages。",
-                              children: [
                                 {
-                                  name: "pages",
-                                  description: "pages 分支声明。",
+                                  name: "viewer",
+                                  description: "viewer 分支声明。",
+                                  children: [
+                                    {
+                                      name: "viewer",
+                                      description: "类型：DocumentSurfaceViewerSpec。",
+                                      children: [
+                                        {
+                                          name: "src",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "title",
+                                          description: "类型：string。",
+                                        },
+                                      ],
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -29939,6 +30167,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
+                                            },
+                                            {
+                                              name: "autoGrow",
+                                              description: "类型：boolean。",
                                             },
                                             {
                                               name: "minLength",
@@ -31837,6 +32069,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "autoGrow",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "minLength",
@@ -34287,6 +34523,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -35361,6 +35601,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -35589,6 +35833,52 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "actions",
                                       description: "类型：SelectorSurfaceCommandSpec[]。",
+                                    },
+                                    {
+                                      name: "inlineEdit",
+                                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                                      children: [
+                                        {
+                                          name: "value",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(value: string) => void。",
+                                        },
+                                        {
+                                          name: "onSave",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "onCancel",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "dirty",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "saving",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "placeholder",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "maxLength",
+                                          description: "类型：number。",
+                                        },
+                                        {
+                                          name: "ariaLabel",
+                                          description: "类型：string。",
+                                        },
+                                      ],
                                     },
                                     {
                                       name: "status",
@@ -36895,6 +37185,52 @@ export const generatedCoreUiSurfaceContracts = {
                         {
                           name: "actions",
                           description: "类型：SelectorSurfaceCommandSpec[]。",
+                        },
+                        {
+                          name: "inlineEdit",
+                          description: "类型：SelectorSurfaceInlineEditSpec。",
+                          children: [
+                            {
+                              name: "value",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "onChange",
+                              description: "类型：(value: string) => void。",
+                            },
+                            {
+                              name: "onSave",
+                              description: "类型：() => void。",
+                            },
+                            {
+                              name: "onCancel",
+                              description: "类型：() => void。",
+                            },
+                            {
+                              name: "dirty",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "saving",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "placeholder",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "maxLength",
+                              description: "类型：number。",
+                            },
+                            {
+                              name: "ariaLabel",
+                              description: "类型：string。",
+                            },
+                          ],
                         },
                         {
                           name: "status",
@@ -41386,7 +41722,7 @@ export const generatedCoreUiSurfaceContracts = {
   DocumentSurface: [
     {
       name: "kind",
-      description: "可选值：pages。",
+      description: "可选值：pages / viewer。",
       children: [
         {
           name: "pages",
@@ -41423,6 +41759,26 @@ export const generatedCoreUiSurfaceContracts = {
                       ],
                     },
                   ],
+                },
+              ],
+            },
+          ],
+        },
+        {
+          name: "viewer",
+          description: "viewer 分支声明。",
+          children: [
+            {
+              name: "viewer",
+              description: "类型：DocumentSurfaceViewerSpec。",
+              children: [
+                {
+                  name: "src",
+                  description: "类型：string。",
+                },
+                {
+                  name: "title",
+                  description: "类型：string。",
                 },
               ],
             },
@@ -42033,6 +42389,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "字面量取值。",
                                 },
                               ],
+                            },
+                            {
+                              name: "autoGrow",
+                              description: "类型：boolean。",
                             },
                             {
                               name: "minLength",
@@ -43931,6 +44291,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "autoGrow",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "minLength",
@@ -45641,6 +46005,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "autoGrow",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "minLength",
                               description: "类型：number。",
                             },
@@ -47537,6 +47905,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "autoGrow",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "minLength",
@@ -49351,6 +49723,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "autoGrow",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "minLength",
                               description: "类型：number。",
                             },
@@ -51247,6 +51623,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "autoGrow",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "minLength",
@@ -53167,6 +53547,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "autoGrow",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "minLength",
                               description: "类型：number。",
                             },
@@ -55065,6 +55449,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       ],
                                     },
                                     {
+                                      name: "autoGrow",
+                                      description: "类型：boolean。",
+                                    },
+                                    {
                                       name: "minLength",
                                       description: "类型：number。",
                                     },
@@ -56655,6 +57043,10 @@ export const generatedCoreUiSurfaceContracts = {
     {
       name: "rows",
       description: "类型：number。",
+    },
+    {
+      name: "autoGrow",
+      description: "类型：boolean。",
     },
     {
       name: "inputMode",
@@ -59024,49 +59416,71 @@ export const generatedCoreUiSurfaceContracts = {
                       children: [
                         {
                           name: "document",
-                          description: "类型：DocumentSurfacePagesProps。",
+                          description: "类型：DocumentSurfaceProps。",
                           children: [
                             {
-                              name: "pages",
-                              description: "类型：DocumentSurfacePagesSpec。",
+                              name: "kind",
+                              description: "可选值：pages / viewer。",
                               children: [
                                 {
-                                  name: "items",
-                                  description: "类型：DocumentSurfacePageSpec[]。",
+                                  name: "pages",
+                                  description: "pages 分支声明。",
                                   children: [
                                     {
-                                      name: "key",
-                                      description: "类型：string。",
-                                    },
-                                    {
-                                      name: "size",
-                                      description: "可选值：a4 / fluid / wide。",
+                                      name: "pages",
+                                      description: "类型：DocumentSurfacePagesSpec。",
                                       children: [
                                         {
-                                          name: "a4",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "fluid",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "wide",
-                                          description: "字面量取值。",
+                                          name: "items",
+                                          description: "类型：DocumentSurfacePageSpec[]。",
+                                          children: [
+                                            {
+                                              name: "key",
+                                              description: "类型：string。",
+                                            },
+                                            {
+                                              name: "size",
+                                              description: "可选值：a4 / fluid / wide。",
+                                              children: [
+                                                {
+                                                  name: "a4",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "fluid",
+                                                  description: "字面量取值。",
+                                                },
+                                                {
+                                                  name: "wide",
+                                                  description: "字面量取值。",
+                                                },
+                                              ],
+                                            },
+                                          ],
                                         },
                                       ],
                                     },
                                   ],
                                 },
-                              ],
-                            },
-                            {
-                              name: "kind",
-                              description: "可选值：pages。",
-                              children: [
                                 {
-                                  name: "pages",
-                                  description: "pages 分支声明。",
+                                  name: "viewer",
+                                  description: "viewer 分支声明。",
+                                  children: [
+                                    {
+                                      name: "viewer",
+                                      description: "类型：DocumentSurfaceViewerSpec。",
+                                      children: [
+                                        {
+                                          name: "src",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "title",
+                                          description: "类型：string。",
+                                        },
+                                      ],
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -59675,6 +60089,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                   description: "字面量取值。",
                                                 },
                                               ],
+                                            },
+                                            {
+                                              name: "autoGrow",
+                                              description: "类型：boolean。",
                                             },
                                             {
                                               name: "minLength",
@@ -61573,6 +61991,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "autoGrow",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "minLength",
@@ -64023,6 +64445,10 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "引用 BodySurfaceSectionSpec 声明。",
                             },
                             {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
+                            },
+                            {
                               name: "pagination",
                               description: "类型：SurfacePaginationSpec。",
                               children: [
@@ -65095,6 +65521,10 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "sections",
                               description: "引用 BodySurfaceSectionSpec 声明。",
+                            },
+                            {
+                              name: "actions",
+                              description: "类型：BodySurfaceCommandSpec[]。",
                             },
                             {
                               name: "pagination",
@@ -67218,49 +67648,71 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "document",
-                                      description: "类型：DocumentSurfacePagesProps。",
+                                      description: "类型：DocumentSurfaceProps。",
                                       children: [
                                         {
-                                          name: "pages",
-                                          description: "类型：DocumentSurfacePagesSpec。",
+                                          name: "kind",
+                                          description: "可选值：pages / viewer。",
                                           children: [
                                             {
-                                              name: "items",
-                                              description: "类型：DocumentSurfacePageSpec[]。",
+                                              name: "pages",
+                                              description: "pages 分支声明。",
                                               children: [
                                                 {
-                                                  name: "key",
-                                                  description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "size",
-                                                  description: "可选值：a4 / fluid / wide。",
+                                                  name: "pages",
+                                                  description: "类型：DocumentSurfacePagesSpec。",
                                                   children: [
                                                     {
-                                                      name: "a4",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "fluid",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "wide",
-                                                      description: "字面量取值。",
+                                                      name: "items",
+                                                      description: "类型：DocumentSurfacePageSpec[]。",
+                                                      children: [
+                                                        {
+                                                          name: "key",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "size",
+                                                          description: "可选值：a4 / fluid / wide。",
+                                                          children: [
+                                                            {
+                                                              name: "a4",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "fluid",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "wide",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
                                                     },
                                                   ],
                                                 },
                                               ],
                                             },
-                                          ],
-                                        },
-                                        {
-                                          name: "kind",
-                                          description: "可选值：pages。",
-                                          children: [
                                             {
-                                              name: "pages",
-                                              description: "pages 分支声明。",
+                                              name: "viewer",
+                                              description: "viewer 分支声明。",
+                                              children: [
+                                                {
+                                                  name: "viewer",
+                                                  description: "类型：DocumentSurfaceViewerSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "src",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "title",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
                                             },
                                           ],
                                         },
@@ -67869,6 +68321,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                               description: "字面量取值。",
                                                             },
                                                           ],
+                                                        },
+                                                        {
+                                                          name: "autoGrow",
+                                                          description: "类型：boolean。",
                                                         },
                                                         {
                                                           name: "minLength",
@@ -69767,6 +70223,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "autoGrow",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "minLength",
@@ -72217,6 +72677,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -73291,6 +73755,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -73519,6 +73987,52 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "actions",
                                                   description: "类型：SelectorSurfaceCommandSpec[]。",
+                                                },
+                                                {
+                                                  name: "inlineEdit",
+                                                  description: "类型：SelectorSurfaceInlineEditSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "value",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onChange",
+                                                      description: "类型：(value: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "onSave",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "onCancel",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "dirty",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "saving",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "placeholder",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "maxLength",
+                                                      description: "类型：number。",
+                                                    },
+                                                    {
+                                                      name: "ariaLabel",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
                                                 },
                                                 {
                                                   name: "status",
@@ -76730,49 +77244,71 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "document",
-                                      description: "类型：DocumentSurfacePagesProps。",
+                                      description: "类型：DocumentSurfaceProps。",
                                       children: [
                                         {
-                                          name: "pages",
-                                          description: "类型：DocumentSurfacePagesSpec。",
+                                          name: "kind",
+                                          description: "可选值：pages / viewer。",
                                           children: [
                                             {
-                                              name: "items",
-                                              description: "类型：DocumentSurfacePageSpec[]。",
+                                              name: "pages",
+                                              description: "pages 分支声明。",
                                               children: [
                                                 {
-                                                  name: "key",
-                                                  description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "size",
-                                                  description: "可选值：a4 / fluid / wide。",
+                                                  name: "pages",
+                                                  description: "类型：DocumentSurfacePagesSpec。",
                                                   children: [
                                                     {
-                                                      name: "a4",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "fluid",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "wide",
-                                                      description: "字面量取值。",
+                                                      name: "items",
+                                                      description: "类型：DocumentSurfacePageSpec[]。",
+                                                      children: [
+                                                        {
+                                                          name: "key",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "size",
+                                                          description: "可选值：a4 / fluid / wide。",
+                                                          children: [
+                                                            {
+                                                              name: "a4",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "fluid",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "wide",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
                                                     },
                                                   ],
                                                 },
                                               ],
                                             },
-                                          ],
-                                        },
-                                        {
-                                          name: "kind",
-                                          description: "可选值：pages。",
-                                          children: [
                                             {
-                                              name: "pages",
-                                              description: "pages 分支声明。",
+                                              name: "viewer",
+                                              description: "viewer 分支声明。",
+                                              children: [
+                                                {
+                                                  name: "viewer",
+                                                  description: "类型：DocumentSurfaceViewerSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "src",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "title",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
                                             },
                                           ],
                                         },
@@ -77381,6 +77917,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                               description: "字面量取值。",
                                                             },
                                                           ],
+                                                        },
+                                                        {
+                                                          name: "autoGrow",
+                                                          description: "类型：boolean。",
                                                         },
                                                         {
                                                           name: "minLength",
@@ -79279,6 +79819,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "autoGrow",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "minLength",
@@ -81729,6 +82273,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -82803,6 +83351,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -83031,6 +83583,52 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "actions",
                                                   description: "类型：SelectorSurfaceCommandSpec[]。",
+                                                },
+                                                {
+                                                  name: "inlineEdit",
+                                                  description: "类型：SelectorSurfaceInlineEditSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "value",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onChange",
+                                                      description: "类型：(value: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "onSave",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "onCancel",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "dirty",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "saving",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "placeholder",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "maxLength",
+                                                      description: "类型：number。",
+                                                    },
+                                                    {
+                                                      name: "ariaLabel",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
                                                 },
                                                 {
                                                   name: "status",
@@ -86242,49 +86840,71 @@ export const generatedCoreUiSurfaceContracts = {
                                   children: [
                                     {
                                       name: "document",
-                                      description: "类型：DocumentSurfacePagesProps。",
+                                      description: "类型：DocumentSurfaceProps。",
                                       children: [
                                         {
-                                          name: "pages",
-                                          description: "类型：DocumentSurfacePagesSpec。",
+                                          name: "kind",
+                                          description: "可选值：pages / viewer。",
                                           children: [
                                             {
-                                              name: "items",
-                                              description: "类型：DocumentSurfacePageSpec[]。",
+                                              name: "pages",
+                                              description: "pages 分支声明。",
                                               children: [
                                                 {
-                                                  name: "key",
-                                                  description: "类型：string。",
-                                                },
-                                                {
-                                                  name: "size",
-                                                  description: "可选值：a4 / fluid / wide。",
+                                                  name: "pages",
+                                                  description: "类型：DocumentSurfacePagesSpec。",
                                                   children: [
                                                     {
-                                                      name: "a4",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "fluid",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "wide",
-                                                      description: "字面量取值。",
+                                                      name: "items",
+                                                      description: "类型：DocumentSurfacePageSpec[]。",
+                                                      children: [
+                                                        {
+                                                          name: "key",
+                                                          description: "类型：string。",
+                                                        },
+                                                        {
+                                                          name: "size",
+                                                          description: "可选值：a4 / fluid / wide。",
+                                                          children: [
+                                                            {
+                                                              name: "a4",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "fluid",
+                                                              description: "字面量取值。",
+                                                            },
+                                                            {
+                                                              name: "wide",
+                                                              description: "字面量取值。",
+                                                            },
+                                                          ],
+                                                        },
+                                                      ],
                                                     },
                                                   ],
                                                 },
                                               ],
                                             },
-                                          ],
-                                        },
-                                        {
-                                          name: "kind",
-                                          description: "可选值：pages。",
-                                          children: [
                                             {
-                                              name: "pages",
-                                              description: "pages 分支声明。",
+                                              name: "viewer",
+                                              description: "viewer 分支声明。",
+                                              children: [
+                                                {
+                                                  name: "viewer",
+                                                  description: "类型：DocumentSurfaceViewerSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "src",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "title",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
+                                                },
+                                              ],
                                             },
                                           ],
                                         },
@@ -86893,6 +87513,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                               description: "字面量取值。",
                                                             },
                                                           ],
+                                                        },
+                                                        {
+                                                          name: "autoGrow",
+                                                          description: "类型：boolean。",
                                                         },
                                                         {
                                                           name: "minLength",
@@ -88791,6 +89415,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "autoGrow",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "minLength",
@@ -91241,6 +91869,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -92315,6 +92947,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "引用 BodySurfaceSectionSpec 声明。",
                                         },
                                         {
+                                          name: "actions",
+                                          description: "类型：BodySurfaceCommandSpec[]。",
+                                        },
+                                        {
                                           name: "pagination",
                                           description: "类型：SurfacePaginationSpec。",
                                           children: [
@@ -92543,6 +93179,52 @@ export const generatedCoreUiSurfaceContracts = {
                                                 {
                                                   name: "actions",
                                                   description: "类型：SelectorSurfaceCommandSpec[]。",
+                                                },
+                                                {
+                                                  name: "inlineEdit",
+                                                  description: "类型：SelectorSurfaceInlineEditSpec。",
+                                                  children: [
+                                                    {
+                                                      name: "value",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "onChange",
+                                                      description: "类型：(value: string) => void。",
+                                                    },
+                                                    {
+                                                      name: "onSave",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "onCancel",
+                                                      description: "类型：() => void。",
+                                                    },
+                                                    {
+                                                      name: "dirty",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "saving",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
+                                                    },
+                                                    {
+                                                      name: "placeholder",
+                                                      description: "类型：string。",
+                                                    },
+                                                    {
+                                                      name: "maxLength",
+                                                      description: "类型：number。",
+                                                    },
+                                                    {
+                                                      name: "ariaLabel",
+                                                      description: "类型：string。",
+                                                    },
+                                                  ],
                                                 },
                                                 {
                                                   name: "status",
@@ -93849,6 +94531,52 @@ export const generatedCoreUiSurfaceContracts = {
                                     {
                                       name: "actions",
                                       description: "类型：SelectorSurfaceCommandSpec[]。",
+                                    },
+                                    {
+                                      name: "inlineEdit",
+                                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                                      children: [
+                                        {
+                                          name: "value",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "onChange",
+                                          description: "类型：(value: string) => void。",
+                                        },
+                                        {
+                                          name: "onSave",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "onCancel",
+                                          description: "类型：() => void。",
+                                        },
+                                        {
+                                          name: "dirty",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "saving",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "placeholder",
+                                          description: "类型：string。",
+                                        },
+                                        {
+                                          name: "maxLength",
+                                          description: "类型：number。",
+                                        },
+                                        {
+                                          name: "ariaLabel",
+                                          description: "类型：string。",
+                                        },
+                                      ],
                                     },
                                     {
                                       name: "status",
@@ -95438,6 +96166,10 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                               ],
                             },
+                            {
+                              name: "joined",
+                              description: "类型：boolean。",
+                            },
                           ],
                         },
                         {
@@ -95560,6 +96292,10 @@ export const generatedCoreUiSurfaceContracts = {
                           children: [
                             {
                               name: "editMode",
+                              description: "类型：boolean。",
+                            },
+                            {
+                              name: "dirty",
                               description: "类型：boolean。",
                             },
                             {
@@ -97129,6 +97865,52 @@ export const generatedCoreUiSurfaceContracts = {
                       description: "类型：SelectorSurfaceCommandSpec[]。",
                     },
                     {
+                      name: "inlineEdit",
+                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                      children: [
+                        {
+                          name: "value",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "onChange",
+                          description: "类型：(value: string) => void。",
+                        },
+                        {
+                          name: "onSave",
+                          description: "类型：() => void。",
+                        },
+                        {
+                          name: "onCancel",
+                          description: "类型：() => void。",
+                        },
+                        {
+                          name: "dirty",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "saving",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "disabled",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "placeholder",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "maxLength",
+                          description: "类型：number。",
+                        },
+                        {
+                          name: "ariaLabel",
+                          description: "类型：string。",
+                        },
+                      ],
+                    },
+                    {
                       name: "status",
                       description: "类型：SelectorSurfaceStatusSpec。",
                       children: [
@@ -97685,6 +98467,52 @@ export const generatedCoreUiSurfaceContracts = {
                     {
                       name: "actions",
                       description: "类型：SelectorSurfaceCommandSpec[]。",
+                    },
+                    {
+                      name: "inlineEdit",
+                      description: "类型：SelectorSurfaceInlineEditSpec。",
+                      children: [
+                        {
+                          name: "value",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "onChange",
+                          description: "类型：(value: string) => void。",
+                        },
+                        {
+                          name: "onSave",
+                          description: "类型：() => void。",
+                        },
+                        {
+                          name: "onCancel",
+                          description: "类型：() => void。",
+                        },
+                        {
+                          name: "dirty",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "saving",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "disabled",
+                          description: "类型：boolean。",
+                        },
+                        {
+                          name: "placeholder",
+                          description: "类型：string。",
+                        },
+                        {
+                          name: "maxLength",
+                          description: "类型：number。",
+                        },
+                        {
+                          name: "ariaLabel",
+                          description: "类型：string。",
+                        },
+                      ],
                     },
                     {
                       name: "status",

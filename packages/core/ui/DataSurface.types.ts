@@ -62,7 +62,7 @@ export interface DataSurfaceAmountSpec {
 }
 
 export type DataSurfaceDisplaySpec =
-  | { kind: "text"; value: ReactNode; tone?: DataSurfaceTone; emphasis?: DataSurfaceEmphasis; font?: DataSurfaceFont; wrap?: DataSurfaceWrap }
+  | { kind: "text"; value: ReactNode; title?: string; tone?: DataSurfaceTone; emphasis?: DataSurfaceEmphasis; font?: DataSurfaceFont; wrap?: DataSurfaceWrap }
   | { kind: "empty"; content?: ReactNode }
   | { kind: "stack"; items: Array<ReactNode | DataSurfaceDisplaySpec>; gap?: "none" | "xs" | "sm" }
   | { kind: "disclosure"; label: ReactNode; expanded: boolean; level?: number; emphasis?: DataSurfaceEmphasis }

@@ -275,14 +275,40 @@ function normalizeLibrary(db, root) {
   const counters = {
     versions: 0,
     migrated: 0,
+    compacted: 0,
     verified: 0,
     tombstonesNormalized: 0,
     documentUidsNormalized: 0,
     versionUidsNormalized: 0,
   };
   const rows = db.prepare(`
-    SELECT v.id, v.documentId, v.versionUid, v.fileName, v.storagePath, v.fileSizeBytes, v.checksumSha256,
-           d.documentUid, d.status, d.currentVersionId
+    SELECT v.id, v.documentId, v.versionUid, v.fileName, v.storagePath,
+           v.storageFileName, v.storageMimeType, v.storageFileSizeBytes, v.storageChecksumSha256,
+           v.fileSizeBytes, v.checksumSha256, d.documentUid, d.status, d.currentVersionId,
+           (
+             SELECT a.storagePath FROM LibraryArtifact a
+             WHERE a.versionId = v.id AND a.kind = 'preview-pdf' AND a.status = 'ready'
+             ORDER BY a.createdAt DESC, a.id DESC LIMIT 1
+           ) AS compactPath,
+           (
+             SELECT a.mimeType FROM LibraryArtifact a
+             WHERE a.versionId = v.id AND a.kind = 'preview-pdf' AND a.status = 'ready'
+             ORDER BY a.createdAt DESC, a.id DESC LIMIT 1
+           ) AS compactMimeType,
+           (
+             SELECT a.fileSizeBytes FROM LibraryArtifact a
+             WHERE a.versionId = v.id AND a.kind = 'preview-pdf' AND a.status = 'ready'
+             ORDER BY a.createdAt DESC, a.id DESC LIMIT 1
+           ) AS compactSize,
+           (
+             SELECT a.checksumSha256 FROM LibraryArtifact a
+             WHERE a.versionId = v.id AND a.kind = 'preview-pdf' AND a.status = 'ready'
+             ORDER BY a.createdAt DESC, a.id DESC LIMIT 1
+           ) AS compactChecksum,
+           EXISTS(
+             SELECT 1 FROM LibraryArtifact a
+             WHERE a.versionId = v.id AND a.kind = 'markdown' AND a.status = 'ready'
+           ) AS hasMarkdown
     FROM LibraryDocumentVersion v
     JOIN LibraryDocument d ON d.id = v.documentId
     ORDER BY v.id
@@ -301,12 +327,22 @@ function normalizeLibrary(db, root) {
     const versionUid = uuidPattern.test(row.versionUid) ? row.versionUid : crypto.randomUUID();
     if (versionUid !== row.versionUid) counters.versionUidsNormalized += 1;
     const managedPath = path.posix.join(".versions", documentUid, versionUid, path.basename(row.fileName));
-    const target = safeResolve(root, managedPath);
-    const source = row.storagePath.replace(/\\/g, "/").startsWith(".versions/")
+    const compactReady = Boolean(row.compactPath && row.hasMarkdown);
+    const storedPath = compactReady ? row.compactPath : managedPath;
+    const storedFileName = compactReady
+      ? `${path.parse(row.fileName).name || "document"}.pdf`
+      : row.fileName;
+    const storedMimeType = compactReady ? (row.compactMimeType || "application/pdf") : row.storageMimeType;
+    const expectedSize = compactReady ? row.compactSize : row.fileSizeBytes;
+    const expectedHash = compactReady ? row.compactChecksum : row.checksumSha256;
+    const target = safeResolve(root, storedPath);
+    const source = compactReady
       ? target
-      : safeResolve(root, row.storagePath);
+      : row.storagePath.replace(/\\/g, "/").startsWith(".versions/")
+        ? safeResolve(root, row.storagePath)
+        : safeResolve(root, row.storagePath);
     if (!fs.existsSync(source) || !fs.statSync(source).isFile()) {
-      if (row.status === "active") {
+      if (row.status === "active" && Number(row.currentVersionId) === Number(row.id)) {
         throw new Error(`Active Library version ${row.id} source missing: ${row.storagePath}`);
       }
       counters.tombstonesNormalized += 1;
@@ -315,7 +351,9 @@ function normalizeLibrary(db, root) {
         documentId: row.documentId,
         documentUid,
         versionUid,
-        managedPath,
+        storedPath,
+        storedFileName,
+        storedMimeType,
         sourceSize: row.fileSizeBytes,
         sourceHash: row.checksumSha256,
         currentVersionId: null,
@@ -324,16 +362,16 @@ function normalizeLibrary(db, root) {
     }
     const sourceSize = fs.statSync(source).size;
     const sourceHash = sha256File(source);
-    if (row.fileSizeBytes != null && Number(row.fileSizeBytes) !== sourceSize) {
-      const canRepairCurrentUnhashedVersion = !row.checksumSha256 && Number(row.currentVersionId) === Number(row.id);
+    if (expectedSize != null && Number(expectedSize) !== sourceSize) {
+      const canRepairCurrentUnhashedVersion = !expectedHash && Number(row.currentVersionId) === Number(row.id);
       if (!canRepairCurrentUnhashedVersion) {
-        throw new Error(`Library version ${row.id} size mismatch: db=${row.fileSizeBytes} file=${sourceSize}`);
+        throw new Error(`Library version ${row.id} size mismatch: db=${expectedSize} file=${sourceSize}`);
       }
     }
-    if (row.checksumSha256 && row.checksumSha256 !== sourceHash) {
+    if (expectedHash && expectedHash !== sourceHash) {
       throw new Error(`Library version ${row.id} checksum mismatch`);
     }
-    if (source !== target) {
+    if (!compactReady && source !== target) {
       if (fs.existsSync(target)) {
         if (fs.statSync(target).size !== sourceSize || sha256File(target) !== sourceHash) {
           throw new Error(`Library version ${row.id} managed target conflicts with source`);
@@ -342,6 +380,8 @@ function normalizeLibrary(db, root) {
         atomicCopy(source, target);
       }
       counters.migrated += 1;
+    } else if (compactReady && row.storagePath !== storedPath) {
+      counters.compacted += 1;
     } else {
       counters.verified += 1;
     }
@@ -350,20 +390,23 @@ function normalizeLibrary(db, root) {
       documentId: row.documentId,
       documentUid,
       versionUid,
-      managedPath,
+      storedPath,
+      storedFileName,
+      storedMimeType,
       sourceSize,
       sourceHash,
       currentVersionId: row.currentVersionId,
     });
   }
 
-  if (checkOnly && counters.migrated > 0) {
-    throw new Error(`Library still contains ${counters.migrated} unmanaged version(s)`);
+  if (checkOnly && (counters.migrated > 0 || counters.compacted > 0)) {
+    throw new Error(`Library still contains ${counters.migrated + counters.compacted} unnormalized version(s)`);
   }
   if (!dryRun && !checkOnly) {
     const update = db.prepare(`
       UPDATE LibraryDocumentVersion
-      SET versionUid = ?, storagePath = ?, fileSizeBytes = ?, checksumSha256 = ?
+      SET versionUid = ?, storagePath = ?, storageFileName = ?, storageMimeType = ?,
+          storageFileSizeBytes = ?, storageChecksumSha256 = ?
       WHERE id = ?
     `);
     const updateDocumentUid = db.prepare(`UPDATE LibraryDocument SET documentUid = ? WHERE id = ?`);
@@ -375,10 +418,15 @@ function normalizeLibrary(db, root) {
     db.transaction(() => {
       for (const [documentId, documentUid] of documentUidById) updateDocumentUid.run(documentUid, documentId);
       for (const row of updates) {
-        update.run(row.versionUid, row.managedPath, row.sourceSize, row.sourceHash, row.id);
-        if (Number(row.currentVersionId) === Number(row.id) && row.sourceSize != null && row.sourceHash) {
-          updateCurrentDocument.run(row.sourceSize, row.sourceHash, row.id);
-        }
+        update.run(
+          row.versionUid,
+          row.storedPath,
+          row.storedFileName,
+          row.storedMimeType,
+          row.sourceSize,
+          row.sourceHash,
+          row.id,
+        );
       }
     })();
   }

@@ -2,10 +2,11 @@
 
 import { useState, type KeyboardEvent, type ReactNode } from "react";
 import Badge from "./internal/common/Badge";
+import InputSurface from "./InputSurface";
 import { EmptyStateCard, PanelCard } from "./internal/common/Card";
 import SelectorCard from "./internal/selection/SelectorCard";
 import { renderCommands } from "./internal/page/PageSurface.commands";
-import type { SelectorSurfaceCardSpec, SelectorSurfaceProps, SelectorSurfaceStatusSpec, SelectorSurfaceStructuredListItemSpec, SelectorSurfaceStructuredListSpec, SelectorSurfaceStructuredTreeItemSpec, SelectorSurfaceTreeSpec } from "./SelectorSurface.types";
+import type { SelectorSurfaceCardSpec, SelectorSurfaceInlineEditSpec, SelectorSurfaceProps, SelectorSurfaceStatusSpec, SelectorSurfaceStructuredListItemSpec, SelectorSurfaceStructuredListSpec, SelectorSurfaceStructuredTreeItemSpec, SelectorSurfaceTreeSpec } from "./SelectorSurface.types";
 
 function collectExpandedIds<T>(
   items: T[],
@@ -29,18 +30,64 @@ function collectExpandedIds<T>(
 
 function listCard(card: SelectorSurfaceCardSpec) {
   return {
-    title: card.title,
+    title: card.inlineEdit ? renderInlineEdit(card.inlineEdit) : card.title,
     subtitle: card.subtitle,
     code: card.code,
     codeTone: card.codeTone,
     meta: Array.isArray(card.meta) ? card.meta : card.meta ? [card.meta] : undefined,
     metaLine: card.metaLine,
-    trailing: renderCardTrailing(card),
+    trailing: card.inlineEdit ? undefined : renderCardTrailing(card),
     active: card.active,
     archived: card.archived,
     tone: card.tone,
     size: card.size,
   };
+}
+
+function renderInlineEdit(edit: SelectorSurfaceInlineEditSpec) {
+  const saveDisabled = edit.disabled || edit.saving || !edit.value.trim() || edit.dirty === false;
+  return (
+    <span
+      className="flex min-w-0 flex-1 items-center gap-2"
+      onClick={(event) => event.stopPropagation()}
+      onKeyDown={(event) => event.stopPropagation()}
+    >
+      <span className="w-full min-w-0 max-w-sm flex-1">
+        <InputSurface
+          spec={{
+            valueType: "string",
+            control: "text",
+            state: edit.disabled || edit.saving ? "disabled" : "required",
+          }}
+          value={edit.value}
+          onChange={(value) => edit.onChange(String(value ?? ""))}
+          placeholder={edit.placeholder}
+          maxLength={edit.maxLength}
+          ariaLabel={edit.ariaLabel ?? "编辑名称"}
+          autoFocus
+          size="sm"
+          density="compact"
+          onKeyDown={(event) => {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              edit.onCancel();
+              return;
+            }
+            if (event.key === "Enter" && !saveDisabled) {
+              event.preventDefault();
+              edit.onSave();
+            }
+          }}
+        />
+      </span>
+      <span className="shrink-0 [&>div]:flex-nowrap">
+        {renderCommands([
+          { key: "save", label: edit.saving ? "保存中..." : "保存", icon: "save", size: "sm", disabled: saveDisabled, onClick: edit.onSave },
+          { key: "cancel", label: "取消", icon: "cancel", size: "sm", disabled: edit.saving, onClick: edit.onCancel },
+        ])}
+      </span>
+    </span>
+  );
 }
 
 function renderCardTrailing(card: SelectorSurfaceCardSpec) {
@@ -135,7 +182,7 @@ function ListSelector<T>({ selector, actions }: {
           key={item.key}
           {...card}
           active={card.active ?? active}
-          onClick={() => selector.onSelect(item.value)}
+          onClick={item.card.inlineEdit ? undefined : () => selector.onSelect(item.value)}
           size={selector.size ?? card.size}
         />
       );
@@ -243,24 +290,28 @@ function TreeSelector<T>({ selector, actions }: {
             ) : null}
           </span>
           <div
-            role="button"
-            tabIndex={0}
-            onClick={() => selector.onSelect(item.value)}
-            onKeyDown={(event) => handleSelectableKeyDown(event, () => selector.onSelect(item.value))}
-            className="min-w-0 cursor-pointer py-2.5 pl-1 pr-3 text-left focus-visible:outline-none"
+            role={card.inlineEdit ? undefined : "button"}
+            tabIndex={card.inlineEdit ? -1 : 0}
+            onClick={card.inlineEdit ? undefined : () => selector.onSelect(item.value)}
+            onKeyDown={card.inlineEdit ? undefined : (event) => handleSelectableKeyDown(event, () => selector.onSelect(item.value))}
+            className={`min-w-0 py-2.5 pl-1 pr-3 text-left focus-visible:outline-none ${card.inlineEdit ? "" : "cursor-pointer"}`}
           >
-            <span className="flex min-w-0 items-start gap-2.5">
+            <span className={`flex min-w-0 gap-2.5 ${meta ? "items-start" : "items-center"}`}>
               {card.showLevelBadge === false ? null : (
-                <Badge label={card.levelLabel} tone={card.levelTone} level={card.level ?? level} className="mt-0.5 shrink-0 px-2 py-0.5 font-semibold" />
+                <Badge label={card.levelLabel} tone={card.levelTone} level={card.level ?? level} className={`${meta ? "mt-0.5" : ""} shrink-0 px-2 py-0.5 font-semibold`} />
               )}
-              <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-semibold text-slate-900">{card.title}</span>
-                {meta ? renderTreeMeta(meta) : null}
-              </span>
-              {card.code ? <span className={`ml-auto shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${statusClassName(card.codeTone)}`}>{card.code}</span> : null}
-              {card.actions?.length ? <span className="shrink-0 pt-0.5">{renderCardTrailing(card)}</span> : null}
-              {!card.actions?.length && card.trailing ? <span className="shrink-0 pt-0.5 text-xs text-slate-500">{card.trailing}</span> : null}
-              {!card.actions?.length && card.status ? <span className="shrink-0 pt-0.5">{renderStatus(card.status)}</span> : null}
+              {card.inlineEdit ? renderInlineEdit(card.inlineEdit) : (
+                <>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-semibold text-slate-900">{card.title}</span>
+                    {meta ? renderTreeMeta(meta) : null}
+                  </span>
+                  {card.code ? <span className={`ml-auto shrink-0 rounded px-1.5 py-0.5 text-xs font-medium ${statusClassName(card.codeTone)}`}>{card.code}</span> : null}
+                  {card.actions?.length ? <span className={`${meta ? "pt-0.5" : ""} shrink-0`}>{renderCardTrailing(card)}</span> : null}
+                  {!card.actions?.length && card.trailing ? <span className={`${meta ? "pt-0.5" : ""} shrink-0 text-xs text-slate-500`}>{card.trailing}</span> : null}
+                  {!card.actions?.length && card.status ? <span className={`${meta ? "pt-0.5" : ""} shrink-0`}>{renderStatus(card.status)}</span> : null}
+                </>
+              )}
             </span>
           </div>
         </div>
@@ -309,10 +360,10 @@ function TreeSelector<T>({ selector, actions }: {
 }
 
 export default function SelectorSurface<T>(selector: SelectorSurfaceProps<T>) {
-  const actions = renderCommands(selector.commands);
+  const commands = renderCommands(selector.commands);
   if (selector.kind === "tree") {
-    return <TreeSelector selector={selector} actions={actions} />;
+    return <TreeSelector selector={selector} actions={commands} />;
   }
 
-  return <ListSelector selector={selector} actions={actions} />;
+  return <ListSelector selector={selector} actions={commands} />;
 }

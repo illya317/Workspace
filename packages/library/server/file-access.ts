@@ -3,27 +3,11 @@ import path from "path";
 import { prisma } from "@workspace/platform/server/prisma";
 import { getDefaultRoot, safeResolve } from "./config";
 import { getMaxConfidentialityLevel } from "./permissions";
+import { resolveLibraryVersionRuntimeContent } from "./version-content";
 
-const MIME_TYPES: Record<string, string> = {
-  ".pdf": "application/pdf",
-  ".png": "image/png",
-  ".jpg": "image/jpeg",
-  ".jpeg": "image/jpeg",
-  ".gif": "image/gif",
-  ".svg": "image/svg+xml",
-  ".webp": "image/webp",
-  ".xls": "application/vnd.ms-excel",
-  ".xlsx": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-  ".doc": "application/msword",
-  ".docx": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-  ".txt": "text/plain",
-  ".csv": "text/csv",
-  ".json": "application/json",
-  ".xml": "application/xml",
-  ".zip": "application/zip",
-  ".tar": "application/x-tar",
-  ".gz": "application/gzip",
-};
+import { resolveLibraryMimeType } from "./file-facts";
+
+export { resolveLibraryMimeType } from "./file-facts";
 
 export interface LibraryFilePayload {
   buffer: Buffer;
@@ -38,14 +22,17 @@ function ensureInsideRoot(filePath: string) {
   return path.resolve(filePath).startsWith(normalizedRoot);
 }
 
-export function resolveLibraryMimeType(fileName: string, declaredMimeType?: string | null) {
-  const declared = declaredMimeType?.trim();
-  if (declared) return declared;
-  return MIME_TYPES[path.extname(fileName).toLowerCase()] || "application/octet-stream";
-}
-
 function ensureDocumentIsDownloadable(status: string) {
   if (status !== "active") throw new Error("File unavailable");
+}
+
+function downloadFileName(originalFileName: string, runtimeFileName: string) {
+  const originalExtension = path.extname(originalFileName);
+  const runtimeExtension = path.extname(runtimeFileName);
+  if (!runtimeExtension || originalExtension.toLocaleLowerCase() === runtimeExtension.toLocaleLowerCase()) {
+    return originalFileName;
+  }
+  return `${path.basename(originalFileName, originalExtension)}${runtimeExtension}`;
 }
 
 async function readAllowedFile(
@@ -74,7 +61,7 @@ export async function getLibraryFileByDocumentId(documentId: number, userId: num
       confidentialityLevel: true,
       status: true,
       currentVersion: {
-        select: { storagePath: true, fileName: true, mimeType: true },
+        select: { id: true, fileName: true },
       },
     },
   });
@@ -83,18 +70,20 @@ export async function getLibraryFileByDocumentId(documentId: number, userId: num
   if (doc.confidentialityLevel > maxLevel) throw new Error("Higher confidentiality required");
   ensureDocumentIsDownloadable(doc.status);
   if (!doc.currentVersion) throw new Error("Current version unavailable");
-  const filePath = safeResolve(doc.currentVersion.storagePath);
-  if (!filePath) throw new Error("Forbidden");
-  return readAllowedFile(filePath, doc.currentVersion.fileName, doc.currentVersion.mimeType || doc.mimeType);
+  const content = await resolveLibraryVersionRuntimeContent(doc.currentVersion.id);
+  return readAllowedFile(
+    content.absolutePath,
+    downloadFileName(doc.currentVersion.fileName, content.fileName),
+    content.mimeType || doc.mimeType,
+  );
 }
 
 export async function getLibraryFileByVersionId(documentId: number, versionId: number, userId: number) {
   const version = await prisma.libraryDocumentVersion.findFirst({
     where: { id: versionId, documentId },
     select: {
-      storagePath: true,
+      id: true,
       fileName: true,
-      mimeType: true,
       document: { select: { confidentialityLevel: true, status: true } },
     },
   });
@@ -102,9 +91,12 @@ export async function getLibraryFileByVersionId(documentId: number, versionId: n
   const maxLevel = await getMaxConfidentialityLevel(userId);
   if (version.document.confidentialityLevel > maxLevel) throw new Error("Higher confidentiality required");
   ensureDocumentIsDownloadable(version.document.status);
-  const filePath = safeResolve(version.storagePath);
-  if (!filePath) throw new Error("Forbidden");
-  return readAllowedFile(filePath, version.fileName, version.mimeType);
+  const content = await resolveLibraryVersionRuntimeContent(version.id);
+  return readAllowedFile(
+    content.absolutePath,
+    downloadFileName(version.fileName, content.fileName),
+    content.mimeType,
+  );
 }
 
 export async function getLibraryFileByRelativePath(relativePath: string, userId: number) {
@@ -121,7 +113,7 @@ export async function getLibraryFileByRelativePath(relativePath: string, userId:
       fileName: true,
       mimeType: true,
       currentVersion: {
-        select: { storagePath: true, fileName: true, mimeType: true },
+        select: { id: true, fileName: true },
       },
     },
   });
@@ -130,11 +122,10 @@ export async function getLibraryFileByRelativePath(relativePath: string, userId:
   if (doc.confidentialityLevel > maxLevel) throw new Error("Higher confidentiality required");
   ensureDocumentIsDownloadable(doc.status);
   if (!doc.currentVersion) throw new Error("Current version unavailable");
-  const resolvedStoragePath = safeResolve(doc.currentVersion.storagePath);
-  if (!resolvedStoragePath) throw new Error("Forbidden");
+  const content = await resolveLibraryVersionRuntimeContent(doc.currentVersion.id);
   return readAllowedFile(
-    resolvedStoragePath,
-    doc.currentVersion.fileName,
-    doc.currentVersion.mimeType || doc.mimeType,
+    content.absolutePath,
+    downloadFileName(doc.currentVersion.fileName, content.fileName),
+    content.mimeType || doc.mimeType,
   );
 }

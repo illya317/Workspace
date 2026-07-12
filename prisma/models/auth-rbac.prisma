@@ -1,59 +1,64 @@
 /// 用户与认证
 model User {
-  id                          Int                          @id @default(autoincrement())
-  wxUserId                    String?                      @unique
-  username                    String                       @unique
-  password                    String?
-  avatar                      String?
-  alias                       String?
-  phone                       String?
-  routineItems                String?
-  preferredDepartmentIds      String?
-  preferredProjectIds         String?
-  portalSlots                 String?
-  canLogin                    Boolean                      @default(true)
-  apiKeyHash                  String?                      @unique(map: "User_apiKey_key") @map("apiKey")
-  employeeId                  String?
-  createdAt                   DateTime                     @default(now())
-  sessionVersion              Int                          @default(0)
-  editedContracts             Contract[]                   @relation("ContractEditor")
-  editHistories               EditHistory[]                @relation("EditHistoryEditor")
-  employees                   Employee[]                   @relation("EmployeeUser")
-  editedFinanceAccounts       FinanceAccount[]             @relation("FinanceAccountEditor")
-  editedFinanceVouchers       FinanceVoucher[]             @relation("FinanceVoucherEditor")
-  editedStockFinishedGoods    StockFinishedGoods[]         @relation("StockFinishedGoodsEditor")
-  stockOperations             StockOperation[]             @relation("StockOperationEditor")
-  editedStockPackagings       StockPackaging[]             @relation("StockPackagingEditor")
-  editedStockRawMaterials     StockRawMaterial[]           @relation("StockRawMaterialEditor")
-  snapshotImports             FinanceBalanceSnapshot[]     @relation("SnapshotImporter")
-  snapshotEdits               FinanceBalanceSnapshot[]     @relation("SnapshotEditor")
-  editedLibraryDocuments      LibraryDocument[]            @relation("LibraryDocumentEditor")
-  ownedLibraryDocuments       LibraryDocument[]            @relation("LibraryDocumentOwner")
-  reviewedLibraryDocuments    LibraryDocument[]            @relation("LibraryDocumentReviewer")
-  createdLibraryVersions      LibraryDocumentVersion[]     @relation("LibraryDocumentVersionCreator")
-  createdLibraryDocumentTags  LibraryDocumentTag[]         @relation("LibraryDocumentTagCreator")
-  resourceActionGrants        UserResourceActionGrant[]
-  departmentAssignees         DepartmentWorkAssignee[]
-  projectAssignees            ProjectWorkAssignee[]
-  createdDepartmentCollaborations DepartmentCollaboration[]           @relation("DepartmentCollaborationCreator")
-  departmentCollaborationResponses DepartmentCollaborationDepartment[] @relation("DepartmentCollaborationResponder")
-  reviewedReclassResults      ReclassResult[]              @relation("ReclassResultReviewer")
-  confirmedReclassRules       FinanceReclassRule[]         @relation("FinanceReclassRuleConfirmer")
-  ledgerImports               FinanceLedgerImport[]        @relation("FinanceLedgerImportImporter")
-  editedWorkpapers            FinanceStatementWorkpaper[]  @relation("WorkpaperEditor")
-  editedReviews               FinanceStatementReview[]     @relation("ReviewEditor")
-  reviewedReviews             FinanceStatementReview[]     @relation("ReviewReviewer")
-  notifications               Notification[]               @relation("NotificationRecipient")
-  createdNotifications        Notification[]               @relation("NotificationActor")
-  permissionGrantLedgerEvents PermissionGrantLedgerEvent[] @relation("PermissionGrantLedgerActor")
-  submittedApprovalRequests   ApprovalRequest[]            @relation("ApprovalRequestSubmitter")
-  resolvedApprovalRequests    ApprovalRequest[]            @relation("ApprovalRequestResolver")
-  approvalEvents              ApprovalEvent[]              @relation("ApprovalEventActor")
-  workReports                 WorkReport[]                 @relation("WorkReportSubmitter")
-  ownedMeetings               Meeting[]                    @relation("MeetingOwner")
-  secretariedMeetings         Meeting[]                    @relation("MeetingSecretary")
-  meetingParticipations       MeetingParticipant[]         @relation("MeetingParticipantUser")
-  meetingVotes                MeetingVote[]                @relation("MeetingVoteUser")
+  id                                Int                                 @id @default(autoincrement())
+  wxUserId                          String?                             @unique
+  username                          String                              @unique
+  password                          String?
+  avatar                            String?
+  alias                             String?
+  phone                             String?
+  routineItems                      String?
+  preferredDepartmentIds            String?
+  preferredProjectIds               String?
+  portalSlots                       String?
+  canLogin                          Boolean                             @default(true)
+  apiKeyHash                        String?                             @unique(map: "User_apiKey_key") @map("apiKey")
+  employeeId                        String?
+  createdAt                         DateTime                            @default(now())
+  sessionVersion                    Int                                 @default(0)
+  editedContracts                   Contract[]                          @relation("ContractEditor")
+  editHistories                     EditHistory[]                       @relation("EditHistoryEditor")
+  employees                         Employee[]                          @relation("EmployeeUser")
+  editedFinanceAccounts             FinanceAccount[]                    @relation("FinanceAccountEditor")
+  editedFinanceVouchers             FinanceVoucher[]                    @relation("FinanceVoucherEditor")
+  editedStockFinishedGoods          StockFinishedGoods[]                @relation("StockFinishedGoodsEditor")
+  stockOperations                   StockOperation[]                    @relation("StockOperationEditor")
+  editedStockPackagings             StockPackaging[]                    @relation("StockPackagingEditor")
+  editedStockRawMaterials           StockRawMaterial[]                  @relation("StockRawMaterialEditor")
+  snapshotImports                   FinanceBalanceSnapshot[]            @relation("SnapshotImporter")
+  snapshotEdits                     FinanceBalanceSnapshot[]            @relation("SnapshotEditor")
+  editedLibraryDocuments            LibraryDocument[]                   @relation("LibraryDocumentEditor")
+  ownedLibraryDocuments             LibraryDocument[]                   @relation("LibraryDocumentOwner")
+  reviewedLibraryDocuments          LibraryDocument[]                   @relation("LibraryDocumentReviewer")
+  createdLibraryVersions            LibraryDocumentVersion[]            @relation("LibraryDocumentVersionCreator")
+  createdLibraryDocumentTags        LibraryDocumentTag[]                @relation("LibraryDocumentTagCreator")
+  reviewedLibraryTagCandidates      LibraryTagCandidate[]               @relation("LibraryTagCandidateReviewer")
+  reviewedLibraryMetadataCandidates LibraryMetadataCandidate[]          @relation("LibraryMetadataCandidateReviewer")
+  requestedLibraryExports           LibraryExportJob[]                  @relation("LibraryExportRequester")
+  createdLibraryEvaluationCases     LibraryEvaluationCase[]             @relation("LibraryEvaluationCaseCreator")
+  reviewedLibraryEvaluationCases    LibraryEvaluationCase[]             @relation("LibraryEvaluationCaseReviewer")
+  resourceActionGrants              UserResourceActionGrant[]
+  departmentAssignees               DepartmentWorkAssignee[]
+  projectAssignees                  ProjectWorkAssignee[]
+  createdDepartmentCollaborations   DepartmentCollaboration[]           @relation("DepartmentCollaborationCreator")
+  departmentCollaborationResponses  DepartmentCollaborationDepartment[] @relation("DepartmentCollaborationResponder")
+  reviewedReclassResults            ReclassResult[]                     @relation("ReclassResultReviewer")
+  confirmedReclassRules             FinanceReclassRule[]                @relation("FinanceReclassRuleConfirmer")
+  ledgerImports                     FinanceLedgerImport[]               @relation("FinanceLedgerImportImporter")
+  editedWorkpapers                  FinanceStatementWorkpaper[]         @relation("WorkpaperEditor")
+  editedReviews                     FinanceStatementReview[]            @relation("ReviewEditor")
+  reviewedReviews                   FinanceStatementReview[]            @relation("ReviewReviewer")
+  notifications                     Notification[]                      @relation("NotificationRecipient")
+  createdNotifications              Notification[]                      @relation("NotificationActor")
+  permissionGrantLedgerEvents       PermissionGrantLedgerEvent[]        @relation("PermissionGrantLedgerActor")
+  submittedApprovalRequests         ApprovalRequest[]                   @relation("ApprovalRequestSubmitter")
+  resolvedApprovalRequests          ApprovalRequest[]                   @relation("ApprovalRequestResolver")
+  approvalEvents                    ApprovalEvent[]                     @relation("ApprovalEventActor")
+  workReports                       WorkReport[]                        @relation("WorkReportSubmitter")
+  ownedMeetings                     Meeting[]                           @relation("MeetingOwner")
+  secretariedMeetings               Meeting[]                           @relation("MeetingSecretary")
+  meetingParticipations             MeetingParticipant[]                @relation("MeetingParticipantUser")
+  meetingVotes                      MeetingVote[]                       @relation("MeetingVoteUser")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

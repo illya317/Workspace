@@ -4,6 +4,9 @@ export const page_api_registry_entries = [
   {
     name: "Toolbar",
     description: "PageSurface 内部统一工具栏 renderer",
+    declares: [
+      { name: "edit-group.dirty", description: "编辑态是否存在实际修改；显式为 false 时 Core 禁用保存动作。" },
+    ],
     composes: ["ActionButton", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },
   {

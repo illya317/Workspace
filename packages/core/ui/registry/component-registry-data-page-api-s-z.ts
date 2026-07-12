@@ -35,10 +35,11 @@ export const page_api_registry_entries = [
       { name: "commands", description: "选择区局部命令。" },
       { name: "status", description: "结构化卡片状态：success / warning / danger / muted / default；可声明 disabled 与语义动作。" },
       { name: "card.actions", description: "结构化卡片尾部动作；只声明 action 与 icon，交互隔离和位置由 SelectorSurface 负责。" },
+      { name: "card.inlineEdit", description: "结构化卡片就地文本编辑；调用方只声明值、dirty/saving 状态和保存/取消回调，输入框、动作位置及 Enter/Escape 行为由 SelectorSurface 负责。" },
       { name: "loading", description: "选择区加载态。" },
       { name: "emptyText", description: "选择区空态文案。" },
     ],
-    composes: ["SelectorCard", "PanelCard", "Badge", "EmptyStateCard"],
+    composes: ["SelectorCard", "PanelCard", "Badge", "EmptyStateCard", "InputSurface"],
   },
   {
     name: "SwitchField",

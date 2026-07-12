@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model LibraryDirectory
- * 资料库扫描目录（事实表，记录当前根目录内的物理文件夹位置）
+ * 资料库逻辑文件夹（配置/事实交界：扫描建立初始位置，用户可新建、重命名并调整资料归属）
  */
 export type LibraryDirectoryModel = runtime.Types.Result.DefaultSelection<Prisma.$LibraryDirectoryPayload>
 

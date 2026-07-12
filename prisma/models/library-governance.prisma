@@ -1,0 +1,132 @@
+/// 资料标签候选（事实表，由 Agent/Kimi 生成并由资料 owner 审核）
+model LibraryTagCandidate {
+  id            Int       @id @default(autoincrement())
+  candidateUid  String    @unique @default(uuid())
+  documentId    Int
+  versionId     Int
+  tagId         Int?
+  dimension     String
+  proposedKey   String
+  proposedName  String
+  confidence    Float
+  evidenceJson  String
+  providerKey   String
+  modelKey      String
+  promptVersion String
+  status        String    @default("pending")
+  reviewedBy    Int?
+  reviewedAt    DateTime?
+  reviewNote    String?
+  createdAt     DateTime  @default(now())
+
+  document LibraryDocument        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  version  LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  tag      LibraryTag?            @relation(fields: [tagId], references: [id], onDelete: SetNull)
+  reviewer User?                  @relation("LibraryTagCandidateReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@unique([versionId, proposedKey, promptVersion])
+  @@index([documentId, status])
+  @@index([versionId, status])
+  @@index([tagId])
+  @@index([reviewedBy])
+}
+
+/// 资料实体提及（事实表，由确定性抽取或 Agent/Kimi 候选生成，独立于主题标签）
+model LibraryEntityMention {
+  id             Int      @id @default(autoincrement())
+  mentionUid     String   @unique @default(uuid())
+  versionId      Int
+  chunkId        Int?
+  entityType     String
+  canonicalValue String
+  observedText   String
+  locatorJson    String
+  confidence     Float?
+  source         String
+  providerKey    String?
+  modelKey       String?
+  status         String   @default("extracted")
+  createdAt      DateTime @default(now())
+
+  version LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  chunk   LibraryContentChunk?   @relation(fields: [chunkId], references: [id], onDelete: SetNull)
+
+  @@index([versionId, entityType])
+  @@index([chunkId])
+  @@index([entityType, canonicalValue])
+}
+
+/// 资料增强元数据候选（事实表，来源于旧索引或 Agent/Kimi，审核前不作为正式证据）
+model LibraryMetadataCandidate {
+  id              Int       @id @default(autoincrement())
+  candidateUid    String    @unique @default(uuid())
+  documentId      Int
+  versionId       Int
+  title           String?
+  summary         String?
+  keywordsJson    String
+  entitiesJson    String
+  keyPassagesJson String
+  fileFactsJson   String
+  source          String
+  providerKey     String
+  modelKey        String
+  promptVersion   String
+  status          String    @default("pending")
+  reviewedBy      Int?
+  reviewedAt      DateTime?
+  reviewNote      String?
+  createdAt       DateTime  @default(now())
+
+  document LibraryDocument        @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  version  LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  reviewer User?                  @relation("LibraryMetadataCandidateReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+
+  @@unique([versionId, promptVersion])
+  @@index([documentId, status])
+  @@index([versionId, status])
+  @@index([reviewedBy])
+}
+
+/// 资料检索/RAG 金标问题（配置事实表，由人工审核后用于验收）
+model LibraryEvaluationCase {
+  id                 Int       @id @default(autoincrement())
+  caseUid            String    @unique @default(uuid())
+  kind               String
+  question           String
+  expectedAnswer     String?
+  expectedBehavior   String    @default("answer")
+  minConfidentiality Int       @default(0)
+  status             String    @default("draft")
+  createdBy          Int
+  reviewedBy         Int?
+  reviewedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  creator  User                        @relation("LibraryEvaluationCaseCreator", fields: [createdBy], references: [id], onDelete: Restrict)
+  reviewer User?                       @relation("LibraryEvaluationCaseReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull)
+  evidence LibraryEvaluationEvidence[]
+
+  @@index([kind, status])
+  @@index([createdBy])
+  @@index([reviewedBy])
+}
+
+/// 金标问题证据范围（事实表，逐字引用并定位到不可变资料版本）
+model LibraryEvaluationEvidence {
+  id          Int      @id @default(autoincrement())
+  evidenceUid String   @unique @default(uuid())
+  caseId      Int
+  versionId   Int
+  locatorJson String
+  quote       String
+  required    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  evaluationCase LibraryEvaluationCase  @relation(fields: [caseId], references: [id], onDelete: Cascade)
+  version        LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Restrict)
+
+  @@unique([caseId, versionId, evidenceUid])
+  @@index([versionId])
+}

@@ -30,6 +30,7 @@ export type LibraryDocumentVersionAvgAggregateOutputType = {
   id: number | null
   documentId: number | null
   versionNo: number | null
+  storageFileSizeBytes: number | null
   fileSizeBytes: number | null
   createdBy: number | null
 }
@@ -38,6 +39,7 @@ export type LibraryDocumentVersionSumAggregateOutputType = {
   id: number | null
   documentId: number | null
   versionNo: number | null
+  storageFileSizeBytes: number | null
   fileSizeBytes: number | null
   createdBy: number | null
 }
@@ -50,6 +52,10 @@ export type LibraryDocumentVersionMinAggregateOutputType = {
   versionLabel: string | null
   fileName: string | null
   storagePath: string | null
+  storageFileName: string | null
+  storageMimeType: string | null
+  storageFileSizeBytes: number | null
+  storageChecksumSha256: string | null
   relativePath: string | null
   extension: string | null
   mimeType: string | null
@@ -70,6 +76,10 @@ export type LibraryDocumentVersionMaxAggregateOutputType = {
   versionLabel: string | null
   fileName: string | null
   storagePath: string | null
+  storageFileName: string | null
+  storageMimeType: string | null
+  storageFileSizeBytes: number | null
+  storageChecksumSha256: string | null
   relativePath: string | null
   extension: string | null
   mimeType: string | null
@@ -90,6 +100,10 @@ export type LibraryDocumentVersionCountAggregateOutputType = {
   versionLabel: number
   fileName: number
   storagePath: number
+  storageFileName: number
+  storageMimeType: number
+  storageFileSizeBytes: number
+  storageChecksumSha256: number
   relativePath: number
   extension: number
   mimeType: number
@@ -108,6 +122,7 @@ export type LibraryDocumentVersionAvgAggregateInputType = {
   id?: true
   documentId?: true
   versionNo?: true
+  storageFileSizeBytes?: true
   fileSizeBytes?: true
   createdBy?: true
 }
@@ -116,6 +131,7 @@ export type LibraryDocumentVersionSumAggregateInputType = {
   id?: true
   documentId?: true
   versionNo?: true
+  storageFileSizeBytes?: true
   fileSizeBytes?: true
   createdBy?: true
 }
@@ -128,6 +144,10 @@ export type LibraryDocumentVersionMinAggregateInputType = {
   versionLabel?: true
   fileName?: true
   storagePath?: true
+  storageFileName?: true
+  storageMimeType?: true
+  storageFileSizeBytes?: true
+  storageChecksumSha256?: true
   relativePath?: true
   extension?: true
   mimeType?: true
@@ -148,6 +168,10 @@ export type LibraryDocumentVersionMaxAggregateInputType = {
   versionLabel?: true
   fileName?: true
   storagePath?: true
+  storageFileName?: true
+  storageMimeType?: true
+  storageFileSizeBytes?: true
+  storageChecksumSha256?: true
   relativePath?: true
   extension?: true
   mimeType?: true
@@ -168,6 +192,10 @@ export type LibraryDocumentVersionCountAggregateInputType = {
   versionLabel?: true
   fileName?: true
   storagePath?: true
+  storageFileName?: true
+  storageMimeType?: true
+  storageFileSizeBytes?: true
+  storageChecksumSha256?: true
   relativePath?: true
   extension?: true
   mimeType?: true
@@ -275,6 +303,10 @@ export type LibraryDocumentVersionGroupByOutputType = {
   versionLabel: string | null
   fileName: string
   storagePath: string
+  storageFileName: string | null
+  storageMimeType: string | null
+  storageFileSizeBytes: number | null
+  storageChecksumSha256: string | null
   relativePath: string
   extension: string | null
   mimeType: string | null
@@ -318,6 +350,10 @@ export type LibraryDocumentVersionWhereInput = {
   versionLabel?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   fileName?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   storagePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
+  storageFileName?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageMimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageFileSizeBytes?: Prisma.IntNullableFilter<"LibraryDocumentVersion"> | number | null
+  storageChecksumSha256?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   relativePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   extension?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   mimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
@@ -332,6 +368,14 @@ export type LibraryDocumentVersionWhereInput = {
   currentForDocument?: Prisma.XOR<Prisma.LibraryDocumentNullableScalarRelationFilter, Prisma.LibraryDocumentWhereInput> | null
   creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   selections?: Prisma.DueDiligenceMaterialSelectionListRelationFilter
+  processingJobs?: Prisma.LibraryProcessingJobListRelationFilter
+  artifacts?: Prisma.LibraryArtifactListRelationFilter
+  chunks?: Prisma.LibraryContentChunkListRelationFilter
+  searchIndexes?: Prisma.LibrarySearchIndexListRelationFilter
+  tagCandidates?: Prisma.LibraryTagCandidateListRelationFilter
+  metadataCandidates?: Prisma.LibraryMetadataCandidateListRelationFilter
+  entityMentions?: Prisma.LibraryEntityMentionListRelationFilter
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceListRelationFilter
 }
 
 export type LibraryDocumentVersionOrderByWithRelationInput = {
@@ -342,6 +386,10 @@ export type LibraryDocumentVersionOrderByWithRelationInput = {
   versionLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrder
   storagePath?: Prisma.SortOrder
+  storageFileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageChecksumSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   relativePath?: Prisma.SortOrder
   extension?: Prisma.SortOrderInput | Prisma.SortOrder
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -356,6 +404,14 @@ export type LibraryDocumentVersionOrderByWithRelationInput = {
   currentForDocument?: Prisma.LibraryDocumentOrderByWithRelationInput
   creator?: Prisma.UserOrderByWithRelationInput
   selections?: Prisma.DueDiligenceMaterialSelectionOrderByRelationAggregateInput
+  processingJobs?: Prisma.LibraryProcessingJobOrderByRelationAggregateInput
+  artifacts?: Prisma.LibraryArtifactOrderByRelationAggregateInput
+  chunks?: Prisma.LibraryContentChunkOrderByRelationAggregateInput
+  searchIndexes?: Prisma.LibrarySearchIndexOrderByRelationAggregateInput
+  tagCandidates?: Prisma.LibraryTagCandidateOrderByRelationAggregateInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateOrderByRelationAggregateInput
+  entityMentions?: Prisma.LibraryEntityMentionOrderByRelationAggregateInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceOrderByRelationAggregateInput
 }
 
 export type LibraryDocumentVersionWhereUniqueInput = Prisma.AtLeast<{
@@ -370,6 +426,10 @@ export type LibraryDocumentVersionWhereUniqueInput = Prisma.AtLeast<{
   versionLabel?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   fileName?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   storagePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
+  storageFileName?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageMimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageFileSizeBytes?: Prisma.IntNullableFilter<"LibraryDocumentVersion"> | number | null
+  storageChecksumSha256?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   relativePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   extension?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   mimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
@@ -384,6 +444,14 @@ export type LibraryDocumentVersionWhereUniqueInput = Prisma.AtLeast<{
   currentForDocument?: Prisma.XOR<Prisma.LibraryDocumentNullableScalarRelationFilter, Prisma.LibraryDocumentWhereInput> | null
   creator?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   selections?: Prisma.DueDiligenceMaterialSelectionListRelationFilter
+  processingJobs?: Prisma.LibraryProcessingJobListRelationFilter
+  artifacts?: Prisma.LibraryArtifactListRelationFilter
+  chunks?: Prisma.LibraryContentChunkListRelationFilter
+  searchIndexes?: Prisma.LibrarySearchIndexListRelationFilter
+  tagCandidates?: Prisma.LibraryTagCandidateListRelationFilter
+  metadataCandidates?: Prisma.LibraryMetadataCandidateListRelationFilter
+  entityMentions?: Prisma.LibraryEntityMentionListRelationFilter
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceListRelationFilter
 }, "id" | "versionUid" | "documentId_versionNo">
 
 export type LibraryDocumentVersionOrderByWithAggregationInput = {
@@ -394,6 +462,10 @@ export type LibraryDocumentVersionOrderByWithAggregationInput = {
   versionLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   fileName?: Prisma.SortOrder
   storagePath?: Prisma.SortOrder
+  storageFileName?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageMimeType?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrderInput | Prisma.SortOrder
+  storageChecksumSha256?: Prisma.SortOrderInput | Prisma.SortOrder
   relativePath?: Prisma.SortOrder
   extension?: Prisma.SortOrderInput | Prisma.SortOrder
   mimeType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -422,6 +494,10 @@ export type LibraryDocumentVersionScalarWhereWithAggregatesInput = {
   versionLabel?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
   fileName?: Prisma.StringWithAggregatesFilter<"LibraryDocumentVersion"> | string
   storagePath?: Prisma.StringWithAggregatesFilter<"LibraryDocumentVersion"> | string
+  storageFileName?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
+  storageMimeType?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
+  storageFileSizeBytes?: Prisma.IntNullableWithAggregatesFilter<"LibraryDocumentVersion"> | number | null
+  storageChecksumSha256?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
   relativePath?: Prisma.StringWithAggregatesFilter<"LibraryDocumentVersion"> | string
   extension?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
   mimeType?: Prisma.StringNullableWithAggregatesFilter<"LibraryDocumentVersion"> | string | null
@@ -440,6 +516,10 @@ export type LibraryDocumentVersionCreateInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -453,6 +533,14 @@ export type LibraryDocumentVersionCreateInput = {
   currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
   selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUncheckedCreateInput = {
@@ -463,6 +551,10 @@ export type LibraryDocumentVersionUncheckedCreateInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -475,6 +567,14 @@ export type LibraryDocumentVersionUncheckedCreateInput = {
   createdAt?: Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUpdateInput = {
@@ -483,6 +583,10 @@ export type LibraryDocumentVersionUpdateInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -496,6 +600,14 @@ export type LibraryDocumentVersionUpdateInput = {
   currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateInput = {
@@ -506,6 +618,10 @@ export type LibraryDocumentVersionUncheckedUpdateInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -518,6 +634,14 @@ export type LibraryDocumentVersionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionCreateManyInput = {
@@ -528,6 +652,10 @@ export type LibraryDocumentVersionCreateManyInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -546,6 +674,10 @@ export type LibraryDocumentVersionUpdateManyMutationInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -565,6 +697,10 @@ export type LibraryDocumentVersionUncheckedUpdateManyInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -587,6 +723,11 @@ export type LibraryDocumentVersionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type LibraryDocumentVersionScalarRelationFilter = {
+  is?: Prisma.LibraryDocumentVersionWhereInput
+  isNot?: Prisma.LibraryDocumentVersionWhereInput
+}
+
 export type LibraryDocumentVersionNullableScalarRelationFilter = {
   is?: Prisma.LibraryDocumentVersionWhereInput | null
   isNot?: Prisma.LibraryDocumentVersionWhereInput | null
@@ -605,6 +746,10 @@ export type LibraryDocumentVersionCountOrderByAggregateInput = {
   versionLabel?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   storagePath?: Prisma.SortOrder
+  storageFileName?: Prisma.SortOrder
+  storageMimeType?: Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrder
+  storageChecksumSha256?: Prisma.SortOrder
   relativePath?: Prisma.SortOrder
   extension?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -621,6 +766,7 @@ export type LibraryDocumentVersionAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   versionNo?: Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
 }
@@ -633,6 +779,10 @@ export type LibraryDocumentVersionMaxOrderByAggregateInput = {
   versionLabel?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   storagePath?: Prisma.SortOrder
+  storageFileName?: Prisma.SortOrder
+  storageMimeType?: Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrder
+  storageChecksumSha256?: Prisma.SortOrder
   relativePath?: Prisma.SortOrder
   extension?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -653,6 +803,10 @@ export type LibraryDocumentVersionMinOrderByAggregateInput = {
   versionLabel?: Prisma.SortOrder
   fileName?: Prisma.SortOrder
   storagePath?: Prisma.SortOrder
+  storageFileName?: Prisma.SortOrder
+  storageMimeType?: Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrder
+  storageChecksumSha256?: Prisma.SortOrder
   relativePath?: Prisma.SortOrder
   extension?: Prisma.SortOrder
   mimeType?: Prisma.SortOrder
@@ -669,6 +823,7 @@ export type LibraryDocumentVersionSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   documentId?: Prisma.SortOrder
   versionNo?: Prisma.SortOrder
+  storageFileSizeBytes?: Prisma.SortOrder
   fileSizeBytes?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
 }
@@ -713,6 +868,118 @@ export type LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput =
   update?: Prisma.LibraryDocumentVersionUpdateWithWhereUniqueWithoutCreatorInput | Prisma.LibraryDocumentVersionUpdateWithWhereUniqueWithoutCreatorInput[]
   updateMany?: Prisma.LibraryDocumentVersionUpdateManyWithWhereWithoutCreatorInput | Prisma.LibraryDocumentVersionUpdateManyWithWhereWithoutCreatorInput[]
   deleteMany?: Prisma.LibraryDocumentVersionScalarWhereInput | Prisma.LibraryDocumentVersionScalarWhereInput[]
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutTagCandidatesInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutTagCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutTagCandidatesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutTagCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutTagCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutTagCandidatesInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutTagCandidatesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUpdateWithoutTagCandidatesInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutEntityMentionsInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEntityMentionsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutEntityMentionsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutEntityMentionsNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEntityMentionsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutEntityMentionsInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutEntityMentionsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUpdateWithoutEntityMentionsInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEntityMentionsInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutMetadataCandidatesInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutMetadataCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutMetadataCandidatesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutMetadataCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutMetadataCandidatesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutMetadataCandidatesInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutMetadataCandidatesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUpdateWithoutMetadataCandidatesInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutMetadataCandidatesInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutEvaluationEvidenceInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEvaluationEvidenceInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutEvaluationEvidenceInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutEvaluationEvidenceNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEvaluationEvidenceInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutEvaluationEvidenceInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutEvaluationEvidenceInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUpdateWithoutEvaluationEvidenceInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEvaluationEvidenceInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutProcessingJobsInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutProcessingJobsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutProcessingJobsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutProcessingJobsNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutProcessingJobsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutProcessingJobsInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutProcessingJobsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUpdateWithoutProcessingJobsInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutProcessingJobsInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutArtifactsInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutArtifactsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutArtifactsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutArtifactsNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutArtifactsInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutArtifactsInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutArtifactsInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutArtifactsInput, Prisma.LibraryDocumentVersionUpdateWithoutArtifactsInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutArtifactsInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutChunksInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutChunksInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutChunksInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutChunksNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutChunksInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutChunksInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutChunksInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutChunksInput, Prisma.LibraryDocumentVersionUpdateWithoutChunksInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutChunksInput>
+}
+
+export type LibraryDocumentVersionCreateNestedOneWithoutSearchIndexesInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutSearchIndexesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutSearchIndexesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+}
+
+export type LibraryDocumentVersionUpdateOneRequiredWithoutSearchIndexesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutSearchIndexesInput>
+  connectOrCreate?: Prisma.LibraryDocumentVersionCreateOrConnectWithoutSearchIndexesInput
+  upsert?: Prisma.LibraryDocumentVersionUpsertWithoutSearchIndexesInput
+  connect?: Prisma.LibraryDocumentVersionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryDocumentVersionUpdateToOneWithWhereWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUpdateWithoutSearchIndexesInput>, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutSearchIndexesInput>
 }
 
 export type LibraryDocumentVersionCreateNestedOneWithoutCurrentForDocumentInput = {
@@ -795,6 +1062,10 @@ export type LibraryDocumentVersionCreateWithoutCreatorInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -807,6 +1078,14 @@ export type LibraryDocumentVersionCreateWithoutCreatorInput = {
   document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
   currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
   selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUncheckedCreateWithoutCreatorInput = {
@@ -817,6 +1096,10 @@ export type LibraryDocumentVersionUncheckedCreateWithoutCreatorInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -828,6 +1111,14 @@ export type LibraryDocumentVersionUncheckedCreateWithoutCreatorInput = {
   createdAt?: Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionCreateOrConnectWithoutCreatorInput = {
@@ -866,6 +1157,10 @@ export type LibraryDocumentVersionScalarWhereInput = {
   versionLabel?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   fileName?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   storagePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
+  storageFileName?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageMimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
+  storageFileSizeBytes?: Prisma.IntNullableFilter<"LibraryDocumentVersion"> | number | null
+  storageChecksumSha256?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   relativePath?: Prisma.StringFilter<"LibraryDocumentVersion"> | string
   extension?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
   mimeType?: Prisma.StringNullableFilter<"LibraryDocumentVersion"> | string | null
@@ -878,12 +1173,1184 @@ export type LibraryDocumentVersionScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"LibraryDocumentVersion"> | Date | string
 }
 
+export type LibraryDocumentVersionCreateWithoutTagCandidatesInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutTagCandidatesInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutTagCandidatesInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutTagCandidatesInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutTagCandidatesInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutTagCandidatesInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutTagCandidatesInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutTagCandidatesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutTagCandidatesInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutTagCandidatesInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutTagCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutEntityMentionsInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutEntityMentionsInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutEntityMentionsInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEntityMentionsInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutEntityMentionsInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEntityMentionsInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEntityMentionsInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutEntityMentionsInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutEntityMentionsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEntityMentionsInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutEntityMentionsInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutEntityMentionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutMetadataCandidatesInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutMetadataCandidatesInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutMetadataCandidatesInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutMetadataCandidatesInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutMetadataCandidatesInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutMetadataCandidatesInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutMetadataCandidatesInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutMetadataCandidatesInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutMetadataCandidatesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutMetadataCandidatesInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutMetadataCandidatesInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutMetadataCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutEvaluationEvidenceInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutEvaluationEvidenceInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutEvaluationEvidenceInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEvaluationEvidenceInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutEvaluationEvidenceInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEvaluationEvidenceInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutEvaluationEvidenceInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutEvaluationEvidenceInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutEvaluationEvidenceInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutEvaluationEvidenceInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutEvaluationEvidenceInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutEvaluationEvidenceInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutProcessingJobsInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutProcessingJobsInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutProcessingJobsInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutProcessingJobsInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutProcessingJobsInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutProcessingJobsInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutProcessingJobsInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutProcessingJobsInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutProcessingJobsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutProcessingJobsInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutProcessingJobsInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutProcessingJobsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutArtifactsInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutArtifactsInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutArtifactsInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutArtifactsInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutArtifactsInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutArtifactsInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutArtifactsInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutArtifactsInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutArtifactsInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutArtifactsInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutArtifactsInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutArtifactsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutChunksInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutChunksInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutChunksInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutChunksInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutChunksInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutChunksInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutChunksInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutChunksInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutChunksInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutChunksInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutChunksInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutChunksInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionCreateWithoutSearchIndexesInput = {
+  versionUid?: string
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdAt?: Date | string
+  document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
+  currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
+  creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionUncheckedCreateWithoutSearchIndexesInput = {
+  id?: number
+  versionUid?: string
+  documentId: number
+  versionNo: number
+  versionLabel?: string | null
+  fileName: string
+  storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
+  relativePath: string
+  extension?: string | null
+  mimeType?: string | null
+  fileSizeBytes?: number | null
+  sourceModifiedAt?: Date | string | null
+  checksumSha256?: string | null
+  gitCommit?: string | null
+  changeNote?: string | null
+  createdBy?: number | null
+  createdAt?: Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
+}
+
+export type LibraryDocumentVersionCreateOrConnectWithoutSearchIndexesInput = {
+  where: Prisma.LibraryDocumentVersionWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutSearchIndexesInput>
+}
+
+export type LibraryDocumentVersionUpsertWithoutSearchIndexesInput = {
+  update: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutSearchIndexesInput>
+  create: Prisma.XOR<Prisma.LibraryDocumentVersionCreateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedCreateWithoutSearchIndexesInput>
+  where?: Prisma.LibraryDocumentVersionWhereInput
+}
+
+export type LibraryDocumentVersionUpdateToOneWithWhereWithoutSearchIndexesInput = {
+  where?: Prisma.LibraryDocumentVersionWhereInput
+  data: Prisma.XOR<Prisma.LibraryDocumentVersionUpdateWithoutSearchIndexesInput, Prisma.LibraryDocumentVersionUncheckedUpdateWithoutSearchIndexesInput>
+}
+
+export type LibraryDocumentVersionUpdateWithoutSearchIndexesInput = {
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
+  currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
+  creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
+}
+
+export type LibraryDocumentVersionUncheckedUpdateWithoutSearchIndexesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  versionUid?: Prisma.StringFieldUpdateOperationsInput | string
+  documentId?: Prisma.IntFieldUpdateOperationsInput | number
+  versionNo?: Prisma.IntFieldUpdateOperationsInput | number
+  versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileName?: Prisma.StringFieldUpdateOperationsInput | string
+  storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relativePath?: Prisma.StringFieldUpdateOperationsInput | string
+  extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  fileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceModifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  checksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  gitCommit?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  changeNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
+}
+
 export type LibraryDocumentVersionCreateWithoutCurrentForDocumentInput = {
   versionUid?: string
   versionNo: number
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -896,6 +2363,14 @@ export type LibraryDocumentVersionCreateWithoutCurrentForDocumentInput = {
   document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
   selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUncheckedCreateWithoutCurrentForDocumentInput = {
@@ -906,6 +2381,10 @@ export type LibraryDocumentVersionUncheckedCreateWithoutCurrentForDocumentInput 
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -917,6 +2396,14 @@ export type LibraryDocumentVersionUncheckedCreateWithoutCurrentForDocumentInput 
   createdBy?: number | null
   createdAt?: Date | string
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionCreateOrConnectWithoutCurrentForDocumentInput = {
@@ -930,6 +2417,10 @@ export type LibraryDocumentVersionCreateWithoutDocumentInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -942,6 +2433,14 @@ export type LibraryDocumentVersionCreateWithoutDocumentInput = {
   currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
   selections?: Prisma.DueDiligenceMaterialSelectionCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUncheckedCreateWithoutDocumentInput = {
@@ -951,6 +2450,10 @@ export type LibraryDocumentVersionUncheckedCreateWithoutDocumentInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -963,6 +2466,14 @@ export type LibraryDocumentVersionUncheckedCreateWithoutDocumentInput = {
   createdAt?: Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedCreateNestedManyWithoutDocumentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionCreateOrConnectWithoutDocumentInput = {
@@ -991,6 +2502,10 @@ export type LibraryDocumentVersionUpdateWithoutCurrentForDocumentInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1003,6 +2518,14 @@ export type LibraryDocumentVersionUpdateWithoutCurrentForDocumentInput = {
   document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateWithoutCurrentForDocumentInput = {
@@ -1013,6 +2536,10 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutCurrentForDocumentInput 
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1024,6 +2551,14 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutCurrentForDocumentInput 
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -1048,6 +2583,10 @@ export type LibraryDocumentVersionCreateWithoutSelectionsInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -1060,6 +2599,14 @@ export type LibraryDocumentVersionCreateWithoutSelectionsInput = {
   document: Prisma.LibraryDocumentCreateNestedOneWithoutVersionsInput
   currentForDocument?: Prisma.LibraryDocumentCreateNestedOneWithoutCurrentVersionInput
   creator?: Prisma.UserCreateNestedOneWithoutCreatedLibraryVersionsInput
+  processingJobs?: Prisma.LibraryProcessingJobCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionUncheckedCreateWithoutSelectionsInput = {
@@ -1070,6 +2617,10 @@ export type LibraryDocumentVersionUncheckedCreateWithoutSelectionsInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -1081,6 +2632,14 @@ export type LibraryDocumentVersionUncheckedCreateWithoutSelectionsInput = {
   createdBy?: number | null
   createdAt?: Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedCreateNestedOneWithoutCurrentVersionInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedCreateNestedManyWithoutVersionInput
+  artifacts?: Prisma.LibraryArtifactUncheckedCreateNestedManyWithoutVersionInput
+  chunks?: Prisma.LibraryContentChunkUncheckedCreateNestedManyWithoutVersionInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedCreateNestedManyWithoutVersionInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutVersionInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutVersionInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedCreateNestedManyWithoutVersionInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedCreateNestedManyWithoutVersionInput
 }
 
 export type LibraryDocumentVersionCreateOrConnectWithoutSelectionsInput = {
@@ -1105,6 +2664,10 @@ export type LibraryDocumentVersionUpdateWithoutSelectionsInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1117,6 +2680,14 @@ export type LibraryDocumentVersionUpdateWithoutSelectionsInput = {
   document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
   currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateWithoutSelectionsInput = {
@@ -1127,6 +2698,10 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutSelectionsInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1138,6 +2713,14 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutSelectionsInput = {
   createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionCreateManyCreatorInput = {
@@ -1148,6 +2731,10 @@ export type LibraryDocumentVersionCreateManyCreatorInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -1165,6 +2752,10 @@ export type LibraryDocumentVersionUpdateWithoutCreatorInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1177,6 +2768,14 @@ export type LibraryDocumentVersionUpdateWithoutCreatorInput = {
   document?: Prisma.LibraryDocumentUpdateOneRequiredWithoutVersionsNestedInput
   currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateWithoutCreatorInput = {
@@ -1187,6 +2786,10 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutCreatorInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1198,6 +2801,14 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutCreatorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorInput = {
@@ -1208,6 +2819,10 @@ export type LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1226,6 +2841,10 @@ export type LibraryDocumentVersionCreateManyDocumentInput = {
   versionLabel?: string | null
   fileName: string
   storagePath: string
+  storageFileName?: string | null
+  storageMimeType?: string | null
+  storageFileSizeBytes?: number | null
+  storageChecksumSha256?: string | null
   relativePath: string
   extension?: string | null
   mimeType?: string | null
@@ -1244,6 +2863,10 @@ export type LibraryDocumentVersionUpdateWithoutDocumentInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1256,6 +2879,14 @@ export type LibraryDocumentVersionUpdateWithoutDocumentInput = {
   currentForDocument?: Prisma.LibraryDocumentUpdateOneWithoutCurrentVersionNestedInput
   creator?: Prisma.UserUpdateOneWithoutCreatedLibraryVersionsNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateWithoutDocumentInput = {
@@ -1265,6 +2896,10 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutDocumentInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1277,6 +2912,14 @@ export type LibraryDocumentVersionUncheckedUpdateWithoutDocumentInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   currentForDocument?: Prisma.LibraryDocumentUncheckedUpdateOneWithoutCurrentVersionNestedInput
   selections?: Prisma.DueDiligenceMaterialSelectionUncheckedUpdateManyWithoutDocumentVersionNestedInput
+  processingJobs?: Prisma.LibraryProcessingJobUncheckedUpdateManyWithoutVersionNestedInput
+  artifacts?: Prisma.LibraryArtifactUncheckedUpdateManyWithoutVersionNestedInput
+  chunks?: Prisma.LibraryContentChunkUncheckedUpdateManyWithoutVersionNestedInput
+  searchIndexes?: Prisma.LibrarySearchIndexUncheckedUpdateManyWithoutVersionNestedInput
+  tagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  metadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutVersionNestedInput
+  entityMentions?: Prisma.LibraryEntityMentionUncheckedUpdateManyWithoutVersionNestedInput
+  evaluationEvidence?: Prisma.LibraryEvaluationEvidenceUncheckedUpdateManyWithoutVersionNestedInput
 }
 
 export type LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentInput = {
@@ -1286,6 +2929,10 @@ export type LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentInput = {
   versionLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   fileName?: Prisma.StringFieldUpdateOperationsInput | string
   storagePath?: Prisma.StringFieldUpdateOperationsInput | string
+  storageFileName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageMimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  storageFileSizeBytes?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  storageChecksumSha256?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   relativePath?: Prisma.StringFieldUpdateOperationsInput | string
   extension?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   mimeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1305,10 +2952,26 @@ export type LibraryDocumentVersionUncheckedUpdateManyWithoutDocumentInput = {
 
 export type LibraryDocumentVersionCountOutputType = {
   selections: number
+  processingJobs: number
+  artifacts: number
+  chunks: number
+  searchIndexes: number
+  tagCandidates: number
+  metadataCandidates: number
+  entityMentions: number
+  evaluationEvidence: number
 }
 
 export type LibraryDocumentVersionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   selections?: boolean | LibraryDocumentVersionCountOutputTypeCountSelectionsArgs
+  processingJobs?: boolean | LibraryDocumentVersionCountOutputTypeCountProcessingJobsArgs
+  artifacts?: boolean | LibraryDocumentVersionCountOutputTypeCountArtifactsArgs
+  chunks?: boolean | LibraryDocumentVersionCountOutputTypeCountChunksArgs
+  searchIndexes?: boolean | LibraryDocumentVersionCountOutputTypeCountSearchIndexesArgs
+  tagCandidates?: boolean | LibraryDocumentVersionCountOutputTypeCountTagCandidatesArgs
+  metadataCandidates?: boolean | LibraryDocumentVersionCountOutputTypeCountMetadataCandidatesArgs
+  entityMentions?: boolean | LibraryDocumentVersionCountOutputTypeCountEntityMentionsArgs
+  evaluationEvidence?: boolean | LibraryDocumentVersionCountOutputTypeCountEvaluationEvidenceArgs
 }
 
 /**
@@ -1328,6 +2991,62 @@ export type LibraryDocumentVersionCountOutputTypeCountSelectionsArgs<ExtArgs ext
   where?: Prisma.DueDiligenceMaterialSelectionWhereInput
 }
 
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountProcessingJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryProcessingJobWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountArtifactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryArtifactWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountChunksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryContentChunkWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountSearchIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibrarySearchIndexWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountTagCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryTagCandidateWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountMetadataCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryMetadataCandidateWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountEntityMentionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryEntityMentionWhereInput
+}
+
+/**
+ * LibraryDocumentVersionCountOutputType without action
+ */
+export type LibraryDocumentVersionCountOutputTypeCountEvaluationEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryEvaluationEvidenceWhereInput
+}
+
 
 export type LibraryDocumentVersionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1337,6 +3056,10 @@ export type LibraryDocumentVersionSelect<ExtArgs extends runtime.Types.Extension
   versionLabel?: boolean
   fileName?: boolean
   storagePath?: boolean
+  storageFileName?: boolean
+  storageMimeType?: boolean
+  storageFileSizeBytes?: boolean
+  storageChecksumSha256?: boolean
   relativePath?: boolean
   extension?: boolean
   mimeType?: boolean
@@ -1351,6 +3074,14 @@ export type LibraryDocumentVersionSelect<ExtArgs extends runtime.Types.Extension
   currentForDocument?: boolean | Prisma.LibraryDocumentVersion$currentForDocumentArgs<ExtArgs>
   creator?: boolean | Prisma.LibraryDocumentVersion$creatorArgs<ExtArgs>
   selections?: boolean | Prisma.LibraryDocumentVersion$selectionsArgs<ExtArgs>
+  processingJobs?: boolean | Prisma.LibraryDocumentVersion$processingJobsArgs<ExtArgs>
+  artifacts?: boolean | Prisma.LibraryDocumentVersion$artifactsArgs<ExtArgs>
+  chunks?: boolean | Prisma.LibraryDocumentVersion$chunksArgs<ExtArgs>
+  searchIndexes?: boolean | Prisma.LibraryDocumentVersion$searchIndexesArgs<ExtArgs>
+  tagCandidates?: boolean | Prisma.LibraryDocumentVersion$tagCandidatesArgs<ExtArgs>
+  metadataCandidates?: boolean | Prisma.LibraryDocumentVersion$metadataCandidatesArgs<ExtArgs>
+  entityMentions?: boolean | Prisma.LibraryDocumentVersion$entityMentionsArgs<ExtArgs>
+  evaluationEvidence?: boolean | Prisma.LibraryDocumentVersion$evaluationEvidenceArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryDocumentVersionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["libraryDocumentVersion"]>
 
@@ -1362,6 +3093,10 @@ export type LibraryDocumentVersionSelectCreateManyAndReturn<ExtArgs extends runt
   versionLabel?: boolean
   fileName?: boolean
   storagePath?: boolean
+  storageFileName?: boolean
+  storageMimeType?: boolean
+  storageFileSizeBytes?: boolean
+  storageChecksumSha256?: boolean
   relativePath?: boolean
   extension?: boolean
   mimeType?: boolean
@@ -1384,6 +3119,10 @@ export type LibraryDocumentVersionSelectUpdateManyAndReturn<ExtArgs extends runt
   versionLabel?: boolean
   fileName?: boolean
   storagePath?: boolean
+  storageFileName?: boolean
+  storageMimeType?: boolean
+  storageFileSizeBytes?: boolean
+  storageChecksumSha256?: boolean
   relativePath?: boolean
   extension?: boolean
   mimeType?: boolean
@@ -1406,6 +3145,10 @@ export type LibraryDocumentVersionSelectScalar = {
   versionLabel?: boolean
   fileName?: boolean
   storagePath?: boolean
+  storageFileName?: boolean
+  storageMimeType?: boolean
+  storageFileSizeBytes?: boolean
+  storageChecksumSha256?: boolean
   relativePath?: boolean
   extension?: boolean
   mimeType?: boolean
@@ -1418,12 +3161,20 @@ export type LibraryDocumentVersionSelectScalar = {
   createdAt?: boolean
 }
 
-export type LibraryDocumentVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "versionUid" | "documentId" | "versionNo" | "versionLabel" | "fileName" | "storagePath" | "relativePath" | "extension" | "mimeType" | "fileSizeBytes" | "sourceModifiedAt" | "checksumSha256" | "gitCommit" | "changeNote" | "createdBy" | "createdAt", ExtArgs["result"]["libraryDocumentVersion"]>
+export type LibraryDocumentVersionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "versionUid" | "documentId" | "versionNo" | "versionLabel" | "fileName" | "storagePath" | "storageFileName" | "storageMimeType" | "storageFileSizeBytes" | "storageChecksumSha256" | "relativePath" | "extension" | "mimeType" | "fileSizeBytes" | "sourceModifiedAt" | "checksumSha256" | "gitCommit" | "changeNote" | "createdBy" | "createdAt", ExtArgs["result"]["libraryDocumentVersion"]>
 export type LibraryDocumentVersionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   document?: boolean | Prisma.LibraryDocumentDefaultArgs<ExtArgs>
   currentForDocument?: boolean | Prisma.LibraryDocumentVersion$currentForDocumentArgs<ExtArgs>
   creator?: boolean | Prisma.LibraryDocumentVersion$creatorArgs<ExtArgs>
   selections?: boolean | Prisma.LibraryDocumentVersion$selectionsArgs<ExtArgs>
+  processingJobs?: boolean | Prisma.LibraryDocumentVersion$processingJobsArgs<ExtArgs>
+  artifacts?: boolean | Prisma.LibraryDocumentVersion$artifactsArgs<ExtArgs>
+  chunks?: boolean | Prisma.LibraryDocumentVersion$chunksArgs<ExtArgs>
+  searchIndexes?: boolean | Prisma.LibraryDocumentVersion$searchIndexesArgs<ExtArgs>
+  tagCandidates?: boolean | Prisma.LibraryDocumentVersion$tagCandidatesArgs<ExtArgs>
+  metadataCandidates?: boolean | Prisma.LibraryDocumentVersion$metadataCandidatesArgs<ExtArgs>
+  entityMentions?: boolean | Prisma.LibraryDocumentVersion$entityMentionsArgs<ExtArgs>
+  evaluationEvidence?: boolean | Prisma.LibraryDocumentVersion$evaluationEvidenceArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryDocumentVersionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LibraryDocumentVersionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1442,6 +3193,14 @@ export type $LibraryDocumentVersionPayload<ExtArgs extends runtime.Types.Extensi
     currentForDocument: Prisma.$LibraryDocumentPayload<ExtArgs> | null
     creator: Prisma.$UserPayload<ExtArgs> | null
     selections: Prisma.$DueDiligenceMaterialSelectionPayload<ExtArgs>[]
+    processingJobs: Prisma.$LibraryProcessingJobPayload<ExtArgs>[]
+    artifacts: Prisma.$LibraryArtifactPayload<ExtArgs>[]
+    chunks: Prisma.$LibraryContentChunkPayload<ExtArgs>[]
+    searchIndexes: Prisma.$LibrarySearchIndexPayload<ExtArgs>[]
+    tagCandidates: Prisma.$LibraryTagCandidatePayload<ExtArgs>[]
+    metadataCandidates: Prisma.$LibraryMetadataCandidatePayload<ExtArgs>[]
+    entityMentions: Prisma.$LibraryEntityMentionPayload<ExtArgs>[]
+    evaluationEvidence: Prisma.$LibraryEvaluationEvidencePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1451,6 +3210,10 @@ export type $LibraryDocumentVersionPayload<ExtArgs extends runtime.Types.Extensi
     versionLabel: string | null
     fileName: string
     storagePath: string
+    storageFileName: string | null
+    storageMimeType: string | null
+    storageFileSizeBytes: number | null
+    storageChecksumSha256: string | null
     relativePath: string
     extension: string | null
     mimeType: string | null
@@ -1859,6 +3622,14 @@ export interface Prisma__LibraryDocumentVersionClient<T, Null = never, ExtArgs e
   currentForDocument<T extends Prisma.LibraryDocumentVersion$currentForDocumentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$currentForDocumentArgs<ExtArgs>>): Prisma.Prisma__LibraryDocumentClient<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   creator<T extends Prisma.LibraryDocumentVersion$creatorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$creatorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   selections<T extends Prisma.LibraryDocumentVersion$selectionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$selectionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DueDiligenceMaterialSelectionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  processingJobs<T extends Prisma.LibraryDocumentVersion$processingJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$processingJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryProcessingJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  artifacts<T extends Prisma.LibraryDocumentVersion$artifactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$artifactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryArtifactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  chunks<T extends Prisma.LibraryDocumentVersion$chunksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$chunksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryContentChunkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  searchIndexes<T extends Prisma.LibraryDocumentVersion$searchIndexesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$searchIndexesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibrarySearchIndexPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  tagCandidates<T extends Prisma.LibraryDocumentVersion$tagCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$tagCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryTagCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  metadataCandidates<T extends Prisma.LibraryDocumentVersion$metadataCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$metadataCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryMetadataCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  entityMentions<T extends Prisma.LibraryDocumentVersion$entityMentionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$entityMentionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryEntityMentionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  evaluationEvidence<T extends Prisma.LibraryDocumentVersion$evaluationEvidenceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryDocumentVersion$evaluationEvidenceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryEvaluationEvidencePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1895,6 +3666,10 @@ export interface LibraryDocumentVersionFieldRefs {
   readonly versionLabel: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
   readonly fileName: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
   readonly storagePath: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
+  readonly storageFileName: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
+  readonly storageMimeType: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
+  readonly storageFileSizeBytes: Prisma.FieldRef<"LibraryDocumentVersion", 'Int'>
+  readonly storageChecksumSha256: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
   readonly relativePath: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
   readonly extension: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
   readonly mimeType: Prisma.FieldRef<"LibraryDocumentVersion", 'String'>
@@ -2363,6 +4138,198 @@ export type LibraryDocumentVersion$selectionsArgs<ExtArgs extends runtime.Types.
   take?: number
   skip?: number
   distinct?: Prisma.DueDiligenceMaterialSelectionScalarFieldEnum | Prisma.DueDiligenceMaterialSelectionScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.processingJobs
+ */
+export type LibraryDocumentVersion$processingJobsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryProcessingJob
+   */
+  select?: Prisma.LibraryProcessingJobSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryProcessingJob
+   */
+  omit?: Prisma.LibraryProcessingJobOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryProcessingJobInclude<ExtArgs> | null
+  where?: Prisma.LibraryProcessingJobWhereInput
+  orderBy?: Prisma.LibraryProcessingJobOrderByWithRelationInput | Prisma.LibraryProcessingJobOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryProcessingJobWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryProcessingJobScalarFieldEnum | Prisma.LibraryProcessingJobScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.artifacts
+ */
+export type LibraryDocumentVersion$artifactsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryArtifact
+   */
+  select?: Prisma.LibraryArtifactSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryArtifact
+   */
+  omit?: Prisma.LibraryArtifactOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryArtifactInclude<ExtArgs> | null
+  where?: Prisma.LibraryArtifactWhereInput
+  orderBy?: Prisma.LibraryArtifactOrderByWithRelationInput | Prisma.LibraryArtifactOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryArtifactWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryArtifactScalarFieldEnum | Prisma.LibraryArtifactScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.chunks
+ */
+export type LibraryDocumentVersion$chunksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryContentChunk
+   */
+  select?: Prisma.LibraryContentChunkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryContentChunk
+   */
+  omit?: Prisma.LibraryContentChunkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryContentChunkInclude<ExtArgs> | null
+  where?: Prisma.LibraryContentChunkWhereInput
+  orderBy?: Prisma.LibraryContentChunkOrderByWithRelationInput | Prisma.LibraryContentChunkOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryContentChunkWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryContentChunkScalarFieldEnum | Prisma.LibraryContentChunkScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.searchIndexes
+ */
+export type LibraryDocumentVersion$searchIndexesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibrarySearchIndex
+   */
+  select?: Prisma.LibrarySearchIndexSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibrarySearchIndex
+   */
+  omit?: Prisma.LibrarySearchIndexOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibrarySearchIndexInclude<ExtArgs> | null
+  where?: Prisma.LibrarySearchIndexWhereInput
+  orderBy?: Prisma.LibrarySearchIndexOrderByWithRelationInput | Prisma.LibrarySearchIndexOrderByWithRelationInput[]
+  cursor?: Prisma.LibrarySearchIndexWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibrarySearchIndexScalarFieldEnum | Prisma.LibrarySearchIndexScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.tagCandidates
+ */
+export type LibraryDocumentVersion$tagCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryTagCandidate
+   */
+  select?: Prisma.LibraryTagCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryTagCandidate
+   */
+  omit?: Prisma.LibraryTagCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryTagCandidateInclude<ExtArgs> | null
+  where?: Prisma.LibraryTagCandidateWhereInput
+  orderBy?: Prisma.LibraryTagCandidateOrderByWithRelationInput | Prisma.LibraryTagCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryTagCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryTagCandidateScalarFieldEnum | Prisma.LibraryTagCandidateScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.metadataCandidates
+ */
+export type LibraryDocumentVersion$metadataCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryMetadataCandidate
+   */
+  select?: Prisma.LibraryMetadataCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryMetadataCandidate
+   */
+  omit?: Prisma.LibraryMetadataCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryMetadataCandidateInclude<ExtArgs> | null
+  where?: Prisma.LibraryMetadataCandidateWhereInput
+  orderBy?: Prisma.LibraryMetadataCandidateOrderByWithRelationInput | Prisma.LibraryMetadataCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryMetadataCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryMetadataCandidateScalarFieldEnum | Prisma.LibraryMetadataCandidateScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.entityMentions
+ */
+export type LibraryDocumentVersion$entityMentionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryEntityMention
+   */
+  select?: Prisma.LibraryEntityMentionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryEntityMention
+   */
+  omit?: Prisma.LibraryEntityMentionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryEntityMentionInclude<ExtArgs> | null
+  where?: Prisma.LibraryEntityMentionWhereInput
+  orderBy?: Prisma.LibraryEntityMentionOrderByWithRelationInput | Prisma.LibraryEntityMentionOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryEntityMentionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryEntityMentionScalarFieldEnum | Prisma.LibraryEntityMentionScalarFieldEnum[]
+}
+
+/**
+ * LibraryDocumentVersion.evaluationEvidence
+ */
+export type LibraryDocumentVersion$evaluationEvidenceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryEvaluationEvidence
+   */
+  select?: Prisma.LibraryEvaluationEvidenceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryEvaluationEvidence
+   */
+  omit?: Prisma.LibraryEvaluationEvidenceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryEvaluationEvidenceInclude<ExtArgs> | null
+  where?: Prisma.LibraryEvaluationEvidenceWhereInput
+  orderBy?: Prisma.LibraryEvaluationEvidenceOrderByWithRelationInput | Prisma.LibraryEvaluationEvidenceOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryEvaluationEvidenceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryEvaluationEvidenceScalarFieldEnum | Prisma.LibraryEvaluationEvidenceScalarFieldEnum[]
 }
 
 /**

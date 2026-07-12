@@ -90,6 +90,7 @@
     "./server/rbac/space-entry": "./server/rbac/space-entry.ts",
     "./server/reference-guards": "./server/reference-guards.ts",
     "./server/reference-options": "./server/reference-options.ts",
+    "./server/resource-authorization": "./server/resource-authorization.ts",
     "./server/resolve-fk": "./server/resolve-fk.ts",
     "./server/security": "./server/security.ts",
     "./server/standard-space-permission-route": "./server/standard-space-permission-route.ts",

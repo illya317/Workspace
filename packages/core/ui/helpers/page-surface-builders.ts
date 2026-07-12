@@ -338,5 +338,12 @@ export function createPageModalSection(
   key: string,
   modal: Omit<BodySurfaceModalSpec, "key">,
 ): BodySurfaceModalSpec {
-  return { key, ...modal };
+  return {
+    key,
+    ...modal,
+    sections: modal.sections.map((section) => ({
+      ...section,
+      chrome: section.chrome ?? "plain",
+    })),
+  };
 }

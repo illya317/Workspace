@@ -1,14 +1,16 @@
-import { stat, readFile } from "fs/promises";
-import { createHash } from "crypto";
+import { createReadStream } from "node:fs";
+import { createHash } from "node:crypto";
 
-const CHECKSUM_MAX_SIZE = 10 * 1024 * 1024; // 10MB
+export async function computeChecksumOrThrow(absolutePath: string): Promise<string> {
+  const hash = createHash("sha256");
+  const stream = createReadStream(absolutePath);
+  for await (const chunk of stream) hash.update(chunk);
+  return hash.digest("hex");
+}
 
 export async function computeChecksum(absolutePath: string): Promise<string | null> {
   try {
-    const s = await stat(absolutePath);
-    if (s.size > CHECKSUM_MAX_SIZE) return null;
-    const buf = await readFile(absolutePath);
-    return createHash("sha256").update(buf).digest("hex");
+    return await computeChecksumOrThrow(absolutePath);
   } catch {
     return null;
   }

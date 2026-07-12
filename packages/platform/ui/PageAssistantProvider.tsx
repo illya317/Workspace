@@ -329,6 +329,7 @@ function PageAssistantPanel({
           role: "agent",
           content: responseMessage(body),
           responseType: body.type,
+          data: body.data,
           proposal: body.proposal,
           proposalStatus: body.proposal ? "pending" : undefined,
         },

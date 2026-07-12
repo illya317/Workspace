@@ -17,6 +17,19 @@ export interface SelectorSurfaceCommandSpec {
   truncate?: boolean;
 }
 
+export interface SelectorSurfaceInlineEditSpec {
+  value: string;
+  onChange: (value: string) => void;
+  onSave: () => void;
+  onCancel: () => void;
+  dirty?: boolean;
+  saving?: boolean;
+  disabled?: boolean;
+  placeholder?: string;
+  maxLength?: number;
+  ariaLabel?: string;
+}
+
 export interface SelectorSurfaceCardSpec {
   title: SelectorSurfaceText;
   subtitle?: SelectorSurfaceText;
@@ -30,6 +43,7 @@ export interface SelectorSurfaceCardSpec {
   metaLine?: SelectorSurfaceText;
   trailing?: SelectorSurfaceText;
   actions?: SelectorSurfaceCommandSpec[];
+  inlineEdit?: SelectorSurfaceInlineEditSpec;
   status?: SelectorSurfaceStatusSpec;
   archived?: boolean;
   active?: boolean;

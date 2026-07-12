@@ -7,6 +7,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import type { LibraryVersionUploadCommand } from "./domain/version-file-validation";
 import { getLibraryUploadMaxBytes } from "./domain/version-file-validation";
 import { resolveLibraryMimeType } from "./file-access";
+import { runUploadedLibraryDocumentPipeline } from "./uploads";
 import {
   removeManagedVersionFile,
   writeManagedVersionFile,
@@ -44,6 +45,20 @@ export async function getDocumentVersions(documentId: number): Promise<VersionIn
     },
   });
   return rows;
+}
+
+export async function getDocumentVersionState(documentId: number) {
+  const [document, versions] = await Promise.all([
+    prisma.libraryDocument.findUnique({
+      where: { id: documentId },
+      select: { currentVersionId: true },
+    }),
+    getDocumentVersions(documentId),
+  ]);
+  return {
+    currentVersionId: document?.currentVersionId ?? null,
+    versions,
+  };
 }
 
 export class LibraryVersionError extends Error {
@@ -135,6 +150,10 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
           versionLabel,
           fileName: command.fileName,
           storagePath: storedUpload.relativePath,
+          storageFileName: command.fileName,
+          storageMimeType: mimeType,
+          storageFileSizeBytes: buffer.length,
+          storageChecksumSha256: checksumSha256,
           relativePath: current.relativePath,
           extension: fileExtension(command.fileName),
           mimeType,
@@ -180,7 +199,8 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
       return version;
     });
 
-    return { documentId: command.documentId, version: result };
+    const pipeline = await runUploadedLibraryDocumentPipeline(result.versionUid, fileExtension(command.fileName));
+    return { documentId: command.documentId, version: result, pipeline };
   } catch (error) {
     await removeManagedVersionFile(uploadedFile);
     throw error;

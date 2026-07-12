@@ -1,6 +1,6 @@
 /// 部门间固定协作通道；执行计划和任务仍由 WorkPlan / WorkItem 承载。
 model DepartmentCollaboration {
-  id                      Int                                  @id @default(autoincrement())
+  id                      Int                                 @id @default(autoincrement())
   title                   String
   description             String                              @default("")
   collaborationType       String                              @default("routine")

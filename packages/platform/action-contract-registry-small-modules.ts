@@ -27,6 +27,28 @@ const libraryExport: ActionContractMetadata = {
   },
 };
 
+const libraryDocumentSetExport: ActionContractMetadata = {
+  ...registeredActionFacts("library.basicInfo.documentSet.export"),
+  kind: "exchange",
+  payload: {
+    cardinality: "batch",
+    shape: "full_record",
+    target: "new_record",
+    batch: { itemKey: "selection", atomicity: "all_or_nothing" },
+  },
+  exchange: {
+    direction: "export",
+    transport: "file",
+    result: "file",
+    contentTypes: ["application/zip"],
+    notes: "The command creates an export job; the resulting file is downloaded through the requester-bound export URL.",
+  },
+  domain: {
+    validatorKey: "packages/library/server/route-commands.buildCreateLibraryExportRouteCommand",
+    executeKey: "packages/library/server/route-commands.executeCreateLibraryExportCommand",
+  },
+};
+
 export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   {
     ...registeredActionFacts("docs.editor.template.draft.save"),
@@ -75,6 +97,42 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     },
   },
   registeredWrite({
+    key: "library.basicInfo.directory.create",
+    activeEntity: "LibraryDirectory",
+    domain: d("packages/library/server/route-commands.buildCreateLibraryDirectoryRouteCommand", "packages/library/server/route-commands.executeCreateLibraryDirectoryCommand"),
+    shape: "full_record",
+    target: "new_record",
+    commitMode: "activate",
+  }),
+  registeredWrite({
+    key: "library.basicInfo.directory.rename",
+    activeEntity: "LibraryDirectory",
+    domain: d("packages/library/server/route-commands.buildRenameLibraryDirectoryRouteCommand", "packages/library/server/route-commands.executeRenameLibraryDirectoryCommand"),
+    targetIdKey: "path",
+  }),
+  registeredLifecycle({
+    key: "library.basicInfo.directory.delete",
+    activeEntity: "LibraryDirectory",
+    operation: "delete",
+    targetIdKey: "path",
+    deleteMode: "hard",
+    referencePolicy: "domain",
+    domain: d("packages/library/server/route-commands.buildDeleteLibraryDirectoryRouteCommand", "packages/library/server/route-commands.executeDeleteLibraryDirectoryCommand"),
+  }),
+  registeredImport({
+    key: "library.basicInfo.document.import",
+    activeEntity: "LibraryDocument",
+    transport: "file",
+    domain: d("packages/library/server/route-commands.buildUploadLibraryDocumentRouteCommand", "packages/library/server/route-commands.executeUploadLibraryDocumentCommand"),
+  }),
+  registeredWrite({
+    key: "library.basicInfo.document.review",
+    activeEntity: "LibraryDocument",
+    domain: d("packages/library/server/route-commands.buildReviewLibraryDocumentRouteCommand", "packages/library/server/route-commands.executeReviewLibraryDocumentCommand"),
+    targetIdKey: "id",
+    commitMode: "activate",
+  }),
+  registeredWrite({
     key: "library.basicInfo.document.metadata.save",
     activeEntity: "LibraryDocument",
     domain: d("packages/library/server/domain/metadata-validation.buildUpdateDocumentMetadataCommand", "packages/library/server/route-commands.executeUpdateLibraryDocumentCommand"),
@@ -92,7 +150,16 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     operation: "archive",
     domain: d("packages/library/server/domain/metadata-validation.buildSetDocumentLifecycleCommand", "packages/library/server/route-commands.executeSetLibraryDocumentLifecycleCommand"),
   }),
+  registeredLifecycle({
+    key: "library.basicInfo.document.delete",
+    activeEntity: "LibraryDocument",
+    operation: "delete",
+    deleteMode: "hard",
+    referencePolicy: "domain",
+    domain: d("packages/library/server/route-commands.buildDeleteLibraryDocumentRouteCommand", "packages/library/server/route-commands.executeDeleteLibraryDocumentCommand"),
+  }),
   libraryExport,
+  libraryDocumentSetExport,
   registeredImport({
     key: "library.basicInfo.documentVersion.import",
     activeEntity: "LibraryDocumentVersion",

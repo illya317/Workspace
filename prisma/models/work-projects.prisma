@@ -83,22 +83,22 @@ model EmployeeProject {
 
 /// 项目计划阶段（串行计划段）
 model ProjectPlanPhase {
-  id              Int        @id @default(autoincrement())
-  projectId       Int
-  sequenceNo      Int
-  name            String
+  id               Int        @id @default(autoincrement())
+  projectId        Int
+  sequenceNo       Int
+  name             String
   plannedStartDate DateTime?
   plannedEndDate   DateTime?
-  note            String?
-  createdBy       Int?
-  editedBy        Int?
-  editedAt        DateTime?
-  version         Int        @default(1)
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @default(now()) @updatedAt
-  project         Project    @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
-  linkedWorkItems WorkItem[] @relation("WorkItemLinkedProjectPhase")
-  linkedWorkPlans WorkPlan[] @relation("WorkPlanLinkedProjectPhase")
+  note             String?
+  createdBy        Int?
+  editedBy         Int?
+  editedAt         DateTime?
+  version          Int        @default(1)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @default(now()) @updatedAt
+  project          Project    @relation("ProjectPlanPhases", fields: [projectId], references: [id], onDelete: Cascade)
+  linkedWorkItems  WorkItem[] @relation("WorkItemLinkedProjectPhase")
+  linkedWorkPlans  WorkPlan[] @relation("WorkPlanLinkedProjectPhase")
 
   @@unique([projectId, sequenceNo])
   @@index([projectId, sequenceNo])
@@ -148,19 +148,19 @@ model ProjectPlanBaseline {
 
 /// 项目计划基准条目
 model ProjectPlanBaselineItem {
-  id          Int                 @id @default(autoincrement())
-  baselineId  Int
-  itemKind    String
-  itemId      Int
-  parentKind  String?
-  parentId    Int?
-  phaseId     Int?
-  name        String
-  status      String?
-  isMilestone Boolean             @default(false)
+  id               Int                 @id @default(autoincrement())
+  baselineId       Int
+  itemKind         String
+  itemId           Int
+  parentKind       String?
+  parentId         Int?
+  phaseId          Int?
+  name             String
+  status           String?
+  isMilestone      Boolean             @default(false)
   plannedStartDate DateTime?
   plannedEndDate   DateTime?
-  baseline    ProjectPlanBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
+  baseline         ProjectPlanBaseline @relation(fields: [baselineId], references: [id], onDelete: Cascade)
 
   @@unique([baselineId, itemKind, itemId])
   @@index([baselineId, phaseId])

@@ -218,12 +218,14 @@ export interface ToolbarActionGroupItem {
   kind: "action-group";
   key: string;
   actions: ToolbarActionGroupAction[];
+  joined?: boolean;
 }
 
 export interface ToolbarEditGroupItem {
   kind: "edit-group";
   key: string;
   editMode: boolean;
+  dirty?: boolean;
   canEdit?: boolean;
   editLabel?: string;
   saveLabel?: string;

@@ -303,12 +303,14 @@ export interface SurfaceToolbarActionGroupItem {
   kind: "action-group";
   key: string;
   actions: SurfaceToolbarActionGroupActionSpec[];
+  joined?: boolean;
 }
 
 export interface SurfaceToolbarEditGroupItem {
   kind: "edit-group";
   key: string;
   editMode: boolean;
+  dirty?: boolean;
   canEdit?: boolean;
   editLabel?: string;
   saveLabel?: string;

@@ -23,7 +23,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；section grid 可声明 `gridColumns: 2 | 3`。页面级 tabs、toolbar、分页必须通过 `PageSurface.tabbar`、`PageSurface.toolbar`、`PageSurface.footer` 表达；弹窗分页只能使用 `BodySurfaceModalSpec.pagination`。
 - `BodySurface` 列表的 `presentation: "cards"` 只允许声明 `title / description / badges / actions` 等结构化内容，card item 禁止 `label` 和 `meta` 独立行。状态使用 badge，事实型补充信息并入 description；禁止用第三行静态说明文案制造隐式 label。
 - 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.tabbar`。旧顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 已从协议删除，不得恢复。
-- `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。
+- `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。已有 selector 节点的轻量重命名使用 `SelectorSurface card.inlineEdit`，不得另开业务弹窗或直接渲染输入框。
 - 不直接 import 未列入公共 runtime 入口的 renderer 作为业务组件；过渡期只允许 Surface contract / helper / business alias type-only 引用。
 - 不直接 import `Core Internal`、`Foundation`、`Private Impl`。
 - 不新增业务包 `Toolbar`、`Picker`、`Select`、`Search`、`Table`、`Modal`、`DateInput`、`Pagination`、`Tab` 等重复基础 UI。
@@ -31,7 +31,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - Surface 公共声明不得新增 raw/custom content 槽，包括 `content: ReactNode`、`cell(row) => ReactNode`、`expandedRowContent`、`renderItem`、`renderOption`。表格展开内容使用结构化 `expandedRow`；确实缺能力时扩展结构化 Surface spec。
 - `PageSurface.moduleView` 和旧 `kind="content"` React 正文逃生口都不是新增页面 API。存量 `moduleView` 已迁完，`businessModuleViewUsages` baseline 当前为 0；旧 content escape 已迁完，`pageSurfaceLayoutProtocolWarnings` baseline 当前为 0。`gate:ui` / `arch:surface-boundaries` 会阻止 Core UI 以外源码重新新增 `moduleView`、`DataSurface.raw`、旧 `DataSurface kind="visual"`。
 - 纸面/A4/报告类内容使用 `BodySurface kind="document"`，由 Core `DocumentSurface` 管理文档宿主、宽度、字体和多页容器；图表、甘特、时间轴、组织图等复杂图形使用 `BodySurface kind="visualization"`；通用 section/panel/message/empty/actions 使用 `BodySurface kind="section"`。业务不得再用 `moduleView` 或 `FormSurface.note` 承载复杂正文。
-- 正文 Surface 的 `kind` 必须是一级 discriminant。选择 `DocumentSurface kind="pages"` 后，纸面列表只写入 `pages.items`；选择 `VisualizationSurface kind="chart"` 后，图表声明只写入 `chart.visual`，选择 `kind="gantt"` 后，甘特声明只写入 `gantt.timeline`。标题、外框、空态等细节进入对应 kind 的 payload，不再作为 Surface 顶层共享可选字段。
+- 正文 Surface 的 `kind` 必须是一级 discriminant。选择 `DocumentSurface kind="pages"` 后，纸面列表只写入 `pages.items`；选择 `kind="viewer"` 后，阅读器只声明 `viewer.src/title`，由 Core 提供自适应的内嵌文档宿主。PDF、ONLYOFFICE 等提供方的鉴权、签名、配置、回调和权限映射留在 Platform 或业务适配层，不进入 Core 协议。选择 `VisualizationSurface kind="chart"` 后，图表声明只写入 `chart.visual`，选择 `kind="gantt"` 后，甘特声明只写入 `gantt.timeline`。标题、外框、空态等细节进入对应 kind 的 payload，不再作为 Surface 顶层共享可选字段。
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
 - 纯数据 helper 不拥有可见 UI 或流程决策。UI agent 可以维护显式类型的结构声明函数：它可以一次声明完整的 section、表单组、表格、selector、展开工作区或深模块 cell，并拥有该结构内的语义文案、状态与动作；非标准返回类型用 `@ui-structural-declaration` 标明。禁止把声明细碎化成单个字段、普通单元格、单个 label/icon，也禁止声明颜色、间距、圆角、阴影、renderer 或动作位置/排序。结构声明不得执行 fetch/toast/confirm/router/history 等构造期副作用；事件回调中的业务动作不算构造期副作用。
@@ -168,6 +168,8 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 `InputSurface` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SearchableOptionInput`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
 
+多行文本需要随内容展开时声明 `autoGrow: true`，由 Core 根据内容与实际宽度维护高度并隐藏字段内滚动条；业务不得自行估算字符数或操作 textarea DOM。
+
 `PaperInputSurface` 是独立纸面输入声明，与 `DocumentSurface` 同属页面内容能力。它只表达纸面内的 line/date/select/choice、纸面布局和填写状态；不得把下划线、纸张宽度、表格单元格定位等纸面语义重新塞回通用 `InputSurface`，Production/QC 也不得保留自己的单字段 renderer 入口。
 
 当前批准的新 Surface section helper：
@@ -218,7 +220,7 @@ Surface 使用红线：
 
 - 业务代码不直接 import `Toolbar`、`PanelCard`、`DataTable`、`SearchableOptionInput`、`ConfirmModal`、`CreatePanel` 等 renderer；通过公共 runtime 入口、helper 或 Surface spec 表达。
 - 业务 type-only 不直接 import 底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；使用 Surface contract 或业务别名 `ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。
-- Surface 内部的 `Toolbar` 只能接收语义化 item：`create`、`search`、`field-filter`、`option-group`、`column-toggle`、`page-size`、`text`、`icon-button`、`action-group`、`edit-group` 等。
+- Surface 内部的 `Toolbar` 只能接收语义化 item：`create`、`search`、`field-filter`、`option-group`、`column-toggle`、`page-size`、`text`、`icon-button`、`action-group`、`edit-group` 等。标准编辑流通过 `edit-group.dirty` 声明是否存在实际修改；显式为 `false` 时 Core 统一禁用保存，业务不得发送空 PATCH 来探测修改状态。
 - 业务传给 Surface 的 toolbar/action spec 禁止使用 `kind: "custom"` 拼装搜索、筛选、统计、分页、动作或任意自定义节点。
 - 如果现有语义 spec 不够表达业务需要，必须扩展对应 Surface/helper 或 Core 能力，并写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
 - Core 内部或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通容器。

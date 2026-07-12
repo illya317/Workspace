@@ -153,6 +153,7 @@ export type InputSurfaceProps = {
   size?: FieldControlSize;
   density?: "normal" | "compact";
   rows?: number;
+  autoGrow?: boolean;
   inputMode?: "none" | "text" | "tel" | "url" | "email" | "numeric" | "decimal" | "search";
   type?: TextFieldProps["type"];
   minLength?: number;

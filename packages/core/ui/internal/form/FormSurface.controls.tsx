@@ -40,6 +40,7 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       size={field.size}
       density={field.density ?? density}
       rows={field.rows}
+      autoGrow={field.autoGrow}
       inputMode={field.inputMode}
       type={field.type}
       minLength={field.minLength}

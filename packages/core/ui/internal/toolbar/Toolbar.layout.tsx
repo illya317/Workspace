@@ -2,7 +2,7 @@
 
 import { joinClassNames } from "../common/card-utils";
 import type { ControlSize } from "../common/interactionTokens";
-import { getToolbarItemActionOrder, ToolbarDivider, ToolbarItemRenderer } from "./Toolbar.parts";
+import { getToolbarItemActionBoundary, getToolbarItemActionOrder, ToolbarDivider, ToolbarItemRenderer } from "./Toolbar.parts";
 import { inferZone, resolveSection } from "./Toolbar.sections";
 import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarZoneKey } from "./Toolbar.types";
 
@@ -59,9 +59,18 @@ function renderSectionGroup(
       key={section.key}
       className={joinClassNames("flex shrink-0 items-center", gapClass)}
     >
-      {section.items.map((item) => (
-        <ToolbarItemRenderer key={item.key} item={item} size={size} />
-      ))}
+      {section.items.map((item, index) => {
+        const previous = section.items[index - 1];
+        const previousBoundary = previous ? getToolbarItemActionBoundary(previous) : undefined;
+        const currentBoundary = getToolbarItemActionBoundary(item);
+        const needsDivider = previousBoundary?.last && currentBoundary.first && previousBoundary.last !== currentBoundary.first;
+        return (
+          <span key={item.key} className="contents">
+            {needsDivider && <ToolbarDivider />}
+            <ToolbarItemRenderer item={item} size={size} />
+          </span>
+        );
+      })}
     </div>
   ));
 }

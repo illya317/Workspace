@@ -136,6 +136,11 @@
 | reviewedLibraryDocuments | LibraryDocument[] | @relation("LibraryDocumentReviewer") |  |
 | createdLibraryVersions | LibraryDocumentVersion[] | @relation("LibraryDocumentVersionCreator") |  |
 | createdLibraryDocumentTags | LibraryDocumentTag[] | @relation("LibraryDocumentTagCreator") |  |
+| reviewedLibraryTagCandidates | LibraryTagCandidate[] | @relation("LibraryTagCandidateReviewer") |  |
+| reviewedLibraryMetadataCandidates | LibraryMetadataCandidate[] | @relation("LibraryMetadataCandidateReviewer") |  |
+| requestedLibraryExports | LibraryExportJob[] | @relation("LibraryExportRequester") |  |
+| createdLibraryEvaluationCases | LibraryEvaluationCase[] | @relation("LibraryEvaluationCaseCreator") |  |
+| reviewedLibraryEvaluationCases | LibraryEvaluationCase[] | @relation("LibraryEvaluationCaseReviewer") |  |
 | resourceActionGrants | UserResourceActionGrant[] | - |  |
 | departmentAssignees | DepartmentWorkAssignee[] | - |  |
 | projectAssignees | ProjectWorkAssignee[] | - |  |
@@ -1337,6 +1342,231 @@
 | reason | String? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 
+### LibraryTagCandidate
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| candidateUid | String | @unique @default(uuid()) |  |
+| documentId | Int | - |  |
+| versionId | Int | - |  |
+| tagId | Int? | - |  |
+| dimension | String | - |  |
+| proposedKey | String | - |  |
+| proposedName | String | - |  |
+| confidence | Float | - |  |
+| evidenceJson | String | - |  |
+| providerKey | String | - |  |
+| modelKey | String | - |  |
+| promptVersion | String | - |  |
+| status | String | @default("pending") |  |
+| reviewedBy | Int? | - |  |
+| reviewedAt | DateTime? | - |  |
+| reviewNote | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| document | LibraryDocument | @relation(fields: [documentId], references: [id], onDelete: Cascade) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| tag | LibraryTag? | @relation(fields: [tagId], references: [id], onDelete: SetNull) |  |
+| reviewer | User? | @relation("LibraryTagCandidateReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull) |  |
+
+### LibraryEntityMention
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| mentionUid | String | @unique @default(uuid()) |  |
+| versionId | Int | - |  |
+| chunkId | Int? | - |  |
+| entityType | String | - |  |
+| canonicalValue | String | - |  |
+| observedText | String | - |  |
+| locatorJson | String | - |  |
+| confidence | Float? | - |  |
+| source | String | - |  |
+| providerKey | String? | - |  |
+| modelKey | String? | - |  |
+| status | String | @default("extracted") |  |
+| createdAt | DateTime | @default(now()) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| chunk | LibraryContentChunk? | @relation(fields: [chunkId], references: [id], onDelete: SetNull) |  |
+
+### LibraryMetadataCandidate
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| candidateUid | String | @unique @default(uuid()) |  |
+| documentId | Int | - |  |
+| versionId | Int | - |  |
+| title | String? | - |  |
+| summary | String? | - |  |
+| keywordsJson | String | - |  |
+| entitiesJson | String | - |  |
+| keyPassagesJson | String | - |  |
+| fileFactsJson | String | - |  |
+| source | String | - |  |
+| providerKey | String | - |  |
+| modelKey | String | - |  |
+| promptVersion | String | - |  |
+| status | String | @default("pending") |  |
+| reviewedBy | Int? | - |  |
+| reviewedAt | DateTime? | - |  |
+| reviewNote | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| document | LibraryDocument | @relation(fields: [documentId], references: [id], onDelete: Cascade) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| reviewer | User? | @relation("LibraryMetadataCandidateReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull) |  |
+
+### LibraryEvaluationCase
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| caseUid | String | @unique @default(uuid()) |  |
+| kind | String | - |  |
+| question | String | - |  |
+| expectedAnswer | String? | - |  |
+| expectedBehavior | String | @default("answer") |  |
+| minConfidentiality | Int | @default(0) |  |
+| status | String | @default("draft") |  |
+| createdBy | Int | - |  |
+| reviewedBy | Int? | - |  |
+| reviewedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| creator | User | @relation("LibraryEvaluationCaseCreator", fields: [createdBy], references: [id], onDelete: Restrict) |  |
+| reviewer | User? | @relation("LibraryEvaluationCaseReviewer", fields: [reviewedBy], references: [id], onDelete: SetNull) |  |
+| evidence | LibraryEvaluationEvidence[] | - |  |
+
+### LibraryEvaluationEvidence
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| evidenceUid | String | @unique @default(uuid()) |  |
+| caseId | Int | - |  |
+| versionId | Int | - |  |
+| locatorJson | String | - |  |
+| quote | String | - |  |
+| required | Boolean | @default(true) |  |
+| createdAt | DateTime | @default(now()) |  |
+| evaluationCase | LibraryEvaluationCase | @relation(fields: [caseId], references: [id], onDelete: Cascade) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Restrict) |  |
+
+### LibraryProcessingJob
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| jobUid | String | @unique @default(uuid()) |  |
+| versionId | Int | - |  |
+| kind | String | - |  |
+| status | String | @default("queued") |  |
+| priority | Int | @default(0) |  |
+| attempt | Int | @default(0) |  |
+| maxAttempts | Int | @default(3) |  |
+| idempotencyKey | String | @unique |  |
+| inputChecksum | String | - |  |
+| pipelineVersion | String | - |  |
+| providerKey | String? | - |  |
+| modelKey | String? | - |  |
+| errorCode | String? | - |  |
+| errorMessage | String? | - |  |
+| metricsJson | String? | - |  |
+| queuedAt | DateTime | @default(now()) |  |
+| startedAt | DateTime? | - |  |
+| finishedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| artifacts | LibraryArtifact[] | - |  |
+
+### LibraryArtifact
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| artifactUid | String | @unique @default(uuid()) |  |
+| versionId | Int | - |  |
+| jobId | Int? | - |  |
+| kind | String | - |  |
+| status | String | @default("ready") |  |
+| storagePath | String | - |  |
+| mimeType | String? | - |  |
+| fileSizeBytes | Int | - |  |
+| checksumSha256 | String | - |  |
+| pageCount | Int? | - |  |
+| locatorSchemaVersion | String | @default("v1") |  |
+| toolchainJson | String | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| job | LibraryProcessingJob? | @relation(fields: [jobId], references: [id], onDelete: SetNull) |  |
+| chunks | LibraryContentChunk[] | - |  |
+| indexes | LibrarySearchIndex[] | - |  |
+
+### LibraryContentChunk
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| chunkUid | String | @unique @default(uuid()) |  |
+| versionId | Int | - |  |
+| artifactId | Int? | - |  |
+| ordinal | Int | - |  |
+| content | String | - |  |
+| contentSha256 | String | - |  |
+| locatorJson | String | - |  |
+| headingPathJson | String? | - |  |
+| tokenCount | Int? | - |  |
+| language | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| artifact | LibraryArtifact? | @relation(fields: [artifactId], references: [id], onDelete: SetNull) |  |
+| entityMentions | LibraryEntityMention[] | - |  |
+
+### LibrarySearchIndex
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| indexUid | String | @unique @default(uuid()) |  |
+| versionId | Int | - |  |
+| artifactId | Int? | - |  |
+| kind | String | - |  |
+| engineKey | String | - |  |
+| modelKey | String? | - |  |
+| embeddingDimensions | Int? | - |  |
+| generation | Int | - |  |
+| status | String | @default("building") |  |
+| active | Boolean | @default(false) |  |
+| indexChecksum | String? | - |  |
+| builtAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| version | LibraryDocumentVersion | @relation(fields: [versionId], references: [id], onDelete: Cascade) |  |
+| artifact | LibraryArtifact? | @relation(fields: [artifactId], references: [id], onDelete: SetNull) |  |
+
+### LibraryExportJob
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| exportUid | String | @unique @default(uuid()) |  |
+| requestedBy | Int | - |  |
+| status | String | @default("queued") |  |
+| selectionJson | String | - |  |
+| optionsJson | String | - |  |
+| manifestSha256 | String? | - |  |
+| storagePath | String? | - |  |
+| fileSizeBytes | Int? | - |  |
+| errorCode | String? | - |  |
+| errorMessage | String? | - |  |
+| expiresAt | DateTime? | - |  |
+| startedAt | DateTime? | - |  |
+| finishedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| requester | User | @relation("LibraryExportRequester", fields: [requestedBy], references: [id], onDelete: Restrict) |  |
+
 ### LibraryDocument
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1389,6 +1619,8 @@
 | currentVersion | LibraryDocumentVersion? | @relation("LibraryDocumentCurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull) |  |
 | versions | LibraryDocumentVersion[] | @relation("LibraryDocumentVersions") |  |
 | tags | LibraryDocumentTag[] | - |  |
+| tagCandidates | LibraryTagCandidate[] | - |  |
+| metadataCandidates | LibraryMetadataCandidate[] | - |  |
 | materialSelections | DueDiligenceMaterialSelection[] | - |  |
 
 ### LibraryDocumentVersion
@@ -1416,6 +1648,14 @@
 | currentForDocument | LibraryDocument? | @relation("LibraryDocumentCurrentVersion") |  |
 | creator | User? | @relation("LibraryDocumentVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull) |  |
 | selections | DueDiligenceMaterialSelection[] | - |  |
+| processingJobs | LibraryProcessingJob[] | - |  |
+| artifacts | LibraryArtifact[] | - |  |
+| chunks | LibraryContentChunk[] | - |  |
+| searchIndexes | LibrarySearchIndex[] | - |  |
+| tagCandidates | LibraryTagCandidate[] | - |  |
+| metadataCandidates | LibraryMetadataCandidate[] | - |  |
+| entityMentions | LibraryEntityMention[] | - |  |
+| evaluationEvidence | LibraryEvaluationEvidence[] | - |  |
 
 ### LibraryCategory
 
@@ -1535,10 +1775,13 @@
 | tagUid | String | @unique @default(uuid()) |  |
 | key | String | @unique |  |
 | name | String | - |  |
+| dimension | String | @default("theme") |  |
+| taxonomyVersion | String | @default("v1") |  |
 | status | String | @default("active") |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | documents | LibraryDocumentTag[] | - |  |
+| candidates | LibraryTagCandidate[] | - |  |
 
 ### LibraryDocumentTag
 

@@ -47,6 +47,7 @@ const CORE_UI_NON_COMPONENT_EXPORTS = new Set<string>([
   "ActionGlyph",
   "FLOATING_OVERLAY_OPEN_EVENT",
   "announceFloatingOverlayOpen",
+  "compactFileNameForDisplay",
   "createActionsSection",
   "createAnalysisSection",
   "createBodySplitSection",

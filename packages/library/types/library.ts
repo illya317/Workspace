@@ -1,3 +1,11 @@
+export interface LibraryDocumentVersionItem {
+  id: number;
+  versionNo: number;
+  versionLabel?: string | null;
+  fileName?: string;
+  createdAt: string;
+}
+
 export interface LibraryDocumentItem {
   id: number;
   stableKey: string;
@@ -17,13 +25,14 @@ export interface LibraryDocumentItem {
   confidentialityLevel: number;
   status: string;
   origin: string;
+  reviewStatus: string;
+  processing?: {
+    markdown: string;
+    preview: string;
+  };
   version: number;
   updatedAt: string;
-  versions?: Array<{
-    id: number;
-    versionNo: number;
-    createdAt: string;
-  }>;
+  versions?: LibraryDocumentVersionItem[];
 }
 
 export interface LibraryFilters {

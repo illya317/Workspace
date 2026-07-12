@@ -29,6 +29,7 @@ export type AssistantMessage = {
   content: string;
   attachments?: AssistantAttachment[];
   responseType?: "answer" | "error" | "clarification" | "proposal";
+  data?: unknown;
   proposal?: AssistantProposal;
   proposalStatus?: "pending" | "confirmed" | "cancelled";
 };
@@ -36,6 +37,7 @@ export type AssistantMessage = {
 export type AgentResponse = {
   type?: "answer" | "error" | "clarification" | "proposal";
   message?: string;
+  data?: unknown;
   proposal?: AssistantProposal;
   error?: string;
   session?: {

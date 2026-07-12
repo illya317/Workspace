@@ -4,6 +4,7 @@ import { createPortal } from "react-dom";
 import type { ReactNode } from "react";
 import { SectionCard } from "../common/BaseCards";
 import { CreateConfirmActions, CreateStartButton } from "../action/CreateActionControls";
+import DetailModal from "../common/DetailModal";
 import { useCreateSurfaceAnchorTarget } from "./CreateSurfaceAnchorContext";
 
 export default function CreatePresentationPanel({
@@ -59,13 +60,15 @@ export default function CreatePresentationPanel({
     return (
       <>
         {trigger === "surface" ? <CreateStartButton label={title} active disabled={disabled || submitting} onClick={onOpen} size="sm" /> : null}
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="max-h-[80vh] w-full max-w-2xl overflow-auto">
-            <SectionCard title={<span className="inline-flex items-center gap-2"><span>{title}</span>{confirm}</span>}>
-              {content}
-            </SectionCard>
-          </div>
-        </div>
+        <DetailModal
+          open
+          title={title}
+          onClose={onCancel}
+          maxWidth="max-w-2xl"
+          footer={confirm ? <div className="flex justify-end">{confirm}</div> : undefined}
+        >
+          {content}
+        </DetailModal>
       </>
     );
   }

@@ -446,6 +446,16 @@ export const ModelName = {
   StockBatch: 'StockBatch',
   StockOperation: 'StockOperation',
   StockReturn: 'StockReturn',
+  LibraryTagCandidate: 'LibraryTagCandidate',
+  LibraryEntityMention: 'LibraryEntityMention',
+  LibraryMetadataCandidate: 'LibraryMetadataCandidate',
+  LibraryEvaluationCase: 'LibraryEvaluationCase',
+  LibraryEvaluationEvidence: 'LibraryEvaluationEvidence',
+  LibraryProcessingJob: 'LibraryProcessingJob',
+  LibraryArtifact: 'LibraryArtifact',
+  LibraryContentChunk: 'LibraryContentChunk',
+  LibrarySearchIndex: 'LibrarySearchIndex',
+  LibraryExportJob: 'LibraryExportJob',
   LibraryDocument: 'LibraryDocument',
   LibraryDocumentVersion: 'LibraryDocumentVersion',
   LibraryCategory: 'LibraryCategory',
@@ -512,7 +522,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementReview" | "financeStatementReviewLine" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -5101,6 +5111,746 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.StockReturnCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.StockReturnCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryTagCandidate: {
+      payload: Prisma.$LibraryTagCandidatePayload<ExtArgs>
+      fields: Prisma.LibraryTagCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryTagCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryTagCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryTagCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryTagCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.LibraryTagCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.LibraryTagCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.LibraryTagCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryTagCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryTagCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        update: {
+          args: Prisma.LibraryTagCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryTagCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryTagCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryTagCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryTagCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryTagCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryTagCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryTagCandidate>
+        }
+        groupBy: {
+          args: Prisma.LibraryTagCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryTagCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryTagCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryTagCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryEntityMention: {
+      payload: Prisma.$LibraryEntityMentionPayload<ExtArgs>
+      fields: Prisma.LibraryEntityMentionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryEntityMentionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryEntityMentionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryEntityMentionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryEntityMentionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryEntityMentionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryEntityMentionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryEntityMentionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryEntityMentionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryEntityMentionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        update: {
+          args: Prisma.LibraryEntityMentionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryEntityMentionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryEntityMentionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryEntityMentionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryEntityMentionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEntityMentionPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryEntityMentionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryEntityMention>
+        }
+        groupBy: {
+          args: Prisma.LibraryEntityMentionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEntityMentionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryEntityMentionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEntityMentionCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryMetadataCandidate: {
+      payload: Prisma.$LibraryMetadataCandidatePayload<ExtArgs>
+      fields: Prisma.LibraryMetadataCandidateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryMetadataCandidateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryMetadataCandidateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryMetadataCandidateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryMetadataCandidateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        findMany: {
+          args: Prisma.LibraryMetadataCandidateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>[]
+        }
+        create: {
+          args: Prisma.LibraryMetadataCandidateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        createMany: {
+          args: Prisma.LibraryMetadataCandidateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryMetadataCandidateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryMetadataCandidateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        update: {
+          args: Prisma.LibraryMetadataCandidateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryMetadataCandidateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryMetadataCandidateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryMetadataCandidateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryMetadataCandidateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryMetadataCandidatePayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryMetadataCandidateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryMetadataCandidate>
+        }
+        groupBy: {
+          args: Prisma.LibraryMetadataCandidateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryMetadataCandidateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryMetadataCandidateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryMetadataCandidateCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryEvaluationCase: {
+      payload: Prisma.$LibraryEvaluationCasePayload<ExtArgs>
+      fields: Prisma.LibraryEvaluationCaseFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryEvaluationCaseFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryEvaluationCaseFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryEvaluationCaseFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryEvaluationCaseFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        findMany: {
+          args: Prisma.LibraryEvaluationCaseFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>[]
+        }
+        create: {
+          args: Prisma.LibraryEvaluationCaseCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        createMany: {
+          args: Prisma.LibraryEvaluationCaseCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryEvaluationCaseCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryEvaluationCaseDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        update: {
+          args: Prisma.LibraryEvaluationCaseUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryEvaluationCaseDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryEvaluationCaseUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryEvaluationCaseUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryEvaluationCaseUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationCasePayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryEvaluationCaseAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryEvaluationCase>
+        }
+        groupBy: {
+          args: Prisma.LibraryEvaluationCaseGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEvaluationCaseGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryEvaluationCaseCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEvaluationCaseCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryEvaluationEvidence: {
+      payload: Prisma.$LibraryEvaluationEvidencePayload<ExtArgs>
+      fields: Prisma.LibraryEvaluationEvidenceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryEvaluationEvidenceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryEvaluationEvidenceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryEvaluationEvidenceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryEvaluationEvidenceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        findMany: {
+          args: Prisma.LibraryEvaluationEvidenceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>[]
+        }
+        create: {
+          args: Prisma.LibraryEvaluationEvidenceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        createMany: {
+          args: Prisma.LibraryEvaluationEvidenceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryEvaluationEvidenceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryEvaluationEvidenceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        update: {
+          args: Prisma.LibraryEvaluationEvidenceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryEvaluationEvidenceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryEvaluationEvidenceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryEvaluationEvidenceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryEvaluationEvidenceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryEvaluationEvidencePayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryEvaluationEvidenceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryEvaluationEvidence>
+        }
+        groupBy: {
+          args: Prisma.LibraryEvaluationEvidenceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEvaluationEvidenceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryEvaluationEvidenceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryEvaluationEvidenceCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryProcessingJob: {
+      payload: Prisma.$LibraryProcessingJobPayload<ExtArgs>
+      fields: Prisma.LibraryProcessingJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryProcessingJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryProcessingJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryProcessingJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryProcessingJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryProcessingJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryProcessingJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryProcessingJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryProcessingJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryProcessingJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        update: {
+          args: Prisma.LibraryProcessingJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryProcessingJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryProcessingJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryProcessingJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryProcessingJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryProcessingJobPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryProcessingJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryProcessingJob>
+        }
+        groupBy: {
+          args: Prisma.LibraryProcessingJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryProcessingJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryProcessingJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryProcessingJobCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryArtifact: {
+      payload: Prisma.$LibraryArtifactPayload<ExtArgs>
+      fields: Prisma.LibraryArtifactFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryArtifactFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryArtifactFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryArtifactFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryArtifactFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryArtifactFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryArtifactCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryArtifactCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryArtifactCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryArtifactDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        update: {
+          args: Prisma.LibraryArtifactUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryArtifactDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryArtifactUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryArtifactUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryArtifactUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryArtifactPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryArtifactAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryArtifact>
+        }
+        groupBy: {
+          args: Prisma.LibraryArtifactGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryArtifactGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryArtifactCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryArtifactCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryContentChunk: {
+      payload: Prisma.$LibraryContentChunkPayload<ExtArgs>
+      fields: Prisma.LibraryContentChunkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryContentChunkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryContentChunkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryContentChunkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryContentChunkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryContentChunkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryContentChunkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryContentChunkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryContentChunkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryContentChunkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        update: {
+          args: Prisma.LibraryContentChunkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryContentChunkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryContentChunkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryContentChunkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryContentChunkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryContentChunkPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryContentChunkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryContentChunk>
+        }
+        groupBy: {
+          args: Prisma.LibraryContentChunkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryContentChunkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryContentChunkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryContentChunkCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibrarySearchIndex: {
+      payload: Prisma.$LibrarySearchIndexPayload<ExtArgs>
+      fields: Prisma.LibrarySearchIndexFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibrarySearchIndexFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibrarySearchIndexFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        findFirst: {
+          args: Prisma.LibrarySearchIndexFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibrarySearchIndexFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        findMany: {
+          args: Prisma.LibrarySearchIndexFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>[]
+        }
+        create: {
+          args: Prisma.LibrarySearchIndexCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        createMany: {
+          args: Prisma.LibrarySearchIndexCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibrarySearchIndexCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>[]
+        }
+        delete: {
+          args: Prisma.LibrarySearchIndexDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        update: {
+          args: Prisma.LibrarySearchIndexUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibrarySearchIndexDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibrarySearchIndexUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibrarySearchIndexUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibrarySearchIndexUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibrarySearchIndexPayload>
+        }
+        aggregate: {
+          args: Prisma.LibrarySearchIndexAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibrarySearchIndex>
+        }
+        groupBy: {
+          args: Prisma.LibrarySearchIndexGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySearchIndexGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibrarySearchIndexCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibrarySearchIndexCountAggregateOutputType> | number
+        }
+      }
+    }
+    LibraryExportJob: {
+      payload: Prisma.$LibraryExportJobPayload<ExtArgs>
+      fields: Prisma.LibraryExportJobFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.LibraryExportJobFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.LibraryExportJobFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        findFirst: {
+          args: Prisma.LibraryExportJobFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.LibraryExportJobFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        findMany: {
+          args: Prisma.LibraryExportJobFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>[]
+        }
+        create: {
+          args: Prisma.LibraryExportJobCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        createMany: {
+          args: Prisma.LibraryExportJobCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.LibraryExportJobCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>[]
+        }
+        delete: {
+          args: Prisma.LibraryExportJobDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        update: {
+          args: Prisma.LibraryExportJobUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        deleteMany: {
+          args: Prisma.LibraryExportJobDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.LibraryExportJobUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.LibraryExportJobUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>[]
+        }
+        upsert: {
+          args: Prisma.LibraryExportJobUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$LibraryExportJobPayload>
+        }
+        aggregate: {
+          args: Prisma.LibraryExportJobAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateLibraryExportJob>
+        }
+        groupBy: {
+          args: Prisma.LibraryExportJobGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryExportJobGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.LibraryExportJobCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.LibraryExportJobCountAggregateOutputType> | number
         }
       }
     }
@@ -10157,6 +10907,215 @@ export const StockReturnScalarFieldEnum = {
 export type StockReturnScalarFieldEnum = (typeof StockReturnScalarFieldEnum)[keyof typeof StockReturnScalarFieldEnum]
 
 
+export const LibraryTagCandidateScalarFieldEnum = {
+  id: 'id',
+  candidateUid: 'candidateUid',
+  documentId: 'documentId',
+  versionId: 'versionId',
+  tagId: 'tagId',
+  dimension: 'dimension',
+  proposedKey: 'proposedKey',
+  proposedName: 'proposedName',
+  confidence: 'confidence',
+  evidenceJson: 'evidenceJson',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  promptVersion: 'promptVersion',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryTagCandidateScalarFieldEnum = (typeof LibraryTagCandidateScalarFieldEnum)[keyof typeof LibraryTagCandidateScalarFieldEnum]
+
+
+export const LibraryEntityMentionScalarFieldEnum = {
+  id: 'id',
+  mentionUid: 'mentionUid',
+  versionId: 'versionId',
+  chunkId: 'chunkId',
+  entityType: 'entityType',
+  canonicalValue: 'canonicalValue',
+  observedText: 'observedText',
+  locatorJson: 'locatorJson',
+  confidence: 'confidence',
+  source: 'source',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryEntityMentionScalarFieldEnum = (typeof LibraryEntityMentionScalarFieldEnum)[keyof typeof LibraryEntityMentionScalarFieldEnum]
+
+
+export const LibraryMetadataCandidateScalarFieldEnum = {
+  id: 'id',
+  candidateUid: 'candidateUid',
+  documentId: 'documentId',
+  versionId: 'versionId',
+  title: 'title',
+  summary: 'summary',
+  keywordsJson: 'keywordsJson',
+  entitiesJson: 'entitiesJson',
+  keyPassagesJson: 'keyPassagesJson',
+  fileFactsJson: 'fileFactsJson',
+  source: 'source',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  promptVersion: 'promptVersion',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryMetadataCandidateScalarFieldEnum = (typeof LibraryMetadataCandidateScalarFieldEnum)[keyof typeof LibraryMetadataCandidateScalarFieldEnum]
+
+
+export const LibraryEvaluationCaseScalarFieldEnum = {
+  id: 'id',
+  caseUid: 'caseUid',
+  kind: 'kind',
+  question: 'question',
+  expectedAnswer: 'expectedAnswer',
+  expectedBehavior: 'expectedBehavior',
+  minConfidentiality: 'minConfidentiality',
+  status: 'status',
+  createdBy: 'createdBy',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryEvaluationCaseScalarFieldEnum = (typeof LibraryEvaluationCaseScalarFieldEnum)[keyof typeof LibraryEvaluationCaseScalarFieldEnum]
+
+
+export const LibraryEvaluationEvidenceScalarFieldEnum = {
+  id: 'id',
+  evidenceUid: 'evidenceUid',
+  caseId: 'caseId',
+  versionId: 'versionId',
+  locatorJson: 'locatorJson',
+  quote: 'quote',
+  required: 'required',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryEvaluationEvidenceScalarFieldEnum = (typeof LibraryEvaluationEvidenceScalarFieldEnum)[keyof typeof LibraryEvaluationEvidenceScalarFieldEnum]
+
+
+export const LibraryProcessingJobScalarFieldEnum = {
+  id: 'id',
+  jobUid: 'jobUid',
+  versionId: 'versionId',
+  kind: 'kind',
+  status: 'status',
+  priority: 'priority',
+  attempt: 'attempt',
+  maxAttempts: 'maxAttempts',
+  idempotencyKey: 'idempotencyKey',
+  inputChecksum: 'inputChecksum',
+  pipelineVersion: 'pipelineVersion',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  metricsJson: 'metricsJson',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryProcessingJobScalarFieldEnum = (typeof LibraryProcessingJobScalarFieldEnum)[keyof typeof LibraryProcessingJobScalarFieldEnum]
+
+
+export const LibraryArtifactScalarFieldEnum = {
+  id: 'id',
+  artifactUid: 'artifactUid',
+  versionId: 'versionId',
+  jobId: 'jobId',
+  kind: 'kind',
+  status: 'status',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  fileSizeBytes: 'fileSizeBytes',
+  checksumSha256: 'checksumSha256',
+  pageCount: 'pageCount',
+  locatorSchemaVersion: 'locatorSchemaVersion',
+  toolchainJson: 'toolchainJson',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryArtifactScalarFieldEnum = (typeof LibraryArtifactScalarFieldEnum)[keyof typeof LibraryArtifactScalarFieldEnum]
+
+
+export const LibraryContentChunkScalarFieldEnum = {
+  id: 'id',
+  chunkUid: 'chunkUid',
+  versionId: 'versionId',
+  artifactId: 'artifactId',
+  ordinal: 'ordinal',
+  content: 'content',
+  contentSha256: 'contentSha256',
+  locatorJson: 'locatorJson',
+  headingPathJson: 'headingPathJson',
+  tokenCount: 'tokenCount',
+  language: 'language',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryContentChunkScalarFieldEnum = (typeof LibraryContentChunkScalarFieldEnum)[keyof typeof LibraryContentChunkScalarFieldEnum]
+
+
+export const LibrarySearchIndexScalarFieldEnum = {
+  id: 'id',
+  indexUid: 'indexUid',
+  versionId: 'versionId',
+  artifactId: 'artifactId',
+  kind: 'kind',
+  engineKey: 'engineKey',
+  modelKey: 'modelKey',
+  embeddingDimensions: 'embeddingDimensions',
+  generation: 'generation',
+  status: 'status',
+  active: 'active',
+  indexChecksum: 'indexChecksum',
+  builtAt: 'builtAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LibrarySearchIndexScalarFieldEnum = (typeof LibrarySearchIndexScalarFieldEnum)[keyof typeof LibrarySearchIndexScalarFieldEnum]
+
+
+export const LibraryExportJobScalarFieldEnum = {
+  id: 'id',
+  exportUid: 'exportUid',
+  requestedBy: 'requestedBy',
+  status: 'status',
+  selectionJson: 'selectionJson',
+  optionsJson: 'optionsJson',
+  manifestSha256: 'manifestSha256',
+  storagePath: 'storagePath',
+  fileSizeBytes: 'fileSizeBytes',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  expiresAt: 'expiresAt',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryExportJobScalarFieldEnum = (typeof LibraryExportJobScalarFieldEnum)[keyof typeof LibraryExportJobScalarFieldEnum]
+
+
 export const LibraryDocumentScalarFieldEnum = {
   id: 'id',
   documentUid: 'documentUid',
@@ -10211,6 +11170,10 @@ export const LibraryDocumentVersionScalarFieldEnum = {
   versionLabel: 'versionLabel',
   fileName: 'fileName',
   storagePath: 'storagePath',
+  storageFileName: 'storageFileName',
+  storageMimeType: 'storageMimeType',
+  storageFileSizeBytes: 'storageFileSizeBytes',
+  storageChecksumSha256: 'storageChecksumSha256',
   relativePath: 'relativePath',
   extension: 'extension',
   mimeType: 'mimeType',
@@ -10336,6 +11299,8 @@ export const LibraryTagScalarFieldEnum = {
   tagUid: 'tagUid',
   key: 'key',
   name: 'name',
+  dimension: 'dimension',
+  taxonomyVersion: 'taxonomyVersion',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -11326,6 +12291,16 @@ export type GlobalOmitConfig = {
   stockBatch?: Prisma.StockBatchOmit
   stockOperation?: Prisma.StockOperationOmit
   stockReturn?: Prisma.StockReturnOmit
+  libraryTagCandidate?: Prisma.LibraryTagCandidateOmit
+  libraryEntityMention?: Prisma.LibraryEntityMentionOmit
+  libraryMetadataCandidate?: Prisma.LibraryMetadataCandidateOmit
+  libraryEvaluationCase?: Prisma.LibraryEvaluationCaseOmit
+  libraryEvaluationEvidence?: Prisma.LibraryEvaluationEvidenceOmit
+  libraryProcessingJob?: Prisma.LibraryProcessingJobOmit
+  libraryArtifact?: Prisma.LibraryArtifactOmit
+  libraryContentChunk?: Prisma.LibraryContentChunkOmit
+  librarySearchIndex?: Prisma.LibrarySearchIndexOmit
+  libraryExportJob?: Prisma.LibraryExportJobOmit
   libraryDocument?: Prisma.LibraryDocumentOmit
   libraryDocumentVersion?: Prisma.LibraryDocumentVersionOmit
   libraryCategory?: Prisma.LibraryCategoryOmit

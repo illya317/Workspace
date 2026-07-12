@@ -6,7 +6,8 @@ import {
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 
 import { readDirectory } from "./config";
-import { listDirectories } from "./directories";
+import { createLibraryDirectory, deleteLibraryDirectory, listDirectories, renameLibraryDirectory } from "./directories";
+import { deleteLibraryDocument, LibraryDeletionError } from "./deletion";
 import {
   getLibraryFileByDocumentId,
   getLibraryFileByRelativePath,
@@ -27,12 +28,36 @@ import {
 import { getDocument, listCategories, listDocuments, setDocumentLifecycle, updateDocumentMetadata } from "./metadata";
 import { scanLibrary } from "./scan";
 import {
-  getDocumentVersions,
+  getDocumentVersionState,
   LibraryVersionError,
   uploadDocumentVersion,
 } from "./versions";
 import { buildLibraryVersionUploadCommand } from "./domain/version-file-validation";
-import type { LibraryMetadataUpdateInput } from "./schemas";
+import {
+  buildReviewLibraryDocumentCommand,
+  buildUploadLibraryDocumentCommand,
+} from "./domain/upload-validation";
+import {
+  buildDeleteLibraryDirectoryCommand,
+  buildCreateLibraryDirectoryCommand,
+  buildRenameLibraryDirectoryCommand,
+} from "./domain/classification-validation";
+import { buildDeleteLibraryDocumentCommand } from "./domain/metadata-validation";
+import { buildCreateLibraryExportCommand } from "./domain/export-validation";
+import { buildSearchLibraryDocumentSetCommand } from "./domain/search-validation";
+import { createLibraryExport, getLibraryExportFile } from "./export";
+import { searchLibraryDocumentSet } from "./search";
+import {
+  LibraryUploadError,
+  reviewLibraryDocument,
+  uploadLibraryDocument,
+} from "./uploads";
+import type {
+  LibraryDirectoryCreateInput,
+  LibraryDirectoryDeleteInput,
+  LibraryDirectoryRenameInput,
+  LibraryMetadataUpdateInput,
+} from "./schemas";
 
 export type GenerateLibraryDocumentCommand = {
   key: string;
@@ -44,6 +69,30 @@ export type GenerateLibraryDocumentCommand = {
   body: Record<string, unknown>;
   generator: NonNullable<ReturnType<typeof getGenerator>>;
 };
+
+export function buildCreateLibraryExportRouteCommand(input: Parameters<typeof buildCreateLibraryExportCommand>[0]) {
+  return buildCreateLibraryExportCommand(input);
+}
+
+export function executeCreateLibraryExportCommand(command: Parameters<typeof createLibraryExport>[0]) {
+  return createLibraryExport(command);
+}
+
+export function buildSearchLibraryDocumentSetRouteCommand(input: Parameters<typeof buildSearchLibraryDocumentSetCommand>[0]) {
+  return buildSearchLibraryDocumentSetCommand(input);
+}
+
+export function executeSearchLibraryDocumentSetCommand(command: Parameters<typeof searchLibraryDocumentSet>[0]) {
+  return searchLibraryDocumentSet(command);
+}
+
+export async function executeDownloadLibraryExportCommand(command: { exportUid: string; userId: number }) {
+  try {
+    return fileResponse(await getLibraryExportFile(command.exportUid, command.userId));
+  } catch (error) {
+    return libraryFileError(error);
+  }
+}
 
 export async function buildGenerateLibraryDocumentCommand(input: {
   key: string;
@@ -162,7 +211,47 @@ export async function executeLibraryDirectoriesCommand(command: { userId: number
   const confFilter = await buildConfidentialityFilter(command.userId);
   return listDirectories(
     typeof confFilter.confidentialityLevel === "object" ? confFilter.confidentialityLevel : undefined,
+    await checkLibraryConfigure(command.userId),
   );
+}
+
+export function buildCreateLibraryDirectoryRouteCommand(input: { body: LibraryDirectoryCreateInput; userId: number }) {
+  return buildCreateLibraryDirectoryCommand({ ...input.body, userId: input.userId });
+}
+
+export async function executeCreateLibraryDirectoryCommand(command: Parameters<typeof createLibraryDirectory>[0]) {
+  if (!(await checkLibraryConfigure(command.userId))) return serviceError("没有文件夹配置权限", 403);
+  try {
+    return await createLibraryDirectory(command);
+  } catch (error) {
+    return serviceError(error instanceof Error ? error.message : "新建文件夹失败", 400);
+  }
+}
+
+export function buildRenameLibraryDirectoryRouteCommand(input: { body: LibraryDirectoryRenameInput; userId: number }) {
+  return buildRenameLibraryDirectoryCommand({ ...input.body, userId: input.userId });
+}
+
+export async function executeRenameLibraryDirectoryCommand(command: Parameters<typeof renameLibraryDirectory>[0]) {
+  if (!(await checkLibraryConfigure(command.userId))) return serviceError("没有文件夹配置权限", 403);
+  try {
+    return await renameLibraryDirectory(command);
+  } catch (error) {
+    return serviceError(error instanceof Error ? error.message : "重命名文件夹失败", 400);
+  }
+}
+
+export function buildDeleteLibraryDirectoryRouteCommand(input: { body: LibraryDirectoryDeleteInput; userId: number }) {
+  return buildDeleteLibraryDirectoryCommand({ ...input.body, userId: input.userId });
+}
+
+export async function executeDeleteLibraryDirectoryCommand(command: Parameters<typeof deleteLibraryDirectory>[0]) {
+  if (!(await checkLibraryConfigure(command.userId))) return serviceError("没有文件夹配置权限", 403);
+  try {
+    return await deleteLibraryDirectory(command);
+  } catch (error) {
+    return serviceError(error instanceof Error ? error.message : "删除文件夹失败", 400);
+  }
 }
 
 export function executeLibraryReadDirectoryCommand(command: { path: string }) {
@@ -173,6 +262,55 @@ export async function executeListLibraryDocumentsCommand(command: Parameters<typ
   const { userId, ...filters } = command;
   const confFilter = await buildConfidentialityFilter(userId);
   return listDocuments({ ...filters, ...confFilter });
+}
+
+export async function buildUploadLibraryDocumentRouteCommand(input: {
+  userId: number;
+  body: {
+    file?: FormDataEntryValue;
+    directoryPath?: FormDataEntryValue;
+    title?: FormDataEntryValue;
+    summary?: FormDataEntryValue;
+    tags?: FormDataEntryValue;
+    confidentialityLevel?: FormDataEntryValue;
+  };
+}) {
+  const validated = buildUploadLibraryDocumentCommand({ ...input.body, userId: input.userId });
+  if (!validated.ok) return validated;
+  if (!(await checkLibraryImport(input.userId))) return failCommand("没有资料导入权限", 403);
+  const maxLevel = await getMaxConfidentialityLevel(input.userId);
+  if (validated.data.confidentialityLevel > maxLevel) {
+    return failCommand(`保密等级不能高于当前可访问等级（${maxLevel}）`, 403, "confidentialityLevel");
+  }
+  return validated;
+}
+
+export async function executeUploadLibraryDocumentCommand(command: Parameters<typeof uploadLibraryDocument>[0]) {
+  try {
+    return await uploadLibraryDocument(command);
+  } catch (error) {
+    if (error instanceof LibraryUploadError) return serviceError(error.message, error.status);
+    return serviceError(error instanceof Error ? error.message : "资料上传失败", 500);
+  }
+}
+
+export async function buildReviewLibraryDocumentRouteCommand(input: { id: number; userId: number }) {
+  const validated = buildReviewLibraryDocumentCommand(input);
+  if (!validated.ok) return validated;
+  if (!(await checkLibraryImport(input.userId))) return failCommand("没有资料导入确认权限", 403);
+  const access = await checkDocAccess(input.id, input.userId);
+  if (!access.ok) return failCommand(access.error, access.status || 400);
+  return validated;
+}
+
+export async function executeReviewLibraryDocumentCommand(command: Parameters<typeof reviewLibraryDocument>[0]) {
+  try {
+    await reviewLibraryDocument(command);
+    return await getDocument(command.id);
+  } catch (error) {
+    if (error instanceof LibraryUploadError) return serviceError(error.message, error.status);
+    return serviceError(error instanceof Error ? error.message : "确认入库失败", 500);
+  }
 }
 
 export async function executeGetLibraryDocumentCommand(command: { id: number; userId: number }) {
@@ -189,7 +327,7 @@ export async function executeUpdateLibraryDocumentCommand(command: {
   const check = await checkDocAccess(command.id, command.userId);
   if (!check.ok) return check;
   const body = command.body;
-  const updateFields = ["title", "summary", "tags", "categoryCode", "categoryName", "subcategoryPath"] as const;
+  const updateFields = ["title", "summary", "tags", "categoryCode", "categoryName", "directoryPath", "subcategoryPath"] as const;
   const hasUpdateField = updateFields.some((field) => body[field] !== undefined);
   const hasAdminField = body.confidentialityLevel !== undefined;
 
@@ -225,6 +363,24 @@ export async function executeSetLibraryDocumentLifecycleCommand(command: {
   }
 }
 
+export async function buildDeleteLibraryDocumentRouteCommand(input: { id: number; userId: number }) {
+  const validated = buildDeleteLibraryDocumentCommand(input.id, input.userId);
+  if (!validated.ok) return validated;
+  if (!(await checkLibraryConfigure(input.userId))) return failCommand("没有资料删除权限", 403);
+  const access = await checkDocAccess(input.id, input.userId);
+  if (!access.ok) return failCommand(access.error, access.status || 400);
+  return validated;
+}
+
+export async function executeDeleteLibraryDocumentCommand(command: Parameters<typeof deleteLibraryDocument>[0]) {
+  try {
+    return await deleteLibraryDocument(command);
+  } catch (error) {
+    if (error instanceof LibraryDeletionError) return serviceError(error.message, error.status);
+    return serviceError(error instanceof Error ? error.message : "删除资料失败", 500);
+  }
+}
+
 export async function executeDownloadLibraryDocumentCommand(command: { id: number; userId: number }) {
   if (!(await checkLibraryExport(command.userId))) return serviceError("No export permission", 403);
   try {
@@ -250,7 +406,7 @@ export async function executeDownloadLibraryDocumentVersionCommand(command: {
 export async function executeLibraryDocumentVersionsCommand(command: { id: number; userId: number }) {
   const check = await checkDocAccess(command.id, command.userId);
   if (!check.ok) return check;
-  return { versions: await getDocumentVersions(command.id) };
+  return getDocumentVersionState(command.id);
 }
 
 export async function buildUploadLibraryDocumentVersionCommand(input: {

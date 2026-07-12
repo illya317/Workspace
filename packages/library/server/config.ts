@@ -2,7 +2,7 @@
  * 资料库（本地文件浏览器）共享配置与服务层。
  *
  * 试验版：一次性递归读取目录树，后续可改为按需懒加载。
- * 适配其他文件夹只需修改 LIBRARY_ROOT 环境变量。
+ * LIBRARY_SOURCE_ROOT 是只读扫描来源；LIBRARY_ROOT 是可写运行态根。
  */
 import { readdir, stat } from "fs/promises";
 import os from "os";
@@ -17,9 +17,16 @@ function expandTilde(input: string): string {
   return input;
 }
 
-/** 允许访问的根目录列表（未来可扩展为 LIBRARY_ROOTS JSON 数组） */
+/** 可写运行态根目录列表（当前只使用首个目录）。 */
 export function getLibraryRoots(): string[] {
   const env = process.env.LIBRARY_ROOT;
+  if (!env) return [];
+  return env.split(",").map((p) => expandTilde(p.trim())).filter(Boolean);
+}
+
+/** 只读扫描来源目录列表；不得回退到可写运行态根。 */
+export function getLibrarySourceRoots(): string[] {
+  const env = process.env.LIBRARY_SOURCE_ROOT;
   if (!env) return [];
   return env.split(",").map((p) => expandTilde(p.trim())).filter(Boolean);
 }
@@ -27,6 +34,10 @@ export function getLibraryRoots(): string[] {
 /** 主根目录 */
 export function getDefaultRoot(): string {
   return getLibraryRoots()[0] || "";
+}
+
+export function getDefaultSourceRoot(): string {
+  return getLibrarySourceRoots()[0] || "";
 }
 
 // ─── 路径安全 ──────────────────────────────────────────────

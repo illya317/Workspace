@@ -112,6 +112,7 @@ export function InputSurfaceRenderer({
   size = "md",
   density = "normal",
   rows,
+  autoGrow,
   inputMode,
   type,
   minLength,
@@ -237,6 +238,7 @@ export function InputSurfaceRenderer({
         className={className}
         style={style}
         rows={rows}
+        autoGrow={autoGrow}
         onChange={(next) => onChange?.(next)}
         onKeyDown={onKeyDown as never}
       />

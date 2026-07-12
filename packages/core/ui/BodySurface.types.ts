@@ -110,6 +110,7 @@ export interface BodySurfaceModalSpec {
   onClose: () => void;
   size?: "sm" | "md" | "lg" | "xl";
   sections: BodySurfaceSectionSpec[];
+  actions?: BodySurfaceCommandSpec[];
   pagination?: SurfacePaginationSpec;
 }
 

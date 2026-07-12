@@ -4,10 +4,11 @@ import { useCallback, useState } from "react";
 
 export function usePagedFilters<TFilters extends object>(
   initialFilters: TFilters,
-  pageSize = 50,
+  initialPageSize = 50,
 ) {
   const [filters, setFilters] = useState<TFilters>(initialFilters);
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSizeState] = useState(initialPageSize);
 
   const setFilter = useCallback(<K extends keyof TFilters>(
     key: K,
@@ -30,5 +31,11 @@ export function usePagedFilters<TFilters extends object>(
     setPage(1);
   }, [initialFilters]);
 
-  return { filters, setFilter, clearFilters, page, setPage, pageSize };
+  const setPageSize = useCallback((nextPageSize: number) => {
+    if (!Number.isFinite(nextPageSize) || nextPageSize <= 0) return;
+    setPageSizeState(Math.floor(nextPageSize));
+    setPage(1);
+  }, []);
+
+  return { filters, setFilter, clearFilters, page, setPage, pageSize, setPageSize };
 }

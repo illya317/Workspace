@@ -1,32 +1,32 @@
 /// 财务科目（含层级）
 model FinanceAccount {
-  id                Int                         @id @default(autoincrement())
-  code              String
-  name              String
-  category          String
-  parentId          Int?
-  balanceDirection  String                      @default("debit")
-  isActive          Boolean                     @default(true)
-  companyCode       String
-  mnemonicCode      String?
-  currency          String?
-  groupSubjectCode  String?
-  subjectLevel      Int?
-  year              Int?
-  sortOrder         Int                         @default(0)
-  editedBy          Int?
-  editedAt          DateTime?
-  version           Int                         @default(1)
-  createdAt         DateTime                    @default(now())
-  updatedAt         DateTime                    @default(now()) @updatedAt
-  editor            User?                       @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
-  parent            FinanceAccount?             @relation("AccountHierarchy", fields: [parentId], references: [id])
-  children          FinanceAccount[]            @relation("AccountHierarchy")
-  balances          FinanceAccountBalance[]
-  voucherItems      FinanceVoucherItem[]
-  snapshotRows      FinanceBalanceSnapshotRow[]
-  deptBudgets       FinanceBudgetDept[]
-  rdBudgets         FinanceBudgetRd[]
+  id               Int                         @id @default(autoincrement())
+  code             String
+  name             String
+  category         String
+  parentId         Int?
+  balanceDirection String                      @default("debit")
+  isActive         Boolean                     @default(true)
+  companyCode      String
+  mnemonicCode     String?
+  currency         String?
+  groupSubjectCode String?
+  subjectLevel     Int?
+  year             Int?
+  sortOrder        Int                         @default(0)
+  editedBy         Int?
+  editedAt         DateTime?
+  version          Int                         @default(1)
+  createdAt        DateTime                    @default(now())
+  updatedAt        DateTime                    @default(now()) @updatedAt
+  editor           User?                       @relation("FinanceAccountEditor", fields: [editedBy], references: [id])
+  parent           FinanceAccount?             @relation("AccountHierarchy", fields: [parentId], references: [id])
+  children         FinanceAccount[]            @relation("AccountHierarchy")
+  balances         FinanceAccountBalance[]
+  voucherItems     FinanceVoucherItem[]
+  snapshotRows     FinanceBalanceSnapshotRow[]
+  deptBudgets      FinanceBudgetDept[]
+  rdBudgets        FinanceBudgetRd[]
 
   @@unique([code, companyCode, year])
 }

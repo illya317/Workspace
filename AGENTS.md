@@ -53,6 +53,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 8. **同页状态不整页导航**：tab、筛选、选中记录这类客户端状态不要用 `router.push/replace` 或 `<Link>` 硬同步 URL；深链用状态 + history API。
 9. **删除要闭环**：删 L1/L2、route、API、registry child/resource、docs、seed resource 要同步，不能留下 stale 入口。
 10. **不为兼容污染协议**：破坏式收敛时，不要因为兼容旧调用点而在公开 contract、声明项或 kind 分支里增加额外选项；不兼容应暴露出来并通过迁移解决。
-11. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
+11. **Playwright/Chrome 生命周期必须闭环**：默认使用 `npm run test:e2e` 和 `@playwright/test` fixture；禁止在 `tsx -e`、shell one-liner 或业务脚本中直接调用 `chromium/firefox/webkit.launch()`。确需手动启动 Browser 时只能经过 `scripts/testing/with-playwright.ts`，并保证 `try/finally`、`SIGINT/SIGTERM` 和最终 `browser.close()`；任务收尾必须通过 Playwright 进程检查。
+12. **提交只收本任务**：提交前必须看 `git status --short`，只 stage 本任务文件；不要回滚、格式化或提交别人的改动。
 
 检查命令按 `docs/engineering/checks.md` 选择；多 agent 并行时通常由 Coordinator/Integrator 做最终统一验证。

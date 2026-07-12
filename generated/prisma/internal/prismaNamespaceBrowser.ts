@@ -113,6 +113,16 @@ export const ModelName = {
   StockBatch: 'StockBatch',
   StockOperation: 'StockOperation',
   StockReturn: 'StockReturn',
+  LibraryTagCandidate: 'LibraryTagCandidate',
+  LibraryEntityMention: 'LibraryEntityMention',
+  LibraryMetadataCandidate: 'LibraryMetadataCandidate',
+  LibraryEvaluationCase: 'LibraryEvaluationCase',
+  LibraryEvaluationEvidence: 'LibraryEvaluationEvidence',
+  LibraryProcessingJob: 'LibraryProcessingJob',
+  LibraryArtifact: 'LibraryArtifact',
+  LibraryContentChunk: 'LibraryContentChunk',
+  LibrarySearchIndex: 'LibrarySearchIndex',
+  LibraryExportJob: 'LibraryExportJob',
   LibraryDocument: 'LibraryDocument',
   LibraryDocumentVersion: 'LibraryDocumentVersion',
   LibraryCategory: 'LibraryCategory',
@@ -1422,6 +1432,215 @@ export const StockReturnScalarFieldEnum = {
 export type StockReturnScalarFieldEnum = (typeof StockReturnScalarFieldEnum)[keyof typeof StockReturnScalarFieldEnum]
 
 
+export const LibraryTagCandidateScalarFieldEnum = {
+  id: 'id',
+  candidateUid: 'candidateUid',
+  documentId: 'documentId',
+  versionId: 'versionId',
+  tagId: 'tagId',
+  dimension: 'dimension',
+  proposedKey: 'proposedKey',
+  proposedName: 'proposedName',
+  confidence: 'confidence',
+  evidenceJson: 'evidenceJson',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  promptVersion: 'promptVersion',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryTagCandidateScalarFieldEnum = (typeof LibraryTagCandidateScalarFieldEnum)[keyof typeof LibraryTagCandidateScalarFieldEnum]
+
+
+export const LibraryEntityMentionScalarFieldEnum = {
+  id: 'id',
+  mentionUid: 'mentionUid',
+  versionId: 'versionId',
+  chunkId: 'chunkId',
+  entityType: 'entityType',
+  canonicalValue: 'canonicalValue',
+  observedText: 'observedText',
+  locatorJson: 'locatorJson',
+  confidence: 'confidence',
+  source: 'source',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  status: 'status',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryEntityMentionScalarFieldEnum = (typeof LibraryEntityMentionScalarFieldEnum)[keyof typeof LibraryEntityMentionScalarFieldEnum]
+
+
+export const LibraryMetadataCandidateScalarFieldEnum = {
+  id: 'id',
+  candidateUid: 'candidateUid',
+  documentId: 'documentId',
+  versionId: 'versionId',
+  title: 'title',
+  summary: 'summary',
+  keywordsJson: 'keywordsJson',
+  entitiesJson: 'entitiesJson',
+  keyPassagesJson: 'keyPassagesJson',
+  fileFactsJson: 'fileFactsJson',
+  source: 'source',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  promptVersion: 'promptVersion',
+  status: 'status',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryMetadataCandidateScalarFieldEnum = (typeof LibraryMetadataCandidateScalarFieldEnum)[keyof typeof LibraryMetadataCandidateScalarFieldEnum]
+
+
+export const LibraryEvaluationCaseScalarFieldEnum = {
+  id: 'id',
+  caseUid: 'caseUid',
+  kind: 'kind',
+  question: 'question',
+  expectedAnswer: 'expectedAnswer',
+  expectedBehavior: 'expectedBehavior',
+  minConfidentiality: 'minConfidentiality',
+  status: 'status',
+  createdBy: 'createdBy',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryEvaluationCaseScalarFieldEnum = (typeof LibraryEvaluationCaseScalarFieldEnum)[keyof typeof LibraryEvaluationCaseScalarFieldEnum]
+
+
+export const LibraryEvaluationEvidenceScalarFieldEnum = {
+  id: 'id',
+  evidenceUid: 'evidenceUid',
+  caseId: 'caseId',
+  versionId: 'versionId',
+  locatorJson: 'locatorJson',
+  quote: 'quote',
+  required: 'required',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryEvaluationEvidenceScalarFieldEnum = (typeof LibraryEvaluationEvidenceScalarFieldEnum)[keyof typeof LibraryEvaluationEvidenceScalarFieldEnum]
+
+
+export const LibraryProcessingJobScalarFieldEnum = {
+  id: 'id',
+  jobUid: 'jobUid',
+  versionId: 'versionId',
+  kind: 'kind',
+  status: 'status',
+  priority: 'priority',
+  attempt: 'attempt',
+  maxAttempts: 'maxAttempts',
+  idempotencyKey: 'idempotencyKey',
+  inputChecksum: 'inputChecksum',
+  pipelineVersion: 'pipelineVersion',
+  providerKey: 'providerKey',
+  modelKey: 'modelKey',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  metricsJson: 'metricsJson',
+  queuedAt: 'queuedAt',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryProcessingJobScalarFieldEnum = (typeof LibraryProcessingJobScalarFieldEnum)[keyof typeof LibraryProcessingJobScalarFieldEnum]
+
+
+export const LibraryArtifactScalarFieldEnum = {
+  id: 'id',
+  artifactUid: 'artifactUid',
+  versionId: 'versionId',
+  jobId: 'jobId',
+  kind: 'kind',
+  status: 'status',
+  storagePath: 'storagePath',
+  mimeType: 'mimeType',
+  fileSizeBytes: 'fileSizeBytes',
+  checksumSha256: 'checksumSha256',
+  pageCount: 'pageCount',
+  locatorSchemaVersion: 'locatorSchemaVersion',
+  toolchainJson: 'toolchainJson',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryArtifactScalarFieldEnum = (typeof LibraryArtifactScalarFieldEnum)[keyof typeof LibraryArtifactScalarFieldEnum]
+
+
+export const LibraryContentChunkScalarFieldEnum = {
+  id: 'id',
+  chunkUid: 'chunkUid',
+  versionId: 'versionId',
+  artifactId: 'artifactId',
+  ordinal: 'ordinal',
+  content: 'content',
+  contentSha256: 'contentSha256',
+  locatorJson: 'locatorJson',
+  headingPathJson: 'headingPathJson',
+  tokenCount: 'tokenCount',
+  language: 'language',
+  createdAt: 'createdAt'
+} as const
+
+export type LibraryContentChunkScalarFieldEnum = (typeof LibraryContentChunkScalarFieldEnum)[keyof typeof LibraryContentChunkScalarFieldEnum]
+
+
+export const LibrarySearchIndexScalarFieldEnum = {
+  id: 'id',
+  indexUid: 'indexUid',
+  versionId: 'versionId',
+  artifactId: 'artifactId',
+  kind: 'kind',
+  engineKey: 'engineKey',
+  modelKey: 'modelKey',
+  embeddingDimensions: 'embeddingDimensions',
+  generation: 'generation',
+  status: 'status',
+  active: 'active',
+  indexChecksum: 'indexChecksum',
+  builtAt: 'builtAt',
+  createdAt: 'createdAt'
+} as const
+
+export type LibrarySearchIndexScalarFieldEnum = (typeof LibrarySearchIndexScalarFieldEnum)[keyof typeof LibrarySearchIndexScalarFieldEnum]
+
+
+export const LibraryExportJobScalarFieldEnum = {
+  id: 'id',
+  exportUid: 'exportUid',
+  requestedBy: 'requestedBy',
+  status: 'status',
+  selectionJson: 'selectionJson',
+  optionsJson: 'optionsJson',
+  manifestSha256: 'manifestSha256',
+  storagePath: 'storagePath',
+  fileSizeBytes: 'fileSizeBytes',
+  errorCode: 'errorCode',
+  errorMessage: 'errorMessage',
+  expiresAt: 'expiresAt',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type LibraryExportJobScalarFieldEnum = (typeof LibraryExportJobScalarFieldEnum)[keyof typeof LibraryExportJobScalarFieldEnum]
+
+
 export const LibraryDocumentScalarFieldEnum = {
   id: 'id',
   documentUid: 'documentUid',
@@ -1476,6 +1695,10 @@ export const LibraryDocumentVersionScalarFieldEnum = {
   versionLabel: 'versionLabel',
   fileName: 'fileName',
   storagePath: 'storagePath',
+  storageFileName: 'storageFileName',
+  storageMimeType: 'storageMimeType',
+  storageFileSizeBytes: 'storageFileSizeBytes',
+  storageChecksumSha256: 'storageChecksumSha256',
   relativePath: 'relativePath',
   extension: 'extension',
   mimeType: 'mimeType',
@@ -1601,6 +1824,8 @@ export const LibraryTagScalarFieldEnum = {
   tagUid: 'tagUid',
   key: 'key',
   name: 'name',
+  dimension: 'dimension',
+  taxonomyVersion: 'taxonomyVersion',
   status: 'status',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

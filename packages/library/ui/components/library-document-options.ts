@@ -8,6 +8,13 @@ export const LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS = [
 
 export const LIBRARY_DOCUMENT_STATUS_OPTIONS = LIBRARY_DOCUMENT_STATUS_FILTER_OPTIONS.slice(1);
 
+export const LIBRARY_DOCUMENT_ORIGIN_OPTIONS = [
+  { value: "scanned", label: "扫描入库" },
+  { value: "uploaded", label: "人工上传" },
+  { value: "generated", label: "系统生成" },
+  { value: "manual", label: "人工创建" },
+];
+
 export const LIBRARY_DOCUMENT_CONFIDENTIALITY_FILTER_OPTIONS = [
   { value: "", label: "全部保密等级" },
   { value: "0", label: "公开" },

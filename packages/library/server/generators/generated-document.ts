@@ -4,10 +4,12 @@ import crypto from "crypto";
 import { prisma } from "@workspace/platform/server/prisma";
 import { safeResolve, getDefaultRoot } from "@workspace/library/server/config";
 import { createLibraryDocumentIdentity } from "@workspace/library/server/domain/document-identity";
-import { ensureLibraryCategory, ensureLibraryDirectory } from "@workspace/library/server/classification";
+import { ensureLibraryCategory } from "@workspace/library/server/classification";
+import { ensureLibraryDirectory } from "@workspace/library/server/directories";
 import type { GeneratorOutput } from "./types";
 import { buildGeneratedDocumentCommand } from "../domain/generated-document-validation";
 import { removeManagedVersionFile, writeManagedVersionFile } from "../version-storage";
+import { runUploadedLibraryDocumentPipeline } from "../uploads";
 
 export interface GeneratedDocumentInput {
   generatorKey: string;
@@ -119,6 +121,7 @@ export async function upsertGeneratedDocument(
   });
 
   const isNewVersion = !lastVersion || lastVersion.checksumSha256 !== checksum;
+  let newVersionUid: string | null = null;
 
   if (isNewVersion) {
     const nextVersionNo = (lastVersion?.versionNo ?? 0) + 1;
@@ -139,6 +142,10 @@ export async function upsertGeneratedDocument(
             versionLabel: `V${nextVersionNo}`,
             fileName,
             storagePath: managedFile.relativePath,
+            storageFileName: fileName,
+            storageMimeType: normalizedOutput.mimeType,
+            storageFileSizeBytes: stats.size,
+            storageChecksumSha256: checksum,
             relativePath,
             extension: normalizedOutput.extension,
             mimeType: normalizedOutput.mimeType,
@@ -158,11 +165,14 @@ export async function upsertGeneratedDocument(
           },
         });
       });
+      newVersionUid = versionUid;
     } catch (error) {
       await removeManagedVersionFile(managedFile);
       throw error;
     }
   }
+
+  if (newVersionUid) await runUploadedLibraryDocumentPipeline(newVersionUid, normalizedOutput.extension);
 
   return { document: { id: doc.id, stableKey: doc.stableKey }, isNewVersion };
 }

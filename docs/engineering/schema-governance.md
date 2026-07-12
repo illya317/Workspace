@@ -26,6 +26,8 @@
 | `finance-cost.prisma` | 成本管理 | FinanceDataImport, FinanceShipment, FinanceSalesSalary, FinanceCostStructureRow, FinanceCostAnalysisRow, FinanceWorkshopReport |
 | `inventory.prisma` | 库存管理 | StockRawMaterial, StockPackaging, StockFinishedGoods, StockBatch, StockOperation, StockReturn |
 | `library.prisma` | 资料库与尽调 | LibraryDocument, LibraryDocumentVersion, LibraryCategory, LibraryDirectory, LibraryTag, LibraryDocumentTag, DueDiligenceParty, DueDiligenceRequest, DueDiligenceQuestion, DueDiligenceMaterialSelection, LibraryGeneratedSource |
+| `library-processing.prisma` | 资料处理与交付 | LibraryProcessingJob, LibraryArtifact, LibraryContentChunk, LibrarySearchIndex, LibraryExportJob |
+| `library-governance.prisma` | 资料增强治理与评测 | LibraryTagCandidate, LibraryEntityMention, LibraryEvaluationCase, LibraryEvaluationEvidence |
 
 ## 2. Model 注释规范
 

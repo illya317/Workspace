@@ -39,6 +39,8 @@ export type LibraryTagMinAggregateOutputType = {
   tagUid: string | null
   key: string | null
   name: string | null
+  dimension: string | null
+  taxonomyVersion: string | null
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -49,6 +51,8 @@ export type LibraryTagMaxAggregateOutputType = {
   tagUid: string | null
   key: string | null
   name: string | null
+  dimension: string | null
+  taxonomyVersion: string | null
   status: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -59,6 +63,8 @@ export type LibraryTagCountAggregateOutputType = {
   tagUid: number
   key: number
   name: number
+  dimension: number
+  taxonomyVersion: number
   status: number
   createdAt: number
   updatedAt: number
@@ -79,6 +85,8 @@ export type LibraryTagMinAggregateInputType = {
   tagUid?: true
   key?: true
   name?: true
+  dimension?: true
+  taxonomyVersion?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -89,6 +97,8 @@ export type LibraryTagMaxAggregateInputType = {
   tagUid?: true
   key?: true
   name?: true
+  dimension?: true
+  taxonomyVersion?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -99,6 +109,8 @@ export type LibraryTagCountAggregateInputType = {
   tagUid?: true
   key?: true
   name?: true
+  dimension?: true
+  taxonomyVersion?: true
   status?: true
   createdAt?: true
   updatedAt?: true
@@ -196,6 +208,8 @@ export type LibraryTagGroupByOutputType = {
   tagUid: string
   key: string
   name: string
+  dimension: string
+  taxonomyVersion: string
   status: string
   createdAt: Date
   updatedAt: Date
@@ -229,10 +243,13 @@ export type LibraryTagWhereInput = {
   tagUid?: Prisma.StringFilter<"LibraryTag"> | string
   key?: Prisma.StringFilter<"LibraryTag"> | string
   name?: Prisma.StringFilter<"LibraryTag"> | string
+  dimension?: Prisma.StringFilter<"LibraryTag"> | string
+  taxonomyVersion?: Prisma.StringFilter<"LibraryTag"> | string
   status?: Prisma.StringFilter<"LibraryTag"> | string
   createdAt?: Prisma.DateTimeFilter<"LibraryTag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LibraryTag"> | Date | string
   documents?: Prisma.LibraryDocumentTagListRelationFilter
+  candidates?: Prisma.LibraryTagCandidateListRelationFilter
 }
 
 export type LibraryTagOrderByWithRelationInput = {
@@ -240,10 +257,13 @@ export type LibraryTagOrderByWithRelationInput = {
   tagUid?: Prisma.SortOrder
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  dimension?: Prisma.SortOrder
+  taxonomyVersion?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   documents?: Prisma.LibraryDocumentTagOrderByRelationAggregateInput
+  candidates?: Prisma.LibraryTagCandidateOrderByRelationAggregateInput
 }
 
 export type LibraryTagWhereUniqueInput = Prisma.AtLeast<{
@@ -254,10 +274,13 @@ export type LibraryTagWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.LibraryTagWhereInput[]
   NOT?: Prisma.LibraryTagWhereInput | Prisma.LibraryTagWhereInput[]
   name?: Prisma.StringFilter<"LibraryTag"> | string
+  dimension?: Prisma.StringFilter<"LibraryTag"> | string
+  taxonomyVersion?: Prisma.StringFilter<"LibraryTag"> | string
   status?: Prisma.StringFilter<"LibraryTag"> | string
   createdAt?: Prisma.DateTimeFilter<"LibraryTag"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"LibraryTag"> | Date | string
   documents?: Prisma.LibraryDocumentTagListRelationFilter
+  candidates?: Prisma.LibraryTagCandidateListRelationFilter
 }, "id" | "tagUid" | "key">
 
 export type LibraryTagOrderByWithAggregationInput = {
@@ -265,6 +288,8 @@ export type LibraryTagOrderByWithAggregationInput = {
   tagUid?: Prisma.SortOrder
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  dimension?: Prisma.SortOrder
+  taxonomyVersion?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -283,6 +308,8 @@ export type LibraryTagScalarWhereWithAggregatesInput = {
   tagUid?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
   key?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
   name?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
+  dimension?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
+  taxonomyVersion?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
   status?: Prisma.StringWithAggregatesFilter<"LibraryTag"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"LibraryTag"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"LibraryTag"> | Date | string
@@ -292,10 +319,13 @@ export type LibraryTagCreateInput = {
   tagUid?: string
   key: string
   name: string
+  dimension?: string
+  taxonomyVersion?: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.LibraryDocumentTagCreateNestedManyWithoutTagInput
+  candidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutTagInput
 }
 
 export type LibraryTagUncheckedCreateInput = {
@@ -303,20 +333,26 @@ export type LibraryTagUncheckedCreateInput = {
   tagUid?: string
   key: string
   name: string
+  dimension?: string
+  taxonomyVersion?: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
   documents?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutTagInput
+  candidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type LibraryTagUpdateInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.LibraryDocumentTagUpdateManyWithoutTagNestedInput
+  candidates?: Prisma.LibraryTagCandidateUpdateManyWithoutTagNestedInput
 }
 
 export type LibraryTagUncheckedUpdateInput = {
@@ -324,10 +360,13 @@ export type LibraryTagUncheckedUpdateInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   documents?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutTagNestedInput
+  candidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutTagNestedInput
 }
 
 export type LibraryTagCreateManyInput = {
@@ -335,6 +374,8 @@ export type LibraryTagCreateManyInput = {
   tagUid?: string
   key: string
   name: string
+  dimension?: string
+  taxonomyVersion?: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -344,6 +385,8 @@ export type LibraryTagUpdateManyMutationInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,9 +397,16 @@ export type LibraryTagUncheckedUpdateManyInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type LibraryTagNullableScalarRelationFilter = {
+  is?: Prisma.LibraryTagWhereInput | null
+  isNot?: Prisma.LibraryTagWhereInput | null
 }
 
 export type LibraryTagCountOrderByAggregateInput = {
@@ -364,6 +414,8 @@ export type LibraryTagCountOrderByAggregateInput = {
   tagUid?: Prisma.SortOrder
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  dimension?: Prisma.SortOrder
+  taxonomyVersion?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -378,6 +430,8 @@ export type LibraryTagMaxOrderByAggregateInput = {
   tagUid?: Prisma.SortOrder
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  dimension?: Prisma.SortOrder
+  taxonomyVersion?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -388,6 +442,8 @@ export type LibraryTagMinOrderByAggregateInput = {
   tagUid?: Prisma.SortOrder
   key?: Prisma.SortOrder
   name?: Prisma.SortOrder
+  dimension?: Prisma.SortOrder
+  taxonomyVersion?: Prisma.SortOrder
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -400,6 +456,22 @@ export type LibraryTagSumOrderByAggregateInput = {
 export type LibraryTagScalarRelationFilter = {
   is?: Prisma.LibraryTagWhereInput
   isNot?: Prisma.LibraryTagWhereInput
+}
+
+export type LibraryTagCreateNestedOneWithoutCandidatesInput = {
+  create?: Prisma.XOR<Prisma.LibraryTagCreateWithoutCandidatesInput, Prisma.LibraryTagUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.LibraryTagCreateOrConnectWithoutCandidatesInput
+  connect?: Prisma.LibraryTagWhereUniqueInput
+}
+
+export type LibraryTagUpdateOneWithoutCandidatesNestedInput = {
+  create?: Prisma.XOR<Prisma.LibraryTagCreateWithoutCandidatesInput, Prisma.LibraryTagUncheckedCreateWithoutCandidatesInput>
+  connectOrCreate?: Prisma.LibraryTagCreateOrConnectWithoutCandidatesInput
+  upsert?: Prisma.LibraryTagUpsertWithoutCandidatesInput
+  disconnect?: Prisma.LibraryTagWhereInput | boolean
+  delete?: Prisma.LibraryTagWhereInput | boolean
+  connect?: Prisma.LibraryTagWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryTagUpdateToOneWithWhereWithoutCandidatesInput, Prisma.LibraryTagUpdateWithoutCandidatesInput>, Prisma.LibraryTagUncheckedUpdateWithoutCandidatesInput>
 }
 
 export type LibraryTagCreateNestedOneWithoutDocumentsInput = {
@@ -416,13 +488,82 @@ export type LibraryTagUpdateOneRequiredWithoutDocumentsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.LibraryTagUpdateToOneWithWhereWithoutDocumentsInput, Prisma.LibraryTagUpdateWithoutDocumentsInput>, Prisma.LibraryTagUncheckedUpdateWithoutDocumentsInput>
 }
 
+export type LibraryTagCreateWithoutCandidatesInput = {
+  tagUid?: string
+  key: string
+  name: string
+  dimension?: string
+  taxonomyVersion?: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.LibraryDocumentTagCreateNestedManyWithoutTagInput
+}
+
+export type LibraryTagUncheckedCreateWithoutCandidatesInput = {
+  id?: number
+  tagUid?: string
+  key: string
+  name: string
+  dimension?: string
+  taxonomyVersion?: string
+  status?: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  documents?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutTagInput
+}
+
+export type LibraryTagCreateOrConnectWithoutCandidatesInput = {
+  where: Prisma.LibraryTagWhereUniqueInput
+  create: Prisma.XOR<Prisma.LibraryTagCreateWithoutCandidatesInput, Prisma.LibraryTagUncheckedCreateWithoutCandidatesInput>
+}
+
+export type LibraryTagUpsertWithoutCandidatesInput = {
+  update: Prisma.XOR<Prisma.LibraryTagUpdateWithoutCandidatesInput, Prisma.LibraryTagUncheckedUpdateWithoutCandidatesInput>
+  create: Prisma.XOR<Prisma.LibraryTagCreateWithoutCandidatesInput, Prisma.LibraryTagUncheckedCreateWithoutCandidatesInput>
+  where?: Prisma.LibraryTagWhereInput
+}
+
+export type LibraryTagUpdateToOneWithWhereWithoutCandidatesInput = {
+  where?: Prisma.LibraryTagWhereInput
+  data: Prisma.XOR<Prisma.LibraryTagUpdateWithoutCandidatesInput, Prisma.LibraryTagUncheckedUpdateWithoutCandidatesInput>
+}
+
+export type LibraryTagUpdateWithoutCandidatesInput = {
+  tagUid?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.LibraryDocumentTagUpdateManyWithoutTagNestedInput
+}
+
+export type LibraryTagUncheckedUpdateWithoutCandidatesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  tagUid?: Prisma.StringFieldUpdateOperationsInput | string
+  key?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  documents?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutTagNestedInput
+}
+
 export type LibraryTagCreateWithoutDocumentsInput = {
   tagUid?: string
   key: string
   name: string
+  dimension?: string
+  taxonomyVersion?: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  candidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutTagInput
 }
 
 export type LibraryTagUncheckedCreateWithoutDocumentsInput = {
@@ -430,9 +571,12 @@ export type LibraryTagUncheckedCreateWithoutDocumentsInput = {
   tagUid?: string
   key: string
   name: string
+  dimension?: string
+  taxonomyVersion?: string
   status?: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  candidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutTagInput
 }
 
 export type LibraryTagCreateOrConnectWithoutDocumentsInput = {
@@ -455,9 +599,12 @@ export type LibraryTagUpdateWithoutDocumentsInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  candidates?: Prisma.LibraryTagCandidateUpdateManyWithoutTagNestedInput
 }
 
 export type LibraryTagUncheckedUpdateWithoutDocumentsInput = {
@@ -465,9 +612,12 @@ export type LibraryTagUncheckedUpdateWithoutDocumentsInput = {
   tagUid?: Prisma.StringFieldUpdateOperationsInput | string
   key?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
+  dimension?: Prisma.StringFieldUpdateOperationsInput | string
+  taxonomyVersion?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  candidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutTagNestedInput
 }
 
 
@@ -477,10 +627,12 @@ export type LibraryTagUncheckedUpdateWithoutDocumentsInput = {
 
 export type LibraryTagCountOutputType = {
   documents: number
+  candidates: number
 }
 
 export type LibraryTagCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | LibraryTagCountOutputTypeCountDocumentsArgs
+  candidates?: boolean | LibraryTagCountOutputTypeCountCandidatesArgs
 }
 
 /**
@@ -500,16 +652,26 @@ export type LibraryTagCountOutputTypeCountDocumentsArgs<ExtArgs extends runtime.
   where?: Prisma.LibraryDocumentTagWhereInput
 }
 
+/**
+ * LibraryTagCountOutputType without action
+ */
+export type LibraryTagCountOutputTypeCountCandidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.LibraryTagCandidateWhereInput
+}
+
 
 export type LibraryTagSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   tagUid?: boolean
   key?: boolean
   name?: boolean
+  dimension?: boolean
+  taxonomyVersion?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   documents?: boolean | Prisma.LibraryTag$documentsArgs<ExtArgs>
+  candidates?: boolean | Prisma.LibraryTag$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryTagCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["libraryTag"]>
 
@@ -518,6 +680,8 @@ export type LibraryTagSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   tagUid?: boolean
   key?: boolean
   name?: boolean
+  dimension?: boolean
+  taxonomyVersion?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -528,6 +692,8 @@ export type LibraryTagSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   tagUid?: boolean
   key?: boolean
   name?: boolean
+  dimension?: boolean
+  taxonomyVersion?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -538,14 +704,17 @@ export type LibraryTagSelectScalar = {
   tagUid?: boolean
   key?: boolean
   name?: boolean
+  dimension?: boolean
+  taxonomyVersion?: boolean
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type LibraryTagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tagUid" | "key" | "name" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["libraryTag"]>
+export type LibraryTagOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "tagUid" | "key" | "name" | "dimension" | "taxonomyVersion" | "status" | "createdAt" | "updatedAt", ExtArgs["result"]["libraryTag"]>
 export type LibraryTagInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   documents?: boolean | Prisma.LibraryTag$documentsArgs<ExtArgs>
+  candidates?: boolean | Prisma.LibraryTag$candidatesArgs<ExtArgs>
   _count?: boolean | Prisma.LibraryTagCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type LibraryTagIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -555,12 +724,15 @@ export type $LibraryTagPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "LibraryTag"
   objects: {
     documents: Prisma.$LibraryDocumentTagPayload<ExtArgs>[]
+    candidates: Prisma.$LibraryTagCandidatePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     tagUid: string
     key: string
     name: string
+    dimension: string
+    taxonomyVersion: string
     status: string
     createdAt: Date
     updatedAt: Date
@@ -959,6 +1131,7 @@ readonly fields: LibraryTagFieldRefs;
 export interface Prisma__LibraryTagClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   documents<T extends Prisma.LibraryTag$documentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryTag$documentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryDocumentTagPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  candidates<T extends Prisma.LibraryTag$candidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.LibraryTag$candidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryTagCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -992,6 +1165,8 @@ export interface LibraryTagFieldRefs {
   readonly tagUid: Prisma.FieldRef<"LibraryTag", 'String'>
   readonly key: Prisma.FieldRef<"LibraryTag", 'String'>
   readonly name: Prisma.FieldRef<"LibraryTag", 'String'>
+  readonly dimension: Prisma.FieldRef<"LibraryTag", 'String'>
+  readonly taxonomyVersion: Prisma.FieldRef<"LibraryTag", 'String'>
   readonly status: Prisma.FieldRef<"LibraryTag", 'String'>
   readonly createdAt: Prisma.FieldRef<"LibraryTag", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"LibraryTag", 'DateTime'>
@@ -1407,6 +1582,30 @@ export type LibraryTag$documentsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.LibraryDocumentTagScalarFieldEnum | Prisma.LibraryDocumentTagScalarFieldEnum[]
+}
+
+/**
+ * LibraryTag.candidates
+ */
+export type LibraryTag$candidatesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the LibraryTagCandidate
+   */
+  select?: Prisma.LibraryTagCandidateSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the LibraryTagCandidate
+   */
+  omit?: Prisma.LibraryTagCandidateOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.LibraryTagCandidateInclude<ExtArgs> | null
+  where?: Prisma.LibraryTagCandidateWhereInput
+  orderBy?: Prisma.LibraryTagCandidateOrderByWithRelationInput | Prisma.LibraryTagCandidateOrderByWithRelationInput[]
+  cursor?: Prisma.LibraryTagCandidateWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.LibraryTagCandidateScalarFieldEnum | Prisma.LibraryTagCandidateScalarFieldEnum[]
 }
 
 /**

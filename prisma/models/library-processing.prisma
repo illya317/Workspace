@@ -1,0 +1,133 @@
+/// 资料处理任务（事实表，由扫描/上传后的版本事件创建，worker 更新执行事实）
+model LibraryProcessingJob {
+  id              Int       @id @default(autoincrement())
+  jobUid          String    @unique @default(uuid())
+  versionId       Int
+  kind            String
+  status          String    @default("queued")
+  priority        Int       @default(0)
+  attempt         Int       @default(0)
+  maxAttempts     Int       @default(3)
+  idempotencyKey  String    @unique
+  inputChecksum   String
+  pipelineVersion String
+  providerKey     String?
+  modelKey        String?
+  errorCode       String?
+  errorMessage    String?
+  metricsJson     String?
+  queuedAt        DateTime  @default(now())
+  startedAt       DateTime?
+  finishedAt      DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @default(now()) @updatedAt
+
+  version   LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  artifacts LibraryArtifact[]
+
+  @@index([versionId])
+  @@index([kind, status])
+  @@index([status, priority, queuedAt])
+}
+
+/// 资料派生产物（事实表，由处理 worker 生成；原件仍由 LibraryDocumentVersion 持有）
+model LibraryArtifact {
+  id                   Int      @id @default(autoincrement())
+  artifactUid          String   @unique @default(uuid())
+  versionId            Int
+  jobId                Int?
+  kind                 String
+  status               String   @default("ready")
+  storagePath          String
+  mimeType             String?
+  fileSizeBytes        Int
+  checksumSha256       String
+  pageCount            Int?
+  locatorSchemaVersion String   @default("v1")
+  toolchainJson        String
+  createdAt            DateTime @default(now())
+
+  version LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  job     LibraryProcessingJob?  @relation(fields: [jobId], references: [id], onDelete: SetNull)
+  chunks  LibraryContentChunk[]
+  indexes LibrarySearchIndex[]
+
+  @@unique([versionId, kind, checksumSha256])
+  @@index([versionId, kind, status])
+  @@index([jobId])
+}
+
+/// 资料内容分块（事实表，由已验证的文本/表格派生产物确定性生成）
+model LibraryContentChunk {
+  id              Int      @id @default(autoincrement())
+  chunkUid        String   @unique @default(uuid())
+  versionId       Int
+  artifactId      Int?
+  ordinal         Int
+  content         String
+  contentSha256   String
+  locatorJson     String
+  headingPathJson String?
+  tokenCount      Int?
+  language        String?
+  createdAt       DateTime @default(now())
+
+  version        LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  artifact       LibraryArtifact?       @relation(fields: [artifactId], references: [id], onDelete: SetNull)
+  entityMentions LibraryEntityMention[]
+
+  @@unique([versionId, ordinal])
+  @@index([versionId])
+  @@index([artifactId])
+}
+
+/// 资料检索索引代次（事实表，记录精确/关键词/向量索引的可切换构建结果）
+model LibrarySearchIndex {
+  id                  Int       @id @default(autoincrement())
+  indexUid            String    @unique @default(uuid())
+  versionId           Int
+  artifactId          Int?
+  kind                String
+  engineKey           String
+  modelKey            String?
+  embeddingDimensions Int?
+  generation          Int
+  status              String    @default("building")
+  active              Boolean   @default(false)
+  indexChecksum       String?
+  builtAt             DateTime?
+  createdAt           DateTime  @default(now())
+
+  version  LibraryDocumentVersion @relation(fields: [versionId], references: [id], onDelete: Cascade)
+  artifact LibraryArtifact?       @relation(fields: [artifactId], references: [id], onDelete: SetNull)
+
+  @@unique([versionId, kind, generation])
+  @@index([kind, status, active])
+  @@index([artifactId])
+}
+
+/// 资料批量导出任务（事实表，由有 export 权限的用户创建并保存不可变版本选择）
+model LibraryExportJob {
+  id             Int       @id @default(autoincrement())
+  exportUid      String    @unique @default(uuid())
+  requestedBy    Int
+  status         String    @default("queued")
+  selectionJson  String
+  optionsJson    String
+  manifestSha256 String?
+  storagePath    String?
+  fileSizeBytes  Int?
+  errorCode      String?
+  errorMessage   String?
+  expiresAt      DateTime?
+  startedAt      DateTime?
+  finishedAt     DateTime?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+
+  requester User @relation("LibraryExportRequester", fields: [requestedBy], references: [id], onDelete: Restrict)
+
+  @@index([requestedBy, createdAt])
+  @@index([status, createdAt])
+  @@index([expiresAt])
+}

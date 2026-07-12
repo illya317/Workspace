@@ -59,7 +59,17 @@ export function ReadOnlyField({
 
   if (variant === "plain") {
     return (
-      <div title={title} aria-label={ariaLabel} className={getFieldValueClassName(joinClassNames(alignClass, fontClass, toneClass, className))}>
+      <div
+        title={title}
+        aria-label={ariaLabel}
+        className={getFieldValueClassName(joinClassNames(
+          "min-w-0 max-w-full whitespace-normal [overflow-wrap:anywhere]",
+          alignClass,
+          fontClass,
+          toneClass,
+          className,
+        ))}
+      >
         {body}
       </div>
     );

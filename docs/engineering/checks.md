@@ -26,6 +26,8 @@
 | Core UI 新建入口 | `npm run arch:create-surface-entry` | 禁止业务侧自行声明新建 `+`、旧 Toolbar create 或直接 import 旧 renderer；折叠、树展开和数值增减不在扫描范围。 |
 | Core UI PageSurface 迁移债 | `npm run arch:surface-page-adoption` | 检查业务侧是否还在用 PageSurface 顶层兼容 props；由 `check:hygiene:warn` 提示，清零后再收紧。 |
 | Core UI 可视化迁移债 | `npm run arch:surface-visualization-adoption` | 检查复杂可视化是否还把 React 组件塞进 VisualizationSurface；由 `check:hygiene:warn` 提示。 |
+| Playwright 生命周期 | `npm run playwright:lifecycle:check` | 阻断仓库内直接启动 Playwright Browser；手动 Browser 只能经过统一生命周期 helper。 |
+| Playwright 残留进程 | `npm run playwright:processes:check` | 检查本机是否残留 `playwright_*dev_profile` headless 进程；用于 agent/test 收尾。 |
 | Action registry | `npm run action-registry:check` | 检查新动作注册表：重复 key、permission icon 唯一、implies 指向存在，旧权限 bundle 不再注册。 |
 | Business action registry | `npm run business-action-registry:check` | 强制业务写 API 登记为 BusinessAction，并阻断 workflow readiness 证据缺口、未知 readiness key 和未登记 write API candidate。只读 POST 等例外必须逐 route 声明理由。 |
 | Action contract 覆盖 | `npm run action-contract:check` | 强制每个 BusinessAction 具备唯一 `ActionContract`，校验 domain 符号可导出、API 引用存在真实 handler，并双向约束 BusinessAction route 与 Contract command/direct route。Contract 按 `write/lifecycle/governance/workflow/exchange` 声明；mutation/import 必须有 persistence，纯 export 明确声明输出且不得伪造 persistence。 |

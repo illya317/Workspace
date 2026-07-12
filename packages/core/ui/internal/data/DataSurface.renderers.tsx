@@ -107,7 +107,7 @@ export function renderDisplay(value: ReactNode | DataSurfaceDisplaySpec): ReactN
     : value.wrap === "truncate"
       ? "block min-w-0 max-w-full truncate"
       : "";
-  return <span className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)}>{value.value}</span>;
+  return <span title={value.title} className={joinClassNames(resolveTableToneClass(value.tone), emphasisClass, fontClass, wrapClass)}>{value.value}</span>;
 }
 
 function groupItemClassName(item: DataSurfaceCellSpec, direction: "row" | "column") {

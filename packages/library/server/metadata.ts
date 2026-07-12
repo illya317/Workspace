@@ -11,6 +11,7 @@ import {
 import type { LibraryMetadataUpdateInput } from "./schemas";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { ensureLibraryCategory } from "./classification";
+import { folderCategoryForPath, resolveLibraryDirectoryId } from "./directories";
 import type { VersionInfo } from "./versions";
 
 // ─── Types ───────────────────────────────────────────────────
@@ -30,6 +31,10 @@ export interface ListFilters {
 export interface DocumentWithVersion extends LibraryDocument {
   versions: VersionInfo[];
   tags: string[];
+  processing?: {
+    markdown: string;
+    preview: string;
+  };
 }
 
 export interface DocumentListResult {
@@ -49,10 +54,14 @@ function buildWhere(filters: ListFilters) {
 
   if (filters.directoryPath) {
     andConditions.push({
-      OR: [
-      { directoryPath: filters.directoryPath },
-      { directoryPath: { startsWith: filters.directoryPath + "/" } },
-      ],
+      currentDirectory: {
+        is: {
+          OR: [
+            { relativePath: filters.directoryPath },
+            { relativePath: { startsWith: filters.directoryPath + "/" } },
+          ],
+        },
+      },
     });
   }
   if (typeof filters.confidentialityLevel === "number") {
@@ -86,7 +95,7 @@ function getPagination(filters: ListFilters) {
   return { skip: (page - 1) * pageSize, take: pageSize };
 }
 
-async function attachLatestVersion(doc: LibraryDocument | null): Promise<DocumentWithVersion | null> {
+async function attachLatestVersion(doc: LibraryDocument | null, includeProcessing = false): Promise<DocumentWithVersion | null> {
   if (!doc) return null;
   const [versions, tagRows] = await Promise.all([
     prisma.libraryDocumentVersion.findMany({
@@ -106,7 +115,35 @@ async function attachLatestVersion(doc: LibraryDocument | null): Promise<Documen
     }),
   ]);
   const tags = tagRows.map((row) => row.tag.name);
-  return { ...doc, versions, tags };
+  if (!includeProcessing || versions.length === 0) return { ...doc, versions, tags };
+  const versionId = versions[0]!.id;
+  const [artifacts, jobs] = await Promise.all([
+    prisma.libraryArtifact.findMany({
+      where: { versionId, status: "ready", kind: { in: ["markdown", "preview-pdf"] } },
+      select: { kind: true },
+    }),
+    prisma.libraryProcessingJob.findMany({
+      where: { versionId, kind: { in: ["extract", "preview"] } },
+      orderBy: { updatedAt: "desc" },
+      select: { kind: true, status: true },
+    }),
+  ]);
+  const artifactKinds = new Set(artifacts.map((artifact) => artifact.kind));
+  const jobStatus = new Map<string, string>();
+  for (const job of jobs) {
+    if (!jobStatus.has(job.kind)) jobStatus.set(job.kind, job.status);
+  }
+  return {
+    ...doc,
+    versions,
+    tags,
+    processing: {
+      markdown: artifactKinds.has("markdown") ? "ready" : jobStatus.get("extract") || "missing",
+      preview: doc.extension?.toLowerCase() === "pdf"
+        ? artifactKinds.has("preview-pdf") ? "ready" : jobStatus.get("preview") || "missing"
+        : "skipped",
+    },
+  };
 }
 
 // ─── CRUD ────────────────────────────────────────────────────
@@ -138,7 +175,7 @@ export async function getDocument(id: number): Promise<DocumentWithVersion | nul
   const doc = await prisma.libraryDocument.findUnique({
     where: { id },
   });
-  return attachLatestVersion(doc);
+  return attachLatestVersion(doc, true);
 }
 
 export interface CategoryItem {
@@ -200,6 +237,18 @@ export async function updateDocumentMetadata(
       String(command.data.categoryCode ?? doc.categoryCode ?? "") || null,
       String(command.data.categoryName ?? doc.categoryName ?? "") || null,
     );
+    data.categorySource = "manual";
+  }
+  if (command.data.directoryPath !== undefined) {
+    const directoryPath = String(command.data.directoryPath).replace(/\\/g, "/").replace(/^\/+|\/+$/g, "");
+    if (!directoryPath) throw new Error("请选择文件夹");
+    const directoryId = await resolveLibraryDirectoryId(doc.rootKey, directoryPath);
+    const category = folderCategoryForPath(directoryPath);
+    data.directoryPath = directoryPath;
+    data.currentDirectoryId = directoryId;
+    data.categoryCode = category.code;
+    data.categoryName = category.name;
+    data.categoryId = await ensureLibraryCategory(category.code, category.name);
     data.categorySource = "manual";
   }
 

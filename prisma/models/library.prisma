@@ -49,6 +49,8 @@ model LibraryDocument {
   currentVersion     LibraryDocumentVersion?         @relation("LibraryDocumentCurrentVersion", fields: [currentVersionId], references: [id], onDelete: SetNull)
   versions           LibraryDocumentVersion[]        @relation("LibraryDocumentVersions")
   tags               LibraryDocumentTag[]
+  tagCandidates      LibraryTagCandidate[]
+  metadataCandidates LibraryMetadataCandidate[]
   materialSelections DueDiligenceMaterialSelection[]
 
   @@index([stableKey])
@@ -66,28 +68,40 @@ model LibraryDocument {
 
 /// 资料库文件版本（事实表：每次文件入库或内容更新创建，不可变并保留实际文件事实）
 model LibraryDocumentVersion {
-  id               Int       @id @default(autoincrement())
-  versionUid       String    @unique @default(uuid())
-  documentId       Int
-  versionNo        Int
-  versionLabel     String?
-  fileName         String
-  storagePath      String
-  relativePath     String
-  extension        String?
-  mimeType         String?
-  fileSizeBytes    Int?
-  sourceModifiedAt DateTime?
-  checksumSha256   String?
-  gitCommit        String?
-  changeNote       String?
-  createdBy        Int?
-  createdAt        DateTime  @default(now())
+  id                    Int       @id @default(autoincrement())
+  versionUid            String    @unique @default(uuid())
+  documentId            Int
+  versionNo             Int
+  versionLabel          String?
+  fileName              String
+  storagePath           String
+  storageFileName       String?
+  storageMimeType       String?
+  storageFileSizeBytes  Int?
+  storageChecksumSha256 String?
+  relativePath          String
+  extension             String?
+  mimeType              String?
+  fileSizeBytes         Int?
+  sourceModifiedAt      DateTime?
+  checksumSha256        String?
+  gitCommit             String?
+  changeNote            String?
+  createdBy             Int?
+  createdAt             DateTime  @default(now())
 
   document           LibraryDocument                 @relation("LibraryDocumentVersions", fields: [documentId], references: [id], onDelete: Cascade)
   currentForDocument LibraryDocument?                @relation("LibraryDocumentCurrentVersion")
   creator            User?                           @relation("LibraryDocumentVersionCreator", fields: [createdBy], references: [id], onDelete: SetNull)
   selections         DueDiligenceMaterialSelection[]
+  processingJobs     LibraryProcessingJob[]
+  artifacts          LibraryArtifact[]
+  chunks             LibraryContentChunk[]
+  searchIndexes      LibrarySearchIndex[]
+  tagCandidates      LibraryTagCandidate[]
+  metadataCandidates LibraryMetadataCandidate[]
+  entityMentions     LibraryEntityMention[]
+  evaluationEvidence LibraryEvaluationEvidence[]
 
   @@unique([documentId, versionNo])
   @@index([documentId])
@@ -115,7 +129,7 @@ model LibraryCategory {
   @@index([status])
 }
 
-/// 资料库扫描目录（事实表，记录当前根目录内的物理文件夹位置）
+/// 资料库逻辑文件夹（配置/事实交界：扫描建立初始位置，用户可新建、重命名并调整资料归属）
 model LibraryDirectory {
   id            Int       @id @default(autoincrement())
   directoryUid  String    @unique @default(uuid())
@@ -225,15 +239,18 @@ model LibraryGeneratedSource {
 
 /// 资料库标签定义（配置表，作为可复用的话题标签）
 model LibraryTag {
-  id        Int      @id @default(autoincrement())
-  tagUid    String   @unique @default(uuid())
-  key       String   @unique
-  name      String
-  status    String   @default("active")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
+  id              Int      @id @default(autoincrement())
+  tagUid          String   @unique @default(uuid())
+  key             String   @unique
+  name            String
+  dimension       String   @default("theme")
+  taxonomyVersion String   @default("v1")
+  status          String   @default("active")
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @default(now()) @updatedAt
 
-  documents LibraryDocumentTag[]
+  documents  LibraryDocumentTag[]
+  candidates LibraryTagCandidate[]
 
   @@index([status])
 }

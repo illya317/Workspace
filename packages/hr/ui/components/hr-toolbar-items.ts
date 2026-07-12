@@ -49,6 +49,7 @@ export interface HRToolbarItemsAction {
 
 export interface HRToolbarItemsEditGroup {
   editMode: boolean;
+  dirty?: boolean;
   canEdit?: boolean;
   editLabel?: string;
   saveLabel?: string;
@@ -180,6 +181,7 @@ export function buildHRToolbarItems({
       kind: "edit-group",
       key: "edit",
       editMode: editGroup.editMode,
+      dirty: editGroup.dirty,
       canEdit: editGroup.canEdit,
       editLabel: editGroup.editLabel,
       saveLabel: editGroup.saveLabel,

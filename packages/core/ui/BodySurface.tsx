@@ -78,7 +78,12 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
       title={modal.title}
       onClose={modal.onClose}
       maxWidth={modal.size ? MODAL_MAX_WIDTH_BY_SIZE[modal.size] : undefined}
-      footer={modal.pagination ? <NavigationSurface kind="pagination" pagination={modal.pagination} /> : undefined}
+      footer={modal.actions?.length || modal.pagination ? (
+        <div className="flex min-w-0 flex-wrap items-center justify-between gap-3">
+          {modal.pagination ? <NavigationSurface kind="pagination" pagination={modal.pagination} /> : <span />}
+          <div className="ml-auto">{renderCommands(modal.actions)}</div>
+        </div>
+      ) : undefined}
     >
       <BodySurfaceSectionStack sections={modal.sections} />
     </DetailModal>

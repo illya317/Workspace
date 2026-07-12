@@ -344,6 +344,56 @@ export type StockOperation = Prisma.StockOperationModel
  */
 export type StockReturn = Prisma.StockReturnModel
 /**
+ * Model LibraryTagCandidate
+ * 资料标签候选（事实表，由 Agent/Kimi 生成并由资料 owner 审核）
+ */
+export type LibraryTagCandidate = Prisma.LibraryTagCandidateModel
+/**
+ * Model LibraryEntityMention
+ * 资料实体提及（事实表，由确定性抽取或 Agent/Kimi 候选生成，独立于主题标签）
+ */
+export type LibraryEntityMention = Prisma.LibraryEntityMentionModel
+/**
+ * Model LibraryMetadataCandidate
+ * 资料增强元数据候选（事实表，来源于旧索引或 Agent/Kimi，审核前不作为正式证据）
+ */
+export type LibraryMetadataCandidate = Prisma.LibraryMetadataCandidateModel
+/**
+ * Model LibraryEvaluationCase
+ * 资料检索/RAG 金标问题（配置事实表，由人工审核后用于验收）
+ */
+export type LibraryEvaluationCase = Prisma.LibraryEvaluationCaseModel
+/**
+ * Model LibraryEvaluationEvidence
+ * 金标问题证据范围（事实表，逐字引用并定位到不可变资料版本）
+ */
+export type LibraryEvaluationEvidence = Prisma.LibraryEvaluationEvidenceModel
+/**
+ * Model LibraryProcessingJob
+ * 资料处理任务（事实表，由扫描/上传后的版本事件创建，worker 更新执行事实）
+ */
+export type LibraryProcessingJob = Prisma.LibraryProcessingJobModel
+/**
+ * Model LibraryArtifact
+ * 资料派生产物（事实表，由处理 worker 生成；原件仍由 LibraryDocumentVersion 持有）
+ */
+export type LibraryArtifact = Prisma.LibraryArtifactModel
+/**
+ * Model LibraryContentChunk
+ * 资料内容分块（事实表，由已验证的文本/表格派生产物确定性生成）
+ */
+export type LibraryContentChunk = Prisma.LibraryContentChunkModel
+/**
+ * Model LibrarySearchIndex
+ * 资料检索索引代次（事实表，记录精确/关键词/向量索引的可切换构建结果）
+ */
+export type LibrarySearchIndex = Prisma.LibrarySearchIndexModel
+/**
+ * Model LibraryExportJob
+ * 资料批量导出任务（事实表，由有 export 权限的用户创建并保存不可变版本选择）
+ */
+export type LibraryExportJob = Prisma.LibraryExportJobModel
+/**
  * Model LibraryDocument
  * 资料库文档元数据（事实表：文件系统扫描 + 人工维护元数据）
  */
@@ -360,7 +410,7 @@ export type LibraryDocumentVersion = Prisma.LibraryDocumentVersionModel
 export type LibraryCategory = Prisma.LibraryCategoryModel
 /**
  * Model LibraryDirectory
- * 资料库扫描目录（事实表，记录当前根目录内的物理文件夹位置）
+ * 资料库逻辑文件夹（配置/事实交界：扫描建立初始位置，用户可新建、重命名并调整资料归属）
  */
 export type LibraryDirectory = Prisma.LibraryDirectoryModel
 /**

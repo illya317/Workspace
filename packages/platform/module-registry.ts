@@ -368,11 +368,21 @@ export const registeredModuleDefinitions = [
         { key: "basicInfo", label: "基本资料", desc: "资料目录、文件、生成文档和保密等级", href: "/library/basic-info", iconKey: "basicInfo", color: "orange", resourceKey: "library.basicInfo", apiPrefixes: ["/api/modules/library/basic-info"] },
       ],
     },
+    routes: ["/library/basic-info/documents/[id]"],
     apiGuards: [
       ...apiResourceGuards("/api/modules/library/basic-info", ["GET"]),
-      ...apiResourceGuards("/api/modules/library/basic-info/documents", ["POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/library/basic-info/documents", ["PATCH", "DELETE"]),
       ...apiResourceGuards("/api/modules/library/basic-info/scan", ["POST"]),
       ...apiResourceGuards("/api/modules/library/basic-info/generated-sources", ["POST"]),
+      ...apiResourceGuards("/api/modules/library/basic-info/exports", ["POST"]),
+    ],
+    apiRoutes: [
+      { method: "POST", pathPrefix: "/api/modules/library/basic-info/directories", access: "protected", notes: "Folder creation requires library.basicInfo configure permission." },
+      { method: "PATCH", pathPrefix: "/api/modules/library/basic-info/directories", access: "protected", notes: "Folder rename cascades logical placement paths and requires configure permission." },
+      { method: "POST", pathPrefix: "/api/modules/library/basic-info/directories/delete", access: "protected", notes: "Only an empty leaf folder can be deleted; configure permission is required." },
+      { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents", access: "protected", notes: "File upload creates immutable V1 and starts the Library processing pipeline." },
+      { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/review", access: "protected", notes: "Importer confirms the pending upload after metadata review." },
+      { method: "POST", pathPrefix: "/api/modules/library/basic-info/documents/:id/delete", access: "protected", notes: "Configure-only permanent deletion is distinct from archive and cleans managed runtime storage." },
     ],
   },
   {

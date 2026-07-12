@@ -105,37 +105,37 @@ model CompanyRelation {
 
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
 model Department {
-  id                      Int                             @id @default(autoincrement())
-  code                    String
-  name                    String
-  alias                   String?
-  hierarchyKind           String                          @default("M")
-  level                   Int                             @default(1)
-  parentId                Int?
-  managerPositionId       Int?
-  isArchived              Boolean                         @default(false)
-  archivedAt              DateTime?
-  endDate                 DateTime?
-  editedBy                Int?
-  editedAt                DateTime?
-  version                 Int                             @default(1)
-  managerPosition         Position?                       @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id])
-  parent                  Department?                     @relation("DeptHierarchy", fields: [parentId], references: [id])
-  children                Department[]                    @relation("DeptHierarchy")
-  descriptions            DepartmentDescription[]
-  managerEmployees        DepartmentManagerEmployee[]
-  resourceActionGrants    DepartmentResourceActionGrant[]
-  workAssignees           DepartmentWorkAssignee[]
+  id                        Int                                 @id @default(autoincrement())
+  code                      String
+  name                      String
+  alias                     String?
+  hierarchyKind             String                              @default("M")
+  level                     Int                                 @default(1)
+  parentId                  Int?
+  managerPositionId         Int?
+  isArchived                Boolean                             @default(false)
+  archivedAt                DateTime?
+  endDate                   DateTime?
+  editedBy                  Int?
+  editedAt                  DateTime?
+  version                   Int                                 @default(1)
+  managerPosition           Position?                           @relation("DepartmentManagerPosition", fields: [managerPositionId], references: [id])
+  parent                    Department?                         @relation("DeptHierarchy", fields: [parentId], references: [id])
+  children                  Department[]                        @relation("DeptHierarchy")
+  descriptions              DepartmentDescription[]
+  managerEmployees          DepartmentManagerEmployee[]
+  resourceActionGrants      DepartmentResourceActionGrant[]
+  workAssignees             DepartmentWorkAssignee[]
   responsibleCollaborations DepartmentCollaboration[]           @relation("DepartmentCollaborationResponsibleDepartment")
   enabledCollaborations     DepartmentCollaborationDepartment[] @relation("DepartmentCollaborationEnablingDepartment")
-  sourceWorkPlans         WorkPlan[]                      @relation("WorkPlanSourceDepartment")
-  sourceWorkItems         WorkItem[]                      @relation("WorkItemSourceDepartment")
-  leadingProjects         Project[]                       @relation("ProjectLeadingDepartment")
-  owningProjects          Project[]                       @relation("ProjectOwningDepartment")
-  enabledProjects         ProjectEnablingDepartment[]     @relation("ProjectEnablingDepartmentDepartment")
-  edps                    EDP[]
-  positions               Position[]
-  positionReportOverrides PositionReportOverride[]
+  sourceWorkPlans           WorkPlan[]                          @relation("WorkPlanSourceDepartment")
+  sourceWorkItems           WorkItem[]                          @relation("WorkItemSourceDepartment")
+  leadingProjects           Project[]                           @relation("ProjectLeadingDepartment")
+  owningProjects            Project[]                           @relation("ProjectOwningDepartment")
+  enabledProjects           ProjectEnablingDepartment[]         @relation("ProjectEnablingDepartmentDepartment")
+  edps                      EDP[]
+  positions                 Position[]
+  positionReportOverrides   PositionReportOverride[]
 
   @@index([code])
   @@index([name])
@@ -158,30 +158,30 @@ model DepartmentManagerEmployee {
 
 /// 岗位定义
 model Position {
-  id                      Int                           @id @default(autoincrement())
+  id                      Int                               @id @default(autoincrement())
   code                    String
   alias                   String?
   name                    String
   departmentId            Int?
   positionDescriptionId   Int?
   reportToPositionId      Int?
-  isArchived              Boolean                       @default(false)
+  isArchived              Boolean                           @default(false)
   archivedAt              DateTime?
   endDate                 DateTime?
   editedBy                Int?
   editedAt                DateTime?
-  version                 Int                           @default(1)
+  version                 Int                               @default(1)
   edps                    EDP[]
   financeWorkshopReports  FinanceWorkshopReport[]
-  positionDescription     PositionDescription?          @relation(fields: [positionDescriptionId], references: [id])
-  reportToPosition        Position?                     @relation("PositionReportTo", fields: [reportToPositionId], references: [id])
-  directReportPositions   Position[]                    @relation("PositionReportTo")
-  department              Department?                   @relation(fields: [departmentId], references: [id])
-  managedDepartments      Department[]                  @relation("DepartmentManagerPosition")
+  positionDescription     PositionDescription?              @relation(fields: [positionDescriptionId], references: [id])
+  reportToPosition        Position?                         @relation("PositionReportTo", fields: [reportToPositionId], references: [id])
+  directReportPositions   Position[]                        @relation("PositionReportTo")
+  department              Department?                       @relation(fields: [departmentId], references: [id])
+  managedDepartments      Department[]                      @relation("DepartmentManagerPosition")
   resourceActionGrants    PositionResourceActionGrant[]
-  reportOverrides         PositionReportOverride[]      @relation("PositionReportOverrideSource")
-  reportedReportOverrides PositionReportOverride[]      @relation("PositionReportOverrideReportTo")
-  collaborationPositions DepartmentCollaborationPosition[]
+  reportOverrides         PositionReportOverride[]          @relation("PositionReportOverrideSource")
+  reportedReportOverrides PositionReportOverride[]          @relation("PositionReportOverrideReportTo")
+  collaborationPositions  DepartmentCollaborationPosition[]
 
   @@unique([positionDescriptionId])
   @@index([code])

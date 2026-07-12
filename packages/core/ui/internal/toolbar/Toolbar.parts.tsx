@@ -33,7 +33,7 @@ function getActionOrder(action: ToolbarRenderableAction) {
 }
 
 function getActionGroup(action: ToolbarRenderableAction) {
-  return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.group ?? "unknown";
+  return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.subgroup ?? "unknown";
 }
 
 function getOrderedActions(actions: ToolbarRenderableAction[]) {
@@ -63,11 +63,41 @@ export function getToolbarItemActionOrder(item: ToolbarItem) {
   }
 }
 
-function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: string, size: ControlSize) {
+function getEditGroupActions(item: Extract<ToolbarItem, { kind: "edit-group" }>): ToolbarRenderableAction[] {
+  const { editMode, dirty = true, canEdit = true, editLabel = "编辑", saveLabel = "保存", saving = false, downloading = false, onStartEdit, onSave, onCancel, onDownload, onShowHistory } = item;
+  const actions: ToolbarRenderableAction[] = [];
+  if (canEdit && !editMode) actions.push({ key: `${item.key}-edit`, kind: "edit", label: editLabel, onClick: onStartEdit });
+  if (canEdit && editMode) {
+    actions.push({ key: `${item.key}-save`, kind: "save", label: saveLabel, variant: ACTION_GLYPH_ACTION_BY_KEY.save.variant, disabled: saving || !dirty, onClick: onSave });
+    actions.push({ key: `${item.key}-cancel`, kind: "cancel", label: ACTION_GLYPH_ACTION_BY_KEY.cancel.label, variant: ACTION_GLYPH_ACTION_BY_KEY.cancel.variant, onClick: onCancel });
+  }
+  if (canEdit && onShowHistory) actions.push({ key: `${item.key}-history`, kind: "history", label: "最近改动", variant: ACTION_GLYPH_ACTION_BY_KEY.history.variant, onClick: onShowHistory });
+  if (onDownload) actions.push({ key: `${item.key}-download`, kind: "download", label: ACTION_GLYPH_ACTION_BY_KEY.download.label, variant: ACTION_GLYPH_ACTION_BY_KEY.download.variant, disabled: downloading, onClick: onDownload });
+  return actions;
+}
+
+function getToolbarItemActions(item: ToolbarItem): ToolbarRenderableAction[] {
+  if (item.kind === "action-group") return item.actions;
+  if (item.kind === "edit-group") return getEditGroupActions(item);
+  if (item.kind === "icon-button") {
+    return [{ key: item.key, kind: item.icon, label: item.label, variant: item.variant, disabled: item.disabled, onClick: item.onClick, type: item.type }];
+  }
+  return [];
+}
+
+export function getToolbarItemActionBoundary(item: ToolbarItem) {
+  const ordered = getOrderedActions(getToolbarItemActions(item));
+  return {
+    first: ordered[0] ? getActionGroup(ordered[0]) : undefined,
+    last: ordered.length > 0 ? getActionGroup(ordered[ordered.length - 1]) : undefined,
+  };
+}
+
+function renderOrderedActions(actions: ToolbarRenderableAction[], keyPrefix: string, size: ControlSize, joined = false) {
   const ordered = getOrderedActions(actions);
   return ordered.map((action, index) => {
     const previous = ordered[index - 1];
-    const needsDivider = previous && getActionGroup(previous) !== getActionGroup(action);
+    const needsDivider = !joined && previous && getActionGroup(previous) !== getActionGroup(action);
     return (
       <span key={action.key ?? `${keyPrefix}-${index}`} className="contents">
         {needsDivider && <ToolbarDivider />}
@@ -292,18 +322,10 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
         />
       );
     case "action-group":
-      return <>{renderOrderedActions(item.actions, item.key, size)}</>;
+      return <>{renderOrderedActions(item.actions, item.key, size, item.joined)}</>;
     case "edit-group": {
-      const { editMode, canEdit = true, editLabel = "编辑", saveLabel = "保存", saving = false, downloading = false, onStartEdit, onSave, onCancel, onDownload, onShowHistory } = item;
-      if (!canEdit && !onDownload) return null;
-      const actions: ToolbarRenderableAction[] = [];
-      if (canEdit && !editMode) actions.push({ key: `${item.key}-edit`, kind: "edit", label: editLabel, onClick: onStartEdit });
-      if (canEdit && editMode) {
-        actions.push({ key: `${item.key}-save`, kind: "save", label: saveLabel, variant: ACTION_GLYPH_ACTION_BY_KEY.save.variant, disabled: saving, onClick: onSave });
-        actions.push({ key: `${item.key}-cancel`, kind: "cancel", label: ACTION_GLYPH_ACTION_BY_KEY.cancel.label, variant: ACTION_GLYPH_ACTION_BY_KEY.cancel.variant, onClick: onCancel });
-      }
-      if (canEdit && onShowHistory) actions.push({ key: `${item.key}-history`, kind: "history", label: "最近改动", variant: ACTION_GLYPH_ACTION_BY_KEY.history.variant, onClick: onShowHistory });
-      if (onDownload) actions.push({ key: `${item.key}-download`, kind: "download", label: ACTION_GLYPH_ACTION_BY_KEY.download.label, variant: ACTION_GLYPH_ACTION_BY_KEY.download.variant, disabled: downloading, onClick: onDownload });
+      const actions = getEditGroupActions(item);
+      if (actions.length === 0) return null;
       return <>{renderOrderedActions(actions, item.key, size)}</>;
     }
     default:
