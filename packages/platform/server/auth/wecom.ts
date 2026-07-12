@@ -15,6 +15,16 @@ type WecomUserInfoResponse = {
   user_ticket?: string;
 };
 
+type WecomBotUserConversionResponse = {
+  errcode?: number;
+  errmsg?: string;
+  userid_list?: Array<{
+    open_userid?: string;
+    userid?: string;
+  }>;
+  invalid_open_userid_list?: string[];
+};
+
 export type WecomUserDetail = {
   errcode?: number;
   errmsg?: string;
@@ -116,4 +126,18 @@ export async function getWecomUserDetail(userTicket: string): Promise<WecomUserD
   });
   assertWecomOk(data, "Get WeCom user detail");
   return data;
+}
+
+export async function convertWecomBotOpenUserId(openUserId: string): Promise<string | null> {
+  const token = await getWecomAccessToken();
+  const url = new URL("https://qyapi.weixin.qq.com/cgi-bin/batch/openuserid_to_userid");
+  url.searchParams.set("access_token", token);
+
+  const data = await readWecomJson<WecomBotUserConversionResponse>(url.toString(), {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ open_userid_list: [openUserId] }),
+  });
+  assertWecomOk(data, "Convert WeCom bot open_userid");
+  return data.userid_list?.find((item) => item.open_userid === openUserId)?.userid ?? null;
 }

@@ -39,6 +39,7 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     { method: "GET", pathPrefix: "/api/auth/gateway-check", access: "protected", notes: "Session gateway check; verifies login state without reading business resources." },
     { method: "GET", pathPrefix: "/api/auth/me", access: "protected", notes: "Current-session identity snapshot; business resources are exposed through derived session claims." },
     { method: "GET", pathPrefix: "/api/auth/wecom", access: "public", notes: "WeCom OAuth start/callback endpoint; must be reachable before a local session exists." },
+    { method: "POST", pathPrefix: "/api/integrations/wecom/agent", access: "public", notes: "HMAC-authenticated localhost bridge from the WeCom intelligent-robot worker; sender RBAC is enforced by Platform." },
     { method: "GET", pathPrefix: "/api/auth/dev-login-bypass", access: "dev", notes: "Development-only bypass helper; unavailable as a production business capability." },
     { method: "GET", pathPrefix: "/api/settings/account/week-info", access: "public", notes: "Calendar week metadata endpoint; returns no user or business-resource data." },
   ];

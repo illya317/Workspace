@@ -138,6 +138,7 @@
     "@tiptap/pm": "3.27.1",
     "@tiptap/react": "3.27.1",
     "@tiptap/starter-kit": "3.27.1",
+    "@wecom/aibot-node-sdk": "1.0.7",
     "bcryptjs": "^3.0.3",
     "better-sqlite3": "^11.10.0",
     "bpmn-js": "^18.19.0",

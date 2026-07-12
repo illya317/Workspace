@@ -6,6 +6,7 @@ cd "$(dirname "$0")/.."
 SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-}"
 PM2_NAME="${PM2_NAME:-workspace}"
+PM2_WECOM_BOT_NAME="${PM2_WECOM_BOT_NAME:-${PM2_NAME}-wecom-agent}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-}"
 HEALTHCHECK_URL="${HEALTHCHECK_URL:-}"
 RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-1}"
@@ -283,9 +284,12 @@ build_artifact() {
   # Next standalone tracing can leave native/runtime packages as partial shells.
   # Keep the SQLite adapter stack complete so production does not depend on
   # bundler internals for database access.
-  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv
+  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv @wecom/aibot-node-sdk
   copy_prisma_deploy_files
   copy_resource_seed_files
+
+  mkdir -p .next/standalone/scripts/runtime
+  cp scripts/runtime/wecom-agent-bot.mjs .next/standalone/scripts/runtime/wecom-agent-bot.mjs
 
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
@@ -297,6 +301,8 @@ build_artifact() {
 
   test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
+  test -f .next/standalone/node_modules/@wecom/aibot-node-sdk/dist/index.cjs.js
+  test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
   test -f .next/standalone/generated/prisma/client.ts
   test -f .next/standalone/generated/production/qc/template-snapshots/products/allopurinol.json
 
@@ -625,6 +631,12 @@ deploy_remote_artifact() {
       echo '[错误] QC 模板缓存预热失败'
       pm2 logs '$PM2_NAME' --lines 80 --nostream || true
       exit 1
+    fi
+    pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+    if [ -n "\${WECHAT_BOT_ID:-}" ] && [ -n "\${WECHAT_BOT_SECRET:-}" ]; then
+      pm2 start "\$release_dir/scripts/runtime/wecom-agent-bot.mjs" --name '$PM2_WECOM_BOT_NAME' --cwd "\$release_dir" --update-env
+    else
+      echo '==> 跳过企业微信智能机器人：WECHAT_BOT_ID/WECHAT_BOT_SECRET 未配置'
     fi
     pm2 save
     ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'

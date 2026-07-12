@@ -8,3 +8,4 @@ export * from "./route-input";
 export * from "./sessions";
 export * from "./source-code-tools";
 export * from "./tools";
+export * from "./wecom-bridge";
