@@ -72,7 +72,7 @@ prisma/models/library-governance.prisma # 标签候选、实体提及和检索/R
 
 ### Agent / Kimi 边界
 
-- 标签候选、内容增强、查询改写、RAG 证据整合统一复用 Platform Kimi Agent SDK runtime；Library 不直接访问 CLI、Coding Plan 凭据或模型 API。
+- 标签候选、内容增强、查询改写、RAG 证据整合统一复用 Platform Kimi Agent SDK runtime；Library 不直接访问 CLI、OAuth/API Key 凭据或模型 API。
 - Library 只保存 `providerKey=workspace-agent`、实际 `modelKey` 和 `promptVersion` 作为生成事实，不读取或保存 Kimi 凭据，也不自行判断供应商。
 - OCR、文件转换、checksum、locator 校验、权限过滤、任务状态、索引切换和导出均为确定性服务，不交给模型。
 - Kimi 只能写 `LibraryTagCandidate`；正式 `LibraryTag` / `LibraryDocumentTag` 必须经过 taxonomy 匹配与人工批准。人物、组织、项目、地点和时间写 `LibraryEntityMention`，不能混入主题标签。

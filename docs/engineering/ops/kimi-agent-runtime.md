@@ -8,9 +8,9 @@ Workspace 页面助手与企业微信内部助手统一使用 `@moonshot-ai/kimi
 - 自定义 Kimi agent 的 `tools` 和 `subagents` 均为空。CLI 内置 Shell、文件、MCP、插件、后台任务和子 Agent 不进入模型工具集；Wire `PreToolUse` 还会阻断所有非本轮 Workspace allowlist 工具。
 - 写工具只能生成 proposal。SDK 不注册 proposal confirm executor；用户确认由独立 Workspace API 重新鉴权后执行。
 - SDK 会继承父进程环境，因此生产 executable 必须是 `kimi-agent-sandbox-runner.sh`。runner 的 shebang 在 Bash 启动前清空环境，再通过 Bubblewrap 二次 `--clearenv`，只挂载专用 runtime、空 workdir 和 Kimi 凭据目录；应用 `.env`、数据库、源码和服务器 home 不可见。
-- Web 和企业微信共用 3 个活跃 turn 槽位，为 Coding Plan 的 4 并发额度保留 1 个余量。
+- Web 和企业微信共用 3 个活跃 turn 槽位；这是 Workspace 自身的硬上限，不因选择 OAuth 或 API Key 而放宽。
 
-## 安装与登录
+## 安装与认证
 
 生产 Ubuntu/Debian 服务器执行：
 
@@ -21,19 +21,28 @@ $WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh
 $WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh --check
 ```
 
-在完整源码 checkout 中也可使用等价的 `npm run agent:runtime:install|login|check`。首次生产部署会先同步 bootstrap 脚本和安装 runtime；Coding Plan 设备登录是唯一需要人工完成的激活步骤。
+在完整源码 checkout 中也可使用等价的 `npm run agent:runtime:install|login|check`。首次生产部署会先同步 bootstrap 脚本和安装 runtime；模型认证是唯一需要人工完成的激活步骤。
 
-`--check` 会让固定 CLI 的 `--version` 真正经过 Bubblewrap 执行，因此会同时阻断版本错误、缺少 user namespace 或 sandbox 挂载失败。`agent:runtime:login` 使用官方设备登录流程授权公司 Coding Plan 账号。凭据只保存在：
+`--login` 使用固定 CLI 的官方配置向导，可选择：
+
+- `Kimi Code`：浏览器 OAuth，使用 Coding Plan 订阅；
+- `Moonshot AI Open Platform (moonshot.ai)`：输入 API Key，使用 `https://api.moonshot.ai/v1` 与 API 账户计费，不需要 OAuth。
+
+API Key 只在服务器终端的官方向导中输入，不写入 Workspace `.env`，也不要通过聊天、命令参数或日志传递。向导配置与 OAuth 凭据都只保存在：
 
 ```text
 $WORKSPACE_CONFIG_DIR/runtime/kimi-agent/share
 ```
 
-不要把该目录复制到构建产物、日志、`.env` 或个人 home。部署会保留该运行态目录，只更新固定 CLI 和 sandbox runner。
+不要把该目录复制到构建产物、日志、`.env` 或个人 home。目录和新建凭据使用仅 owner 可访问的权限；部署会保留该运行态目录，只更新固定 CLI 和 sandbox runner。
+
+`--check` 会让固定 CLI 的 `--version` 真正经过 Bubblewrap 执行，因此会同时阻断版本错误、缺少 user namespace 或 sandbox 挂载失败；它还会沿 `default_model -> model -> provider` 校验当前认证，只接受 Kimi 官方 Coding/API endpoint，并仅输出 provider 和 credential 类型，不输出密钥。
+
+Ubuntu 24.04 默认用 AppArmor 限制未授权进程创建 user namespace。安装脚本不会全局关闭该保护；它把系统 `bwrap` 复制为 root 持有的 Workspace 专用 executable，并只为这个固定路径加载带 `userns` 权限的 AppArmor profile。runner 不调用通用 `/usr/bin/bwrap`，避免把例外扩散到服务器上的其他进程。
 
 ## 部署与回滚
 
-`ops/deploy.sh` 默认安装/校验 Kimi runtime，并从服务器 `.env` 删除已废弃的 `AGENT_MODEL_PROVIDER`、`KIMI_*` API 直连项和 `DEEPSEEK_*`。首次迁移会先把这些旧值移到不加载、权限为 `0600` 的 `$WORKSPACE_CONFIG_DIR/retired/agent-provider.env`，随后随运行态备份保留；standalone 产物显式携带 SDK 依赖树。
+`ops/deploy.sh` 默认安装/校验 Kimi runtime，并从服务器 `.env` 删除已废弃的 `AGENT_MODEL_PROVIDER`、`KIMI_*` API 直连项和 `DEEPSEEK_*`。新的 API Key 由专用 CLI 配置持有，不重新放回应用环境。首次迁移会先把旧值移到不加载、权限为 `0600` 的 `$WORKSPACE_CONFIG_DIR/retired/agent-provider.env`，随后随运行态备份保留；standalone 产物显式携带 SDK 依赖树。
 
 回滚只能回滚到同时包含旧代码和从 retired 文件人工恢复的旧 provider 配置的完整 release；不能让新代码读取旧密钥。若 Kimi runtime 未登录、版本漂移或 sandbox 不可用，请保持服务运行但让 Agent 请求失败关闭，修复 runtime 后再恢复，不得绕过 Bubblewrap 直接指向真实 `kimi`。
 

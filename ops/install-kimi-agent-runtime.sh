@@ -12,7 +12,7 @@ usage() {
 Usage: ops/install-kimi-agent-runtime.sh [--check|--login] [--root DIR]
 
   --check     Verify bubblewrap, the pinned CLI and sandbox runner.
-  --login     Start the official Kimi Coding Plan device login for this service account.
+  --login     Start official Kimi setup. Choose Kimi Code OAuth or a Moonshot API key.
   --root DIR  Override the runtime root (default: WORKSPACE_CONFIG_DIR/runtime/kimi-agent).
 
 The application never receives the login token. Credentials stay under ROOT/share and
@@ -42,6 +42,8 @@ esac
 
 VENV_DIR="$RUNTIME_ROOT/venv"
 RUNNER_TARGET="$RUNTIME_ROOT/bin/kimi-sandbox"
+SANDBOX_BWRAP="/usr/local/lib/workspace-kimi-agent/bwrap"
+APPARMOR_PROFILE="/etc/apparmor.d/workspace-kimi-agent-bwrap"
 
 sudo_cmd() {
   if [ "$(id -u)" -eq 0 ]; then
@@ -71,10 +73,10 @@ resolve_python() {
 
 check_runtime() {
   local missing=0
-  if command -v bwrap >/dev/null 2>&1; then
-    echo "bubblewrap=$(command -v bwrap)"
+  if [ -x "$SANDBOX_BWRAP" ]; then
+    echo "bubblewrap=$SANDBOX_BWRAP"
   else
-    echo "[error] bubblewrap is missing"
+    echo "[error] dedicated bubblewrap is missing: $SANDBOX_BWRAP"
     missing=1
   fi
   if [ -x "$RUNNER_TARGET" ]; then
@@ -108,7 +110,8 @@ check_runtime() {
       missing=1
     fi
   fi
-  if [ -x "$VENV_DIR/bin/python" ] && "$VENV_DIR/bin/python" - "$RUNTIME_ROOT/share/config.toml" <<'PY'
+  local auth_status=""
+  if [ -x "$VENV_DIR/bin/python" ] && auth_status="$("$VENV_DIR/bin/python" - "$RUNTIME_ROOT/share/config.toml" <<'PY'
 from pathlib import Path
 import sys
 import tomlkit
@@ -117,15 +120,65 @@ path = Path(sys.argv[1])
 if not path.is_file():
     raise SystemExit(1)
 data = tomlkit.parse(path.read_text())
-provider = data.get("providers", {}).get("managed:kimi-code", {})
-raise SystemExit(0 if provider.get("api_key") or provider.get("oauth") else 1)
+default_model = data.get("default_model")
+model = data.get("models", {}).get(default_model, {}) if default_model else {}
+provider_key = model.get("provider")
+provider = data.get("providers", {}).get(provider_key, {}) if provider_key else {}
+base_url = str(provider.get("base_url", "")).rstrip("/")
+allowed_base_urls = {
+    "https://api.kimi.com/coding/v1",
+    "https://api.moonshot.cn/v1",
+    "https://api.moonshot.ai/v1",
+}
+credential = "api_key" if provider.get("api_key") else "oauth" if provider.get("oauth") else ""
+if provider.get("type") != "kimi" or base_url not in allowed_base_urls or not credential:
+    raise SystemExit(1)
+print(f"kimi_auth=configured provider={provider_key} credential={credential}")
 PY
-  then
-    echo "coding_plan_auth=configured"
+  )"; then
+    echo "$auth_status"
   else
-    echo "[warning] Coding Plan login is not configured; run with --login before enabling Agent traffic"
+    echo "[warning] Kimi authentication is not configured; run with --login before enabling Agent traffic"
   fi
   [ "$missing" -eq 0 ]
+}
+
+install_sandbox_bwrap() {
+  local source_bwrap
+  source_bwrap="$(command -v bwrap || true)"
+  if [ -z "$source_bwrap" ]; then
+    echo "[error] bubblewrap package is installed but bwrap is not on PATH"
+    exit 1
+  fi
+
+  sudo_cmd install -d -m 0755 "$(dirname "$SANDBOX_BWRAP")"
+  sudo_cmd install -m 0755 "$source_bwrap" "$SANDBOX_BWRAP"
+
+  if [ -r /proc/sys/kernel/apparmor_restrict_unprivileged_userns ] &&
+     [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns)" = "1" ]; then
+    local apparmor_parser profile_tmp
+    apparmor_parser="$(command -v apparmor_parser || true)"
+    if [ -z "$apparmor_parser" ]; then
+      echo "[error] AppArmor restricts user namespaces but apparmor_parser is unavailable"
+      exit 1
+    fi
+    profile_tmp="$(mktemp)"
+    cat > "$profile_tmp" <<'EOF'
+abi <abi/4.0>,
+
+include <tunables/global>
+
+/usr/local/lib/workspace-kimi-agent/bwrap flags=(unconfined) {
+  userns,
+
+  include if exists <local/workspace-kimi-agent-bwrap>
+}
+EOF
+    sudo_cmd install -m 0644 "$profile_tmp" "$APPARMOR_PROFILE"
+    rm -f "$profile_tmp"
+    sudo_cmd "$apparmor_parser" -r "$APPARMOR_PROFILE"
+    echo "apparmor_profile=$APPARMOR_PROFILE"
+  fi
 }
 
 if [ "$MODE" = "check" ]; then
@@ -137,6 +190,7 @@ if [ "$MODE" = "login" ]; then
   check_runtime
   mkdir -p "$RUNTIME_ROOT/home" "$RUNTIME_ROOT/share"
   chmod 700 "$RUNTIME_ROOT/home" "$RUNTIME_ROOT/share"
+  umask 077
   exec env -i \
     HOME="$RUNTIME_ROOT/home" \
     KIMI_SHARE_DIR="$RUNTIME_ROOT/share" \
@@ -154,7 +208,7 @@ if ! command -v apt-get >/dev/null 2>&1 || ! command -v dpkg >/dev/null 2>&1; th
   echo "[error] the production Kimi sandbox installer currently supports Ubuntu/Debian only"
   exit 1
 fi
-packages=(bubblewrap python3 python3-venv python3-pip)
+packages=(apparmor bubblewrap python3 python3-venv python3-pip)
 missing_packages=()
 for package in "${packages[@]}"; do
   if ! dpkg -s "$package" >/dev/null 2>&1; then
@@ -165,6 +219,8 @@ if [ "${#missing_packages[@]}" -gt 0 ]; then
   sudo_cmd apt-get update
   sudo_cmd env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing_packages[@]}"
 fi
+
+install_sandbox_bwrap
 
 PYTHON_BIN="$(resolve_python || true)"
 if [ -z "$PYTHON_BIN" ]; then
@@ -183,4 +239,4 @@ PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_INPUT=1 "$VENV_DIR/bin/python" -m pip ins
 PIP_DISABLE_PIP_VERSION_CHECK=1 PIP_NO_INPUT=1 "$VENV_DIR/bin/python" -m pip install "kimi-cli==$KIMI_CLI_VERSION"
 
 check_runtime
-echo "Kimi Agent runtime installed. Run this script with --login once to authorize the company Coding Plan account."
+echo "Kimi Agent runtime installed. Run this script with --login once to configure Kimi Code OAuth or a Moonshot API key."

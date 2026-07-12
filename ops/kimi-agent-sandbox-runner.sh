@@ -8,6 +8,7 @@ ROOT="$(cd "$(dirname "$SCRIPT_PATH")/.." && pwd -P)"
 REAL_EXECUTABLE="$ROOT/venv/bin/kimi"
 SHARE_DIR="$ROOT/share"
 HOME_DIR="$ROOT/home"
+BWRAP_EXECUTABLE="/usr/local/lib/workspace-kimi-agent/bwrap"
 
 require_under_root() {
   local value="$1"
@@ -41,8 +42,8 @@ if [ -z "$WORK_DIR" ]; then
 fi
 require_under_root "$WORK_DIR" "work directory"
 
-if ! command -v bwrap >/dev/null 2>&1; then
-  echo "[kimi-sandbox] bubblewrap is required" >&2
+if [ ! -x "$BWRAP_EXECUTABLE" ]; then
+  echo "[kimi-sandbox] dedicated bubblewrap is required: $BWRAP_EXECUTABLE" >&2
   exit 69
 fi
 if [ ! -x "$REAL_EXECUTABLE" ]; then
@@ -86,4 +87,4 @@ for system_file in /etc/hosts /etc/resolv.conf /etc/nsswitch.conf /etc/localtime
   fi
 done
 
-exec bwrap "${args[@]}" "$REAL_EXECUTABLE" "$@"
+exec "$BWRAP_EXECUTABLE" "${args[@]}" "$REAL_EXECUTABLE" "$@"
