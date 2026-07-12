@@ -4,6 +4,11 @@ import { createHmac, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import AiBot from "@wecom/aibot-node-sdk";
+import {
+  controlledFileFallback,
+  fileArtifactsFromResult,
+  normalizeWecomReplyLinks,
+} from "./wecom-agent-delivery.mjs";
 
 const botId = process.env.WECHAT_BOT_ID?.trim();
 const botSecret = process.env.WECHAT_BOT_SECRET?.trim();
@@ -20,6 +25,7 @@ const statePath = path.join(configDir, "agent", "wecom-bot-state.json");
 const MAX_RECENT_MESSAGE_IDS = 500;
 const MAX_REPLY_BYTES = 20_000;
 const MAX_DIRECT_FILE_BYTES = 45 * 1024 * 1024;
+const ARTIFACT_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 
 function safeLogMessage(message) {
   return String(message)
@@ -115,33 +121,6 @@ async function callWorkspaceAgent(payload) {
   }
 }
 
-function isFileArtifact(value) {
-  return value
-    && typeof value === "object"
-    && value.kind === "file"
-    && value.source === "library-export"
-    && typeof value.artifactId === "string"
-    && typeof value.fileName === "string"
-    && Number.isSafeInteger(value.fileSizeBytes)
-    && value.fileSizeBytes > 0
-    && Number.isSafeInteger(value.itemCount)
-    && value.itemCount > 0
-    && typeof value.workerPath === "string"
-    && value.workerPath.startsWith(`${basePath}/api/integrations/wecom/agent/artifacts/`)
-    && typeof value.downloadPath === "string"
-    && value.downloadPath.startsWith(`${basePath}/api/integrations/wecom/download/`);
-}
-
-function publicDownloadUrl(downloadPath) {
-  const publicOrigin = process.env.WECHAT_REDIRECT_ORIGIN?.trim();
-  if (!publicOrigin) return null;
-  try {
-    return new URL(downloadPath, publicOrigin).toString();
-  } catch {
-    return null;
-  }
-}
-
 async function fetchWorkspaceArtifact(artifact) {
   const url = new URL(artifact.workerPath, bridgeUrl);
   const timestamp = String(Date.now());
@@ -163,25 +142,43 @@ async function fetchWorkspaceArtifact(artifact) {
   return buffer;
 }
 
-function controlledLinkReply(artifact, reason) {
-  const url = publicDownloadUrl(artifact.downloadPath);
-  if (!url) return `资料包已生成，但${reason}。请在 Workspace 网页端下载。`;
-  return `资料包已生成，但${reason}。\n\n[点击安全下载资料包](${url})\n\n链接仅限你的账号使用，30分钟内有效。`;
+async function cleanupExpiredArtifacts() {
+  const url = new URL(`${basePath}/api/integrations/wecom/agent/artifacts/cleanup`, bridgeUrl);
+  const timestamp = String(Date.now());
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "x-wecom-bot-id": botId,
+      "x-workspace-timestamp": timestamp,
+      "x-workspace-signature": signature("", timestamp),
+    },
+  });
+  if (!response.ok) throw new Error(`Artifact cleanup HTTP ${response.status}`);
+  return response.json();
 }
 
-async function deliverFileArtifact(frame, artifact) {
-  if (artifact.fileSizeBytes > MAX_DIRECT_FILE_BYTES) {
-    return controlledLinkReply(artifact, "超过企业微信直传大小限制");
+async function deliverFileArtifacts(frame, artifacts) {
+  const fallback = [];
+  let sentCount = 0;
+  for (const artifact of artifacts) {
+    if (artifact.fileSizeBytes > MAX_DIRECT_FILE_BYTES) {
+      fallback.push({ artifact, reason: "超过企业微信直传大小限制" });
+      continue;
+    }
+    try {
+      const buffer = await fetchWorkspaceArtifact(artifact);
+      const uploaded = await client.uploadMedia(buffer, { type: "file", filename: artifact.fileName });
+      await client.replyMedia(frame, "file", uploaded.media_id);
+      sentCount += artifact.itemCount;
+    } catch (error) {
+      console.error(`[wecom-agent] file delivery failed: ${error instanceof Error ? error.message : String(error)}`);
+      fallback.push({ artifact, reason: "企业微信文件上传暂时失败" });
+    }
   }
-  try {
-    const buffer = await fetchWorkspaceArtifact(artifact);
-    const uploaded = await client.uploadMedia(buffer, { type: "file", filename: artifact.fileName });
-    await client.replyMedia(frame, "file", uploaded.media_id);
-    return `已按你的当前权限打包 ${artifact.itemCount} 份资料，文件已发送。`;
-  } catch (error) {
-    console.error(`[wecom-agent] file delivery failed: ${error instanceof Error ? error.message : String(error)}`);
-    return controlledLinkReply(artifact, "企业微信文件上传暂时失败");
+  if (fallback.length > 0) {
+    return controlledFileFallback(fallback, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), sentCount);
   }
+  return `已按你的当前权限直接发送 ${sentCount} 份原始资料。`;
 }
 
 const client = new AiBot.WSClient({
@@ -190,6 +187,16 @@ const client = new AiBot.WSClient({
   maxReconnectAttempts: -1,
   maxAuthFailureAttempts: 5,
   logger,
+});
+
+const cleanupTimer = setInterval(() => {
+  void cleanupExpiredArtifacts().catch((error) => {
+    console.error(`[wecom-agent] artifact cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
+  });
+}, ARTIFACT_CLEANUP_INTERVAL_MS);
+cleanupTimer.unref();
+void cleanupExpiredArtifacts().catch((error) => {
+  console.error(`[wecom-agent] startup artifact cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
 });
 
 async function handleMessage(frame, rawContent) {
@@ -220,12 +227,17 @@ async function handleMessage(frame, rawContent) {
       await saveState();
     }
     let reply = result.message || "";
-    if (body.chattype !== "group" && isFileArtifact(result.artifact)) {
-      reply = await deliverFileArtifact(frame, result.artifact);
+    const artifacts = fileArtifactsFromResult(result, basePath);
+    if (body.chattype !== "group" && artifacts.length > 0) {
+      reply = await deliverFileArtifacts(frame, artifacts);
     } else if (result.type === "proposal") {
       reply = `${reply}\n\n涉及变更，请到 Workspace 网页端确认后执行。`;
     }
-    await client.replyStream(frame, streamId, limitReply(reply), true);
+    await client.replyStream(frame, streamId, limitReply(normalizeWecomReplyLinks(
+      reply,
+      process.env.WECHAT_REDIRECT_ORIGIN?.trim(),
+      basePath,
+    )), true);
   } catch (error) {
     const message = error instanceof Error ? error.message : "处理失败";
     console.error(`[wecom-agent] message processing failed: ${message}`);

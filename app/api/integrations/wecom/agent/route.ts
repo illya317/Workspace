@@ -5,6 +5,7 @@ import { createLibraryAgentDelivery } from "@workspace/library/server/agent-deli
 import {
   createWecomAgentFileArtifact,
   handleParsedAgentMessageRequest,
+  readAgentSessionMessagesForUser,
   sourceCodeAgentTools,
   toParsedAgentRequest,
   wecomGroupConversationTool,
@@ -14,6 +15,9 @@ import { withWecomAgentBridgeAccess } from "@workspace/platform/server/with-auth
 export const runtime = "nodejs";
 
 export const POST = withWecomAgentBridgeAccess(async (request, input, user) => {
+  const priorMessages = input.chatType === "single"
+    ? await readAgentSessionMessagesForUser(input.sessionId, user)
+    : [];
   const tools = input.chatType === "group"
     ? [wecomGroupConversationTool]
     : [...sourceCodeAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools];
@@ -35,8 +39,8 @@ export const POST = withWecomAgentBridgeAccess(async (request, input, user) => {
   try {
     const delivery = await createLibraryAgentDelivery({
       message: input.message,
-      data: payload.data,
       userId: user.id,
+      history: priorMessages.map((message) => ({ role: message.role, content: message.content })),
     });
     if (delivery.status === "none") return response;
     if (delivery.status === "denied") {
@@ -45,15 +49,28 @@ export const POST = withWecomAgentBridgeAccess(async (request, input, user) => {
         message: "当前账号没有资料导出权限，无法发送资料包。",
       }, { status: response.status });
     }
+    if (delivery.status === "empty") {
+      return Response.json({
+        ...payload,
+        type: "answer",
+        message: delivery.message,
+        data: undefined,
+      }, { status: response.status });
+    }
     return Response.json({
       ...payload,
-      artifact: createWecomAgentFileArtifact({
-        artifactId: delivery.artifactId,
+      message: delivery.mode === "files"
+        ? `已找到 ${delivery.artifacts.length} 份“${delivery.query}”资料，正在发送原始文件。`
+        : `已按“${delivery.query}”生成 ${delivery.artifacts[0]?.itemCount ?? 0} 份资料的临时压缩包。`,
+      data: undefined,
+      artifacts: delivery.artifacts.map((artifact) => createWecomAgentFileArtifact({
+        source: artifact.source,
+        artifactId: artifact.artifactId,
         userId: user.id,
-        fileName: delivery.fileName,
-        fileSizeBytes: delivery.fileSizeBytes,
-        itemCount: delivery.itemCount,
-      }),
+        fileName: artifact.fileName,
+        fileSizeBytes: artifact.fileSizeBytes,
+        itemCount: artifact.itemCount,
+      })),
     }, { status: response.status });
   } catch (error) {
     console.error("[wecom-agent] library bundle creation failed", error instanceof Error ? error.message : error);

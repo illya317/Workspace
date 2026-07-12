@@ -16,9 +16,46 @@ import {
   type LibraryExportSelectionItem,
 } from "./domain/export-validation";
 import { checkLibraryExport, getMaxConfidentialityLevel } from "./permissions";
+import { libraryExportExpiresAt, removeLibraryExportFiles, LIBRARY_EXPORT_RETENTION_MS } from "./export-retention";
 import { resolveLibraryVersionRuntimeContent } from "./version-content";
 
 const execFileAsync = promisify(execFile);
+
+async function expireLibraryExportJob(job: { id: number; exportUid: string; expiresAt: Date | null }, now: Date) {
+  await removeLibraryExportFiles(job.exportUid, getDefaultRoot());
+  await prisma.libraryExportJob.updateMany({
+    where: { id: job.id, storagePath: { not: null } },
+    data: {
+      status: "expired",
+      storagePath: null,
+      expiresAt: job.expiresAt ?? now,
+    },
+  });
+}
+
+export async function cleanupExpiredLibraryExports(now = new Date()) {
+  const legacyCutoff = new Date(now.getTime() - LIBRARY_EXPORT_RETENTION_MS);
+  const jobs = await prisma.libraryExportJob.findMany({
+    where: {
+      storagePath: { not: null },
+      OR: [
+        { expiresAt: { lte: now } },
+        { expiresAt: null, finishedAt: { lte: legacyCutoff } },
+      ],
+    },
+    select: { id: true, exportUid: true, expiresAt: true },
+  });
+  let expired = 0;
+  for (const job of jobs) {
+    try {
+      await expireLibraryExportJob(job, now);
+      expired += 1;
+    } catch (error) {
+      console.error(`[library-export] cleanup failed for ${job.exportUid}:`, error instanceof Error ? error.message : error);
+    }
+  }
+  return { examined: jobs.length, expired };
+}
 
 function workerPython() {
   const configured = process.env.LIBRARY_WORKER_PYTHON?.trim();
@@ -183,11 +220,19 @@ export async function runLibraryExport(exportUid: string) {
     ], { timeout: 10 * 60 * 1000 });
     await rename(tempZip, finalZip);
     const zipStat = await stat(finalZip);
+    const finishedAt = new Date();
     await rm(packageDir, { recursive: true, force: true });
     const storagePath = path.posix.join("exports", exportUid, "资料包.zip");
     return prisma.libraryExportJob.update({
       where: { id: job.id },
-      data: { status: "succeeded", storagePath, fileSizeBytes: zipStat.size, manifestSha256, finishedAt: new Date() },
+      data: {
+        status: "succeeded",
+        storagePath,
+        fileSizeBytes: zipStat.size,
+        manifestSha256,
+        finishedAt,
+        expiresAt: libraryExportExpiresAt(finishedAt),
+      },
     });
   } catch (error) {
     await prisma.libraryExportJob.update({
@@ -201,6 +246,10 @@ export async function runLibraryExport(exportUid: string) {
 export async function getLibraryExportFile(exportUid: string, userId: number) {
   const job = await prisma.libraryExportJob.findUnique({ where: { exportUid } });
   if (!job || job.status !== "succeeded" || !job.storagePath) throw new Error("Export not found");
+  if (job.expiresAt && job.expiresAt.getTime() <= Date.now()) {
+    await expireLibraryExportJob(job, new Date());
+    throw new Error("Export expired");
+  }
   if (job.requestedBy !== userId) throw new Error("Forbidden");
   await loadAuthorizedVersions(userId, JSON.parse(job.selectionJson) as LibraryExportSelectionItem[]);
   const filePath = safeResolve(job.storagePath, getDefaultRoot());

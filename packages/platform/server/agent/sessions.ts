@@ -269,6 +269,14 @@ export async function prepareAgentSession(user: SessionUser, input: AgentSession
   };
 }
 
+/** Read an existing owned session without creating or mutating session context. */
+export async function readAgentSessionMessagesForUser(sessionId: string | null | undefined, user: SessionUser) {
+  if (!sessionId) return [];
+  await ensureAgentSessionSchema();
+  const session = await getSessionById(sessionId, user);
+  return session ? readAgentSessionMessages(session) : [];
+}
+
 export async function readAgentSessionMessages(session: AgentSessionRow): Promise<AgentStoredMessage[]> {
   let content = "";
   try {

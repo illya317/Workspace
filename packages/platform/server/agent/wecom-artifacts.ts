@@ -7,7 +7,8 @@ export const WECOM_DIRECT_FILE_MAX_BYTES = 45 * 1024 * 1024;
 export const WECOM_ARTIFACT_TOKEN_TTL_MS = 30 * 60 * 1000;
 
 const artifactClaimsSchema = z.object({
-  version: z.literal(1),
+  version: z.literal(2),
+  source: z.enum(["library-export", "library-version"]),
   artifactId: z.string().uuid(),
   userId: z.number().int().positive(),
   expiresAt: z.number().int().positive(),
@@ -17,7 +18,7 @@ export type WecomArtifactClaims = z.infer<typeof artifactClaimsSchema>;
 
 export type WecomAgentFileArtifact = {
   kind: "file";
-  source: "library-export";
+  source: WecomArtifactClaims["source"];
   artifactId: string;
   fileName: string;
   fileSizeBytes: number;
@@ -46,11 +47,12 @@ function signaturesMatch(actual: string, expected: string) {
 }
 
 export function createWecomArtifactToken(
-  input: Pick<WecomArtifactClaims, "artifactId" | "userId">,
+  input: Pick<WecomArtifactClaims, "source" | "artifactId" | "userId">,
   now = Date.now(),
 ) {
   const claims: WecomArtifactClaims = {
-    version: 1,
+    version: 2,
+    source: input.source,
     artifactId: input.artifactId,
     userId: input.userId,
     expiresAt: now + WECOM_ARTIFACT_TOKEN_TTL_MS,
@@ -79,6 +81,7 @@ function normalizedBasePath() {
 }
 
 export function createWecomAgentFileArtifact(input: {
+  source: WecomArtifactClaims["source"];
   artifactId: string;
   userId: number;
   fileName: string;
@@ -91,7 +94,7 @@ export function createWecomAgentFileArtifact(input: {
   const encodedToken = encodeURIComponent(token);
   return {
     kind: "file",
-    source: "library-export",
+    source: input.source,
     artifactId: input.artifactId,
     fileName: input.fileName,
     fileSizeBytes: input.fileSizeBytes,

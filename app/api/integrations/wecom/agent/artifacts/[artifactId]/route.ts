@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { getLibraryExportFile } from "@workspace/library/server/export";
+import { getLibraryFileByVersionUid } from "@workspace/library/server/file-access";
 import {
   isWecomAgentBridgeRequestAuthorized,
   verifyWecomArtifactToken,
@@ -24,7 +25,9 @@ export const GET = createInternalApiRoute({
       return jsonErrorResponse("Invalid or expired artifact token", 403);
     }
     try {
-      const file = await getLibraryExportFile(params.artifactId, claims.userId);
+      const file = claims.source === "library-version"
+        ? await getLibraryFileByVersionUid(params.artifactId, claims.userId)
+        : await getLibraryExportFile(params.artifactId, claims.userId);
       return new Response(new Uint8Array(file.buffer), {
         headers: {
           "Cache-Control": "private, no-store",

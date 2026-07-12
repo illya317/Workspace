@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 
 import { getLibraryExportFile } from "@workspace/library/server/export";
+import { getLibraryFileByVersionUid } from "@workspace/library/server/file-access";
 import { verifyWecomArtifactToken } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { authenticate } from "@workspace/platform/server/auth";
@@ -36,7 +37,9 @@ export async function GET(
   if (user.userId !== claims.userId) return jsonErrorResponse("该下载链接不属于当前用户", 403);
 
   try {
-    const file = await getLibraryExportFile(params.data.artifactId, user.userId);
+    const file = claims.source === "library-version"
+      ? await getLibraryFileByVersionUid(params.data.artifactId, user.userId)
+      : await getLibraryExportFile(params.data.artifactId, user.userId);
     return new Response(new Uint8Array(file.buffer), {
       headers: {
         "Cache-Control": "private, no-store",

@@ -15,7 +15,7 @@ process.env.NEXT_PUBLIC_BASE_PATH = "/workspace";
 
 test("artifact tokens bind the export, user, and expiry", () => {
   const now = 1_800_000_000_000;
-  const created = createWecomArtifactToken({ artifactId, userId: 42 }, now);
+  const created = createWecomArtifactToken({ source: "library-version", artifactId, userId: 42 }, now);
 
   assert.deepEqual(verifyWecomArtifactToken(created.token, now + 1), created.claims);
   assert.equal(created.claims.expiresAt, now + WECOM_ARTIFACT_TOKEN_TTL_MS);
@@ -25,6 +25,7 @@ test("artifact tokens bind the export, user, and expiry", () => {
 
 test("file artifacts expose only opaque controlled routes", () => {
   const artifact = createWecomAgentFileArtifact({
+    source: "library-export",
     artifactId,
     userId: 42,
     fileName: "资料库.zip",
@@ -33,6 +34,7 @@ test("file artifacts expose only opaque controlled routes", () => {
   });
 
   assert.equal(artifact.kind, "file");
+  assert.equal(artifact.source, "library-export");
   assert.equal(artifact.directSendMaxBytes, WECOM_DIRECT_FILE_MAX_BYTES);
   assert.match(artifact.workerPath, /^\/workspace\/api\/integrations\/wecom\/agent\/artifacts\//);
   assert.match(artifact.downloadPath, /^\/workspace\/api\/integrations\/wecom\/download\//);

@@ -41,6 +41,7 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     { method: "GET", pathPrefix: "/api/auth/wecom", access: "public", notes: "WeCom OAuth start/callback endpoint; must be reachable before a local session exists." },
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent", access: "public", notes: "HMAC-authenticated localhost bridge from the WeCom intelligent-robot worker; sender RBAC is enforced by Platform." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/agent/artifacts", access: "internal", notes: "HMAC-authenticated artifact stream for the WeCom worker; signed claims and Library permissions are rechecked." },
+    { method: "POST", pathPrefix: "/api/integrations/wecom/agent/artifacts/cleanup", access: "internal", notes: "HMAC-authenticated maintenance call removes expired generated packages while retaining their audit rows." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/download", access: "public", notes: "Short-lived user-bound artifact link; requires a matching Workspace or WeCom-authenticated session before download." },
     { method: "GET", pathPrefix: "/api/auth/dev-login-bypass", access: "dev", notes: "Development-only bypass helper; unavailable as a production business capability." },
     { method: "GET", pathPrefix: "/api/settings/account/week-info", access: "public", notes: "Calendar week metadata endpoint; returns no user or business-resource data." },

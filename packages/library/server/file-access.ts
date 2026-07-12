@@ -16,6 +16,12 @@ export interface LibraryFilePayload {
   size: number;
 }
 
+export interface LibraryFileMetadata {
+  contentType: string;
+  fileName: string;
+  size: number;
+}
+
 function ensureInsideRoot(filePath: string) {
   const root = getDefaultRoot();
   const normalizedRoot = path.resolve(root) + path.sep;
@@ -49,6 +55,40 @@ async function readAllowedFile(
     fileName,
     size: fileStat.size,
   };
+}
+
+async function resolveAllowedVersionByUid(versionUid: string, userId: number) {
+  const version = await prisma.libraryDocumentVersion.findUnique({
+    where: { versionUid },
+    select: {
+      id: true,
+      fileName: true,
+      document: { select: { confidentialityLevel: true, status: true } },
+    },
+  });
+  if (!version) throw new Error("Version not found");
+  const maxLevel = await getMaxConfidentialityLevel(userId);
+  if (version.document.confidentialityLevel > maxLevel) throw new Error("Higher confidentiality required");
+  ensureDocumentIsDownloadable(version.document.status);
+  const content = await resolveLibraryVersionRuntimeContent(version.id);
+  if (!ensureInsideRoot(content.absolutePath)) throw new Error("Forbidden");
+  return {
+    absolutePath: content.absolutePath,
+    contentType: resolveLibraryMimeType(content.fileName, content.mimeType),
+    fileName: downloadFileName(version.fileName, content.fileName),
+  };
+}
+
+export async function getLibraryFileMetadataByVersionUid(versionUid: string, userId: number): Promise<LibraryFileMetadata> {
+  const resolved = await resolveAllowedVersionByUid(versionUid, userId);
+  const fileStat = await stat(resolved.absolutePath);
+  if (fileStat.isDirectory()) throw new Error("Not a file");
+  return { contentType: resolved.contentType, fileName: resolved.fileName, size: fileStat.size };
+}
+
+export async function getLibraryFileByVersionUid(versionUid: string, userId: number): Promise<LibraryFilePayload> {
+  const resolved = await resolveAllowedVersionByUid(versionUid, userId);
+  return readAllowedFile(resolved.absolutePath, resolved.fileName, resolved.contentType);
 }
 
 export async function getLibraryFileByDocumentId(documentId: number, userId: number) {

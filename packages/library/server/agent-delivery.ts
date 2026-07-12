@@ -1,66 +1,80 @@
 import "server-only";
 
-import { z } from "zod";
-
+import {
+  DIRECT_LIBRARY_FILE_LIMIT,
+  isLibraryDeliveryRequest,
+  resolveLibraryDeliveryQuery,
+  selectLibraryDeliveryDocuments,
+  shouldSendLibraryFilesDirectly,
+  type LibraryDeliveryHistoryMessage,
+} from "./agent-delivery-selection";
 import { buildCreateLibraryExportCommand } from "./domain/export-validation";
 import { createLibraryExport } from "./export";
+import { getLibraryFileMetadataByVersionUid } from "./file-access";
+import { checkLibraryExport } from "./permissions";
+import { searchLibraryDocumentSet } from "./search";
 
-const selectionItemSchema = z.object({
-  documentUid: z.string().uuid(),
-  versionUid: z.string().uuid(),
-}).strict();
+export { DIRECT_LIBRARY_FILE_LIMIT };
 
-const deliveryDataSchema = z.object({
-  canExport: z.boolean().optional(),
-  presentation: z.object({
-    kind: z.literal("resource-set"),
-    items: z.array(z.unknown()),
-    bundle: z.object({
-      requestBody: z.object({
-        selection: z.array(selectionItemSchema).min(1).max(100),
-        includePreviews: z.boolean().optional(),
-      }).passthrough(),
-    }).passthrough().optional(),
-  }).passthrough(),
-}).passthrough();
-
-const DELIVERY_REQUEST_PATTERN = /(打包|资料包|压缩包|\bzip\b|发(?:送)?(?:给我|到企业微信|到企微)|直接发)/iu;
-const DELIVERY_NEGATION_PATTERN = /(不要|不用|无需|别).{0,8}(打包|资料包|压缩包|\bzip\b|发)/iu;
+export type LibraryAgentDeliveryArtifact = {
+  source: "library-export" | "library-version";
+  artifactId: string;
+  fileName: string;
+  fileSizeBytes: number;
+  itemCount: number;
+};
 
 export type LibraryAgentDeliveryRequest =
   | { status: "none" }
   | { status: "denied" }
+  | { status: "empty"; message: string }
   | {
       status: "ready";
-      selection: Array<{ documentUid: string; versionUid: string }>;
-      includePreviews: boolean;
+      mode: "files" | "bundle";
+      query: string;
+      artifacts: LibraryAgentDeliveryArtifact[];
     };
-
-export function parseLibraryAgentDeliveryRequest(message: string, data: unknown): LibraryAgentDeliveryRequest {
-  if (DELIVERY_NEGATION_PATTERN.test(message) || !DELIVERY_REQUEST_PATTERN.test(message)) return { status: "none" };
-  const parsed = deliveryDataSchema.safeParse(data);
-  if (!parsed.success) return { status: "none" };
-  const bundle = parsed.data.presentation.bundle;
-  if (!bundle) return parsed.data.canExport === false ? { status: "denied" } : { status: "none" };
-  return {
-    status: "ready",
-    selection: bundle.requestBody.selection,
-    includePreviews: bundle.requestBody.includePreviews ?? false,
-  };
-}
 
 export async function createLibraryAgentDelivery(input: {
   message: string;
-  data: unknown;
   userId: number;
-}) {
-  const request = parseLibraryAgentDeliveryRequest(input.message, input.data);
-  if (request.status !== "ready") return request;
+  history?: LibraryDeliveryHistoryMessage[];
+}): Promise<LibraryAgentDeliveryRequest> {
+  if (!isLibraryDeliveryRequest(input.message)) return { status: "none" };
+
+  const query = resolveLibraryDeliveryQuery(input.message, input.history);
+  if (!query) {
+    return { status: "empty", message: "请说明要发送的资料名称、编号或主题，我会直接发送匹配的文件。" };
+  }
+  if (!(await checkLibraryExport(input.userId))) return { status: "denied" };
+
+  const result = await searchLibraryDocumentSet({ query, limit: 20, userId: input.userId });
+  const selected = selectLibraryDeliveryDocuments(query, result.documents);
+  if (selected.length === 0) {
+    return { status: "empty", message: `没有找到可直接发送的“${query}”资料，请补充文件名或资料编号。` };
+  }
+
+  if (shouldSendLibraryFilesDirectly(selected.length)) {
+    const artifacts = await Promise.all(selected.map(async (document) => {
+      const file = await getLibraryFileMetadataByVersionUid(document.versionUid, input.userId);
+      return {
+        source: "library-version" as const,
+        artifactId: document.versionUid,
+        fileName: file.fileName,
+        fileSizeBytes: file.size,
+        itemCount: 1,
+      };
+    }));
+    return { status: "ready", mode: "files", query, artifacts };
+  }
 
   const command = buildCreateLibraryExportCommand({
     userId: input.userId,
-    selection: request.selection,
-    includePreviews: request.includePreviews,
+    selection: selected.map((document) => ({
+      documentUid: document.documentUid,
+      versionUid: document.versionUid,
+    })),
+    includePreviews: false,
   });
   if (!command.ok) throw new Error(command.issue.message);
   const job = await createLibraryExport(command.data);
@@ -68,10 +82,15 @@ export async function createLibraryAgentDelivery(input: {
     throw new Error("Library export did not produce a file");
   }
   return {
-    status: "ready" as const,
-    artifactId: job.exportUid,
-    fileName: "资料库.zip",
-    fileSizeBytes: job.fileSizeBytes,
-    itemCount: request.selection.length,
+    status: "ready",
+    mode: "bundle",
+    query,
+    artifacts: [{
+      source: "library-export",
+      artifactId: job.exportUid,
+      fileName: "资料库.zip",
+      fileSizeBytes: job.fileSizeBytes,
+      itemCount: selected.length,
+    }],
   };
 }
