@@ -1,16 +1,22 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { badgeToneClassName, type BadgeTone } from "../common/Badge";
 import { joinClassNames } from "../common/card-utils";
+import { ActionGlyph, type ActionGlyphKind } from "../action/ActionGlyphs";
 
 export interface SelectionGridOption {
   value: string;
   label: string;
   code?: string;
+  icon?: ActionGlyphKind;
+  tone?: BadgeTone;
+  title?: string;
 }
 
 export type SelectionGridMode = "select" | "readOnly" | "action";
 export type SelectionGridLayout = "fixed" | "auto";
+export type SelectionGridPresentation = "card" | "chip";
 export type SelectionGridMinItemWidth = "sm" | "md" | "lg" | number;
 
 export interface SelectionGridProps {
@@ -18,6 +24,7 @@ export interface SelectionGridProps {
   value?: string | null;
   onChange?: (value: string) => void;
   mode?: SelectionGridMode;
+  presentation?: SelectionGridPresentation;
   onItemClick?: (option: SelectionGridOption) => void;
   columns?: 1 | 2 | 3 | 4;
   layout?: SelectionGridLayout;
@@ -47,7 +54,19 @@ function columnsClass(columns: SelectionGridProps["columns"] = 3) {
   return "grid-cols-3";
 }
 
-function itemClasses(selected: boolean, interactive: boolean) {
+function itemClasses(
+  selected: boolean,
+  interactive: boolean,
+  presentation: SelectionGridPresentation,
+  tone?: BadgeTone,
+) {
+  if (presentation === "chip") {
+    return [
+      "inline-flex min-w-0 items-center justify-center gap-1 rounded px-1.5 py-0.5 text-xs font-medium transition",
+      badgeToneClassName(tone ?? (selected ? "green" : "gray"), true),
+      interactive ? "cursor-pointer" : "cursor-default",
+    ].filter(Boolean).join(" ");
+  }
   return [
     "flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition",
     selected
@@ -57,15 +76,19 @@ function itemClasses(selected: boolean, interactive: boolean) {
   ].filter(Boolean).join(" ");
 }
 
-function OptionContent({ option, truncate }: { option: SelectionGridOption; truncate?: boolean }) {
+function OptionContent({ option, truncate, presentation }: { option: SelectionGridOption; truncate?: boolean; presentation: SelectionGridPresentation }) {
   return (
     <>
+      {option.icon ? <ActionGlyph kind={option.icon} className="h-3 w-3 shrink-0" /> : null}
       {option.code && (
         <span className="shrink-0 rounded-full bg-slate-100 px-2 py-0.5 font-mono text-xs text-blue-700">
           {option.code}
         </span>
       )}
-      <span className={`min-w-0 flex-1 leading-5 ${truncate ? "truncate" : "break-words"}`} title={truncate ? option.label : undefined}>
+      <span
+        className={presentation === "chip" ? "min-w-0 truncate" : `min-w-0 flex-1 leading-5 ${truncate ? "truncate" : "break-words"}`}
+        title={option.title ?? (truncate ? option.label : undefined)}
+      >
         {option.label}
       </span>
     </>
@@ -86,6 +109,7 @@ export default function SelectionGrid({
   value,
   onChange,
   mode = "select",
+  presentation = "card",
   onItemClick,
   columns = 3,
   layout = "fixed",
@@ -100,8 +124,11 @@ export default function SelectionGrid({
     return <div className="text-sm text-slate-400">{emptyText}</div>;
   }
 
-  const gridClass = layout === "fixed" ? columnsClass(columns) : "";
-  const style = gridStyle(layout, minItemWidth);
+  const gridClass = presentation === "card" && layout === "fixed" ? columnsClass(columns) : "";
+  const style = presentation === "card" ? gridStyle(layout, minItemWidth) : undefined;
+  const containerClass = presentation === "chip"
+    ? "flex flex-wrap items-center justify-center gap-1.5"
+    : joinClassNames("grid gap-2", gridClass);
 
   if (mode === "readOnly") {
     return (
@@ -109,11 +136,11 @@ export default function SelectionGrid({
         role="list"
         aria-label={ariaLabel}
         style={style}
-        className={joinClassNames("grid gap-2", gridClass, className)}
+        className={joinClassNames(containerClass, className)}
       >
         {options.map((option) => (
-          <div key={option.value} role="listitem" className={itemClasses(false, false)}>
-            <OptionContent option={option} truncate={truncate} />
+          <div key={option.value} role="listitem" title={option.title} className={itemClasses(false, false, presentation, option.tone)}>
+            <OptionContent option={option} truncate={truncate} presentation={presentation} />
           </div>
         ))}
       </div>
@@ -125,7 +152,7 @@ export default function SelectionGrid({
       <div
         aria-label={ariaLabel}
         style={style}
-        className={joinClassNames("grid gap-2", gridClass, className)}
+        className={joinClassNames(containerClass, className)}
       >
         {options.map((option) => (
           <button
@@ -133,9 +160,10 @@ export default function SelectionGrid({
             type="button"
             disabled={disabled}
             onClick={() => onItemClick?.(option)}
-            className={itemClasses(false, !disabled)}
+            title={option.title}
+            className={itemClasses(false, !disabled, presentation, option.tone)}
           >
-            <OptionContent option={option} truncate={truncate} />
+            <OptionContent option={option} truncate={truncate} presentation={presentation} />
           </button>
         ))}
       </div>
@@ -148,7 +176,7 @@ export default function SelectionGrid({
       aria-label={ariaLabel}
       aria-disabled={disabled}
       style={style}
-      className={joinClassNames("grid gap-2", gridClass, className)}
+      className={joinClassNames(containerClass, className)}
     >
       {options.map((option) => {
         const selected = value === option.value;
@@ -160,9 +188,10 @@ export default function SelectionGrid({
             aria-checked={selected}
             disabled={disabled}
             onClick={() => onChange?.(option.value)}
-            className={itemClasses(selected, true)}
+            title={option.title}
+            className={itemClasses(selected, true, presentation, option.tone)}
           >
-            <OptionContent option={option} truncate={truncate} />
+            <OptionContent option={option} truncate={truncate} presentation={presentation} />
           </button>
         );
       })}

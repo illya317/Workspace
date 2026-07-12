@@ -78,7 +78,13 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
       { content: renderSubject(subject), emphasis: "medium" },
       ...ACTION_COLUMNS.map((column) => {
         const states = summarizePermissionActionColumn(record, column.key, column.actions, column.mode);
-        return { content: { kind: "selectionGrid" as const, options: states.map((state) => ({ value: state.actionKey, label: getPermissionActionLabel(state.actionKey) })), mode: "readOnly" as const, layout: "auto" as const, emptyText: "-", ariaLabel: column.columnLabel }, align: "center" as const };
+        return { content: { kind: "selectionGrid" as const, options: states.map((state) => ({
+          value: state.actionKey,
+          label: getPermissionActionLabel(state.actionKey),
+          icon: getPermissionActionGlyph(state.actionKey) as ActionGlyphKind,
+          tone: state.has ? permissionSourceTone(state.source) : "gray",
+          title: chipTitle(state, false),
+        })), mode: "readOnly" as const, presentation: "chip" as const, emptyText: "-", ariaLabel: column.columnLabel }, align: "center" as const };
       }),
     ]);
     rowInteractions.push({ onClick: () => onToggleExpand(subject), ariaLabel: `展开${subjectColumnLabel}` });
@@ -86,12 +92,13 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
     const detailRowCount = Math.max(0, ...detailActionsByColumn.map((actions) => actions.length));
     for (let rowIndex = 0; rowIndex < detailRowCount; rowIndex += 1) {
       rows.push([
-        { content: { kind: "empty" } },
+        { content: "" },
         ...ACTION_COLUMNS.map((column, columnIndex) => {
           const actionKey = detailActionsByColumn[columnIndex]?.[rowIndex];
           const state = actionKey ? record.actionStates[actionKey] : null;
           if (!state) return { content: { kind: "empty" as const }, align: "center" as const };
-          return { content: { kind: "action" as const, action: { key: `${subjectKey}:${actionKey}`, label: getPermissionActionLabel(actionKey), icon: getPermissionActionGlyph(actionKey) as ActionGlyphKind, presentation: "glyph" as const, disabled: savingKey === `${subjectKey}:${actionKey}` || !(canToggleAction?.(subject, state) ?? true) || state.pendingResourceMapping || !state.directGrantable, onClick: () => onToggleAction?.(subject, state) } }, align: "center" as const };
+          const disabled = savingKey === `${subjectKey}:${actionKey}` || !(canToggleAction?.(subject, state) ?? true) || state.pendingResourceMapping || !state.directGrantable;
+          return { content: { kind: "action" as const, action: { key: `${subjectKey}:${actionKey}`, label: getPermissionActionLabel(actionKey), title: chipTitle(state, disabled), icon: getPermissionActionGlyph(actionKey) as ActionGlyphKind, presentation: "glyph" as const, tone: state.has ? permissionSourceTone(state.source) : "gray", disabled, onClick: () => onToggleAction?.(subject, state) } }, align: "center" as const };
         }),
       ]);
       rowInteractions.push(null);

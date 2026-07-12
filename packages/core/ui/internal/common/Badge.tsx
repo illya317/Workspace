@@ -37,6 +37,23 @@ const TONE_CLASS: Record<BadgeTone, string> = {
   amber: "bg-amber-100 text-amber-700",
 };
 
+const INTERACTIVE_TONE_CLASS: Record<BadgeTone, string> = {
+  gray: "bg-gray-100 text-gray-500 hover:bg-gray-200",
+  green: "bg-emerald-50 text-emerald-600 hover:bg-emerald-100",
+  blue: "bg-sky-50 text-sky-600 hover:bg-sky-100",
+  red: "bg-red-50 text-red-700 hover:bg-red-100",
+  yellow: "bg-yellow-50 text-yellow-700 hover:bg-yellow-100",
+  orange: "bg-orange-50 text-orange-700 hover:bg-orange-100",
+  emerald: "bg-emerald-100 text-emerald-700 hover:bg-emerald-200",
+  sky: "bg-sky-100 text-sky-700 hover:bg-sky-200",
+  slate: "bg-slate-100 text-slate-700 hover:bg-slate-200",
+  amber: "bg-amber-100 text-amber-700 hover:bg-amber-200",
+};
+
+export function badgeToneClassName(tone: BadgeTone, interactive = false) {
+  return interactive ? INTERACTIVE_TONE_CLASS[tone] : TONE_CLASS[tone];
+}
+
 function classFromLevel(level: number): string {
   if (level === 1) return "bg-blue-100 text-blue-700";
   if (level === 2) return "bg-emerald-100 text-emerald-700";
@@ -55,10 +72,10 @@ function classFromLevel(level: number): string {
  */
 export default function Badge({ label, tone, level, className = "" }: BadgeProps) {
   const resolvedClass = tone
-    ? TONE_CLASS[tone]
+    ? badgeToneClassName(tone)
     : level
       ? classFromLevel(level)
-      : TONE_CLASS.gray;
+      : badgeToneClassName("gray");
   const resolvedLabel = label ?? (level ? `L${level}` : "");
   return (
     <span className={`inline-block rounded px-1.5 py-0.5 text-xs font-medium ${resolvedClass} ${className}`}>

@@ -29,6 +29,7 @@ export interface DataSurfaceScrollSpec {
 export interface DataSurfaceCommandSpec {
   key: string;
   label: ReactNode;
+  title?: string;
   icon?: ActionGlyphKind;
   onClick?: () => void;
   disabled?: boolean;
@@ -107,6 +108,7 @@ export interface DataSurfaceCellInputSpec {
 export interface DataSurfaceCellActionSpec extends DataSurfaceCommandSpec {
   stopPropagation?: boolean;
   presentation?: "button" | "glyph";
+  tone?: DataSurfaceBadgeTone;
 }
 
 export type DataSurfaceRowActionSpec = SurfaceDataRowActionSpec;
@@ -135,6 +137,9 @@ export interface DataSurfaceCellSelectionGridOptionSpec {
   value: string;
   label: string;
   code?: string;
+  icon?: ActionGlyphKind;
+  tone?: DataSurfaceBadgeTone;
+  title?: string;
 }
 
 export interface DataSurfaceCellSelectionGridSpec {
@@ -143,6 +148,7 @@ export interface DataSurfaceCellSelectionGridSpec {
   value?: string | null;
   onChange?: (value: string) => void;
   mode?: "select" | "readOnly" | "action";
+  presentation?: "card" | "chip";
   onItemClick?: (option: DataSurfaceCellSelectionGridOptionSpec) => void;
   columns?: 1 | 2 | 3 | 4;
   layout?: "fixed" | "auto";

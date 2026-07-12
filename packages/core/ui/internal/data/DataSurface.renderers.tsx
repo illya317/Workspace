@@ -2,7 +2,7 @@
 
 import type { ReactNode } from "react";
 import AmountCell from "./AmountCell";
-import Badge from "../common/Badge";
+import Badge, { badgeToneClassName } from "../common/Badge";
 import DataTable from "./DataTable";
 import { EmptyStateCard, MetricCard } from "../common/Card";
 import DisclosureRecordCard from "../common/DisclosureRecordCard";
@@ -147,6 +147,7 @@ export function renderCommands(commands?: DataSurfaceCommandSpec[]) {
           key={command.key}
           kind={command.icon}
           label={labelText(command.label) || command.key}
+          title={command.title}
           type={command.type}
           variant={command.variant}
           disabled={command.disabled}
@@ -162,6 +163,7 @@ export function renderCommands(commands?: DataSurfaceCommandSpec[]) {
           size={command.size}
           truncate={command.truncate}
           onClick={command.onClick}
+          title={command.title}
         >
           {command.label}
         </CommandButton>
@@ -172,12 +174,18 @@ export function renderCommands(commands?: DataSurfaceCommandSpec[]) {
 
 function renderCellAction(action: DataSurfaceCellActionSpec) {
   const actionLabel = labelText(action.label) || action.key;
+  const actionTitle = action.title ?? actionLabel;
   const button = action.icon && action.presentation === "glyph" ? (
     <button
       type={action.type}
-      className="inline-grid h-5 w-5 place-items-center text-slate-500 transition hover:text-slate-800 disabled:cursor-not-allowed disabled:opacity-50"
+      className={joinClassNames(
+        "inline-grid place-items-center transition disabled:cursor-not-allowed disabled:opacity-50",
+        action.tone
+          ? `h-7 w-7 rounded-md ${badgeToneClassName(action.tone, true)}`
+          : "h-5 w-5 text-slate-500 hover:text-slate-800",
+      )}
       aria-label={actionLabel}
-      title={actionLabel}
+      title={actionTitle}
       disabled={action.disabled}
       onClick={() => action.onClick?.()}
     >
@@ -187,6 +195,7 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
     <ActionButton
       kind={action.icon}
       label={actionLabel}
+      title={actionTitle}
       type={action.type}
       variant={action.variant}
       disabled={action.disabled}
@@ -201,6 +210,7 @@ function renderCellAction(action: DataSurfaceCellActionSpec) {
       size={action.size}
       truncate={action.truncate}
       onClick={() => action.onClick?.()}
+      title={actionTitle}
     >
       {action.label}
     </CommandButton>

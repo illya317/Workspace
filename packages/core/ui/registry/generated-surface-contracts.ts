@@ -49,6 +49,10 @@ export const generatedCoreUiSurfaceContracts = {
                       description: "类型：ReactNode。",
                     },
                     {
+                      name: "title",
+                      description: "类型：string。",
+                    },
+                    {
                       name: "icon",
                       description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                       children: [
@@ -8279,6 +8283,10 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "label",
                                   description: "类型：ReactNode。",
+                                },
+                                {
+                                  name: "title",
+                                  description: "类型：string。",
                                 },
                                 {
                                   name: "icon",
@@ -17877,6 +17885,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：ReactNode。",
                                 },
                                 {
+                                  name: "title",
+                                  description: "类型：string。",
+                                },
+                                {
                                   name: "icon",
                                   description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
@@ -27471,6 +27483,10 @@ export const generatedCoreUiSurfaceContracts = {
                                 {
                                   name: "label",
                                   description: "类型：ReactNode。",
+                                },
+                                {
+                                  name: "title",
+                                  description: "类型：string。",
                                 },
                                 {
                                   name: "icon",
@@ -38565,6 +38581,10 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：ReactNode。",
                 },
                 {
+                  name: "title",
+                  description: "类型：string。",
+                },
+                {
                   name: "icon",
                   description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
@@ -39939,6 +39959,10 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：ReactNode。",
                 },
                 {
+                  name: "title",
+                  description: "类型：string。",
+                },
+                {
                   name: "icon",
                   description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                   children: [
@@ -40363,6 +40387,10 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "label",
                   description: "类型：ReactNode。",
+                },
+                {
+                  name: "title",
+                  description: "类型：string。",
                 },
                 {
                   name: "icon",
@@ -41323,6 +41351,10 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "label",
                   description: "类型：ReactNode。",
+                },
+                {
+                  name: "title",
+                  description: "类型：string。",
                 },
                 {
                   name: "icon",
@@ -57395,6 +57427,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   description: "类型：ReactNode。",
                                 },
                                 {
+                                  name: "title",
+                                  description: "类型：string。",
+                                },
+                                {
                                   name: "icon",
                                   description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                   children: [
@@ -65625,6 +65661,10 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "label",
                                               description: "类型：ReactNode。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
                                             },
                                             {
                                               name: "icon",
@@ -75223,6 +75263,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "类型：ReactNode。",
                                             },
                                             {
+                                              name: "title",
+                                              description: "类型：string。",
+                                            },
+                                            {
                                               name: "icon",
                                               description: "可选值：add / approve / archive / assistant / back / cancel / check / copy / delete / delete-bin / delete-minus / double-check / download / edit / eye-off / filter / generate / history / link / list / lock / more / panel-close / panel-open / permission-derived / permission-organization / print / reclass / refresh / reject / reset / restore / revise / save / search / send / settings / share / sort / stop / tree-collapse / tree-expand / unlink / unlock / upload / verified / view / withdraw / x。",
                                               children: [
@@ -84817,6 +84861,10 @@ export const generatedCoreUiSurfaceContracts = {
                                             {
                                               name: "label",
                                               description: "类型：ReactNode。",
+                                            },
+                                            {
+                                              name: "title",
+                                              description: "类型：string。",
                                             },
                                             {
                                               name: "icon",
