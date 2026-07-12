@@ -5,7 +5,7 @@ import path from "node:path";
 import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";
 
-import type { AgentInputImage, HistoryMessage } from "./model/provider";
+import type { AgentInputImage, HistoryMessage } from "./runtime/contracts";
 import { AGENT_SESSION_SUMMARY_CHARS, summarizeAgentSessionHistory } from "./session-summary";
 import { storeAgentSessionImagesAt } from "./session-images";
 

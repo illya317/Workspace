@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import type { SessionUser } from "@workspace/platform/types";
 
-import type { AgentInputImage, HistoryMessage } from "./model/provider";
+import type { AgentInputImage, HistoryMessage } from "./runtime/contracts";
 import { buildAgentIdentityAnswer, buildAgentIdentityContext } from "./identity-context";
 import { processMessage } from "./orchestrator";
 import { parseAgentRequest, type ParsedAgentRequest } from "./route-input";
@@ -69,7 +69,6 @@ export async function handleParsedAgentMessageRequest(parsed: ParsedAgentRequest
       user,
       tools,
       history,
-      undefined,
       {
         images: uploadedImages,
         signal,

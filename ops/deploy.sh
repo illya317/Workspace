@@ -22,6 +22,7 @@ BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
 BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-20}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
 INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
+INSTALL_KIMI_AGENT_RUNTIME_DEPS="${INSTALL_KIMI_AGENT_RUNTIME_DEPS:-1}"
 REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
@@ -284,7 +285,7 @@ build_artifact() {
   # Next standalone tracing can leave native/runtime packages as partial shells.
   # Keep the SQLite adapter stack complete so production does not depend on
   # bundler internals for database access.
-  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv @wecom/aibot-node-sdk
+  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
   copy_prisma_deploy_files
   copy_resource_seed_files
 
@@ -303,6 +304,7 @@ build_artifact() {
   test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
   test -f .next/standalone/node_modules/@wecom/aibot-node-sdk/dist/index.cjs.js
+  test -f .next/standalone/node_modules/@moonshot-ai/kimi-agent-sdk/dist/index.cjs
   test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
   test -f .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
   test -f .next/standalone/generated/prisma/client.ts
@@ -351,6 +353,31 @@ replacements = {
     'LIBRARY_SOURCE_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals',
     'LIBRARY_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library',
 }
+obsolete_agent_keys = {
+    'AGENT_MODEL_PROVIDER',
+    'KIMI_API_KEY',
+    'KIMI_BASE_URL',
+    'KIMI_MODEL',
+    'KIMI_MAX_TOKENS',
+    'DEEPSEEK_API_KEY',
+    'DEEPSEEK_BASE_URL',
+    'DEEPSEEK_MODEL',
+}
+retired_agent_lines = [
+    line for line in text.splitlines()
+    if any(re.match(rf'^\s*{re.escape(key)}\s*=', line) for key in obsolete_agent_keys)
+]
+if retired_agent_lines:
+    retired_dir = env_path.parent / 'retired'
+    retired_dir.mkdir(mode=0o700, exist_ok=True)
+    retired_path = retired_dir / 'agent-provider.env'
+    if not retired_path.exists():
+        retired_path.write_text('\n'.join(retired_agent_lines) + '\n')
+        retired_path.chmod(0o600)
+text = '\n'.join(
+    line for line in text.splitlines()
+    if not any(re.match(rf'^\s*{re.escape(key)}\s*=', line) for key in obsolete_agent_keys)
+) + '\n'
 for key, value in replacements.items():
     line = f'{key}={value}'
     if re.search(rf'^{key}=.*$', text, flags=re.M):
@@ -396,6 +423,22 @@ ensure_remote_library_runtime_deps() {
   ssh_cmd "chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py' && '$remote_tool_dir/install-library-runtime-deps.sh' --server && '$remote_tool_dir/install-library-embedding-model.sh'"
 }
 
+ensure_remote_kimi_agent_runtime() {
+  if [ "$INSTALL_KIMI_AGENT_RUNTIME_DEPS" != "1" ]; then
+    echo "==> 跳过 Kimi Agent SDK 运行时安装（INSTALL_KIMI_AGENT_RUNTIME_DEPS=$INSTALL_KIMI_AGENT_RUNTIME_DEPS）"
+    return
+  fi
+
+  local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap"
+  echo "==> 同步并安装 Kimi Agent SDK 隔离运行时..."
+  ssh_cmd "mkdir -p '$remote_tool_dir'"
+  rsync -az -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+    ops/install-kimi-agent-runtime.sh \
+    ops/kimi-agent-sandbox-runner.sh \
+    "$SERVER:$remote_tool_dir/"
+  ssh_cmd "chmod +x '$remote_tool_dir/install-kimi-agent-runtime.sh' '$remote_tool_dir/kimi-agent-sandbox-runner.sh' && WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-kimi-agent-runtime.sh'"
+}
+
 sync_remote_agent_source() {
   echo "==> 同步服务器页面助手源码: $REMOTE_AGENT_SOURCE_BRANCH -> $REMOTE_AGENT_SOURCE_DIR"
   ssh_cmd "
@@ -431,6 +474,11 @@ validate_remote_runtime() {
     grep -q '^AGENT_SOURCE_WORKTREE=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
+      echo '[错误] 服务器仍包含已废弃的自研 Agent provider 配置'
+      exit 1
+    fi
+    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
     test -d '$REMOTE_AGENT_SOURCE_DIR/.git'
     python3 - <<'PY'
 from pathlib import Path
@@ -724,6 +772,7 @@ ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
 
 prepare_remote_runtime
 ensure_remote_library_runtime_deps
+ensure_remote_kimi_agent_runtime
 sync_remote_library_source
 sync_remote_agent_source
 validate_remote_runtime

@@ -6,8 +6,8 @@
     "dev": "rm -rf .next && next dev",
     "dev:clean": "npm run dev",
     "build": "node scripts/check/with-check-lock.js -- npm run build:inner",
-    "build:inner": "npm run db:generate:inner && next build",
-    "build:next": "node scripts/check/with-check-lock.js -- next build",
+    "build:inner": "npm run db:generate:inner && env NODE_OPTIONS=--max-old-space-size=4096 next build",
+    "build:next": "node scripts/check/with-check-lock.js -- env NODE_OPTIONS=--max-old-space-size=4096 next build",
     "start": "next start",
     "lint": "node scripts/check/with-check-lock.js -- eslint --cache --cache-location .cache/eslint/.eslintcache",
     "lint:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
@@ -118,12 +118,16 @@
     "library:catalog:approve-tags": "npx tsx scripts/approve-library-catalog-tags.ts",
     "library:search": "npx tsx scripts/search-library.ts",
     "library:export": "NODE_OPTIONS='--conditions=react-server' npx tsx scripts/export-library-selection.ts",
-    "library:incremental": "npx tsx scripts/run-library-incremental.ts"
+    "library:incremental": "npx tsx scripts/run-library-incremental.ts",
+    "agent:runtime:install": "bash ops/install-kimi-agent-runtime.sh",
+    "agent:runtime:check": "bash ops/install-kimi-agent-runtime.sh --check",
+    "agent:runtime:login": "bash ops/install-kimi-agent-runtime.sh --login"
   },
   "prisma": {
     "schema": "./prisma"
   },
   "dependencies": {
+    "@moonshot-ai/kimi-agent-sdk": "0.1.8",
     "@prisma/adapter-better-sqlite3": "^7.8.0",
     "@prisma/client": "^7.8.0",
     "@tiptap/core": "3.27.1",

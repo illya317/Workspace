@@ -9,6 +9,8 @@ import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/plat
 import { handleParsedAgentMessageRequest, parseAgentRequest, sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
+export const runtime = "nodejs";
+
 export async function POST(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;

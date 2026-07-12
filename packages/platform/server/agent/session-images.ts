@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import type { AgentInputImage } from "./model/provider";
+import type { AgentInputImage } from "./runtime/contracts";
 import {
   agentModelImageByteBudget,
   agentModelImageMaxEdge,

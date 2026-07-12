@@ -72,8 +72,8 @@ prisma/models/library-governance.prisma # 标签候选、实体提及和检索/R
 
 ### Agent / Kimi 边界
 
-- 标签候选、内容增强、查询改写、RAG 证据整合统一复用 Platform Workspace Agent provider；部署默认 `AGENT_MODEL_PROVIDER=auto`，配置 Kimi key 时选择 Kimi。
-- Library 只保存 `providerKey=workspace-agent`、实际 `modelKey` 和 `promptVersion` 作为生成事实，不读取或保存 Kimi 密钥，也不自行判断供应商。
+- 标签候选、内容增强、查询改写、RAG 证据整合统一复用 Platform Kimi Agent SDK runtime；Library 不直接访问 CLI、Coding Plan 凭据或模型 API。
+- Library 只保存 `providerKey=workspace-agent`、实际 `modelKey` 和 `promptVersion` 作为生成事实，不读取或保存 Kimi 凭据，也不自行判断供应商。
 - OCR、文件转换、checksum、locator 校验、权限过滤、任务状态、索引切换和导出均为确定性服务，不交给模型。
 - Kimi 只能写 `LibraryTagCandidate`；正式 `LibraryTag` / `LibraryDocumentTag` 必须经过 taxonomy 匹配与人工批准。人物、组织、项目、地点和时间写 `LibraryEntityMention`，不能混入主题标签。
 - 企业微信私聊的“发送/打包”请求由 Library 服务使用完整业务主题重新检索并确定性收窄，不使用模型文字清单或原始候选全集作为最终选择；无主题的“你直接发给我”从同一会话最近的用户业务请求恢复主题。最多 10 份时逐个发送原始文件，更多时才生成临时 ZIP；每个文件 45 MiB 以内通过机器人文件消息发送，超限或上传失败时返回30分钟、绑定请求用户的受控绝对下载链接。临时 ZIP 与链接同为 30 分钟生命周期，后台每 5 分钟清理过期目录并把任务标记为 `expired`，数据库仅保留选择、数量、大小、checksum 和时间等审计记录。文件流和浏览器下载都会再次校验版本/导出任务 owner、当前权限与密级；群聊不得生成或发送业务资料。
@@ -245,7 +245,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 - `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤；SQLite 先在可见、active、具备当前版本的资料上根据 metadata/tag 与正文命中存在性做粗相关排序并统计真实匹配总数，再只 hydrate 前 100 个候选。自然问句通过 `Intl.Segmenter`、中文相邻单字/双字 fallback、停用词和完整 Latin/编号候选生成确定性 terms；每个版本只读取有限候选及最多 1800 字符的逐字 match window，按原问句、term、heading/section 相关性排序后取前三条 evidence，返回 locator、窗口位置以及不可变 `documentUid/versionUid` selection。禁止把无界 chunk 正文读入 Node 后再过滤权限或截断。
 - 独立资料阅读页左侧承载可折叠的资料信息和不可变版本选择，右侧通过 Core `DocumentSurface kind="viewer"` 按当前视口剩余空间自适应承载阅读器；工具栏提供返回列表和侧栏展开/收起，下载跟随所选版本。当前 PDF 使用受控对象 URL；未来 ONLYOFFICE 由 Library/Platform 适配页负责配置签名、源文件权限与保存回调，Core 不感知具体文档提供方。
-- Workspace Agent 注册 `library.searchDocuments`，复用现有 Agent provider/Kimi 生成带证据回答；工具的完整 `data` 保留 resource-set presentation、打开/下载和 selection 资料包能力，另给模型提供最多 24000 字符的 lean `modelContext`。该投影只包含 query、候选/省略数量、正式资料身份、不可变版本、locator 和逐字 evidence window，并优先高相关证据；pending tag/metadata candidate 可参与召回，但不得进入模型上下文充当正式事实。不让模型决定权限或文件路径，也不依赖 Orchestrator 对完整 UI data 的尾部硬截断。
+- Workspace Agent 通过 Kimi SDK Wire 注册 `library.searchDocuments`，生成带证据回答；工具的完整 `data` 保留 resource-set presentation、打开/下载和 selection 资料包能力，另给模型提供最多 24000 字符的 lean `modelContext`。该投影只包含 query、候选/省略数量、正式资料身份、不可变版本、locator 和逐字 evidence window，并优先高相关证据；pending tag/metadata candidate 可参与召回，但不得进入模型上下文充当正式事实。不让模型决定权限或文件路径，也不依赖 runtime 对完整 UI data 的尾部硬截断。
 - `POST /api/modules/library/basic-info/exports` 接收最多 100 个不可变版本选择，按分类生成 UTF-8 ZIP、`manifest.json` 和 `SHA256SUMS`；下载时再次校验 requester、export 权限与密级。生成 ZIP 的实体只保留 30 分钟，过期后删除整个 `exports/<exportUid>` 目录、清空 job 的 `storagePath` 并保留 `LibraryExportJob` 审计行。
 - 首版上传会自动调用现有处理服务：所有受支持格式生成供检索/RAG 使用的 Markdown、locator-rich layout JSON 和正文 chunks；PDF 另外进入 `v2-compressed`，生成唯一的尺寸优化 `preview-pdf`。压缩候选通过 qpdf、页数、视觉 RMS 和至少 10% 节省后发布。原始不可变版本始终保留，不被 Markdown 或预览产物覆盖/删除。DOC/DOCX、XLS/XLSX、PPT/PPTX 等 Office 文件保留原格式，未来由 ONLYOFFICE 适配器查看。
 - 上传步骤中的标签由用户选择/填写并在最终 Review 中确认。模型自动打标仍必须写 `LibraryTagCandidate` 并经过 taxonomy 与人工批准；在真实 provider-backed classifier 接入前，不伪装成自动标签能力。
