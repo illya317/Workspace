@@ -290,6 +290,7 @@ build_artifact() {
 
   mkdir -p .next/standalone/scripts/runtime
   cp scripts/runtime/wecom-agent-bot.mjs .next/standalone/scripts/runtime/wecom-agent-bot.mjs
+  cp scripts/runtime/wecom-agent-delivery.mjs .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
 
   rm -rf .next/standalone/generated/prisma
   mkdir -p .next/standalone/generated
@@ -303,6 +304,7 @@ build_artifact() {
   test -f .next/standalone/node_modules/@prisma/client/default.js
   test -f .next/standalone/node_modules/@wecom/aibot-node-sdk/dist/index.cjs.js
   test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
+  test -f .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
   test -f .next/standalone/generated/prisma/client.ts
   test -f .next/standalone/generated/production/qc/template-snapshots/products/allopurinol.json
 
