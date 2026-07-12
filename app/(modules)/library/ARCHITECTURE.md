@@ -76,6 +76,7 @@ prisma/models/library-governance.prisma # 标签候选、实体提及和检索/R
 - Library 只保存 `providerKey=workspace-agent`、实际 `modelKey` 和 `promptVersion` 作为生成事实，不读取或保存 Kimi 密钥，也不自行判断供应商。
 - OCR、文件转换、checksum、locator 校验、权限过滤、任务状态、索引切换和导出均为确定性服务，不交给模型。
 - Kimi 只能写 `LibraryTagCandidate`；正式 `LibraryTag` / `LibraryDocumentTag` 必须经过 taxonomy 匹配与人工批准。人物、组织、项目、地点和时间写 `LibraryEntityMention`，不能混入主题标签。
+- 企业微信私聊只有在 Library 工具返回不可变 `documentUid + versionUid` 选择且当前用户具备 `export` 时才生成资料包；45 MiB 以内通过机器人文件消息发送，超限或上传失败时返回30分钟、绑定请求用户的受控下载链接。文件流和浏览器下载都会再次校验导出任务 owner、当前权限与密级；群聊不得生成或发送业务资料包。
 
 ### Taxonomy v1
 

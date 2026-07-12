@@ -19,12 +19,19 @@ const configDir = process.env.WORKSPACE_CONFIG_DIR || path.join(process.cwd(), "
 const statePath = path.join(configDir, "agent", "wecom-bot-state.json");
 const MAX_RECENT_MESSAGE_IDS = 500;
 const MAX_REPLY_BYTES = 20_000;
+const MAX_DIRECT_FILE_BYTES = 45 * 1024 * 1024;
+
+function safeLogMessage(message) {
+  return String(message)
+    .replace(/media_id=[^,\s]+/gi, "media_id=[redacted]")
+    .replace(/upload_id=[^,\s]+/gi, "upload_id=[redacted]");
+}
 
 const logger = {
   debug() {},
-  info(message) { console.log(`[wecom-agent] ${message}`); },
-  warn(message) { console.warn(`[wecom-agent] ${message}`); },
-  error(message) { console.error(`[wecom-agent] ${message}`); },
+  info(message) { console.log(`[wecom-agent] ${safeLogMessage(message)}`); },
+  warn(message) { console.warn(`[wecom-agent] ${safeLogMessage(message)}`); },
+  error(message) { console.error(`[wecom-agent] ${safeLogMessage(message)}`); },
 };
 
 async function loadState() {
@@ -108,6 +115,75 @@ async function callWorkspaceAgent(payload) {
   }
 }
 
+function isFileArtifact(value) {
+  return value
+    && typeof value === "object"
+    && value.kind === "file"
+    && value.source === "library-export"
+    && typeof value.artifactId === "string"
+    && typeof value.fileName === "string"
+    && Number.isSafeInteger(value.fileSizeBytes)
+    && value.fileSizeBytes > 0
+    && Number.isSafeInteger(value.itemCount)
+    && value.itemCount > 0
+    && typeof value.workerPath === "string"
+    && value.workerPath.startsWith(`${basePath}/api/integrations/wecom/agent/artifacts/`)
+    && typeof value.downloadPath === "string"
+    && value.downloadPath.startsWith(`${basePath}/api/integrations/wecom/download/`);
+}
+
+function publicDownloadUrl(downloadPath) {
+  const publicOrigin = process.env.WECHAT_REDIRECT_ORIGIN?.trim();
+  if (!publicOrigin) return null;
+  try {
+    return new URL(downloadPath, publicOrigin).toString();
+  } catch {
+    return null;
+  }
+}
+
+async function fetchWorkspaceArtifact(artifact) {
+  const url = new URL(artifact.workerPath, bridgeUrl);
+  const timestamp = String(Date.now());
+  const response = await fetch(url, {
+    headers: {
+      "x-wecom-bot-id": botId,
+      "x-workspace-timestamp": timestamp,
+      "x-workspace-signature": signature("", timestamp),
+    },
+  });
+  if (!response.ok) {
+    const body = await response.json().catch(() => ({}));
+    throw new Error(body.error || body.message || `Artifact HTTP ${response.status}`);
+  }
+  const buffer = Buffer.from(await response.arrayBuffer());
+  if (buffer.length <= 0 || buffer.length > MAX_DIRECT_FILE_BYTES) {
+    throw new Error(`Artifact size ${buffer.length} is outside the direct-send limit`);
+  }
+  return buffer;
+}
+
+function controlledLinkReply(artifact, reason) {
+  const url = publicDownloadUrl(artifact.downloadPath);
+  if (!url) return `资料包已生成，但${reason}。请在 Workspace 网页端下载。`;
+  return `资料包已生成，但${reason}。\n\n[点击安全下载资料包](${url})\n\n链接仅限你的账号使用，30分钟内有效。`;
+}
+
+async function deliverFileArtifact(frame, artifact) {
+  if (artifact.fileSizeBytes > MAX_DIRECT_FILE_BYTES) {
+    return controlledLinkReply(artifact, "超过企业微信直传大小限制");
+  }
+  try {
+    const buffer = await fetchWorkspaceArtifact(artifact);
+    const uploaded = await client.uploadMedia(buffer, { type: "file", filename: artifact.fileName });
+    await client.replyMedia(frame, "file", uploaded.media_id);
+    return `已按你的当前权限打包 ${artifact.itemCount} 份资料，文件已发送。`;
+  } catch (error) {
+    console.error(`[wecom-agent] file delivery failed: ${error instanceof Error ? error.message : String(error)}`);
+    return controlledLinkReply(artifact, "企业微信文件上传暂时失败");
+  }
+}
+
 const client = new AiBot.WSClient({
   botId,
   secret: botSecret,
@@ -143,8 +219,13 @@ async function handleMessage(frame, rawContent) {
       state.sessions[key] = result.session.id;
       await saveState();
     }
-    const suffix = result.type === "proposal" ? "\n\n涉及变更，请到 Workspace 网页端确认后执行。" : "";
-    await client.replyStream(frame, streamId, limitReply(`${result.message || ""}${suffix}`), true);
+    let reply = result.message || "";
+    if (body.chattype !== "group" && isFileArtifact(result.artifact)) {
+      reply = await deliverFileArtifact(frame, result.artifact);
+    } else if (result.type === "proposal") {
+      reply = `${reply}\n\n涉及变更，请到 Workspace 网页端确认后执行。`;
+    }
+    await client.replyStream(frame, streamId, limitReply(reply), true);
   } catch (error) {
     const message = error instanceof Error ? error.message : "处理失败";
     console.error(`[wecom-agent] message processing failed: ${message}`);

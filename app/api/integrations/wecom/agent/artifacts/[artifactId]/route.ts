@@ -1,0 +1,41 @@
+import { z } from "zod";
+
+import { getLibraryExportFile } from "@workspace/library/server/export";
+import {
+  isWecomAgentBridgeRequestAuthorized,
+  verifyWecomArtifactToken,
+} from "@workspace/platform/server/agent";
+import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { createInternalApiRoute } from "@workspace/platform/server/api-route";
+
+const paramsSchema = z.object({ artifactId: z.string().uuid() });
+const querySchema = z.object({ token: z.string().min(80).max(1000) });
+
+export const runtime = "nodejs";
+
+export const GET = createInternalApiRoute({
+  paramsSchema,
+  querySchema,
+  authorize: ({ request }) => isWecomAgentBridgeRequestAuthorized(request, ""),
+  authorizeError: "Invalid WeCom bridge authentication",
+  handler: async ({ params, query }) => {
+    const claims = verifyWecomArtifactToken(query.token);
+    if (!claims || claims.artifactId !== params.artifactId) {
+      return jsonErrorResponse("Invalid or expired artifact token", 403);
+    }
+    try {
+      const file = await getLibraryExportFile(params.artifactId, claims.userId);
+      return new Response(new Uint8Array(file.buffer), {
+        headers: {
+          "Cache-Control": "private, no-store",
+          "Content-Disposition": `attachment; filename*=UTF-8''${encodeURIComponent(file.fileName)}`,
+          "Content-Length": String(file.size),
+          "Content-Type": file.contentType,
+          "X-Content-Type-Options": "nosniff",
+        },
+      });
+    } catch {
+      return jsonErrorResponse("Artifact unavailable", 403);
+    }
+  },
+});

@@ -9,3 +9,4 @@ export * from "./sessions";
 export * from "./source-code-tools";
 export * from "./tools";
 export * from "./wecom-bridge";
+export * from "./wecom-artifacts";

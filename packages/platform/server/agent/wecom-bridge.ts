@@ -44,24 +44,29 @@ function signaturesMatch(actual: string, expected: string) {
   return actualBuffer.length === expectedBuffer.length && timingSafeEqual(actualBuffer, expectedBuffer);
 }
 
-export async function parseWecomAgentBridgeRequest(request: Request): Promise<ParsedWecomAgentBridgeRequest> {
+export function isWecomAgentBridgeRequestAuthorized(request: Request, rawBody: string) {
   const expectedBotId = process.env.WECHAT_BOT_ID?.trim();
   const secret = process.env.WECHAT_BOT_SECRET?.trim();
-  if (!expectedBotId || !secret) {
-    return { ok: false, response: jsonErrorResponse("企业微信机器人未配置", 503) };
-  }
+  if (!expectedBotId || !secret) return false;
 
   const botId = request.headers.get("x-wecom-bot-id")?.trim() ?? "";
   const timestamp = request.headers.get("x-workspace-timestamp")?.trim() ?? "";
   const signature = request.headers.get("x-workspace-signature")?.trim() ?? "";
   const timestampMs = Number(timestamp);
   if (botId !== expectedBotId || !Number.isFinite(timestampMs) || Math.abs(Date.now() - timestampMs) > BRIDGE_CLOCK_SKEW_MS) {
-    return { ok: false, response: jsonErrorResponse("Invalid WeCom bridge authentication", 401) };
+    return false;
+  }
+
+  return signaturesMatch(signature, buildWecomAgentBridgeSignature(rawBody, timestamp, secret));
+}
+
+export async function parseWecomAgentBridgeRequest(request: Request): Promise<ParsedWecomAgentBridgeRequest> {
+  if (!process.env.WECHAT_BOT_ID?.trim() || !process.env.WECHAT_BOT_SECRET?.trim()) {
+    return { ok: false, response: jsonErrorResponse("企业微信机器人未配置", 503) };
   }
 
   const rawBody = await request.text();
-  const expectedSignature = buildWecomAgentBridgeSignature(rawBody, timestamp, secret);
-  if (!signaturesMatch(signature, expectedSignature)) {
+  if (!isWecomAgentBridgeRequestAuthorized(request, rawBody)) {
     return { ok: false, response: jsonErrorResponse("Invalid WeCom bridge authentication", 401) };
   }
 
