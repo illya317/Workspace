@@ -14,6 +14,7 @@ import {
   permissionSourceTone,
   summarizePermissionActionColumn,
   type PermissionActionRecordLike,
+  type PermissionMatrixColumn,
   type PermissionMatrixSource,
 } from "./permission-matrix-model";
 
@@ -44,10 +45,12 @@ export interface PermissionActionMatrixGridProps<TSubject, TState extends Permis
   canToggleAction?: (subject: TSubject, state: TState) => boolean;
   savingKey?: string | null;
   visibleActionKeys?: readonly PermissionActionKey[];
+  columns?: PermissionMatrixColumn[];
 }
 
+type PermissionActionMatrixSurfaceLayout = "expandable" | "singleSubjectDetails";
+
 const SUBJECT_COLUMN_WIDTH = "6.25rem";
-const MATRIX_GRID_TEMPLATE = `${SUBJECT_COLUMN_WIDTH} repeat(${ACTION_COLUMNS.length}, minmax(0, 1fr))`;
 
 export function createPermissionActionMatrixSurface<TSubject, TState extends PermissionMatrixActionState>({
   subjects,
@@ -61,42 +64,50 @@ export function createPermissionActionMatrixSurface<TSubject, TState extends Per
   canToggleAction,
   savingKey,
   visibleActionKeys,
-}: Omit<PermissionActionMatrixGridProps<TSubject, TState>, "renderSubject"> & { renderSubject: (subject: TSubject) => DataSurfaceCellSpec }): DataSurfaceProps {
+  columns = ACTION_COLUMNS,
+  layout = "expandable",
+}: Omit<PermissionActionMatrixGridProps<TSubject, TState>, "renderSubject"> & {
+  renderSubject: (subject: TSubject) => DataSurfaceCellSpec;
+  layout?: PermissionActionMatrixSurfaceLayout;
+}): DataSurfaceProps {
+  const singleSubjectDetails = layout === "singleSubjectDetails";
   const visibleActionKeySet = visibleActionKeys?.length ? new Set(visibleActionKeys) : null;
   const rows: DataSurfaceStructuredCellSpec[][] = [[
-    { content: subjectColumnLabel, header: true },
-    ...ACTION_COLUMNS.map((column) => ({ content: column.columnLabel, header: true, align: "center" as const })),
+    ...(!singleSubjectDetails ? [{ content: subjectColumnLabel, header: true }] : []),
+    ...columns.map((column) => ({ content: column.columnLabel, header: true, align: "center" as const })),
   ]];
   const rowInteractions: Array<DataSurfaceStructuredRowInteractionSpec | null> = [null];
   for (const subject of subjects) {
     const subjectKey = getSubjectKey(subject);
     const record = getRecord(subject);
     const detailActionsByColumn = record
-      ? ACTION_COLUMNS.map((column) => getColumnActionsFromVisibleKeys(column.key, column.actions, visibleActionKeySet) ?? getPermissionMatrixVisibleColumnActions(record, column.key, column.actions))
+      ? columns.map((column) => getColumnActionsFromVisibleKeys(column.key, column.actions, visibleActionKeySet) ?? getPermissionMatrixVisibleColumnActions(record, column.key, column.actions))
       : [];
-    rows.push([
-      { content: renderSubject(subject), emphasis: "medium" },
-      ...ACTION_COLUMNS.map((column) => {
-        const states = summarizePermissionActionColumn(record, column.key, column.actions, column.mode);
-        return { content: { kind: "selectionGrid" as const, options: states.map((state) => ({
-          value: state.actionKey,
-          label: getPermissionActionLabel(state.actionKey),
-          icon: getPermissionActionGlyph(state.actionKey) as ActionGlyphKind,
-          tone: state.has ? permissionSourceTone(state.source) : "gray",
-          title: chipTitle(state, false),
-        })), mode: "readOnly" as const, presentation: "chip" as const, emptyText: "-", ariaLabel: column.columnLabel }, align: "center" as const };
-      }),
-    ]);
-    rowInteractions.push({ onClick: () => onToggleExpand(subject), ariaLabel: `展开${subjectColumnLabel}` });
-    if (!expandedKeys.has(subjectKey) || !record) continue;
+    if (!singleSubjectDetails) {
+      rows.push([
+        { content: renderSubject(subject), emphasis: "medium" },
+        ...columns.map((column) => {
+          const states = summarizePermissionActionColumn(record, column.key, column.actions, column.mode);
+          return { content: { kind: "selectionGrid" as const, options: states.map((state) => ({
+            value: state.actionKey,
+            label: getPermissionActionLabel(state.actionKey),
+            icon: getPermissionActionGlyph(state.actionKey) as ActionGlyphKind,
+            tone: state.has ? permissionSourceTone(state.source) : "gray",
+            title: chipTitle(state, false),
+          })), mode: "readOnly" as const, presentation: "chip" as const, emptyText: "-", ariaLabel: column.columnLabel }, align: "center" as const };
+        }),
+      ]);
+      rowInteractions.push({ onClick: () => onToggleExpand(subject), ariaLabel: `展开${subjectColumnLabel}` });
+    }
+    if (!record || (!singleSubjectDetails && !expandedKeys.has(subjectKey))) continue;
     const detailRowCount = Math.max(0, ...detailActionsByColumn.map((actions) => actions.length));
     for (let rowIndex = 0; rowIndex < detailRowCount; rowIndex += 1) {
       rows.push([
-        { content: "" },
-        ...ACTION_COLUMNS.map((column, columnIndex) => {
+        ...(!singleSubjectDetails ? [{ content: "" }] : []),
+        ...columns.map((column, columnIndex) => {
           const actionKey = detailActionsByColumn[columnIndex]?.[rowIndex];
           const state = actionKey ? record.actionStates[actionKey] : null;
-          if (!state) return { content: { kind: "empty" as const }, align: "center" as const };
+          if (!state) return { content: singleSubjectDetails ? "" : { kind: "empty" as const }, align: "center" as const };
           const disabled = savingKey === `${subjectKey}:${actionKey}` || !(canToggleAction?.(subject, state) ?? true) || state.pendingResourceMapping || !state.directGrantable;
           return { content: { kind: "action" as const, action: { key: `${subjectKey}:${actionKey}`, label: getPermissionActionLabel(actionKey), title: chipTitle(state, disabled), icon: getPermissionActionGlyph(actionKey) as ActionGlyphKind, presentation: "glyph" as const, tone: state.has ? permissionSourceTone(state.source) : "gray", disabled, onClick: () => onToggleAction?.(subject, state) } }, align: "center" as const };
         }),
@@ -214,14 +225,14 @@ function summaryCellContent<TSubject, TState extends PermissionMatrixActionState
   );
 }
 
-function MatrixHeader({ subjectColumnLabel }: { subjectColumnLabel: string }) {
+function MatrixHeader({ subjectColumnLabel, columns }: { subjectColumnLabel: string; columns: PermissionMatrixColumn[] }) {
   return (
     <div
       className="grid min-w-0 border-b border-slate-200 bg-slate-50 text-sm font-medium text-slate-500"
-      style={{ gridTemplateColumns: MATRIX_GRID_TEMPLATE }}
+      style={{ gridTemplateColumns: `${SUBJECT_COLUMN_WIDTH} repeat(${columns.length}, minmax(0, 1fr))` }}
     >
       <div className="px-4 py-3 text-left">{subjectColumnLabel}</div>
-      {ACTION_COLUMNS.map((column) => (
+      {columns.map((column) => (
         <div key={column.key} className="px-3 py-3 text-center">{column.columnLabel}</div>
       ))}
     </div>
@@ -255,18 +266,19 @@ export function PermissionActionMatrixGrid<TSubject, TState extends PermissionMa
   canToggleAction,
   savingKey,
   visibleActionKeys,
+  columns = ACTION_COLUMNS,
 }: PermissionActionMatrixGridProps<TSubject, TState>) {
   const visibleActionKeySet = visibleActionKeys?.length ? new Set(visibleActionKeys) : null;
   return (
     <div className="min-w-0 overflow-hidden bg-white">
-      <MatrixHeader subjectColumnLabel={subjectColumnLabel} />
+      <MatrixHeader subjectColumnLabel={subjectColumnLabel} columns={columns} />
       <div className="divide-y divide-slate-100">
         {subjects.map((subject) => {
           const subjectKey = getSubjectKey(subject);
           const expanded = expandedKeys.has(subjectKey);
           const record = getRecord(subject);
           const detailActionsByColumn = record
-            ? ACTION_COLUMNS.map((column) =>
+            ? columns.map((column) =>
                 getColumnActionsFromVisibleKeys(column.key, column.actions, visibleActionKeySet) ??
                 getPermissionMatrixVisibleColumnActions(record, column.key, column.actions)
               )
@@ -278,12 +290,12 @@ export function PermissionActionMatrixGrid<TSubject, TState extends PermissionMa
             <div key={subjectKey} className="min-w-0">
               <div
                 className={`grid min-w-0 items-center transition-colors duration-150 ${expanded ? "bg-emerald-50" : "bg-white hover:bg-slate-50/70"}`}
-                style={{ gridTemplateColumns: MATRIX_GRID_TEMPLATE, minHeight: "4rem" }}
+                style={{ gridTemplateColumns: `${SUBJECT_COLUMN_WIDTH} repeat(${columns.length}, minmax(0, 1fr))`, minHeight: "4rem" }}
               >
                 <div role="button" tabIndex={0} className="px-4 py-3 text-left" onClick={toggle} onKeyDown={keyboardHandler}>
                   {renderSubject(subject)}
                 </div>
-                {ACTION_COLUMNS.map((column) => (
+                {columns.map((column) => (
                   <div key={column.key} className="px-3 py-3 text-center">
                     {summaryCellContent(summarizePermissionActionColumn(record, column.key, column.actions, column.mode), subject, toggle)}
                   </div>
@@ -299,10 +311,10 @@ export function PermissionActionMatrixGrid<TSubject, TState extends PermissionMa
                         <div
                           key={rowIndex}
                           className="grid min-w-0 items-center border-t border-slate-100"
-                          style={{ gridTemplateColumns: MATRIX_GRID_TEMPLATE, minHeight: "3.25rem" }}
+                          style={{ gridTemplateColumns: `${SUBJECT_COLUMN_WIDTH} repeat(${columns.length}, minmax(0, 1fr))`, minHeight: "3.25rem" }}
                         >
                           <div className="px-4 py-2" />
-                          {ACTION_COLUMNS.map((column, columnIndex) => {
+                          {columns.map((column, columnIndex) => {
                             const actionKey = detailActionsByColumn[columnIndex]?.[rowIndex];
                             if (!actionKey) return <div key={column.key} className="px-3 py-2" />;
                             const state = record.actionStates[actionKey];

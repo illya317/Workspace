@@ -129,13 +129,16 @@ space.company
 
 `/settings/admin` 走 `requireAdminManageAccess()`：root identity，或拥有至少一个资源级 `grant` / `configure` 管理范围的用户才可进入。scoped `grant` 只在对应空间权限接口生效，不放大到后台全局授权矩阵。
 
-## Headless Agent
+## 无界面智能体
 
 `agent` 是 headless resource，没有页面入口。它只保护助手 API、能力清单和 proposal 生命周期：
 
 - `agent.read`：读取 `/api/agent/capabilities`，实际可用工具仍由各 tool adapter 的 domain 权限过滤。
 - `agent.submit`：提交 `/api/agent` 消息，以及确认/取消自己创建的 proposal。
-- proposal 确认不是全局 `approve`。确认只表示用户继续执行这次 Agent 提案；真正写库前 executor 必须重新检查对应业务资源权限，例如 HR 工具检查 `hr.roster.update` 派生的 session 能力。
+- 每个智能体 tool 必须声明最小 `resourceKey + action`；Platform 在把工具暴露给模型前统一按当前用户 RBAC 解析，tool 和实际 domain service 不得把模型身份当作授权主体。
+- 智能体 action ceiling 是用户 RBAC 之上的全局收紧策略，只能减少任意模型 provider 可见的 action，不能授予用户原本没有的权限。root identity 也受 ceiling 约束。
+- 默认 ceiling 只允许 `entry/read/create/update/submit/import/export`；`delete/archive/revise/reverse/lock/unlock/approve/reject/share/apiUse/grant/configure/audit` 默认关闭。新注册 action 默认关闭，必须由 root admin 在“智能体策略”中显式复核后才能开放。
+- proposal 确认不是全局 `approve`。确认只表示用户继续执行这次智能体提案；真正写库前 executor 必须重新检查对应业务资源权限，例如 HR 工具检查 `hr.roster.update` 派生的 session 能力。
 - proposal 取消不做独立 `reverse`。它只取消本人的 pending proposal，不撤销已生效业务事实。
 
 ## Open API 边界

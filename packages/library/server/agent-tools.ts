@@ -1,5 +1,4 @@
 import type { AgentTool } from "@workspace/platform/server/agent";
-import type { SessionUser } from "@workspace/platform/types";
 
 import { checkLibraryExport } from "./permissions";
 import { searchLibraryDocumentSet } from "./search";
@@ -21,11 +20,8 @@ export const searchLibraryTool: AgentTool = {
     { user: "关账制度里对完成时间有什么要求？", arguments: { query: "关账" } },
     { user: "把 Tenecton 相关原始资料整理给我", arguments: { query: "Tenecton", limit: 20 } },
   ],
+  requiredPermissions: [{ resourceKey: "library.basicInfo", action: "read" }],
   mutates: false,
-
-  canUse(user: SessionUser) {
-    return (user.visibleReadResourceKeys || []).includes("library.basicInfo");
-  },
 
   async execute(params, user) {
     const query = typeof params.query === "string" ? params.query : "";

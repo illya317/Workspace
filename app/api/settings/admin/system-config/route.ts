@@ -6,9 +6,11 @@ import {
   updateSystemConfig,
 } from "@workspace/platform/server/system-config";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
 
 const systemConfigSchema = z.object({
   conflictStrategy: z.enum(["union", "deny_override"]).optional(),
+  agentAllowedActions: z.array(z.enum(PERMISSION_ACTION_KEYS)).max(PERMISSION_ACTION_KEYS.length).optional(),
 });
 
 export async function GET(request: Request) {

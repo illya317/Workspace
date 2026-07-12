@@ -21,11 +21,8 @@ export const queryBudgetTool: AgentTool = {
   key: "finance.queryBudget",
   label: "查询预算",
   description: "查询年度预算数据（部门预算或研发预算）",
+  requiredPermissions: [{ resourceKey: "finance.budget", action: "read" }],
   mutates: false,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleReadResourceKeys || []).includes("finance.budget");
-  },
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
     const year = typeof params.year === "number" ? params.year

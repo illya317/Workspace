@@ -242,7 +242,7 @@ client.on("message.voice", (frame) => void handleMessage(frame, frame.body?.voic
 client.on("event.enter_chat", (frame) => {
   void client.replyWelcome(frame, {
     msgtype: "text",
-    text: { content: "你好，我是 Workspace 智能助手。私聊按你的 Workspace 权限提供服务；群聊仅提供不读取业务数据的普通问答。" },
+    text: { content: "你好，我是 Workspace 智能体。私聊按你的 Workspace 权限提供服务；群聊仅提供不读取业务数据的普通问答。" },
   }).catch((error) => console.error(`[wecom-agent] welcome failed: ${error.message}`));
 });
 

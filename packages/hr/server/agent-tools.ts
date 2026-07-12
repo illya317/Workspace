@@ -29,11 +29,8 @@ export const searchEmployeesTool: AgentTool = {
   key: "hr.searchEmployees",
   label: "查询员工",
   description: "根据姓名、工号等关键词查询员工信息",
+  requiredPermissions: [{ resourceKey: "hr.roster", action: "read" }],
   mutates: false,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleReadResourceKeys || []).includes("hr.roster");
-  },
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
     const keyword = typeof params.keyword === "string" ? params.keyword : "";
@@ -74,11 +71,8 @@ export const updateEmployeeDraftTool: AgentTool = {
   key: "hr.updateEmployee",
   label: "修改员工信息",
   description: "修改员工信息。字段映射：大学/学校→school，电话→phone，学历→education，专业→major，别名→alias，籍贯→hometown。参数：keyword=员工姓名，field=字段英文名，newValue=新值",
+  requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
   mutates: true,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleUpdateResourceKeys || []).includes("hr.roster");
-  },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
     const employeeId = typeof params.employeeId === "string" ? params.employeeId : "";
@@ -146,11 +140,8 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
   key: "hr.batchUpdateEmployee",
   label: "批量修改员工",
   description: "按条件筛选员工并批量修改字段。参数：filterField=筛选字段，filterOp=notContains(不包含)/contains(包含)，filterValue=筛选值，updateField=修改字段，updateValue=新值。如：非党员→群众：filterField=politics, filterOp=notContains, filterValue=党员, updateField=politics, updateValue=群众",
+  requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
   mutates: true,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleUpdateResourceKeys || []).includes("hr.roster");
-  },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
     const filterField = typeof params.filterField === "string" ? params.filterField : "";

@@ -417,11 +417,8 @@ export const sourceSearchTool: AgentTool = {
       arguments: { query: "agent source code tools AGENTS docs project overview orchestrator" },
     },
   ],
+  requiredPermissions: [{ resourceKey: "agent", action: "read" }],
   mutates: false,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleReadResourceKeys || []).includes("agent");
-  },
 
   async execute(params: Record<string, unknown>) {
     const query = normalizeQuery(params.query ?? params.keyword ?? params.question);
@@ -481,11 +478,8 @@ export const prProposalTool: AgentTool = {
       },
     },
   ],
+  requiredPermissions: [{ resourceKey: "agent", action: "submit" }],
   mutates: true,
-
-  canUse(user: SessionUser): boolean {
-    return (user.visibleSubmitResourceKeys || []).includes("agent");
-  },
 
   async execute(params: Record<string, unknown>, user: SessionUser) {
     const title = normalizeText(params.title, 180);

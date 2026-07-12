@@ -28,6 +28,7 @@
     "./module-registry": "./module-registry.ts",
     "./space-registry": "./space-registry.ts",
     "./permission-action-grantability": "./permission-action-grantability.ts",
+    "./agent-permission-policy": "./agent-permission-policy.ts",
     "./permission-api-action-policy": "./permission-api-action-policy.ts",
     "./permission-actions": "./permission-actions.ts",
     "./permission-implicit-actions": "./permission-implicit-actions.ts",

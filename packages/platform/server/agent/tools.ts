@@ -3,6 +3,12 @@
  * Platform owns orchestration; domain packages own concrete tool adapters.
  */
 import type { SessionUser } from "@workspace/platform/types";
+import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+
+export interface AgentToolPermissionRequirement {
+  resourceKey: string;
+  action: PermissionActionKey;
+}
 
 export interface AgentToolResult {
   type: "data" | "error" | "empty" | "proposal";
@@ -38,8 +44,9 @@ export interface AgentTool {
   parameters?: AgentToolParameters;
   /** Few-shot hints used by tool-capable providers. */
   examples?: AgentToolExample[];
+  /** Minimum actor permissions; the intelligent-agent action ceiling may only narrow them. */
+  requiredPermissions: readonly AgentToolPermissionRequirement[];
   /** true = 涉及写入，只能返回 proposal */
   mutates: boolean;
-  canUse: (user: SessionUser) => boolean;
   execute: (params: Record<string, unknown>, user: SessionUser) => Promise<AgentToolResult>;
 }

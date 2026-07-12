@@ -1,7 +1,7 @@
 import type { PermissionActionKey } from "@workspace/platform/permission-actions";
 
 export type PermissionMatrixColumnMode = "chain" | "siblings";
-export type PermissionMatrixSource = "direct" | "position" | "department" | "ancestor" | "implied" | "system" | "entry" | "implicit" | "child" | null;
+export type PermissionMatrixSource = "direct" | "position" | "department" | "ancestor" | "implied" | "system" | "entry" | "implicit" | "child" | "policy" | null;
 export type PermissionSourceTone = "gray" | "green" | "orange" | "red" | "yellow" | "blue";
 
 export interface PermissionMatrixColumn {
@@ -117,11 +117,12 @@ export function permissionSourceLabel(source: PermissionMatrixSource): string {
   if (source === "implied") return "高级隐含";
   if (source === "system" || source === "implicit") return "系统授予";
   if (source === "entry") return "派生入口";
+  if (source === "policy") return "智能体策略允许";
   return "下级入口";
 }
 
 export function permissionSourceTone(source: PermissionMatrixSource): PermissionSourceTone {
-  if (source === "direct") return "green";
+  if (source === "direct" || source === "policy") return "green";
   if (source === "system" || source === "implicit") return "orange";
   if (source === "position" || source === "department") return "red";
   if (source === "ancestor" || source === "implied") return "blue";

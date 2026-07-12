@@ -408,7 +408,7 @@ export async function updateEmployeeFieldsByEmployeeIds(input: {
     resourceKey: "hr.roster",
     scopeType: "global",
     scopeId: null,
-    blockedMessage: "员工更新已配置为必须走流程，Agent 不能直接写入",
+    blockedMessage: "员工更新已配置为必须走流程，智能体不能直接写入",
   });
   if (!direct.ok) return direct;
   if (!EMPLOYEE_ALLOWED_FIELDS.includes(input.field)) return serviceError("字段不允许修改", 400);

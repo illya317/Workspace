@@ -438,7 +438,7 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "agent",
       label: "智能体",
-      desc: "智能助手 API、能力清单和变更提案",
+      desc: "智能体 API、能力清单和变更提案",
       href: "/agent",
       iconKey: "assistant",
       color: "purple",

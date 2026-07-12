@@ -7,7 +7,7 @@ import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/plat
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { libraryAgentTools } from "@workspace/library/server/agent-tools";
-import { buildCapabilities, sourceCodeAgentTools } from "@workspace/platform/server/agent";
+import { resolveAgentToolAccess, sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export async function GET(request: Request) {
@@ -17,6 +17,6 @@ export async function GET(request: Request) {
   const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) return jsonErrorResponse("Unauthorized", 401);
 
-  const capabilities = buildCapabilities(user, [...sourceCodeAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools]);
+  const { capabilities } = await resolveAgentToolAccess(user, [...sourceCodeAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools]);
   return NextResponse.json({ capabilities });
 }

@@ -4,7 +4,7 @@
  */
 import type { SessionUser } from "@workspace/platform/types";
 
-import { buildCapabilities, findTool } from "./capabilities";
+import { findTool, resolveAgentToolAccess } from "./capabilities";
 import { defaultAgentModelProvider } from "./model/default";
 import { noopProvider } from "./model/noop";
 import type {
@@ -62,6 +62,8 @@ const SECURITY_ABUSE_PATTERNS = [
 export type ProcessMessageOptions = {
   images?: AgentInputImage[];
   signal?: AbortSignal;
+  /** Internal seam for deterministic tests; production uses the Platform resolver. */
+  resolveToolAccess?: typeof resolveAgentToolAccess;
 };
 
 type RuntimeTool = {
@@ -77,7 +79,8 @@ export async function processMessage(
   provider: AgentModelProvider = defaultAgentModelProvider,
   options: ProcessMessageOptions = {},
 ): Promise<AgentResponse> {
-  const capabilities = buildCapabilities(user, tools);
+  const access = await (options.resolveToolAccess ?? resolveAgentToolAccess)(user, tools);
+  const { capabilities, tools: allowedTools } = access;
 
   if (capabilities.length === 0) {
     return {
@@ -90,7 +93,6 @@ export async function processMessage(
     return { type: "answer", message: SECURITY_REFUSAL_MESSAGE };
   }
 
-  const allowedTools = tools.filter((tool) => tool.canUse(user));
   if (provider.callWithTools) {
     try {
       return await processWithToolCalls(userMessage, user, allowedTools, history, provider, options);
@@ -129,7 +131,7 @@ export async function processMessage(
   }
 
   // 2. 查找工具
-  const tool = findTool(intent.tool, user, tools);
+  const tool = findTool(intent.tool, allowedTools);
   if (!tool) {
     return {
       type: "error",
