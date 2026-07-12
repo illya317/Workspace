@@ -1,9 +1,9 @@
 "use client";
 
 import { createFieldsSection, createPageBody, createPageModalSection, BodySurface } from "@workspace/core/ui";
-import type { FormSurfaceFieldSpec } from "@workspace/core/ui";
+import type { CreateSurfaceSectionSpec, FormSurfaceFieldSpec } from "@workspace/core/ui";
 import type { Contract, ModalMode } from "@workspace/administration/types";
-import { CONTRACT_FORM_FIELD_CONFIGS } from "./contract-modal-config";
+import { CONTRACT_FORM_FIELD_CONFIGS, CONTRACT_STATUS_OPTIONS } from "./contract-modal-config";
 
 interface ContractModalProps {
   mode: ModalMode;
@@ -12,12 +12,14 @@ interface ContractModalProps {
   onSave: () => void;
   onClose: () => void;
   saving: boolean;
+  locations: string[];
+  categories: string[];
 }
 
-export default function ContractModal({ mode, editing, onChange, onSave, onClose, saving }: ContractModalProps) {
+export default function ContractModal({ mode, editing, onChange, onSave, onClose, saving, locations, categories }: ContractModalProps) {
   if (mode !== "edit") return null;
 
-  const fields = contractFormFields(editing, onChange);
+  const fields = contractFormFields(editing, onChange, { locations, categories });
 
   return (
     <BodySurface {...createPageBody([
@@ -44,6 +46,7 @@ export default function ContractModal({ mode, editing, onChange, onSave, onClose
 export function contractFormFields(
   editing: Partial<Contract>,
   onChange: (field: keyof Contract, value: string | number | null) => void,
+  choices: ContractFormChoices,
 ): FormSurfaceFieldSpec[] {
   return [
     ...CONTRACT_FORM_FIELD_CONFIGS.map<FormSurfaceFieldSpec>((f) => ({
@@ -52,10 +55,19 @@ export function contractFormFields(
       required: f.required,
       spec: {
         valueType: f.type === "number" ? "number" : "string",
-        control: f.type === "number" ? "number" : "text",
+        control: f.type === "number" ? "number" : f.choice ? "choice" : "text",
+        options: f.choice ? {
+          source: "static",
+          items: (f.choice === "status"
+            ? [...CONTRACT_STATUS_OPTIONS]
+            : choiceValues(f.choice === "category" ? choices.categories : choices.locations, editing[f.key]))
+            .map((value) => ({ value, label: value })),
+        } : undefined,
         validation: f.required ? { required: true } : undefined,
       },
-      value: editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key]),
+      value: f.choice === "status" && editing[f.key] === "已失效"
+        ? "已结束"
+        : editing[f.key] === null || editing[f.key] === undefined ? "" : String(editing[f.key]),
       onChange: (value: unknown) =>
         onChange(
           f.key,
@@ -99,4 +111,39 @@ export function contractFormFields(
       rows: 2,
     },
   ];
+}
+
+const CONTRACT_FORM_SECTION_KEYS = [
+  { key: "identity", title: "基本信息", fields: ["contractNo", "name", "category", "status"] },
+  { key: "parties", title: "签约主体", fields: ["partyA", "partyB", "shareholder", "handler"] },
+  { key: "execution", title: "履行与归档", fields: ["amount", "executedAmount", "signDate", "endDate", "location"] },
+  { key: "notes", title: "内容与备注", fields: ["content", "remark"] },
+] as const;
+
+export function contractFormSections(
+  editing: Partial<Contract>,
+  onChange: (field: keyof Contract, value: string | number | null) => void,
+  choices: ContractFormChoices,
+): CreateSurfaceSectionSpec<FormSurfaceFieldSpec>[] {
+  const fieldsByKey = new Map(contractFormFields(editing, onChange, choices).map((field) => [field.key, field]));
+  return CONTRACT_FORM_SECTION_KEYS.map((section) => ({
+    key: section.key,
+    title: section.title,
+    layout: { columns: 2, density: "compact" },
+    items: section.fields.map((key) => {
+      const field = fieldsByKey.get(key);
+      if (!field) throw new Error(`合同字段声明缺失: ${key}`);
+      return key === "location" ? { ...field, span: 2 } : field;
+    }),
+  }));
+}
+
+export interface ContractFormChoices {
+  locations: string[];
+  categories: string[];
+}
+
+function choiceValues(values: string[], current: unknown) {
+  return [...new Set([String(current ?? "").trim(), ...values.map((value) => value.trim())])]
+    .filter(Boolean);
 }

@@ -251,6 +251,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "DELETE", pathPrefix: "/api/settings/account", requiredActions: ["read"], notes: "Self-service account cleanup mutates only the current user's notification/preference state." },
   { method: "POST", pathPrefix: "/api/settings/account/api-key", requiredActions: ["revise"] },
   { method: "GET", pathPrefix: "/api/agent/capabilities", requiredActions: ["read"], notes: "Agent capability listing is filtered by each tool adapter's domain permission." },
+  { method: "GET", pathPrefix: "/api/agent/proposals", requiredActions: ["read"], pathPattern: /^\/api\/agent\/proposals\/[^/]+$/, notes: "Proposal detail reads are restricted to the authenticated owner's safe view; execution payload and result are never returned." },
   { method: "POST", pathPrefix: "/api/agent/proposals", requiredActions: ["submit"], pathPattern: /^\/api\/agent\/proposals\/[^/]+\/(?:confirm|cancel)$/, notes: "Agent proposal settlement is a submit-cycle action; concrete mutating executors recheck their domain resource permissions." },
   { method: "POST", pathPrefix: "/api/agent", requiredActions: ["submit"], pathPattern: /^\/api\/agent$/, notes: "Agent message submission may create proposals but domain writes are executor-checked after user confirmation." },
   { method: "GET", pathPrefix: "/api/settings/admin/permission-grant-ledger", requiredActions: ["audit"], runtimeEnforcement: "serviceDelegated", notes: SETTINGS_ADMIN_AUDIT_ENFORCEMENT_NOTES },

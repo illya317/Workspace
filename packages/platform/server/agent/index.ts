@@ -3,6 +3,7 @@ export * from "./cnb-pr";
 export * from "./model/provider";
 export * from "./orchestrator";
 export * from "./proposals";
+export * from "./proposal-view";
 export * from "./route-handler";
 export * from "./route-input";
 export * from "./sessions";

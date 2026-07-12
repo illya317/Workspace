@@ -4,6 +4,11 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";
+import {
+  AGENT_PROPOSAL_TTL_MS,
+  createAgentProposalView,
+  type AgentProposalView,
+} from "./proposal-view";
 
 export interface ProposalInput {
   actionKey: string;
@@ -26,6 +31,27 @@ export type ProposalExecutor = (
 ) => Promise<unknown>;
 
 export type ProposalExecutors = Record<string, ProposalExecutor>;
+
+/** 读取当前用户自己的安全提案视图；不返回执行 payload 或结果。 */
+export async function getAgentProposalForUser(
+  proposalId: number,
+  user: SessionUser,
+): Promise<AgentProposalView | null> {
+  const proposal = await prisma.agentProposal.findFirst({
+    where: { id: proposalId, userId: user.id },
+    select: {
+      id: true,
+      status: true,
+      actionKey: true,
+      targetType: true,
+      targetId: true,
+      diffJson: true,
+      createdAt: true,
+      confirmedAt: true,
+    },
+  });
+  return proposal ? createAgentProposalView(proposal) : null;
+}
 
 /** 创建待确认变更（不执行写入） */
 export async function createProposal(
@@ -64,7 +90,7 @@ export async function confirmProposal(
 
   // 30 分钟过期
   const age = Date.now() - new Date(proposal.createdAt).getTime();
-  if (age > 30 * 60 * 1000) {
+  if (age > AGENT_PROPOSAL_TTL_MS) {
     await prisma.agentProposal.update({ where: { id: proposalId }, data: { status: "expired" } });
     throw new Error("变更已过期（超过30分钟），请重新发起");
   }

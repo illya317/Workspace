@@ -7,7 +7,7 @@ import type { SessionUser } from "@workspace/platform/types";
 import { useContracts } from "./hooks/useContracts";
 import getContractFilterToolbarItems from "./components/ContractFilters";
 import { CONTRACT_DEFAULT_VISIBLE_COLUMNS, getContractTableColumns } from "./components/ContractsTable";
-import ContractModal, { contractFormFields } from "./components/ContractModal";
+import ContractModal, { contractFormSections } from "./components/ContractModal";
 import type { Contract, ModalMode } from "@workspace/administration/types";
 
 export default function ContractsClient({
@@ -27,7 +27,7 @@ export default function ContractsClient({
     contracts, total, page, setPage, totalPages,
     q, setQ, setLocationFilter,
     categoryFilter, setCategoryFilter, statusFilter, setStatusFilter,
-    categories, statuses, refresh,
+    locations, categories, statuses, refresh,
   } = useContracts();
 
   const feedback = useFeedback();
@@ -78,6 +78,7 @@ export default function ContractsClient({
   const createContract = async () => {
     if (!canCreate) throw new Error("无权限执行该操作");
     if (!editing.name) throw new Error("合同名称为必填");
+    if (!editing.category) throw new Error("合同类型为必填");
     setSaving(true);
     try {
       const res = await fetch(workspacePath("/api/modules/administration/contracts"), {
@@ -100,6 +101,10 @@ export default function ContractsClient({
     }
     if (!editing.name) {
       feedback.error("合同名称为必填");
+      return;
+    }
+    if (!editing.category) {
+      feedback.error("合同类型为必填");
       return;
     }
     setSaving(true);
@@ -170,13 +175,16 @@ export default function ContractsClient({
               create: {
                 id: "contract-create",
                 trigger: "toolbar",
-                presentation: "inline",
+                presentation: "modal",
                 title: "新增合同",
                 open: modalMode === "create",
                 canCreate,
                 disabled: saving,
-                content: { kind: "form", form: { items: contractFormFields(editing, updateField), layout: { columns: 2 } } },
-                submission: { action: "save", disabled: saving || !editing.name, execute: createContract },
+                content: { kind: "sections", sections: contractFormSections(editing, updateField, {
+                  locations,
+                  categories,
+                }) },
+                submission: { action: "save", disabled: saving || !editing.name || !editing.category, execute: createContract },
                 onOpenChange: (open) => { if (open) openCreate(); else closeModal(); },
               },
             },
@@ -214,6 +222,8 @@ export default function ContractsClient({
         onSave={saveContract}
         onClose={closeModal}
         saving={saving}
+        locations={locations}
+        categories={categories}
       />
 
     </>

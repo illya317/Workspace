@@ -334,6 +334,7 @@ assertApiRuntime("GET", "/api/settings/admin/workflow-policies", "serviceDelegat
 assertApiActions("POST", "/api/settings/api/open/clients/123/secret", ["revise"]);
 assertApiActions("PUT", "/api/settings/api/open/clients/123/scopes", ["grant"]);
 assertApiActions("GET", "/api/agent/capabilities", ["read"]);
+assertApiActions("GET", "/api/agent/proposals/123", ["read"]);
 assertApiActions("POST", "/api/agent", ["submit"]);
 assertApiActions("POST", "/api/agent/proposals/123/confirm", ["submit"]);
 assertApiActions("POST", "/api/agent/proposals/123/cancel", ["submit"]);

@@ -46,7 +46,7 @@ export interface AgentTool {
   parameters?: AgentToolParameters;
   /** Few-shot hints used by tool-capable providers. */
   examples?: AgentToolExample[];
-  /** Minimum actor permissions; the intelligent-agent action ceiling may only narrow them. */
+  /** Minimum actor permissions; the Agent action ceiling may only narrow them. */
   requiredPermissions: readonly AgentToolPermissionRequirement[];
   /** true = 涉及写入，只能返回 proposal */
   mutates: boolean;
