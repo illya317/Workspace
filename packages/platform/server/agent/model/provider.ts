@@ -19,6 +19,15 @@ export interface AgentInputImage {
   size: number;
   dataUrl: string;
   storageKey?: string;
+  model?: {
+    mimeType: string;
+    size: number;
+    width: number;
+    height: number;
+    originalWidth: number;
+    originalHeight: number;
+    optimized: boolean;
+  };
 }
 
 export interface IntentResult {

@@ -1,13 +1,13 @@
 /**
  * DeepSeek LLM 接入（Anthropic Messages API 兼容）。
  */
+import { serializeAgentModelContext } from "../model-context";
 import type { AgentModelProvider, HistoryMessage, IntentResult, SummarizeInput } from "./provider";
 
 const BASE = process.env.DEEPSEEK_BASE_URL || "https://api.deepseek.com/anthropic";
 const API_KEY = process.env.DEEPSEEK_API_KEY || "";
 const MODEL = process.env.DEEPSEEK_MODEL || "deepseek-v4-flash";
 const MAX_TOKENS = 1024;
-const MAX_HISTORY = 10;
 
 async function chat(
   systemPrompt: string,
@@ -20,8 +20,7 @@ async function chat(
   const messages: Array<{ role: string; content: string }> = [];
 
   if (history && history.length > 0) {
-    const recent = history.slice(-MAX_HISTORY);
-    for (const h of recent) {
+    for (const h of history) {
       messages.push({
         role: h.role === "agent" ? "assistant" : "user",
         content: h.content,
@@ -69,7 +68,7 @@ export const deepseekProvider: AgentModelProvider = {
 
   async summarizeResult(input: SummarizeInput, systemPrompt: string, signal) {
     const userMessage = `用户查询：${input.query}（工具：${input.toolLabel}）
-查询结果：${JSON.stringify(input.result)}`;
+查询结果：${serializeAgentModelContext(input.result)}`;
     return chat(systemPrompt, userMessage, input.history, signal);
   },
 };

@@ -9,12 +9,13 @@ export interface CapabilityInfo {
   description: string;
 }
 
-export function buildClassifyPrompt(capabilities: CapabilityInfo[]): string {
+export function buildClassifyPrompt(capabilities: CapabilityInfo[], identityContext?: string): string {
   const toolList = capabilities
     .map((c) => `- ${c.key}: ${c.label} — ${c.description}`)
     .join("\n");
 
   return `你是内部管理系统的小助手。根据对话上下文和当前用户输入，选择合适的工具。
+${identityContext ? `\n${identityContext}\n` : ""}
 可用工具：
 ${toolList}
 

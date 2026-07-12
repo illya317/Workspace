@@ -15,7 +15,6 @@ import {
   contextLabel,
   IMAGE_TYPES,
   isAbortError,
-  MAX_HISTORY,
   MAX_IMAGE_ATTACHMENTS,
   MAX_IMAGE_ATTACHMENT_BYTES,
   messageHistoryContent,
@@ -276,7 +275,7 @@ function PageAssistantPanel({
         previewUrl: attachment.previewUrl,
       })),
     };
-    const history = messages.slice(-MAX_HISTORY).map((message) => ({
+    const fallbackHistory = sessionId ? undefined : messages.map((message) => ({
       role: message.role,
       content: messageHistoryContent(message),
     }));
@@ -298,7 +297,7 @@ function PageAssistantPanel({
           title: context?.title,
           sourceContext: context?.sourceContext,
         },
-        history,
+        history: fallbackHistory,
       };
       const requestInit: RequestInit = {
         method: "POST",

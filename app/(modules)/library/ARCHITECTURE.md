@@ -243,9 +243,9 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 ## 当前检索、预览与资料包能力
 
-- `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤，返回带 locator 的 evidence 以及不可变 `documentUid/versionUid` selection。
+- `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤；SQLite 先在可见、active、具备当前版本的资料上根据 metadata/tag 与正文命中存在性做粗相关排序并统计真实匹配总数，再只 hydrate 前 100 个候选。自然问句通过 `Intl.Segmenter`、中文相邻单字/双字 fallback、停用词和完整 Latin/编号候选生成确定性 terms；每个版本只读取有限候选及最多 1800 字符的逐字 match window，按原问句、term、heading/section 相关性排序后取前三条 evidence，返回 locator、窗口位置以及不可变 `documentUid/versionUid` selection。禁止把无界 chunk 正文读入 Node 后再过滤权限或截断。
 - 独立资料阅读页左侧承载可折叠的资料信息和不可变版本选择，右侧通过 Core `DocumentSurface kind="viewer"` 按当前视口剩余空间自适应承载阅读器；工具栏提供返回列表和侧栏展开/收起，下载跟随所选版本。当前 PDF 使用受控对象 URL；未来 ONLYOFFICE 由 Library/Platform 适配页负责配置签名、源文件权限与保存回调，Core 不感知具体文档提供方。
-- Workspace Agent 注册 `library.searchDocuments`，复用现有 Agent provider/Kimi 生成带证据回答；搜索结果携带通用 resource-set presentation，页面助手展示打开、单文件下载和 selection 资料包下载动作，不让模型决定权限或文件路径。
+- Workspace Agent 注册 `library.searchDocuments`，复用现有 Agent provider/Kimi 生成带证据回答；工具的完整 `data` 保留 resource-set presentation、打开/下载和 selection 资料包能力，另给模型提供最多 24000 字符的 lean `modelContext`。该投影只包含 query、候选/省略数量、正式资料身份、不可变版本、locator 和逐字 evidence window，并优先高相关证据；pending tag/metadata candidate 可参与召回，但不得进入模型上下文充当正式事实。不让模型决定权限或文件路径，也不依赖 Orchestrator 对完整 UI data 的尾部硬截断。
 - `POST /api/modules/library/basic-info/exports` 接收最多 100 个不可变版本选择，按分类生成 UTF-8 ZIP、`manifest.json` 和 `SHA256SUMS`；下载时再次校验 requester、export 权限与密级。
 - 首版上传会自动调用现有处理服务：所有受支持格式生成供检索/RAG 使用的 Markdown、locator-rich layout JSON 和正文 chunks；PDF 另外进入 `v2-compressed`，生成唯一的尺寸优化 `preview-pdf`。压缩候选通过 qpdf、页数、视觉 RMS 和至少 10% 节省后发布。原始不可变版本始终保留，不被 Markdown 或预览产物覆盖/删除。DOC/DOCX、XLS/XLSX、PPT/PPTX 等 Office 文件保留原格式，未来由 ONLYOFFICE 适配器查看。
 - 上传步骤中的标签由用户选择/填写并在最终 Review 中确认。模型自动打标仍必须写 `LibraryTagCandidate` 并经过 taxonomy 与人工批准；在真实 provider-backed classifier 接入前，不伪装成自动标签能力。

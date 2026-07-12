@@ -46,7 +46,6 @@ export type AgentResponse = {
   };
 };
 
-export const MAX_HISTORY = 8;
 export const MAX_IMAGE_ATTACHMENTS = 4;
 export const MAX_IMAGE_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 export const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp,image/gif";

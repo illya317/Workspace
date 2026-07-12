@@ -3,6 +3,7 @@ import { jsonErrorResponse } from "@workspace/platform/server/api";
 import type { SessionUser } from "@workspace/platform/types";
 
 import type { AgentInputImage, HistoryMessage } from "./model/provider";
+import { buildAgentIdentityAnswer, buildAgentIdentityContext } from "./identity-context";
 import { processMessage } from "./orchestrator";
 import { parseAgentRequest, type ParsedAgentRequest } from "./route-input";
 import {
@@ -34,7 +35,7 @@ export async function handleParsedAgentMessageRequest(parsed: ParsedAgentRequest
   const fallbackHistory: HistoryMessage[] = [];
   if (Array.isArray(body.history)) {
     for (const h of body.history) {
-      fallbackHistory.push({ role: h.role, content: h.content.slice(0, 1000) });
+      fallbackHistory.push({ role: h.role, content: h.content });
     }
   }
 
@@ -69,7 +70,12 @@ export async function handleParsedAgentMessageRequest(parsed: ParsedAgentRequest
       tools,
       history,
       undefined,
-      { images: uploadedImages, signal },
+      {
+        images: uploadedImages,
+        signal,
+        identityContext: buildAgentIdentityContext(user),
+        identityAnswer: buildAgentIdentityAnswer(user),
+      },
     );
     await linkAgentProposalToSession(response.proposal?.id, session, user);
     session = await appendAgentSessionMessage(session, {

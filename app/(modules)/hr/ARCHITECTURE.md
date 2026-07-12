@@ -138,6 +138,7 @@ export interface TabConfig {
 - `matchText(text, keyword)` — 文本、拼音全拼、拼音首字母统一匹配
 - `searchHrAutocomplete(entity, keyword)` — HR 实体/FK 搜索
 - `searchEmployeesForAccountLink(keyword)` — 员工账号关联搜索
+- `searchAgentEmployeeDirectory(keyword)` — 智能助手员工目录搜索；keyword 必填，只匹配姓名/工号/别名，精确值优先，最多返回 20 名并补主部门/岗位。调用前必须通过 `hr.roster.read`，模型投影原样保留姓名和工号，不携带电话等非必要个人字段。
 - `EntitySearchInput` — HR 实体选择输入，字段展示和搜索面板解耦
 
 ## API 路由规范

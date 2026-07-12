@@ -5,6 +5,12 @@
 import type { SessionUser } from "@workspace/platform/types";
 
 import { findTool, resolveAgentToolAccess } from "./capabilities";
+import { isAgentIdentityQuestion } from "./identity-context";
+import {
+  projectAgentToolResult,
+  serializeAgentModelContext,
+  type AgentToolModelProjection,
+} from "./model-context";
 import { defaultAgentModelProvider } from "./model/default";
 import { noopProvider } from "./model/noop";
 import type {
@@ -18,6 +24,8 @@ import type {
   IntentResult,
 } from "./model/provider";
 import { buildClassifyPrompt, buildSummarizePrompt } from "./prompts";
+import { fitAgentToolCallMessages } from "./tool-call-context";
+import { agentToolCallRounds } from "./tool-loop-policy";
 import type { AgentTool, AgentToolParameters, AgentToolResult } from "./tools";
 
 export interface AgentResponse {
@@ -34,9 +42,6 @@ export interface AgentResponse {
   };
 }
 
-const MAX_HISTORY = 10;
-const MAX_TOOL_CALL_ROUNDS = 4;
-const MAX_TOOL_RESULT_CHARS = 12_000;
 const SECURITY_REFUSAL_MESSAGE = "我不能回答漏洞利用、绕权、攻击路径、PoC、扫描、弱口令、敏感凭据或密钥相关问题。可以解释正常权限模型、代码结构、审计思路和合规修复方向。";
 
 const SECURITY_QUESTION_PATTERNS = [
@@ -62,6 +67,8 @@ const SECURITY_ABUSE_PATTERNS = [
 export type ProcessMessageOptions = {
   images?: AgentInputImage[];
   signal?: AbortSignal;
+  identityContext?: string;
+  identityAnswer?: string;
   /** Internal seam for deterministic tests; production uses the Platform resolver. */
   resolveToolAccess?: typeof resolveAgentToolAccess;
 };
@@ -79,6 +86,9 @@ export async function processMessage(
   provider: AgentModelProvider = defaultAgentModelProvider,
   options: ProcessMessageOptions = {},
 ): Promise<AgentResponse> {
+  if (options.identityAnswer && isAgentIdentityQuestion(userMessage)) {
+    return { type: "answer", message: options.identityAnswer };
+  }
   const access = await (options.resolveToolAccess ?? resolveAgentToolAccess)(user, tools);
   const { capabilities, tools: allowedTools } = access;
 
@@ -105,7 +115,7 @@ export async function processMessage(
   }
 
   const capList = capabilities.map((c) => ({ key: c.key, label: c.label, description: c.description }));
-  const classifyPrompt = buildClassifyPrompt(capList);
+  const classifyPrompt = buildClassifyPrompt(capList, options.identityContext);
 
   // 1. 意图分类（优先 LLM，失败回退规则匹配）
   let intent: IntentResult;
@@ -158,7 +168,7 @@ export async function processMessage(
     summary = await provider.summarizeResult({
       toolLabel: tool.label,
       query: userMessage,
-      result: result,
+      result: projectAgentToolResult(result),
       history,
     }, buildSummarizePrompt(), options.signal);
   } catch (err) {
@@ -166,7 +176,7 @@ export async function processMessage(
     summary = await noopProvider.summarizeResult({
       toolLabel: tool.label,
       query: userMessage,
-      result: result,
+      result: projectAgentToolResult(result),
     }, buildSummarizePrompt());
   }
 
@@ -188,32 +198,35 @@ async function processWithToolCalls(
 ): Promise<AgentResponse> {
   const runtimeTools = buildRuntimeTools(allowedTools);
   const runtimeByFunction = new Map(runtimeTools.map((runtime) => [runtime.functionName, runtime]));
+  const modelTools = runtimeTools.map((runtime) => ({
+    name: runtime.functionName,
+    description: runtime.tool.description,
+    parameters: runtime.tool.parameters ?? defaultToolParameters(),
+  }));
   const messages: AgentToolCallMessage[] = [
-    { role: "system", content: buildToolCallSystemPrompt(runtimeTools) },
+    { role: "system", content: buildToolCallSystemPrompt(runtimeTools, options.identityContext) },
   ];
   appendHistory(messages, history);
 
   let lastToolUsed: string | undefined;
   let lastData: unknown;
+  let lastModelResult: AgentToolModelProjection | undefined;
 
   if (requiresSourceRead(userMessage)) {
     const preload = await preloadSourceContext(userMessage, user, runtimeTools, messages);
     if (preload) {
       lastToolUsed = preload.toolUsed;
       lastData = preload.data;
+      lastModelResult = preload.modelResult;
     }
   }
 
   messages.push({ role: "user", content: buildUserContent(userMessage, options.images) });
 
-  for (let round = 0; round < MAX_TOOL_CALL_ROUNDS; round += 1) {
+  for (const _round of agentToolCallRounds()) {
     const result = await provider.callWithTools?.({
-      messages,
-      tools: runtimeTools.map((runtime) => ({
-        name: runtime.functionName,
-        description: runtime.tool.description,
-        parameters: runtime.tool.parameters ?? defaultToolParameters(),
-      })),
+      messages: fitAgentToolCallMessages(messages, modelTools),
+      tools: modelTools,
       signal: options.signal,
     });
 
@@ -241,7 +254,7 @@ async function processWithToolCalls(
           role: "tool",
           tool_call_id: toolCall.id,
           name: toolCall.name,
-          content: compactJson({ type: "error", message: `工具 ${toolCall.name} 不存在或不可用。` }),
+          content: serializeAgentModelContext({ type: "error", message: `工具 ${toolCall.name} 不存在或不可用。` }),
         });
         continue;
       }
@@ -258,6 +271,7 @@ async function processWithToolCalls(
 
       lastToolUsed = runtime.tool.key;
       lastData = toolResult.data;
+      lastModelResult = projectAgentToolResult(toolResult);
       messages.push({
         role: "tool",
         tool_call_id: toolCall.id,
@@ -269,7 +283,7 @@ async function processWithToolCalls(
 
   return {
     type: "answer",
-    message: await summarizeAfterToolLoop(userMessage, history, provider, options.signal, lastToolUsed, lastData),
+    message: await summarizeAfterToolLoop(userMessage, history, provider, options.signal, lastToolUsed, lastModelResult),
     toolUsed: lastToolUsed,
     data: lastData,
   };
@@ -337,7 +351,7 @@ function defaultToolParameters(): AgentToolParameters {
 
 function appendHistory(messages: AgentToolCallMessage[], history?: HistoryMessage[]) {
   if (!history || history.length === 0) return;
-  for (const h of history.slice(-MAX_HISTORY)) {
+  for (const h of history) {
     messages.push({
       role: h.role === "agent" ? "assistant" : "user",
       content: h.content,
@@ -345,7 +359,7 @@ function appendHistory(messages: AgentToolCallMessage[], history?: HistoryMessag
   }
 }
 
-function buildToolCallSystemPrompt(runtimeTools: RuntimeTool[]) {
+function buildToolCallSystemPrompt(runtimeTools: RuntimeTool[], identityContext?: string) {
   const toolList = runtimeTools
     .map((runtime) => `- ${runtime.functionName}: ${runtime.tool.label} — ${runtime.tool.description}${runtime.tool.mutates ? "（写入类，只能返回 proposal）" : ""}`)
     .join("\n");
@@ -356,6 +370,8 @@ function buildToolCallSystemPrompt(runtimeTools: RuntimeTool[]) {
     .join("\n\n");
 
   return `你是内部管理系统的小助手，必须严格按当前用户权限使用工具。
+
+${identityContext || "当前已认证用户没有绑定员工或企业微信身份信息；不得猜测。"}
 
 可用工具：
 ${toolList}
@@ -368,6 +384,8 @@ ${toolList}
 5. 如果调用 PR 草案工具，必须提供能被 git apply 应用的 unified diff patch；不要只给标题、摘要或文件清单。
 6. PR 草案里的验证项只能使用项目中已有且适用的命令；Markdown 文档不要建议 eslint，优先使用 npm run docs:check、已有 check:* 脚本或人工核对点。
 7. 回答要引用你看到的公开源码路径或文档路径；不编造业务规则。
+8. 用户问“我是谁/我的工号/我的企业微信身份”时，必须按上面的已认证身份逐字回答；身份信息只用于指代解析，不能替代 RBAC 或工具权限。
+9. HR 员工搜索结果中的姓名和工号已经过当前用户的 hr.roster.read 权限校验，必须逐字显示，不得自行改成“张**”等掩码。
 
 Few-shot 示例：
 ${examples || "（无）"}`;
@@ -390,7 +408,11 @@ async function preloadSourceContext(
     role: "system",
     content: `源码预读结果（回答前必须考虑；其中 startupContext 来自 AGENTS.md 与路由后的 docs）：\n${compactToolResult(result)}`,
   });
-  return { toolUsed: sourceRuntime.tool.key, data: result.data };
+  return {
+    toolUsed: sourceRuntime.tool.key,
+    data: result.data,
+    modelResult: projectAgentToolResult(result),
+  };
 }
 
 async function executeRuntimeTool(runtime: RuntimeTool, call: AgentToolCall, user: SessionUser): Promise<AgentToolResult> {
@@ -417,13 +439,7 @@ function toToolCallPayload(call: AgentToolCall): AgentModelToolCallPayload {
 }
 
 function compactToolResult(result: AgentToolResult) {
-  return compactJson(result);
-}
-
-function compactJson(value: unknown) {
-  const json = JSON.stringify(value);
-  if (json.length <= MAX_TOOL_RESULT_CHARS) return json;
-  return `${json.slice(0, MAX_TOOL_RESULT_CHARS)}...[truncated]`;
+  return serializeAgentModelContext(projectAgentToolResult(result));
 }
 
 async function summarizeAfterToolLoop(
@@ -432,9 +448,9 @@ async function summarizeAfterToolLoop(
   provider: AgentModelProvider,
   signal?: AbortSignal,
   lastToolUsed?: string,
-  lastData?: unknown,
+  lastModelResult?: AgentToolModelProjection,
 ) {
-  if (!lastToolUsed || typeof lastData === "undefined") {
+  if (!lastToolUsed || typeof lastModelResult === "undefined") {
     return "我已读取相关上下文，但工具调用轮次过多。请把问题收窄到一个页面、API、权限点或 PR 目标。";
   }
 
@@ -442,7 +458,7 @@ async function summarizeAfterToolLoop(
     return await provider.summarizeResult({
       toolLabel: lastToolUsed,
       query: userMessage,
-      result: lastData,
+      result: lastModelResult,
       history,
     }, `${buildSummarizePrompt()}
 - 如果 result 包含 startupContext/snippets，请基于这些源码和文档片段回答。

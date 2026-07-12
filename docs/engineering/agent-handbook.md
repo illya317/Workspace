@@ -85,6 +85,16 @@ cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
 
 新增业务模块必须先建立 package 边界。例如绩效模块应使用 `packages/performance/{module,ui,server,types,constants,import}` 承载实现，再由 `app/(modules)/performance/<l2>/` 和 `app/api/modules/performance/<l2>/` 提供薄路由壳。禁止把新模块塞进 HR、Finance 或 route 文件里借壳生长。
 
+### 页面助手模型上下文与图片
+
+- 会话轮次不设固定上限，由 session 摘要和总字符预算控制；每条用户消息内部的模型/工具交换最多 10 轮，计数在下一条用户消息重新开始。
+- 页面和企业微信入口都把已认证 `SessionUser` 的 Workspace userId、登录名、员工姓名/工号和企业微信 userId 作为只读身份上下文；“我是谁/我的工号”直接使用该绑定回答，不调用人员搜索，也不把身份绑定解释成额外权限。
+- HR 人员查询必须提供姓名、工号或别名关键词，禁止空关键词返回全员名单；候选按精确值、前缀和包含关系排序，最多给模型 20 人。经 `hr.roster.read` 校验后的姓名和工号必须原样显示，不得用星号脱敏，其他非必要个人字段不进入模型投影。
+- 图片原文件作为不可变 session asset 保存，附件展示和下载继续使用原始文件名、类型与字节数；禁止用模型压缩副本覆盖原图。
+- 发送模型前由 `packages/platform/server/agent/model-image.ts` 生成衍生图：输入最大 2500 万像素、单图最长边 2000px，多图共享 800 万像素和 1MiB 原始字节预算，单图最多 512KiB。图片数量为 4 时每张预算为 256KiB、最长边上限约 1414px。
+- 截图、表格和透明图片优先保留 PNG；超过预算后使用抗锯齿缩放和 JPEG 80/60/40/20 质量阶梯，文字类图片使用 4:4:4 色度采样。处理时自动应用 EXIF 方向、转 sRGB、禁止放大，并通过重新编码剥离非必要元数据。
+- GIF/动画 WebP 只有在原始尺寸和字节预算内才直传；超限时明确拒绝并要求转为静态图片，不得静默丢帧。模型副本生成失败时也不得回退发送超限原图。
+
 ### Agent 接力和文件隔离
 
 开工前先读 `AGENTS.md`、`docs/engineering/project-overview.md` 和 `docs/engineering/agent-startup.md`，再按角色进入 `docs/roles/*.md`，最后按任务类型进入专题文档。Coordinator、Architecture、Feature、Data、Operations、Review、Hygiene 不能混用职责：

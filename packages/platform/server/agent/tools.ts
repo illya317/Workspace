@@ -13,6 +13,8 @@ export interface AgentToolPermissionRequirement {
 export interface AgentToolResult {
   type: "data" | "error" | "empty" | "proposal";
   data?: unknown;
+  /** Lean evidence sent to the model when the full response data is too large or UI-specific. */
+  modelContext?: unknown;
   message: string;
   /** proposal 类型特有：待确认变更的详情 */
   proposal?: {

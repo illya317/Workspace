@@ -5,8 +5,9 @@ import path from "node:path";
 import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";
 
-import { defaultAgentModelProvider } from "./model/default";
 import type { AgentInputImage, HistoryMessage } from "./model/provider";
+import { AGENT_SESSION_SUMMARY_CHARS, summarizeAgentSessionHistory } from "./session-summary";
+import { storeAgentSessionImagesAt } from "./session-images";
 
 export type AgentStoredMessageRole = "user" | "agent";
 
@@ -72,21 +73,10 @@ export type PreparedAgentSession = {
 };
 
 const SUMMARY_SHORT_CHARS = 1_200;
-const SUMMARY_LONG_CHARS = 6_000;
-const SUMMARY_INPUT_CHARS = 24_000;
-const COMPRESSION_TRIGGER_CHARS = 24_000;
-const RECENT_HISTORY_MESSAGES = 16;
-const HISTORY_MESSAGE_CHARS = 2_000;
-const MAX_STORED_MESSAGE_CHARS = 32_000;
-const MAX_IMAGE_ATTACHMENTS = 4;
-const MAX_IMAGE_ATTACHMENT_BYTES = 5 * 1024 * 1024;
+const MODEL_HISTORY_CHARS = 160_000;
+const COMPRESSION_TRIGGER_BYTES = MODEL_HISTORY_CHARS;
+const MAX_STORED_MESSAGE_CHARS = MODEL_HISTORY_CHARS;
 const SESSION_ID_PATTERN = /^sess_[a-f0-9]{32}$/;
-const IMAGE_TYPES = new Map([
-  ["image/png", "png"],
-  ["image/jpeg", "jpg"],
-  ["image/webp", "webp"],
-  ["image/gif", "gif"],
-]);
 
 let schemaReady = false;
 
@@ -129,10 +119,6 @@ function summaryPath(storageKey: string) {
   return path.join(sessionDir(storageKey), "summary.md");
 }
 
-function assetPath(storageKey: string) {
-  return path.join(agentDataRoot(), storageKey);
-}
-
 function truncateText(value: string | null | undefined, max: number) {
   const text = String(value ?? "").trim();
   if (text.length <= max) return text;
@@ -149,22 +135,6 @@ function isMissingFileError(error: unknown) {
     && error !== null
     && "code" in error
     && (error as { code?: unknown }).code === "ENOENT";
-}
-
-function safeAssetBaseName(name: string) {
-  return name
-    .replace(/\.[^.]+$/, "")
-    .replace(/[^a-zA-Z0-9_-]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-    .slice(0, 48) || "image";
-}
-
-function hasExpectedImageSignature(buffer: Buffer, mimeType: string) {
-  if (mimeType === "image/png") return buffer.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]));
-  if (mimeType === "image/jpeg") return buffer[0] === 0xff && buffer[1] === 0xd8 && buffer.length > 3;
-  if (mimeType === "image/gif") return buffer.subarray(0, 6).toString("ascii") === "GIF87a" || buffer.subarray(0, 6).toString("ascii") === "GIF89a";
-  if (mimeType === "image/webp") return buffer.subarray(0, 4).toString("ascii") === "RIFF" && buffer.subarray(8, 12).toString("ascii") === "WEBP";
-  return false;
 }
 
 function attachmentLabel(attachment: AgentStoredAttachment) {
@@ -333,47 +303,7 @@ export async function readAgentSessionSummary(session: AgentSessionRow) {
 }
 
 export async function storeAgentSessionImages(session: AgentSessionRow, files: File[]): Promise<AgentInputImage[]> {
-  if (files.length > MAX_IMAGE_ATTACHMENTS) {
-    throw new Error(`一次最多上传 ${MAX_IMAGE_ATTACHMENTS} 张图片`);
-  }
-
-  const now = Date.now();
-  const images: AgentInputImage[] = [];
-  for (const file of files) {
-    const extension = IMAGE_TYPES.get(file.type);
-    if (!extension) {
-      throw new Error("仅支持 PNG、JPG、WEBP 或 GIF 图片");
-    }
-    if (file.size <= 0) {
-      throw new Error("图片文件为空");
-    }
-    if (file.size > MAX_IMAGE_ATTACHMENT_BYTES) {
-      throw new Error("单张图片不能超过 5MB");
-    }
-
-    const buffer = Buffer.from(await file.arrayBuffer());
-    if (!hasExpectedImageSignature(buffer, file.type)) {
-      throw new Error("图片内容与文件类型不匹配");
-    }
-
-    const id = `img_${randomUUID().replace(/-/g, "")}`;
-    const fileName = `${id}-${safeAssetBaseName(file.name)}.${extension}`;
-    const storageKey = path.posix.join(session.storageKey, "assets", fileName);
-    const fullPath = assetPath(storageKey);
-    await mkdir(path.dirname(fullPath), { recursive: true });
-    await writeFile(fullPath, buffer);
-
-    images.push({
-      id,
-      fileName: file.name || `image-${now}.${extension}`,
-      mimeType: file.type,
-      size: file.size,
-      storageKey,
-      dataUrl: `data:${file.type};base64,${buffer.toString("base64")}`,
-    });
-  }
-
-  return images;
+  return storeAgentSessionImagesAt(agentDataRoot(), session.storageKey, files);
 }
 
 export function toStoredImageAttachment(image: AgentInputImage): AgentStoredAttachment {
@@ -393,7 +323,7 @@ export function buildAgentHistory(prepared: PreparedAgentSession, fallbackHistor
   if (prepared.summaryLong) {
     history.push({
       role: "agent",
-      content: `历史摘要（压缩）：\n${truncateText(prepared.summaryLong, SUMMARY_LONG_CHARS)}`,
+      content: `历史摘要（压缩）：\n${truncateText(prepared.summaryLong, AGENT_SESSION_SUMMARY_CHARS)}`,
     });
   }
 
@@ -405,15 +335,33 @@ export function buildAgentHistory(prepared: PreparedAgentSession, fallbackHistor
         content: message.content,
         createdAt: new Date().toISOString(),
       } satisfies AgentStoredMessage));
+  const compactedStart = prepared.messages.length > 0 && prepared.summaryLong
+    ? Math.min(prepared.session.compactedMessageCount, sourceMessages.length)
+    : 0;
+  const historyStart = Math.max(compactedStart, modelHistoryStartIndex(sourceMessages));
 
-  for (const message of sourceMessages.slice(-RECENT_HISTORY_MESSAGES)) {
+  for (const message of sourceMessages.slice(historyStart)) {
     history.push({
       role: message.role,
-      content: truncateText(storedMessageText(message), HISTORY_MESSAGE_CHARS),
+      content: modelHistoryMessageText(message),
     });
   }
 
   return history;
+}
+
+function modelHistoryMessageText(message: Pick<AgentStoredMessage, "content" | "attachments">) {
+  return truncateText(storedMessageText(message), MAX_STORED_MESSAGE_CHARS);
+}
+
+function modelHistoryStartIndex(messages: Array<Pick<AgentStoredMessage, "content" | "attachments">>) {
+  let usedChars = 0;
+  for (let index = messages.length - 1; index >= 0; index -= 1) {
+    const nextChars = modelHistoryMessageText(messages[index]).length;
+    if (usedChars + nextChars > MODEL_HISTORY_CHARS) return index + 1;
+    usedChars += nextChars;
+  }
+  return 0;
 }
 
 export async function appendAgentSessionMessage(
@@ -487,15 +435,18 @@ export async function linkAgentProposalToSession(proposalId: number | undefined,
 }
 
 export async function compactAgentSessionIfNeeded(session: AgentSessionRow, user: SessionUser) {
-  if (session.byteSize < COMPRESSION_TRIGGER_CHARS) return session;
+  if (session.byteSize < COMPRESSION_TRIGGER_BYTES) return session;
 
   const messages = await readAgentSessionMessages(session);
-  const compactableCount = Math.max(0, messages.length - RECENT_HISTORY_MESSAGES);
+  const compactableCount = modelHistoryStartIndex(messages);
   if (compactableCount <= session.compactedMessageCount) return session;
 
   const previousSummary = await readAgentSessionSummary(session);
   const delta = messages.slice(session.compactedMessageCount, compactableCount);
-  const nextSummary = await summarizeMessages(previousSummary, delta);
+  const nextSummary = await summarizeAgentSessionHistory(previousSummary, delta.map((message) => ({
+    role: message.role,
+    content: modelHistoryMessageText(message),
+  })));
   const summaryStorageKey = path.posix.join(session.storageKey, "summary.md");
 
   await mkdir(sessionDir(session.storageKey), { recursive: true });
@@ -515,36 +466,4 @@ export async function compactAgentSessionIfNeeded(session: AgentSessionRow, user
   );
 
   return (await getSessionById(session.id, user)) ?? session;
-}
-
-async function summarizeMessages(previousSummary: string | null, messages: AgentStoredMessage[]) {
-  const inputText = [
-    previousSummary ? `既有摘要：\n${previousSummary}` : "",
-    messages.map((message) => `${message.role === "user" ? "用户" : "助手"}：${storedMessageText(message)}`).join("\n\n"),
-  ].filter(Boolean).join("\n\n");
-
-  const compactInput = truncateText(inputText, SUMMARY_INPUT_CHARS);
-  try {
-    const summary = await defaultAgentModelProvider.summarizeResult({
-      toolLabel: "AgentSessionCompaction",
-      query: "压缩内部页面助手会话历史，保留对后续回答有用的信息。",
-      result: { transcript: compactInput },
-    }, `你在压缩内部管理系统页面助手的会话历史。
-输出要求：
-- 不超过 ${SUMMARY_LONG_CHARS} 个中文字符。
-- 保留用户目标、已确认决策、当前页面/模块、关键源码路径、业务规则、未完成事项、proposal/PR 状态、拒答边界。
-- 删除寒暄、重复内容和已过期工具结果。
-- 不要编造没有出现过的事实。`);
-    return truncateText(summary, SUMMARY_LONG_CHARS);
-  } catch {
-    return fallbackSummary(previousSummary, messages);
-  }
-}
-
-function fallbackSummary(previousSummary: string | null, messages: AgentStoredMessage[]) {
-  const lines = messages.map((message) => {
-    const prefix = message.role === "user" ? "用户" : "助手";
-    return `- ${prefix}: ${truncateText(storedMessageText(message).replace(/\s+/g, " "), 240)}`;
-  });
-  return truncateText([previousSummary, "近期压缩记录：", ...lines].filter(Boolean).join("\n"), SUMMARY_LONG_CHARS);
 }

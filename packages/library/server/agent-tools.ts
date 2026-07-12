@@ -2,6 +2,7 @@ import type { AgentTool } from "@workspace/platform/server/agent";
 
 import { checkLibraryExport } from "./permissions";
 import { searchLibraryDocumentSet } from "./search";
+import { buildLibrarySearchModelContext } from "./search-relevance";
 
 export const searchLibraryTool: AgentTool = {
   key: "library.searchDocuments",
@@ -53,13 +54,15 @@ export const searchLibraryTool: AgentTool = {
           } : undefined,
         },
       };
+      const modelContext = buildLibrarySearchModelContext(result);
       if (result.documents.length === 0) {
-        return { type: "empty", message: `资料库中未找到“${query}”的可访问资料。`, data };
+        return { type: "empty", message: `资料库中未找到“${query}”的可访问资料。`, data, modelContext };
       }
       return {
         type: "data",
         message: `找到 ${result.documents.length} 份可访问资料；其中 ${result.documents.filter((item) => item.evidence.length > 0).length} 份带正文证据。`,
         data,
+        modelContext,
       };
     } catch (error) {
       return { type: "error", message: error instanceof Error ? error.message : "资料库检索失败" };

@@ -1,6 +1,7 @@
 /**
  * Kimi coding model provider (OpenAI-compatible chat completions API).
  */
+import { serializeAgentModelContext } from "../model-context";
 import type {
   AgentMessageContentPart,
   AgentModelProvider,
@@ -15,8 +16,16 @@ import type {
 const BASE = process.env.KIMI_BASE_URL || "https://api.kimi.com/coding/v1";
 const API_KEY = process.env.KIMI_API_KEY || process.env.KIMI_API_KEY_OC || "";
 const MODEL = process.env.KIMI_MODEL || "kimi-for-coding";
-const MAX_TOKENS = Number(process.env.KIMI_MAX_TOKENS || 2048);
-const MAX_HISTORY = 10;
+const DEFAULT_MAX_TOKENS = 32_768;
+const MAX_OUTPUT_TOKENS = 32_768;
+
+export function parseKimiMaxTokens(value: string | undefined) {
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed) || !Number.isInteger(parsed) || parsed <= 0) return DEFAULT_MAX_TOKENS;
+  return Math.min(parsed, MAX_OUTPUT_TOKENS);
+}
+
+const MAX_TOKENS = parseKimiMaxTokens(process.env.KIMI_MAX_TOKENS);
 
 type KimiMessage = {
   role: "system" | "user" | "assistant";
@@ -27,13 +36,21 @@ function endpoint(path: string) {
   return `${BASE.replace(/\/+$/, "")}${path}`;
 }
 
-function toMessages(systemPrompt: string, userMessage: string, history?: HistoryMessage[]) {
+function withKimiModelConfig(body: Record<string, unknown>) {
+  return {
+    ...body,
+    model: MODEL,
+    max_tokens: MAX_TOKENS,
+  };
+}
+
+export function buildKimiMessages(systemPrompt: string, userMessage: string, history?: HistoryMessage[]) {
   const messages: KimiMessage[] = [
     { role: "system", content: systemPrompt },
   ];
 
   if (history && history.length > 0) {
-    for (const h of history.slice(-MAX_HISTORY)) {
+    for (const h of history) {
       messages.push({
         role: h.role === "agent" ? "assistant" : "user",
         content: h.content,
@@ -72,11 +89,9 @@ async function chat(
   history?: HistoryMessage[],
   signal?: AbortSignal,
 ): Promise<string> {
-  const data = await postChat({
-    model: MODEL,
-    max_tokens: MAX_TOKENS,
-    messages: toMessages(systemPrompt, userMessage, history),
-  }, signal);
+  const data = await postChat(withKimiModelConfig({
+    messages: buildKimiMessages(systemPrompt, userMessage, history),
+  }), signal);
   const content = data?.choices?.[0]?.message?.content;
   return typeof content === "string" ? content : "";
 }
@@ -123,14 +138,12 @@ export const kimiProvider: AgentModelProvider = {
 
   async summarizeResult(input: SummarizeInput, systemPrompt: string, signal) {
     const userMessage = `用户查询：${input.query}（工具：${input.toolLabel}）
-查询结果：${JSON.stringify(input.result)}`;
+查询结果：${serializeAgentModelContext(input.result)}`;
     return chat(systemPrompt, userMessage, input.history, signal);
   },
 
   async callWithTools(input: ToolCallInput): Promise<ToolCallResult> {
-    const data = await postChat({
-      model: MODEL,
-      max_tokens: MAX_TOKENS,
+    const data = await postChat(withKimiModelConfig({
       messages: input.messages,
       tools: input.tools.map((tool) => ({
         type: "function",
@@ -145,7 +158,7 @@ export const kimiProvider: AgentModelProvider = {
         },
       })),
       tool_choice: "auto",
-    }, input.signal);
+    }), input.signal);
 
     const choice = data?.choices?.[0];
     const message = choice?.message;

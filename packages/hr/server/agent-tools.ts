@@ -11,6 +11,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";
 
 import { normalizeHrSchoolValue } from "../constants/school-options";
+import { searchAgentEmployeeDirectory } from "./agent-employee-search";
 import { queryRawEmployees } from "./roster";
 import { updateEmployeeFieldsByEmployeeIds } from "./employees";
 
@@ -28,40 +29,46 @@ function normalizeAgentFieldValue(field: string, value: unknown) {
 export const searchEmployeesTool: AgentTool = {
   key: "hr.searchEmployees",
   label: "查询员工",
-  description: "根据姓名、工号等关键词查询员工信息",
+  description: "按必填关键词查询员工目录。keyword 必须是姓名、工号或别名，不允许空关键词全量返回。结果最多返回 20 名可辨识候选。",
+  parameters: {
+    type: "object",
+    properties: {
+      keyword: { type: "string", minLength: 1, description: "必填：员工姓名、工号或别名，例如 张宇凡、00123、小张" },
+    },
+    required: ["keyword"],
+    additionalProperties: false,
+  },
+  examples: [
+    { user: "查一下张宇凡", arguments: { keyword: "张宇凡" } },
+    { user: "工号00123是谁", arguments: { keyword: "00123" } },
+  ],
   requiredPermissions: [{ resourceKey: "hr.roster", action: "read" }],
   mutates: false,
 
   async execute(params: Record<string, unknown>, _user: SessionUser) {
-    const keyword = typeof params.keyword === "string" ? params.keyword : "";
-
-    const employees = await queryRawEmployees(keyword);
-
-    if (employees.length === 0) {
+    const keyword = typeof params.keyword === "string" ? params.keyword.trim() : "";
+    if (!keyword) {
+      return { type: "error", message: "请提供姓名、工号或别名后再查询员工，不能空关键词返回全员名单。" };
+    }
+    const result = await searchAgentEmployeeDirectory(keyword);
+    if (result.totalMatches === 0) {
       return {
         type: "empty",
-        message: keyword ? `未找到匹配"${keyword}"的员工` : "暂无员工数据",
+        message: `未找到匹配"${keyword}"的员工`,
       };
     }
-
-    const summary = employees.map((e) => ({
-      id: e.id,
-      employeeId: e.employeeId,
-      name: e.name,
-      alias: e.alias,
-      gender: e.gender ? "男" : e.gender === false ? "女" : null,
-      education: e.education,
-      title: e.title,
-      phone: e.phone,
-      school: e.school,
-      major: e.major,
-      hometown: e.hometown,
-    }));
-
+    const truncated = result.totalMatches > result.items.length;
     return {
       type: "data",
-      message: `找到 ${employees.length} 名员工${keyword ? `匹配"${keyword}"` : ""}`,
-      data: { total: employees.length, items: summary },
+      message: `找到 ${result.totalMatches} 名匹配"${keyword}"的员工${truncated ? `，按相关度返回前 ${result.items.length} 名，请继续缩小关键词` : ""}`,
+      data: { total: result.totalMatches, returned: result.items.length, items: result.items },
+      modelContext: {
+        query: keyword,
+        totalMatches: result.totalMatches,
+        returned: result.items.length,
+        items: result.items,
+        displayRule: "这些姓名、工号、部门和岗位已经过当前用户的 hr.roster.read 权限校验。回答时必须逐字显示 name 和 employeeId，不得替换为张**等掩码。",
+      },
     };
   },
 };
