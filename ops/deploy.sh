@@ -762,17 +762,35 @@ deploy_remote_artifact() {
     cutover_candidate_name='$PM2_NAME-candidate'
     pm2_pid_or_unavailable() {
       local process_name=\$1
-      local process_pid
-      process_pid=\$(pm2 pid \"\$process_name\" 2>/dev/null) || {
+      local process_list
+      process_list=\$(pm2 jlist 2>/dev/null) || {
         printf '__unavailable__'
         return
       }
-      case \"\$process_pid\" in
-        0) printf '0' ;;
-        '') printf '__unavailable__' ;;
-        *[!0-9]*) printf '__unavailable__' ;;
-        *) printf '%s' \"\$process_pid\" ;;
-      esac
+      PROCESS_NAME=\"\$process_name\" PROCESS_LIST=\"\$process_list\" python3 - <<'PY'
+import json
+import os
+
+try:
+    processes = json.loads(os.environ['PROCESS_LIST'])
+    matches = [item for item in processes if item.get('name') == os.environ['PROCESS_NAME']]
+    if not matches:
+        print('0')
+    elif len(matches) != 1:
+        print('__unavailable__')
+    else:
+        item = matches[0]
+        pid = item.get('pid') or 0
+        status = item.get('pm2_env', {}).get('status')
+        if status == 'stopped' and pid == 0:
+            print('0')
+        elif status == 'online' and isinstance(pid, int) and pid > 0:
+            print(pid)
+        else:
+            print('__unavailable__')
+except Exception:
+    print('__unavailable__')
+PY
     }
     if [ -n \"\$cutover_source\" ]; then
       case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
