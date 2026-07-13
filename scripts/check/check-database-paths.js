@@ -3,23 +3,30 @@ const fs = require("fs");
 const path = require("path");
 
 const ROOT = path.resolve(__dirname, "..", "..");
-const TARGET_DIRS = ["app", "lib", "server", "ops"];
-const TARGET_FILES = [
-  "scripts/check/check-db.js",
-  "scripts/sync-budget-accounts.js",
-  "scripts/migrate/normalize-runtime-content.js",
-  "scripts/statement-workpapers-smoke.ts",
-  "scripts/income-system-smoke.ts",
-  "scripts/review-report-smoke.ts",
-  "scripts/import-cash-flow-workpapers.ts",
-  "scripts/lib/database-url.js",
-];
+const TARGET_DIRS = ["app", "lib", "server", "packages", "ops", "scripts"];
 const ALLOWED_FILES = new Set([
+  "scripts/check/check-architecture-governance.js",
   "scripts/check/check-database-paths.js",
   "scripts/check/check-workspace-runtime.js",
 ]);
 
 const FORBIDDEN_PATTERNS = [
+  {
+    pattern: /@prisma\/adapter-better-sqlite3|require\(["']better-sqlite3["']\)|from ["']better-sqlite3["']/,
+    message: "SQLite runtime adapter dependency",
+  },
+  {
+    pattern: /(?:import\s+sqlite3|from\s+sqlite3\s+import|require\(["']sqlite3["']\))/,
+    message: "SQLite runtime dependency",
+  },
+  {
+    pattern: /(?:from\s+["']@prisma\/client["']|require\(["']@prisma\/client["']\)|new\s+PrismaClient\s*\(\s*\))/,
+    message: "Prisma client without the repository PostgreSQL adapter contract",
+  },
+  {
+    pattern: /DATABASE_URL[^\n]*(?:startsWith\(["']file:|replace\([^\n]*\^?file:)/,
+    message: "SQLite file DATABASE_URL handling",
+  },
   {
     pattern: /(?:["'`])(?:\.\/)?data\/dev\.db(?:["'`])/,
     message: "hardcoded data/dev.db path",
@@ -42,7 +49,7 @@ function walk(dir) {
     if (entry.name === "node_modules" || entry.name === ".next") continue;
     const fullPath = path.join(dir, entry.name);
     if (entry.isDirectory()) files.push(...walk(fullPath));
-    else if (/\.(?:js|mjs|cjs|ts|tsx|sh)$/.test(entry.name)) files.push(fullPath);
+    else if (/\.(?:js|mjs|cjs|ts|tsx|sh|py)$/.test(entry.name) && !/\.(?:test|spec)\.[^.]+$/.test(entry.name)) files.push(fullPath);
   }
   return files;
 }
@@ -51,31 +58,21 @@ let failed = false;
 for (const dir of TARGET_DIRS) {
   for (const file of walk(path.join(ROOT, dir))) {
     const rel = path.relative(ROOT, file);
+    if (rel.startsWith("scripts/migrate/sqlite-legacy/")) continue;
     if (ALLOWED_FILES.has(rel)) continue;
     const text = fs.readFileSync(file, "utf8");
     for (const { pattern, message } of FORBIDDEN_PATTERNS) {
       if (pattern.test(text)) {
-        console.error(`✗ ${rel}: ${message}. Use required absolute DATABASE_URL/WORKSPACE_CONFIG_DIR instead.`);
+        console.error(`✗ ${rel}: ${message}. Runtime database access must use PostgreSQL.`);
         failed = true;
       }
     }
   }
 }
-for (const rel of TARGET_FILES) {
-  const file = path.join(ROOT, rel);
-  if (!fs.existsSync(file)) continue;
-  const text = fs.readFileSync(file, "utf8");
-  for (const { pattern, message } of FORBIDDEN_PATTERNS) {
-    if (pattern.test(text)) {
-      console.error(`✗ ${rel}: ${message}. Use required absolute DATABASE_URL/WORKSPACE_CONFIG_DIR instead.`);
-      failed = true;
-    }
-  }
-}
 
 if (failed) {
-  console.error("\n✗ Database path check failed. Runtime code must not fall back to cwd-relative SQLite files.");
+  console.error("\n✗ Database provider check failed. Runtime code must not depend on SQLite.");
   process.exit(1);
 }
 
-console.log("✓ Database path check passed");
+console.log("✓ PostgreSQL runtime provider check passed");

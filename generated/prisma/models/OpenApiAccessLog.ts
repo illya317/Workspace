@@ -606,6 +606,7 @@ export type OpenApiAccessLogCreateOrConnectWithoutClientInput = {
 
 export type OpenApiAccessLogCreateManyClientInputEnvelope = {
   data: Prisma.OpenApiAccessLogCreateManyClientInput | Prisma.OpenApiAccessLogCreateManyClientInput[]
+  skipDuplicates?: boolean
 }
 
 export type OpenApiAccessLogUpsertWithWhereUniqueWithoutClientInput = {
@@ -1461,6 +1462,7 @@ export type OpenApiAccessLogCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many OpenApiAccessLogs.
    */
   data: Prisma.OpenApiAccessLogCreateManyInput | Prisma.OpenApiAccessLogCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1479,6 +1481,7 @@ export type OpenApiAccessLogCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many OpenApiAccessLogs.
    */
   data: Prisma.OpenApiAccessLogCreateManyInput | Prisma.OpenApiAccessLogCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

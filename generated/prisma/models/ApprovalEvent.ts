@@ -632,6 +632,7 @@ export type ApprovalEventCreateOrConnectWithoutRequestInput = {
 
 export type ApprovalEventCreateManyRequestInputEnvelope = {
   data: Prisma.ApprovalEventCreateManyRequestInput | Prisma.ApprovalEventCreateManyRequestInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApprovalEventUpsertWithWhereUniqueWithoutRequestInput = {
@@ -699,6 +700,7 @@ export type ApprovalEventCreateOrConnectWithoutActorInput = {
 
 export type ApprovalEventCreateManyActorInputEnvelope = {
   data: Prisma.ApprovalEventCreateManyActorInput | Prisma.ApprovalEventCreateManyActorInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApprovalEventUpsertWithWhereUniqueWithoutActorInput = {
@@ -1585,6 +1587,7 @@ export type ApprovalEventCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many ApprovalEvents.
    */
   data: Prisma.ApprovalEventCreateManyInput | Prisma.ApprovalEventCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1603,6 +1606,7 @@ export type ApprovalEventCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many ApprovalEvents.
    */
   data: Prisma.ApprovalEventCreateManyInput | Prisma.ApprovalEventCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

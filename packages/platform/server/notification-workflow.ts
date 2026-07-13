@@ -78,8 +78,8 @@ export function buildNotificationSqlWhere(
   query: Required<Pick<ListUserNotificationsOptions, "category" | "filter">>,
 ) {
   const conditions: Prisma.Sql[] = [
-    Prisma.sql`recipientUserId = ${userId}`,
-    Prisma.sql`clearedAt IS NULL`,
+    Prisma.sql`"recipientUserId" = ${userId}`,
+    Prisma.sql`"clearedAt" IS NULL`,
   ];
   const category = notificationCategorySql(query.category);
   if (category) conditions.push(category);
@@ -212,12 +212,12 @@ function notificationCategorySql(category: NotificationCategory): Prisma.Sql | n
 
 function workflowNotificationSql() {
   return Prisma.sql`(
-    type IN (${Prisma.join([...WORKFLOW_NOTIFICATION_TYPES])})
-    OR type LIKE ${"workflow.%"}
-    OR type LIKE ${"approval.%"}
-    OR type LIKE ${"review.%"}
-    OR type LIKE ${"publish.%"}
-    OR ${Prisma.join(WORKFLOW_FLOW_TYPES.map((flowType) => Prisma.sql`COALESCE(payloadJson, '') LIKE ${payloadFlowTypeLike(flowType)}`), " OR ")}
+    "type" IN (${Prisma.join([...WORKFLOW_NOTIFICATION_TYPES])})
+    OR "type" LIKE ${"workflow.%"}
+    OR "type" LIKE ${"approval.%"}
+    OR "type" LIKE ${"review.%"}
+    OR "type" LIKE ${"publish.%"}
+    OR ${Prisma.join(WORKFLOW_FLOW_TYPES.map((flowType) => Prisma.sql`COALESCE("payloadJson", '') LIKE ${payloadFlowTypeLike(flowType)}`), " OR ")}
   )`;
 }
 
@@ -225,17 +225,17 @@ function workflowFlowTypeSql(flowType: WorkflowFlowType) {
   const typePrefix = `${flowType}.%`;
   if (flowType === "approval") {
     return Prisma.sql`(
-      COALESCE(payloadJson, '') LIKE ${payloadFlowTypeLike("approval")}
+      COALESCE("payloadJson", '') LIKE ${payloadFlowTypeLike("approval")}
       OR (
-        type LIKE ${typePrefix}
-        AND COALESCE(payloadJson, '') NOT LIKE ${payloadFlowTypeLike("review")}
-        AND COALESCE(payloadJson, '') NOT LIKE ${payloadFlowTypeLike("publish")}
+        "type" LIKE ${typePrefix}
+        AND COALESCE("payloadJson", '') NOT LIKE ${payloadFlowTypeLike("review")}
+        AND COALESCE("payloadJson", '') NOT LIKE ${payloadFlowTypeLike("publish")}
       )
     )`;
   }
   const conditions: Prisma.Sql[] = [
-    Prisma.sql`type LIKE ${typePrefix}`,
-    Prisma.sql`COALESCE(payloadJson, '') LIKE ${payloadFlowTypeLike(flowType)}`,
+    Prisma.sql`"type" LIKE ${typePrefix}`,
+    Prisma.sql`COALESCE("payloadJson", '') LIKE ${payloadFlowTypeLike(flowType)}`,
   ];
   return Prisma.sql`(${Prisma.join(conditions, " OR ")})`;
 }
@@ -244,15 +244,15 @@ function notificationFilterSql(userId: number, filter: NotificationFilter): Pris
   if (filter === "all") return null;
   if (filter === "todo") {
     return Prisma.sql`(
-      type IN (${Prisma.join([...WORKFLOW_TODO_NOTIFICATION_TYPES])})
-      OR COALESCE(payloadJson, '') LIKE ${`%"workflowRole":"todo"%`}
+      "type" IN (${Prisma.join([...WORKFLOW_TODO_NOTIFICATION_TYPES])})
+      OR COALESCE("payloadJson", '') LIKE ${`%"workflowRole":"todo"%`}
     )`;
   }
   return Prisma.sql`(
-    type IN (${Prisma.join([...WORKFLOW_ORIGINATED_NOTIFICATION_TYPES])})
-    OR COALESCE(payloadJson, '') LIKE ${`%"workflowRole":"originated"%`}
-    OR COALESCE(payloadJson, '') LIKE ${`%"submitterUserId":${userId}%`}
-    OR COALESCE(payloadJson, '') LIKE ${`%"originatorUserId":${userId}%`}
+    "type" IN (${Prisma.join([...WORKFLOW_ORIGINATED_NOTIFICATION_TYPES])})
+    OR COALESCE("payloadJson", '') LIKE ${`%"workflowRole":"originated"%`}
+    OR COALESCE("payloadJson", '') LIKE ${`%"submitterUserId":${userId}%`}
+    OR COALESCE("payloadJson", '') LIKE ${`%"originatorUserId":${userId}%`}
   )`;
 }
 

@@ -86,9 +86,15 @@ export async function listReportWorkItems(
   const ownItems = activePlans.flatMap((plan) => plan.kind === "routine"
     ? stage === "kr" ? [] : reportRoutineItems(plan, period, reportingPeriod)
     : reportOkrItems(plan, period, stage, options.periodType, reportingPeriod));
-  if (targetType !== "personal" || !options.userId) return ownItems;
+  if (targetType !== "personal" || !options.userId) return compactReportSortOrders(ownItems);
   const assignedItems = await listAssignedDepartmentReportItems(options.userId, period, stage, options.periodType);
-  return [...ownItems, ...assignedItems];
+  return compactReportSortOrders([...ownItems, ...assignedItems]);
+}
+
+function compactReportSortOrders(items: ReportSourceItem[]) {
+  return [...items]
+    .sort((a, b) => (a.sortOrder - b.sortOrder) || (a.id - b.id))
+    .map((item, index) => ({ ...item, sortOrder: (index + 1) * 10 }));
 }
 
 type ReportPlan = {

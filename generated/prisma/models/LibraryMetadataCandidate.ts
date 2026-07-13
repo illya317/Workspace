@@ -868,6 +868,7 @@ export type LibraryMetadataCandidateCreateOrConnectWithoutReviewerInput = {
 
 export type LibraryMetadataCandidateCreateManyReviewerInputEnvelope = {
   data: Prisma.LibraryMetadataCandidateCreateManyReviewerInput | Prisma.LibraryMetadataCandidateCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryMetadataCandidateUpsertWithWhereUniqueWithoutReviewerInput = {
@@ -959,6 +960,7 @@ export type LibraryMetadataCandidateCreateOrConnectWithoutDocumentInput = {
 
 export type LibraryMetadataCandidateCreateManyDocumentInputEnvelope = {
   data: Prisma.LibraryMetadataCandidateCreateManyDocumentInput | Prisma.LibraryMetadataCandidateCreateManyDocumentInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryMetadataCandidateUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -1025,6 +1027,7 @@ export type LibraryMetadataCandidateCreateOrConnectWithoutVersionInput = {
 
 export type LibraryMetadataCandidateCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryMetadataCandidateCreateManyVersionInput | Prisma.LibraryMetadataCandidateCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryMetadataCandidateUpsertWithWhereUniqueWithoutVersionInput = {
@@ -2114,6 +2117,7 @@ export type LibraryMetadataCandidateCreateManyArgs<ExtArgs extends runtime.Types
    * The data used to create many LibraryMetadataCandidates.
    */
   data: Prisma.LibraryMetadataCandidateCreateManyInput | Prisma.LibraryMetadataCandidateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2132,6 +2136,7 @@ export type LibraryMetadataCandidateCreateManyAndReturnArgs<ExtArgs extends runt
    * The data used to create many LibraryMetadataCandidates.
    */
   data: Prisma.LibraryMetadataCandidateCreateManyInput | Prisma.LibraryMetadataCandidateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

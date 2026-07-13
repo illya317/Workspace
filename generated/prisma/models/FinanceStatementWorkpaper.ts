@@ -673,6 +673,7 @@ export type FinanceStatementWorkpaperCreateOrConnectWithoutEditorInput = {
 
 export type FinanceStatementWorkpaperCreateManyEditorInputEnvelope = {
   data: Prisma.FinanceStatementWorkpaperCreateManyEditorInput | Prisma.FinanceStatementWorkpaperCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceStatementWorkpaperUpsertWithWhereUniqueWithoutEditorInput = {
@@ -1727,6 +1728,7 @@ export type FinanceStatementWorkpaperCreateManyArgs<ExtArgs extends runtime.Type
    * The data used to create many FinanceStatementWorkpapers.
    */
   data: Prisma.FinanceStatementWorkpaperCreateManyInput | Prisma.FinanceStatementWorkpaperCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1745,6 +1747,7 @@ export type FinanceStatementWorkpaperCreateManyAndReturnArgs<ExtArgs extends run
    * The data used to create many FinanceStatementWorkpapers.
    */
   data: Prisma.FinanceStatementWorkpaperCreateManyInput | Prisma.FinanceStatementWorkpaperCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -699,6 +699,7 @@ export type ResourceCreateOrConnectWithoutParentInput = {
 
 export type ResourceCreateManyParentInputEnvelope = {
   data: Prisma.ResourceCreateManyParentInput | Prisma.ResourceCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type ResourceUpsertWithoutChildrenInput = {
@@ -1978,6 +1979,7 @@ export type ResourceCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Resources.
    */
   data: Prisma.ResourceCreateManyInput | Prisma.ResourceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1996,6 +1998,7 @@ export type ResourceCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many Resources.
    */
   data: Prisma.ResourceCreateManyInput | Prisma.ResourceCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

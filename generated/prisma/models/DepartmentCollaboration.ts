@@ -954,6 +954,7 @@ export type DepartmentCollaborationCreateOrConnectWithoutCreatedByInput = {
 
 export type DepartmentCollaborationCreateManyCreatedByInputEnvelope = {
   data: Prisma.DepartmentCollaborationCreateManyCreatedByInput | Prisma.DepartmentCollaborationCreateManyCreatedByInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationUpsertWithWhereUniqueWithoutCreatedByInput = {
@@ -1056,6 +1057,7 @@ export type DepartmentCollaborationCreateOrConnectWithoutResponsibleDepartmentIn
 
 export type DepartmentCollaborationCreateManyResponsibleDepartmentInputEnvelope = {
   data: Prisma.DepartmentCollaborationCreateManyResponsibleDepartmentInput | Prisma.DepartmentCollaborationCreateManyResponsibleDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationUpsertWithWhereUniqueWithoutResponsibleDepartmentInput = {
@@ -2630,6 +2632,7 @@ export type DepartmentCollaborationCreateManyArgs<ExtArgs extends runtime.Types.
    * The data used to create many DepartmentCollaborations.
    */
   data: Prisma.DepartmentCollaborationCreateManyInput | Prisma.DepartmentCollaborationCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2648,6 +2651,7 @@ export type DepartmentCollaborationCreateManyAndReturnArgs<ExtArgs extends runti
    * The data used to create many DepartmentCollaborations.
    */
   data: Prisma.DepartmentCollaborationCreateManyInput | Prisma.DepartmentCollaborationCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

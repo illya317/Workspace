@@ -866,6 +866,7 @@ export type PermissionGrantLedgerEventCreateOrConnectWithoutActorInput = {
 
 export type PermissionGrantLedgerEventCreateManyActorInputEnvelope = {
   data: Prisma.PermissionGrantLedgerEventCreateManyActorInput | Prisma.PermissionGrantLedgerEventCreateManyActorInput[]
+  skipDuplicates?: boolean
 }
 
 export type PermissionGrantLedgerEventUpsertWithWhereUniqueWithoutActorInput = {
@@ -963,6 +964,7 @@ export type PermissionGrantLedgerEventCreateOrConnectWithoutResourceInput = {
 
 export type PermissionGrantLedgerEventCreateManyResourceInputEnvelope = {
   data: Prisma.PermissionGrantLedgerEventCreateManyResourceInput | Prisma.PermissionGrantLedgerEventCreateManyResourceInput[]
+  skipDuplicates?: boolean
 }
 
 export type PermissionGrantLedgerEventUpsertWithWhereUniqueWithoutResourceInput = {
@@ -1989,6 +1991,7 @@ export type PermissionGrantLedgerEventCreateManyArgs<ExtArgs extends runtime.Typ
    * The data used to create many PermissionGrantLedgerEvents.
    */
   data: Prisma.PermissionGrantLedgerEventCreateManyInput | Prisma.PermissionGrantLedgerEventCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2007,6 +2010,7 @@ export type PermissionGrantLedgerEventCreateManyAndReturnArgs<ExtArgs extends ru
    * The data used to create many PermissionGrantLedgerEvents.
    */
   data: Prisma.PermissionGrantLedgerEventCreateManyInput | Prisma.PermissionGrantLedgerEventCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

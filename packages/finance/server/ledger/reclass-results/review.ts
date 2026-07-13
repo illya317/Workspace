@@ -41,6 +41,7 @@ export async function reviewReclassResult(
   });
 
   if (!record) throw new ReviewError("NOT_FOUND", "记录不存在");
+  if (!record.voucherItem) throw new ReviewError("SOURCE_MISSING", "原凭证明细已删除，历史结果仅可查看，不能再审核或调整");
   if (record.status === "rejected") throw new ReviewError("REJECTED", "已拒绝的记录不可操作");
   const needsPending = payload.action === "approve";
   if (needsPending && record.status !== "pending") throw new ReviewError("NOT_PENDING", "只能确认待处理状态的记录");
@@ -116,6 +117,7 @@ export async function reviewReclassResult(
       reviewer: { select: { employees: { select: { name: true }, take: 1 } } },
     },
   });
+  if (!updated.voucherItem) throw new ReviewError("SOURCE_MISSING", "原凭证明细已删除，历史结果仅可查看");
 
   // 3b. adjust 后沉淀 itemRule + 全公司同步（在 update 之后，避免竞态）
   if (payload.action === "adjust" && updated.voucherItem.description) {
@@ -131,7 +133,7 @@ export async function reviewReclassResult(
   return {
     id: updated.id,
     periodId: updated.periodId,
-    voucherItemId: updated.voucherItemId,
+    voucherItemId: updated.voucherItemId ?? updated.voucherItemIdSnapshot,
     voucherNo: updated.voucherItem.voucher.voucherNo,
     voucherDate: updated.voucherItem.voucher.date,
     relatedEntity: updated.voucherItem.relatedEntity,
@@ -194,14 +196,34 @@ export async function createManualReclassResult(params: {
   // Upsert ReclassResult（sourceAccount 从 DB 派生，不信任前端）
   const created = await prisma.reclassResult.upsert({
     where: { periodId_voucherItemId: { periodId, voucherItemId } },
-    create: { periodId, voucherItemId, sourceAccount: derivedSource, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
-    update: { sourceAccount: derivedSource, targetAccount, amount, status: "adjusted", adjustedBy: userId, adjustedAt: new Date() },
+    create: {
+      periodId,
+      voucherItemId,
+      voucherItemIdSnapshot: voucherItemId,
+      ruleIdSnapshot: null,
+      sourceAccount: derivedSource,
+      targetAccount,
+      amount,
+      status: "adjusted",
+      adjustedBy: userId,
+      adjustedAt: new Date(),
+    },
+    update: {
+      voucherItemIdSnapshot: voucherItemId,
+      sourceAccount: derivedSource,
+      targetAccount,
+      amount,
+      status: "adjusted",
+      adjustedBy: userId,
+      adjustedAt: new Date(),
+    },
     include: {
       voucherItem: { select: { relatedEntity: true, description: true, account: { select: { name: true } }, voucher: { select: { voucherNo: true, date: true } } } },
       rule: { select: { abnormalSide: true } },
       reviewer: { select: { employees: { select: { name: true }, take: 1 } } },
     },
   });
+  if (!created.voucherItem) throw new ReviewError("SOURCE_MISSING", "凭证明细不存在或已删除");
 
   // 沉淀明细例外规则
   const desc = description || created.voucherItem.description;
@@ -217,7 +239,7 @@ export async function createManualReclassResult(params: {
   await syncReclassRuleResults(period.companyCode, period.year);
 
   return {
-    id: created.id, periodId: created.periodId, voucherItemId: created.voucherItemId,
+    id: created.id, periodId: created.periodId, voucherItemId: created.voucherItemId ?? created.voucherItemIdSnapshot,
     voucherNo: created.voucherItem.voucher.voucherNo, voucherDate: created.voucherItem.voucher.date,
     relatedEntity: created.voucherItem.relatedEntity, description: created.voucherItem.description,
     sourceAccount: created.sourceAccount, sourceAccountName: created.voucherItem.account.name,

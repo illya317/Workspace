@@ -1030,6 +1030,7 @@ export type WorkReportItemCreateOrConnectWithoutReportInput = {
 
 export type WorkReportItemCreateManyReportInputEnvelope = {
   data: Prisma.WorkReportItemCreateManyReportInput | Prisma.WorkReportItemCreateManyReportInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkReportItemUpsertWithWhereUniqueWithoutReportInput = {
@@ -1139,6 +1140,7 @@ export type WorkReportItemCreateOrConnectWithoutWorkPlanInput = {
 
 export type WorkReportItemCreateManyWorkPlanInputEnvelope = {
   data: Prisma.WorkReportItemCreateManyWorkPlanInput | Prisma.WorkReportItemCreateManyWorkPlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkReportItemUpsertWithWhereUniqueWithoutWorkPlanInput = {
@@ -1217,6 +1219,7 @@ export type WorkReportItemCreateOrConnectWithoutWorkItemInput = {
 
 export type WorkReportItemCreateManyWorkItemInputEnvelope = {
   data: Prisma.WorkReportItemCreateManyWorkItemInput | Prisma.WorkReportItemCreateManyWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkReportItemUpsertWithWhereUniqueWithoutWorkItemInput = {
@@ -2414,6 +2417,7 @@ export type WorkReportItemCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many WorkReportItems.
    */
   data: Prisma.WorkReportItemCreateManyInput | Prisma.WorkReportItemCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2432,6 +2436,7 @@ export type WorkReportItemCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many WorkReportItems.
    */
   data: Prisma.WorkReportItemCreateManyInput | Prisma.WorkReportItemCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

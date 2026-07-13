@@ -19,7 +19,7 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
   if (entity === "employee" && activeOnly) {
     const where = {
       employments: { some: { isActive: true } },
-      ...(keyword && !isShort ? { OR: [{ name: { contains: keyword } }, { employeeId: { contains: keyword } }] } : {}),
+      ...(keyword && !isShort ? { OR: [{ name: { contains: keyword, mode: "insensitive" as const } }, { employeeId: { contains: keyword, mode: "insensitive" as const } }] } : {}),
     };
     const employees = await prisma.employee.findMany({
       where,
@@ -40,7 +40,7 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
     const departments = await prisma.department.findMany({
       where: {
         isArchived: false,
-        ...(keyword && !isShort ? { OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] } : {}),
+        ...(keyword && !isShort ? { OR: [{ name: { contains: keyword, mode: "insensitive" as const } }, { code: { contains: keyword, mode: "insensitive" as const } }] } : {}),
       },
       select: {
         id: true,
@@ -70,7 +70,7 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
           { departmentId: null },
           { department: { isArchived: false } },
         ],
-        ...(keyword && !isShort ? { AND: [{ OR: [{ name: { contains: keyword } }, { code: { contains: keyword } }] }] } : {}),
+        ...(keyword && !isShort ? { AND: [{ OR: [{ name: { contains: keyword, mode: "insensitive" as const } }, { code: { contains: keyword, mode: "insensitive" as const } }] }] } : {}),
       },
       select: {
         id: true,
@@ -109,9 +109,9 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
       where: keyword && !isShort
         ? {
             OR: [
-              { username: { contains: keyword } },
-              { employees: { some: { name: { contains: keyword } } } },
-              { employees: { some: { employeeId: { contains: keyword } } } },
+              { username: { contains: keyword, mode: "insensitive" } },
+              { employees: { some: { name: { contains: keyword, mode: "insensitive" } } } },
+              { employees: { some: { employeeId: { contains: keyword, mode: "insensitive" } } } },
             ],
           }
         : {},
@@ -137,7 +137,7 @@ export async function searchHrAutocomplete(entity: string, keyword: string, acti
   }
 
   const take = keyword && isShort ? 1000 : MAX_RESULTS;
-  const where = keyword && !isShort ? { OR: config.searchFields.map((field) => ({ [field]: { contains: keyword } })) } : {};
+  const where = keyword && !isShort ? { OR: config.searchFields.map((field) => ({ [field]: { contains: keyword, mode: "insensitive" } })) } : {};
   const items = await model.findMany({ where, select: config.select, take, orderBy: { id: "asc" } });
   const mapped = items.map((item) => ({
     id: item.id,

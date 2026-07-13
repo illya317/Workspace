@@ -1446,6 +1446,7 @@ export type OpenApiClientCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many OpenApiClients.
    */
   data: Prisma.OpenApiClientCreateManyInput | Prisma.OpenApiClientCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1464,6 +1465,7 @@ export type OpenApiClientCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many OpenApiClients.
    */
   data: Prisma.OpenApiClientCreateManyInput | Prisma.OpenApiClientCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

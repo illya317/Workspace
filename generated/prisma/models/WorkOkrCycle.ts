@@ -701,6 +701,7 @@ export type WorkOkrCycleCreateOrConnectWithoutParentInput = {
 
 export type WorkOkrCycleCreateManyParentInputEnvelope = {
   data: Prisma.WorkOkrCycleCreateManyParentInput | Prisma.WorkOkrCycleCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkOkrCycleUpsertWithoutChildrenInput = {
@@ -1810,6 +1811,7 @@ export type WorkOkrCycleCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many WorkOkrCycles.
    */
   data: Prisma.WorkOkrCycleCreateManyInput | Prisma.WorkOkrCycleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1828,6 +1830,7 @@ export type WorkOkrCycleCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many WorkOkrCycles.
    */
   data: Prisma.WorkOkrCycleCreateManyInput | Prisma.WorkOkrCycleCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

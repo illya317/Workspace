@@ -638,6 +638,7 @@ export type EmployeeProjectCreateOrConnectWithoutEmployeeInput = {
 
 export type EmployeeProjectCreateManyEmployeeInputEnvelope = {
   data: Prisma.EmployeeProjectCreateManyEmployeeInput | Prisma.EmployeeProjectCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type EmployeeProjectUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -705,6 +706,7 @@ export type EmployeeProjectCreateOrConnectWithoutProjectInput = {
 
 export type EmployeeProjectCreateManyProjectInputEnvelope = {
   data: Prisma.EmployeeProjectCreateManyProjectInput | Prisma.EmployeeProjectCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type EmployeeProjectUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1591,6 +1593,7 @@ export type EmployeeProjectCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many EmployeeProjects.
    */
   data: Prisma.EmployeeProjectCreateManyInput | Prisma.EmployeeProjectCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1609,6 +1612,7 @@ export type EmployeeProjectCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many EmployeeProjects.
    */
   data: Prisma.EmployeeProjectCreateManyInput | Prisma.EmployeeProjectCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

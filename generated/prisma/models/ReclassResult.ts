@@ -32,7 +32,9 @@ export type ReclassResultAvgAggregateOutputType = {
   id: number | null
   periodId: number | null
   voucherItemId: number | null
+  voucherItemIdSnapshot: number | null
   ruleId: number | null
+  ruleIdSnapshot: number | null
   amount: number | null
   adjustedBy: number | null
 }
@@ -41,7 +43,9 @@ export type ReclassResultSumAggregateOutputType = {
   id: number | null
   periodId: number | null
   voucherItemId: number | null
+  voucherItemIdSnapshot: number | null
   ruleId: number | null
+  ruleIdSnapshot: number | null
   amount: number | null
   adjustedBy: number | null
 }
@@ -50,7 +54,9 @@ export type ReclassResultMinAggregateOutputType = {
   id: number | null
   periodId: number | null
   voucherItemId: number | null
+  voucherItemIdSnapshot: number | null
   ruleId: number | null
+  ruleIdSnapshot: number | null
   sourceAccount: string | null
   targetAccount: string | null
   amount: number | null
@@ -66,7 +72,9 @@ export type ReclassResultMaxAggregateOutputType = {
   id: number | null
   periodId: number | null
   voucherItemId: number | null
+  voucherItemIdSnapshot: number | null
   ruleId: number | null
+  ruleIdSnapshot: number | null
   sourceAccount: string | null
   targetAccount: string | null
   amount: number | null
@@ -82,7 +90,9 @@ export type ReclassResultCountAggregateOutputType = {
   id: number
   periodId: number
   voucherItemId: number
+  voucherItemIdSnapshot: number
   ruleId: number
+  ruleIdSnapshot: number
   sourceAccount: number
   targetAccount: number
   amount: number
@@ -100,7 +110,9 @@ export type ReclassResultAvgAggregateInputType = {
   id?: true
   periodId?: true
   voucherItemId?: true
+  voucherItemIdSnapshot?: true
   ruleId?: true
+  ruleIdSnapshot?: true
   amount?: true
   adjustedBy?: true
 }
@@ -109,7 +121,9 @@ export type ReclassResultSumAggregateInputType = {
   id?: true
   periodId?: true
   voucherItemId?: true
+  voucherItemIdSnapshot?: true
   ruleId?: true
+  ruleIdSnapshot?: true
   amount?: true
   adjustedBy?: true
 }
@@ -118,7 +132,9 @@ export type ReclassResultMinAggregateInputType = {
   id?: true
   periodId?: true
   voucherItemId?: true
+  voucherItemIdSnapshot?: true
   ruleId?: true
+  ruleIdSnapshot?: true
   sourceAccount?: true
   targetAccount?: true
   amount?: true
@@ -134,7 +150,9 @@ export type ReclassResultMaxAggregateInputType = {
   id?: true
   periodId?: true
   voucherItemId?: true
+  voucherItemIdSnapshot?: true
   ruleId?: true
+  ruleIdSnapshot?: true
   sourceAccount?: true
   targetAccount?: true
   amount?: true
@@ -150,7 +168,9 @@ export type ReclassResultCountAggregateInputType = {
   id?: true
   periodId?: true
   voucherItemId?: true
+  voucherItemIdSnapshot?: true
   ruleId?: true
+  ruleIdSnapshot?: true
   sourceAccount?: true
   targetAccount?: true
   amount?: true
@@ -252,8 +272,10 @@ export type ReclassResultGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type ReclassResultGroupByOutputType = {
   id: number
   periodId: number
-  voucherItemId: number
+  voucherItemId: number | null
+  voucherItemIdSnapshot: number
   ruleId: number | null
+  ruleIdSnapshot: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -291,8 +313,10 @@ export type ReclassResultWhereInput = {
   NOT?: Prisma.ReclassResultWhereInput | Prisma.ReclassResultWhereInput[]
   id?: Prisma.IntFilter<"ReclassResult"> | number
   periodId?: Prisma.IntFilter<"ReclassResult"> | number
-  voucherItemId?: Prisma.IntFilter<"ReclassResult"> | number
+  voucherItemId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  voucherItemIdSnapshot?: Prisma.IntFilter<"ReclassResult"> | number
   ruleId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  ruleIdSnapshot?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
   sourceAccount?: Prisma.StringFilter<"ReclassResult"> | string
   targetAccount?: Prisma.StringFilter<"ReclassResult"> | string
   amount?: Prisma.FloatFilter<"ReclassResult"> | number
@@ -303,7 +327,7 @@ export type ReclassResultWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"ReclassResult"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReclassResult"> | Date | string
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
-  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput>
+  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
   rule?: Prisma.XOR<Prisma.FinanceReclassRuleNullableScalarRelationFilter, Prisma.FinanceReclassRuleWhereInput> | null
   reviewer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }
@@ -311,8 +335,10 @@ export type ReclassResultWhereInput = {
 export type ReclassResultOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  voucherItemId?: Prisma.SortOrder
+  voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceAccount?: Prisma.SortOrder
   targetAccount?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -335,8 +361,10 @@ export type ReclassResultWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ReclassResultWhereInput[]
   NOT?: Prisma.ReclassResultWhereInput | Prisma.ReclassResultWhereInput[]
   periodId?: Prisma.IntFilter<"ReclassResult"> | number
-  voucherItemId?: Prisma.IntFilter<"ReclassResult"> | number
+  voucherItemId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  voucherItemIdSnapshot?: Prisma.IntFilter<"ReclassResult"> | number
   ruleId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  ruleIdSnapshot?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
   sourceAccount?: Prisma.StringFilter<"ReclassResult"> | string
   targetAccount?: Prisma.StringFilter<"ReclassResult"> | string
   amount?: Prisma.FloatFilter<"ReclassResult"> | number
@@ -347,7 +375,7 @@ export type ReclassResultWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"ReclassResult"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ReclassResult"> | Date | string
   period?: Prisma.XOR<Prisma.FinancePeriodScalarRelationFilter, Prisma.FinancePeriodWhereInput>
-  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput>
+  voucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
   rule?: Prisma.XOR<Prisma.FinanceReclassRuleNullableScalarRelationFilter, Prisma.FinanceReclassRuleWhereInput> | null
   reviewer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
 }, "id" | "periodId_voucherItemId">
@@ -355,8 +383,10 @@ export type ReclassResultWhereUniqueInput = Prisma.AtLeast<{
 export type ReclassResultOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
-  voucherItemId?: Prisma.SortOrder
+  voucherItemId?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrderInput | Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceAccount?: Prisma.SortOrder
   targetAccount?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -379,8 +409,10 @@ export type ReclassResultScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ReclassResultScalarWhereWithAggregatesInput | Prisma.ReclassResultScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ReclassResult"> | number
   periodId?: Prisma.IntWithAggregatesFilter<"ReclassResult"> | number
-  voucherItemId?: Prisma.IntWithAggregatesFilter<"ReclassResult"> | number
+  voucherItemId?: Prisma.IntNullableWithAggregatesFilter<"ReclassResult"> | number | null
+  voucherItemIdSnapshot?: Prisma.IntWithAggregatesFilter<"ReclassResult"> | number
   ruleId?: Prisma.IntNullableWithAggregatesFilter<"ReclassResult"> | number | null
+  ruleIdSnapshot?: Prisma.IntNullableWithAggregatesFilter<"ReclassResult"> | number | null
   sourceAccount?: Prisma.StringWithAggregatesFilter<"ReclassResult"> | string
   targetAccount?: Prisma.StringWithAggregatesFilter<"ReclassResult"> | string
   amount?: Prisma.FloatWithAggregatesFilter<"ReclassResult"> | number
@@ -393,6 +425,8 @@ export type ReclassResultScalarWhereWithAggregatesInput = {
 }
 
 export type ReclassResultCreateInput = {
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -402,7 +436,7 @@ export type ReclassResultCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutReclassResultsInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
   rule?: Prisma.FinanceReclassRuleCreateNestedOneWithoutResultsInput
   reviewer?: Prisma.UserCreateNestedOneWithoutReviewedReclassResultsInput
 }
@@ -410,8 +444,10 @@ export type ReclassResultCreateInput = {
 export type ReclassResultUncheckedCreateInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -424,6 +460,8 @@ export type ReclassResultUncheckedCreateInput = {
 }
 
 export type ReclassResultUpdateInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -433,7 +471,7 @@ export type ReclassResultUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutReclassResultsNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutReclassResultsNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutReclassResultsNestedInput
   rule?: Prisma.FinanceReclassRuleUpdateOneWithoutResultsNestedInput
   reviewer?: Prisma.UserUpdateOneWithoutReviewedReclassResultsNestedInput
 }
@@ -441,8 +479,10 @@ export type ReclassResultUpdateInput = {
 export type ReclassResultUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -457,8 +497,10 @@ export type ReclassResultUncheckedUpdateInput = {
 export type ReclassResultCreateManyInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -471,6 +513,8 @@ export type ReclassResultCreateManyInput = {
 }
 
 export type ReclassResultUpdateManyMutationInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -484,8 +528,10 @@ export type ReclassResultUpdateManyMutationInput = {
 export type ReclassResultUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -516,7 +562,9 @@ export type ReclassResultCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrder
   sourceAccount?: Prisma.SortOrder
   targetAccount?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -532,7 +580,9 @@ export type ReclassResultAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   adjustedBy?: Prisma.SortOrder
 }
@@ -541,7 +591,9 @@ export type ReclassResultMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrder
   sourceAccount?: Prisma.SortOrder
   targetAccount?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -557,7 +609,9 @@ export type ReclassResultMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrder
   sourceAccount?: Prisma.SortOrder
   targetAccount?: Prisma.SortOrder
   amount?: Prisma.SortOrder
@@ -573,7 +627,9 @@ export type ReclassResultSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   periodId?: Prisma.SortOrder
   voucherItemId?: Prisma.SortOrder
+  voucherItemIdSnapshot?: Prisma.SortOrder
   ruleId?: Prisma.SortOrder
+  ruleIdSnapshot?: Prisma.SortOrder
   amount?: Prisma.SortOrder
   adjustedBy?: Prisma.SortOrder
 }
@@ -747,6 +803,8 @@ export type ReclassResultUncheckedUpdateManyWithoutRuleNestedInput = {
 }
 
 export type ReclassResultCreateWithoutReviewerInput = {
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -756,15 +814,17 @@ export type ReclassResultCreateWithoutReviewerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutReclassResultsInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
   rule?: Prisma.FinanceReclassRuleCreateNestedOneWithoutResultsInput
 }
 
 export type ReclassResultUncheckedCreateWithoutReviewerInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -782,6 +842,7 @@ export type ReclassResultCreateOrConnectWithoutReviewerInput = {
 
 export type ReclassResultCreateManyReviewerInputEnvelope = {
   data: Prisma.ReclassResultCreateManyReviewerInput | Prisma.ReclassResultCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type ReclassResultUpsertWithWhereUniqueWithoutReviewerInput = {
@@ -806,8 +867,10 @@ export type ReclassResultScalarWhereInput = {
   NOT?: Prisma.ReclassResultScalarWhereInput | Prisma.ReclassResultScalarWhereInput[]
   id?: Prisma.IntFilter<"ReclassResult"> | number
   periodId?: Prisma.IntFilter<"ReclassResult"> | number
-  voucherItemId?: Prisma.IntFilter<"ReclassResult"> | number
+  voucherItemId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  voucherItemIdSnapshot?: Prisma.IntFilter<"ReclassResult"> | number
   ruleId?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
+  ruleIdSnapshot?: Prisma.IntNullableFilter<"ReclassResult"> | number | null
   sourceAccount?: Prisma.StringFilter<"ReclassResult"> | string
   targetAccount?: Prisma.StringFilter<"ReclassResult"> | string
   amount?: Prisma.FloatFilter<"ReclassResult"> | number
@@ -820,6 +883,8 @@ export type ReclassResultScalarWhereInput = {
 }
 
 export type ReclassResultCreateWithoutPeriodInput = {
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -828,15 +893,17 @@ export type ReclassResultCreateWithoutPeriodInput = {
   note?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
   rule?: Prisma.FinanceReclassRuleCreateNestedOneWithoutResultsInput
   reviewer?: Prisma.UserCreateNestedOneWithoutReviewedReclassResultsInput
 }
 
 export type ReclassResultUncheckedCreateWithoutPeriodInput = {
   id?: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -855,6 +922,7 @@ export type ReclassResultCreateOrConnectWithoutPeriodInput = {
 
 export type ReclassResultCreateManyPeriodInputEnvelope = {
   data: Prisma.ReclassResultCreateManyPeriodInput | Prisma.ReclassResultCreateManyPeriodInput[]
+  skipDuplicates?: boolean
 }
 
 export type ReclassResultUpsertWithWhereUniqueWithoutPeriodInput = {
@@ -874,6 +942,8 @@ export type ReclassResultUpdateManyWithWhereWithoutPeriodInput = {
 }
 
 export type ReclassResultCreateWithoutVoucherItemInput = {
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -890,7 +960,9 @@ export type ReclassResultCreateWithoutVoucherItemInput = {
 export type ReclassResultUncheckedCreateWithoutVoucherItemInput = {
   id?: number
   periodId: number
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -909,6 +981,7 @@ export type ReclassResultCreateOrConnectWithoutVoucherItemInput = {
 
 export type ReclassResultCreateManyVoucherItemInputEnvelope = {
   data: Prisma.ReclassResultCreateManyVoucherItemInput | Prisma.ReclassResultCreateManyVoucherItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type ReclassResultUpsertWithWhereUniqueWithoutVoucherItemInput = {
@@ -928,6 +1001,8 @@ export type ReclassResultUpdateManyWithWhereWithoutVoucherItemInput = {
 }
 
 export type ReclassResultCreateWithoutRuleInput = {
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -937,14 +1012,16 @@ export type ReclassResultCreateWithoutRuleInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   period: Prisma.FinancePeriodCreateNestedOneWithoutReclassResultsInput
-  voucherItem: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
+  voucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput
   reviewer?: Prisma.UserCreateNestedOneWithoutReviewedReclassResultsInput
 }
 
 export type ReclassResultUncheckedCreateWithoutRuleInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -963,6 +1040,7 @@ export type ReclassResultCreateOrConnectWithoutRuleInput = {
 
 export type ReclassResultCreateManyRuleInputEnvelope = {
   data: Prisma.ReclassResultCreateManyRuleInput | Prisma.ReclassResultCreateManyRuleInput[]
+  skipDuplicates?: boolean
 }
 
 export type ReclassResultUpsertWithWhereUniqueWithoutRuleInput = {
@@ -984,8 +1062,10 @@ export type ReclassResultUpdateManyWithWhereWithoutRuleInput = {
 export type ReclassResultCreateManyReviewerInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -997,6 +1077,8 @@ export type ReclassResultCreateManyReviewerInput = {
 }
 
 export type ReclassResultUpdateWithoutReviewerInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1006,15 +1088,17 @@ export type ReclassResultUpdateWithoutReviewerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutReclassResultsNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutReclassResultsNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutReclassResultsNestedInput
   rule?: Prisma.FinanceReclassRuleUpdateOneWithoutResultsNestedInput
 }
 
 export type ReclassResultUncheckedUpdateWithoutReviewerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1028,8 +1112,10 @@ export type ReclassResultUncheckedUpdateWithoutReviewerInput = {
 export type ReclassResultUncheckedUpdateManyWithoutReviewerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1042,8 +1128,10 @@ export type ReclassResultUncheckedUpdateManyWithoutReviewerInput = {
 
 export type ReclassResultCreateManyPeriodInput = {
   id?: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -1056,6 +1144,8 @@ export type ReclassResultCreateManyPeriodInput = {
 }
 
 export type ReclassResultUpdateWithoutPeriodInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1064,15 +1154,17 @@ export type ReclassResultUpdateWithoutPeriodInput = {
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutReclassResultsNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutReclassResultsNestedInput
   rule?: Prisma.FinanceReclassRuleUpdateOneWithoutResultsNestedInput
   reviewer?: Prisma.UserUpdateOneWithoutReviewedReclassResultsNestedInput
 }
 
 export type ReclassResultUncheckedUpdateWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1086,8 +1178,10 @@ export type ReclassResultUncheckedUpdateWithoutPeriodInput = {
 
 export type ReclassResultUncheckedUpdateManyWithoutPeriodInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1102,7 +1196,9 @@ export type ReclassResultUncheckedUpdateManyWithoutPeriodInput = {
 export type ReclassResultCreateManyVoucherItemInput = {
   id?: number
   periodId: number
+  voucherItemIdSnapshot: number
   ruleId?: number | null
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -1115,6 +1211,8 @@ export type ReclassResultCreateManyVoucherItemInput = {
 }
 
 export type ReclassResultUpdateWithoutVoucherItemInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1131,7 +1229,9 @@ export type ReclassResultUpdateWithoutVoucherItemInput = {
 export type ReclassResultUncheckedUpdateWithoutVoucherItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1146,7 +1246,9 @@ export type ReclassResultUncheckedUpdateWithoutVoucherItemInput = {
 export type ReclassResultUncheckedUpdateManyWithoutVoucherItemInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
   ruleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1161,7 +1263,9 @@ export type ReclassResultUncheckedUpdateManyWithoutVoucherItemInput = {
 export type ReclassResultCreateManyRuleInput = {
   id?: number
   periodId: number
-  voucherItemId: number
+  voucherItemId?: number | null
+  voucherItemIdSnapshot: number
+  ruleIdSnapshot?: number | null
   sourceAccount: string
   targetAccount: string
   amount: number
@@ -1174,6 +1278,8 @@ export type ReclassResultCreateManyRuleInput = {
 }
 
 export type ReclassResultUpdateWithoutRuleInput = {
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1183,14 +1289,16 @@ export type ReclassResultUpdateWithoutRuleInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   period?: Prisma.FinancePeriodUpdateOneRequiredWithoutReclassResultsNestedInput
-  voucherItem?: Prisma.FinanceVoucherItemUpdateOneRequiredWithoutReclassResultsNestedInput
+  voucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutReclassResultsNestedInput
   reviewer?: Prisma.UserUpdateOneWithoutReviewedReclassResultsNestedInput
 }
 
 export type ReclassResultUncheckedUpdateWithoutRuleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1205,7 +1313,9 @@ export type ReclassResultUncheckedUpdateWithoutRuleInput = {
 export type ReclassResultUncheckedUpdateManyWithoutRuleInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   periodId?: Prisma.IntFieldUpdateOperationsInput | number
-  voucherItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  voucherItemIdSnapshot?: Prisma.IntFieldUpdateOperationsInput | number
+  ruleIdSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sourceAccount?: Prisma.StringFieldUpdateOperationsInput | string
   targetAccount?: Prisma.StringFieldUpdateOperationsInput | string
   amount?: Prisma.FloatFieldUpdateOperationsInput | number
@@ -1223,7 +1333,9 @@ export type ReclassResultSelect<ExtArgs extends runtime.Types.Extensions.Interna
   id?: boolean
   periodId?: boolean
   voucherItemId?: boolean
+  voucherItemIdSnapshot?: boolean
   ruleId?: boolean
+  ruleIdSnapshot?: boolean
   sourceAccount?: boolean
   targetAccount?: boolean
   amount?: boolean
@@ -1234,7 +1346,7 @@ export type ReclassResultSelect<ExtArgs extends runtime.Types.Extensions.Interna
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }, ExtArgs["result"]["reclassResult"]>
@@ -1243,7 +1355,9 @@ export type ReclassResultSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   periodId?: boolean
   voucherItemId?: boolean
+  voucherItemIdSnapshot?: boolean
   ruleId?: boolean
+  ruleIdSnapshot?: boolean
   sourceAccount?: boolean
   targetAccount?: boolean
   amount?: boolean
@@ -1254,7 +1368,7 @@ export type ReclassResultSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }, ExtArgs["result"]["reclassResult"]>
@@ -1263,7 +1377,9 @@ export type ReclassResultSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   id?: boolean
   periodId?: boolean
   voucherItemId?: boolean
+  voucherItemIdSnapshot?: boolean
   ruleId?: boolean
+  ruleIdSnapshot?: boolean
   sourceAccount?: boolean
   targetAccount?: boolean
   amount?: boolean
@@ -1274,7 +1390,7 @@ export type ReclassResultSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }, ExtArgs["result"]["reclassResult"]>
@@ -1283,7 +1399,9 @@ export type ReclassResultSelectScalar = {
   id?: boolean
   periodId?: boolean
   voucherItemId?: boolean
+  voucherItemIdSnapshot?: boolean
   ruleId?: boolean
+  ruleIdSnapshot?: boolean
   sourceAccount?: boolean
   targetAccount?: boolean
   amount?: boolean
@@ -1295,22 +1413,22 @@ export type ReclassResultSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ReclassResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "periodId" | "voucherItemId" | "ruleId" | "sourceAccount" | "targetAccount" | "amount" | "status" | "adjustedBy" | "adjustedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["reclassResult"]>
+export type ReclassResultOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "periodId" | "voucherItemId" | "voucherItemIdSnapshot" | "ruleId" | "ruleIdSnapshot" | "sourceAccount" | "targetAccount" | "amount" | "status" | "adjustedBy" | "adjustedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["reclassResult"]>
 export type ReclassResultInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }
 export type ReclassResultIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }
 export type ReclassResultIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
-  voucherItem?: boolean | Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>
+  voucherItem?: boolean | Prisma.ReclassResult$voucherItemArgs<ExtArgs>
   rule?: boolean | Prisma.ReclassResult$ruleArgs<ExtArgs>
   reviewer?: boolean | Prisma.ReclassResult$reviewerArgs<ExtArgs>
 }
@@ -1319,15 +1437,17 @@ export type $ReclassResultPayload<ExtArgs extends runtime.Types.Extensions.Inter
   name: "ReclassResult"
   objects: {
     period: Prisma.$FinancePeriodPayload<ExtArgs>
-    voucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs>
+    voucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs> | null
     rule: Prisma.$FinanceReclassRulePayload<ExtArgs> | null
     reviewer: Prisma.$UserPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     periodId: number
-    voucherItemId: number
+    voucherItemId: number | null
+    voucherItemIdSnapshot: number
     ruleId: number | null
+    ruleIdSnapshot: number | null
     sourceAccount: string
     targetAccount: string
     amount: number
@@ -1732,7 +1852,7 @@ readonly fields: ReclassResultFieldRefs;
 export interface Prisma__ReclassResultClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   period<T extends Prisma.FinancePeriodDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriodDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancePeriodClient<runtime.Types.Result.GetResult<Prisma.$FinancePeriodPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  voucherItem<T extends Prisma.FinanceVoucherItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItemDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  voucherItem<T extends Prisma.ReclassResult$voucherItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReclassResult$voucherItemArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   rule<T extends Prisma.ReclassResult$ruleArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReclassResult$ruleArgs<ExtArgs>>): Prisma.Prisma__FinanceReclassRuleClient<runtime.Types.Result.GetResult<Prisma.$FinanceReclassRulePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   reviewer<T extends Prisma.ReclassResult$reviewerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ReclassResult$reviewerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
@@ -1767,7 +1887,9 @@ export interface ReclassResultFieldRefs {
   readonly id: Prisma.FieldRef<"ReclassResult", 'Int'>
   readonly periodId: Prisma.FieldRef<"ReclassResult", 'Int'>
   readonly voucherItemId: Prisma.FieldRef<"ReclassResult", 'Int'>
+  readonly voucherItemIdSnapshot: Prisma.FieldRef<"ReclassResult", 'Int'>
   readonly ruleId: Prisma.FieldRef<"ReclassResult", 'Int'>
+  readonly ruleIdSnapshot: Prisma.FieldRef<"ReclassResult", 'Int'>
   readonly sourceAccount: Prisma.FieldRef<"ReclassResult", 'String'>
   readonly targetAccount: Prisma.FieldRef<"ReclassResult", 'String'>
   readonly amount: Prisma.FieldRef<"ReclassResult", 'Float'>
@@ -2011,6 +2133,7 @@ export type ReclassResultCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many ReclassResults.
    */
   data: Prisma.ReclassResultCreateManyInput | Prisma.ReclassResultCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2029,6 +2152,7 @@ export type ReclassResultCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many ReclassResults.
    */
   data: Prisma.ReclassResultCreateManyInput | Prisma.ReclassResultCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */
@@ -2173,6 +2297,25 @@ export type ReclassResultDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many ReclassResults to delete.
    */
   limit?: number
+}
+
+/**
+ * ReclassResult.voucherItem
+ */
+export type ReclassResult$voucherItemArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceVoucherItem
+   */
+  select?: Prisma.FinanceVoucherItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceVoucherItem
+   */
+  omit?: Prisma.FinanceVoucherItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
+  where?: Prisma.FinanceVoucherItemWhereInput
 }
 
 /**

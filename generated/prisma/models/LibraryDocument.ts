@@ -1649,6 +1649,7 @@ export type LibraryDocumentCreateOrConnectWithoutEditorInput = {
 
 export type LibraryDocumentCreateManyEditorInputEnvelope = {
   data: Prisma.LibraryDocumentCreateManyEditorInput | Prisma.LibraryDocumentCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentCreateWithoutOwnerInput = {
@@ -1751,6 +1752,7 @@ export type LibraryDocumentCreateOrConnectWithoutOwnerInput = {
 
 export type LibraryDocumentCreateManyOwnerInputEnvelope = {
   data: Prisma.LibraryDocumentCreateManyOwnerInput | Prisma.LibraryDocumentCreateManyOwnerInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentCreateWithoutReviewerInput = {
@@ -1853,6 +1855,7 @@ export type LibraryDocumentCreateOrConnectWithoutReviewerInput = {
 
 export type LibraryDocumentCreateManyReviewerInputEnvelope = {
   data: Prisma.LibraryDocumentCreateManyReviewerInput | Prisma.LibraryDocumentCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentUpsertWithWhereUniqueWithoutEditorInput = {
@@ -2857,6 +2860,7 @@ export type LibraryDocumentCreateOrConnectWithoutCategoryInput = {
 
 export type LibraryDocumentCreateManyCategoryInputEnvelope = {
   data: Prisma.LibraryDocumentCreateManyCategoryInput | Prisma.LibraryDocumentCreateManyCategoryInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentUpsertWithWhereUniqueWithoutCategoryInput = {
@@ -2975,6 +2979,7 @@ export type LibraryDocumentCreateOrConnectWithoutCurrentDirectoryInput = {
 
 export type LibraryDocumentCreateManyCurrentDirectoryInputEnvelope = {
   data: Prisma.LibraryDocumentCreateManyCurrentDirectoryInput | Prisma.LibraryDocumentCreateManyCurrentDirectoryInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentUpsertWithWhereUniqueWithoutCurrentDirectoryInput = {
@@ -5341,6 +5346,7 @@ export type LibraryDocumentCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many LibraryDocuments.
    */
   data: Prisma.LibraryDocumentCreateManyInput | Prisma.LibraryDocumentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -5359,6 +5365,7 @@ export type LibraryDocumentCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many LibraryDocuments.
    */
   data: Prisma.LibraryDocumentCreateManyInput | Prisma.LibraryDocumentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

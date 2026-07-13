@@ -732,6 +732,7 @@ export type DocumentTemplateCreateOrConnectWithoutSpaceInput = {
 
 export type DocumentTemplateCreateManySpaceInputEnvelope = {
   data: Prisma.DocumentTemplateCreateManySpaceInput | Prisma.DocumentTemplateCreateManySpaceInput[]
+  skipDuplicates?: boolean
 }
 
 export type DocumentTemplateUpsertWithWhereUniqueWithoutSpaceInput = {
@@ -1642,6 +1643,7 @@ export type DocumentTemplateCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many DocumentTemplates.
    */
   data: Prisma.DocumentTemplateCreateManyInput | Prisma.DocumentTemplateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1660,6 +1662,7 @@ export type DocumentTemplateCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many DocumentTemplates.
    */
   data: Prisma.DocumentTemplateCreateManyInput | Prisma.DocumentTemplateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

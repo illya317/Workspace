@@ -536,6 +536,7 @@ export type CompanyRelationCreateOrConnectWithoutChildInput = {
 
 export type CompanyRelationCreateManyChildInputEnvelope = {
   data: Prisma.CompanyRelationCreateManyChildInput | Prisma.CompanyRelationCreateManyChildInput[]
+  skipDuplicates?: boolean
 }
 
 export type CompanyRelationCreateWithoutParentInput = {
@@ -562,6 +563,7 @@ export type CompanyRelationCreateOrConnectWithoutParentInput = {
 
 export type CompanyRelationCreateManyParentInputEnvelope = {
   data: Prisma.CompanyRelationCreateManyParentInput | Prisma.CompanyRelationCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type CompanyRelationUpsertWithWhereUniqueWithoutChildInput = {
@@ -1421,6 +1423,7 @@ export type CompanyRelationCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many CompanyRelations.
    */
   data: Prisma.CompanyRelationCreateManyInput | Prisma.CompanyRelationCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1439,6 +1442,7 @@ export type CompanyRelationCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many CompanyRelations.
    */
   data: Prisma.CompanyRelationCreateManyInput | Prisma.CompanyRelationCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

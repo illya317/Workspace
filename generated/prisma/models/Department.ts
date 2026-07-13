@@ -1421,6 +1421,7 @@ export type DepartmentCreateOrConnectWithoutParentInput = {
 
 export type DepartmentCreateManyParentInputEnvelope = {
   data: Prisma.DepartmentCreateManyParentInput | Prisma.DepartmentCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentUpsertWithoutChildrenInput = {
@@ -1803,6 +1804,7 @@ export type DepartmentCreateOrConnectWithoutManagerPositionInput = {
 
 export type DepartmentCreateManyManagerPositionInputEnvelope = {
   data: Prisma.DepartmentCreateManyManagerPositionInput | Prisma.DepartmentCreateManyManagerPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentUpsertWithoutPositionsInput = {
@@ -4460,6 +4462,7 @@ export type DepartmentCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many Departments.
    */
   data: Prisma.DepartmentCreateManyInput | Prisma.DepartmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -4478,6 +4481,7 @@ export type DepartmentCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many Departments.
    */
   data: Prisma.DepartmentCreateManyInput | Prisma.DepartmentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

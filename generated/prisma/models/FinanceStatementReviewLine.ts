@@ -657,6 +657,7 @@ export type FinanceStatementReviewLineCreateOrConnectWithoutReviewInput = {
 
 export type FinanceStatementReviewLineCreateManyReviewInputEnvelope = {
   data: Prisma.FinanceStatementReviewLineCreateManyReviewInput | Prisma.FinanceStatementReviewLineCreateManyReviewInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceStatementReviewLineUpsertWithWhereUniqueWithoutReviewInput = {
@@ -1523,6 +1524,7 @@ export type FinanceStatementReviewLineCreateManyArgs<ExtArgs extends runtime.Typ
    * The data used to create many FinanceStatementReviewLines.
    */
   data: Prisma.FinanceStatementReviewLineCreateManyInput | Prisma.FinanceStatementReviewLineCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1541,6 +1543,7 @@ export type FinanceStatementReviewLineCreateManyAndReturnArgs<ExtArgs extends ru
    * The data used to create many FinanceStatementReviewLines.
    */
   data: Prisma.FinanceStatementReviewLineCreateManyInput | Prisma.FinanceStatementReviewLineCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

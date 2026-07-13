@@ -458,6 +458,7 @@ export type DepartmentManagerEmployeeCreateOrConnectWithoutEmployeeInput = {
 
 export type DepartmentManagerEmployeeCreateManyEmployeeInputEnvelope = {
   data: Prisma.DepartmentManagerEmployeeCreateManyEmployeeInput | Prisma.DepartmentManagerEmployeeCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentManagerEmployeeUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -504,6 +505,7 @@ export type DepartmentManagerEmployeeCreateOrConnectWithoutDepartmentInput = {
 
 export type DepartmentManagerEmployeeCreateManyDepartmentInputEnvelope = {
   data: Prisma.DepartmentManagerEmployeeCreateManyDepartmentInput | Prisma.DepartmentManagerEmployeeCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentManagerEmployeeUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1292,6 +1294,7 @@ export type DepartmentManagerEmployeeCreateManyArgs<ExtArgs extends runtime.Type
    * The data used to create many DepartmentManagerEmployees.
    */
   data: Prisma.DepartmentManagerEmployeeCreateManyInput | Prisma.DepartmentManagerEmployeeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1310,6 +1313,7 @@ export type DepartmentManagerEmployeeCreateManyAndReturnArgs<ExtArgs extends run
    * The data used to create many DepartmentManagerEmployees.
    */
   data: Prisma.DepartmentManagerEmployeeCreateManyInput | Prisma.DepartmentManagerEmployeeCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

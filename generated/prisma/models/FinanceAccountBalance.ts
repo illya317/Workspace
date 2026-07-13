@@ -686,6 +686,7 @@ export type FinanceAccountBalanceCreateOrConnectWithoutAccountInput = {
 
 export type FinanceAccountBalanceCreateManyAccountInputEnvelope = {
   data: Prisma.FinanceAccountBalanceCreateManyAccountInput | Prisma.FinanceAccountBalanceCreateManyAccountInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceAccountBalanceUpsertWithWhereUniqueWithoutAccountInput = {
@@ -756,6 +757,7 @@ export type FinanceAccountBalanceCreateOrConnectWithoutPeriodInput = {
 
 export type FinanceAccountBalanceCreateManyPeriodInputEnvelope = {
   data: Prisma.FinanceAccountBalanceCreateManyPeriodInput | Prisma.FinanceAccountBalanceCreateManyPeriodInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceAccountBalanceUpsertWithWhereUniqueWithoutPeriodInput = {
@@ -1656,6 +1658,7 @@ export type FinanceAccountBalanceCreateManyArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many FinanceAccountBalances.
    */
   data: Prisma.FinanceAccountBalanceCreateManyInput | Prisma.FinanceAccountBalanceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1674,6 +1677,7 @@ export type FinanceAccountBalanceCreateManyAndReturnArgs<ExtArgs extends runtime
    * The data used to create many FinanceAccountBalances.
    */
   data: Prisma.FinanceAccountBalanceCreateManyInput | Prisma.FinanceAccountBalanceCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

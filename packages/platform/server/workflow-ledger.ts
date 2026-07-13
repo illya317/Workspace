@@ -114,12 +114,12 @@ export async function listWorkflowLedgerRequests(input: ListWorkflowLedgerInput 
     ...(status && status !== "all" ? { status } : {}),
     ...(query ? {
       OR: [
-        { businessActionKey: { contains: query } },
-        { resourceKey: { contains: query } },
-        { subjectType: { contains: query } },
-        { subjectId: { contains: query } },
-        { operation: { contains: query } },
-        { committedEntityId: { contains: query } },
+        { businessActionKey: { contains: query, mode: "insensitive" as const } },
+        { resourceKey: { contains: query, mode: "insensitive" as const } },
+        { subjectType: { contains: query, mode: "insensitive" as const } },
+        { subjectId: { contains: query, mode: "insensitive" as const } },
+        { operation: { contains: query, mode: "insensitive" as const } },
+        { committedEntityId: { contains: query, mode: "insensitive" as const } },
       ],
     } : {}),
   };

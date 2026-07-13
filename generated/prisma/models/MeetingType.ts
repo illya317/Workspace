@@ -1367,6 +1367,7 @@ export type MeetingTypeCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many MeetingTypes.
    */
   data: Prisma.MeetingTypeCreateManyInput | Prisma.MeetingTypeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1385,6 +1386,7 @@ export type MeetingTypeCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many MeetingTypes.
    */
   data: Prisma.MeetingTypeCreateManyInput | Prisma.MeetingTypeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

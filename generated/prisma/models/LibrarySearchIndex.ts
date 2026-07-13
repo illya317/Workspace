@@ -711,6 +711,7 @@ export type LibrarySearchIndexCreateOrConnectWithoutArtifactInput = {
 
 export type LibrarySearchIndexCreateManyArtifactInputEnvelope = {
   data: Prisma.LibrarySearchIndexCreateManyArtifactInput | Prisma.LibrarySearchIndexCreateManyArtifactInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibrarySearchIndexUpsertWithWhereUniqueWithoutArtifactInput = {
@@ -787,6 +788,7 @@ export type LibrarySearchIndexCreateOrConnectWithoutVersionInput = {
 
 export type LibrarySearchIndexCreateManyVersionInputEnvelope = {
   data: Prisma.LibrarySearchIndexCreateManyVersionInput | Prisma.LibrarySearchIndexCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibrarySearchIndexUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1715,6 +1717,7 @@ export type LibrarySearchIndexCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many LibrarySearchIndices.
    */
   data: Prisma.LibrarySearchIndexCreateManyInput | Prisma.LibrarySearchIndexCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1733,6 +1736,7 @@ export type LibrarySearchIndexCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many LibrarySearchIndices.
    */
   data: Prisma.LibrarySearchIndexCreateManyInput | Prisma.LibrarySearchIndexCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

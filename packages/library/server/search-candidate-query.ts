@@ -25,7 +25,7 @@ const COARSE_SCORE = {
 } as const;
 
 function contains(column: Prisma.Sql, term: string) {
-  return Prisma.sql`instr(lower(COALESCE(${column}, '')), lower(${term})) > 0`;
+  return Prisma.sql`strpos(lower(COALESCE(${column}, '')), lower(${term})) > 0`;
 }
 
 export function buildLibraryDocumentCandidateQuery(input: {

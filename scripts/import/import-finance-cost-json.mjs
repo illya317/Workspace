@@ -2,14 +2,17 @@
 /**
  * 导入 finance cost normalized JSON 到数据库
  * Usage:
- *   node scripts/import-finance-cost-json.mjs --dry-run
- *   node scripts/import-finance-cost-json.mjs
+ *   npx tsx scripts/import/import-finance-cost-json.mjs --dry-run
+ *   npx tsx scripts/import/import-finance-cost-json.mjs
  */
 
+import "dotenv/config";
+import { PrismaPg } from "@prisma/adapter-pg";
 import fs from "fs";
 import path from "path";
 import crypto from "crypto";
 import { fileURLToPath } from "url";
+import { requireDatabaseUrl } from "../lib/database-url.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -17,9 +20,13 @@ const __dirname = path.dirname(__filename);
 const NORMALIZED_DIR = process.env.FINANCE_COST_DATA_DIR || path.join(process.cwd(), "prisma/seed-data/finance-cost/normalized");
 const DRY_RUN = process.argv.includes("--dry-run");
 
-// Load Prisma Client dynamically (ESM compatible)
-const { PrismaClient } = await import("@prisma/client");
-const prisma = new PrismaClient();
+const { PrismaClient } = await import("../../generated/prisma/client.ts");
+const prisma = new PrismaClient({
+  adapter: new PrismaPg({
+    connectionString: requireDatabaseUrl(),
+    application_name: "workspace-finance-cost-import",
+  }),
+});
 
 function log(...args) {
   console.log("[import]", ...args);
@@ -388,47 +395,49 @@ async function main() {
         continue;
       }
 
-      // Remove existing import for same profile/year/sourceFile
-      const existing = await prisma.financeDataImport.findFirst({
-        where: { profile, year: year ?? null, sourceFile },
-      });
+      const importRecord = await prisma.$transaction(async (tx) => {
+        // Replacing a prior source batch and all of its facts is atomic.
+        const existing = await tx.financeDataImport.findFirst({
+          where: { profile, year: year ?? null, sourceFile },
+        });
 
-      if (existing) {
-        log("  -> removing existing import id", existing.id);
-        await prisma.financeDataImport.delete({ where: { id: existing.id } });
-      }
+        if (existing) {
+          log("  -> removing existing import id", existing.id);
+          await tx.financeDataImport.delete({ where: { id: existing.id } });
+        }
 
-      const importRecord = await prisma.financeDataImport.create({
-        data: {
-          profile,
-          year: year ?? null,
-          sourceFile,
-          sourcePath: filePath,
-          normalizedJsonPath: filePath,
-          checksum,
-          status: "imported",
-          recordCount: facts.length,
-          warningCount: warnings,
-          errorCount: 0,
-          importedBy: "import-script",
-        },
+        const created = await tx.financeDataImport.create({
+          data: {
+            profile,
+            year: year ?? null,
+            sourceFile,
+            sourcePath: filePath,
+            normalizedJsonPath: filePath,
+            checksum,
+            status: "imported",
+            recordCount: facts.length,
+            warningCount: warnings,
+            errorCount: 0,
+            importedBy: "import-script",
+          },
+        });
+
+        const importId = created.id;
+        if (profile === "shipments") {
+          await tx.financeShipment.createMany({ data: facts.map((f) => ({ ...f, importId })) });
+        } else if (profile === "sales-salary") {
+          await tx.financeSalesSalary.createMany({ data: facts.map((f) => ({ ...f, importId })) });
+        } else if (profile === "cost-structure") {
+          await tx.financeCostStructureRow.createMany({ data: facts.map((f) => ({ ...f, importId })) });
+        } else if (profile === "cost-analysis") {
+          await tx.financeCostAnalysisRow.createMany({ data: facts.map((f) => ({ ...f, importId })) });
+        } else if (profile === "workshop-reports") {
+          await tx.financeWorkshopReport.createMany({ data: facts.map((f) => ({ ...f, importId })) });
+        }
+        return created;
       });
 
       log("  -> created import id", importRecord.id);
-
-      // Batch insert by profile
-      const importId = importRecord.id;
-      if (profile === "shipments") {
-        await prisma.financeShipment.createMany({ data: facts.map((f) => ({ ...f, importId })) });
-      } else if (profile === "sales-salary") {
-        await prisma.financeSalesSalary.createMany({ data: facts.map((f) => ({ ...f, importId })) });
-      } else if (profile === "cost-structure") {
-        await prisma.financeCostStructureRow.createMany({ data: facts.map((f) => ({ ...f, importId })) });
-      } else if (profile === "cost-analysis") {
-        await prisma.financeCostAnalysisRow.createMany({ data: facts.map((f) => ({ ...f, importId })) });
-      } else if (profile === "workshop-reports") {
-        await prisma.financeWorkshopReport.createMany({ data: facts.map((f) => ({ ...f, importId })) });
-      }
 
       totalImports++;
       totalRecords += facts.length;

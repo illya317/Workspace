@@ -864,6 +864,7 @@ export type FinanceLedgerImportCreateOrConnectWithoutImporterInput = {
 
 export type FinanceLedgerImportCreateManyImporterInputEnvelope = {
   data: Prisma.FinanceLedgerImportCreateManyImporterInput | Prisma.FinanceLedgerImportCreateManyImporterInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceLedgerImportUpsertWithWhereUniqueWithoutImporterInput = {
@@ -1950,6 +1951,7 @@ export type FinanceLedgerImportCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many FinanceLedgerImports.
    */
   data: Prisma.FinanceLedgerImportCreateManyInput | Prisma.FinanceLedgerImportCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1968,6 +1970,7 @@ export type FinanceLedgerImportCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many FinanceLedgerImports.
    */
   data: Prisma.FinanceLedgerImportCreateManyInput | Prisma.FinanceLedgerImportCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

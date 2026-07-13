@@ -48,10 +48,11 @@ export async function listPreferredProjectOptions(userId: number): Promise<Prefe
 }
 
 export async function getUserPreferredProjectIds(userId: number): Promise<number[]> {
-  const rows = await prisma.$queryRaw<Array<{ preferredProjectIds: string | null }>>`
-    SELECT "preferredProjectIds" FROM "User" WHERE "id" = ${userId} LIMIT 1
-  `;
-  return parsePreferredProjectIds(rows[0]?.preferredProjectIds ?? null);
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { preferredProjectIds: true },
+  });
+  return parsePreferredProjectIds(user?.preferredProjectIds ?? null);
 }
 
 export async function getUserPreferredProjectSettings(userId: number) {
@@ -74,8 +75,9 @@ export async function updateUserPreferredProjectIds(userId: number, projectIds: 
     new Set(projects.map((project) => project.id)),
   );
   if (!command.ok) throw new Error(command.issue.message);
-  await prisma.$executeRaw`
-    UPDATE "User" SET "preferredProjectIds" = ${JSON.stringify(command.data.projectIds)} WHERE "id" = ${userId}
-  `;
+  await prisma.user.update({
+    where: { id: userId },
+    data: { preferredProjectIds: JSON.stringify(command.data.projectIds) },
+  });
   return command.data.projectIds;
 }

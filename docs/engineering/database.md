@@ -806,8 +806,10 @@
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
 | periodId | Int | - |  |
-| voucherItemId | Int | - | 来源凭证明细 |
-| ruleId | Int? | - | 追溯到生成此结果的规则；手工添加或历史兼容时为 null |
+| voucherItemId | Int? | - | 当前来源凭证明细；历史来源已删除时为 null |
+| voucherItemIdSnapshot | Int | - | 生成时的来源凭证明细 ID 快照，永不因父记录删除而丢失 |
+| ruleId | Int? | - | 当前规则；手工添加、规则已删除或历史兼容时为 null |
+| ruleIdSnapshot | Int? | - | 生成时的规则 ID 快照 |
 | sourceAccount | String | - | 原科目编码（快照，不FK） |
 | targetAccount | String | - | 目标科目编码（可修改） |
 | amount | Float | - | 重分类金额 |
@@ -818,8 +820,8 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
-| voucherItem | FinanceVoucherItem | @relation(fields: [voucherItemId], references: [id]) |  |
-| rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id]) |  |
+| voucherItem | FinanceVoucherItem? | @relation(fields: [voucherItemId], references: [id], onDelete: SetNull) |  |
+| rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id], onDelete: SetNull) |  |
 | reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
 
 ### FinanceStatementAccountMapping
@@ -1634,6 +1636,10 @@
 | versionLabel | String? | - |  |
 | fileName | String | - |  |
 | storagePath | String | - |  |
+| storageFileName | String? | - |  |
+| storageMimeType | String? | - |  |
+| storageFileSizeBytes | Int? | - |  |
+| storageChecksumSha256 | String? | - |  |
 | relativePath | String | - |  |
 | extension | String? | - |  |
 | mimeType | String? | - |  |

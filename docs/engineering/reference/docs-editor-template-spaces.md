@@ -59,7 +59,7 @@ npm run docs-editor:content:rehome -- --dry-run
 npm run docs-editor:content:rehome
 ```
 
-部署和备份时，除 SQLite DB 外，还必须同步 `$WORKSPACE_CONFIG_DIR/data/docs-editor/templates`。服务器端不能用本地 `data/docs-editor/templates` 覆盖；应在服务器自己的 `REMOTE_WORKSPACE_CONFIG_DIR` 上先 dry-run，再正式执行迁移脚本。第一阶段迁移只复制并更新 DB ref，旧平铺目录保留为回滚参考。
+部署和备份时，除 PostgreSQL `pg_dump` 外，还必须同步 `$WORKSPACE_CONFIG_DIR/data/docs-editor/templates`。服务器端不能用本地 `data/docs-editor/templates` 覆盖；应在服务器自己的 `REMOTE_WORKSPACE_CONFIG_DIR` 上先 dry-run，再正式执行迁移脚本。第一阶段迁移只复制并更新 DB ref，旧平铺目录保留为回滚参考。
 
 ## QC 官方模板
 

@@ -2069,6 +2069,7 @@ export type FinanceDataImportCreateManyArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many FinanceDataImports.
    */
   data: Prisma.FinanceDataImportCreateManyInput | Prisma.FinanceDataImportCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2087,6 +2088,7 @@ export type FinanceDataImportCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * The data used to create many FinanceDataImports.
    */
   data: Prisma.FinanceDataImportCreateManyInput | Prisma.FinanceDataImportCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

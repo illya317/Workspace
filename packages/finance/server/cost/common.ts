@@ -18,9 +18,9 @@ export function buildYearMonthWhere(params: CostQueryParams): Record<string, unk
   const where: Record<string, unknown> = {};
   if (params.year !== undefined) where.year = params.year;
   if (params.month !== undefined) where.month = params.month;
-  if (params.productName) where.productName = { contains: params.productName };
-  if (params.customerName) where.customerName = { contains: params.customerName };
-  if (params.sourceFile) where.sourceFile = { contains: params.sourceFile };
+  if (params.productName) where.productName = { contains: params.productName, mode: "insensitive" };
+  if (params.customerName) where.customerName = { contains: params.customerName, mode: "insensitive" };
+  if (params.sourceFile) where.sourceFile = { contains: params.sourceFile, mode: "insensitive" };
   return where;
 }
 

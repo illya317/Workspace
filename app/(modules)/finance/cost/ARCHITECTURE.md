@@ -56,15 +56,15 @@
 ## 4. 导入脚本
 
 ```bash
-node scripts/import-finance-cost-json.mjs --dry-run
-node scripts/import-finance-cost-json.mjs
+npx tsx scripts/import/import-finance-cost-json.mjs --dry-run
+npx tsx scripts/import/import-finance-cost-json.mjs
 ```
 
 逻辑：
 1. 遍历 `normalized/` 下各 profile 目录
 2. 按 profile 解析 JSON，只提取事实字段
-3. 原始行完整 JSON 存入 `rawPayload`
-4. 同 profile/year/sourceFile 重复导入时先清理旧数据（Cascade）
+3. 原始 JSON 保留在文件存储；数据库只记录来源路径、checksum 和结构化事实字段
+4. 同 profile/year/sourceFile 重复导入时，在一个数据库事务内替换旧批次及其明细（Cascade）
 
 ## 5. API 权限规则
 

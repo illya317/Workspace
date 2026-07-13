@@ -1345,6 +1345,7 @@ export type FinanceBalanceReclassAdjustmentCreateManyArgs<ExtArgs extends runtim
    * The data used to create many FinanceBalanceReclassAdjustments.
    */
   data: Prisma.FinanceBalanceReclassAdjustmentCreateManyInput | Prisma.FinanceBalanceReclassAdjustmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1363,6 +1364,7 @@ export type FinanceBalanceReclassAdjustmentCreateManyAndReturnArgs<ExtArgs exten
    * The data used to create many FinanceBalanceReclassAdjustments.
    */
   data: Prisma.FinanceBalanceReclassAdjustmentCreateManyInput | Prisma.FinanceBalanceReclassAdjustmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

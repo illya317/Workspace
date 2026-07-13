@@ -458,6 +458,7 @@ export type ProjectEnablingDepartmentCreateOrConnectWithoutDepartmentInput = {
 
 export type ProjectEnablingDepartmentCreateManyDepartmentInputEnvelope = {
   data: Prisma.ProjectEnablingDepartmentCreateManyDepartmentInput | Prisma.ProjectEnablingDepartmentCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectEnablingDepartmentUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -504,6 +505,7 @@ export type ProjectEnablingDepartmentCreateOrConnectWithoutProjectInput = {
 
 export type ProjectEnablingDepartmentCreateManyProjectInputEnvelope = {
   data: Prisma.ProjectEnablingDepartmentCreateManyProjectInput | Prisma.ProjectEnablingDepartmentCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectEnablingDepartmentUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1292,6 +1294,7 @@ export type ProjectEnablingDepartmentCreateManyArgs<ExtArgs extends runtime.Type
    * The data used to create many ProjectEnablingDepartments.
    */
   data: Prisma.ProjectEnablingDepartmentCreateManyInput | Prisma.ProjectEnablingDepartmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1310,6 +1313,7 @@ export type ProjectEnablingDepartmentCreateManyAndReturnArgs<ExtArgs extends run
    * The data used to create many ProjectEnablingDepartments.
    */
   data: Prisma.ProjectEnablingDepartmentCreateManyInput | Prisma.ProjectEnablingDepartmentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

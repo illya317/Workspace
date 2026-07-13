@@ -904,6 +904,7 @@ export type PermissionActionNormalizationCreateManyArgs<ExtArgs extends runtime.
    * The data used to create many PermissionActionNormalizations.
    */
   data: Prisma.PermissionActionNormalizationCreateManyInput | Prisma.PermissionActionNormalizationCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -922,6 +923,7 @@ export type PermissionActionNormalizationCreateManyAndReturnArgs<ExtArgs extends
    * The data used to create many PermissionActionNormalizations.
    */
   data: Prisma.PermissionActionNormalizationCreateManyInput | Prisma.PermissionActionNormalizationCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

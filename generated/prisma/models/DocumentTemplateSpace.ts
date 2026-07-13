@@ -1273,6 +1273,7 @@ export type DocumentTemplateSpaceCreateManyArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many DocumentTemplateSpaces.
    */
   data: Prisma.DocumentTemplateSpaceCreateManyInput | Prisma.DocumentTemplateSpaceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1291,6 +1292,7 @@ export type DocumentTemplateSpaceCreateManyAndReturnArgs<ExtArgs extends runtime
    * The data used to create many DocumentTemplateSpaces.
    */
   data: Prisma.DocumentTemplateSpaceCreateManyInput | Prisma.DocumentTemplateSpaceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

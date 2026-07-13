@@ -652,6 +652,7 @@ export type WorkPlanAlignmentCreateOrConnectWithoutChildPlanInput = {
 
 export type WorkPlanAlignmentCreateManyChildPlanInputEnvelope = {
   data: Prisma.WorkPlanAlignmentCreateManyChildPlanInput | Prisma.WorkPlanAlignmentCreateManyChildPlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanAlignmentCreateWithoutSourcePlanInput = {
@@ -684,6 +685,7 @@ export type WorkPlanAlignmentCreateOrConnectWithoutSourcePlanInput = {
 
 export type WorkPlanAlignmentCreateManySourcePlanInputEnvelope = {
   data: Prisma.WorkPlanAlignmentCreateManySourcePlanInput | Prisma.WorkPlanAlignmentCreateManySourcePlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanAlignmentUpsertWithWhereUniqueWithoutChildPlanInput = {
@@ -764,6 +766,7 @@ export type WorkPlanAlignmentCreateOrConnectWithoutSourceWorkItemInput = {
 
 export type WorkPlanAlignmentCreateManySourceWorkItemInputEnvelope = {
   data: Prisma.WorkPlanAlignmentCreateManySourceWorkItemInput | Prisma.WorkPlanAlignmentCreateManySourceWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanAlignmentUpsertWithWhereUniqueWithoutSourceWorkItemInput = {
@@ -1691,6 +1694,7 @@ export type WorkPlanAlignmentCreateManyArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many WorkPlanAlignments.
    */
   data: Prisma.WorkPlanAlignmentCreateManyInput | Prisma.WorkPlanAlignmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1709,6 +1713,7 @@ export type WorkPlanAlignmentCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * The data used to create many WorkPlanAlignments.
    */
   data: Prisma.WorkPlanAlignmentCreateManyInput | Prisma.WorkPlanAlignmentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

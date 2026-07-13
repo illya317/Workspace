@@ -816,6 +816,7 @@ export type HrPerformanceReviewCreateOrConnectWithoutEmployeeInput = {
 
 export type HrPerformanceReviewCreateManyEmployeeInputEnvelope = {
   data: Prisma.HrPerformanceReviewCreateManyEmployeeInput | Prisma.HrPerformanceReviewCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type HrPerformanceReviewUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -1748,6 +1749,7 @@ export type HrPerformanceReviewCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many HrPerformanceReviews.
    */
   data: Prisma.HrPerformanceReviewCreateManyInput | Prisma.HrPerformanceReviewCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1766,6 +1768,7 @@ export type HrPerformanceReviewCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many HrPerformanceReviews.
    */
   data: Prisma.HrPerformanceReviewCreateManyInput | Prisma.HrPerformanceReviewCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -8,6 +8,7 @@ export interface ReclassResultRow {
   id: number;
   periodId: number;
   voucherItemId: number;
+  sourceMissing?: boolean;
   voucherNo: string;
   voucherDate: string;
   relatedEntity: string | null;

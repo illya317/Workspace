@@ -1301,6 +1301,7 @@ export type LibraryDirectoryCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many LibraryDirectories.
    */
   data: Prisma.LibraryDirectoryCreateManyInput | Prisma.LibraryDirectoryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1319,6 +1320,7 @@ export type LibraryDirectoryCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many LibraryDirectories.
    */
   data: Prisma.LibraryDirectoryCreateManyInput | Prisma.LibraryDirectoryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

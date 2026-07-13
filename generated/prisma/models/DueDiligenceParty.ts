@@ -1261,6 +1261,7 @@ export type DueDiligencePartyCreateManyArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many DueDiligenceParties.
    */
   data: Prisma.DueDiligencePartyCreateManyInput | Prisma.DueDiligencePartyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1279,6 +1280,7 @@ export type DueDiligencePartyCreateManyAndReturnArgs<ExtArgs extends runtime.Typ
    * The data used to create many DueDiligenceParties.
    */
   data: Prisma.DueDiligencePartyCreateManyInput | Prisma.DueDiligencePartyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

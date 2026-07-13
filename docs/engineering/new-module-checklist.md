@@ -7,7 +7,7 @@
 ## 1. 数据库
 
 - [ ] Prisma model 定义，放 `prisma/models/<domain>.prisma`
-- [ ] 运行迁移：`npx prisma db push`（开发期）或生成 migration
+- [ ] 生成并审查 PostgreSQL migration，再在独立本地库运行 `npx prisma migrate deploy --schema=./prisma`；禁止 `db push`
 - [ ] 如需初始化数据，加 seed JSON 或 seed 脚本
 
 ## 2. RBAC 资源

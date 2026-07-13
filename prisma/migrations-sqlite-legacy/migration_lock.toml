@@ -1,0 +1,2 @@
+# Historical provider lock. This directory is audit-only.
+provider = "sqlite"

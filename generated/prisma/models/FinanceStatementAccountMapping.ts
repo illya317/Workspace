@@ -1239,6 +1239,7 @@ export type FinanceStatementAccountMappingCreateManyArgs<ExtArgs extends runtime
    * The data used to create many FinanceStatementAccountMappings.
    */
   data: Prisma.FinanceStatementAccountMappingCreateManyInput | Prisma.FinanceStatementAccountMappingCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1257,6 +1258,7 @@ export type FinanceStatementAccountMappingCreateManyAndReturnArgs<ExtArgs extend
    * The data used to create many FinanceStatementAccountMappings.
    */
   data: Prisma.FinanceStatementAccountMappingCreateManyInput | Prisma.FinanceStatementAccountMappingCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

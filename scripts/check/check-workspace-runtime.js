@@ -8,6 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { Client } = require("pg");
 
 const ROOT = path.resolve(__dirname, "..", "..");
 const REPO_ENV_FILE = path.join(ROOT, ".env");
@@ -75,11 +76,6 @@ function parseKeyValueFile(filePath) {
     values.set(key, value);
   }
   return values;
-}
-
-function stripFilePrefix(databaseUrl) {
-  if (!databaseUrl.startsWith("file:")) return "";
-  return databaseUrl.slice("file:".length).replace(/^\/\/(?=\/)/, "");
 }
 
 function resolveWorkspaceDir(repoEnv) {
@@ -187,69 +183,52 @@ function validateWorkspaceManifest(workspaceDir, opsEnv) {
   }
 }
 
-function validateDatabase(dbPath) {
-  if (!fs.existsSync(dbPath)) {
-    fail(`Database file missing: ${dbPath}`);
-    return;
-  }
-  if (fs.statSync(dbPath).size === 0) {
-    fail(`Database file is empty: ${dbPath}`);
-    return;
-  }
-
-  let Database;
+async function validateDatabase(databaseUrl, workspaceDir) {
+  const client = new Client({ connectionString: databaseUrl, application_name: "workspace-runtime-check" });
   try {
-    Database = require("better-sqlite3");
-  } catch {
-    warn("better-sqlite3 is not installed; skipped SQLite content checks");
-    return;
-  }
-
-  try {
-    const db = new Database(dbPath, { readonly: true, fileMustExist: true });
-    const quickCheck = db.prepare("PRAGMA quick_check").get();
-    if (quickCheck.quick_check !== "ok") {
-      fail(`SQLite quick_check failed: ${quickCheck.quick_check}`);
-    } else {
-      ok("SQLite quick_check passed");
-    }
-
-    const hasUser =
-      db.prepare("select count(*) as count from sqlite_master where type = 'table' and name = 'User'")
-        .get().count > 0;
-    if (!hasUser) {
+    await client.connect();
+    const health = await client.query(`
+      SELECT
+        to_regclass('public."User"') AS user_table,
+        count(*) FILTER (WHERE NOT convalidated)::int AS unvalidated
+      FROM pg_constraint
+      WHERE connamespace = 'public'::regnamespace
+    `);
+    if (!health.rows[0].user_table) {
       fail("Database does not contain User table");
-      db.close();
       return;
     }
-
-    const users = db.prepare("select count(*) as count from User").get().count;
-    const wxUsers = db
-      .prepare(
-        "select count(*) as count from User where wxUserId is not null and length(trim(wxUserId)) > 0"
-      )
-      .get().count;
-    ok(`Database users: ${users}; WeCom-linked users: ${wxUsers}`);
-    validateDocsEditorContentRefs(db, path.dirname(dbPath));
-    db.close();
+    if (health.rows[0].unvalidated !== 0) fail(`PostgreSQL has ${health.rows[0].unvalidated} unvalidated constraints`);
+    else ok("PostgreSQL constraints are validated");
+    const users = await client.query(`
+      SELECT count(*)::int AS users,
+             count(*) FILTER (WHERE "wxUserId" IS NOT NULL AND length(trim("wxUserId")) > 0)::int AS wx_users
+      FROM "User"
+    `);
+    ok(`Database users: ${users.rows[0].users}; WeCom-linked users: ${users.rows[0].wx_users}`);
+    const failedMigrations = await client.query(`
+      SELECT migration_name FROM "_prisma_migrations"
+      WHERE finished_at IS NULL AND rolled_back_at IS NULL
+    `);
+    if (failedMigrations.rowCount > 0) fail(`PostgreSQL has failed migrations: ${failedMigrations.rows.map((row) => row.migration_name).join(", ")}`);
+    else ok("PostgreSQL migration history has no failed entries");
+    await validateDocsEditorContentRefs(client, workspaceDir);
   } catch (error) {
-    fail(`Cannot read SQLite database: ${error.message}`);
+    fail(`Cannot validate PostgreSQL database: ${error.message}`);
+  } finally {
+    await client.end().catch(() => undefined);
   }
 }
 
-function validateDocsEditorContentRefs(db, dataDir) {
-  const hasDocumentTemplate =
-    db.prepare("select count(*) as count from sqlite_master where type = 'table' and name = 'DocumentTemplate'")
-      .get().count > 0;
-  if (!hasDocumentTemplate) return;
-
-  const rows = db.prepare(`
-    select id, title, documentContentRef, fieldModelContentRef
-    from DocumentTemplate
-    where deletedAt is null
-      and (documentContentRef is not null or fieldModelContentRef is not null)
-    order by id asc
-  `).all();
+async function validateDocsEditorContentRefs(client, workspaceDir) {
+  const result = await client.query(`
+    SELECT id, title, "documentContentRef", "fieldModelContentRef"
+    FROM "DocumentTemplate"
+    WHERE "deletedAt" IS NULL
+      AND ("documentContentRef" IS NOT NULL OR "fieldModelContentRef" IS NOT NULL)
+    ORDER BY id ASC
+  `);
+  const rows = result.rows;
   let legacyCurrentRefs = 0;
   for (const row of rows) {
     const refs = [
@@ -266,7 +245,7 @@ function validateDocsEditorContentRefs(db, dataDir) {
         continue;
       }
       if (/^data\/docs-editor\/templates\/\d+\//.test(ref)) legacyCurrentRefs += 1;
-      const filePath = path.join(path.dirname(dataDir), ref);
+      const filePath = path.join(workspaceDir, ref);
       if (!fs.existsSync(filePath)) {
         fail(`Docs editor template #${row.id} ${row.title} ${label} content file missing: ${filePath}`);
         continue;
@@ -282,7 +261,7 @@ function validateDocsEditorContentRefs(db, dataDir) {
     warn(`Docs editor has ${legacyCurrentRefs} current legacy flat content ref(s); run docs-editor:content:rehome`);
   }
 
-  const legacyRoot = path.join(dataDir, "docs-editor", "templates");
+  const legacyRoot = path.join(workspaceDir, "data", "docs-editor", "templates");
   const legacyDirs = fs.existsSync(legacyRoot)
     ? fs.readdirSync(legacyRoot).filter((entry) => /^\d+$/.test(entry))
     : [];
@@ -294,6 +273,7 @@ function validateDocsEditorContentRefs(db, dataDir) {
 function validateEnv(workspaceDir, workspaceEnv) {
   const requiredKeys = [
     "DATABASE_URL",
+    "DIRECT_URL",
     "NEXTAUTH_SECRET",
     "WORKSPACE_CONFIG_DIR",
     "NEXT_PUBLIC_BASE_PATH",
@@ -319,29 +299,28 @@ function validateEnv(workspaceDir, workspaceEnv) {
   }
 
   const databaseUrl = workspaceEnv.get("DATABASE_URL") || "";
-  const databasePath = stripFilePrefix(databaseUrl);
-  if (!databasePath) {
-    fail("DATABASE_URL must use file: for this SQLite deployment");
+  const directUrl = workspaceEnv.get("DIRECT_URL") || "";
+  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl) || !/^postgres(?:ql)?:\/\//.test(directUrl)) {
+    fail("DATABASE_URL and DIRECT_URL must use PostgreSQL");
     return "";
   }
-  if (!path.isAbsolute(databasePath)) {
-    fail("DATABASE_URL must be absolute; relative SQLite paths split data by cwd");
+  try {
+    const pooled = new URL(databaseUrl);
+    const direct = new URL(directUrl);
+    if (!pooled.hostname || !direct.hostname || pooled.pathname === "/" || direct.pathname === "/") {
+      fail("PostgreSQL URLs must include host and database name");
+      return "";
+    }
+    if (pooled.pathname !== direct.pathname) {
+      fail("DATABASE_URL and DIRECT_URL must select the same database");
+      return "";
+    }
+  } catch {
+    fail("DATABASE_URL or DIRECT_URL is invalid");
     return "";
   }
-
-  const expectedDbPath = path.join(workspaceDir, "data", "dev.db");
-  const resolvedDbPath = fs.existsSync(databasePath)
-    ? fs.realpathSync(databasePath)
-    : path.resolve(databasePath);
-  const resolvedExpected = fs.existsSync(expectedDbPath)
-    ? fs.realpathSync(expectedDbPath)
-    : path.resolve(expectedDbPath);
-  if (resolvedDbPath !== resolvedExpected) {
-    fail(`DATABASE_URL points outside workspace data/dev.db: ${databasePath}`);
-  } else {
-    ok("DATABASE_URL points to workspace data/dev.db");
-  }
-  return databasePath;
+  ok("DATABASE_URL and DIRECT_URL select the same PostgreSQL database");
+  return directUrl;
 }
 
 async function main() {
@@ -385,7 +364,6 @@ async function main() {
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
   validateWorkspaceManifest(workspaceDir, opsEnv);
-  validateRequiredFile(workspaceDir, "data/dev.db", "workspace database");
   validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.png", "favicon.png");
@@ -408,8 +386,8 @@ async function main() {
   validateRequiredFile(workspaceDir, "config/pharma-qc/records", "QC records config directory");
 
   const workspaceEnv = parseKeyValueFile(workspaceEnvPath);
-  const databasePath = validateEnv(workspaceDir, workspaceEnv);
-  if (databasePath) validateDatabase(databasePath);
+  const databaseUrl = validateEnv(workspaceDir, workspaceEnv);
+  if (databaseUrl) await validateDatabase(databaseUrl, workspaceDir);
 
   if (options.strict && warnings.length > 0) {
     fail(`Strict mode treats ${warnings.length} warning(s) as failures`);

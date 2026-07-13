@@ -162,14 +162,14 @@ export async function listPermissionGrantLedgerEvents(input: PermissionGrantLedg
   const query = input.query?.trim();
   if (query) {
     where.OR = [
-      { actorLabel: { contains: query } },
-      { subjectLabel: { contains: query } },
-      { resourceKey: { contains: query } },
-      { resourceName: { contains: query } },
-      { actionKey: { contains: query } },
-      { scopeId: { contains: query } },
-      { source: { contains: query } },
-      { batchId: { contains: query } },
+      { actorLabel: { contains: query, mode: "insensitive" } },
+      { subjectLabel: { contains: query, mode: "insensitive" } },
+      { resourceKey: { contains: query, mode: "insensitive" } },
+      { resourceName: { contains: query, mode: "insensitive" } },
+      { actionKey: { contains: query, mode: "insensitive" } },
+      { scopeId: { contains: query, mode: "insensitive" } },
+      { source: { contains: query, mode: "insensitive" } },
+      { batchId: { contains: query, mode: "insensitive" } },
     ];
   }
 

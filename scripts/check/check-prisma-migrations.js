@@ -9,6 +9,7 @@ const migrationsDir = path.join(prismaDir, "migrations");
 const schemaPath = path.join(prismaDir, "schema.prisma");
 const configPath = path.join(repoRoot, "prisma.config.ts");
 const lockPath = path.join(migrationsDir, "migration_lock.toml");
+const staticOnly = process.argv.slice(2).includes("--static");
 
 function fail(message) {
   console.error(`✗ ${message}`);
@@ -19,20 +20,20 @@ function ok(message) {
   console.log(`✓ ${message}`);
 }
 
-function scanSqliteUnsupportedMigrationSql(migrationName, sql) {
+function scanPostgresqlMigrationSql(migrationName, sql) {
   const violations = [];
   const checks = [
     {
-      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bADD\s+CONSTRAINT\b/i,
-      message: "SQLite does not support ALTER TABLE ... ADD CONSTRAINT; declare the constraint in CREATE TABLE or ADD COLUMN REFERENCES instead",
+      pattern: /\bPRAGMA\b/i,
+      message: "PRAGMA is SQLite-only",
     },
     {
-      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bDROP\s+CONSTRAINT\b/i,
-      message: "SQLite does not support ALTER TABLE ... DROP CONSTRAINT; rebuild the table in the migration instead",
+      pattern: /\bAUTOINCREMENT\b/i,
+      message: "AUTOINCREMENT is SQLite-only; use PostgreSQL identity/sequence syntax",
     },
     {
-      pattern: /\bALTER\s+TABLE\b[\s\S]*?\bALTER\s+COLUMN\b/i,
-      message: "SQLite does not support ALTER TABLE ... ALTER COLUMN; rebuild the table in the migration instead",
+      pattern: /\bsqlite_(?:master|sequence)\b/i,
+      message: "sqlite_master/sqlite_sequence are SQLite-only",
     },
   ];
 
@@ -41,7 +42,7 @@ function scanSqliteUnsupportedMigrationSql(migrationName, sql) {
   }
 
   if (violations.length === 0) return;
-  fail(`migration contains SQLite-unsupported SQL: prisma/migrations/${migrationName}/migration.sql\n${violations.map((item) => `  - ${item}`).join("\n")}`);
+  fail(`migration contains non-PostgreSQL SQL: prisma/migrations/${migrationName}/migration.sql\n${violations.map((item) => `  - ${item}`).join("\n")}`);
 }
 
 function run(command, args, options = {}) {
@@ -79,16 +80,43 @@ for (const migrationName of migrationDirs) {
   if (fs.statSync(migrationSql).size === 0) {
     fail(`migration.sql 为空: prisma/migrations/${migrationName}/migration.sql`);
   }
-  scanSqliteUnsupportedMigrationSql(migrationName, fs.readFileSync(migrationSql, "utf8"));
+  scanPostgresqlMigrationSql(migrationName, fs.readFileSync(migrationSql, "utf8"));
 }
 ok(`Found ${migrationDirs.length} Prisma migrations`);
-ok("Prisma migrations avoid SQLite-unsupported ALTER TABLE constraint syntax");
+ok("Prisma migrations contain PostgreSQL-compatible SQL");
 
 const lockText = fs.readFileSync(lockPath, "utf8");
-if (!/provider\s*=\s*"sqlite"/.test(lockText)) {
-  fail("migration_lock.toml provider 必须是 sqlite");
+if (!/provider\s*=\s*"postgresql"/.test(lockText)) {
+  fail("migration_lock.toml provider 必须是 postgresql");
 }
-ok("Prisma migration lock provider is sqlite");
+ok("Prisma migration lock provider is postgresql");
+
+const legacyDir = path.join(prismaDir, "migrations-sqlite-legacy");
+if (!fs.existsSync(legacyDir) || fs.readdirSync(legacyDir, { withFileTypes: true }).filter((entry) => entry.isDirectory()).length === 0) {
+  fail("缺少只读 SQLite legacy migration 归档: prisma/migrations-sqlite-legacy");
+}
+ok("SQLite legacy migrations are archived outside the active PostgreSQL history");
+
+const baselineSql = fs.readFileSync(path.join(migrationsDir, migrationDirs[0], "migration.sql"), "utf8");
+const foreignKeyCount = (baselineSql.match(/\bFOREIGN KEY\b/g) || []).length;
+const deferredForeignKeyCount = (baselineSql.match(/\bDEFERRABLE INITIALLY DEFERRED\b/g) || []).length;
+if (foreignKeyCount === 0 || foreignKeyCount !== deferredForeignKeyCount) {
+  fail(`PostgreSQL baseline foreign keys must be deferred for atomic SQLite ETL (${deferredForeignKeyCount}/${foreignKeyCount})`);
+}
+for (const invariant of [
+  "idx_active_budget_version",
+  "User_username_nonempty_check",
+  "LibraryDocument_confidentialityLevel_check",
+  "DepartmentCollaborationPosition_kind_check",
+]) {
+  if (!baselineSql.includes(invariant)) fail(`PostgreSQL baseline is missing custom invariant: ${invariant}`);
+}
+ok(`PostgreSQL baseline preserves ${foreignKeyCount} deferred foreign keys and four custom invariants`);
+
+if (staticOnly) {
+  ok("Static PostgreSQL migration checks passed (database diff intentionally skipped)");
+  process.exit(0);
+}
 
 const diff = run("npx", [
   "prisma",
@@ -108,17 +136,9 @@ if (diff.status === 2) {
   fail("Prisma schema 与 migrations 存在差异，请生成并提交 migration");
 }
 
-if (diff.status === 0) {
-  ok("Prisma migrations match schema");
-} else {
-  const output = `${diff.stdout || ""}\n${diff.stderr || ""}`;
-  if (/P3006/.test(output)) {
-    console.warn(
-      "⚠ Prisma 历史 migrations 无法从空库完整回放；已完成强制存在性检查，schema 合法性由 db:validate 负责，真实生产升级仍由 deploy 阶段的 prisma migrate deploy 强制执行。",
-    );
-  } else {
-    process.stdout.write(diff.stdout || "");
-    process.stderr.write(diff.stderr || "");
-    fail("Prisma migration diff check failed");
-  }
+if (diff.status !== 0) {
+  process.stdout.write(diff.stdout || "");
+  process.stderr.write(diff.stderr || "");
+  fail("Prisma migration diff check failed");
 }
+ok("Prisma migrations match schema");

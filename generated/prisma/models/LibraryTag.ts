@@ -1404,6 +1404,7 @@ export type LibraryTagCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many LibraryTags.
    */
   data: Prisma.LibraryTagCreateManyInput | Prisma.LibraryTagCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1422,6 +1423,7 @@ export type LibraryTagCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many LibraryTags.
    */
   data: Prisma.LibraryTagCreateManyInput | Prisma.LibraryTagCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

@@ -10,8 +10,24 @@ jobs:
   ci:
     runs-on: ubuntu-latest
     env:
-      DATABASE_URL: file:./prisma/dev.db
+      DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+      DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+      SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
       NEXTAUTH_SECRET: github-actions-ci-secret-2026
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: workspace
+          POSTGRES_PASSWORD: workspace
+          POSTGRES_DB: workspace_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U workspace -d workspace_ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     steps:
       - uses: actions/checkout@v4
 
@@ -23,6 +39,15 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Create Prisma shadow database
+        run: PGPASSWORD=workspace createdb -h 127.0.0.1 -U workspace workspace_ci_shadow
+
+      - name: Apply PostgreSQL baseline and runtime smoke
+        run: |
+          npx prisma migrate deploy --schema=./prisma
+          npm run db:seed:resources
+          npm run db:postgresql:ci-smoke
 
       - name: Run CI checks
         run: npm run ci

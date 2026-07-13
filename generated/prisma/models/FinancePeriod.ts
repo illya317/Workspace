@@ -1528,6 +1528,7 @@ export type FinancePeriodCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many FinancePeriods.
    */
   data: Prisma.FinancePeriodCreateManyInput | Prisma.FinancePeriodCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1546,6 +1547,7 @@ export type FinancePeriodCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many FinancePeriods.
    */
   data: Prisma.FinancePeriodCreateManyInput | Prisma.FinancePeriodCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

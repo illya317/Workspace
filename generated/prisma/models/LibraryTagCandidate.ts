@@ -901,6 +901,7 @@ export type LibraryTagCandidateCreateOrConnectWithoutReviewerInput = {
 
 export type LibraryTagCandidateCreateManyReviewerInputEnvelope = {
   data: Prisma.LibraryTagCandidateCreateManyReviewerInput | Prisma.LibraryTagCandidateCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryTagCandidateUpsertWithWhereUniqueWithoutReviewerInput = {
@@ -989,6 +990,7 @@ export type LibraryTagCandidateCreateOrConnectWithoutDocumentInput = {
 
 export type LibraryTagCandidateCreateManyDocumentInputEnvelope = {
   data: Prisma.LibraryTagCandidateCreateManyDocumentInput | Prisma.LibraryTagCandidateCreateManyDocumentInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryTagCandidateUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -1053,6 +1055,7 @@ export type LibraryTagCandidateCreateOrConnectWithoutVersionInput = {
 
 export type LibraryTagCandidateCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryTagCandidateCreateManyVersionInput | Prisma.LibraryTagCandidateCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryTagCandidateUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1117,6 +1120,7 @@ export type LibraryTagCandidateCreateOrConnectWithoutTagInput = {
 
 export type LibraryTagCandidateCreateManyTagInputEnvelope = {
   data: Prisma.LibraryTagCandidateCreateManyTagInput | Prisma.LibraryTagCandidateCreateManyTagInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryTagCandidateUpsertWithWhereUniqueWithoutTagInput = {
@@ -2275,6 +2279,7 @@ export type LibraryTagCandidateCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many LibraryTagCandidates.
    */
   data: Prisma.LibraryTagCandidateCreateManyInput | Prisma.LibraryTagCandidateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2293,6 +2298,7 @@ export type LibraryTagCandidateCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many LibraryTagCandidates.
    */
   data: Prisma.LibraryTagCandidateCreateManyInput | Prisma.LibraryTagCandidateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

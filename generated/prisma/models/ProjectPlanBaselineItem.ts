@@ -619,6 +619,7 @@ export type ProjectPlanBaselineItemCreateOrConnectWithoutBaselineInput = {
 
 export type ProjectPlanBaselineItemCreateManyBaselineInputEnvelope = {
   data: Prisma.ProjectPlanBaselineItemCreateManyBaselineInput | Prisma.ProjectPlanBaselineItemCreateManyBaselineInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectPlanBaselineItemUpsertWithWhereUniqueWithoutBaselineInput = {
@@ -1474,6 +1475,7 @@ export type ProjectPlanBaselineItemCreateManyArgs<ExtArgs extends runtime.Types.
    * The data used to create many ProjectPlanBaselineItems.
    */
   data: Prisma.ProjectPlanBaselineItemCreateManyInput | Prisma.ProjectPlanBaselineItemCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1492,6 +1494,7 @@ export type ProjectPlanBaselineItemCreateManyAndReturnArgs<ExtArgs extends runti
    * The data used to create many ProjectPlanBaselineItems.
    */
   data: Prisma.ProjectPlanBaselineItemCreateManyInput | Prisma.ProjectPlanBaselineItemCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

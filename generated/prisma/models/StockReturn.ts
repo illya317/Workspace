@@ -1097,6 +1097,7 @@ export type StockReturnCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many StockReturns.
    */
   data: Prisma.StockReturnCreateManyInput | Prisma.StockReturnCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1115,6 +1116,7 @@ export type StockReturnCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many StockReturns.
    */
   data: Prisma.StockReturnCreateManyInput | Prisma.StockReturnCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

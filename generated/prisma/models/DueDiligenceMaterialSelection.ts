@@ -637,6 +637,7 @@ export type DueDiligenceMaterialSelectionCreateOrConnectWithoutDocumentInput = {
 
 export type DueDiligenceMaterialSelectionCreateManyDocumentInputEnvelope = {
   data: Prisma.DueDiligenceMaterialSelectionCreateManyDocumentInput | Prisma.DueDiligenceMaterialSelectionCreateManyDocumentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DueDiligenceMaterialSelectionUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -698,6 +699,7 @@ export type DueDiligenceMaterialSelectionCreateOrConnectWithoutDocumentVersionIn
 
 export type DueDiligenceMaterialSelectionCreateManyDocumentVersionInputEnvelope = {
   data: Prisma.DueDiligenceMaterialSelectionCreateManyDocumentVersionInput | Prisma.DueDiligenceMaterialSelectionCreateManyDocumentVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type DueDiligenceMaterialSelectionUpsertWithWhereUniqueWithoutDocumentVersionInput = {
@@ -744,6 +746,7 @@ export type DueDiligenceMaterialSelectionCreateOrConnectWithoutQuestionInput = {
 
 export type DueDiligenceMaterialSelectionCreateManyQuestionInputEnvelope = {
   data: Prisma.DueDiligenceMaterialSelectionCreateManyQuestionInput | Prisma.DueDiligenceMaterialSelectionCreateManyQuestionInput[]
+  skipDuplicates?: boolean
 }
 
 export type DueDiligenceMaterialSelectionUpsertWithWhereUniqueWithoutQuestionInput = {
@@ -1653,6 +1656,7 @@ export type DueDiligenceMaterialSelectionCreateManyArgs<ExtArgs extends runtime.
    * The data used to create many DueDiligenceMaterialSelections.
    */
   data: Prisma.DueDiligenceMaterialSelectionCreateManyInput | Prisma.DueDiligenceMaterialSelectionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1671,6 +1675,7 @@ export type DueDiligenceMaterialSelectionCreateManyAndReturnArgs<ExtArgs extends
    * The data used to create many DueDiligenceMaterialSelections.
    */
   data: Prisma.DueDiligenceMaterialSelectionCreateManyInput | Prisma.DueDiligenceMaterialSelectionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -860,6 +860,7 @@ export type WorkResponsibilityReferenceCreateOrConnectWithoutResponsibilityNodeI
 
 export type WorkResponsibilityReferenceCreateManyResponsibilityNodeInputEnvelope = {
   data: Prisma.WorkResponsibilityReferenceCreateManyResponsibilityNodeInput | Prisma.WorkResponsibilityReferenceCreateManyResponsibilityNodeInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutResponsibilityNodeInput = {
@@ -954,6 +955,7 @@ export type WorkResponsibilityReferenceCreateOrConnectWithoutWorkItemInput = {
 
 export type WorkResponsibilityReferenceCreateManyWorkItemInputEnvelope = {
   data: Prisma.WorkResponsibilityReferenceCreateManyWorkItemInput | Prisma.WorkResponsibilityReferenceCreateManyWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkResponsibilityReferenceUpsertWithWhereUniqueWithoutWorkItemInput = {
@@ -1966,6 +1968,7 @@ export type WorkResponsibilityReferenceCreateManyArgs<ExtArgs extends runtime.Ty
    * The data used to create many WorkResponsibilityReferences.
    */
   data: Prisma.WorkResponsibilityReferenceCreateManyInput | Prisma.WorkResponsibilityReferenceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1984,6 +1987,7 @@ export type WorkResponsibilityReferenceCreateManyAndReturnArgs<ExtArgs extends r
    * The data used to create many WorkResponsibilityReferences.
    */
   data: Prisma.WorkResponsibilityReferenceCreateManyInput | Prisma.WorkResponsibilityReferenceCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

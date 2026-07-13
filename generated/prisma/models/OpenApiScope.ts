@@ -580,6 +580,7 @@ export type OpenApiScopeCreateOrConnectWithoutResourceInput = {
 
 export type OpenApiScopeCreateManyResourceInputEnvelope = {
   data: Prisma.OpenApiScopeCreateManyResourceInput | Prisma.OpenApiScopeCreateManyResourceInput[]
+  skipDuplicates?: boolean
 }
 
 export type OpenApiScopeUpsertWithWhereUniqueWithoutResourceInput = {
@@ -1516,6 +1517,7 @@ export type OpenApiScopeCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many OpenApiScopes.
    */
   data: Prisma.OpenApiScopeCreateManyInput | Prisma.OpenApiScopeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1534,6 +1536,7 @@ export type OpenApiScopeCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many OpenApiScopes.
    */
   data: Prisma.OpenApiScopeCreateManyInput | Prisma.OpenApiScopeCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

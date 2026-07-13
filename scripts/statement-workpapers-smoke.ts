@@ -16,15 +16,15 @@
  */
 
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
-import { requireDatabasePath } from "./lib/database-url.js";
+import { requireDatabaseUrl } from "./lib/database-url.js";
 import {
   getOrCreateDraft,
   saveWorkpaper,
 } from "@workspace/finance/server/statements/workpapers/service";
 
-const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: requireDatabaseUrl(), application_name: "workspace-finance-workpaper-smoke" }) });
 
 const TEST = { companyCode: "02", year: 2099, month: 11, reportType: "incomeStatement" as const };
 

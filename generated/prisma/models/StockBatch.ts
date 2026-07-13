@@ -1181,6 +1181,7 @@ export type StockBatchCreateManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * The data used to create many StockBatches.
    */
   data: Prisma.StockBatchCreateManyInput | Prisma.StockBatchCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1199,6 +1200,7 @@ export type StockBatchCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many StockBatches.
    */
   data: Prisma.StockBatchCreateManyInput | Prisma.StockBatchCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

@@ -1498,6 +1498,7 @@ export type FinanceStatementLineConfigCreateManyArgs<ExtArgs extends runtime.Typ
    * The data used to create many FinanceStatementLineConfigs.
    */
   data: Prisma.FinanceStatementLineConfigCreateManyInput | Prisma.FinanceStatementLineConfigCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1516,6 +1517,7 @@ export type FinanceStatementLineConfigCreateManyAndReturnArgs<ExtArgs extends ru
    * The data used to create many FinanceStatementLineConfigs.
    */
   data: Prisma.FinanceStatementLineConfigCreateManyInput | Prisma.FinanceStatementLineConfigCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

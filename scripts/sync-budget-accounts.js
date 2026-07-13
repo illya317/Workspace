@@ -1,9 +1,10 @@
-const Database = require('better-sqlite3');
+require('dotenv/config');
+const { Client } = require('pg');
 const xlsx = require('xlsx');
 const path = require('path');
-const { requireDatabasePath } = require('./lib/database-url.js');
+const { requireDatabaseUrl } = require('./lib/database-url.js');
 
-const DB_PATH = requireDatabasePath();
+const DATABASE_URL = requireDatabaseUrl();
 
 function readDeptBudgetAccounts() {
   const filePath = path.join(process.cwd(), 'prisma/seed-data/预算/部门费用预算数据.xlsx');
@@ -40,10 +41,13 @@ function readRdBudgetCategories() {
   return Array.from(accounts);
 }
 
-function syncBudgetAccounts() {
+async function syncBudgetAccounts() {
   console.log('=== Sync Budget Accounts to FinanceAccount ===\n');
 
-  const db = new Database(DB_PATH);
+  const db = new Client({ connectionString: DATABASE_URL, application_name: 'workspace-budget-account-sync' });
+  await db.connect();
+  await db.query('BEGIN');
+  try {
 
   const deptAccounts = readDeptBudgetAccounts();
   const rdAccounts = readRdBudgetCategories();
@@ -53,7 +57,7 @@ function syncBudgetAccounts() {
   console.log(`Total unique: ${new Set([...deptAccounts, ...rdAccounts]).size}\n`);
 
   // Get existing names
-  const existingRows = db.prepare('SELECT id, name, code, isActive FROM FinanceAccount').all();
+  const existingRows = (await db.query('SELECT id, name, code, "isActive" FROM "FinanceAccount"')).rows;
   const existingByName = new Map();
   for (const row of existingRows) {
     if (!existingByName.has(row.name)) existingByName.set(row.name, row);
@@ -63,7 +67,7 @@ function syncBudgetAccounts() {
   let foundCount = 0;
 
   // Find next available BUDGET code sequence
-  const budgetCodes = db.prepare("SELECT code FROM FinanceAccount WHERE code LIKE 'BUDGET-%'").all();
+  const budgetCodes = (await db.query("SELECT code FROM \"FinanceAccount\" WHERE code LIKE 'BUDGET-%'")).rows;
   let maxSeq = 0;
   for (const { code } of budgetCodes) {
     const match = code.match(/BUDGET-[A-Z]+-(\d+)/);
@@ -71,7 +75,7 @@ function syncBudgetAccounts() {
   }
   let seq = maxSeq + 1;
 
-  function findOrCreate(name, prefix) {
+  async function findOrCreate(name, prefix) {
     const existing = existingByName.get(name);
     if (existing) {
       foundCount++;
@@ -82,31 +86,41 @@ function syncBudgetAccounts() {
     const code = `BUDGET-${prefix}-${String(seq).padStart(3, '0')}`;
     seq++;
 
-    const result = db.prepare(`
-      INSERT INTO FinanceAccount (code, name, category, balanceDirection, isActive, companyCode, year, mnemonicCode, currency, groupSubjectCode, subjectLevel, sortOrder, createdAt, updatedAt)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, datetime('now'), datetime('now'))
-    `).run(code, name, 'other', 'debit', 0, null, null, null, null, null, null, 0);
+    const result = await db.query(`
+      INSERT INTO "FinanceAccount" (code, name, category, "balanceDirection", "isActive", "companyCode", year, "mnemonicCode", currency, "groupSubjectCode", "subjectLevel", "sortOrder", "createdAt", "updatedAt")
+      VALUES ($1, $2, $3, $4, FALSE, NULL, NULL, NULL, NULL, NULL, NULL, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+      RETURNING id
+    `, [code, name, 'other', 'debit']);
 
     createdCount++;
-    console.log(`  [CREATED] ${code} | ${name} (inactive, id=${result.lastInsertRowid})`);
-    return result.lastInsertRowid;
+    console.log(`  [CREATED] ${code} | ${name} (inactive, id=${result.rows[0].id})`);
+    return result.rows[0].id;
   }
 
   console.log('--- Department Budget Accounts ---');
   for (let i = 0; i < deptAccounts.length; i++) {
-    findOrCreate(deptAccounts[i], 'DEPT');
+    await findOrCreate(deptAccounts[i], 'DEPT');
   }
 
   console.log('\n--- R&D Budget Accounts ---');
   for (let i = 0; i < rdAccounts.length; i++) {
-    findOrCreate(rdAccounts[i], 'RD');
+    await findOrCreate(rdAccounts[i], 'RD');
   }
 
   console.log(`\n=== Summary ===`);
   console.log(`Found existing: ${foundCount}`);
   console.log(`Created new (inactive): ${createdCount}`);
 
-  db.close();
+    await db.query('COMMIT');
+  } catch (error) {
+    await db.query('ROLLBACK').catch(() => undefined);
+    throw error;
+  } finally {
+    await db.end();
+  }
 }
 
-syncBudgetAccounts();
+syncBudgetAccounts().catch((error) => {
+  console.error(error);
+  process.exit(1);
+});

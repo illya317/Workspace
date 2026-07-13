@@ -4,7 +4,7 @@ import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import * as XLSX from "xlsx";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma/client";
 
 type StructuredTask = {
@@ -39,19 +39,15 @@ function expandTilde(input: string) {
   return input;
 }
 
-function requireDatabasePath() {
-  const databaseUrl = process.env.DATABASE_URL?.trim();
+function requireDatabaseUrl() {
+  const databaseUrl = (process.env.DIRECT_URL || process.env.DATABASE_URL)?.trim();
   if (!databaseUrl) {
     throw new Error("DATABASE_URL 未配置，无法导入本地数据库。");
   }
-  if (!databaseUrl.startsWith("file:")) {
-    throw new Error(`当前 DATABASE_URL 不是 SQLite file: 路径：${databaseUrl}`);
+  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl)) {
+    throw new Error("DIRECT_URL 或 DATABASE_URL 必须使用 PostgreSQL");
   }
-  const dbPath = expandTilde(databaseUrl.slice("file:".length).replace(/^"|"$/g, ""));
-  if (!path.isAbsolute(dbPath)) {
-    throw new Error(`DATABASE_URL 必须是绝对路径，当前为：${dbPath}`);
-  }
-  return dbPath;
+  return databaseUrl;
 }
 
 function parseArgs(argv: string[]): CliOptions {
@@ -324,8 +320,8 @@ async function confirmImport(prisma: PrismaClient, importedCodes: string[]) {
 
 async function main() {
   const options = parseArgs(process.argv.slice(2));
-  const dbPath = requireDatabasePath();
-  const adapter = new PrismaBetterSqlite3({ url: dbPath });
+  const databaseUrl = requireDatabaseUrl();
+  const adapter = new PrismaPg({ connectionString: databaseUrl, application_name: "workspace-company-project-import" });
   const prisma = new PrismaClient({ adapter });
 
   try {

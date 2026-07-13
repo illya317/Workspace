@@ -3,33 +3,24 @@
  * 运行: npx tsx scripts/seed-resources.ts
  */
 import "dotenv/config";
-import { mkdirSync } from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { PrismaClient } from "../generated/prisma/client";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { RESOURCE_DEFS } from "../packages/platform/resources";
 import {
   getPermissionResourceActionPolicy,
   serializePermissionScopeTypes,
 } from "../packages/platform/permission-resource-policy";
 
-const scriptDir = path.dirname(fileURLToPath(import.meta.url));
-const workspaceRoot = path.resolve(scriptDir, "..");
-
-function resolveDatabasePath() {
-  const databaseUrl = process.env.DATABASE_URL?.trim();
-  const rawPath = databaseUrl
-    ? databaseUrl.replace(/^file:/, "")
-    : path.resolve(workspaceRoot, "../.workspace/data/dev.db");
-
-  const databasePath = path.isAbsolute(rawPath) ? rawPath : path.resolve(workspaceRoot, rawPath);
-  mkdirSync(path.dirname(databasePath), { recursive: true });
-  return databasePath;
+function requireDatabaseUrl() {
+  const databaseUrl = (process.env.DIRECT_URL || process.env.DATABASE_URL || "").trim();
+  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl)) {
+    throw new Error("DIRECT_URL or DATABASE_URL must use PostgreSQL");
+  }
+  return databaseUrl;
 }
 
-const databasePath = resolveDatabasePath();
-const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: databasePath }) });
+const databaseUrl = requireDatabaseUrl();
+const p = new PrismaClient({ adapter: new PrismaPg({ connectionString: databaseUrl, application_name: "workspace-resource-seed" }) });
 const activeResourceKeys = RESOURCE_DEFS.map((resource) => resource.key);
 
 async function upsertResource(
@@ -86,10 +77,11 @@ async function main() {
     }
   }
 
-  console.log(`✅ Resources seeded: ${databasePath}`);
+  console.log("✅ Resources seeded in PostgreSQL");
   const all = await p.resource.findMany({ orderBy: { key: "asc" }, select: { key: true, name: true } });
   all.forEach((r) => console.log(`  ${r.key} — ${r.name}`));
-  await p.$disconnect();
 }
 
-main().catch((e) => { console.error(e); process.exit(1); });
+main()
+  .catch((e) => { console.error(e); process.exitCode = 1; })
+  .finally(() => p.$disconnect());

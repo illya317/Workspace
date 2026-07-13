@@ -968,6 +968,7 @@ export type LibraryProcessingJobCreateOrConnectWithoutVersionInput = {
 
 export type LibraryProcessingJobCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryProcessingJobCreateManyVersionInput | Prisma.LibraryProcessingJobCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryProcessingJobUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1959,6 +1960,7 @@ export type LibraryProcessingJobCreateManyArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many LibraryProcessingJobs.
    */
   data: Prisma.LibraryProcessingJobCreateManyInput | Prisma.LibraryProcessingJobCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1977,6 +1979,7 @@ export type LibraryProcessingJobCreateManyAndReturnArgs<ExtArgs extends runtime.
    * The data used to create many LibraryProcessingJobs.
    */
   data: Prisma.LibraryProcessingJobCreateManyInput | Prisma.LibraryProcessingJobCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -558,6 +558,7 @@ export type MeetingSeriesCreateOrConnectWithoutTypeInput = {
 
 export type MeetingSeriesCreateManyTypeInputEnvelope = {
   data: Prisma.MeetingSeriesCreateManyTypeInput | Prisma.MeetingSeriesCreateManyTypeInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingSeriesUpsertWithWhereUniqueWithoutTypeInput = {
@@ -1479,6 +1480,7 @@ export type MeetingSeriesCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many MeetingSeries.
    */
   data: Prisma.MeetingSeriesCreateManyInput | Prisma.MeetingSeriesCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1497,6 +1499,7 @@ export type MeetingSeriesCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many MeetingSeries.
    */
   data: Prisma.MeetingSeriesCreateManyInput | Prisma.MeetingSeriesCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

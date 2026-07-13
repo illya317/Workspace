@@ -698,6 +698,7 @@ export type LibraryEntityMentionCreateOrConnectWithoutChunkInput = {
 
 export type LibraryEntityMentionCreateManyChunkInputEnvelope = {
   data: Prisma.LibraryEntityMentionCreateManyChunkInput | Prisma.LibraryEntityMentionCreateManyChunkInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEntityMentionUpsertWithWhereUniqueWithoutChunkInput = {
@@ -774,6 +775,7 @@ export type LibraryEntityMentionCreateOrConnectWithoutVersionInput = {
 
 export type LibraryEntityMentionCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryEntityMentionCreateManyVersionInput | Prisma.LibraryEntityMentionCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEntityMentionUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1702,6 +1704,7 @@ export type LibraryEntityMentionCreateManyArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many LibraryEntityMentions.
    */
   data: Prisma.LibraryEntityMentionCreateManyInput | Prisma.LibraryEntityMentionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1720,6 +1723,7 @@ export type LibraryEntityMentionCreateManyAndReturnArgs<ExtArgs extends runtime.
    * The data used to create many LibraryEntityMentions.
    */
   data: Prisma.LibraryEntityMentionCreateManyInput | Prisma.LibraryEntityMentionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

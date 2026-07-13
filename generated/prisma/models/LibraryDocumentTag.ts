@@ -532,6 +532,7 @@ export type LibraryDocumentTagCreateOrConnectWithoutCreatorInput = {
 
 export type LibraryDocumentTagCreateManyCreatorInputEnvelope = {
   data: Prisma.LibraryDocumentTagCreateManyCreatorInput | Prisma.LibraryDocumentTagCreateManyCreatorInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentTagUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -581,6 +582,7 @@ export type LibraryDocumentTagCreateOrConnectWithoutDocumentInput = {
 
 export type LibraryDocumentTagCreateManyDocumentInputEnvelope = {
   data: Prisma.LibraryDocumentTagCreateManyDocumentInput | Prisma.LibraryDocumentTagCreateManyDocumentInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentTagUpsertWithWhereUniqueWithoutDocumentInput = {
@@ -619,6 +621,7 @@ export type LibraryDocumentTagCreateOrConnectWithoutTagInput = {
 
 export type LibraryDocumentTagCreateManyTagInputEnvelope = {
   data: Prisma.LibraryDocumentTagCreateManyTagInput | Prisma.LibraryDocumentTagCreateManyTagInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentTagUpsertWithWhereUniqueWithoutTagInput = {
@@ -1456,6 +1459,7 @@ export type LibraryDocumentTagCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many LibraryDocumentTags.
    */
   data: Prisma.LibraryDocumentTagCreateManyInput | Prisma.LibraryDocumentTagCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1474,6 +1478,7 @@ export type LibraryDocumentTagCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many LibraryDocumentTags.
    */
   data: Prisma.LibraryDocumentTagCreateManyInput | Prisma.LibraryDocumentTagCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

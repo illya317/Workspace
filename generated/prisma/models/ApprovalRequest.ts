@@ -1296,6 +1296,7 @@ export type ApprovalRequestCreateOrConnectWithoutSubmitterInput = {
 
 export type ApprovalRequestCreateManySubmitterInputEnvelope = {
   data: Prisma.ApprovalRequestCreateManySubmitterInput | Prisma.ApprovalRequestCreateManySubmitterInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApprovalRequestCreateWithoutResolverInput = {
@@ -1372,6 +1373,7 @@ export type ApprovalRequestCreateOrConnectWithoutResolverInput = {
 
 export type ApprovalRequestCreateManyResolverInputEnvelope = {
   data: Prisma.ApprovalRequestCreateManyResolverInput | Prisma.ApprovalRequestCreateManyResolverInput[]
+  skipDuplicates?: boolean
 }
 
 export type ApprovalRequestUpsertWithWhereUniqueWithoutSubmitterInput = {
@@ -2630,6 +2632,7 @@ export type ApprovalRequestCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many ApprovalRequests.
    */
   data: Prisma.ApprovalRequestCreateManyInput | Prisma.ApprovalRequestCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2648,6 +2651,7 @@ export type ApprovalRequestCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many ApprovalRequests.
    */
   data: Prisma.ApprovalRequestCreateManyInput | Prisma.ApprovalRequestCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

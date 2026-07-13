@@ -96,12 +96,11 @@ SET
 WHERE "id" = (
   SELECT "id"
   FROM "Department"
-  WHERE "code" IN ('BSC', 'EXC100') OR "name" IN ('董秘办及资本证券部', '董秘办及资本证券')
+  WHERE "code" = 'BSC' OR "name" IN ('董秘办及资本证券部', '董秘办及资本证券')
   ORDER BY
     CASE
       WHEN "code" = 'BSC' THEN 0
-      WHEN "code" = 'EXC100' THEN 1
-      ELSE 2
+      ELSE 1
     END,
     "id"
   LIMIT 1
@@ -110,13 +109,8 @@ WHERE "id" = (
 INSERT INTO "Department" ("code", "name", "hierarchyKind", "level", "parentId")
 SELECT 'BSC', '董秘办及资本证券部', 'G', 3, (SELECT "id" FROM "Department" WHERE "code" = 'EXC' LIMIT 1)
 WHERE NOT EXISTS (
-  SELECT 1 FROM "Department" WHERE "code" IN ('BSC', 'EXC100') OR "name" IN ('董秘办及资本证券部', '董秘办及资本证券')
+  SELECT 1 FROM "Department" WHERE "code" = 'BSC' OR "name" IN ('董秘办及资本证券部', '董秘办及资本证券')
 );
-
-UPDATE "Position"
-SET "code" = REPLACE("code", 'GW-EXC100-', 'GW-BSC-')
-WHERE "departmentId" = (SELECT "id" FROM "Department" WHERE "code" = 'BSC' LIMIT 1)
-  AND "code" LIKE 'GW-EXC100-%';
 
 UPDATE "Position"
 SET "code" = 'GW-BSC-' || substr("code", -2)

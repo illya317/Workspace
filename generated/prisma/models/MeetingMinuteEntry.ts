@@ -554,6 +554,7 @@ export type MeetingMinuteEntryCreateOrConnectWithoutMeetingInput = {
 
 export type MeetingMinuteEntryCreateManyMeetingInputEnvelope = {
   data: Prisma.MeetingMinuteEntryCreateManyMeetingInput | Prisma.MeetingMinuteEntryCreateManyMeetingInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingMinuteEntryUpsertWithWhereUniqueWithoutMeetingInput = {
@@ -612,6 +613,7 @@ export type MeetingMinuteEntryCreateOrConnectWithoutAgendaItemInput = {
 
 export type MeetingMinuteEntryCreateManyAgendaItemInputEnvelope = {
   data: Prisma.MeetingMinuteEntryCreateManyAgendaItemInput | Prisma.MeetingMinuteEntryCreateManyAgendaItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingMinuteEntryUpsertWithWhereUniqueWithoutAgendaItemInput = {
@@ -1456,6 +1458,7 @@ export type MeetingMinuteEntryCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many MeetingMinuteEntries.
    */
   data: Prisma.MeetingMinuteEntryCreateManyInput | Prisma.MeetingMinuteEntryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1474,6 +1477,7 @@ export type MeetingMinuteEntryCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many MeetingMinuteEntries.
    */
   data: Prisma.MeetingMinuteEntryCreateManyInput | Prisma.MeetingMinuteEntryCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

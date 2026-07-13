@@ -512,6 +512,7 @@ export type EditHistoryCreateOrConnectWithoutEditorInput = {
 
 export type EditHistoryCreateManyEditorInputEnvelope = {
   data: Prisma.EditHistoryCreateManyEditorInput | Prisma.EditHistoryCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type EditHistoryUpsertWithWhereUniqueWithoutEditorInput = {
@@ -1323,6 +1324,7 @@ export type EditHistoryCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many EditHistories.
    */
   data: Prisma.EditHistoryCreateManyInput | Prisma.EditHistoryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1341,6 +1343,7 @@ export type EditHistoryCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many EditHistories.
    */
   data: Prisma.EditHistoryCreateManyInput | Prisma.EditHistoryCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -1212,6 +1212,7 @@ export type FinanceReclassItemRuleCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many FinanceReclassItemRules.
    */
   data: Prisma.FinanceReclassItemRuleCreateManyInput | Prisma.FinanceReclassItemRuleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1230,6 +1231,7 @@ export type FinanceReclassItemRuleCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many FinanceReclassItemRules.
    */
   data: Prisma.FinanceReclassItemRuleCreateManyInput | Prisma.FinanceReclassItemRuleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

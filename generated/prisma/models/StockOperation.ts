@@ -534,6 +534,7 @@ export type StockOperationCreateOrConnectWithoutEditorInput = {
 
 export type StockOperationCreateManyEditorInputEnvelope = {
   data: Prisma.StockOperationCreateManyEditorInput | Prisma.StockOperationCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type StockOperationUpsertWithWhereUniqueWithoutEditorInput = {
@@ -1356,6 +1357,7 @@ export type StockOperationCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many StockOperations.
    */
   data: Prisma.StockOperationCreateManyInput | Prisma.StockOperationCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1374,6 +1376,7 @@ export type StockOperationCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many StockOperations.
    */
   data: Prisma.StockOperationCreateManyInput | Prisma.StockOperationCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -690,6 +690,7 @@ export type FinanceCostAnalysisRowCreateOrConnectWithoutImportInput = {
 
 export type FinanceCostAnalysisRowCreateManyImportInputEnvelope = {
   data: Prisma.FinanceCostAnalysisRowCreateManyImportInput | Prisma.FinanceCostAnalysisRowCreateManyImportInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceCostAnalysisRowUpsertWithWhereUniqueWithoutImportInput = {
@@ -1578,6 +1579,7 @@ export type FinanceCostAnalysisRowCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many FinanceCostAnalysisRows.
    */
   data: Prisma.FinanceCostAnalysisRowCreateManyInput | Prisma.FinanceCostAnalysisRowCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1596,6 +1598,7 @@ export type FinanceCostAnalysisRowCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many FinanceCostAnalysisRows.
    */
   data: Prisma.FinanceCostAnalysisRowCreateManyInput | Prisma.FinanceCostAnalysisRowCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

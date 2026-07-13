@@ -796,6 +796,7 @@ export type FinanceWorkshopReportCreateOrConnectWithoutImportInput = {
 
 export type FinanceWorkshopReportCreateManyImportInputEnvelope = {
   data: Prisma.FinanceWorkshopReportCreateManyImportInput | Prisma.FinanceWorkshopReportCreateManyImportInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceWorkshopReportUpsertWithWhereUniqueWithoutImportInput = {
@@ -875,6 +876,7 @@ export type FinanceWorkshopReportCreateOrConnectWithoutEmployeeInput = {
 
 export type FinanceWorkshopReportCreateManyEmployeeInputEnvelope = {
   data: Prisma.FinanceWorkshopReportCreateManyEmployeeInput | Prisma.FinanceWorkshopReportCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceWorkshopReportUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -933,6 +935,7 @@ export type FinanceWorkshopReportCreateOrConnectWithoutPositionInput = {
 
 export type FinanceWorkshopReportCreateManyPositionInputEnvelope = {
   data: Prisma.FinanceWorkshopReportCreateManyPositionInput | Prisma.FinanceWorkshopReportCreateManyPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceWorkshopReportUpsertWithWhereUniqueWithoutPositionInput = {
@@ -1950,6 +1953,7 @@ export type FinanceWorkshopReportCreateManyArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many FinanceWorkshopReports.
    */
   data: Prisma.FinanceWorkshopReportCreateManyInput | Prisma.FinanceWorkshopReportCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1968,6 +1972,7 @@ export type FinanceWorkshopReportCreateManyAndReturnArgs<ExtArgs extends runtime
    * The data used to create many FinanceWorkshopReports.
    */
   data: Prisma.FinanceWorkshopReportCreateManyInput | Prisma.FinanceWorkshopReportCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

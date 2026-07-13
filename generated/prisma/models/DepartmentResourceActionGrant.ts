@@ -484,6 +484,7 @@ export type DepartmentResourceActionGrantCreateOrConnectWithoutResourceInput = {
 
 export type DepartmentResourceActionGrantCreateManyResourceInputEnvelope = {
   data: Prisma.DepartmentResourceActionGrantCreateManyResourceInput | Prisma.DepartmentResourceActionGrantCreateManyResourceInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentResourceActionGrantUpsertWithWhereUniqueWithoutResourceInput = {
@@ -533,6 +534,7 @@ export type DepartmentResourceActionGrantCreateOrConnectWithoutDepartmentInput =
 
 export type DepartmentResourceActionGrantCreateManyDepartmentInputEnvelope = {
   data: Prisma.DepartmentResourceActionGrantCreateManyDepartmentInput | Prisma.DepartmentResourceActionGrantCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentResourceActionGrantUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1335,6 +1337,7 @@ export type DepartmentResourceActionGrantCreateManyArgs<ExtArgs extends runtime.
    * The data used to create many DepartmentResourceActionGrants.
    */
   data: Prisma.DepartmentResourceActionGrantCreateManyInput | Prisma.DepartmentResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1353,6 +1356,7 @@ export type DepartmentResourceActionGrantCreateManyAndReturnArgs<ExtArgs extends
    * The data used to create many DepartmentResourceActionGrants.
    */
   data: Prisma.DepartmentResourceActionGrantCreateManyInput | Prisma.DepartmentResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

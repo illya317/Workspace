@@ -70,18 +70,18 @@ function buildWhere(filters: ListFilters) {
     where.confidentialityLevel = { lte: filters.confidentialityLevel.lte };
   }
   if (filters.docId?.trim()) {
-    where.docId = { contains: filters.docId.trim() };
+    where.docId = { contains: filters.docId.trim(), mode: "insensitive" };
   }
   if (filters.keyword?.trim()) {
     const kw = filters.keyword.trim();
     andConditions.push({
       OR: [
-        { title: { contains: kw } },
-        { fileName: { contains: kw } },
-        { summary: { contains: kw } },
-        { categoryName: { contains: kw } },
-        { docId: { contains: kw } },
-        { tags: { some: { tag: { name: { contains: kw } } } } },
+        { title: { contains: kw, mode: "insensitive" } },
+        { fileName: { contains: kw, mode: "insensitive" } },
+        { summary: { contains: kw, mode: "insensitive" } },
+        { categoryName: { contains: kw, mode: "insensitive" } },
+        { docId: { contains: kw, mode: "insensitive" } },
+        { tags: { some: { tag: { name: { contains: kw, mode: "insensitive" } } } } },
       ],
     });
   }

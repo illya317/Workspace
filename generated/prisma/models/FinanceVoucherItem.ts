@@ -594,9 +594,9 @@ export type FinanceVoucherItemSumOrderByAggregateInput = {
   importId?: Prisma.SortOrder
 }
 
-export type FinanceVoucherItemScalarRelationFilter = {
-  is?: Prisma.FinanceVoucherItemWhereInput
-  isNot?: Prisma.FinanceVoucherItemWhereInput
+export type FinanceVoucherItemNullableScalarRelationFilter = {
+  is?: Prisma.FinanceVoucherItemWhereInput | null
+  isNot?: Prisma.FinanceVoucherItemWhereInput | null
 }
 
 export type FinanceVoucherItemCreateNestedManyWithoutAccountInput = {
@@ -731,10 +731,12 @@ export type FinanceVoucherItemCreateNestedOneWithoutReclassResultsInput = {
   connect?: Prisma.FinanceVoucherItemWhereUniqueInput
 }
 
-export type FinanceVoucherItemUpdateOneRequiredWithoutReclassResultsNestedInput = {
+export type FinanceVoucherItemUpdateOneWithoutReclassResultsNestedInput = {
   create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutReclassResultsInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutReclassResultsInput>
   connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutReclassResultsInput
   upsert?: Prisma.FinanceVoucherItemUpsertWithoutReclassResultsInput
+  disconnect?: Prisma.FinanceVoucherItemWhereInput | boolean
+  delete?: Prisma.FinanceVoucherItemWhereInput | boolean
   connect?: Prisma.FinanceVoucherItemWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceVoucherItemUpdateToOneWithWhereWithoutReclassResultsInput, Prisma.FinanceVoucherItemUpdateWithoutReclassResultsInput>, Prisma.FinanceVoucherItemUncheckedUpdateWithoutReclassResultsInput>
 }
@@ -777,6 +779,7 @@ export type FinanceVoucherItemCreateOrConnectWithoutAccountInput = {
 
 export type FinanceVoucherItemCreateManyAccountInputEnvelope = {
   data: Prisma.FinanceVoucherItemCreateManyAccountInput | Prisma.FinanceVoucherItemCreateManyAccountInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceVoucherItemUpsertWithWhereUniqueWithoutAccountInput = {
@@ -852,6 +855,7 @@ export type FinanceVoucherItemCreateOrConnectWithoutVoucherInput = {
 
 export type FinanceVoucherItemCreateManyVoucherInputEnvelope = {
   data: Prisma.FinanceVoucherItemCreateManyVoucherInput | Prisma.FinanceVoucherItemCreateManyVoucherInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceVoucherItemUpsertWithWhereUniqueWithoutVoucherInput = {
@@ -908,6 +912,7 @@ export type FinanceVoucherItemCreateOrConnectWithoutImportInput = {
 
 export type FinanceVoucherItemCreateManyImportInputEnvelope = {
   data: Prisma.FinanceVoucherItemCreateManyImportInput | Prisma.FinanceVoucherItemCreateManyImportInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceVoucherItemUpsertWithWhereUniqueWithoutImportInput = {
@@ -2023,6 +2028,7 @@ export type FinanceVoucherItemCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many FinanceVoucherItems.
    */
   data: Prisma.FinanceVoucherItemCreateManyInput | Prisma.FinanceVoucherItemCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2041,6 +2047,7 @@ export type FinanceVoucherItemCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many FinanceVoucherItems.
    */
   data: Prisma.FinanceVoucherItemCreateManyInput | Prisma.FinanceVoucherItemCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

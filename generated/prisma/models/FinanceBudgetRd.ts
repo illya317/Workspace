@@ -1023,6 +1023,7 @@ export type FinanceBudgetRdCreateOrConnectWithoutVersionInput = {
 
 export type FinanceBudgetRdCreateManyVersionInputEnvelope = {
   data: Prisma.FinanceBudgetRdCreateManyVersionInput | Prisma.FinanceBudgetRdCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceBudgetRdUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1129,6 +1130,7 @@ export type FinanceBudgetRdCreateOrConnectWithoutAccountInput = {
 
 export type FinanceBudgetRdCreateManyAccountInputEnvelope = {
   data: Prisma.FinanceBudgetRdCreateManyAccountInput | Prisma.FinanceBudgetRdCreateManyAccountInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceBudgetRdUpsertWithWhereUniqueWithoutAccountInput = {
@@ -2197,6 +2199,7 @@ export type FinanceBudgetRdCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many FinanceBudgetRds.
    */
   data: Prisma.FinanceBudgetRdCreateManyInput | Prisma.FinanceBudgetRdCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2215,6 +2218,7 @@ export type FinanceBudgetRdCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many FinanceBudgetRds.
    */
   data: Prisma.FinanceBudgetRdCreateManyInput | Prisma.FinanceBudgetRdCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -483,6 +483,7 @@ export type OpenApiClientScopeGrantCreateOrConnectWithoutClientInput = {
 
 export type OpenApiClientScopeGrantCreateManyClientInputEnvelope = {
   data: Prisma.OpenApiClientScopeGrantCreateManyClientInput | Prisma.OpenApiClientScopeGrantCreateManyClientInput[]
+  skipDuplicates?: boolean
 }
 
 export type OpenApiClientScopeGrantUpsertWithWhereUniqueWithoutClientInput = {
@@ -532,6 +533,7 @@ export type OpenApiClientScopeGrantCreateOrConnectWithoutScopeInput = {
 
 export type OpenApiClientScopeGrantCreateManyScopeInputEnvelope = {
   data: Prisma.OpenApiClientScopeGrantCreateManyScopeInput | Prisma.OpenApiClientScopeGrantCreateManyScopeInput[]
+  skipDuplicates?: boolean
 }
 
 export type OpenApiClientScopeGrantUpsertWithWhereUniqueWithoutScopeInput = {
@@ -1334,6 +1336,7 @@ export type OpenApiClientScopeGrantCreateManyArgs<ExtArgs extends runtime.Types.
    * The data used to create many OpenApiClientScopeGrants.
    */
   data: Prisma.OpenApiClientScopeGrantCreateManyInput | Prisma.OpenApiClientScopeGrantCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1352,6 +1355,7 @@ export type OpenApiClientScopeGrantCreateManyAndReturnArgs<ExtArgs extends runti
    * The data used to create many OpenApiClientScopeGrants.
    */
   data: Prisma.OpenApiClientScopeGrantCreateManyInput | Prisma.OpenApiClientScopeGrantCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

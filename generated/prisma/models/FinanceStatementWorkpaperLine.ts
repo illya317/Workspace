@@ -596,6 +596,7 @@ export type FinanceStatementWorkpaperLineCreateOrConnectWithoutWorkpaperInput = 
 
 export type FinanceStatementWorkpaperLineCreateManyWorkpaperInputEnvelope = {
   data: Prisma.FinanceStatementWorkpaperLineCreateManyWorkpaperInput | Prisma.FinanceStatementWorkpaperLineCreateManyWorkpaperInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceStatementWorkpaperLineUpsertWithWhereUniqueWithoutWorkpaperInput = {
@@ -1440,6 +1441,7 @@ export type FinanceStatementWorkpaperLineCreateManyArgs<ExtArgs extends runtime.
    * The data used to create many FinanceStatementWorkpaperLines.
    */
   data: Prisma.FinanceStatementWorkpaperLineCreateManyInput | Prisma.FinanceStatementWorkpaperLineCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1458,6 +1460,7 @@ export type FinanceStatementWorkpaperLineCreateManyAndReturnArgs<ExtArgs extends
    * The data used to create many FinanceStatementWorkpaperLines.
    */
   data: Prisma.FinanceStatementWorkpaperLineCreateManyInput | Prisma.FinanceStatementWorkpaperLineCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

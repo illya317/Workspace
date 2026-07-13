@@ -5,7 +5,7 @@
 ## 1. 技术栈
 
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
-- **数据库**: Prisma ORM + SQLite (`data/dev.db`)
+- **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
 - **CI/CD**: GitHub Actions 负责公开 CI；CNB API/CLI 只触发私有生产发布，CNB/Linux CD 容器构建 standalone 产物，CVM + PM2 只解包产物并重启
 
@@ -18,9 +18,9 @@
 - 生产维护尽量在本地完成代码、migration、文档和检查，再通过 CNB 部署过去。服务器 SSH 只做只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。
 - 正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger_manual`。
 - CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CD 容器里完成部署构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
-- 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、`data/`、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先备份该目录。
-- `data/` 以服务器为准：本地 `data/` 不上传覆盖服务器。
-- 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL`、`WORKSPACE_CONFIG_DIR` 直接指向外部 data。
+- 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
+- `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
+- 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
 - 页面助手源码阅读默认使用服务端 CNB 浅克隆缓存；本地/内网调试可配置 `AGENT_SOURCE_WORKTREE=/absolute/path/to/workspace`，让助手只读当前 checkout 和未提交源码改动。生产部署时 `ops/deploy.sh` 会同步 CNB 源码到 `$REMOTE_DIR/source/Workspace`，并把远端 `.workspace/.env` 的 `AGENT_SOURCE_WORKTREE` 指向该 git worktree。
 
@@ -182,8 +182,7 @@ Schema 可视化文档：`docs/generated/tables.html`，通过 `node scripts/gen
 
 ## 7. Prisma Schema 规则
 
-- 当前 schema 仍在 `prisma/schema.prisma`，新增领域前优先完成或遵守多文件 schema 治理计划。
-- 目标结构是按领域拆分到 `prisma/models/*.prisma`，主 `prisma/schema.prisma` 只保留 `generator` 和 `datasource`。
+- 当前 schema 已按领域拆分到 `prisma/models/*.prisma`，主 `prisma/schema.prisma` 只保留 `generator` 和 PostgreSQL `datasource`。
 - 所有 model 必须按领域归属：auth/rbac、hr、reports、works、finance-ledger、finance-cost、inventory、contracts、future domains。
 - 每个 model 前必须有 `///` 注释，说明业务含义、数据来源、是否事实表。
 - DB 默认只保存事实字段；合计、百分比、毛利、单位成本、未回款等派生结果必须放在 service 层计算。
@@ -200,11 +199,15 @@ Schema 可视化文档：`docs/generated/tables.html`，通过 `node scripts/gen
 Company -> Department -> PositionDescription -> Position -> Employee -> Employment -> EDP
 ```
 
-重置数据：
+重建空的本地数据库（只用于可丢弃的开发库）：
 
 ```bash
-rm data/dev.db && npx prisma db push
+dropdb workspace_dev
+createdb workspace_dev
+npx prisma migrate deploy --schema=./prisma
 ```
+
+禁止在共享或生产库执行 `prisma db push`。SQLite 到 PostgreSQL 只通过冻结快照、`scripts/migrate/sqlite-to-postgresql.mjs` 和校验 manifest 迁移。
 
 ## 9. 关键路由
 

@@ -702,6 +702,7 @@ export type LibraryEvaluationCaseCreateOrConnectWithoutCreatorInput = {
 
 export type LibraryEvaluationCaseCreateManyCreatorInputEnvelope = {
   data: Prisma.LibraryEvaluationCaseCreateManyCreatorInput | Prisma.LibraryEvaluationCaseCreateManyCreatorInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEvaluationCaseCreateWithoutReviewerInput = {
@@ -742,6 +743,7 @@ export type LibraryEvaluationCaseCreateOrConnectWithoutReviewerInput = {
 
 export type LibraryEvaluationCaseCreateManyReviewerInputEnvelope = {
   data: Prisma.LibraryEvaluationCaseCreateManyReviewerInput | Prisma.LibraryEvaluationCaseCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEvaluationCaseUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -1808,6 +1810,7 @@ export type LibraryEvaluationCaseCreateManyArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many LibraryEvaluationCases.
    */
   data: Prisma.LibraryEvaluationCaseCreateManyInput | Prisma.LibraryEvaluationCaseCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1826,6 +1829,7 @@ export type LibraryEvaluationCaseCreateManyAndReturnArgs<ExtArgs extends runtime
    * The data used to create many LibraryEvaluationCases.
    */
   data: Prisma.LibraryEvaluationCaseCreateManyInput | Prisma.LibraryEvaluationCaseCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

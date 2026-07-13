@@ -56,7 +56,7 @@ The current product modules are registered in `packages/platform/module-registry
 |---|---|
 | App framework | Next.js 16 + React + TypeScript |
 | Styling | Tailwind CSS 4 with Core/Platform UI contracts |
-| Database | Prisma ORM 7 + SQLite |
+| Database | Prisma ORM 7 + PostgreSQL 15+ via `@prisma/adapter-pg` |
 | Auth | JWT Cookie sessions for web; Open API Bearer clients for `/api/open/v1/**` |
 | Runtime config | `.env` and workspace runtime paths such as `WORKSPACE_CONFIG_DIR` |
 | Checks | npm scripts in `package.json`, with heavy checks serialized through `scripts/check/with-check-lock.js` |

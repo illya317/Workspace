@@ -182,7 +182,7 @@ async function listTemplatesForSpaces(
     where: {
       deletedAt: null,
       ...(command.data.status ? { status: command.data.status } : {}),
-      ...(command.data.keyword ? { title: { contains: command.data.keyword } } : {}),
+      ...(command.data.keyword ? { title: { contains: command.data.keyword, mode: "insensitive" as const } } : {}),
       spaceId: { in: spaceIds },
     },
     orderBy: { updatedAt: "desc" },

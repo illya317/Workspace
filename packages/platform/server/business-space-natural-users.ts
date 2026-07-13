@@ -66,7 +66,7 @@ export async function isActiveNamedPositionUser(userId: number, names: string[])
             isArchived: false,
             OR: names.flatMap((name) => [
               { name },
-              { alias: { contains: name } },
+              { alias: { contains: name, mode: "insensitive" as const } },
             ]),
           },
         }),
@@ -231,7 +231,7 @@ export async function listNamedPositionUsers(
             isArchived: false,
             OR: names.flatMap((name) => [
               { name },
-              { alias: { contains: name } },
+              { alias: { contains: name, mode: "insensitive" as const } },
             ]),
           },
         }),
@@ -302,7 +302,7 @@ function getAdministrativeDepartments() {
       isArchived: false,
       OR: [
         { code: { in: ADMINISTRATIVE_DEPARTMENT_CODES } },
-        { name: { contains: "行政" } },
+        { name: { contains: "行政", mode: "insensitive" } },
       ],
     },
     select: { id: true, managerPositionId: true },

@@ -106,7 +106,9 @@ async function upsertResults(
         create: {
           periodId,
           voucherItemId: r.voucherItemId,
+          voucherItemIdSnapshot: r.voucherItemId,
           ruleId: r.ruleId,
+          ruleIdSnapshot: r.ruleId,
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,
@@ -114,6 +116,8 @@ async function upsertResults(
         },
         update: {
           ruleId: r.ruleId,
+          voucherItemIdSnapshot: r.voucherItemId,
+          ruleIdSnapshot: r.ruleId,
           sourceAccount: r.sourceAccount,
           targetAccount: r.targetAccount!,
           amount: r.amount,

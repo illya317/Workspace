@@ -696,6 +696,7 @@ export type LibraryExportJobCreateOrConnectWithoutRequesterInput = {
 
 export type LibraryExportJobCreateManyRequesterInputEnvelope = {
   data: Prisma.LibraryExportJobCreateManyRequesterInput | Prisma.LibraryExportJobCreateManyRequesterInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryExportJobUpsertWithWhereUniqueWithoutRequesterInput = {
@@ -1595,6 +1596,7 @@ export type LibraryExportJobCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many LibraryExportJobs.
    */
   data: Prisma.LibraryExportJobCreateManyInput | Prisma.LibraryExportJobCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1613,6 +1615,7 @@ export type LibraryExportJobCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many LibraryExportJobs.
    */
   data: Prisma.LibraryExportJobCreateManyInput | Prisma.LibraryExportJobCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

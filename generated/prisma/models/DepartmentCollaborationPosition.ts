@@ -483,6 +483,7 @@ export type DepartmentCollaborationPositionCreateOrConnectWithoutPositionInput =
 
 export type DepartmentCollaborationPositionCreateManyPositionInputEnvelope = {
   data: Prisma.DepartmentCollaborationPositionCreateManyPositionInput | Prisma.DepartmentCollaborationPositionCreateManyPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationPositionUpsertWithWhereUniqueWithoutPositionInput = {
@@ -532,6 +533,7 @@ export type DepartmentCollaborationPositionCreateOrConnectWithoutCollaborationIn
 
 export type DepartmentCollaborationPositionCreateManyCollaborationInputEnvelope = {
   data: Prisma.DepartmentCollaborationPositionCreateManyCollaborationInput | Prisma.DepartmentCollaborationPositionCreateManyCollaborationInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationPositionUpsertWithWhereUniqueWithoutCollaborationInput = {
@@ -1334,6 +1336,7 @@ export type DepartmentCollaborationPositionCreateManyArgs<ExtArgs extends runtim
    * The data used to create many DepartmentCollaborationPositions.
    */
   data: Prisma.DepartmentCollaborationPositionCreateManyInput | Prisma.DepartmentCollaborationPositionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1352,6 +1355,7 @@ export type DepartmentCollaborationPositionCreateManyAndReturnArgs<ExtArgs exten
    * The data used to create many DepartmentCollaborationPositions.
    */
   data: Prisma.DepartmentCollaborationPositionCreateManyInput | Prisma.DepartmentCollaborationPositionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

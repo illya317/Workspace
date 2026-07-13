@@ -766,6 +766,7 @@ export type LibraryContentChunkCreateOrConnectWithoutArtifactInput = {
 
 export type LibraryContentChunkCreateManyArtifactInputEnvelope = {
   data: Prisma.LibraryContentChunkCreateManyArtifactInput | Prisma.LibraryContentChunkCreateManyArtifactInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryContentChunkUpsertWithWhereUniqueWithoutArtifactInput = {
@@ -838,6 +839,7 @@ export type LibraryContentChunkCreateOrConnectWithoutVersionInput = {
 
 export type LibraryContentChunkCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryContentChunkCreateManyVersionInput | Prisma.LibraryContentChunkCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryContentChunkUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1777,6 +1779,7 @@ export type LibraryContentChunkCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many LibraryContentChunks.
    */
   data: Prisma.LibraryContentChunkCreateManyInput | Prisma.LibraryContentChunkCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1795,6 +1798,7 @@ export type LibraryContentChunkCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many LibraryContentChunks.
    */
   data: Prisma.LibraryContentChunkCreateManyInput | Prisma.LibraryContentChunkCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -613,6 +613,7 @@ export type WorkOkrControlPolicyCreateOrConnectWithoutCycleInput = {
 
 export type WorkOkrControlPolicyCreateManyCycleInputEnvelope = {
   data: Prisma.WorkOkrControlPolicyCreateManyCycleInput | Prisma.WorkOkrControlPolicyCreateManyCycleInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkOkrControlPolicyUpsertWithWhereUniqueWithoutCycleInput = {
@@ -1468,6 +1469,7 @@ export type WorkOkrControlPolicyCreateManyArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many WorkOkrControlPolicies.
    */
   data: Prisma.WorkOkrControlPolicyCreateManyInput | Prisma.WorkOkrControlPolicyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1486,6 +1488,7 @@ export type WorkOkrControlPolicyCreateManyAndReturnArgs<ExtArgs extends runtime.
    * The data used to create many WorkOkrControlPolicies.
    */
   data: Prisma.WorkOkrControlPolicyCreateManyInput | Prisma.WorkOkrControlPolicyCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

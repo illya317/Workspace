@@ -196,12 +196,12 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 ## 数据库部署策略
 
-本项目使用 SQLite，`prisma migrate deploy` 在空库上会因旧 migration（`20260530000000_add_budget_version_v1` 等）的表重定义操作失败——这些 migration 假设目标表已存在，但空库中没有。
+本项目使用 PostgreSQL。活动 migration 历史从 `20260713000000_postgresql_baseline` 开始；旧 SQLite 历史只读归档在 `prisma/migrations-sqlite-legacy`，不得对 PostgreSQL 回放。
 
 **部署流程**：
-- **开发/本地**：`npx prisma db push`（从 schema 直接同步到 DB）
-- **生产/CloudBase**：首次部署后在容器内执行 `npx prisma db push`，或从已有数据库备份恢复
-- **不使用 `prisma migrate deploy`**：当前 migration 历史存在断裂，修复需单独开任务处理旧 migration
+- **开发/本地**：使用独立 PostgreSQL database 和 shadow database，结构变更生成 migration 后执行 `prisma migrate deploy`
+- **生产**：部署前验证 `pg_dump --format=custom` 备份，随后执行 `prisma migrate deploy` 和只读 deploy-status/constraint 检查
+- **禁止 `prisma db push`**：生产与本地验收都以提交的 migration 历史为准
 
 **Seed 脚本**：
 - 资料库生成来源：`npm run db:seed:library-generated`（插入 `bp-html`、`finance-report` 两条记录）
@@ -243,7 +243,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 
 ## 当前检索、预览与资料包能力
 
-- `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤；SQLite 先在可见、active、具备当前版本的资料上根据 metadata/tag 与正文命中存在性做粗相关排序并统计真实匹配总数，再只 hydrate 前 100 个候选。自然问句通过 `Intl.Segmenter`、中文相邻单字/双字 fallback、停用词和完整 Latin/编号候选生成确定性 terms；每个版本只读取有限候选及最多 1800 字符的逐字 match window，按原问句、term、heading/section 相关性排序后取前三条 evidence，返回 locator、窗口位置以及不可变 `documentUid/versionUid` selection。禁止把无界 chunk 正文读入 Node 后再过滤权限或截断。
+- `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤；PostgreSQL 先在可见、active、具备当前版本的资料上根据 metadata/tag 与正文命中存在性做粗相关排序并统计真实匹配总数，再只 hydrate 前 100 个候选。自然问句通过 `Intl.Segmenter`、中文相邻单字/双字 fallback、停用词和完整 Latin/编号候选生成确定性 terms；每个版本只读取有限候选及最多 1800 字符的逐字 match window，按原问句、term、heading/section 相关性排序后取前三条 evidence，返回 locator、窗口位置以及不可变 `documentUid/versionUid` selection。禁止把无界 chunk 正文读入 Node 后再过滤权限或截断。
 - 独立资料阅读页左侧承载可折叠的资料信息和不可变版本选择，右侧通过 Core `DocumentSurface kind="viewer"` 按当前视口剩余空间自适应承载阅读器；工具栏提供返回列表和侧栏展开/收起，下载跟随所选版本。当前 PDF 使用受控对象 URL；未来 ONLYOFFICE 由 Library/Platform 适配页负责配置签名、源文件权限与保存回调，Core 不感知具体文档提供方。
 - Workspace Agent 通过 Kimi SDK Wire 注册 `library.searchDocuments`，生成带证据回答；工具的完整 `data` 保留 resource-set presentation、打开/下载和 selection 资料包能力，另给模型提供最多 24000 字符的 lean `modelContext`。该投影只包含 query、候选/省略数量、正式资料身份、不可变版本、locator 和逐字 evidence window，并优先高相关证据；pending tag/metadata candidate 可参与召回，但不得进入模型上下文充当正式事实。不让模型决定权限或文件路径，也不依赖 runtime 对完整 UI data 的尾部硬截断。
 - `POST /api/modules/library/basic-info/exports` 接收最多 100 个不可变版本选择，按分类生成 UTF-8 ZIP、`manifest.json` 和 `SHA256SUMS`；下载时再次校验 requester、export 权限与密级。生成 ZIP 的实体只保留 30 分钟，过期后删除整个 `exports/<exportUid>` 目录、清空 job 的 `storagePath` 并保留 `LibraryExportJob` 审计行。

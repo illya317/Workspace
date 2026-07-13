@@ -555,6 +555,7 @@ export type LibraryEvaluationEvidenceCreateOrConnectWithoutEvaluationCaseInput =
 
 export type LibraryEvaluationEvidenceCreateManyEvaluationCaseInputEnvelope = {
   data: Prisma.LibraryEvaluationEvidenceCreateManyEvaluationCaseInput | Prisma.LibraryEvaluationEvidenceCreateManyEvaluationCaseInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEvaluationEvidenceUpsertWithWhereUniqueWithoutEvaluationCaseInput = {
@@ -613,6 +614,7 @@ export type LibraryEvaluationEvidenceCreateOrConnectWithoutVersionInput = {
 
 export type LibraryEvaluationEvidenceCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryEvaluationEvidenceCreateManyVersionInput | Prisma.LibraryEvaluationEvidenceCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryEvaluationEvidenceUpsertWithWhereUniqueWithoutVersionInput = {
@@ -1457,6 +1459,7 @@ export type LibraryEvaluationEvidenceCreateManyArgs<ExtArgs extends runtime.Type
    * The data used to create many LibraryEvaluationEvidences.
    */
   data: Prisma.LibraryEvaluationEvidenceCreateManyInput | Prisma.LibraryEvaluationEvidenceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1475,6 +1478,7 @@ export type LibraryEvaluationEvidenceCreateManyAndReturnArgs<ExtArgs extends run
    * The data used to create many LibraryEvaluationEvidences.
    */
   data: Prisma.LibraryEvaluationEvidenceCreateManyInput | Prisma.LibraryEvaluationEvidenceCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

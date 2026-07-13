@@ -28,23 +28,27 @@ async function main() {
   const smokeRoot = path.resolve(".cache/library-scan-smoke", randomUUID());
   const sourceRoot = path.join(smokeRoot, "source");
   const runtimeRoot = path.join(smokeRoot, "runtime");
-  const databasePath = path.join(smokeRoot, "smoke.db");
-  const schemaSqlPath = path.join(smokeRoot, "schema.sql");
+  const databaseUrl = process.env.SHADOW_DATABASE_URL?.trim() || "";
+  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl)) throw new Error("SHADOW_DATABASE_URL must use PostgreSQL");
+  const databaseName = new URL(databaseUrl).pathname.slice(1);
+  if (!/(?:_shadow|_test)$/.test(databaseName)) throw new Error("Library scan smoke only accepts a database ending in _shadow or _test");
   await mkdir(path.join(sourceRoot, "01 公司基本情况"), { recursive: true });
   await mkdir(runtimeRoot, { recursive: true });
   await writeFile(path.join(sourceRoot, "01 公司基本情况", "duplicate-a.txt"), "same source bytes\n");
   await writeFile(path.join(sourceRoot, "01 公司基本情况", "duplicate-b.txt"), "same source bytes\n");
   await writeFile(path.join(sourceRoot, "large.bin"), Buffer.alloc(11 * 1024 * 1024, 7));
 
-  process.env.DATABASE_URL = `file:${databasePath}`;
+  process.env.DATABASE_URL = databaseUrl;
+  process.env.DIRECT_URL = databaseUrl;
+  delete process.env.SHADOW_DATABASE_URL;
   process.env.LIBRARY_SOURCE_ROOT = sourceRoot;
   process.env.LIBRARY_ROOT = runtimeRoot;
-  execFileSync("npx", ["prisma", "migrate", "diff", "--from-empty", "--to-schema", "./prisma", "--script", "--output", schemaSqlPath], {
+  execFileSync("psql", [databaseUrl, "-v", "ON_ERROR_STOP=1", "-c", "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"], {
     cwd: process.cwd(),
     env: process.env,
     stdio: "pipe",
   });
-  execFileSync("sqlite3", [databasePath], { input: await readFile(schemaSqlPath), stdio: ["pipe", "pipe", "pipe"] });
+  execFileSync("npx", ["prisma", "migrate", "deploy", "--schema=./prisma"], { cwd: process.cwd(), env: process.env, stdio: "pipe" });
 
   const beforeFirstScan = await sourceSnapshot(sourceRoot);
   const [{ scanLibrary }, { prisma }] = await Promise.all([
@@ -90,6 +94,9 @@ async function main() {
     console.log("Library scan smoke passed: read-only source, full SHA256, immutable versions, duplicates and manifests verified.");
   } finally {
     await prisma.$disconnect();
+    execFileSync("psql", [databaseUrl, "-v", "ON_ERROR_STOP=1", "-c", "DROP SCHEMA IF EXISTS public CASCADE; CREATE SCHEMA public;"], {
+      cwd: process.cwd(), env: process.env, stdio: "pipe",
+    });
     await rm(smokeRoot, { recursive: true, force: true });
   }
 }

@@ -2168,6 +2168,7 @@ export type WorkPlanCreateOrConnectWithoutOwnerInput = {
 
 export type WorkPlanCreateManyOwnerInputEnvelope = {
   data: Prisma.WorkPlanCreateManyOwnerInput | Prisma.WorkPlanCreateManyOwnerInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutOwnerInput = {
@@ -2353,6 +2354,7 @@ export type WorkPlanCreateOrConnectWithoutSourceDepartmentInput = {
 
 export type WorkPlanCreateManySourceDepartmentInputEnvelope = {
   data: Prisma.WorkPlanCreateManySourceDepartmentInput | Prisma.WorkPlanCreateManySourceDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutSourceDepartmentInput = {
@@ -2487,6 +2489,7 @@ export type WorkPlanCreateOrConnectWithoutCollaborationInput = {
 
 export type WorkPlanCreateManyCollaborationInputEnvelope = {
   data: Prisma.WorkPlanCreateManyCollaborationInput | Prisma.WorkPlanCreateManyCollaborationInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutCollaborationInput = {
@@ -2621,6 +2624,7 @@ export type WorkPlanCreateOrConnectWithoutSourceMeetingInput = {
 
 export type WorkPlanCreateManySourceMeetingInputEnvelope = {
   data: Prisma.WorkPlanCreateManySourceMeetingInput | Prisma.WorkPlanCreateManySourceMeetingInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutSourceMeetingInput = {
@@ -2755,6 +2759,7 @@ export type WorkPlanCreateOrConnectWithoutSourceMeetingDecisionInput = {
 
 export type WorkPlanCreateManySourceMeetingDecisionInputEnvelope = {
   data: Prisma.WorkPlanCreateManySourceMeetingDecisionInput | Prisma.WorkPlanCreateManySourceMeetingDecisionInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutSourceMeetingDecisionInput = {
@@ -3003,6 +3008,7 @@ export type WorkPlanCreateOrConnectWithoutSourceMeetingActionCandidateInput = {
 
 export type WorkPlanCreateManySourceMeetingActionCandidateInputEnvelope = {
   data: Prisma.WorkPlanCreateManySourceMeetingActionCandidateInput | Prisma.WorkPlanCreateManySourceMeetingActionCandidateInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithoutMeetingActionCandidatesInput = {
@@ -3725,6 +3731,7 @@ export type WorkPlanCreateOrConnectWithoutOkrCycleInput = {
 
 export type WorkPlanCreateManyOkrCycleInputEnvelope = {
   data: Prisma.WorkPlanCreateManyOkrCycleInput | Prisma.WorkPlanCreateManyOkrCycleInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutOkrCycleInput = {
@@ -3859,6 +3866,7 @@ export type WorkPlanCreateOrConnectWithoutLinkedProjectInput = {
 
 export type WorkPlanCreateManyLinkedProjectInputEnvelope = {
   data: Prisma.WorkPlanCreateManyLinkedProjectInput | Prisma.WorkPlanCreateManyLinkedProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutLinkedProjectInput = {
@@ -3993,6 +4001,7 @@ export type WorkPlanCreateOrConnectWithoutLinkedProjectPhaseInput = {
 
 export type WorkPlanCreateManyLinkedProjectPhaseInputEnvelope = {
   data: Prisma.WorkPlanCreateManyLinkedProjectPhaseInput | Prisma.WorkPlanCreateManyLinkedProjectPhaseInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutLinkedProjectPhaseInput = {
@@ -4475,6 +4484,7 @@ export type WorkPlanCreateOrConnectWithoutSourcePlanInput = {
 
 export type WorkPlanCreateManySourcePlanInputEnvelope = {
   data: Prisma.WorkPlanCreateManySourcePlanInput | Prisma.WorkPlanCreateManySourcePlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanCreateWithoutChildPeriodPlansInput = {
@@ -4707,6 +4717,7 @@ export type WorkPlanCreateOrConnectWithoutParentPeriodPlanInput = {
 
 export type WorkPlanCreateManyParentPeriodPlanInputEnvelope = {
   data: Prisma.WorkPlanCreateManyParentPeriodPlanInput | Prisma.WorkPlanCreateManyParentPeriodPlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanCreateWithoutNextPeriodPlansInput = {
@@ -4939,6 +4950,7 @@ export type WorkPlanCreateOrConnectWithoutPreviousPeriodPlanInput = {
 
 export type WorkPlanCreateManyPreviousPeriodPlanInputEnvelope = {
   data: Prisma.WorkPlanCreateManyPreviousPeriodPlanInput | Prisma.WorkPlanCreateManyPreviousPeriodPlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkPlanUpsertWithoutDerivedPlansInput = {
@@ -9195,6 +9207,7 @@ export type WorkPlanCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many WorkPlans.
    */
   data: Prisma.WorkPlanCreateManyInput | Prisma.WorkPlanCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -9213,6 +9226,7 @@ export type WorkPlanCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many WorkPlans.
    */
   data: Prisma.WorkPlanCreateManyInput | Prisma.WorkPlanCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

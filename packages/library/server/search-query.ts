@@ -82,27 +82,27 @@ async function readBoundedChunkCandidates(input: {
 }) {
   if (input.versionIds.length === 0 || input.terms.length === 0) return [];
   const matchPredicates = input.terms.flatMap((term) => [
-    Prisma.sql`instr(lower(c."content"), lower(${term})) > 0`,
-    Prisma.sql`instr(lower(COALESCE(c."headingPathJson", '')), lower(${term})) > 0`,
-    Prisma.sql`instr(lower(c."locatorJson"), lower(${term})) > 0`,
+    Prisma.sql`strpos(lower(c."content"), lower(${term})) > 0`,
+    Prisma.sql`strpos(lower(COALESCE(c."headingPathJson", '')), lower(${term})) > 0`,
+    Prisma.sql`strpos(lower(c."locatorJson"), lower(${term})) > 0`,
   ]);
   const scoreParts = [
-    Prisma.sql`CASE WHEN instr(lower(c."content"), lower(${input.query})) > 0 THEN 120 ELSE 0 END`,
-    Prisma.sql`CASE WHEN instr(lower(COALESCE(c."headingPathJson", '')), lower(${input.query})) > 0 THEN 180 ELSE 0 END`,
+    Prisma.sql`CASE WHEN strpos(lower(c."content"), lower(${input.query})) > 0 THEN 120 ELSE 0 END`,
+    Prisma.sql`CASE WHEN strpos(lower(COALESCE(c."headingPathJson", '')), lower(${input.query})) > 0 THEN 180 ELSE 0 END`,
     ...input.terms.flatMap((term) => [
-      Prisma.sql`CASE WHEN instr(lower(c."content"), lower(${term})) > 0 THEN 14 ELSE 0 END`,
-      Prisma.sql`CASE WHEN instr(lower(COALESCE(c."headingPathJson", '')), lower(${term})) > 0 THEN 36 ELSE 0 END`,
-      Prisma.sql`CASE WHEN instr(lower(c."locatorJson"), lower(${term})) > 0 THEN 24 ELSE 0 END`,
+      Prisma.sql`CASE WHEN strpos(lower(c."content"), lower(${term})) > 0 THEN 14 ELSE 0 END`,
+      Prisma.sql`CASE WHEN strpos(lower(COALESCE(c."headingPathJson", '')), lower(${term})) > 0 THEN 36 ELSE 0 END`,
+      Prisma.sql`CASE WHEN strpos(lower(c."locatorJson"), lower(${term})) > 0 THEN 24 ELSE 0 END`,
     ]),
   ];
   const prioritizedPositions = input.terms.map((term) => Prisma.sql`
-    WHEN instr(lower(c."content"), lower(${term})) > 0
-    THEN instr(lower(c."content"), lower(${term}))
+    WHEN strpos(lower(c."content"), lower(${term})) > 0
+    THEN strpos(lower(c."content"), lower(${term}))
   `);
   const matchPosition = Prisma.sql`
     CASE
-      WHEN instr(lower(c."content"), lower(${input.query})) > 0
-      THEN instr(lower(c."content"), lower(${input.query}))
+      WHEN strpos(lower(c."content"), lower(${input.query})) > 0
+      THEN strpos(lower(c."content"), lower(${input.query}))
       ${Prisma.join(prioritizedPositions, " ")}
       ELSE 1
     END
@@ -117,10 +117,10 @@ async function readBoundedChunkCandidates(input: {
         c."headingPathJson" AS "headingPathJson",
         substr(
           c."content",
-          max(1, (${matchPosition}) - ${QUOTE_CONTEXT_BEFORE_CHARS}),
+          GREATEST(1, (${matchPosition}) - ${QUOTE_CONTEXT_BEFORE_CHARS}),
           ${LIBRARY_EVIDENCE_QUOTE_MAX_CHARS}
         ) AS "quote",
-        max(1, (${matchPosition}) - ${QUOTE_CONTEXT_BEFORE_CHARS}) AS "quoteStartOneBased",
+        GREATEST(1, (${matchPosition}) - ${QUOTE_CONTEXT_BEFORE_CHARS}) AS "quoteStartOneBased",
         length(c."content") AS "contentLength",
         (${Prisma.join(scoreParts, " + ")}) AS "coarseScore"
       FROM "LibraryContentChunk" c
@@ -190,7 +190,7 @@ export async function queryLibraryDocumentSet(input: {
   });
   const totalCandidates = Number(candidateRows[0]?.totalCandidates ?? 0);
   const candidateOrder = new Map(candidateRows.map((row, index) => [Number(row.id), index]));
-  const tagConditions = terms.map((term) => ({ proposedName: { contains: term } }));
+  const tagConditions = terms.map((term) => ({ proposedName: { contains: term, mode: "insensitive" as const } }));
   const documents = await prisma.libraryDocument.findMany({
     where: {
       id: { in: candidateRows.map((row) => Number(row.id)) },

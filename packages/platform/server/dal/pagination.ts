@@ -34,7 +34,7 @@ export function buildKeywordWhere(
   if (!keyword) return undefined;
   return {
     OR: searchableFields.map((field) => ({
-      [field]: { contains: keyword },
+      [field]: { contains: keyword, mode: "insensitive" },
     })),
   };
 }
@@ -58,7 +58,7 @@ export function buildContainsWhere(
   const q = keyword?.trim();
   if (!q) return undefined;
   return {
-    OR: searchableFields.map((field) => ({ [field]: { contains: q } })),
+    OR: searchableFields.map((field) => ({ [field]: { contains: q, mode: "insensitive" } })),
   };
 }
 

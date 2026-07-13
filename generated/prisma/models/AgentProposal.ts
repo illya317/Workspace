@@ -1232,6 +1232,7 @@ export type AgentProposalCreateManyArgs<ExtArgs extends runtime.Types.Extensions
    * The data used to create many AgentProposals.
    */
   data: Prisma.AgentProposalCreateManyInput | Prisma.AgentProposalCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1250,6 +1251,7 @@ export type AgentProposalCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * The data used to create many AgentProposals.
    */
   data: Prisma.AgentProposalCreateManyInput | Prisma.AgentProposalCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

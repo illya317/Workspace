@@ -30,9 +30,9 @@ export async function searchAgentEmployeeDirectory(keyword: string, limit = DEFA
   const candidates = await prisma.employee.findMany({
     where: {
       OR: [
-        { employeeId: { contains: keyword } },
-        { name: { contains: keyword } },
-        { alias: { contains: keyword } },
+        { employeeId: { contains: keyword, mode: "insensitive" } },
+        { name: { contains: keyword, mode: "insensitive" } },
+        { alias: { contains: keyword, mode: "insensitive" } },
       ],
     },
     select: {

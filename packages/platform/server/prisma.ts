@@ -1,8 +1,6 @@
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../../generated/prisma/client";
-import os from "os";
-import path from "path";
 
 export { Prisma, PrismaClient } from "../../../generated/prisma/client";
 export type {
@@ -13,42 +11,41 @@ export type {
   LibraryDocumentVersion,
 } from "../../../generated/prisma/client";
 
-function expandTilde(input: string): string {
-  if (input.startsWith("~/")) {
-    return path.join(os.homedir(), input.slice(2));
-  }
-  return input;
-}
-
-function getDbPath(): string {
-  const databaseUrl =
-    process.env.DATABASE_URL?.trim() ||
-    (process.env.CI ? `file:${path.resolve(process.cwd(), ".cache/prisma/ci-dev.db")}` : "");
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is required and must be an absolute file: path");
-  }
-  if (!databaseUrl.startsWith("file:")) {
-    throw new Error("DATABASE_URL must use file: for this SQLite deployment");
-  }
-  const raw = databaseUrl.slice("file:".length).replace(/^"|"$/g, "");
-  const dbPath = expandTilde(raw);
-  if (!path.isAbsolute(dbPath)) {
-    throw new Error(`DATABASE_URL must be absolute; relative SQLite paths split data by cwd: ${raw}`);
-  }
-  return dbPath;
-}
-
 const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "agentSession", "agentProposal", "openApiClient", "notification", "workReport", "workReportItem", "approvalRequest", "approvalEvent", "workflowPolicy", "permissionGrantLedgerEvent"] as const;
 
 type RequiredDelegate = (typeof REQUIRED_DELEGATES)[number];
 type CachedPrismaClient = PrismaClient & Partial<Record<RequiredDelegate, unknown>>;
 
-const globalForPrisma = global as unknown as { prisma?: CachedPrismaClient; prismaDbPath?: string };
+const globalForPrisma = global as unknown as {
+  prisma?: CachedPrismaClient;
+  prismaDatabaseUrl?: string;
+};
+
+function requiredPostgresqlUrl() {
+  const databaseUrl = process.env.DATABASE_URL?.trim();
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is required for the PostgreSQL deployment");
+  }
+  if (!/^postgres(?:ql)?:\/\//.test(databaseUrl)) {
+    throw new Error("DATABASE_URL must use postgresql:// for the PostgreSQL deployment");
+  }
+  return databaseUrl;
+}
+
+function integerSetting(name: string, fallback: number, minimum: number) {
+  const raw = process.env[name]?.trim();
+  if (!raw) return fallback;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < minimum) {
+    throw new Error(`${name} must be an integer >= ${minimum}`);
+  }
+  return value;
+}
 
 function isCurrentPrismaClient(client: CachedPrismaClient | undefined): client is PrismaClient {
   return Boolean(
-    client &&
-      REQUIRED_DELEGATES.every((delegate) => {
+    client
+      && REQUIRED_DELEGATES.every((delegate) => {
         const value = client[delegate];
         return value && typeof value === "object";
       }),
@@ -56,28 +53,32 @@ function isCurrentPrismaClient(client: CachedPrismaClient | undefined): client i
 }
 
 function createPrismaClient(): PrismaClient {
-  const currentDbPath = getDbPath();
+  const databaseUrl = requiredPostgresqlUrl();
   const cachedPrisma = globalForPrisma.prisma;
-  const cachedDbPath = globalForPrisma.prismaDbPath;
-  const shouldReuse = isCurrentPrismaClient(cachedPrisma) && cachedDbPath === currentDbPath;
+  const shouldReuse = isCurrentPrismaClient(cachedPrisma)
+    && globalForPrisma.prismaDatabaseUrl === databaseUrl;
 
-  if (shouldReuse && cachedPrisma) {
-    return cachedPrisma as PrismaClient;
-  }
+  if (shouldReuse && cachedPrisma) return cachedPrisma as PrismaClient;
 
-  const client = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: currentDbPath }) });
+  const adapter = new PrismaPg({
+    connectionString: databaseUrl,
+    max: integerSetting("PG_POOL_MAX", 10, 1),
+    connectionTimeoutMillis: integerSetting("PG_CONNECTION_TIMEOUT_MS", 5_000, 1),
+    idleTimeoutMillis: integerSetting("PG_IDLE_TIMEOUT_MS", 10_000, 0),
+    application_name: process.env.PG_APPLICATION_NAME?.trim() || "workspace",
+  });
+  const client = new PrismaClient({ adapter });
 
   if (cachedPrisma && cachedPrisma !== client && process.env.NODE_ENV !== "production") {
     void cachedPrisma.$disconnect().catch(() => undefined);
   }
   globalForPrisma.prisma = client;
-  globalForPrisma.prismaDbPath = currentDbPath;
-
+  globalForPrisma.prismaDatabaseUrl = databaseUrl;
   return client;
 }
 
-// Lazy proxy: PrismaClient is created on first property access,
-// ensuring process.env.DATABASE_URL is already set (dotenv loads it above).
+// Lazy proxy keeps environment loading deterministic for CLI/tests while still
+// maintaining exactly one PrismaPg pool per Node process and connection URL.
 export const prisma = new Proxy({} as PrismaClient, {
   get(_target, prop) {
     const client = createPrismaClient();

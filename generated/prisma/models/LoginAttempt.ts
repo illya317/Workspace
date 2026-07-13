@@ -1029,6 +1029,7 @@ export type LoginAttemptCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many LoginAttempts.
    */
   data: Prisma.LoginAttemptCreateManyInput | Prisma.LoginAttemptCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1047,6 +1048,7 @@ export type LoginAttemptCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many LoginAttempts.
    */
   data: Prisma.LoginAttemptCreateManyInput | Prisma.LoginAttemptCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

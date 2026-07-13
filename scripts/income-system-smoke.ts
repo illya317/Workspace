@@ -14,14 +14,14 @@
  */
 
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
-import { requireDatabasePath } from "./lib/database-url.js";
+import { requireDatabaseUrl } from "./lib/database-url.js";
 import { generateReview, getReview } from "@workspace/finance/server/statements/reviews/service";
 import { getOrCreateDraft, saveWorkpaper } from "@workspace/finance/server/statements/workpapers/service";
 import { computeIncomeSystemAmounts } from "@workspace/finance/server/statements/reviews/system-amounts";
 
-const prisma = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: requireDatabasePath() }) });
+const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString: requireDatabaseUrl(), application_name: "workspace-finance-income-smoke" }) });
 
 const CO = process.argv[2] || "02";
 const YR = parseInt(process.argv[3] || "2025", 10);

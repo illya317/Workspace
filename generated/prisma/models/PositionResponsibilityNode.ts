@@ -801,6 +801,7 @@ export type PositionResponsibilityNodeCreateOrConnectWithoutPositionDescriptionI
 
 export type PositionResponsibilityNodeCreateManyPositionDescriptionInputEnvelope = {
   data: Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionInput | Prisma.PositionResponsibilityNodeCreateManyPositionDescriptionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionResponsibilityNodeUpsertWithWhereUniqueWithoutPositionDescriptionInput = {
@@ -931,6 +932,7 @@ export type PositionResponsibilityNodeCreateOrConnectWithoutParentInput = {
 
 export type PositionResponsibilityNodeCreateManyParentInputEnvelope = {
   data: Prisma.PositionResponsibilityNodeCreateManyParentInput | Prisma.PositionResponsibilityNodeCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionResponsibilityNodeUpsertWithoutChildrenInput = {
@@ -2087,6 +2089,7 @@ export type PositionResponsibilityNodeCreateManyArgs<ExtArgs extends runtime.Typ
    * The data used to create many PositionResponsibilityNodes.
    */
   data: Prisma.PositionResponsibilityNodeCreateManyInput | Prisma.PositionResponsibilityNodeCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2105,6 +2108,7 @@ export type PositionResponsibilityNodeCreateManyAndReturnArgs<ExtArgs extends ru
    * The data used to create many PositionResponsibilityNodes.
    */
   data: Prisma.PositionResponsibilityNodeCreateManyInput | Prisma.PositionResponsibilityNodeCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

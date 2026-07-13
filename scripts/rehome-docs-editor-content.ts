@@ -1,7 +1,9 @@
 import "dotenv/config";
 
+import { execFile } from "node:child_process";
 import fs from "fs/promises";
 import path from "path";
+import { promisify } from "node:util";
 
 import { prisma } from "@workspace/platform/server/prisma";
 import {
@@ -27,6 +29,7 @@ const counters = {
 };
 
 let backupCreated = false;
+const execFileAsync = promisify(execFile);
 
 async function main() {
   const templates = await loadTemplates();
@@ -117,24 +120,26 @@ async function isDiscardedAdminDraft(template: TemplateWithSpace) {
 
 async function ensureBackup() {
   if (backupCreated) return;
-  const dbPath = databasePath();
+  const databaseUrl = directDatabaseUrl();
+  const workspaceDir = process.env.WORKSPACE_CONFIG_DIR?.trim();
+  if (!workspaceDir || !path.isAbsolute(workspaceDir)) {
+    throw new Error("WORKSPACE_CONFIG_DIR must be absolute for docs editor backup");
+  }
   const stamp = timestamp();
-  const backupPath = `${dbPath}.before-docs-editor-rehome-${stamp}.db`;
-  await fs.copyFile(dbPath, backupPath);
+  const backupDir = path.join(workspaceDir, "backups");
+  const backupPath = path.join(backupDir, `before-docs-editor-rehome-${stamp}.dump`);
+  await fs.mkdir(backupDir, { recursive: true, mode: 0o700 });
+  await execFileAsync("pg_dump", ["--format=custom", "--no-owner", "--no-privileges", `--file=${backupPath}`, databaseUrl]);
+  await execFileAsync("pg_restore", ["--list", backupPath]);
+  await fs.chmod(backupPath, 0o600);
   backupCreated = true;
   process.stdout.write(`backup: ${backupPath}\n`);
 }
 
-function databasePath() {
-  const url = process.env["DATABASE_URL"] || "";
-  if (!url.startsWith("file:")) {
-    throw new Error("DATABASE_URL must use file: for docs editor content rehome");
-  }
-  const rawPath = url.slice("file:".length).replace(/^\/\/(?=\/)/, "");
-  if (!path.isAbsolute(rawPath)) {
-    throw new Error("DATABASE_URL must be an absolute file: path");
-  }
-  return rawPath;
+function directDatabaseUrl() {
+  const url = (process.env.DIRECT_URL || process.env.DATABASE_URL || "").trim();
+  if (!/^postgres(?:ql)?:\/\//.test(url)) throw new Error("DIRECT_URL or DATABASE_URL must use PostgreSQL");
+  return url;
 }
 
 function timestamp() {

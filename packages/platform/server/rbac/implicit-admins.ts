@@ -53,9 +53,9 @@ export async function getImplicitGrantManagerPositionIds() {
     where: {
       isArchived: false,
       OR: IMPLICIT_GRANT_DEPARTMENT_KEYWORDS.flatMap((keyword) => [
-        { name: { contains: keyword } },
-        { alias: { contains: keyword } },
-        { code: { contains: keyword } },
+        { name: { contains: keyword, mode: "insensitive" } },
+        { alias: { contains: keyword, mode: "insensitive" } },
+        { code: { contains: keyword, mode: "insensitive" } },
       ]),
     },
     select: { managerPositionId: true },

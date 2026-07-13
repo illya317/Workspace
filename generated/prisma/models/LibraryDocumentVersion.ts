@@ -1128,6 +1128,7 @@ export type LibraryDocumentVersionCreateOrConnectWithoutCreatorInput = {
 
 export type LibraryDocumentVersionCreateManyCreatorInputEnvelope = {
   data: Prisma.LibraryDocumentVersionCreateManyCreatorInput | Prisma.LibraryDocumentVersionCreateManyCreatorInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentVersionUpsertWithWhereUniqueWithoutCreatorInput = {
@@ -2483,6 +2484,7 @@ export type LibraryDocumentVersionCreateOrConnectWithoutDocumentInput = {
 
 export type LibraryDocumentVersionCreateManyDocumentInputEnvelope = {
   data: Prisma.LibraryDocumentVersionCreateManyDocumentInput | Prisma.LibraryDocumentVersionCreateManyDocumentInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryDocumentVersionUpsertWithoutCurrentForDocumentInput = {
@@ -3914,6 +3916,7 @@ export type LibraryDocumentVersionCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many LibraryDocumentVersions.
    */
   data: Prisma.LibraryDocumentVersionCreateManyInput | Prisma.LibraryDocumentVersionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -3932,6 +3935,7 @@ export type LibraryDocumentVersionCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many LibraryDocumentVersions.
    */
   data: Prisma.LibraryDocumentVersionCreateManyInput | Prisma.LibraryDocumentVersionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

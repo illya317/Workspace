@@ -426,6 +426,7 @@ export type WorkParticipantCreateOrConnectWithoutWorkItemInput = {
 
 export type WorkParticipantCreateManyWorkItemInputEnvelope = {
   data: Prisma.WorkParticipantCreateManyWorkItemInput | Prisma.WorkParticipantCreateManyWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkParticipantUpsertWithWhereUniqueWithoutWorkItemInput = {
@@ -1204,6 +1205,7 @@ export type WorkParticipantCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many WorkParticipants.
    */
   data: Prisma.WorkParticipantCreateManyInput | Prisma.WorkParticipantCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1222,6 +1224,7 @@ export type WorkParticipantCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many WorkParticipants.
    */
   data: Prisma.WorkParticipantCreateManyInput | Prisma.WorkParticipantCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

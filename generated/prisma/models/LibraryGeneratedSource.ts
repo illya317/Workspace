@@ -1119,6 +1119,7 @@ export type LibraryGeneratedSourceCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many LibraryGeneratedSources.
    */
   data: Prisma.LibraryGeneratedSourceCreateManyInput | Prisma.LibraryGeneratedSourceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1137,6 +1138,7 @@ export type LibraryGeneratedSourceCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many LibraryGeneratedSources.
    */
   data: Prisma.LibraryGeneratedSourceCreateManyInput | Prisma.LibraryGeneratedSourceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

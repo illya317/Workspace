@@ -716,6 +716,7 @@ export type FinanceBalanceSnapshotRowCreateOrConnectWithoutAccountInput = {
 
 export type FinanceBalanceSnapshotRowCreateManyAccountInputEnvelope = {
   data: Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput | Prisma.FinanceBalanceSnapshotRowCreateManyAccountInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutAccountInput = {
@@ -789,6 +790,7 @@ export type FinanceBalanceSnapshotRowCreateOrConnectWithoutSnapshotInput = {
 
 export type FinanceBalanceSnapshotRowCreateManySnapshotInputEnvelope = {
   data: Prisma.FinanceBalanceSnapshotRowCreateManySnapshotInput | Prisma.FinanceBalanceSnapshotRowCreateManySnapshotInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceBalanceSnapshotRowUpsertWithWhereUniqueWithoutSnapshotInput = {
@@ -1703,6 +1705,7 @@ export type FinanceBalanceSnapshotRowCreateManyArgs<ExtArgs extends runtime.Type
    * The data used to create many FinanceBalanceSnapshotRows.
    */
   data: Prisma.FinanceBalanceSnapshotRowCreateManyInput | Prisma.FinanceBalanceSnapshotRowCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1721,6 +1724,7 @@ export type FinanceBalanceSnapshotRowCreateManyAndReturnArgs<ExtArgs extends run
    * The data used to create many FinanceBalanceSnapshotRows.
    */
   data: Prisma.FinanceBalanceSnapshotRowCreateManyInput | Prisma.FinanceBalanceSnapshotRowCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

@@ -1146,6 +1146,7 @@ export type PositionCreateOrConnectWithoutPositionDescriptionInput = {
 
 export type PositionCreateManyPositionDescriptionInputEnvelope = {
   data: Prisma.PositionCreateManyPositionDescriptionInput | Prisma.PositionCreateManyPositionDescriptionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionUpsertWithWhereUniqueWithoutPositionDescriptionInput = {
@@ -1285,6 +1286,7 @@ export type PositionCreateOrConnectWithoutDepartmentInput = {
 
 export type PositionCreateManyDepartmentInputEnvelope = {
   data: Prisma.PositionCreateManyDepartmentInput | Prisma.PositionCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionUpsertWithoutManagedDepartmentsInput = {
@@ -1461,6 +1463,7 @@ export type PositionCreateOrConnectWithoutReportToPositionInput = {
 
 export type PositionCreateManyReportToPositionInputEnvelope = {
   data: Prisma.PositionCreateManyReportToPositionInput | Prisma.PositionCreateManyReportToPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionUpsertWithoutDirectReportPositionsInput = {
@@ -3096,6 +3099,7 @@ export type PositionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inte
    * The data used to create many Positions.
    */
   data: Prisma.PositionCreateManyInput | Prisma.PositionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -3114,6 +3118,7 @@ export type PositionCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extens
    * The data used to create many Positions.
    */
   data: Prisma.PositionCreateManyInput | Prisma.PositionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

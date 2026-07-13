@@ -20,6 +20,8 @@ const ENV_FILE = path.join(ROOT, ".env");
 const REQUIRED_IN_EXAMPLE = [
   "NEXTAUTH_SECRET",
   "DATABASE_URL",
+  "DIRECT_URL",
+  "SHADOW_DATABASE_URL",
   "WORKSPACE_CONFIG_DIR",
 ];
 
@@ -48,37 +50,43 @@ function parseEnvFile(content) {
   );
 }
 
-function validateDatabaseEnv(envVars, sourceLabel) {
+function parsePostgresqlUrl(value, key, sourceLabel) {
+  if (!value || !/^postgres(?:ql)?:\/\//.test(value)) {
+    fail(`${key} in ${sourceLabel} must use postgresql:// or postgres://`);
+    return null;
+  }
+  try {
+    const parsed = new URL(value);
+    if (!parsed.hostname || !parsed.pathname || parsed.pathname === "/") {
+      fail(`${key} in ${sourceLabel} must include a host and database name`);
+      return null;
+    }
+    ok(`${key} in ${sourceLabel} is PostgreSQL`);
+    return parsed;
+  } catch {
+    fail(`${key} in ${sourceLabel} is not a valid PostgreSQL URL`);
+    return null;
+  }
+}
+
+function validateDatabaseEnv(envVars, sourceLabel, { requireWorkspace = true } = {}) {
   const workspaceDir = envVars.get("WORKSPACE_CONFIG_DIR");
   const databaseUrl = envVars.get("DATABASE_URL");
-  if (!workspaceDir) {
+  if (requireWorkspace && !workspaceDir) {
     fail(`WORKSPACE_CONFIG_DIR in ${sourceLabel} is missing.`);
-    return;
-  }
-  if (!path.isAbsolute(workspaceDir)) {
+  } else if (workspaceDir && !path.isAbsolute(workspaceDir)) {
     fail(`WORKSPACE_CONFIG_DIR in ${sourceLabel} must be absolute: ${workspaceDir}`);
-  } else {
+  } else if (workspaceDir) {
     ok(`WORKSPACE_CONFIG_DIR in ${sourceLabel} is absolute`);
   }
-  if (!databaseUrl) {
-    fail(`DATABASE_URL in ${sourceLabel} is missing.`);
-    return;
+  const pooled = parsePostgresqlUrl(databaseUrl, "DATABASE_URL", sourceLabel);
+  const direct = parsePostgresqlUrl(envVars.get("DIRECT_URL"), "DIRECT_URL", sourceLabel);
+  const shadow = parsePostgresqlUrl(envVars.get("SHADOW_DATABASE_URL"), "SHADOW_DATABASE_URL", sourceLabel);
+  if (pooled && direct && pooled.pathname !== direct.pathname) {
+    fail(`DATABASE_URL and DIRECT_URL in ${sourceLabel} must select the same database`);
   }
-  if (!databaseUrl.startsWith("file:")) {
-    fail(`DATABASE_URL in ${sourceLabel} must use file: for this SQLite deployment`);
-    return;
-  }
-  const databasePath = databaseUrl.slice("file:".length).replace(/^["']|["']$/g, "").trim();
-  if (!path.isAbsolute(databasePath)) {
-    fail(`DATABASE_URL in ${sourceLabel} must be absolute; relative SQLite paths split data by cwd: ${databasePath}`);
-    return;
-  }
-  ok(`DATABASE_URL in ${sourceLabel} is absolute`);
-  const expectedPrefix = path.join(workspaceDir || "", "data") + path.sep;
-  if (workspaceDir && path.isAbsolute(workspaceDir) && !databasePath.startsWith(expectedPrefix)) {
-    fail(`DATABASE_URL in ${sourceLabel} must live under WORKSPACE_CONFIG_DIR/data: ${databasePath}`);
-  } else if (workspaceDir && path.isAbsolute(workspaceDir)) {
-    ok("DATABASE_URL points under WORKSPACE_CONFIG_DIR/data");
+  if (direct && shadow && direct.pathname === shadow.pathname) {
+    fail(`SHADOW_DATABASE_URL in ${sourceLabel} must select a separate database`);
   }
 }
 
@@ -138,6 +146,12 @@ if (isCI) {
   } else {
     ok("NEXTAUTH_SECRET is present in environment");
   }
+  validateDatabaseEnv(new Map([
+    ["DATABASE_URL", process.env.DATABASE_URL || ""],
+    ["DIRECT_URL", process.env.DIRECT_URL || ""],
+    ["SHADOW_DATABASE_URL", process.env.SHADOW_DATABASE_URL || ""],
+    ["WORKSPACE_CONFIG_DIR", process.env.WORKSPACE_CONFIG_DIR || ""],
+  ]), "CI environment", { requireWorkspace: false });
 } else {
   if (!fs.existsSync(ENV_FILE)) {
     fail(".env is missing locally. Copy .env.example to .env and fill in real values.");

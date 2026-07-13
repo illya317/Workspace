@@ -1524,6 +1524,7 @@ export type PositionDescriptionCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many PositionDescriptions.
    */
   data: Prisma.PositionDescriptionCreateManyInput | Prisma.PositionDescriptionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1542,6 +1543,7 @@ export type PositionDescriptionCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many PositionDescriptions.
    */
   data: Prisma.PositionDescriptionCreateManyInput | Prisma.PositionDescriptionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

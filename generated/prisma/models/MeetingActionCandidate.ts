@@ -879,6 +879,7 @@ export type MeetingActionCandidateCreateOrConnectWithoutMeetingInput = {
 
 export type MeetingActionCandidateCreateManyMeetingInputEnvelope = {
   data: Prisma.MeetingActionCandidateCreateManyMeetingInput | Prisma.MeetingActionCandidateCreateManyMeetingInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingActionCandidateUpsertWithWhereUniqueWithoutMeetingInput = {
@@ -956,6 +957,7 @@ export type MeetingActionCandidateCreateOrConnectWithoutAgendaItemInput = {
 
 export type MeetingActionCandidateCreateManyAgendaItemInputEnvelope = {
   data: Prisma.MeetingActionCandidateCreateManyAgendaItemInput | Prisma.MeetingActionCandidateCreateManyAgendaItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingActionCandidateUpsertWithWhereUniqueWithoutAgendaItemInput = {
@@ -1014,6 +1016,7 @@ export type MeetingActionCandidateCreateOrConnectWithoutDecisionInput = {
 
 export type MeetingActionCandidateCreateManyDecisionInputEnvelope = {
   data: Prisma.MeetingActionCandidateCreateManyDecisionInput | Prisma.MeetingActionCandidateCreateManyDecisionInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingActionCandidateUpsertWithWhereUniqueWithoutDecisionInput = {
@@ -1110,6 +1113,7 @@ export type MeetingActionCandidateCreateOrConnectWithoutLinkedWorkPlanInput = {
 
 export type MeetingActionCandidateCreateManyLinkedWorkPlanInputEnvelope = {
   data: Prisma.MeetingActionCandidateCreateManyLinkedWorkPlanInput | Prisma.MeetingActionCandidateCreateManyLinkedWorkPlanInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingActionCandidateUpsertWithoutSourceWorkPlansInput = {
@@ -1250,6 +1254,7 @@ export type MeetingActionCandidateCreateOrConnectWithoutLinkedWorkItemInput = {
 
 export type MeetingActionCandidateCreateManyLinkedWorkItemInputEnvelope = {
   data: Prisma.MeetingActionCandidateCreateManyLinkedWorkItemInput | Prisma.MeetingActionCandidateCreateManyLinkedWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingActionCandidateUpsertWithoutSourceWorkItemsInput = {
@@ -2477,6 +2482,7 @@ export type MeetingActionCandidateCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many MeetingActionCandidates.
    */
   data: Prisma.MeetingActionCandidateCreateManyInput | Prisma.MeetingActionCandidateCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2495,6 +2501,7 @@ export type MeetingActionCandidateCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many MeetingActionCandidates.
    */
   data: Prisma.MeetingActionCandidateCreateManyInput | Prisma.MeetingActionCandidateCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

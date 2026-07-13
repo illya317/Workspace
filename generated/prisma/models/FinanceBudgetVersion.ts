@@ -1457,6 +1457,7 @@ export type FinanceBudgetVersionCreateManyArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many FinanceBudgetVersions.
    */
   data: Prisma.FinanceBudgetVersionCreateManyInput | Prisma.FinanceBudgetVersionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1475,6 +1476,7 @@ export type FinanceBudgetVersionCreateManyAndReturnArgs<ExtArgs extends runtime.
    * The data used to create many FinanceBudgetVersions.
    */
   data: Prisma.FinanceBudgetVersionCreateManyInput | Prisma.FinanceBudgetVersionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

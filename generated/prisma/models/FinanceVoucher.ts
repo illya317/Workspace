@@ -745,6 +745,7 @@ export type FinanceVoucherCreateOrConnectWithoutEditorInput = {
 
 export type FinanceVoucherCreateManyEditorInputEnvelope = {
   data: Prisma.FinanceVoucherCreateManyEditorInput | Prisma.FinanceVoucherCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceVoucherUpsertWithWhereUniqueWithoutEditorInput = {
@@ -823,6 +824,7 @@ export type FinanceVoucherCreateOrConnectWithoutPeriodInput = {
 
 export type FinanceVoucherCreateManyPeriodInputEnvelope = {
   data: Prisma.FinanceVoucherCreateManyPeriodInput | Prisma.FinanceVoucherCreateManyPeriodInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceVoucherUpsertWithWhereUniqueWithoutPeriodInput = {
@@ -1872,6 +1874,7 @@ export type FinanceVoucherCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many FinanceVouchers.
    */
   data: Prisma.FinanceVoucherCreateManyInput | Prisma.FinanceVoucherCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1890,6 +1893,7 @@ export type FinanceVoucherCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many FinanceVouchers.
    */
   data: Prisma.FinanceVoucherCreateManyInput | Prisma.FinanceVoucherCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

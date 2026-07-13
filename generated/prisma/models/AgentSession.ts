@@ -1383,6 +1383,7 @@ export type AgentSessionCreateManyArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many AgentSessions.
    */
   data: Prisma.AgentSessionCreateManyInput | Prisma.AgentSessionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1401,6 +1402,7 @@ export type AgentSessionCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many AgentSessions.
    */
   data: Prisma.AgentSessionCreateManyInput | Prisma.AgentSessionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

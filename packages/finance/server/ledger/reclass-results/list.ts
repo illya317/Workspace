@@ -30,10 +30,10 @@ export async function listReclassResults(
 
   if (keyword) {
     where.OR = [
-      { sourceAccount: { contains: keyword } },
-      { targetAccount: { contains: keyword } },
-      { voucherItem: { relatedEntity: { contains: keyword } } },
-      { voucherItem: { voucher: { voucherNo: { contains: keyword } } } },
+      { sourceAccount: { contains: keyword, mode: "insensitive" } },
+      { targetAccount: { contains: keyword, mode: "insensitive" } },
+      { voucherItem: { relatedEntity: { contains: keyword, mode: "insensitive" } } },
+      { voucherItem: { voucher: { voucherNo: { contains: keyword, mode: "insensitive" } } } },
     ];
   }
 
@@ -66,13 +66,14 @@ export async function listReclassResults(
   const items: ReclassResultRow[] = rows.map((r) => ({
     id: r.id,
     periodId: r.periodId,
-    voucherItemId: r.voucherItemId,
-    voucherNo: r.voucherItem.voucher.voucherNo,
-    voucherDate: r.voucherItem.voucher.date,
-    relatedEntity: r.voucherItem.relatedEntity,
-    description: r.voucherItem.description,
+    voucherItemId: r.voucherItemId ?? r.voucherItemIdSnapshot,
+    sourceMissing: !r.voucherItem,
+    voucherNo: r.voucherItem?.voucher.voucherNo ?? "历史来源已删除",
+    voucherDate: r.voucherItem?.voucher.date ?? "",
+    relatedEntity: r.voucherItem?.relatedEntity ?? null,
+    description: r.voucherItem?.description ?? "原凭证明细已删除，保留重分类结果快照",
     sourceAccount: r.sourceAccount,
-    sourceAccountName: r.voucherItem.account.name,
+    sourceAccountName: r.voucherItem?.account.name ?? r.sourceAccount,
     abnormalSide: r.rule?.abnormalSide ?? null,
     itemDebit: 0,
     itemCredit: 0,

@@ -703,6 +703,7 @@ export type ProjectPlanPhaseCreateOrConnectWithoutProjectInput = {
 
 export type ProjectPlanPhaseCreateManyProjectInputEnvelope = {
   data: Prisma.ProjectPlanPhaseCreateManyProjectInput | Prisma.ProjectPlanPhaseCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectPlanPhaseUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1785,6 +1786,7 @@ export type ProjectPlanPhaseCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many ProjectPlanPhases.
    */
   data: Prisma.ProjectPlanPhaseCreateManyInput | Prisma.ProjectPlanPhaseCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1803,6 +1805,7 @@ export type ProjectPlanPhaseCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many ProjectPlanPhases.
    */
   data: Prisma.ProjectPlanPhaseCreateManyInput | Prisma.ProjectPlanPhaseCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

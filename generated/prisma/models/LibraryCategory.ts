@@ -709,6 +709,7 @@ export type LibraryCategoryCreateOrConnectWithoutParentInput = {
 
 export type LibraryCategoryCreateManyParentInputEnvelope = {
   data: Prisma.LibraryCategoryCreateManyParentInput | Prisma.LibraryCategoryCreateManyParentInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryCategoryUpsertWithoutChildrenInput = {
@@ -1632,6 +1633,7 @@ export type LibraryCategoryCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many LibraryCategories.
    */
   data: Prisma.LibraryCategoryCreateManyInput | Prisma.LibraryCategoryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1650,6 +1652,7 @@ export type LibraryCategoryCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many LibraryCategories.
    */
   data: Prisma.LibraryCategoryCreateManyInput | Prisma.LibraryCategoryCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

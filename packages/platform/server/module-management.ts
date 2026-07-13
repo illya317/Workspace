@@ -15,6 +15,7 @@ import { RESOURCE_DEFS } from "@workspace/platform/resources";
 import { prisma } from "./prisma";
 
 const MODULE_RUNTIME_OVERRIDES_KEY = "moduleRuntimeOverrides";
+let preloadPromise: Promise<void> | null = null;
 
 export type ModuleManagementStatus = "enabled" | "hidden" | "disabled";
 
@@ -86,6 +87,20 @@ async function readPersistedOverrides(): Promise<ModuleRuntimeOverrideMap> {
   } catch {
     return {};
   }
+}
+
+/** Load persisted runtime state before the Node server begins accepting requests. */
+export function preloadModuleRuntimeOverrides() {
+  if (!preloadPromise) {
+    preloadPromise = readPersistedOverrides().then((overrides) => {
+      setDynamicModuleRuntimeOverrides(overrides);
+      clearResourceRuntimeStateCache();
+    }).catch((error) => {
+      preloadPromise = null;
+      throw error;
+    });
+  }
+  return preloadPromise;
 }
 
 async function writePersistedOverrides(overrides: ModuleRuntimeOverrideMap) {

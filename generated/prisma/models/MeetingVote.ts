@@ -530,6 +530,7 @@ export type MeetingVoteCreateOrConnectWithoutVoterInput = {
 
 export type MeetingVoteCreateManyVoterInputEnvelope = {
   data: Prisma.MeetingVoteCreateManyVoterInput | Prisma.MeetingVoteCreateManyVoterInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingVoteUpsertWithWhereUniqueWithoutVoterInput = {
@@ -585,6 +586,7 @@ export type MeetingVoteCreateOrConnectWithoutProposalInput = {
 
 export type MeetingVoteCreateManyProposalInputEnvelope = {
   data: Prisma.MeetingVoteCreateManyProposalInput | Prisma.MeetingVoteCreateManyProposalInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingVoteUpsertWithWhereUniqueWithoutProposalInput = {
@@ -1415,6 +1417,7 @@ export type MeetingVoteCreateManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * The data used to create many MeetingVotes.
    */
   data: Prisma.MeetingVoteCreateManyInput | Prisma.MeetingVoteCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1433,6 +1436,7 @@ export type MeetingVoteCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Ext
    * The data used to create many MeetingVotes.
    */
   data: Prisma.MeetingVoteCreateManyInput | Prisma.MeetingVoteCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

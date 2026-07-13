@@ -301,16 +301,16 @@ export async function listUserNotifications(
   const visibleAllWhere = baseNotificationWhere(userId);
   const [orderedIds, total, unreadCount, pendingCount, ordinaryCount, workflowTodoCount, workflowMineCount] = await Promise.all([
     prisma.$queryRaw<{ id: number }[]>`
-      SELECT id
-      FROM Notification
+      SELECT "id"
+      FROM "Notification"
       WHERE ${buildNotificationSqlWhere(userId, query)}
       ORDER BY
         CASE
-          WHEN requiresAcknowledgement = 1 AND acknowledgedAt IS NULL AND rejectedAt IS NULL THEN 0
-          WHEN isImportant = 1 AND readAt IS NULL THEN 1
+          WHEN "requiresAcknowledgement" IS TRUE AND "acknowledgedAt" IS NULL AND "rejectedAt" IS NULL THEN 0
+          WHEN "isImportant" IS TRUE AND "readAt" IS NULL THEN 1
           ELSE 2
         END ASC,
-        createdAt DESC
+        "createdAt" DESC
       LIMIT ${take}
       OFFSET ${skip}
     `,

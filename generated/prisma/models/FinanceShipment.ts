@@ -854,6 +854,7 @@ export type FinanceShipmentCreateOrConnectWithoutImportInput = {
 
 export type FinanceShipmentCreateManyImportInputEnvelope = {
   data: Prisma.FinanceShipmentCreateManyImportInput | Prisma.FinanceShipmentCreateManyImportInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceShipmentUpsertWithWhereUniqueWithoutImportInput = {
@@ -945,6 +946,7 @@ export type FinanceShipmentCreateOrConnectWithoutEmployeeInput = {
 
 export type FinanceShipmentCreateManyEmployeeInputEnvelope = {
   data: Prisma.FinanceShipmentCreateManyEmployeeInput | Prisma.FinanceShipmentCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceShipmentUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -1943,6 +1945,7 @@ export type FinanceShipmentCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many FinanceShipments.
    */
   data: Prisma.FinanceShipmentCreateManyInput | Prisma.FinanceShipmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1961,6 +1964,7 @@ export type FinanceShipmentCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many FinanceShipments.
    */
   data: Prisma.FinanceShipmentCreateManyInput | Prisma.FinanceShipmentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

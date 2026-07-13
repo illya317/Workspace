@@ -604,6 +604,7 @@ export type DepartmentCollaborationDepartmentCreateOrConnectWithoutRespondedByIn
 
 export type DepartmentCollaborationDepartmentCreateManyRespondedByInputEnvelope = {
   data: Prisma.DepartmentCollaborationDepartmentCreateManyRespondedByInput | Prisma.DepartmentCollaborationDepartmentCreateManyRespondedByInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationDepartmentUpsertWithWhereUniqueWithoutRespondedByInput = {
@@ -662,6 +663,7 @@ export type DepartmentCollaborationDepartmentCreateOrConnectWithoutDepartmentInp
 
 export type DepartmentCollaborationDepartmentCreateManyDepartmentInputEnvelope = {
   data: Prisma.DepartmentCollaborationDepartmentCreateManyDepartmentInput | Prisma.DepartmentCollaborationDepartmentCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationDepartmentUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -706,6 +708,7 @@ export type DepartmentCollaborationDepartmentCreateOrConnectWithoutCollaboration
 
 export type DepartmentCollaborationDepartmentCreateManyCollaborationInputEnvelope = {
   data: Prisma.DepartmentCollaborationDepartmentCreateManyCollaborationInput | Prisma.DepartmentCollaborationDepartmentCreateManyCollaborationInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentCollaborationDepartmentUpsertWithWhereUniqueWithoutCollaborationInput = {
@@ -1597,6 +1600,7 @@ export type DepartmentCollaborationDepartmentCreateManyArgs<ExtArgs extends runt
    * The data used to create many DepartmentCollaborationDepartments.
    */
   data: Prisma.DepartmentCollaborationDepartmentCreateManyInput | Prisma.DepartmentCollaborationDepartmentCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1615,6 +1619,7 @@ export type DepartmentCollaborationDepartmentCreateManyAndReturnArgs<ExtArgs ext
    * The data used to create many DepartmentCollaborationDepartments.
    */
   data: Prisma.DepartmentCollaborationDepartmentCreateManyInput | Prisma.DepartmentCollaborationDepartmentCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

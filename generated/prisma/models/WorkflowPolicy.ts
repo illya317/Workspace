@@ -1446,6 +1446,7 @@ export type WorkflowPolicyCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many WorkflowPolicies.
    */
   data: Prisma.WorkflowPolicyCreateManyInput | Prisma.WorkflowPolicyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1464,6 +1465,7 @@ export type WorkflowPolicyCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many WorkflowPolicies.
    */
   data: Prisma.WorkflowPolicyCreateManyInput | Prisma.WorkflowPolicyCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

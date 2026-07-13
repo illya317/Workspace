@@ -804,6 +804,7 @@ export type MeetingDecisionCreateOrConnectWithoutMeetingInput = {
 
 export type MeetingDecisionCreateManyMeetingInputEnvelope = {
   data: Prisma.MeetingDecisionCreateManyMeetingInput | Prisma.MeetingDecisionCreateManyMeetingInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingDecisionUpsertWithWhereUniqueWithoutMeetingInput = {
@@ -883,6 +884,7 @@ export type MeetingDecisionCreateOrConnectWithoutAgendaItemInput = {
 
 export type MeetingDecisionCreateManyAgendaItemInputEnvelope = {
   data: Prisma.MeetingDecisionCreateManyAgendaItemInput | Prisma.MeetingDecisionCreateManyAgendaItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingDecisionUpsertWithWhereUniqueWithoutAgendaItemInput = {
@@ -943,6 +945,7 @@ export type MeetingDecisionCreateOrConnectWithoutProposalInput = {
 
 export type MeetingDecisionCreateManyProposalInputEnvelope = {
   data: Prisma.MeetingDecisionCreateManyProposalInput | Prisma.MeetingDecisionCreateManyProposalInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingDecisionUpsertWithWhereUniqueWithoutProposalInput = {
@@ -2261,6 +2264,7 @@ export type MeetingDecisionCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many MeetingDecisions.
    */
   data: Prisma.MeetingDecisionCreateManyInput | Prisma.MeetingDecisionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2279,6 +2283,7 @@ export type MeetingDecisionCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many MeetingDecisions.
    */
   data: Prisma.MeetingDecisionCreateManyInput | Prisma.MeetingDecisionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

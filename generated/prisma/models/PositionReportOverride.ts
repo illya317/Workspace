@@ -793,6 +793,7 @@ export type PositionReportOverrideCreateOrConnectWithoutCompanyInput = {
 
 export type PositionReportOverrideCreateManyCompanyInputEnvelope = {
   data: Prisma.PositionReportOverrideCreateManyCompanyInput | Prisma.PositionReportOverrideCreateManyCompanyInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionReportOverrideUpsertWithWhereUniqueWithoutCompanyInput = {
@@ -865,6 +866,7 @@ export type PositionReportOverrideCreateOrConnectWithoutDepartmentInput = {
 
 export type PositionReportOverrideCreateManyDepartmentInputEnvelope = {
   data: Prisma.PositionReportOverrideCreateManyDepartmentInput | Prisma.PositionReportOverrideCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionReportOverrideUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -919,6 +921,7 @@ export type PositionReportOverrideCreateOrConnectWithoutPositionInput = {
 
 export type PositionReportOverrideCreateManyPositionInputEnvelope = {
   data: Prisma.PositionReportOverrideCreateManyPositionInput | Prisma.PositionReportOverrideCreateManyPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionReportOverrideCreateWithoutReportToPositionInput = {
@@ -957,6 +960,7 @@ export type PositionReportOverrideCreateOrConnectWithoutReportToPositionInput = 
 
 export type PositionReportOverrideCreateManyReportToPositionInputEnvelope = {
   data: Prisma.PositionReportOverrideCreateManyReportToPositionInput | Prisma.PositionReportOverrideCreateManyReportToPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionReportOverrideUpsertWithWhereUniqueWithoutPositionInput = {
@@ -2116,6 +2120,7 @@ export type PositionReportOverrideCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many PositionReportOverrides.
    */
   data: Prisma.PositionReportOverrideCreateManyInput | Prisma.PositionReportOverrideCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2134,6 +2139,7 @@ export type PositionReportOverrideCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many PositionReportOverrides.
    */
   data: Prisma.PositionReportOverrideCreateManyInput | Prisma.PositionReportOverrideCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

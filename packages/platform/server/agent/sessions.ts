@@ -78,8 +78,6 @@ const COMPRESSION_TRIGGER_BYTES = MODEL_HISTORY_CHARS;
 const MAX_STORED_MESSAGE_CHARS = MODEL_HISTORY_CHARS;
 const SESSION_ID_PATTERN = /^sess_[a-f0-9]{32}$/;
 
-let schemaReady = false;
-
 function expandTilde(input: string) {
   if (input.startsWith("~/")) return path.join(os.homedir(), input.slice(2));
   return input;
@@ -159,40 +157,6 @@ function storedMessageText(message: Pick<AgentStoredMessage, "content" | "attach
   return `${message.content}${attachmentText}`;
 }
 
-async function ensureAgentSessionSchema() {
-  if (schemaReady) return;
-
-  await prisma.$executeRawUnsafe(`
-    CREATE TABLE IF NOT EXISTS "AgentSession" (
-      "id" TEXT NOT NULL PRIMARY KEY,
-      "userId" INTEGER NOT NULL,
-      "status" TEXT NOT NULL DEFAULT 'active',
-      "pagePath" TEXT,
-      "contextLabel" TEXT,
-      "title" TEXT,
-      "storageKey" TEXT NOT NULL,
-      "summaryShort" TEXT,
-      "summaryLongStorageKey" TEXT,
-      "messageCount" INTEGER NOT NULL DEFAULT 0,
-      "compactedMessageCount" INTEGER NOT NULL DEFAULT 0,
-      "byteSize" INTEGER NOT NULL DEFAULT 0,
-      "createdAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "updatedAt" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      "expiresAt" DATETIME,
-      "deletedAt" DATETIME
-    )
-  `);
-  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "AgentSession_userId_updatedAt_idx" ON "AgentSession"("userId", "updatedAt")`);
-
-  const proposalColumns = await prisma.$queryRawUnsafe<Array<{ name: string }>>(`PRAGMA table_info("AgentProposal")`);
-  if (!proposalColumns.some((column) => column.name === "sessionId")) {
-    await prisma.$executeRawUnsafe(`ALTER TABLE "AgentProposal" ADD COLUMN "sessionId" TEXT`);
-  }
-  await prisma.$executeRawUnsafe(`CREATE INDEX IF NOT EXISTS "AgentProposal_sessionId_idx" ON "AgentProposal"("sessionId")`);
-
-  schemaReady = true;
-}
-
 function normalizeSessionRows(rows: AgentSessionRow[]) {
   return rows.map((row) => ({
     ...row,
@@ -204,16 +168,15 @@ function normalizeSessionRows(rows: AgentSessionRow[]) {
 
 async function getSessionById(sessionId: string, user: SessionUser) {
   if (!SESSION_ID_PATTERN.test(sessionId)) return null;
-  const rows = await prisma.$queryRawUnsafe<AgentSessionRow[]>(
-    `SELECT "id", "userId", "status", "pagePath", "contextLabel", "title", "storageKey", "summaryShort",
-            "summaryLongStorageKey", "messageCount", "compactedMessageCount", "byteSize"
-       FROM "AgentSession"
-      WHERE "id" = ? AND "userId" = ? AND "deletedAt" IS NULL
-      LIMIT 1`,
-    sessionId,
-    user.id,
-  );
-  return normalizeSessionRows(rows)[0] ?? null;
+  const row = await prisma.agentSession.findFirst({
+    where: { id: sessionId, userId: user.id, deletedAt: null },
+    select: {
+      id: true, userId: true, status: true, pagePath: true, contextLabel: true,
+      title: true, storageKey: true, summaryShort: true, summaryLongStorageKey: true,
+      messageCount: true, compactedMessageCount: true, byteSize: true,
+    },
+  });
+  return row ? normalizeSessionRows([row])[0] : null;
 }
 
 async function createSession(user: SessionUser, input: AgentSessionContextInput) {
@@ -225,16 +188,16 @@ async function createSession(user: SessionUser, input: AgentSessionContextInput)
   const title = normalizeOptionalText(input.title, 300);
 
   await mkdir(sessionDir(storageKey), { recursive: true });
-  await prisma.$executeRawUnsafe(
-    `INSERT INTO "AgentSession" ("id", "userId", "status", "pagePath", "contextLabel", "title", "storageKey", "createdAt", "updatedAt")
-     VALUES (?, ?, 'active', ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-    sessionId,
-    user.id,
-    pagePath,
-    contextLabel,
-    title,
-    storageKey,
-  );
+  await prisma.agentSession.create({
+    data: {
+      id: sessionId,
+      userId: user.id,
+      pagePath,
+      contextLabel,
+      title,
+      storageKey,
+    },
+  });
 
   const session = await getSessionById(sessionId, user);
   if (!session) throw new Error("Agent session create failed");
@@ -247,26 +210,21 @@ async function updateSessionContext(session: AgentSessionRow, input: AgentSessio
   const title = normalizeOptionalText(input.title, 300);
   if (pagePath === session.pagePath && contextLabel === session.contextLabel && title === session.title) return session;
 
-  await prisma.$executeRawUnsafe(
-    `UPDATE "AgentSession"
-        SET "pagePath" = COALESCE(?, "pagePath"),
-            "contextLabel" = COALESCE(?, "contextLabel"),
-            "title" = COALESCE(?, "title"),
-            "updatedAt" = CURRENT_TIMESTAMP
-      WHERE "id" = ? AND "userId" = ?`,
-    pagePath,
-    contextLabel,
-    title,
-    session.id,
-    user.id,
-  );
+  const data: { pagePath?: string; contextLabel?: string; title?: string; updatedAt: Date } = {
+    updatedAt: new Date(),
+  };
+  if (pagePath !== null) data.pagePath = pagePath;
+  if (contextLabel !== null) data.contextLabel = contextLabel;
+  if (title !== null) data.title = title;
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data,
+  });
 
   return (await getSessionById(session.id, user)) ?? session;
 }
 
 export async function prepareAgentSession(user: SessionUser, input: AgentSessionContextInput): Promise<PreparedAgentSession> {
-  await ensureAgentSessionSchema();
-
   const existing = input.sessionId ? await getSessionById(input.sessionId, user) : null;
   const session = existing
     ? await updateSessionContext(existing, input, user)
@@ -282,7 +240,6 @@ export async function prepareAgentSession(user: SessionUser, input: AgentSession
 /** Read an existing owned session without creating or mutating session context. */
 export async function readAgentSessionMessagesForUser(sessionId: string | null | undefined, user: SessionUser) {
   if (!sessionId) return [];
-  await ensureAgentSessionSchema();
   const session = await getSessionById(sessionId, user);
   return session ? readAgentSessionMessages(session) : [];
 }
@@ -387,7 +344,6 @@ export async function appendAgentSessionMessage(
   input: Omit<AgentStoredMessage, "id" | "createdAt">,
   user: SessionUser,
 ) {
-  await ensureAgentSessionSchema();
   const stored: AgentStoredMessage = {
     ...input,
     id: `msg_${randomUUID().replace(/-/g, "")}`,
@@ -399,16 +355,14 @@ export async function appendAgentSessionMessage(
 
   await mkdir(sessionDir(session.storageKey), { recursive: true });
   await appendFile(messagesPath(session.storageKey), line, "utf8");
-  await prisma.$executeRawUnsafe(
-    `UPDATE "AgentSession"
-        SET "messageCount" = "messageCount" + 1,
-            "byteSize" = "byteSize" + ?,
-            "updatedAt" = CURRENT_TIMESTAMP
-      WHERE "id" = ? AND "userId" = ?`,
-    bytes,
-    session.id,
-    user.id,
-  );
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data: {
+      messageCount: { increment: 1 },
+      byteSize: { increment: bytes },
+      updatedAt: new Date(),
+    },
+  });
 
   return (await getSessionById(session.id, user)) ?? session;
 }
@@ -443,13 +397,10 @@ export function buildContextualAgentMessage(question: string, session: AgentSess
 
 export async function linkAgentProposalToSession(proposalId: number | undefined, session: AgentSessionRow, user: SessionUser) {
   if (!proposalId) return;
-  await ensureAgentSessionSchema();
-  await prisma.$executeRawUnsafe(
-    `UPDATE "AgentProposal" SET "sessionId" = ? WHERE "id" = ? AND "userId" = ?`,
-    session.id,
-    proposalId,
-    user.id,
-  );
+  await prisma.agentProposal.updateMany({
+    where: { id: proposalId, userId: user.id },
+    data: { sessionId: session.id },
+  });
 }
 
 export async function compactAgentSessionIfNeeded(session: AgentSessionRow, user: SessionUser) {
@@ -469,19 +420,15 @@ export async function compactAgentSessionIfNeeded(session: AgentSessionRow, user
 
   await mkdir(sessionDir(session.storageKey), { recursive: true });
   await writeFile(summaryPath(session.storageKey), nextSummary, "utf8");
-  await prisma.$executeRawUnsafe(
-    `UPDATE "AgentSession"
-        SET "summaryShort" = ?,
-            "summaryLongStorageKey" = ?,
-            "compactedMessageCount" = ?,
-            "updatedAt" = CURRENT_TIMESTAMP
-      WHERE "id" = ? AND "userId" = ?`,
-    truncateText(nextSummary, SUMMARY_SHORT_CHARS),
-    summaryStorageKey,
-    compactableCount,
-    session.id,
-    user.id,
-  );
+  await prisma.agentSession.updateMany({
+    where: { id: session.id, userId: user.id, deletedAt: null },
+    data: {
+      summaryShort: truncateText(nextSummary, SUMMARY_SHORT_CHARS),
+      summaryLongStorageKey: summaryStorageKey,
+      compactedMessageCount: compactableCount,
+      updatedAt: new Date(),
+    },
+  });
 
   return (await getSessionById(session.id, user)) ?? session;
 }

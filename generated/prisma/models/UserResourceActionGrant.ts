@@ -484,6 +484,7 @@ export type UserResourceActionGrantCreateOrConnectWithoutUserInput = {
 
 export type UserResourceActionGrantCreateManyUserInputEnvelope = {
   data: Prisma.UserResourceActionGrantCreateManyUserInput | Prisma.UserResourceActionGrantCreateManyUserInput[]
+  skipDuplicates?: boolean
 }
 
 export type UserResourceActionGrantUpsertWithWhereUniqueWithoutUserInput = {
@@ -533,6 +534,7 @@ export type UserResourceActionGrantCreateOrConnectWithoutResourceInput = {
 
 export type UserResourceActionGrantCreateManyResourceInputEnvelope = {
   data: Prisma.UserResourceActionGrantCreateManyResourceInput | Prisma.UserResourceActionGrantCreateManyResourceInput[]
+  skipDuplicates?: boolean
 }
 
 export type UserResourceActionGrantUpsertWithWhereUniqueWithoutResourceInput = {
@@ -1335,6 +1337,7 @@ export type UserResourceActionGrantCreateManyArgs<ExtArgs extends runtime.Types.
    * The data used to create many UserResourceActionGrants.
    */
   data: Prisma.UserResourceActionGrantCreateManyInput | Prisma.UserResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1353,6 +1356,7 @@ export type UserResourceActionGrantCreateManyAndReturnArgs<ExtArgs extends runti
    * The data used to create many UserResourceActionGrants.
    */
   data: Prisma.UserResourceActionGrantCreateManyInput | Prisma.UserResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

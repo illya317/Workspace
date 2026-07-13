@@ -839,6 +839,7 @@ export type FinanceStatementReviewCreateOrConnectWithoutEditorInput = {
 
 export type FinanceStatementReviewCreateManyEditorInputEnvelope = {
   data: Prisma.FinanceStatementReviewCreateManyEditorInput | Prisma.FinanceStatementReviewCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceStatementReviewCreateWithoutReviewerInput = {
@@ -885,6 +886,7 @@ export type FinanceStatementReviewCreateOrConnectWithoutReviewerInput = {
 
 export type FinanceStatementReviewCreateManyReviewerInputEnvelope = {
   data: Prisma.FinanceStatementReviewCreateManyReviewerInput | Prisma.FinanceStatementReviewCreateManyReviewerInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceStatementReviewUpsertWithWhereUniqueWithoutEditorInput = {
@@ -2106,6 +2108,7 @@ export type FinanceStatementReviewCreateManyArgs<ExtArgs extends runtime.Types.E
    * The data used to create many FinanceStatementReviews.
    */
   data: Prisma.FinanceStatementReviewCreateManyInput | Prisma.FinanceStatementReviewCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2124,6 +2127,7 @@ export type FinanceStatementReviewCreateManyAndReturnArgs<ExtArgs extends runtim
    * The data used to create many FinanceStatementReviews.
    */
   data: Prisma.FinanceStatementReviewCreateManyInput | Prisma.FinanceStatementReviewCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

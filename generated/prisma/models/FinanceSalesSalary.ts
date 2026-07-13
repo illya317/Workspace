@@ -734,6 +734,7 @@ export type FinanceSalesSalaryCreateOrConnectWithoutImportInput = {
 
 export type FinanceSalesSalaryCreateManyImportInputEnvelope = {
   data: Prisma.FinanceSalesSalaryCreateManyImportInput | Prisma.FinanceSalesSalaryCreateManyImportInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceSalesSalaryUpsertWithWhereUniqueWithoutImportInput = {
@@ -810,6 +811,7 @@ export type FinanceSalesSalaryCreateOrConnectWithoutEmployeeInput = {
 
 export type FinanceSalesSalaryCreateManyEmployeeInputEnvelope = {
   data: Prisma.FinanceSalesSalaryCreateManyEmployeeInput | Prisma.FinanceSalesSalaryCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceSalesSalaryUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -1738,6 +1740,7 @@ export type FinanceSalesSalaryCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many FinanceSalesSalaries.
    */
   data: Prisma.FinanceSalesSalaryCreateManyInput | Prisma.FinanceSalesSalaryCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1756,6 +1759,7 @@ export type FinanceSalesSalaryCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many FinanceSalesSalaries.
    */
   data: Prisma.FinanceSalesSalaryCreateManyInput | Prisma.FinanceSalesSalaryCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

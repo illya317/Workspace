@@ -90,7 +90,7 @@ export async function buildRosterRows(dept: string, keyword: string): Promise<Ro
 
   const epWhere: Prisma.EDPWhereInput = { employeeId: { in: employeeIds } };
   if (dept) {
-    epWhere.department = { name: { contains: dept } };
+    epWhere.department = { name: { contains: dept, mode: "insensitive" } };
   }
 
   const [edps, companyMap] = await Promise.all([

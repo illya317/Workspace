@@ -1328,6 +1328,7 @@ export type ProjectCreateOrConnectWithoutLeadingDepartmentInput = {
 
 export type ProjectCreateManyLeadingDepartmentInputEnvelope = {
   data: Prisma.ProjectCreateManyLeadingDepartmentInput | Prisma.ProjectCreateManyLeadingDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectCreateWithoutOwningDepartmentInput = {
@@ -1418,6 +1419,7 @@ export type ProjectCreateOrConnectWithoutOwningDepartmentInput = {
 
 export type ProjectCreateManyOwningDepartmentInputEnvelope = {
   data: Prisma.ProjectCreateManyOwningDepartmentInput | Prisma.ProjectCreateManyOwningDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectUpsertWithWhereUniqueWithoutLeadingDepartmentInput = {
@@ -4219,6 +4221,7 @@ export type ProjectCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data used to create many Projects.
    */
   data: Prisma.ProjectCreateManyInput | Prisma.ProjectCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -4237,6 +4240,7 @@ export type ProjectCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many Projects.
    */
   data: Prisma.ProjectCreateManyInput | Prisma.ProjectCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

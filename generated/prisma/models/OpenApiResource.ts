@@ -1267,6 +1267,7 @@ export type OpenApiResourceCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many OpenApiResources.
    */
   data: Prisma.OpenApiResourceCreateManyInput | Prisma.OpenApiResourceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1285,6 +1286,7 @@ export type OpenApiResourceCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many OpenApiResources.
    */
   data: Prisma.OpenApiResourceCreateManyInput | Prisma.OpenApiResourceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**

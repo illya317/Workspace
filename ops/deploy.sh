@@ -40,6 +40,18 @@ if [ -z "$REMOTE_DIR" ]; then
   exit 1
 fi
 
+if [ -z "$HEALTHCHECK_URL" ]; then
+  echo "[错误] 缺少 HEALTHCHECK_URL；部署必须配置服务器本机可访问的强制健康检查地址"
+  exit 1
+fi
+case "$HEALTHCHECK_URL" in
+  http://*|https://*) ;;
+  *) echo "[错误] HEALTHCHECK_URL 必须使用 http:// 或 https://"; exit 1 ;;
+esac
+case "$HEALTHCHECK_URL" in
+  *"'"*) echo "[错误] HEALTHCHECK_URL 不能包含单引号"; exit 1 ;;
+esac
+
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
 elif [ "$REMOTE_WORKSPACE_CONFIG_DIR" != "$REMOTE_DIR/.workspace" ]; then
@@ -170,9 +182,12 @@ copy_prisma_deploy_files() {
   cp prisma/schema.prisma .next/standalone/prisma/schema.prisma
   cp -R prisma/models .next/standalone/prisma/models
   cp -R prisma/migrations .next/standalone/prisma/migrations
+  cp -R prisma/migrations-sqlite-legacy .next/standalone/prisma/migrations-sqlite-legacy
   cp prisma.config.ts .next/standalone/prisma.config.ts
   mkdir -p .next/standalone/scripts/check
   cp scripts/check/check-prisma-deploy-status.js .next/standalone/scripts/check/check-prisma-deploy-status.js
+  mkdir -p .next/standalone/scripts/migrate
+  cp scripts/migrate/sqlite-to-postgresql.mjs .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
 
   rm -rf .next/standalone/node_modules/prisma .next/standalone/node_modules/@prisma
   mkdir -p .next/standalone/node_modules
@@ -215,8 +230,10 @@ NODE
 
   test -f .next/standalone/prisma/schema.prisma
   test -f .next/standalone/prisma/migrations/migration_lock.toml
+  test -f .next/standalone/prisma/migrations-sqlite-legacy/migration_lock.toml
   test -f .next/standalone/prisma.config.ts
   test -f .next/standalone/scripts/check/check-prisma-deploy-status.js
+  test -f .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
   test -f .next/standalone/node_modules/prisma/build/index.js
   test -f .next/standalone/node_modules/effect/package.json
 }
@@ -224,14 +241,12 @@ NODE
 copy_resource_seed_files() {
   echo "==> 打包 RBAC resource manifest..."
   npx tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
-  cp scripts/seed-resources-runtime.js .next/standalone/seed-resources-runtime.js
-  mkdir -p .next/standalone/scripts/migrate
-  cp scripts/migrate/normalize-permission-action-grants.js .next/standalone/scripts/migrate/normalize-permission-action-grants.js
-  cp scripts/migrate/normalize-runtime-content.js .next/standalone/scripts/migrate/normalize-runtime-content.js
+  cp scripts/seed-resources-runtime.mjs .next/standalone/seed-resources-runtime.mjs
+  mkdir -p .next/standalone/scripts/check
+  cp scripts/check/check-permission-action-grants.mjs .next/standalone/scripts/check/check-permission-action-grants.mjs
   test -f .next/standalone/resource-defs.json
-  test -f .next/standalone/seed-resources-runtime.js
-  test -f .next/standalone/scripts/migrate/normalize-permission-action-grants.js
-  test -f .next/standalone/scripts/migrate/normalize-runtime-content.js
+  test -f .next/standalone/seed-resources-runtime.mjs
+  test -f .next/standalone/scripts/check/check-permission-action-grants.mjs
 }
 
 run_local_checks() {
@@ -282,10 +297,10 @@ build_artifact() {
   rm -rf "$standalone_app_dir/data"
   rm -f "$standalone_app_dir/.env"
 
-  # Next standalone tracing can leave native/runtime packages as partial shells.
-  # Keep the SQLite adapter stack complete so production does not depend on
+  # Next standalone tracing can leave database/runtime packages as partial shells.
+  # Keep the PostgreSQL adapter stack complete so production does not depend on
   # bundler internals for database access.
-  copy_runtime_package_tree better-sqlite3 @prisma/adapter-better-sqlite3 @prisma/client dotenv @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
+  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
   copy_prisma_deploy_files
   copy_resource_seed_files
 
@@ -303,7 +318,8 @@ build_artifact() {
   cp -R generated/production/qc/template-snapshots .next/standalone/generated/production/qc/template-snapshots
   find .next/standalone \( -name '.DS_Store' -o -name '._*' \) -delete
 
-  test -f .next/standalone/node_modules/better-sqlite3/lib/index.js
+  test -f .next/standalone/node_modules/pg/lib/index.js
+  test -f .next/standalone/node_modules/@prisma/adapter-pg/dist/index.js
   test -f .next/standalone/node_modules/@prisma/client/default.js
   test -f .next/standalone/node_modules/@wecom/aibot-node-sdk/dist/index.cjs.js
   test -f .next/standalone/node_modules/@moonshot-ai/kimi-agent-sdk/dist/index.cjs
@@ -351,7 +367,6 @@ import re
 env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env')
 text = env_path.read_text()
 replacements = {
-    'DATABASE_URL': '\"file:$REMOTE_WORKSPACE_CONFIG_DIR/data/dev.db\"',
     'WORKSPACE_CONFIG_DIR': '$REMOTE_WORKSPACE_CONFIG_DIR',
     'AGENT_SOURCE_WORKTREE': '$REMOTE_AGENT_SOURCE_DIR',
     'LIBRARY_SOURCE_ROOT': '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals',
@@ -475,6 +490,7 @@ validate_remote_runtime() {
     test -d '$REMOTE_WORKSPACE_CONFIG_DIR/config/pharma-qc/records'
     grep -q '^WORKSPACE_CONFIG_DIR=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^DATABASE_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    grep -q '^DIRECT_URL=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^AGENT_SOURCE_WORKTREE=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
@@ -498,21 +514,57 @@ for line in Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').read_text().splitlines():
 
 workspace = env.get('WORKSPACE_CONFIG_DIR', '')
 database = env.get('DATABASE_URL', '')
+direct_database = env.get('DIRECT_URL', '')
 agent_source = env.get('AGENT_SOURCE_WORKTREE', '')
 library_source_root = env.get('LIBRARY_SOURCE_ROOT', '')
 library_root = env.get('LIBRARY_ROOT', '')
+cutover_source = env.get('SQLITE_CUTOVER_SOURCE', '')
+rollback_env_value = env.get('SQLITE_CUTOVER_ROLLBACK_ENV', '')
 if not workspace:
     sys.exit('WORKSPACE_CONFIG_DIR missing from remote .env')
 if not os.path.isabs(workspace):
     sys.exit(f'WORKSPACE_CONFIG_DIR must be absolute: {workspace}')
-if not database.startswith('file:'):
-    sys.exit('DATABASE_URL must use file: for production SQLite')
-db_path = database[5:].strip('\"').strip(\"'\")
-if not os.path.isabs(db_path):
-    sys.exit(f'DATABASE_URL must be absolute: {db_path}')
-expected_prefix = os.path.join(workspace, 'data') + os.sep
-if not db_path.startswith(expected_prefix):
-    sys.exit(f'DATABASE_URL must live under WORKSPACE_CONFIG_DIR/data: {db_path}')
+from urllib.parse import unquote, urlparse
+database_url = urlparse(database)
+direct_url = urlparse(direct_database)
+if database_url.scheme not in {'postgres', 'postgresql'}:
+    sys.exit('DATABASE_URL must use PostgreSQL')
+if direct_url.scheme not in {'postgres', 'postgresql'}:
+    sys.exit('DIRECT_URL must use PostgreSQL')
+if not database_url.hostname or not database_url.path or database_url.path == '/':
+    sys.exit('DATABASE_URL must include host and database name')
+if not direct_url.hostname or not direct_url.path or direct_url.path == '/':
+    sys.exit('DIRECT_URL must include host and database name')
+database_endpoint = (database_url.hostname, database_url.port or 5432, database_url.path)
+direct_endpoint = (direct_url.hostname, direct_url.port or 5432, direct_url.path)
+if database_endpoint != direct_endpoint:
+    sys.exit('DATABASE_URL and DIRECT_URL must select the same PostgreSQL host, port, and database')
+if cutover_source:
+    active_env_path = Path('$REMOTE_WORKSPACE_CONFIG_DIR/.env').resolve()
+    rollback_env_path = Path(rollback_env_value)
+    if not rollback_env_path.is_absolute():
+        sys.exit('SQLITE_CUTOVER_ROLLBACK_ENV must be absolute')
+    if not rollback_env_path.is_file():
+        sys.exit(f'SQLITE_CUTOVER_ROLLBACK_ENV is not a readable file: {rollback_env_path}')
+    if rollback_env_path.resolve() == active_env_path:
+        sys.exit('SQLITE_CUTOVER_ROLLBACK_ENV must not point at the active PostgreSQL .env')
+    rollback_env = {}
+    for line in rollback_env_path.read_text().splitlines():
+        if not line or line.lstrip().startswith('#') or '=' not in line:
+            continue
+        key, value = line.split('=', 1)
+        rollback_env[key] = value.strip().strip('\"').strip(\"'\")
+    for required_key in ('DATABASE_URL', 'NEXTAUTH_SECRET', 'WORKSPACE_CONFIG_DIR'):
+        if not rollback_env.get(required_key):
+            sys.exit(f'{required_key} missing from SQLITE_CUTOVER_ROLLBACK_ENV')
+    rollback_database_url = urlparse(rollback_env['DATABASE_URL'])
+    rollback_database_path = Path(unquote(rollback_database_url.path))
+    if rollback_database_url.scheme != 'file' or not rollback_database_path.is_absolute():
+        sys.exit('rollback DATABASE_URL must be file:<absolute-sqlite-path>')
+    if not rollback_database_path.is_file():
+        sys.exit(f'rollback SQLite database does not exist: {rollback_database_path}')
+    if rollback_env['WORKSPACE_CONFIG_DIR'] != workspace:
+        sys.exit('rollback WORKSPACE_CONFIG_DIR must match the active runtime directory')
 if not os.path.isabs(library_root):
     sys.exit(f'LIBRARY_ROOT must be absolute: {library_root}')
 if not library_root.startswith(os.path.join(workspace, 'library') + os.sep) and library_root != os.path.join(workspace, 'library'):
@@ -530,6 +582,49 @@ if not os.path.isdir(os.path.join(agent_source, '.git')):
     sys.exit(f'AGENT_SOURCE_WORKTREE must point to a git worktree: {agent_source}')
 print('Remote runtime env check passed.')
 PY
+    set -a
+    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    set +a
+    if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
+      case \"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
+      test -r \"\$SQLITE_CUTOVER_ROLLBACK_ENV\"
+    fi
+    command -v psql >/dev/null
+    command -v pg_dump >/dev/null
+    command -v pg_restore >/dev/null
+    pg_isready --dbname="\$DIRECT_URL" >/dev/null
+    psql "\$DIRECT_URL" -v ON_ERROR_STOP=1 -Atc 'SELECT 1' >/dev/null
+    psql "\$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc 'SELECT 1' >/dev/null
+    direct_identity=\$(psql "\$DIRECT_URL" -v ON_ERROR_STOP=1 -Atc \"SELECT current_database() || '|' || COALESCE(inet_server_addr()::text, 'local') || '|' || inet_server_port()::text\")
+    runtime_identity=\$(psql "\$DATABASE_URL" -v ON_ERROR_STOP=1 -Atc \"SELECT current_database() || '|' || COALESCE(inet_server_addr()::text, 'local') || '|' || inet_server_port()::text\")
+    if [ "\$direct_identity" != "\$runtime_identity" ]; then
+      echo '[错误] DATABASE_URL 与 DIRECT_URL 连接到不同的 PostgreSQL 实例'
+      exit 1
+    fi
+  "
+}
+
+backup_remote_postgresql() {
+  echo "==> 创建并验证 PostgreSQL 逻辑备份..."
+  ssh_cmd "
+    set -e
+    umask 077
+    mkdir -p '$REMOTE_BACKUP_DIR'
+    set -a
+    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    set +a
+    stamp=\$(date +%Y%m%d%H%M%S)
+    backup='$REMOTE_BACKUP_DIR/workspace-postgresql-'\$stamp'.dump'
+    pg_dump --format=custom --no-owner --no-privileges --file=\"\$backup\" \"\$DIRECT_URL\"
+    pg_restore --list \"\$backup\" >/dev/null
+    if command -v sha256sum >/dev/null 2>&1; then
+      sha256sum \"\$backup\" > \"\$backup.sha256\"
+    else
+      shasum -a 256 \"\$backup\" > \"\$backup.sha256\"
+    fi
+    test -s \"\$backup\"
+    test -s \"\$backup.sha256\"
+    ls -lh \"\$backup\"
   "
 }
 
@@ -567,7 +662,7 @@ backup_remote_runtime() {
 }
 
 cleanup_remote_backups() {
-  echo "==> 清理服务器运行态备份（保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
+  echo "==> 清理服务器备份（每类保留 ${BACKUP_RETENTION_DAYS} 天，最多 ${BACKUP_RETENTION_COUNT} 份）..."
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_BACKUP_DIR'
@@ -580,17 +675,17 @@ retention_days = int('$BACKUP_RETENTION_DAYS')
 retention_count = int('$BACKUP_RETENTION_COUNT')
 now = time.time()
 cutoff = now - retention_days * 86400
-files = sorted(
-    backup_dir.glob('workspace-runtime-*.tgz'),
-    key=lambda path: path.stat().st_mtime,
-    reverse=True,
-)
-for index, path in enumerate(files):
-    too_many = index >= retention_count
-    too_old = retention_days > 0 and path.stat().st_mtime < cutoff
-    if too_many or too_old:
-        path.unlink()
-print(f'Runtime backups kept: {len(list(backup_dir.glob(\"workspace-runtime-*.tgz\")))}')
+for pattern in ('workspace-runtime-*.tgz', 'workspace-postgresql-*.dump'):
+    files = sorted(backup_dir.glob(pattern), key=lambda path: path.stat().st_mtime, reverse=True)
+    for index, path in enumerate(files):
+        too_many = index >= retention_count
+        too_old = retention_days > 0 and path.stat().st_mtime < cutoff
+        if too_many or too_old:
+            checksum = Path(str(path) + '.sha256')
+            path.unlink()
+            if checksum.exists():
+                checksum.unlink()
+    print(f'{pattern} backups kept: {len(list(backup_dir.glob(pattern)))}')
 PY
   "
 }
@@ -609,7 +704,8 @@ deploy_remote_artifact() {
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_DIR/releases'
-    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name releases ! -name .workspace ! -name .workspace.backups ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
+    old_release=\$(readlink -f '$REMOTE_DIR/current' 2>/dev/null || true)
+    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
     release_dir='$REMOTE_DIR/releases/$release_id'
     rm -rf \"\$release_dir\"
     mkdir -p \"\$release_dir\"
@@ -644,38 +740,164 @@ deploy_remote_artifact() {
 
     grep -q '^WORKSPACE_CONFIG_DIR=' \"\$release_dir/.env\"
     grep -q '^DATABASE_URL=' \"\$release_dir/.env\"
+    grep -q '^DIRECT_URL=' \"\$release_dir/.env\"
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
     test -f \"\$release_dir/scripts/check/check-prisma-deploy-status.js\"
+    test -f \"\$release_dir/scripts/migrate/sqlite-to-postgresql.mjs\"
     test -f \"\$release_dir/node_modules/prisma/build/index.js\"
     test -f \"\$release_dir/resource-defs.json\"
-    test -f \"\$release_dir/seed-resources-runtime.js\"
-    test -f \"\$release_dir/scripts/migrate/normalize-permission-action-grants.js\"
-    test -f \"\$release_dir/scripts/migrate/normalize-runtime-content.js\"
+    test -f \"\$release_dir/seed-resources-runtime.mjs\"
+    test -f \"\$release_dir/scripts/check/check-permission-action-grants.mjs\"
 
     cd \"\$release_dir\"
     set -a
     . \"\$release_dir/.env\"
     set +a
     export NODE_ENV=production
+    cutover_source=\"\${SQLITE_CUTOVER_SOURCE:-}\"
+    cutover_rollback_env=\"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\"
+    cutover_public_switched=0
+    cutover_public_wal_lsn=''
+    cutover_candidate_name='$PM2_NAME-candidate'
+    if [ -n \"\$cutover_source\" ]; then
+      case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
+      test -r \"\$cutover_rollback_env\"
+      test -n \"\$old_release\"
+      test -f \"\$old_release/.server-entry\"
+      if [ \"\$(pm2 pid '$PM2_NAME' 2>/dev/null || printf '0')\" != '0' ] || [ \"\$(pm2 pid '$PM2_WECOM_BOT_NAME' 2>/dev/null || printf '0')\" != '0' ]; then
+        echo '[错误] SQLite cutover 前必须先停止 Workspace 与企业微信 PM2 writer'
+        exit 1
+      fi
+    fi
+    rollback_cutover() {
+      exit_code=\$?
+      trap - EXIT
+      if [ \"\$exit_code\" -ne 0 ] && [ -n \"\$cutover_source\" ] && [ \"\$cutover_public_switched\" = '0' ]; then
+        echo '[回滚] PostgreSQL 尚未对外接收写入，恢复旧 SQLite env 与旧 release。'
+        pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+        pm2 delete '$PM2_NAME' 2>/dev/null || true
+        pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+        cp \"\$cutover_rollback_env\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
+        chmod 600 '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
+        mv '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+        set -a
+        . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+        set +a
+        old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
+        old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+        pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
+        rollback_ready=0
+        for i in \$(seq 1 20); do
+          if curl -fsS '$HEALTHCHECK_URL' >/dev/null; then
+            rollback_ready=1
+            break
+          fi
+          sleep 1
+        done
+        if [ \"\$rollback_ready\" != '1' ]; then
+          echo '[错误] 旧 SQLite release 已尝试恢复，但 3000 端口健康检查失败。'
+          pm2 logs '$PM2_NAME' --lines 80 --nostream || true
+        fi
+        if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
+          pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
+        fi
+        pm2 save
+      fi
+      exit \"\$exit_code\"
+    }
+    trap rollback_cutover EXIT
     echo '==> 检查 Prisma migration 状态...'
     node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\" --allow-pending
     echo '==> 执行 Prisma 数据库迁移...'
     node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
-    node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\"
-    echo '==> 迁移并校验 Docs、Library 与 Finance 规范数据...'
-    node \"\$release_dir/scripts/migrate/normalize-runtime-content.js\"
-    node \"\$release_dir/scripts/migrate/normalize-runtime-content.js\" --check
-    echo '==> 同步 RBAC resource registry...'
-    node \"\$release_dir/seed-resources-runtime.js\" \"\$release_dir/resource-defs.json\"
-    echo '==> 规范化 RBAC action grant 数据...'
-    node \"\$release_dir/scripts/migrate/normalize-permission-action-grants.js\" \"\$release_dir/resource-defs.json\"
+    if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
+      if [ -z \"\${SQLITE_CUTOVER_SHA256:-}\" ]; then
+        echo '[错误] 配置了 SQLITE_CUTOVER_SOURCE 但缺少 SQLITE_CUTOVER_SHA256'
+        exit 1
+      fi
+      if [ -z \"\${SQLITE_CUTOVER_ROLLBACK_ENV:-}\" ]; then
+        echo '[错误] 配置了 SQLITE_CUTOVER_SOURCE 但缺少 SQLITE_CUTOVER_ROLLBACK_ENV'
+        exit 1
+      fi
+      if ! printf '%s' \"\$SQLITE_CUTOVER_SHA256\" | grep -Eq '^[0-9a-f]{64}$'; then
+        echo '[错误] SQLITE_CUTOVER_SHA256 必须是 64 位小写十六进制 SHA-256'
+        exit 1
+      fi
+      case \"\$SQLITE_CUTOVER_SOURCE\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_SOURCE 必须是绝对路径'; exit 1 ;; esac
+      test -r \"\$SQLITE_CUTOVER_SOURCE\"
+      cutover_manifest=\"\${SQLITE_CUTOVER_MANIFEST:-$REMOTE_BACKUP_DIR/postgresql-cutover/postgresql-execute.json}\"
+      case \"\$cutover_manifest\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_MANIFEST 必须是绝对路径'; exit 1 ;; esac
+      mkdir -p \"\$(dirname \"\$cutover_manifest\")\"
+      cutover_dry_run_manifest=\"\$cutover_manifest.dry-run.json\"
+      echo '==> 预演一次性 SQLite 到 PostgreSQL 数据切换...'
+      node \"\$release_dir/scripts/migrate/sqlite-to-postgresql.mjs\" \\
+        --sqlite \"\$SQLITE_CUTOVER_SOURCE\" \\
+        --target \"\$DIRECT_URL\" \\
+        --expected-source-sha256 \"\$SQLITE_CUTOVER_SHA256\" \\
+        --manifest \"\$cutover_dry_run_manifest\"
+      echo '==> 执行一次性 SQLite 到 PostgreSQL 数据切换...'
+      node \"\$release_dir/scripts/migrate/sqlite-to-postgresql.mjs\" \\
+        --sqlite \"\$SQLITE_CUTOVER_SOURCE\" \\
+        --target \"\$DIRECT_URL\" \\
+        --expected-source-sha256 \"\$SQLITE_CUTOVER_SHA256\" \\
+        --manifest \"\$cutover_manifest\" \\
+        --execute
+      psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -c \"INSERT INTO \\\"SystemConfig\\\" (\\\"key\\\", \\\"value\\\") VALUES ('database.cutover.marker', '\$SQLITE_CUTOVER_SHA256') ON CONFLICT (\\\"key\\\") DO UPDATE SET \\\"value\\\" = EXCLUDED.\\\"value\\\"\" >/dev/null
+      python3 - \"\$release_dir/.env\" \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
+import json
+import os
+from pathlib import Path
+import sys
 
-    pm2 delete '$PM2_NAME' 2>/dev/null || true
-    pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env
+env_path = Path(sys.argv[1])
+manifest_path = Path(sys.argv[2])
+source_sha256 = sys.argv[3]
+manifest = json.loads(manifest_path.read_text(encoding='utf-8'))
+if manifest.get('status') != 'success' or manifest.get('mode') != 'execute':
+    raise SystemExit('SQLite cutover manifest is not a successful execute manifest')
+if manifest.get('source', {}).get('sha256After') != source_sha256:
+    raise SystemExit('SQLite cutover manifest source hash does not match the frozen source')
+keys = {'SQLITE_CUTOVER_SOURCE', 'SQLITE_CUTOVER_SHA256', 'SQLITE_CUTOVER_MANIFEST', 'SQLITE_CUTOVER_ROLLBACK_ENV'}
+lines = [line for line in env_path.read_text(encoding='utf-8').splitlines() if line.split('=', 1)[0].strip() not in keys]
+temporary = env_path.with_suffix('.env.cutover.tmp')
+temporary.write_text('\n'.join(lines).rstrip() + '\n', encoding='utf-8')
+os.chmod(temporary, 0o600)
+temporary.replace(env_path)
+receipt = manifest_path.with_suffix(manifest_path.suffix + '.complete')
+receipt.write_text(f'{source_sha256}  {manifest_path.name}\n', encoding='utf-8')
+os.chmod(receipt, 0o600)
+PY
+      unset SQLITE_CUTOVER_SOURCE SQLITE_CUTOVER_SHA256 SQLITE_CUTOVER_MANIFEST SQLITE_CUTOVER_ROLLBACK_ENV
+      echo '==> SQLite 一次性切换完成，切换变量已从运行态配置移除。'
+    fi
+    node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\"
+    echo '==> 同步 RBAC resource registry...'
+    node \"\$release_dir/seed-resources-runtime.mjs\" \"\$release_dir/resource-defs.json\"
+    echo '==> 校验 RBAC action grant 数据...'
+    node \"\$release_dir/scripts/check/check-permission-action-grants.mjs\" \"\$release_dir/resource-defs.json\"
+    user_count=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT count(*) FROM \"User\";')
+    invalid_constraint_count=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT count(*) FROM pg_constraint WHERE connamespace = '\''public'\''::regnamespace AND NOT convalidated;')
+    if [ \"\$user_count\" -lt 1 ]; then
+      echo '[错误] PostgreSQL 中没有用户数据，拒绝启动生产服务'
+      exit 1
+    fi
+    if [ \"\$invalid_constraint_count\" -ne 0 ]; then
+      echo '[错误] PostgreSQL 存在未验证约束，拒绝启动生产服务'
+      exit 1
+    fi
+    direct_fingerprint=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT (SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE migration_name = '20260713000000_postgresql_baseline' AND finished_at IS NOT NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    runtime_fingerprint=\$(psql \"\$DATABASE_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT (SELECT value FROM \\\"SystemConfig\\\" WHERE key = 'database.cutover.marker') || '|' || (SELECT checksum FROM \\\"_prisma_migrations\\\" WHERE migration_name = '20260713000000_postgresql_baseline' AND finished_at IS NOT NULL ORDER BY finished_at DESC LIMIT 1) || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"User\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"Resource\\\") || '|' || (SELECT count(*)::text || ':' || COALESCE(min(id), 0)::text || ':' || COALESCE(max(id), 0)::text FROM \\\"FinanceVoucherItem\\\")\")
+    if [ -z \"\$direct_fingerprint\" ] || [ \"\$direct_fingerprint\" != \"\$runtime_fingerprint\" ]; then
+      echo '[错误] DATABASE_URL 与 DIRECT_URL 的切换标记、migration checksum 或核心数据指纹不一致'
+      exit 1
+    fi
+
+    pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+    PORT=3101 HOSTNAME=127.0.0.1 pm2 start \"\$release_dir/\$server_entry\" --name \"\$cutover_candidate_name\" --cwd \"\$app_dir\" --update-env
     qc_cache_ready=0
     for i in \$(seq 1 20); do
-      if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/modules/production/qc/cache' >/dev/null; then
+      if curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3101/workspace/api/modules/production/qc/cache' >/dev/null; then
         qc_cache_ready=1
         break
       fi
@@ -683,9 +905,36 @@ deploy_remote_artifact() {
     done
     if [ \"\$qc_cache_ready\" != \"1\" ]; then
       echo '[错误] QC 模板缓存预热失败'
+      pm2 logs \"\$cutover_candidate_name\" --lines 80 --nostream || true
+      exit 1
+    fi
+    pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+    pm2 delete '$PM2_NAME' 2>/dev/null || true
+    if [ -n \"\$cutover_source\" ]; then
+      cutover_public_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()')
+    fi
+    PORT=3000 HOSTNAME=0.0.0.0 pm2 start \"\$release_dir/\$server_entry\" --name '$PM2_NAME' --cwd \"\$app_dir\" --update-env
+    public_ready=0
+    for i in \$(seq 1 20); do
+      if curl -fsS '$HEALTHCHECK_URL' >/dev/null && curl -fsS -X POST -H \"x-qc-cache-warmup: \$NEXTAUTH_SECRET\" 'http://127.0.0.1:3000/workspace/api/modules/production/qc/cache' >/dev/null; then
+        public_ready=1
+        break
+      fi
+      sleep 1
+    done
+    if [ \"\$public_ready\" != '1' ]; then
+      if [ -n \"\$cutover_source\" ]; then
+        cutover_failure_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()')
+        if [ \"\$cutover_failure_wal_lsn\" != \"\$cutover_public_wal_lsn\" ]; then
+          cutover_public_switched=1
+          echo '[错误] 3000 端口未就绪且 PostgreSQL WAL 已变化；为防止数据丢失，禁止自动回退 SQLite。'
+        fi
+      fi
       pm2 logs '$PM2_NAME' --lines 80 --nostream || true
       exit 1
     fi
+    cutover_public_switched=1
+    ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
     pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
     if [ -n "\${WECHAT_BOT_ID:-}" ] && [ -n "\${WECHAT_BOT_SECRET:-}" ]; then
       pm2 start "\$release_dir/scripts/runtime/wecom-agent-bot.mjs" --name '$PM2_WECOM_BOT_NAME' --cwd "\$release_dir" --update-env
@@ -693,17 +942,12 @@ deploy_remote_artifact() {
       echo '==> 跳过企业微信智能机器人：WECHAT_BOT_ID/WECHAT_BOT_SECRET 未配置'
     fi
     pm2 save
-    ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
     find '$REMOTE_DIR/releases' -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6 | xargs -r rm -rf
     pm2 status
   "
 }
 
 run_healthcheck() {
-  if [ -z "$HEALTHCHECK_URL" ]; then
-    return
-  fi
-
   echo "==> 健康检查..."
   ssh_cmd "curl -fsS '$HEALTHCHECK_URL' >/dev/null"
 }
@@ -767,7 +1011,11 @@ else
 fi
 
 echo "==> 强制校验 Prisma migrations..."
-npm run db:migration:check
+if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
+  npm run db:migration:check
+else
+  node scripts/check/check-prisma-migrations.js --static
+fi
 
 build_artifact
 
@@ -780,6 +1028,7 @@ ensure_remote_kimi_agent_runtime
 sync_remote_library_source
 sync_remote_agent_source
 validate_remote_runtime
+backup_remote_postgresql
 backup_remote_runtime
 cleanup_remote_backups
 deploy_remote_artifact

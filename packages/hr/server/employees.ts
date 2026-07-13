@@ -178,7 +178,7 @@ function buildFastDirectoryWhere(input: {
     if (input.filterValue === "女") where.gender = false;
   }
   if (input.filterField === "education" && input.filterValue) {
-    where.education = { contains: input.filterValue };
+    where.education = { contains: input.filterValue, mode: "insensitive" };
   }
   return where;
 }

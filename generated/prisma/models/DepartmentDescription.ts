@@ -528,6 +528,7 @@ export type DepartmentDescriptionCreateOrConnectWithoutDepartmentInput = {
 
 export type DepartmentDescriptionCreateManyDepartmentInputEnvelope = {
   data: Prisma.DepartmentDescriptionCreateManyDepartmentInput | Prisma.DepartmentDescriptionCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type DepartmentDescriptionUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1350,6 +1351,7 @@ export type DepartmentDescriptionCreateManyArgs<ExtArgs extends runtime.Types.Ex
    * The data used to create many DepartmentDescriptions.
    */
   data: Prisma.DepartmentDescriptionCreateManyInput | Prisma.DepartmentDescriptionCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1368,6 +1370,7 @@ export type DepartmentDescriptionCreateManyAndReturnArgs<ExtArgs extends runtime
    * The data used to create many DepartmentDescriptions.
    */
   data: Prisma.DepartmentDescriptionCreateManyInput | Prisma.DepartmentDescriptionCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

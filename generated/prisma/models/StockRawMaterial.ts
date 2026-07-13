@@ -738,6 +738,7 @@ export type StockRawMaterialCreateOrConnectWithoutEditorInput = {
 
 export type StockRawMaterialCreateManyEditorInputEnvelope = {
   data: Prisma.StockRawMaterialCreateManyEditorInput | Prisma.StockRawMaterialCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type StockRawMaterialUpsertWithWhereUniqueWithoutEditorInput = {
@@ -1648,6 +1649,7 @@ export type StockRawMaterialCreateManyArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many StockRawMaterials.
    */
   data: Prisma.StockRawMaterialCreateManyInput | Prisma.StockRawMaterialCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1666,6 +1668,7 @@ export type StockRawMaterialCreateManyAndReturnArgs<ExtArgs extends runtime.Type
    * The data used to create many StockRawMaterials.
    */
   data: Prisma.StockRawMaterialCreateManyInput | Prisma.StockRawMaterialCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

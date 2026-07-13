@@ -1020,6 +1020,7 @@ export type MeetingCreateOrConnectWithoutOwnerInput = {
 
 export type MeetingCreateManyOwnerInputEnvelope = {
   data: Prisma.MeetingCreateManyOwnerInput | Prisma.MeetingCreateManyOwnerInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingCreateWithoutSecretaryInput = {
@@ -1078,6 +1079,7 @@ export type MeetingCreateOrConnectWithoutSecretaryInput = {
 
 export type MeetingCreateManySecretaryInputEnvelope = {
   data: Prisma.MeetingCreateManySecretaryInput | Prisma.MeetingCreateManySecretaryInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingUpsertWithWhereUniqueWithoutOwnerInput = {
@@ -1189,6 +1191,7 @@ export type MeetingCreateOrConnectWithoutTypeInput = {
 
 export type MeetingCreateManyTypeInputEnvelope = {
   data: Prisma.MeetingCreateManyTypeInput | Prisma.MeetingCreateManyTypeInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingUpsertWithWhereUniqueWithoutTypeInput = {
@@ -1263,6 +1266,7 @@ export type MeetingCreateOrConnectWithoutSeriesInput = {
 
 export type MeetingCreateManySeriesInputEnvelope = {
   data: Prisma.MeetingCreateManySeriesInput | Prisma.MeetingCreateManySeriesInput[]
+  skipDuplicates?: boolean
 }
 
 export type MeetingUpsertWithWhereUniqueWithoutSeriesInput = {
@@ -3457,6 +3461,7 @@ export type MeetingCreateManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
    * The data used to create many Meetings.
    */
   data: Prisma.MeetingCreateManyInput | Prisma.MeetingCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -3475,6 +3480,7 @@ export type MeetingCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensi
    * The data used to create many Meetings.
    */
   data: Prisma.MeetingCreateManyInput | Prisma.MeetingCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

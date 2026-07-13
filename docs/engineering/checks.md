@@ -106,7 +106,7 @@
 
 ### deploy/runtime
 
-deploy/runtime 检查回答目标环境能不能运行，例如 workspace manifest、真实 DB 文件、SQLite quick_check、核心表数据和 admin 账号。它依赖运行环境和真实数据，不属于 PR CI 主链路。
+deploy/runtime 检查回答目标环境能不能运行，例如 workspace manifest、PostgreSQL 连通性、migration/constraint 状态、核心表数据和 admin 账号。它依赖运行环境和真实数据，不属于 PR CI 主链路。
 
 ### hygiene
 

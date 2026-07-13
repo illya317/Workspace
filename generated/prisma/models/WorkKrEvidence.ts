@@ -512,6 +512,7 @@ export type WorkKrEvidenceCreateOrConnectWithoutKrWorkItemInput = {
 
 export type WorkKrEvidenceCreateManyKrWorkItemInputEnvelope = {
   data: Prisma.WorkKrEvidenceCreateManyKrWorkItemInput | Prisma.WorkKrEvidenceCreateManyKrWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkKrEvidenceCreateWithoutTaskWorkItemInput = {
@@ -536,6 +537,7 @@ export type WorkKrEvidenceCreateOrConnectWithoutTaskWorkItemInput = {
 
 export type WorkKrEvidenceCreateManyTaskWorkItemInputEnvelope = {
   data: Prisma.WorkKrEvidenceCreateManyTaskWorkItemInput | Prisma.WorkKrEvidenceCreateManyTaskWorkItemInput[]
+  skipDuplicates?: boolean
 }
 
 export type WorkKrEvidenceUpsertWithWhereUniqueWithoutKrWorkItemInput = {
@@ -1380,6 +1382,7 @@ export type WorkKrEvidenceCreateManyArgs<ExtArgs extends runtime.Types.Extension
    * The data used to create many WorkKrEvidences.
    */
   data: Prisma.WorkKrEvidenceCreateManyInput | Prisma.WorkKrEvidenceCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1398,6 +1401,7 @@ export type WorkKrEvidenceCreateManyAndReturnArgs<ExtArgs extends runtime.Types.
    * The data used to create many WorkKrEvidences.
    */
   data: Prisma.WorkKrEvidenceCreateManyInput | Prisma.WorkKrEvidenceCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

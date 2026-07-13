@@ -744,6 +744,7 @@ export type StockFinishedGoodsCreateOrConnectWithoutEditorInput = {
 
 export type StockFinishedGoodsCreateManyEditorInputEnvelope = {
   data: Prisma.StockFinishedGoodsCreateManyEditorInput | Prisma.StockFinishedGoodsCreateManyEditorInput[]
+  skipDuplicates?: boolean
 }
 
 export type StockFinishedGoodsUpsertWithWhereUniqueWithoutEditorInput = {
@@ -1654,6 +1655,7 @@ export type StockFinishedGoodsCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many StockFinishedGoods.
    */
   data: Prisma.StockFinishedGoodsCreateManyInput | Prisma.StockFinishedGoodsCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1672,6 +1674,7 @@ export type StockFinishedGoodsCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many StockFinishedGoods.
    */
   data: Prisma.StockFinishedGoodsCreateManyInput | Prisma.StockFinishedGoodsCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

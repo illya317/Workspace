@@ -766,6 +766,7 @@ export type LibraryArtifactCreateOrConnectWithoutJobInput = {
 
 export type LibraryArtifactCreateManyJobInputEnvelope = {
   data: Prisma.LibraryArtifactCreateManyJobInput | Prisma.LibraryArtifactCreateManyJobInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryArtifactUpsertWithWhereUniqueWithoutJobInput = {
@@ -1018,6 +1019,7 @@ export type LibraryArtifactCreateOrConnectWithoutVersionInput = {
 
 export type LibraryArtifactCreateManyVersionInputEnvelope = {
   data: Prisma.LibraryArtifactCreateManyVersionInput | Prisma.LibraryArtifactCreateManyVersionInput[]
+  skipDuplicates?: boolean
 }
 
 export type LibraryArtifactUpsertWithWhereUniqueWithoutVersionInput = {
@@ -2002,6 +2004,7 @@ export type LibraryArtifactCreateManyArgs<ExtArgs extends runtime.Types.Extensio
    * The data used to create many LibraryArtifacts.
    */
   data: Prisma.LibraryArtifactCreateManyInput | Prisma.LibraryArtifactCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2020,6 +2023,7 @@ export type LibraryArtifactCreateManyAndReturnArgs<ExtArgs extends runtime.Types
    * The data used to create many LibraryArtifacts.
    */
   data: Prisma.LibraryArtifactCreateManyInput | Prisma.LibraryArtifactCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

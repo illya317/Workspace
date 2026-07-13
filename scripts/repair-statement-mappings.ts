@@ -25,9 +25,10 @@
  *     --add 1012=cash --add 1403=inventory --add 1702=intangible
  */
 import "dotenv/config";
-import { PrismaBetterSqlite3 } from "@prisma/adapter-better-sqlite3";
+import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 import { ensureStatementMappings } from "@workspace/finance/server/statements/mapping/seed-from-config";
+import { requireDatabaseUrl } from "./lib/database-url.js";
 
 interface CliOpts {
   companyCode: string | null;
@@ -146,7 +147,9 @@ function diff(
 
 async function main() {
   const opts = parseArgs(process.argv);
-  const p = new PrismaClient({ adapter: new PrismaBetterSqlite3({ url: "data/dev.db" }) });
+  const p = new PrismaClient({
+    adapter: new PrismaPg({ connectionString: requireDatabaseUrl(), application_name: "workspace-repair-statement-mappings" }),
+  });
 
   try {
     let pairs: Pair[];

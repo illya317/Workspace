@@ -664,6 +664,7 @@ export type FinanceReclassRuleCreateOrConnectWithoutConfirmerInput = {
 
 export type FinanceReclassRuleCreateManyConfirmerInputEnvelope = {
   data: Prisma.FinanceReclassRuleCreateManyConfirmerInput | Prisma.FinanceReclassRuleCreateManyConfirmerInput[]
+  skipDuplicates?: boolean
 }
 
 export type FinanceReclassRuleUpsertWithWhereUniqueWithoutConfirmerInput = {
@@ -1645,6 +1646,7 @@ export type FinanceReclassRuleCreateManyArgs<ExtArgs extends runtime.Types.Exten
    * The data used to create many FinanceReclassRules.
    */
   data: Prisma.FinanceReclassRuleCreateManyInput | Prisma.FinanceReclassRuleCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1663,6 +1665,7 @@ export type FinanceReclassRuleCreateManyAndReturnArgs<ExtArgs extends runtime.Ty
    * The data used to create many FinanceReclassRules.
    */
   data: Prisma.FinanceReclassRuleCreateManyInput | Prisma.FinanceReclassRuleCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

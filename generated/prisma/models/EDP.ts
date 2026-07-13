@@ -854,6 +854,7 @@ export type EDPCreateOrConnectWithoutEmployeeInput = {
 
 export type EDPCreateManyEmployeeInputEnvelope = {
   data: Prisma.EDPCreateManyEmployeeInput | Prisma.EDPCreateManyEmployeeInput[]
+  skipDuplicates?: boolean
 }
 
 export type EDPUpsertWithWhereUniqueWithoutEmployeeInput = {
@@ -930,6 +931,7 @@ export type EDPCreateOrConnectWithoutReportingCompanyInput = {
 
 export type EDPCreateManyReportingCompanyInputEnvelope = {
   data: Prisma.EDPCreateManyReportingCompanyInput | Prisma.EDPCreateManyReportingCompanyInput[]
+  skipDuplicates?: boolean
 }
 
 export type EDPUpsertWithWhereUniqueWithoutReportingCompanyInput = {
@@ -986,6 +988,7 @@ export type EDPCreateOrConnectWithoutDepartmentInput = {
 
 export type EDPCreateManyDepartmentInputEnvelope = {
   data: Prisma.EDPCreateManyDepartmentInput | Prisma.EDPCreateManyDepartmentInput[]
+  skipDuplicates?: boolean
 }
 
 export type EDPUpsertWithWhereUniqueWithoutDepartmentInput = {
@@ -1042,6 +1045,7 @@ export type EDPCreateOrConnectWithoutPositionInput = {
 
 export type EDPCreateManyPositionInputEnvelope = {
   data: Prisma.EDPCreateManyPositionInput | Prisma.EDPCreateManyPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type EDPUpsertWithWhereUniqueWithoutPositionInput = {
@@ -1098,6 +1102,7 @@ export type EDPCreateOrConnectWithoutPositionReportOverrideInput = {
 
 export type EDPCreateManyPositionReportOverrideInputEnvelope = {
   data: Prisma.EDPCreateManyPositionReportOverrideInput | Prisma.EDPCreateManyPositionReportOverrideInput[]
+  skipDuplicates?: boolean
 }
 
 export type EDPUpsertWithWhereUniqueWithoutPositionReportOverrideInput = {
@@ -2239,6 +2244,7 @@ export type EDPCreateManyArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * The data used to create many EDPS.
    */
   data: Prisma.EDPCreateManyInput | Prisma.EDPCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -2257,6 +2263,7 @@ export type EDPCreateManyAndReturnArgs<ExtArgs extends runtime.Types.Extensions.
    * The data used to create many EDPS.
    */
   data: Prisma.EDPCreateManyInput | Prisma.EDPCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

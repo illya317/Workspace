@@ -208,19 +208,14 @@ API contract 分两层：
 
 ## DB 与迁移
 
-当前 schema 不再包含旧 Role 表或 `Resource.maxRoleKey`。服务器迁移需要：
+当前 PostgreSQL baseline 不再包含旧 Role 表或 `Resource.maxRoleKey`。服务器部署顺序固定为：
 
-1. 部署包含 `prisma/migrations/20260704000000_drop_resource_max_role_key` 的代码。
-2. 执行 Prisma migrate。
-3. 执行 `npm run db:seed:resources`，同步 `Resource.scopeTypes` / `Resource.scopeInheritanceMode` / resource 树。
-4. 可先执行 `npm run db:normalize-permission-actions:dry-run` 预览授权迁移摘要。
-5. 执行 `npm run db:normalize-permission-actions`，把三张授权表和授权台账中的旧 DB action 值归一到新 action。
-6. 执行 `npm run db:permission-actions:check`，确认 runtime grant 表的 `actionKey` 都属于当前 permission action 白名单且符合对应 resource action policy，并确认授权台账不含旧 permission action。
-7. 执行 `npm run check:data` 和 `npm run action-registry:check`。
+1. 执行 `prisma migrate deploy`。
+2. 执行 resource seed，同步 `Resource.scopeTypes` / `Resource.scopeInheritanceMode` / resource 树。
+3. 执行 `npm run db:permission-actions:check`，确认 runtime grant 表的 `actionKey` 都属于当前 permission action 白名单且符合对应 resource action policy，并确认授权台账不含旧 permission action。
+4. 执行 `npm run check:data` 和 `npm run action-registry:check`。
 
-`normalize-permission-action-grants.js` 默认只迁移 `access/write/admin/withdraw`。它会按 resource manifest 将三张 runtime grant 表展开成当前资源支持的新 action，并将 `PermissionGrantLedgerEvent.actionKey` 的旧值同步归一；台账原始 action 写入 `metadataJson.legacyActionKey` 以便追溯。旧库如果还需要落地早期 maxRole / additionalAction bundle 语义，必须显式追加 `--include-legacy-bundle-semantics`，才会一次性处理 `delete/revise/submit/approve` 的旧 bundle 扩展；正常运行不得把当前原子 action 再扩展成其他 action。
-
-同一 normalizer 还负责 `workflow-management-capabilities-v1`：resource seed 建好 workflow root/category/action capability 后，把普通业务资源上的旧流程 `configure` 精确投影为 action capability grant，并删除已废弃的普通/space/scoped workflow configure。迁移事件以 `source=migration` 写入权限台账；marker 已存在时不会重复扩大授权。
+部署不再运行通用权限数据 normalizer，也不在启动阶段创建 marker/表。旧 SQLite 的 action bundle 和 workflow capability 归一化必须在冻结副本上完成，再由 SQLite-to-PostgreSQL ETL 搬运；PostgreSQL 上的新权限语义变化必须使用审查过的 migration/service，不得由 deploy 脚本静默扩大或删除授权。旧 normalizer 只读归档在 `scripts/migrate/sqlite-legacy/`，不得连接 PostgreSQL。
 
 `npm run db:permission-actions:check` 是只读验收命令。它不写 marker、不迁移数据，只检查 `UserResourceActionGrant`、`PositionResourceActionGrant`、`DepartmentResourceActionGrant` 和 `PermissionGrantLedgerEvent` 的 `actionKey` 是否仍含 `access/write/admin/withdraw` 或其它非当前 permission action；三张 runtime grant 表还会额外检查对应 resource 是否支持该 action，注册空间 root resource 只允许直接保留 `entry`。授权台账保留历史审计语义，不因为 resource 后续取消某个当前 permission action 而删除旧事件。
 

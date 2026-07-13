@@ -616,6 +616,7 @@ export type ProjectPlanBaselineCreateOrConnectWithoutProjectInput = {
 
 export type ProjectPlanBaselineCreateManyProjectInputEnvelope = {
   data: Prisma.ProjectPlanBaselineCreateManyProjectInput | Prisma.ProjectPlanBaselineCreateManyProjectInput[]
+  skipDuplicates?: boolean
 }
 
 export type ProjectPlanBaselineUpsertWithWhereUniqueWithoutProjectInput = {
@@ -1567,6 +1568,7 @@ export type ProjectPlanBaselineCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many ProjectPlanBaselines.
    */
   data: Prisma.ProjectPlanBaselineCreateManyInput | Prisma.ProjectPlanBaselineCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1585,6 +1587,7 @@ export type ProjectPlanBaselineCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many ProjectPlanBaselines.
    */
   data: Prisma.ProjectPlanBaselineCreateManyInput | Prisma.ProjectPlanBaselineCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

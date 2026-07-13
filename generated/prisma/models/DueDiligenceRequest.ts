@@ -586,6 +586,7 @@ export type DueDiligenceRequestCreateOrConnectWithoutPartyInput = {
 
 export type DueDiligenceRequestCreateManyPartyInputEnvelope = {
   data: Prisma.DueDiligenceRequestCreateManyPartyInput | Prisma.DueDiligenceRequestCreateManyPartyInput[]
+  skipDuplicates?: boolean
 }
 
 export type DueDiligenceRequestUpsertWithWhereUniqueWithoutPartyInput = {
@@ -1522,6 +1523,7 @@ export type DueDiligenceRequestCreateManyArgs<ExtArgs extends runtime.Types.Exte
    * The data used to create many DueDiligenceRequests.
    */
   data: Prisma.DueDiligenceRequestCreateManyInput | Prisma.DueDiligenceRequestCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1540,6 +1542,7 @@ export type DueDiligenceRequestCreateManyAndReturnArgs<ExtArgs extends runtime.T
    * The data used to create many DueDiligenceRequests.
    */
   data: Prisma.DueDiligenceRequestCreateManyInput | Prisma.DueDiligenceRequestCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */

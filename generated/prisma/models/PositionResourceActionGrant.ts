@@ -484,6 +484,7 @@ export type PositionResourceActionGrantCreateOrConnectWithoutResourceInput = {
 
 export type PositionResourceActionGrantCreateManyResourceInputEnvelope = {
   data: Prisma.PositionResourceActionGrantCreateManyResourceInput | Prisma.PositionResourceActionGrantCreateManyResourceInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionResourceActionGrantUpsertWithWhereUniqueWithoutResourceInput = {
@@ -533,6 +534,7 @@ export type PositionResourceActionGrantCreateOrConnectWithoutPositionInput = {
 
 export type PositionResourceActionGrantCreateManyPositionInputEnvelope = {
   data: Prisma.PositionResourceActionGrantCreateManyPositionInput | Prisma.PositionResourceActionGrantCreateManyPositionInput[]
+  skipDuplicates?: boolean
 }
 
 export type PositionResourceActionGrantUpsertWithWhereUniqueWithoutPositionInput = {
@@ -1335,6 +1337,7 @@ export type PositionResourceActionGrantCreateManyArgs<ExtArgs extends runtime.Ty
    * The data used to create many PositionResourceActionGrants.
    */
   data: Prisma.PositionResourceActionGrantCreateManyInput | Prisma.PositionResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
 }
 
 /**
@@ -1353,6 +1356,7 @@ export type PositionResourceActionGrantCreateManyAndReturnArgs<ExtArgs extends r
    * The data used to create many PositionResourceActionGrants.
    */
   data: Prisma.PositionResourceActionGrantCreateManyInput | Prisma.PositionResourceActionGrantCreateManyInput[]
+  skipDuplicates?: boolean
   /**
    * Choose, which related nodes to fetch as well
    */
