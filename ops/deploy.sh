@@ -773,6 +773,8 @@ import os
 
 try:
     processes = json.loads(os.environ['PROCESS_LIST'])
+    if not isinstance(processes, list) or any(not isinstance(item, dict) for item in processes):
+        raise ValueError('pm2 jlist did not return a process object list')
     matches = [item for item in processes if item.get('name') == os.environ['PROCESS_NAME']]
     if not matches:
         print('0')
