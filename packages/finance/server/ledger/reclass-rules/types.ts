@@ -1,8 +1,7 @@
 /**
  * 重分类规则候选 — 类型定义
  *
- * scanCandidates() 扫描指定 (companyCode, year) 下所有已过账凭证明细，
- * 找出借贷方向与科目自然余额方向相反的科目，生成规则候选。
+ * scanCandidates() 返回支持按辅助期末余额重分类的配对科目。
  */
 
 export interface ScanCandidatesParams {
@@ -19,9 +18,9 @@ export interface RuleCandidate {
   balanceDirection: string;
   /** 异常借贷方向 (debit | credit) —— 与 balanceDirection 相反 */
   abnormalSide: string;
-  /** 该科目在异常方向上的合计金额 */
+  /** 辅助余额导入前不预估金额，固定为 0 */
   abnormalAmount: number;
-  /** 系统建议的目标科目编码（保守默认，v1 仅 1xxx→2241, 2xxx→1463） */
+  /** 配对目标科目编码 */
   suggestedTarget: string;
   /** 已有规则的 ID（无规则时为 null） */
   existingRuleId: number | null;

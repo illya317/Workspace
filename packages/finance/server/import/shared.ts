@@ -2,19 +2,37 @@ import * as iconv from "iconv-lite";
 
 // ─── Types ───────────────────────────────────────────────
 
-export type ImportType = "balance" | "journal" | "account";
+export type ImportType = "balance" | "journal" | "account" | "auxiliary";
+
+export type AuxiliaryDimensionType = "customer" | "supplier" | "person";
 
 export interface PreviewResult {
   type: ImportType;
   companyCode: string;
   year: number;
+  month?: number;
   sourceFileName?: string;
   rows: number;
   accounts: PreviewAccount[];
   vouchers?: PreviewVoucher[];
   balances?: PreviewBalance[];
+  auxiliaryBalances?: PreviewAuxiliaryBalance[];
   errors: string[];
   warnings: string[];
+}
+
+export interface PreviewAuxiliaryBalance {
+  accountCode: string;
+  accountName: string;
+  dimensionType: AuxiliaryDimensionType;
+  dimensionCode: string;
+  dimensionName: string;
+  openingDebit: number;
+  openingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+  closingDebit: number;
+  closingCredit: number;
 }
 
 export interface PreviewAccount {

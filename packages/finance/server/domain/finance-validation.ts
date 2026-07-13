@@ -154,7 +154,7 @@ export function buildConfirmFinanceImportCommand(preview: {
   if (Array.isArray(preview.errors) && preview.errors.length > 0) return failCommand("预览数据有误，无法导入");
   const scope = buildFinancePeriodScopeCommand({ companyCode: preview.companyCode, year: preview.year });
   if (!scope.ok) return scope;
-  if (!["account", "balance", "voucher"].includes(String(preview.type))) return failCommand("导入类型无效", 400, "type");
+  if (!["account", "balance", "journal", "auxiliary"].includes(String(preview.type))) return failCommand("导入类型无效", 400, "type");
   return okCommand({ preview });
 }
 

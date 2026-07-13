@@ -2,16 +2,16 @@
 
 import { createPageBody, BodySurface, createFieldsSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
-import type { Company } from "./types";
+import type { Company, ImportType } from "./types";
 interface ImportUploadFormProps {
   companies: Company[];
   companyCode: string;
-  importType: "balance" | "journal" | "account";
+  importType: ImportType;
   year: string;
   file: File | null;
   loading: boolean;
   onCompanyChange: (code: string) => void;
-  onTypeChange: (type: "balance" | "journal" | "account") => void;
+  onTypeChange: (type: ImportType) => void;
   onYearChange: (year: string) => void;
   onFileChange: (file: File | null) => void;
   onPreview: () => void;
@@ -87,11 +87,12 @@ export function createImportUploadSections({
                 { value: "balance", label: "余额表" },
                 { value: "journal", label: "序时账" },
                 { value: "account", label: "科目表" },
+                { value: "auxiliary", label: "辅助余额表" },
               ],
             },
           },
           value: importType,
-          onChange: (value) => onTypeChange(value as "balance" | "journal" | "account"),
+          onChange: (value) => onTypeChange(value as ImportType),
         },
         {
           key: "year",
@@ -139,6 +140,18 @@ export function createImportUploadSections({
             message: {
               tone: "warning" as const,
               content: "余额表按年度快照导入：2024 年作为月度余额滚动计算基准，2025 年及之后作为校准快照，不直接覆盖月度余额表。",
+            },
+          },
+        }]
+      : []),
+    ...(importType === "auxiliary"
+      ? [{
+          key: "auxiliary-import-note",
+          body: {
+            kind: "section" as const,
+            message: {
+              tone: "muted" as const,
+              content: "辅助余额表按客户、供应商或个人的期末余额方向生成往来重分类；仅处理应收/预收、预付/应付、其他应收/其他应付配对科目。",
             },
           },
         }]

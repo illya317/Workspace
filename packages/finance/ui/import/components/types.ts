@@ -4,6 +4,8 @@ export interface Company {
   name: string;
 }
 
+export type ImportType = "balance" | "journal" | "account" | "auxiliary";
+
 export interface PreviewAccount {
   code: string;
   name: string;
@@ -40,8 +42,18 @@ export interface PreviewVoucher {
   totalCredit: number;
 }
 
+export interface PreviewAuxiliaryBalance {
+  accountCode: string;
+  accountName: string;
+  dimensionType: "customer" | "supplier" | "person";
+  dimensionCode: string;
+  dimensionName: string;
+  closingDebit: number;
+  closingCredit: number;
+}
+
 export interface PreviewResult {
-  type: "balance" | "journal" | "account";
+  type: ImportType;
   companyCode: string;
   year: number;
   sourceFileName?: string;
@@ -49,6 +61,7 @@ export interface PreviewResult {
   accounts: PreviewAccount[];
   balances?: PreviewBalance[];
   vouchers?: PreviewVoucher[];
+  auxiliaryBalances?: PreviewAuxiliaryBalance[];
   errors: string[];
   warnings: string[];
 }

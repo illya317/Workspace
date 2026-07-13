@@ -2,7 +2,7 @@
 
 import { createActionsSection, createPageDataSection, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
-import type { PreviewAccount, PreviewBalance, PreviewResult, PreviewVoucherItem } from "./types";
+import type { PreviewAccount, PreviewAuxiliaryBalance, PreviewBalance, PreviewResult, PreviewVoucherItem } from "./types";
 interface ImportPreviewProps {
   preview: PreviewResult;
   importing: boolean;
@@ -19,6 +19,7 @@ type BalanceRow = PreviewBalance & {
 type VoucherItemRow = PreviewVoucherItem & {
   id: string;
 };
+type AuxiliaryRow = PreviewAuxiliaryBalance & { id: string };
 function createAccountColumns(): DataSurfaceColumnSpec<AccountRow>[] {
   return [{
     key: "code",
@@ -138,6 +139,32 @@ function createVoucherColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
     cell: row => row.credit > 0 ? row.credit.toFixed(2) : ""
   }];
 }
+
+function createAuxiliaryColumns(): DataSurfaceColumnSpec<AuxiliaryRow>[] {
+  return [{
+    key: "account",
+    label: "科目",
+    required: true,
+    cell: row => `${row.accountCode} ${row.accountName}`,
+  }, {
+    key: "dimensionName",
+    label: "辅助对象",
+    required: true,
+    cell: row => `${row.dimensionCode} ${row.dimensionName}`,
+  }, {
+    key: "closingDebit",
+    label: "期末借",
+    required: true,
+    align: "right",
+    cell: row => row.closingDebit ? row.closingDebit.toFixed(2) : "",
+  }, {
+    key: "closingCredit",
+    label: "期末贷",
+    required: true,
+    align: "right",
+    cell: row => row.closingCredit ? row.closingCredit.toFixed(2) : "",
+  }];
+}
 export function createImportPreviewSections({
   preview,
   importing,
@@ -155,6 +182,11 @@ export function createImportPreviewSections({
   }));
   const accountColumns = createAccountColumns();
   const balanceColumns = createBalanceColumns();
+  const auxiliaryColumns = createAuxiliaryColumns();
+  const auxiliaryRows = (preview.auxiliaryBalances ?? []).slice(0, 20).map((row, index) => ({
+    ...row,
+    id: `${row.accountCode}-${row.dimensionType}-${row.dimensionCode}-${index}`,
+  }));
   const sections: BodySurfaceSectionSpec[] = [
     ...(preview.errors.length === 0 && canImport
       ? [createActionsSection("import-preview-actions", [{
@@ -207,6 +239,21 @@ export function createImportPreviewSections({
       ? [{
           key: "preview-balance-more",
           body: { kind: "section" as const, message: { tone: "muted" as const, content: `还有 ${preview.balances.length - 20} 条未显示` } },
+        }]
+      : []),
+    ...(auxiliaryRows.length > 0
+      ? [{
+          ...createPageDataSection("preview-auxiliary-balances", {
+            kind: "table" as const,
+            rows: auxiliaryRows,
+            columns: auxiliaryColumns,
+            visibleColumns: auxiliaryColumns.map(column => column.key),
+            rowKey: row => row.id,
+            presentation: { density: "compact" as const },
+            emptyText: "暂无数据",
+            scroll: { maxHeight: "sm" as const },
+          }),
+          header: { title: "辅助余额预览（前20条）" },
         }]
       : []),
     ...createVoucherPreviewSections(preview),

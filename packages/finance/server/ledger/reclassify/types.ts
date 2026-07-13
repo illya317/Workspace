@@ -1,7 +1,6 @@
 /**
- * Phase 4: 凭证明细层重分类 — 类型定义
- *
- * classifyItem 对每条凭证明细返回完整结果，不存在 status 与字段不匹配的中间态。
+ * Legacy voucher-reclassification response types.
+ * Automatic reclassification now comes from auxiliary closing balances.
  */
 
 // ─── Status ───────────────────────────────────────────────
@@ -70,6 +69,6 @@ export interface ReclassifyExecutionResult extends ReclassifySummary {
 // ─── Options ──────────────────────────────────────────────
 
 export interface BuildReclassResultsOptions {
-  /** 默认 true；显式传 false 才 upsert ReclassResult */
+  /** 默认 true；显式传 false 时清理旧的自动凭证重分类结果 */
   dryRun?: boolean;
 }

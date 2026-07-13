@@ -5,6 +5,7 @@ import { createSnapshotFromPreview, materializeBaselineToPeriod } from "../ledge
 import { computeBalancesForPeriod } from "../ledger/balances";
 import { buildReclassResults } from "../ledger/reclassify";
 import { syncBalanceReclassForPeriod } from "../ledger/balance-reclass";
+import { importAuxiliaryReclassAdjustments } from "../ledger/balance-reclass/auxiliary";
 import { buildConfirmFinanceImportCommand } from "../domain/finance-validation";
 
 // ─── Types ─────────────────────────────────────────────────
@@ -130,6 +131,8 @@ export async function confirmFinanceImport(
     ? preview.accounts.length
     : preview.type === "balance"
       ? (preview.balances?.length || 0)
+      : preview.type === "auxiliary"
+        ? (preview.auxiliaryBalances?.length || 0)
       : (preview.vouchers?.reduce((s, v) => s + v.items.length, 0) || 0);
 
   const importBatch = await prisma.financeLedgerImport.create({
@@ -179,6 +182,38 @@ export async function confirmFinanceImport(
         importId: importBatch.id,
         year: preview.year, companyCode: preview.companyCode, type: preview.type,
         mode: preview.year === 2024 ? "baseline" : "reconcile",
+      };
+    }
+
+    // ── Auxiliary closing-balance import ──
+    if (preview.type === "auxiliary") {
+      const imported = await importAuxiliaryReclassAdjustments({
+        companyCode: preview.companyCode,
+        year: preview.year,
+        month: preview.month ?? 12,
+        rows: preview.auxiliaryBalances ?? [],
+      });
+      await prisma.financeLedgerImport.update({
+        where: { id: importBatch.id },
+        data: {
+          createdCount: imported.written,
+          deletedCount: imported.deleted,
+          skippedCount: imported.skippedProtected,
+          status: "completed",
+        },
+      });
+      return {
+        created: imported.written,
+        updated: 0,
+        deleted: imported.deleted,
+        skipped: imported.skippedProtected,
+        conflicts: 0,
+        blocked: 0,
+        warnings: [],
+        importId: importBatch.id,
+        year: preview.year,
+        companyCode: preview.companyCode,
+        type: preview.type,
       };
     }
 

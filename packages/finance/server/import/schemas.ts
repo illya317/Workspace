@@ -3,7 +3,7 @@ import type { PreviewResult } from "./import";
 
 export const importPreviewFormSchema = z.object({
   file: z.instanceof(File),
-  type: z.enum(["balance", "journal", "account"]),
+  type: z.enum(["balance", "journal", "account", "auxiliary"]),
   companyCode: z.string().min(1),
   year: z.coerce.number().int().positive().optional(),
 });

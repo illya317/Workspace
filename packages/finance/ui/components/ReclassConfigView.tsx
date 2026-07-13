@@ -6,14 +6,9 @@ import { createMessageSection, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, DataSurfaceColumnSpec, PageSurfaceFooterSpec } from "@workspace/core/ui";
 import { matchText } from "@workspace/core/search";
 import type { RuleCandidate } from "@workspace/finance/types";
+import { resolveAuxiliaryReclassPair } from "@workspace/finance/types/auxiliary-reclass";
 import { formatFinanceAmount } from "../formatters";
 import { dirBadge, targetDisplay } from "../ledger/reclassColumns";
-function deriveAbnormalSide(bd: string) {
-  return bd === "debit" ? "credit" : "debit";
-}
-function suggestTarget(c: string) {
-  return c.startsWith("1") ? "2241" : c.startsWith("2") ? "1463" : "";
-}
 interface Props {
   companyCode: string;
   year: string;
@@ -67,13 +62,14 @@ export function useReclassConfigSection({
         }[];
         const codeSet = new Set(s.map(c => c.accountCode));
         for (const a of accounts) {
-          if (!codeSet.has(a.code)) all.push({
+          const pair = resolveAuxiliaryReclassPair(a.code);
+          if (pair && !codeSet.has(a.code)) all.push({
             accountCode: a.code,
             accountName: a.name,
             balanceDirection: a.balanceDirection,
-            abnormalSide: deriveAbnormalSide(a.balanceDirection),
+            abnormalSide: pair.abnormalSide,
             abnormalAmount: 0,
-            suggestedTarget: suggestTarget(a.code),
+            suggestedTarget: pair.target,
             existingRuleId: null,
             existingTarget: null,
             existingSource: null,

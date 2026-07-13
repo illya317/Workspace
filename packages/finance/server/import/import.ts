@@ -4,3 +4,4 @@ export * from "./shared";
 export { parseBalanceSheet } from "./parsers/balance-parser";
 export { parseJournal } from "./parsers/voucher-parser";
 export { parseAccountTable } from "./parsers/account-parser";
+export { parseAuxiliaryBalanceSheet } from "./parsers/auxiliary-balance-parser";

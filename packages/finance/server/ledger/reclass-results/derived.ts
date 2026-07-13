@@ -1,5 +1,5 @@
 /**
- * 共享 derived service — 凭证明细页 + 科目页共用同一套 classify 逻辑。
+ * 共享 derived service — 凭证明细页 + 科目页展示已有人工结果。
  *
  * 输出统一 row 类型：
  *   normal   — 正常分录，无 ReclassResult，无建议科目
@@ -9,11 +9,6 @@
  */
 
 import { prisma } from "@workspace/platform/server/prisma";
-import { classifyItem } from "../reclassify/rules";
-import type { VoucherItemInput } from "../reclassify/rules";
-import type { RuleEntry } from "../reclassify/types";
-import { ItemStatus } from "../reclassify/types";
-import { ensureReclassRulesForYear } from "../reclass-rules/ensure";
 
 // ─── Unified Row ─────────────────────────────────────────
 
@@ -54,48 +49,7 @@ export interface DerivedRow {
 // ─── Query ─────────────────────────────────────────────
 
 export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
-  // 0. period → companyCode, year
-  const period = await prisma.financePeriod.findUnique({
-    where: { id: periodId },
-    select: { companyCode: true, year: true },
-  });
-  if (!period || !period.companyCode) return [];
-
-  // 确保该年度有规则（无则从上年继承）
-  await ensureReclassRulesForYear(period.companyCode, period.year);
-
-  // 1. 规则（公司+年度级）
-  const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode: period.companyCode, year: period.year, enabled: true },
-    select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true },
-  });
-  const ruleMap = new Map<string, RuleEntry>();
-  for (const r of rules) {
-    ruleMap.set(`${r.sourceAccountCode}::${r.abnormalSide}`, {
-      id: r.id,
-      targetAccountCode: r.targetAccountCode,
-    });
-  }
-  // 明细例外规则（年度级）
-  const itemRules = await prisma.financeReclassItemRule.findMany({
-    where: { companyCode: period.companyCode, year: period.year, enabled: true, matchType: "exact_description" },
-    select: { id: true, sourceAccountCode: true, matchValue: true, targetAccountCode: true },
-  });
-  const itemRuleMap = new Map<string, { id: number; targetAccountCode: string }>();
-  for (const ir of itemRules) {
-    itemRuleMap.set(`${ir.sourceAccountCode}::${ir.matchValue}`, { id: ir.id, targetAccountCode: ir.targetAccountCode });
-  }
-  // 验证目标科目真实存在
-  const targetCodes = [...new Set([...rules.map(r => r.targetAccountCode), ...itemRules.map(ir => ir.targetAccountCode)])];
-  const existingTargets = targetCodes.length > 0
-    ? await prisma.financeAccount.findMany({
-        where: { companyCode: period.companyCode, year: period.year, code: { in: targetCodes } },
-        select: { code: true },
-      })
-    : [];
-  const targetExists = new Set(existingTargets.map(a => a.code));
-
-  // 2. 分录
+  // 1. 分录
   const items = await prisma.financeVoucherItem.findMany({
     where: { voucher: { periodId, status: "posted" }, OR: [{ debit: { gt: 0 } }, { credit: { gt: 0 } }] },
     select: {
@@ -106,20 +60,17 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
     orderBy: [{ voucher: { voucherNo: "asc" } }, { sortOrder: "asc" }],
   });
 
-  // 3. 已有 ReclassResult
+  // 2. 已有 ReclassResult
   const results = await prisma.reclassResult.findMany({
     where: { periodId },
   });
   const resultMap = new Map(results.map((r) => [r.voucherItemId, r]));
 
-  // 4. 逐条 classify + merge
+  // 3. 只合并已有人工结果；不从发生额推断重分类
   return items.map((item): DerivedRow => {
-    const classified = classifyItem(item as VoucherItemInput, ruleMap, targetExists, itemRuleMap);
     const rr = resultMap.get(item.id);
     const itemSide: "debit" | "credit" | null =
       item.debit > 0 ? "debit" : item.credit > 0 ? "credit" : null;
-
-    const isAbnormal = classified.status === ItemStatus.MATCHED;
 
     // 确定 kind
     let kind: DerivedKind = "normal";
@@ -142,12 +93,12 @@ export async function deriveRows(periodId: number): Promise<DerivedRow[]> {
       itemCredit: item.credit,
       description: item.description,
       relatedEntity: item.relatedEntity,
-      suggestedTarget: isAbnormal ? classified.targetAccount : null,
+      suggestedTarget: null,
       targetAccount: rr?.targetAccount ?? null,
       amount: rr?.amount ?? 0,
       kind,
       resultId: rr?.id ?? 0,
-      abnormalSide: isAbnormal ? itemSide : null,
+      abnormalSide: rr ? itemSide : null,
     };
   });
 }

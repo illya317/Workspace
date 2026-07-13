@@ -7,13 +7,13 @@ import { PageSurface, createPageBody, createPageTabBar } from "@workspace/core/u
 import { createImportUploadSections } from "./components/ImportUploadForm";
 import { createImportPreviewSections } from "./components/ImportPreview";
 import { createImportResultSection } from "./components/ImportResult";
-import type { Company, PreviewResult } from "./components/types";
+import type { Company, ImportType, PreviewResult } from "./components/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
 export default function ImportClient({ user, canImport }: { user: SessionUser; canImport: boolean }) {
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyCode, setCompanyCode] = useState("");
-  const [importType, setImportType] = useState<"balance" | "journal" | "account">("balance");
+  const [importType, setImportType] = useState<ImportType>("balance");
   const [year, setYear] = useState("2026");
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<PreviewResult | null>(null);
@@ -49,7 +49,7 @@ export default function ImportClient({ user, canImport }: { user: SessionUser; c
     setResult(null);
   }, []);
 
-  const handleTypeChange = useCallback((type: "balance" | "journal" | "account") => {
+  const handleTypeChange = useCallback((type: ImportType) => {
     setImportType(type);
     setPreview(null);
     setFile(null);
@@ -108,7 +108,9 @@ export default function ImportClient({ user, canImport }: { user: SessionUser; c
             ? data.mode === "baseline"
               ? "年度余额基准"
               : "年度余额校准快照"
-            : null;
+            : preview.type === "auxiliary"
+              ? "辅助余额重分类"
+              : null;
         setResult({
           success: true,
           message: `导入成功：${Number(data.created ?? 0) + Number(data.updated ?? 0)} 条${balanceMode || (preview.type === "account" ? "科目" : "凭证")}数据已写入`,
@@ -127,7 +129,8 @@ export default function ImportClient({ user, canImport }: { user: SessionUser; c
 
   const typeLabel =
     importType === "balance" ? "余额表" :
-    importType === "journal" ? "序时账" : "科目表";
+    importType === "journal" ? "序时账" :
+    importType === "auxiliary" ? "辅助余额表" : "科目表";
 
   return (
     <PageSurface kind="standard"

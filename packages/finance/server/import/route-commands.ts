@@ -5,6 +5,7 @@ import { okCommand } from "@workspace/platform/server/domain-validation";
 
 import {
   parseAccountTable,
+  parseAuxiliaryBalanceSheet,
   parseBalanceSheet,
   parseJournal,
   type PreviewResult,
@@ -26,6 +27,8 @@ export async function executeFinanceImportPreviewCommand(command: FinanceImportP
     let preview: PreviewResult;
     if (command.type === "account") {
       preview = parseAccountTable(buffer, command.companyCode, fileExt);
+    } else if (command.type === "auxiliary") {
+      preview = parseAuxiliaryBalanceSheet(buffer, command.companyCode, command.year ?? new Date().getFullYear(), command.file.name, fileExt);
     } else if (command.type === "journal") {
       preview = parseJournal(buffer, command.companyCode, fileExt);
     } else {
