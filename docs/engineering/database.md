@@ -150,8 +150,6 @@
 | confirmedReclassRules | FinanceReclassRule[] | @relation("FinanceReclassRuleConfirmer") |  |
 | ledgerImports | FinanceLedgerImport[] | @relation("FinanceLedgerImportImporter") |  |
 | editedWorkpapers | FinanceStatementWorkpaper[] | @relation("WorkpaperEditor") |  |
-| editedReviews | FinanceStatementReview[] | @relation("ReviewEditor") |  |
-| reviewedReviews | FinanceStatementReview[] | @relation("ReviewReviewer") |  |
 | notifications | Notification[] | @relation("NotificationRecipient") |  |
 | createdNotifications | Notification[] | @relation("NotificationActor") |  |
 | permissionGrantLedgerEvents | PermissionGrantLedgerEvent[] | @relation("PermissionGrantLedgerActor") |  |
@@ -877,7 +875,6 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | editor | User? | @relation("WorkpaperEditor", fields: [updatedBy], references: [id]) |  |
 | lines | FinanceStatementWorkpaperLine[] | - |  |
-| review | FinanceStatementReview? | - |  |
 
 ### FinanceStatementWorkpaperLine
 
@@ -895,50 +892,6 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | workpaper | FinanceStatementWorkpaper | @relation(fields: [workpaperId], references: [id], onDelete: Cascade) |  |
-
-### FinanceStatementReview
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| workpaperId | Int | @unique |  |
-| companyCode | String | - |  |
-| year | Int | - |  |
-| month | Int | - |  |
-| reportType | String | - | incomeStatement | cashFlow |
-| status | String | @default("draft") | draft | confirmed | voided |
-| generatedFromVersion | Int | - |  |
-| reviewedBy | Int? | - |  |
-| reviewedAt | DateTime? | - |  |
-| note | String? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
-| version | Int | @default(1) |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| workpaper | FinanceStatementWorkpaper | @relation(fields: [workpaperId], references: [id]) |  |
-| editor | User? | @relation("ReviewEditor", fields: [editedBy], references: [id]) |  |
-| reviewer | User? | @relation("ReviewReviewer", fields: [reviewedBy], references: [id]) |  |
-| lines | FinanceStatementReviewLine[] | - |  |
-
-### FinanceStatementReviewLine
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| reviewId | Int | - |  |
-| lineCode | String | - |  |
-| label | String | - | 创建 review 时的项目名称快照 |
-| sortOrder | Int | - | 创建 review 时的排序快照 |
-| systemAmount | Float | @default(0) |  |
-| workpaperAmount | Float | @default(0) |  |
-| adjustedAmount | Float? | - |  |
-| finalAmount | Float | @default(0) |  |
-| status | String | @default("pending") | pending | confirmed | adjusted | flagged |
-| comment | String? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| review | FinanceStatementReview | @relation(fields: [reviewId], references: [id], onDelete: Cascade) |  |
 
 ### DepartmentDescription
 

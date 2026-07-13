@@ -134,7 +134,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 - `Pagination`、筛选 toolbar builder、导入 preview builder、重分类配置/审核 section builder 已进入 `@workspace/finance/ui`；后续扩展现有结构 interface，不要恢复 `app/finance/components` 或默认 JSX wrapper。
 - 财务表格默认通过 `BodySurface` data/metrics spec 复用 Core 数据能力；列显隐通过 Surface column spec 实现。
 - 公司、年度、月份、报表类型、层级等固定筛选默认通过 `PageSurface.toolbar` filter spec 或 `InputSurface` 表达；需要财务语义时由 `@workspace/finance/ui` 包一层，不要在每个页面手写。
-- 预算、成本、总账、报表配置、报表校对之间如果 UI 结构一致，应抽成 Finance 模板，而不是在每个页面重新写筛选栏、分页、表格工具栏。
+- 预算、成本、总账、报表配置、财务报表之间如果 UI 结构一致，应抽成 Finance 模板，而不是在每个页面重新写筛选栏、分页、表格工具栏。
 
 ## Agent 开发流程
 

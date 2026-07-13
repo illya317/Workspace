@@ -38,7 +38,6 @@ export type ModuleIconKey =
   | "contracts"
   | "ledger"
   | "statementConfig"
-  | "statementReview"
   | "statements"
   | "analysis"
   | "budget"

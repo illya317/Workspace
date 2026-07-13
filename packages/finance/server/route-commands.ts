@@ -30,12 +30,6 @@ import { deleteReclassRule, scanCandidates, upsertReclassRule } from "./ledger/r
 import { ensureReclassRulesForYear } from "./ledger/reclass-rules/ensure";
 import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
 import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
-import {
-  generateReview,
-  getReview,
-  updateReviewLines,
-  confirmReview,
-} from "./statements/reviews/service";
 import { getStatementConfigView, saveStatementConfigLines } from "./statements/statement-config-view";
 import {
   deleteStatementMapping,
@@ -43,8 +37,6 @@ import {
   saveStatementMapping,
   StatementMappingServiceError,
 } from "./statements/mapping/statement-mappings";
-import { getOrCreateDraft, saveWorkpaper } from "./statements/workpapers/service";
-import type { WorkpaperOutput } from "./statements/workpapers/types";
 
 export {
   buildFinanceImportConfirmCommand,
@@ -60,11 +52,6 @@ export type LookupFinancePeriodCommand =
   | { kind: "lookup"; companyCode: string; year: number; month: number };
 
 export type FinanceReportCommand = GenerateFinanceReportInput;
-
-export interface FinanceReviewConfirmCommand {
-  reviewId: number;
-  userId: number;
-}
 
 function statusFrom(error: unknown): number {
   if (
@@ -160,26 +147,6 @@ export async function executeDeleteCostImportCommand(command: { id: number }) {
   if (!existing) return serviceError("记录不存在", 404);
   await deleteImportById(command.id);
   return serviceOk({ success: true });
-}
-
-export function buildFinanceReviewConfirmCommand(
-  reviewId: unknown,
-  userId: unknown,
-): DomainValidationResult<FinanceReviewConfirmCommand> {
-  const review = buildFinanceIdCommand(reviewId, "reviewId");
-  if (!review.ok) return review;
-  const user = buildFinanceIdCommand(userId, "userId");
-  if (!user.ok) return user;
-  return okCommand({ reviewId: review.data.id, userId: user.data.id });
-}
-
-export async function executeFinanceReviewConfirmCommand(command: FinanceReviewConfirmCommand) {
-  try {
-    const review = await confirmReview(command.reviewId, command.userId);
-    return serviceOk({ review });
-  } catch (error) {
-    return serviceError(error instanceof Error ? error.message : "确认校对失败", statusFrom(error));
-  }
 }
 
 function reviewErrorStatus(error: unknown) {
@@ -471,67 +438,6 @@ export async function executeDeleteStatementMappingCommand(command: Parameters<t
   }
 }
 
-export function executeGetReviewCommand(command: Parameters<typeof getReview>[0]) {
-  return getReview(command).then((review) => ({ review }));
-}
-
-export function buildGenerateReviewCommand(workpaperId: number, userId: number) {
-  return okCommand({ workpaperId, userId });
-}
-
-export async function executeGenerateReviewCommand(command: { workpaperId: number; userId: number }) {
-  try {
-    const { review, created } = await generateReview(command.workpaperId, command.userId);
-    void created;
-    return serviceOk({ review });
-  } catch (error) {
-    return serviceError(error instanceof Error ? error.message : "生成校对失败", statusFrom(error));
-  }
-}
-
-export function buildUpdateReviewCommand(input: {
-  id: number;
-  lines: Parameters<typeof updateReviewLines>[1];
-  note?: string | null;
-  userId: number;
-}) {
-  return okCommand(input);
-}
-
-export async function executeUpdateReviewCommand(command: {
-  id: number;
-  lines: Parameters<typeof updateReviewLines>[1];
-  note?: string | null;
-  userId: number;
-}) {
-  try {
-    const review = await updateReviewLines(command.id, command.lines, command.note, command.userId);
-    return serviceOk({ review });
-  } catch (error) {
-    return serviceError(error instanceof Error ? error.message : "更新校对失败", statusFrom(error));
-  }
-}
-
-export function buildWorkpaperQueryCommand(input: Parameters<typeof getOrCreateDraft>[0]) {
-  return okCommand(input);
-}
-
-export function executeWorkpaperQueryCommand(command: Parameters<typeof getOrCreateDraft>[0]): Promise<WorkpaperOutput> {
-  return getOrCreateDraft(command);
-}
-
 export function executeReportDetailCommand(command: Parameters<typeof getReportDetail>[0]) {
   return getReportDetail(command);
-}
-
-export function buildSaveWorkpaperCommand(input: Parameters<typeof saveWorkpaper>[0], userId: number) {
-  return okCommand({ input, userId });
-}
-
-export async function executeSaveWorkpaperCommand(command: { input: Parameters<typeof saveWorkpaper>[0]; userId: number }) {
-  try {
-    return await saveWorkpaper(command.input, command.userId);
-  } catch (error) {
-    return serviceError(error instanceof Error ? error.message : "保存失败", 400);
-  }
 }

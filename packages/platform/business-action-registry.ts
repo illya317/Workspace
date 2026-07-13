@@ -107,12 +107,6 @@ const HR_ROSTER = {
   originHrefPattern: "/hr/roster",
 } as const;
 
-const FINANCE_STATEMENT_REVIEW = {
-  moduleKey: "finance",
-  resourceKey: "finance.statementReview",
-  originHrefPattern: "/finance/statement-review",
-} as const;
-
 function route(method: ApiMethod, path: string, notes?: string): BusinessActionApiRoute {
   return notes ? { method, path, notes } : { method, path };
 }
@@ -482,30 +476,6 @@ export const BUSINESS_ACTION_REGISTRATIONS = [
     targetKind: "HrRosterGeneratedExport",
     directPermissionAction: "export",
     apiRoutes: [route("GET", "/api/modules/hr/roster/generated/export", "GET export is permission-only; it is not a write route candidate.")],
-  },
-  { ...FINANCE_STATEMENT_REVIEW, ...PERMISSION_ONLY, key: "finance.statementReview.workpaper.save", label: "保存财务报表底稿", writeKind: "save", targetKind: "FinanceStatementWorkpaper", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/statement-review/workpapers")], notes: "Finance keeps in-place statement review UI. No ApprovalRequest adapter or direct workflow guard is wired yet, so the registry stays permission-only." },
-  {
-    ...FINANCE_STATEMENT_REVIEW,
-    ...PERMISSION_ONLY,
-    key: "finance.statementReview.review.create",
-    label: "创建财务报表校对",
-    writeKind: "create",
-    targetKind: "FinanceStatementReview",
-    directPermissionAction: "create",
-    apiRoutes: [route("POST", "/api/modules/finance/statement-review/reviews")],
-    notes: "Seed registry coverage for Finance. Promote to workflow only when Finance review adapter and in-place workflow status UI land.",
-  },
-  { ...FINANCE_STATEMENT_REVIEW, ...PERMISSION_ONLY, key: "finance.statementReview.review.update", label: "保存财务报表校对修改", writeKind: "save", targetKind: "FinanceStatementReviewLine", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/statement-review/reviews/:id")], notes: "Line-level review edits stay in-place. No ApprovalRequest adapter or direct workflow guard is wired yet." },
-  {
-    ...FINANCE_STATEMENT_REVIEW,
-    ...PERMISSION_ONLY,
-    key: "finance.statementReview.review.confirm",
-    label: "确认财务报表校对",
-    writeKind: "approve",
-    targetKind: "FinanceStatementReview",
-    directPermissionAction: "approve",
-    apiRoutes: [route("POST", "/api/modules/finance/statement-review/reviews/:id/confirm")],
-    notes: "Finance confirm is currently in-place review UI only. No ApprovalRequest adapter, direct workflow guard, or approved commit path is wired yet.",
   },
   ...ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS,
 ] as const satisfies readonly BusinessActionRegistration[];

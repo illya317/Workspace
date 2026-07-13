@@ -264,8 +264,8 @@ DB 先沿用 `WorkflowPolicy`，V1 固定写入 `businessActionKey + global + ""
 - Agent C 原地流程样板：
   - QC 批次、阶段、检验项目已把真实检验/复核状态映射为 `flowType="review"` 的统一 badge。
   - HR 新增表单状态横幅和底部 sticky action bar props-driven 样板。
-  - Finance 新增流程状态列/筛选样板，报表校对页面已复用 review badge。
-  - 补登记 HR 员工详情合同/部门岗位保存、Finance 底稿保存/校对修改等历史写入行为。
+  - Finance 的独立校对流程样板已随模块删除，不再作为 workflow 接入示例。
+  - 补登记 HR 员工详情合同/部门岗位保存等历史写入行为。
 
 未在本次完成：
 

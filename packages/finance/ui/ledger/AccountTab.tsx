@@ -51,7 +51,7 @@ export default function AccountTab({
     if (levelFilter) params.set("subjectLevel", levelFilter);
     if (yearFilter) params.set("year", yearFilter);
     if (keyword) params.set("keyword", keyword);
-    params.set("scope", scope);
+    params.set("scope", scope || "all");
     params.set("page", String(page));
     params.set("pageSize", String(pageSize));
 
@@ -150,6 +150,7 @@ export default function AccountTab({
     extraItems: extraToolbarItems,
   });
   const reclassConfig = useReclassConfigSection({
+    enabled: reclassMode && Boolean(companyFilter && yearFilter),
     companyCode: companyFilter,
     year: yearFilter,
     keyword,

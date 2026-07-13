@@ -335,7 +335,7 @@ function directOnlyReason(action: Pick<BusinessActionRegistration, "key" | "writ
   if (action.writeKind === "submit" || action.writeKind === "reverse") return "Submit/withdraw are workflow request actions, not business write entries.";
   if (action.writeKind === "export") return "Export/download actions stay outside write workflow.";
   if (action.writeKind === "import") return "Import/bulk data management actions stay outside workflow V1.";
-  if (action.key.startsWith("finance.") && !action.key.startsWith("finance.statementReview.")) return "Finance ledger/config/budget/cost management stays outside workflow V1.";
+  if (action.key.startsWith("finance.")) return "Finance ledger/config/budget/cost management stays outside workflow V1.";
   if (action.key.startsWith("capitalSecurities.")) return "Capital Securities governance actions stay outside workflow V1.";
   return "Current business policy is direct permission only.";
 }
@@ -347,6 +347,6 @@ function isNotApplicableAction(action: Pick<BusinessActionRegistration, "key" | 
     || action.writeKind === "approve"
     || action.writeKind === "reject"
     || action.writeKind === "reverse"
-    || (action.key.startsWith("finance.") && !action.key.startsWith("finance.statementReview."))
+    || action.key.startsWith("finance.")
     || action.key.startsWith("capitalSecurities.");
 }

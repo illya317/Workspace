@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@workspace/platform/server/prisma";
 import { BalanceItem, ReportPeriod, ReclassEntry } from "./report-helpers";
 import { generateBalanceSheet } from "./reports/balance-sheet";
-import { generateReviewBasedReport } from "./reports/review-based";
+import { generateDirectStatementReport } from "./reports/direct";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 
 export interface GenerateReportParams {
@@ -97,8 +97,8 @@ export async function generateReport(params: GenerateReportParams) {
   // balance sheet: mapping-based (unchanged)
   if (reportType === "balance") return generateBalanceSheet(period, balances, reclassEntries);
 
-  // income statement / cash flow: review-based (P3 Batch 7)
-  const reviewReport = await generateReviewBasedReport(
+  // Income statement and cash flow consume source facts directly.
+  const statementReport = await generateDirectStatementReport(
     period.companyCode ?? "",
     period.year,
     period.month,
@@ -108,8 +108,8 @@ export async function generateReport(params: GenerateReportParams) {
   return NextResponse.json({
     type: reportType,
     period: { id: period.id, year: period.year, month: period.month, companyCode: period.companyCode },
-    source: reviewReport.source,
-    diagnostics: reviewReport.diagnostics,
-    lines: reviewReport.lines,
+    source: statementReport.source,
+    diagnostics: statementReport.diagnostics,
+    lines: statementReport.lines,
   });
 }

@@ -21,7 +21,7 @@
 | `work-projects.prisma` | 项目管理 | Project, EmployeeProject, ProjectPlanPhase, ProjectPlanDependency, ProjectPlanBaseline, ProjectPlanBaselineItem |
 | `finance-ledger.prisma` | 财务总账 | FinanceAccount, FinancePeriod, FinanceVoucher, FinanceVoucherItem, FinanceLedgerImport, FinanceAccountBalance, FinanceBalanceSnapshot, FinanceBalanceSnapshotRow |
 | `finance-reclass.prisma` | 重分类 | FinanceReclassRule, FinanceReclassItemRule, FinanceBalanceReclassAdjustment, ReclassResult |
-| `finance-statement.prisma` | 报表底稿与校对 | FinanceStatementAccountMapping, FinanceStatementLineConfig, FinanceStatementWorkpaper, FinanceStatementWorkpaperLine, FinanceStatementReview, FinanceStatementReviewLine |
+| `finance-statement.prisma` | 财务报表 | FinanceStatementAccountMapping, FinanceStatementLineConfig, FinanceStatementWorkpaper, FinanceStatementWorkpaperLine |
 | `finance-budget.prisma` | 预算管理 | FinanceBudgetVersion, FinanceBudgetDept, FinanceBudgetRd |
 | `finance-cost.prisma` | 成本管理 | FinanceDataImport, FinanceShipment, FinanceSalesSalary, FinanceCostStructureRow, FinanceCostAnalysisRow, FinanceWorkshopReport |
 | `inventory.prisma` | 库存管理 | StockRawMaterial, StockPackaging, StockFinishedGoods, StockBatch, StockOperation, StockReturn |

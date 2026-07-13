@@ -10,6 +10,7 @@ import { resolveAuxiliaryReclassPair } from "@workspace/finance/types/auxiliary-
 import { formatFinanceAmount } from "../formatters";
 import { dirBadge, targetDisplay } from "../ledger/reclassColumns";
 interface Props {
+  enabled: boolean;
   companyCode: string;
   year: string;
   keyword?: string;
@@ -23,6 +24,7 @@ interface Props {
   }) => void;
 }
 export function useReclassConfigSection({
+  enabled,
   companyCode,
   year,
   keyword = "",
@@ -42,6 +44,7 @@ export function useReclassConfigSection({
   // ── Fetch ───────────────────────────────────────────
 
   const load = useCallback(async () => {
+    if (!enabled) return;
     setLoading(true);
     try {
       const [scanRes, accRes] = await Promise.all([fetch(workspacePath(`/api/modules/finance/ledger/reclass-rules?companyCode=${companyCode}&year=${year}`)), fetch(workspacePath(`/api/modules/finance/ledger/accounts?companyCode=${companyCode}&year=${year}&scope=all&pageSize=2000`))]);
@@ -86,13 +89,18 @@ export function useReclassConfigSection({
       });
     } catch {
       error("网络错误");
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
-  }, [companyCode, error, onStats, year]);
+  }, [companyCode, enabled, error, onStats, year]);
   useEffect(() => {
+    if (!enabled) {
+      setPage(1);
+      return;
+    }
     load();
     setPage(1);
-  }, [load]);
+  }, [enabled, load]);
 
   // ── Actions ──────────────────────────────────────────
 

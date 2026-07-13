@@ -234,21 +234,6 @@ export type FinanceStatementWorkpaper = Prisma.FinanceStatementWorkpaperModel
  */
 export type FinanceStatementWorkpaperLine = Prisma.FinanceStatementWorkpaperLineModel
 /**
- * Model FinanceStatementReview
- * 报表校对头（P3 Batch 3：workpaper → review，校对签核）
- * 1 workpaper → 1 active review
- * companyCode/year/month/reportType 是快照冗余，便于查询
- */
-export type FinanceStatementReview = Prisma.FinanceStatementReviewModel
-/**
- * Model FinanceStatementReviewLine
- * 报表校对行（P3 Batch 3：校对签核行数据）
- * systemAmount = 系统建议 (Batch 5 前为 0)
- * workpaperAmount = 底稿快照 (manualAmount + importedAmount)
- * finalAmount = adjustedAmount ?? workpaperAmount
- */
-export type FinanceStatementReviewLine = Prisma.FinanceStatementReviewLineModel
-/**
  * Model DepartmentDescription
  * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）
  */

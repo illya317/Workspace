@@ -292,7 +292,6 @@ export type FinanceStatementWorkpaperWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementWorkpaper"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.FinanceStatementWorkpaperLineListRelationFilter
-  review?: Prisma.XOR<Prisma.FinanceStatementReviewNullableScalarRelationFilter, Prisma.FinanceStatementReviewWhereInput> | null
 }
 
 export type FinanceStatementWorkpaperOrderByWithRelationInput = {
@@ -310,7 +309,6 @@ export type FinanceStatementWorkpaperOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   editor?: Prisma.UserOrderByWithRelationInput
   lines?: Prisma.FinanceStatementWorkpaperLineOrderByRelationAggregateInput
-  review?: Prisma.FinanceStatementReviewOrderByWithRelationInput
 }
 
 export type FinanceStatementWorkpaperWhereUniqueInput = Prisma.AtLeast<{
@@ -332,7 +330,6 @@ export type FinanceStatementWorkpaperWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementWorkpaper"> | Date | string
   editor?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   lines?: Prisma.FinanceStatementWorkpaperLineListRelationFilter
-  review?: Prisma.XOR<Prisma.FinanceStatementReviewNullableScalarRelationFilter, Prisma.FinanceStatementReviewWhereInput> | null
 }, "id" | "companyCode_year_month_reportType">
 
 export type FinanceStatementWorkpaperOrderByWithAggregationInput = {
@@ -386,7 +383,6 @@ export type FinanceStatementWorkpaperCreateInput = {
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedWorkpapersInput
   lines?: Prisma.FinanceStatementWorkpaperLineCreateNestedManyWithoutWorkpaperInput
-  review?: Prisma.FinanceStatementReviewCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperUncheckedCreateInput = {
@@ -403,7 +399,6 @@ export type FinanceStatementWorkpaperUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineUncheckedCreateNestedManyWithoutWorkpaperInput
-  review?: Prisma.FinanceStatementReviewUncheckedCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperUpdateInput = {
@@ -419,7 +414,6 @@ export type FinanceStatementWorkpaperUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedWorkpapersNestedInput
   lines?: Prisma.FinanceStatementWorkpaperLineUpdateManyWithoutWorkpaperNestedInput
-  review?: Prisma.FinanceStatementReviewUpdateOneWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperUncheckedUpdateInput = {
@@ -436,7 +430,6 @@ export type FinanceStatementWorkpaperUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineUncheckedUpdateManyWithoutWorkpaperNestedInput
-  review?: Prisma.FinanceStatementReviewUncheckedUpdateOneWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperCreateManyInput = {
@@ -621,20 +614,6 @@ export type FinanceStatementWorkpaperUpdateOneRequiredWithoutLinesNestedInput = 
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceStatementWorkpaperUpdateToOneWithWhereWithoutLinesInput, Prisma.FinanceStatementWorkpaperUpdateWithoutLinesInput>, Prisma.FinanceStatementWorkpaperUncheckedUpdateWithoutLinesInput>
 }
 
-export type FinanceStatementWorkpaperCreateNestedOneWithoutReviewInput = {
-  create?: Prisma.XOR<Prisma.FinanceStatementWorkpaperCreateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedCreateWithoutReviewInput>
-  connectOrCreate?: Prisma.FinanceStatementWorkpaperCreateOrConnectWithoutReviewInput
-  connect?: Prisma.FinanceStatementWorkpaperWhereUniqueInput
-}
-
-export type FinanceStatementWorkpaperUpdateOneRequiredWithoutReviewNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceStatementWorkpaperCreateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedCreateWithoutReviewInput>
-  connectOrCreate?: Prisma.FinanceStatementWorkpaperCreateOrConnectWithoutReviewInput
-  upsert?: Prisma.FinanceStatementWorkpaperUpsertWithoutReviewInput
-  connect?: Prisma.FinanceStatementWorkpaperWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceStatementWorkpaperUpdateToOneWithWhereWithoutReviewInput, Prisma.FinanceStatementWorkpaperUpdateWithoutReviewInput>, Prisma.FinanceStatementWorkpaperUncheckedUpdateWithoutReviewInput>
-}
-
 export type FinanceStatementWorkpaperCreateWithoutEditorInput = {
   companyCode: string
   year: number
@@ -647,7 +626,6 @@ export type FinanceStatementWorkpaperCreateWithoutEditorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineCreateNestedManyWithoutWorkpaperInput
-  review?: Prisma.FinanceStatementReviewCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperUncheckedCreateWithoutEditorInput = {
@@ -663,7 +641,6 @@ export type FinanceStatementWorkpaperUncheckedCreateWithoutEditorInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineUncheckedCreateNestedManyWithoutWorkpaperInput
-  review?: Prisma.FinanceStatementReviewUncheckedCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperCreateOrConnectWithoutEditorInput = {
@@ -722,7 +699,6 @@ export type FinanceStatementWorkpaperCreateWithoutLinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   editor?: Prisma.UserCreateNestedOneWithoutEditedWorkpapersInput
-  review?: Prisma.FinanceStatementReviewCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperUncheckedCreateWithoutLinesInput = {
@@ -738,7 +714,6 @@ export type FinanceStatementWorkpaperUncheckedCreateWithoutLinesInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  review?: Prisma.FinanceStatementReviewUncheckedCreateNestedOneWithoutWorkpaperInput
 }
 
 export type FinanceStatementWorkpaperCreateOrConnectWithoutLinesInput = {
@@ -769,7 +744,6 @@ export type FinanceStatementWorkpaperUpdateWithoutLinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editor?: Prisma.UserUpdateOneWithoutEditedWorkpapersNestedInput
-  review?: Prisma.FinanceStatementReviewUpdateOneWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperUncheckedUpdateWithoutLinesInput = {
@@ -785,85 +759,6 @@ export type FinanceStatementWorkpaperUncheckedUpdateWithoutLinesInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  review?: Prisma.FinanceStatementReviewUncheckedUpdateOneWithoutWorkpaperNestedInput
-}
-
-export type FinanceStatementWorkpaperCreateWithoutReviewInput = {
-  companyCode: string
-  year: number
-  month: number
-  reportType: string
-  status?: string
-  note?: string | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  editor?: Prisma.UserCreateNestedOneWithoutEditedWorkpapersInput
-  lines?: Prisma.FinanceStatementWorkpaperLineCreateNestedManyWithoutWorkpaperInput
-}
-
-export type FinanceStatementWorkpaperUncheckedCreateWithoutReviewInput = {
-  id?: number
-  companyCode: string
-  year: number
-  month: number
-  reportType: string
-  status?: string
-  note?: string | null
-  updatedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  lines?: Prisma.FinanceStatementWorkpaperLineUncheckedCreateNestedManyWithoutWorkpaperInput
-}
-
-export type FinanceStatementWorkpaperCreateOrConnectWithoutReviewInput = {
-  where: Prisma.FinanceStatementWorkpaperWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinanceStatementWorkpaperCreateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedCreateWithoutReviewInput>
-}
-
-export type FinanceStatementWorkpaperUpsertWithoutReviewInput = {
-  update: Prisma.XOR<Prisma.FinanceStatementWorkpaperUpdateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedUpdateWithoutReviewInput>
-  create: Prisma.XOR<Prisma.FinanceStatementWorkpaperCreateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedCreateWithoutReviewInput>
-  where?: Prisma.FinanceStatementWorkpaperWhereInput
-}
-
-export type FinanceStatementWorkpaperUpdateToOneWithWhereWithoutReviewInput = {
-  where?: Prisma.FinanceStatementWorkpaperWhereInput
-  data: Prisma.XOR<Prisma.FinanceStatementWorkpaperUpdateWithoutReviewInput, Prisma.FinanceStatementWorkpaperUncheckedUpdateWithoutReviewInput>
-}
-
-export type FinanceStatementWorkpaperUpdateWithoutReviewInput = {
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
-  month?: Prisma.IntFieldUpdateOperationsInput | number
-  reportType?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  editor?: Prisma.UserUpdateOneWithoutEditedWorkpapersNestedInput
-  lines?: Prisma.FinanceStatementWorkpaperLineUpdateManyWithoutWorkpaperNestedInput
-}
-
-export type FinanceStatementWorkpaperUncheckedUpdateWithoutReviewInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
-  month?: Prisma.IntFieldUpdateOperationsInput | number
-  reportType?: Prisma.StringFieldUpdateOperationsInput | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  lines?: Prisma.FinanceStatementWorkpaperLineUncheckedUpdateManyWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperCreateManyEditorInput = {
@@ -892,7 +787,6 @@ export type FinanceStatementWorkpaperUpdateWithoutEditorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineUpdateManyWithoutWorkpaperNestedInput
-  review?: Prisma.FinanceStatementReviewUpdateOneWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperUncheckedUpdateWithoutEditorInput = {
@@ -908,7 +802,6 @@ export type FinanceStatementWorkpaperUncheckedUpdateWithoutEditorInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   lines?: Prisma.FinanceStatementWorkpaperLineUncheckedUpdateManyWithoutWorkpaperNestedInput
-  review?: Prisma.FinanceStatementReviewUncheckedUpdateOneWithoutWorkpaperNestedInput
 }
 
 export type FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorInput = {
@@ -971,7 +864,6 @@ export type FinanceStatementWorkpaperSelect<ExtArgs extends runtime.Types.Extens
   updatedAt?: boolean
   editor?: boolean | Prisma.FinanceStatementWorkpaper$editorArgs<ExtArgs>
   lines?: boolean | Prisma.FinanceStatementWorkpaper$linesArgs<ExtArgs>
-  review?: boolean | Prisma.FinanceStatementWorkpaper$reviewArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceStatementWorkpaperCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeStatementWorkpaper"]>
 
@@ -1026,7 +918,6 @@ export type FinanceStatementWorkpaperOmit<ExtArgs extends runtime.Types.Extensio
 export type FinanceStatementWorkpaperInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.FinanceStatementWorkpaper$editorArgs<ExtArgs>
   lines?: boolean | Prisma.FinanceStatementWorkpaper$linesArgs<ExtArgs>
-  review?: boolean | Prisma.FinanceStatementWorkpaper$reviewArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceStatementWorkpaperCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceStatementWorkpaperIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1041,7 +932,6 @@ export type $FinanceStatementWorkpaperPayload<ExtArgs extends runtime.Types.Exte
   objects: {
     editor: Prisma.$UserPayload<ExtArgs> | null
     lines: Prisma.$FinanceStatementWorkpaperLinePayload<ExtArgs>[]
-    review: Prisma.$FinanceStatementReviewPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1452,7 +1342,6 @@ export interface Prisma__FinanceStatementWorkpaperClient<T, Null = never, ExtArg
   readonly [Symbol.toStringTag]: "PrismaPromise"
   editor<T extends Prisma.FinanceStatementWorkpaper$editorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementWorkpaper$editorArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.FinanceStatementWorkpaper$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementWorkpaper$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementWorkpaperLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  review<T extends Prisma.FinanceStatementWorkpaper$reviewArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceStatementWorkpaper$reviewArgs<ExtArgs>>): Prisma.Prisma__FinanceStatementReviewClient<runtime.Types.Result.GetResult<Prisma.$FinanceStatementReviewPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1935,25 +1824,6 @@ export type FinanceStatementWorkpaper$linesArgs<ExtArgs extends runtime.Types.Ex
   take?: number
   skip?: number
   distinct?: Prisma.FinanceStatementWorkpaperLineScalarFieldEnum | Prisma.FinanceStatementWorkpaperLineScalarFieldEnum[]
-}
-
-/**
- * FinanceStatementWorkpaper.review
- */
-export type FinanceStatementWorkpaper$reviewArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceStatementReview
-   */
-  select?: Prisma.FinanceStatementReviewSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceStatementReview
-   */
-  omit?: Prisma.FinanceStatementReviewOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceStatementReviewInclude<ExtArgs> | null
-  where?: Prisma.FinanceStatementReviewWhereInput
 }
 
 /**

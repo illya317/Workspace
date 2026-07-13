@@ -34,8 +34,4 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   registeredLifecycle({ key: "finance.cost.import.delete", activeEntity: "FinanceCostImport", operation: "delete", domain: d(routeCommand("buildFinanceRouteIdCommand"), routeCommand("executeDeleteCostImportCommand")), referencePolicy: "domain" }),
   registeredImport({ key: "finance.import.confirm", activeEntity: "FinanceImport", transport: "json", result: "batch", domain: d("packages/finance/server/import/route-commands.buildFinanceImportConfirmCommand", "packages/finance/server/import/route-commands.executeFinanceImportConfirmCommand") }),
 
-  registeredWrite({ key: "finance.statementReview.workpaper.save", activeEntity: "FinanceStatementWorkpaper", domain: d(routeCommand("buildSaveWorkpaperCommand"), routeCommand("executeSaveWorkpaperCommand")), shape: "full_record", target: "mixed", commitMode: "native_transition" }),
-  registeredWrite({ key: "finance.statementReview.review.create", activeEntity: "FinanceStatementReview", domain: d(routeCommand("buildGenerateReviewCommand"), routeCommand("executeGenerateReviewCommand")), shape: "full_record", target: "new_record", commitMode: "activate" }),
-  registeredWrite({ key: "finance.statementReview.review.update", activeEntity: "FinanceStatementReviewLine", domain: d(routeCommand("buildUpdateReviewCommand"), routeCommand("executeUpdateReviewCommand")), shape: "change_set", commitMode: "native_transition" }),
-  registeredLifecycle({ key: "finance.statementReview.review.confirm", activeEntity: "FinanceStatementReview", operation: "approve", domain: d(routeCommand("buildFinanceReviewConfirmCommand"), routeCommand("executeFinanceReviewConfirmCommand")), auditPolicy: "event" }),
 ]);

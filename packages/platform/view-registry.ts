@@ -106,14 +106,6 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/finance/statement-review",
-    moduleKey: "finance",
-    label: "报表校对",
-    views: [
-      { key: "statement-review", label: "报表审核" },
-    ],
-  },
-  {
     route: "/finance/statements",
     moduleKey: "finance",
     label: "财务报表",

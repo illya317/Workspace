@@ -297,7 +297,6 @@ Platform UI 提供 `WorkflowStatusBadge` 和 `WorkflowStateIcon`，统一支持�
 |---|---|---|
 | QC 检验/复核 | 使用 `flowType="review"`，文案保持“检验/复核”。批次、阶段、检验项目的真实签名状态映射到 `WorkflowStatusBadge`，不跳独立审批页。 | `packages/production/qc/workflow.ts`、`packages/production/ui/qc/QcBatchRecordStageList.tsx` |
 | HR 表单类 | 使用醒目的状态横幅 + 底部 sticky action bar 样板；组件只消费外部传入的 workflow state/actions，不主动请求流程数据。 | `packages/hr/ui/workflow/HrWorkflowInline.tsx` |
-| Finance 表格/详情类 | 使用流程状态列、筛选选项和 review badge；现有报表校对页面先复用 badge，不强制改正式保存流程。 | `packages/finance/ui/workflow/FinanceWorkflowStatus.tsx`、`packages/finance/ui/statement-review/ReviewClient.tsx` |
 
 原地组件的共同规则：
 

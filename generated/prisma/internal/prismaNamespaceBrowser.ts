@@ -92,8 +92,6 @@ export const ModelName = {
   FinanceStatementLineConfig: 'FinanceStatementLineConfig',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
-  FinanceStatementReview: 'FinanceStatementReview',
-  FinanceStatementReviewLine: 'FinanceStatementReviewLine',
   DepartmentDescription: 'DepartmentDescription',
   PositionDescription: 'PositionDescription',
   HrPerformanceReview: 'HrPerformanceReview',
@@ -1030,47 +1028,6 @@ export const FinanceStatementWorkpaperLineScalarFieldEnum = {
 } as const
 
 export type FinanceStatementWorkpaperLineScalarFieldEnum = (typeof FinanceStatementWorkpaperLineScalarFieldEnum)[keyof typeof FinanceStatementWorkpaperLineScalarFieldEnum]
-
-
-export const FinanceStatementReviewScalarFieldEnum = {
-  id: 'id',
-  workpaperId: 'workpaperId',
-  companyCode: 'companyCode',
-  year: 'year',
-  month: 'month',
-  reportType: 'reportType',
-  status: 'status',
-  generatedFromVersion: 'generatedFromVersion',
-  reviewedBy: 'reviewedBy',
-  reviewedAt: 'reviewedAt',
-  note: 'note',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceStatementReviewScalarFieldEnum = (typeof FinanceStatementReviewScalarFieldEnum)[keyof typeof FinanceStatementReviewScalarFieldEnum]
-
-
-export const FinanceStatementReviewLineScalarFieldEnum = {
-  id: 'id',
-  reviewId: 'reviewId',
-  lineCode: 'lineCode',
-  label: 'label',
-  sortOrder: 'sortOrder',
-  systemAmount: 'systemAmount',
-  workpaperAmount: 'workpaperAmount',
-  adjustedAmount: 'adjustedAmount',
-  finalAmount: 'finalAmount',
-  status: 'status',
-  comment: 'comment',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceStatementReviewLineScalarFieldEnum = (typeof FinanceStatementReviewLineScalarFieldEnum)[keyof typeof FinanceStatementReviewLineScalarFieldEnum]
 
 
 export const DepartmentDescriptionScalarFieldEnum = {

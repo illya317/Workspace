@@ -33,7 +33,7 @@ interface ReportData {
   equity?: ReportLine[];
   totalLiabilitiesAndEquity?: number;
   lines?: ReportLine[];
-  source?: "review" | "empty" | "stale";
+  source?: "system" | "workpaper" | "empty";
   diagnostics?: {
     type: string;
     message: string;
@@ -193,7 +193,7 @@ export default function ReportTab() {
             title: "利 润 表",
             sections: [
               ...(() => {
-                const block = createReportBannerSection("income-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=incomeStatement` });
+                const block = createReportBannerSection("income-banner", { source: data.source, diagnostics: data.diagnostics });
                 return block ? [block] : [];
               })(),
               {
@@ -206,7 +206,7 @@ export default function ReportTab() {
             title: "现 金 流 量 表",
             sections: [
               ...(() => {
-                const block = createReportBannerSection("cashflow-banner", { source: data.source, diagnostics: data.diagnostics, reviewHref: `/finance/statement-review?companyCode=${data.period.companyCode || ""}&year=${data.period.year}&month=${data.period.month}&reportType=cashFlow` });
+                const block = createReportBannerSection("cashflow-banner", { source: data.source, diagnostics: data.diagnostics });
                 return block ? [block] : [];
               })(),
               {

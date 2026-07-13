@@ -338,8 +338,6 @@ export type UserWhereInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   ledgerImports?: Prisma.FinanceLedgerImportListRelationFilter
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
-  editedReviews?: Prisma.FinanceStatementReviewListRelationFilter
-  reviewedReviews?: Prisma.FinanceStatementReviewListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   createdNotifications?: Prisma.NotificationListRelationFilter
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventListRelationFilter
@@ -400,8 +398,6 @@ export type UserOrderByWithRelationInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleOrderByRelationAggregateInput
   ledgerImports?: Prisma.FinanceLedgerImportOrderByRelationAggregateInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperOrderByRelationAggregateInput
-  editedReviews?: Prisma.FinanceStatementReviewOrderByRelationAggregateInput
-  reviewedReviews?: Prisma.FinanceStatementReviewOrderByRelationAggregateInput
   notifications?: Prisma.NotificationOrderByRelationAggregateInput
   createdNotifications?: Prisma.NotificationOrderByRelationAggregateInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventOrderByRelationAggregateInput
@@ -465,8 +461,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   confirmedReclassRules?: Prisma.FinanceReclassRuleListRelationFilter
   ledgerImports?: Prisma.FinanceLedgerImportListRelationFilter
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperListRelationFilter
-  editedReviews?: Prisma.FinanceStatementReviewListRelationFilter
-  reviewedReviews?: Prisma.FinanceStatementReviewListRelationFilter
   notifications?: Prisma.NotificationListRelationFilter
   createdNotifications?: Prisma.NotificationListRelationFilter
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventListRelationFilter
@@ -572,8 +566,6 @@ export type UserCreateInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -634,8 +626,6 @@ export type UserUncheckedCreateInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -695,8 +685,6 @@ export type UserUpdateInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -757,8 +745,6 @@ export type UserUncheckedUpdateInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -1151,38 +1137,6 @@ export type UserUpdateOneWithoutEditedWorkpapersNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedWorkpapersInput, Prisma.UserUpdateWithoutEditedWorkpapersInput>, Prisma.UserUncheckedUpdateWithoutEditedWorkpapersInput>
-}
-
-export type UserCreateNestedOneWithoutEditedReviewsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEditedReviewsInput, Prisma.UserUncheckedCreateWithoutEditedReviewsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEditedReviewsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserCreateNestedOneWithoutReviewedReviewsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewedReviewsInput, Prisma.UserUncheckedCreateWithoutReviewedReviewsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewedReviewsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutEditedReviewsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutEditedReviewsInput, Prisma.UserUncheckedCreateWithoutEditedReviewsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEditedReviewsInput
-  upsert?: Prisma.UserUpsertWithoutEditedReviewsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedReviewsInput, Prisma.UserUpdateWithoutEditedReviewsInput>, Prisma.UserUncheckedUpdateWithoutEditedReviewsInput>
-}
-
-export type UserUpdateOneWithoutReviewedReviewsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutReviewedReviewsInput, Prisma.UserUncheckedCreateWithoutReviewedReviewsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutReviewedReviewsInput
-  upsert?: Prisma.UserUpsertWithoutReviewedReviewsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutReviewedReviewsInput, Prisma.UserUpdateWithoutReviewedReviewsInput>, Prisma.UserUncheckedUpdateWithoutReviewedReviewsInput>
 }
 
 export type UserCreateNestedOneWithoutEmployeesInput = {
@@ -1615,8 +1569,6 @@ export type UserCreateWithoutSubmittedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -1676,8 +1628,6 @@ export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -1741,8 +1691,6 @@ export type UserCreateWithoutResolvedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -1802,8 +1750,6 @@ export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -1878,8 +1824,6 @@ export type UserUpdateWithoutSubmittedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -1939,8 +1883,6 @@ export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -2010,8 +1952,6 @@ export type UserUpdateWithoutResolvedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -2071,8 +2011,6 @@ export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -2131,8 +2069,6 @@ export type UserCreateWithoutApprovalEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -2192,8 +2128,6 @@ export type UserUncheckedCreateWithoutApprovalEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -2268,8 +2202,6 @@ export type UserUpdateWithoutApprovalEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -2329,8 +2261,6 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -2388,8 +2318,6 @@ export type UserCreateWithoutResourceActionGrantsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -2449,8 +2377,6 @@ export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -2525,8 +2451,6 @@ export type UserUpdateWithoutResourceActionGrantsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -2586,8 +2510,6 @@ export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -2647,8 +2569,6 @@ export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
@@ -2708,8 +2628,6 @@ export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
@@ -2784,8 +2702,6 @@ export type UserUpdateWithoutPermissionGrantLedgerEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
@@ -2845,8 +2761,6 @@ export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -2905,8 +2819,6 @@ export type UserCreateWithoutNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
@@ -2966,8 +2878,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3031,8 +2941,6 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
@@ -3092,8 +3000,6 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
@@ -3168,8 +3074,6 @@ export type UserUpdateWithoutNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
@@ -3229,8 +3133,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3300,8 +3202,6 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
@@ -3361,8 +3261,6 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
@@ -3420,8 +3318,6 @@ export type UserCreateWithoutEditedContractsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -3481,8 +3377,6 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -3557,8 +3451,6 @@ export type UserUpdateWithoutEditedContractsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -3618,8 +3510,6 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -3678,8 +3568,6 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -3739,8 +3627,6 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -3815,8 +3701,6 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -3876,8 +3760,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -3936,8 +3818,6 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -3997,8 +3877,6 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -4073,8 +3951,6 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -4134,8 +4010,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -4194,8 +4068,6 @@ export type UserCreateWithoutLedgerImportsInput = {
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -4255,8 +4127,6 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -4331,8 +4201,6 @@ export type UserUpdateWithoutLedgerImportsInput = {
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -4392,8 +4260,6 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -4452,8 +4318,6 @@ export type UserCreateWithoutSnapshotImportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -4513,8 +4377,6 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -4578,8 +4440,6 @@ export type UserCreateWithoutSnapshotEditsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -4639,8 +4499,6 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -4715,8 +4573,6 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -4776,8 +4632,6 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -4847,8 +4701,6 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -4908,8 +4760,6 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -4968,8 +4818,6 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -5029,8 +4877,6 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -5105,8 +4951,6 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -5166,8 +5010,6 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -5226,8 +5068,6 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -5287,8 +5127,6 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -5363,8 +5201,6 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -5424,8 +5260,6 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -5484,8 +5318,6 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -5545,8 +5377,6 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -5621,8 +5451,6 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -5682,524 +5510,6 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
-  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
-}
-
-export type UserCreateWithoutEditedReviewsInput = {
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
-}
-
-export type UserUncheckedCreateWithoutEditedReviewsInput = {
-  id?: number
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
-}
-
-export type UserCreateOrConnectWithoutEditedReviewsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutEditedReviewsInput, Prisma.UserUncheckedCreateWithoutEditedReviewsInput>
-}
-
-export type UserCreateWithoutReviewedReviewsInput = {
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
-}
-
-export type UserUncheckedCreateWithoutReviewedReviewsInput = {
-  id?: number
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
-}
-
-export type UserCreateOrConnectWithoutReviewedReviewsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutReviewedReviewsInput, Prisma.UserUncheckedCreateWithoutReviewedReviewsInput>
-}
-
-export type UserUpsertWithoutEditedReviewsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutEditedReviewsInput, Prisma.UserUncheckedUpdateWithoutEditedReviewsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutEditedReviewsInput, Prisma.UserUncheckedCreateWithoutEditedReviewsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutEditedReviewsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutEditedReviewsInput, Prisma.UserUncheckedUpdateWithoutEditedReviewsInput>
-}
-
-export type UserUpdateWithoutEditedReviewsInput = {
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
-  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
-}
-
-export type UserUncheckedUpdateWithoutEditedReviewsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
-  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
-}
-
-export type UserUpsertWithoutReviewedReviewsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutReviewedReviewsInput, Prisma.UserUncheckedUpdateWithoutReviewedReviewsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutReviewedReviewsInput, Prisma.UserUncheckedCreateWithoutReviewedReviewsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutReviewedReviewsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutReviewedReviewsInput, Prisma.UserUncheckedUpdateWithoutReviewedReviewsInput>
-}
-
-export type UserUpdateWithoutReviewedReviewsInput = {
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
-  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
-}
-
-export type UserUncheckedUpdateWithoutReviewedReviewsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -6258,8 +5568,6 @@ export type UserCreateWithoutEmployeesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -6319,8 +5627,6 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -6395,8 +5701,6 @@ export type UserUpdateWithoutEmployeesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -6456,8 +5760,6 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -6516,8 +5818,6 @@ export type UserCreateWithoutEditHistoriesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -6577,8 +5877,6 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -6653,8 +5951,6 @@ export type UserUpdateWithoutEditHistoriesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -6714,8 +6010,6 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -6774,8 +6068,6 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -6835,8 +6127,6 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -6911,8 +6201,6 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -6972,8 +6260,6 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -7032,8 +6318,6 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -7093,8 +6377,6 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -7169,8 +6451,6 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -7230,8 +6510,6 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -7290,8 +6568,6 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -7351,8 +6627,6 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -7427,8 +6701,6 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -7488,8 +6760,6 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -7548,8 +6818,6 @@ export type UserCreateWithoutStockOperationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -7609,8 +6877,6 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -7685,8 +6951,6 @@ export type UserUpdateWithoutStockOperationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -7746,8 +7010,6 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -7806,8 +7068,6 @@ export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -7867,8 +7127,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -7943,8 +7201,6 @@ export type UserUpdateWithoutReviewedLibraryTagCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -8004,8 +7260,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -8064,8 +7318,6 @@ export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -8125,8 +7377,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -8201,8 +7451,6 @@ export type UserUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -8262,8 +7510,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -8322,8 +7568,6 @@ export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -8383,8 +7627,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -8448,8 +7690,6 @@ export type UserCreateWithoutReviewedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -8509,8 +7749,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -8585,8 +7823,6 @@ export type UserUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -8646,8 +7882,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -8717,8 +7951,6 @@ export type UserUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -8778,8 +8010,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -8838,8 +8068,6 @@ export type UserCreateWithoutRequestedLibraryExportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -8899,8 +8127,6 @@ export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -8975,8 +8201,6 @@ export type UserUpdateWithoutRequestedLibraryExportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -9036,8 +8260,6 @@ export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -9096,8 +8318,6 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -9157,8 +8377,6 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -9222,8 +8440,6 @@ export type UserCreateWithoutOwnedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -9283,8 +8499,6 @@ export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -9348,8 +8562,6 @@ export type UserCreateWithoutReviewedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -9409,8 +8621,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -9485,8 +8695,6 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -9546,8 +8754,6 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -9617,8 +8823,6 @@ export type UserUpdateWithoutOwnedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -9678,8 +8882,6 @@ export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -9749,8 +8951,6 @@ export type UserUpdateWithoutReviewedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -9810,8 +9010,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -9870,8 +9068,6 @@ export type UserCreateWithoutCreatedLibraryVersionsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -9931,8 +9127,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -10007,8 +9201,6 @@ export type UserUpdateWithoutCreatedLibraryVersionsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -10068,8 +9260,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -10128,8 +9318,6 @@ export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -10189,8 +9377,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -10265,8 +9451,6 @@ export type UserUpdateWithoutCreatedLibraryDocumentTagsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -10326,8 +9510,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -10386,8 +9568,6 @@ export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -10447,8 +9627,6 @@ export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -10523,8 +9701,6 @@ export type UserUpdateWithoutCreatedDepartmentCollaborationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -10584,8 +9760,6 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -10644,8 +9818,6 @@ export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -10705,8 +9877,6 @@ export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -10781,8 +9951,6 @@ export type UserUpdateWithoutDepartmentCollaborationResponsesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -10842,8 +10010,6 @@ export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -10903,8 +10069,6 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -10964,8 +10128,6 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -11029,8 +10191,6 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -11090,8 +10250,6 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -11166,8 +10324,6 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -11227,8 +10383,6 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -11298,8 +10452,6 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -11359,8 +10511,6 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -11419,8 +10569,6 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -11480,8 +10628,6 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -11556,8 +10702,6 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -11617,8 +10761,6 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -11677,8 +10819,6 @@ export type UserCreateWithoutMeetingVotesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -11738,8 +10878,6 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -11814,8 +10952,6 @@ export type UserUpdateWithoutMeetingVotesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -11875,8 +11011,6 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -11935,8 +11069,6 @@ export type UserCreateWithoutWorkReportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -11996,8 +11128,6 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -12072,8 +11202,6 @@ export type UserUpdateWithoutWorkReportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -12133,8 +11261,6 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -12192,8 +11318,6 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -12253,8 +11377,6 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -12329,8 +11451,6 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -12390,8 +11510,6 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -12450,8 +11568,6 @@ export type UserCreateWithoutProjectAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
@@ -12511,8 +11627,6 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutEditorInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedCreateNestedManyWithoutReviewerInput
   notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
   createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
@@ -12587,8 +11701,6 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
@@ -12648,8 +11760,6 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
   editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  editedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutEditorNestedInput
-  reviewedReviews?: Prisma.FinanceStatementReviewUncheckedUpdateManyWithoutReviewerNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -12699,8 +11809,6 @@ export type UserCountOutputType = {
   confirmedReclassRules: number
   ledgerImports: number
   editedWorkpapers: number
-  editedReviews: number
-  reviewedReviews: number
   notifications: number
   createdNotifications: number
   permissionGrantLedgerEvents: number
@@ -12745,8 +11853,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   confirmedReclassRules?: boolean | UserCountOutputTypeCountConfirmedReclassRulesArgs
   ledgerImports?: boolean | UserCountOutputTypeCountLedgerImportsArgs
   editedWorkpapers?: boolean | UserCountOutputTypeCountEditedWorkpapersArgs
-  editedReviews?: boolean | UserCountOutputTypeCountEditedReviewsArgs
-  reviewedReviews?: boolean | UserCountOutputTypeCountReviewedReviewsArgs
   notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
   createdNotifications?: boolean | UserCountOutputTypeCountCreatedNotificationsArgs
   permissionGrantLedgerEvents?: boolean | UserCountOutputTypeCountPermissionGrantLedgerEventsArgs
@@ -12983,20 +12089,6 @@ export type UserCountOutputTypeCountEditedWorkpapersArgs<ExtArgs extends runtime
 /**
  * UserCountOutputType without action
  */
-export type UserCountOutputTypeCountEditedReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceStatementReviewWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountReviewedReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.FinanceStatementReviewWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
 export type UserCountOutputTypeCountNotificationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.NotificationWhereInput
 }
@@ -13119,8 +12211,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   confirmedReclassRules?: boolean | Prisma.User$confirmedReclassRulesArgs<ExtArgs>
   ledgerImports?: boolean | Prisma.User$ledgerImportsArgs<ExtArgs>
   editedWorkpapers?: boolean | Prisma.User$editedWorkpapersArgs<ExtArgs>
-  editedReviews?: boolean | Prisma.User$editedReviewsArgs<ExtArgs>
-  reviewedReviews?: boolean | Prisma.User$reviewedReviewsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   permissionGrantLedgerEvents?: boolean | Prisma.User$permissionGrantLedgerEventsArgs<ExtArgs>
@@ -13224,8 +12314,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   confirmedReclassRules?: boolean | Prisma.User$confirmedReclassRulesArgs<ExtArgs>
   ledgerImports?: boolean | Prisma.User$ledgerImportsArgs<ExtArgs>
   editedWorkpapers?: boolean | Prisma.User$editedWorkpapersArgs<ExtArgs>
-  editedReviews?: boolean | Prisma.User$editedReviewsArgs<ExtArgs>
-  reviewedReviews?: boolean | Prisma.User$reviewedReviewsArgs<ExtArgs>
   notifications?: boolean | Prisma.User$notificationsArgs<ExtArgs>
   createdNotifications?: boolean | Prisma.User$createdNotificationsArgs<ExtArgs>
   permissionGrantLedgerEvents?: boolean | Prisma.User$permissionGrantLedgerEventsArgs<ExtArgs>
@@ -13275,8 +12363,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     confirmedReclassRules: Prisma.$FinanceReclassRulePayload<ExtArgs>[]
     ledgerImports: Prisma.$FinanceLedgerImportPayload<ExtArgs>[]
     editedWorkpapers: Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>[]
-    editedReviews: Prisma.$FinanceStatementReviewPayload<ExtArgs>[]
-    reviewedReviews: Prisma.$FinanceStatementReviewPayload<ExtArgs>[]
     notifications: Prisma.$NotificationPayload<ExtArgs>[]
     createdNotifications: Prisma.$NotificationPayload<ExtArgs>[]
     permissionGrantLedgerEvents: Prisma.$PermissionGrantLedgerEventPayload<ExtArgs>[]
@@ -13730,8 +12816,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   confirmedReclassRules<T extends Prisma.User$confirmedReclassRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$confirmedReclassRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReclassRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   ledgerImports<T extends Prisma.User$ledgerImportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$ledgerImportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   editedWorkpapers<T extends Prisma.User$editedWorkpapersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedWorkpapersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementWorkpaperPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  editedReviews<T extends Prisma.User$editedReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$editedReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  reviewedReviews<T extends Prisma.User$reviewedReviewsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedReviewsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceStatementReviewPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   notifications<T extends Prisma.User$notificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$notificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdNotifications<T extends Prisma.User$createdNotificationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdNotificationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$NotificationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   permissionGrantLedgerEvents<T extends Prisma.User$permissionGrantLedgerEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$permissionGrantLedgerEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PermissionGrantLedgerEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -14898,54 +13982,6 @@ export type User$editedWorkpapersArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.FinanceStatementWorkpaperScalarFieldEnum | Prisma.FinanceStatementWorkpaperScalarFieldEnum[]
-}
-
-/**
- * User.editedReviews
- */
-export type User$editedReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceStatementReview
-   */
-  select?: Prisma.FinanceStatementReviewSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceStatementReview
-   */
-  omit?: Prisma.FinanceStatementReviewOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceStatementReviewInclude<ExtArgs> | null
-  where?: Prisma.FinanceStatementReviewWhereInput
-  orderBy?: Prisma.FinanceStatementReviewOrderByWithRelationInput | Prisma.FinanceStatementReviewOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceStatementReviewWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceStatementReviewScalarFieldEnum | Prisma.FinanceStatementReviewScalarFieldEnum[]
-}
-
-/**
- * User.reviewedReviews
- */
-export type User$reviewedReviewsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the FinanceStatementReview
-   */
-  select?: Prisma.FinanceStatementReviewSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the FinanceStatementReview
-   */
-  omit?: Prisma.FinanceStatementReviewOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.FinanceStatementReviewInclude<ExtArgs> | null
-  where?: Prisma.FinanceStatementReviewWhereInput
-  orderBy?: Prisma.FinanceStatementReviewOrderByWithRelationInput | Prisma.FinanceStatementReviewOrderByWithRelationInput[]
-  cursor?: Prisma.FinanceStatementReviewWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.FinanceStatementReviewScalarFieldEnum | Prisma.FinanceStatementReviewScalarFieldEnum[]
 }
 
 /**

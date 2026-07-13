@@ -46,8 +46,6 @@ model User {
   confirmedReclassRules             FinanceReclassRule[]                @relation("FinanceReclassRuleConfirmer")
   ledgerImports                     FinanceLedgerImport[]               @relation("FinanceLedgerImportImporter")
   editedWorkpapers                  FinanceStatementWorkpaper[]         @relation("WorkpaperEditor")
-  editedReviews                     FinanceStatementReview[]            @relation("ReviewEditor")
-  reviewedReviews                   FinanceStatementReview[]            @relation("ReviewReviewer")
   notifications                     Notification[]                      @relation("NotificationRecipient")
   createdNotifications              Notification[]                      @relation("NotificationActor")
   permissionGrantLedgerEvents       PermissionGrantLedgerEvent[]        @relation("PermissionGrantLedgerActor")

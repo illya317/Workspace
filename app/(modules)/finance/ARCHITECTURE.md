@@ -8,7 +8,6 @@
 | 总账会计 | `/finance/ledger` | `ledger/page.tsx` → `@workspace/finance/ui` 的 `LedgerClient` |
 | 财务报表 | `/finance/statements` | `statements/page.tsx` → `@workspace/finance/ui` 的 `StatementsClient` |
 | 报表配置 | `/finance/statement-config` | `statement-config/page.tsx` → `@workspace/finance/ui` 的 `StatementConfigClient` |
-| 报表校对 | `/finance/statement-review` | `statement-review/page.tsx` → `@workspace/finance/ui` 的 `StatementReviewClient` |
 | 管理会计 | `/finance/analysis` | `analysis/page.tsx` → `@workspace/finance/ui` 的 `FinanceAnalysisClient` |
 | 预算管理 | `/finance/budget` | `budget/page.tsx` → `@workspace/finance/ui` 的 `BudgetTab` |
 | 成本管理 | `/finance/cost` | `cost/page.tsx` → `@workspace/finance/ui` 的 `FinanceCostClient` |
@@ -67,6 +66,8 @@
 | Tab | 组件 | 说明 |
 |-----|------|------|
 | 财务报表 | ReportTab | 资产负债表/利润表 |
+
+利润表直接按期间凭证明细计算；现金流量表直接读取已导入的 `FinanceStatementWorkpaper` 事实数据。两者都不经过独立的校对、调整或签核页面。
 
 ### 报表配置 (`/finance/statement-config`)
 
@@ -294,64 +295,12 @@ P3 Batch 1 只搭**配置**层（line config + DB 行），**不接 compute、�
 - 不建 workpaper / review 表。
 - 不动资产负债表 authoritative 口径。
 
-### Phase 3 Batch 2：底稿输入 schema + service + API
+### 利润表与现金流量表数据源
 
-P3 Batch 2 新增底稿（workpaper）表与服务层，用于保存利润表/现金流量表的底稿手工输入。**不做 review/确认流，不做 UI，不碰 balanceSheet。**
-
-新增表（`prisma/models/finance-ledger.prisma`）：
-
-- `FinanceStatementWorkpaper` — 底稿头。唯一键 `(companyCode, year, month, reportType)`。`reportType` 支持 `incomeStatement` / `cashFlow`。字段：`status`（draft/submitted）、`note`、`updatedBy`。
-- `FinanceStatementWorkpaperLine` — 底稿行。唯一键 `(workpaperId, lineCode)`。只存事实输入：`manualAmount`、`importedAmount`、`formulaText`（纯记录不执行）、`note`、`source`。不存计算结果。
-
-新增 service（`packages/finance/server/statements/workpapers/`）：
-
-- `types.ts` — DTO 类型（`WorkpaperOutput`、`WorkpaperLineInput/Output`、`SaveWorkpaperInput`）
-- `service.ts` — `getOrCreateDraft(params)`：DB 有则返回无则基于 line config 生成空 draft（不落库）；`saveWorkpaper(input, userId?)`：事务内校验 lineCode → upsert header → delete stale lines → upsert lines
-
-新增 API（`app/api/modules/finance/statement-review/workpapers/route.ts`）：
-
-- `GET ?companyCode=&year=&month=&reportType=` — `finance.statementReview.read`，返回底稿或空 draft
-- `PUT { companyCode, year, month, reportType, lines[] }` — `finance.statementReview.update`，**全量保存**（payload 的 lines 完全替换现有行，不在 payload 中的 lineCode 会被删除）
-
-设计原则：
-- DB 存事实输入，不存最终报表计算结果
-- amount 用 Float（与现有财务表一致）
-- lineCode 必须校验存在于对应 reportType 的 `FinanceStatementLineConfig`
-- GET 空 draft 不落库，只有 PUT 才写 DB
-- **PUT 是全量保存语义**，不是 PATCH 局部更新；UI 须传完整行集合
-- **statement-workpapers 是输入底稿，不参与最终报表计算**；Batch 3 review 才做校对状态与计算消费
-
-### Phase 3 Batch 3：校对 schema + service + API
-
-P3 Batch 3 新增校对（review）表与服务层，作为 workpaper → review → report 的桥梁。**不做 UI、不接 compute consumption、不接 systemAmount mapping。**
-
-新增表（`prisma/models/finance-ledger.prisma`）：
-
-- `FinanceStatementReview` — 校对头。`workpaperId` unique（1 workpaper → 1 review）。字段：`companyCode/year/month/reportType` 快照冗余、`status`（draft/confirmed/voided）、`generatedFromVersion`、`reviewedBy/reviewedAt`。
-- `FinanceStatementReviewLine` — 校对行。唯一键 `(reviewId, lineCode)`。字段：`systemAmount`（Batch 5 前为 0）、`workpaperAmount`（底稿快照）、`adjustedAmount`（null=未调整）、`finalAmount`（= adjustedAmount ?? workpaperAmount）、`status`（pending/confirmed/adjusted/flagged）、`comment`。
-
-新增 service（`packages/finance/server/statements/reviews/`）：
-
-- `types.ts` — DTO
-- `service.ts` — `generateReview(workpaperId)`：从 workpaper 生成校对、幂等（已有 draft 则返回、已有 confirmed 则 409）；`getReview(params)`：按 workpaperId 或 natural key 查询；`updateReviewLines(id, lines)`：局部更新、confirmed 禁止修改(409)；`confirmReview(id, userId)`：校验无 flagged 行后签核
-
-新增 API：
-- `GET /api/modules/finance/statement-review/reviews?workpaperId=` — `finance.statementReview.read`
-- `GET /api/modules/finance/statement-review/reviews?companyCode=&year=&month=&reportType=` — `finance.statementReview.read`
-- `POST /api/modules/finance/statement-review/reviews { workpaperId }` — `finance.statementReview.create`
-- `PUT /api/modules/finance/statement-review/reviews/[id] { lines[], note? }` — `finance.statementReview.update`，局部更新
-- `POST /api/modules/finance/statement-review/reviews/[id]/confirm` — `finance.statementReview.approve`
-
-设计原则：
-- Review 不改 workpaper，workpaper 始终是会计原始输入
-- 只有 confirmed review 的 finalAmount 才进入最终报表（Batch 5/6 消费）
-- finalAmount 存 DB 是校对签核事实，非普通派生字段
-- `generatedFromVersion` 用于判断 review 是否落后于 workpaper
-
-后续 Batch 计划（见 `docs/planning/plans.md`）：
-- Batch 4: review 页面骨架
-- Batch 5: 利润表 mapping preview
-- Batch 6: 天力通 2025 smoke
+- 利润表使用 `reports/income-system-amounts.ts` 按公司、年度和截至所选月份的凭证明细聚合本年累计金额，并根据行配置生成合计。
+- 现金流量表读取 `FinanceStatementWorkpaper` / `FinanceStatementWorkpaperLine` 中已导入的事实金额；导入仍由 `scripts/import-cash-flow-workpapers.ts` 负责。
+- `FinanceStatementWorkpaper` 仅作为内部报表事实来源，不再暴露独立页面或写入 API。
+- 独立校对数据层、权限资源、业务动作和确认流程已删除。
 
 ## 预算管理
 
@@ -391,10 +340,6 @@ npm run budget:sync-accounts
 | `POST /api/modules/finance/ledger/init` | 财务初始化 |
 | `GET/PUT/DELETE /api/modules/finance/ledger/reclass-rules` | 重分类规则管理 |
 | `GET/POST/PATCH /api/modules/finance/ledger/reclass-results` | 重分类结果列表/生成/审核 |
-| `GET/PUT /api/modules/finance/statement-review/workpapers` | 底稿查询/保存（P3 Batch 2） |
-| `GET/POST /api/modules/finance/statement-review/reviews` | 校对查询/生成（P3 Batch 3） |
-| `PUT /api/modules/finance/statement-review/reviews/[id]` | 校对行更新（P3 Batch 3） |
-| `POST /api/modules/finance/statement-review/reviews/[id]/confirm` | 校对确认（P3 Batch 3） |
 | `GET/POST/DELETE /api/modules/finance/cost/*` | 成本管理子模块 |
 
 ## 权限标准
@@ -454,6 +399,4 @@ npm run budget:sync-accounts
 | `/api/modules/finance/import/confirm` | `finance.import.import` | 导入确认（写入数据库，用 import） |
 | `/api/modules/finance/ledger/reclass-rules` | `finance.ledger.read/revise` | 重分类规则查询/写入/删除 |
 | `/api/modules/finance/ledger/reclass-results` | `finance.ledger.read/revise` | 重分类结果列表/生成/审核 |
-| `/api/modules/finance/statement-review/workpapers` | `finance.statementReview.read/update` | 底稿查询/保存（P3 Batch 2） |
-| `/api/modules/finance/statement-review/reviews` | `finance.statementReview.read/create/update/approve` | 校对查询/生成/更新/确认（P3 Batch 3） |
 | `/api/modules/finance/cost/*` | `finance.cost.read/import/delete` | 成本子模块 |

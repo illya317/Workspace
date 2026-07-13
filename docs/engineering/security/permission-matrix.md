@@ -34,7 +34,6 @@
 | `finance` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `finance.ledger` | business | `entry`, `read`, `create`, `update`, `delete`, `revise`, `import`, `export`, `grant` |
 | `finance.statementConfig` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
-| `finance.statementReview` | business | `entry`, `read`, `create`, `update`, `approve`, `grant` |
 | `finance.statements` | business | `entry`, `read`, `grant` |
 | `finance.analysis` | business | `entry`, `read`, `grant` |
 | `finance.budget` | business | `entry`, `read`, `create`, `import`, `approve`, `grant` |

@@ -23,8 +23,6 @@ export interface FinanceImportCommand<T> {
   data: T;
 }
 
-const REPORT_TYPES = new Set(["balanceSheet", "incomeStatement", "cashFlow", "balance"]);
-const REVIEW_LINE_STATUSES = new Set(["pending", "confirmed", "adjusted", "flagged"]);
 const RECLASS_ACTIONS = new Set(["approve", "adjust", "revert", "mark_pending"]);
 const RECLASS_SIDES = new Set(["debit", "credit", "both"]);
 
@@ -358,44 +356,6 @@ export function buildStatementMappingDeleteCommand<T extends {
   });
 }
 
-export function buildReviewGenerateCommand(workpaperId: unknown, userId?: unknown) {
-  const id = positiveId(workpaperId, "workpaperId");
-  if (!id.ok) return id;
-  if (userId !== undefined) {
-    const user = positiveId(userId, "userId");
-    if (!user.ok) return user;
-  }
-  return okCommand({ workpaperId: id.data, userId: userId === undefined ? undefined : Number(userId) });
-}
-
-export function buildReviewUpdateCommand(reviewId: unknown, lines: unknown[], userId?: unknown) {
-  const id = positiveId(reviewId, "reviewId");
-  if (!id.ok) return id;
-  if (!Array.isArray(lines)) return failCommand("lines must be an array", 400, "lines");
-  if (userId !== undefined) {
-    const user = positiveId(userId, "userId");
-    if (!user.ok) return user;
-  }
-  for (const line of lines) {
-    if (!line || typeof line !== "object" || Array.isArray(line)) return failCommand("review line must be an object", 400, "lines");
-    const status = (line as { status?: unknown }).status;
-    if (status && !REVIEW_LINE_STATUSES.has(String(status))) return failCommand(`无效 status "${status}"`, 400, "status");
-    const adjustedAmount = (line as { adjustedAmount?: unknown }).adjustedAmount;
-    if (adjustedAmount !== undefined && adjustedAmount !== null) {
-      const amount = finiteNumber(adjustedAmount, "adjustedAmount");
-      if (!amount.ok) return amount;
-    }
-  }
-  return okCommand({ reviewId: id.data, lines, userId: userId === undefined ? undefined : Number(userId) });
-}
-
-export function buildReportTypeCommand(reportType: unknown) {
-  const text = requiredText(reportType, "reportType");
-  if (!text.ok) return text;
-  if (!REPORT_TYPES.has(text.data)) return failCommand("reportType 无效", 400, "reportType");
-  return okCommand({ reportType: text.data });
-}
-
 export function buildStatementConfigLinesCommand<T extends { companyCode: string; year: number; lines: unknown[] }>(
   input: T,
 ): DomainValidationResult<{ input: T }> {
@@ -406,26 +366,6 @@ export function buildStatementConfigLinesCommand<T extends { companyCode: string
     if (!line || typeof line !== "object" || Array.isArray(line)) return failCommand("line must be an object", 400, "lines");
     const lineCode = requiredText((line as { lineCode?: unknown }).lineCode, "lineCode");
     if (!lineCode.ok) return lineCode;
-  }
-  return okCommand({ input });
-}
-
-export function buildWorkpaperSaveCommand<T extends {
-  companyCode: string;
-  year: number;
-  month: number;
-  reportType: string;
-  lines: unknown[];
-}>(input: T, userId?: unknown): DomainValidationResult<{ input: T; userId?: number }> {
-  const scope = buildFinancePeriodScopeCommand({ companyCode: input.companyCode, year: input.year, month: input.month });
-  if (!scope.ok) return scope;
-  const reportType = buildReportTypeCommand(input.reportType);
-  if (!reportType.ok) return reportType;
-  if (!Array.isArray(input.lines)) return failCommand("lines must be an array", 400, "lines");
-  if (userId !== undefined) {
-    const user = positiveId(userId, "userId");
-    if (!user.ok) return user;
-    return okCommand({ input, userId: user.data });
   }
   return okCommand({ input });
 }
