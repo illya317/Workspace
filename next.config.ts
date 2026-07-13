@@ -42,7 +42,7 @@ const nextConfig: NextConfig = {
   ],
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
-    "/*": ["../.workspace/**/*"],
+    "/*": [".git/**/*", "../.workspace/**/*"],
   },
   turbopack: {
     root: workspaceRoot,

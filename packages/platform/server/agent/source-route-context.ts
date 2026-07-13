@@ -16,6 +16,10 @@ export type SourceQueryHints = {
   contextTerms: string[];
 };
 
+function runtimeSourcePath(root: string, ...segments: string[]) {
+  return path.join(/* turbopackIgnore: true */ root, ...segments);
+}
+
 export function uniqueStrings(values: Iterable<string>) {
   return [...new Set([...values].map((value) => value.trim()).filter(Boolean))];
 }
@@ -92,7 +96,7 @@ function sourceFileCandidates(file: string) {
 }
 
 async function sourceFileExists(repoDir: string, file: string) {
-  return Boolean(await stat(path.join(repoDir, file)).catch(() => null));
+  return Boolean(await stat(runtimeSourcePath(repoDir, file)).catch(() => null));
 }
 
 async function resolveSourceFile(repoDir: string, file: string) {
@@ -134,7 +138,7 @@ function workspaceUiImports(content: string) {
 
 async function resolvePackageUiExport(repoDir: string, packageName: string, exportName: string) {
   const indexFile = `packages/${packageName}/ui/index.ts`;
-  const content = await readFile(path.join(repoDir, indexFile), "utf8").catch(() => "");
+  const content = await readFile(runtimeSourcePath(repoDir, indexFile), "utf8").catch(() => "");
   if (!content) return null;
   const escaped = exportName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const exportPattern = /export\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
@@ -157,7 +161,7 @@ async function routeEntrySourceFiles(repoDir: string, hints: SourceQueryHints) {
     if (resolved) seeds.push(resolved);
   }
   for (const routeFile of [...seeds]) {
-    const content = await readFile(path.join(repoDir, routeFile), "utf8").catch(() => "");
+    const content = await readFile(runtimeSourcePath(repoDir, routeFile), "utf8").catch(() => "");
     for (const importSpec of workspaceUiImports(content)) {
       if (importSpec.subpath) {
         const resolved = await resolveSourceFile(repoDir, `packages/${importSpec.packageName}/ui/${importSpec.subpath}`);
@@ -193,7 +197,7 @@ async function collectSourceImportGraph(repoDir: string, roots: string[], terms:
     const next = queue.shift();
     if (!next || seen.has(next.file) || next.depth >= 3) continue;
     seen.add(next.file);
-    const content = await readFile(path.join(repoDir, next.file), "utf8").catch(() => "");
+    const content = await readFile(runtimeSourcePath(repoDir, next.file), "utf8").catch(() => "");
     if (!content) continue;
     const imports: string[] = [];
     for (const specifier of relativeImportSpecifiers(content)) {

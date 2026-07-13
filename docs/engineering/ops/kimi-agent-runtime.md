@@ -19,6 +19,8 @@ Workspace 页面助手与企业微信内部助手统一使用 `@moonshot-ai/kimi
 
 ## 安装与认证
 
+Agent 会话消息、摘要和图片默认保存在 `$WORKSPACE_CONFIG_DIR/agent`。如需通过 `AGENT_DATA_DIR` 覆盖，必须使用绝对路径；服务端不接受相对路径，也不会把运行态存储回退到源码 checkout。Agent 源码阅读使用部署时独立同步的绝对 `AGENT_SOURCE_WORKTREE`，或绝对 `AGENT_SOURCE_CACHE_DIR`；这些动态源文件路径显式排除于 Turbopack tracing，不能把 Git 历史和源码打入 standalone 部署产物。
+
 生产 Ubuntu/Debian 服务器执行：
 
 ```bash

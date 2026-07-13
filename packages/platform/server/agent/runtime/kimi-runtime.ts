@@ -79,11 +79,17 @@ function expandTilde(value: string) {
 function workspaceConfigDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
   const value = configured ? expandTilde(configured) : path.join(os.tmpdir(), "workspace");
-  return path.isAbsolute(value) ? value : path.resolve(process.cwd(), value);
+  if (!path.isAbsolute(value)) {
+    throw new Error("WORKSPACE_CONFIG_DIR must be an absolute path for Kimi Agent runtime storage");
+  }
+  return value;
 }
 
 function runtimePaths(runtimeRoot?: string): RuntimePaths {
   const root = runtimeRoot ?? path.join(workspaceConfigDir(), "runtime", RUNTIME_DIR_NAME);
+  if (!path.isAbsolute(root)) {
+    throw new Error("Kimi Agent runtime root must be an absolute path");
+  }
   return {
     root,
     home: path.join(root, "home"),

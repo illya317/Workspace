@@ -87,14 +87,24 @@ function expandTilde(input: string) {
 
 function workspaceConfigDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
-  if (configured) return expandTilde(configured);
+  if (configured) {
+    const expanded = expandTilde(configured);
+    if (!path.isAbsolute(expanded)) {
+      throw new Error("WORKSPACE_CONFIG_DIR must be an absolute path for Agent session storage");
+    }
+    return expanded;
+  }
   return path.join(os.tmpdir(), "workspace");
 }
 
 function agentDataRoot() {
   const configured = process.env.AGENT_DATA_DIR?.trim();
-  const root = configured ? expandTilde(configured) : path.join(workspaceConfigDir(), "agent");
-  return path.isAbsolute(root) ? root : path.resolve(process.cwd(), root);
+  if (!configured) return path.join(workspaceConfigDir(), "agent");
+  const root = expandTilde(configured);
+  if (!path.isAbsolute(root)) {
+    throw new Error("AGENT_DATA_DIR must be an absolute path for Agent session storage");
+  }
+  return root;
 }
 
 function createSessionId() {

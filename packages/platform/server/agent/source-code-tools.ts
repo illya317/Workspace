@@ -45,9 +45,16 @@ type StartupDoc = {
 
 type SourceSnapshot = { repoDir: string; repoUrl: string; branch: string; commit: string; mode: "remote" | "local"; dirtySummary?: string };
 
+function runtimeSourcePath(root: string, ...segments: string[]) {
+  return path.join(/* turbopackIgnore: true */ root, ...segments);
+}
+
 function workspaceConfigDir() {
   const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
-  if (configured && path.isAbsolute(configured)) return configured;
+  if (configured) {
+    if (!path.isAbsolute(configured)) throw new Error(`WORKSPACE_CONFIG_DIR must be absolute: ${configured}`);
+    return configured;
+  }
   return path.join(os.tmpdir(), "workspace-agent-source");
 }
 
@@ -60,7 +67,10 @@ function sourceBranch() {
 }
 
 function cacheDir() {
-  return process.env.AGENT_SOURCE_CACHE_DIR?.trim() || path.join(workspaceConfigDir(), "agent-source", "Workspace");
+  const configured = process.env.AGENT_SOURCE_CACHE_DIR?.trim();
+  if (!configured) return path.join(workspaceConfigDir(), "agent-source", "Workspace");
+  if (!path.isAbsolute(configured)) throw new Error(`AGENT_SOURCE_CACHE_DIR must be absolute: ${configured}`);
+  return configured;
 }
 
 function sourceWorktreeDir() {
@@ -101,7 +111,7 @@ async function ensureRemoteSourceRepo(): Promise<SourceSnapshot> {
   const repoUrl = sourceRepoUrl();
   const branch = sourceBranch();
 
-  if (existsSync(path.join(repoDir, ".git"))) {
+  if (existsSync(runtimeSourcePath(repoDir, ".git"))) {
     await runGit(["fetch", "--depth=1", "origin", branch], { cwd: repoDir, timeout: 20_000 });
     await runGit(["reset", "--hard", `origin/${branch}`], { cwd: repoDir, timeout: 10_000 });
   } else {
@@ -237,7 +247,7 @@ async function searchSource(query: string): Promise<AgentToolResult> {
   const snippets: SourceSnippet[] = [];
 
   for (const file of files) {
-    const absolute = path.join(repo.repoDir, file);
+    const absolute = runtimeSourcePath(repo.repoDir, file);
     const fileStat = await stat(absolute).catch(() => null);
     if (!fileStat || fileStat.size > MAX_FILE_BYTES) continue;
     const content = await readFile(absolute, "utf8").catch(() => "");
@@ -334,7 +344,7 @@ async function readStartupContext(repoDir: string, query: string): Promise<Start
   const docs: StartupDoc[] = [];
 
   for (const file of routedStartupFiles(query)) {
-    const absolute = path.join(repoDir, file);
+    const absolute = runtimeSourcePath(repoDir, file);
     const content = await readFile(absolute, "utf8").catch(() => "");
     if (!content) continue;
     const redacted = redactText(content.trim());

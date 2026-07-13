@@ -146,7 +146,7 @@ export function useDepartmentCollaborationController(input: {
       return {
         outcome: "submitted" as const,
         message: result.executionMode === "direct"
-          ? "部门协作已直接生效"
+          ? "协作已创建，等待赋能部门确认"
           : result.request?.status === "submitted" ? "部门协作已提交，等待流程处理" : "部门协作已提交",
       };
     } catch (error) {
