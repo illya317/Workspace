@@ -100,8 +100,10 @@ test("Kimi runtime uses an empty builtin toolset and preserves proposal-only wri
     assert.deepEqual(response.proposal, proposal);
     assert.deepEqual(deltas, ["sdk result"]);
     const agentSpec = await readFile(path.join(root, "config", "agent.yaml"), "utf8");
+    const systemPrompt = await readFile(path.join(root, "config", "system.md"), "utf8");
     assert.match(agentSpec, /tools: \[\]/);
     assert.match(agentSpec, /subagents: \{\}/);
+    assert.match(systemPrompt, /never contradict it by claiming you cannot perform the capability/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

@@ -50,6 +50,7 @@ export interface LibraryModelEvidence {
 
 export interface LibraryModelDocument {
   score: number;
+  documentId: number;
   documentUid: string;
   versionUid: string;
   docId: string;
@@ -68,6 +69,7 @@ export interface LibrarySearchModelContext {
   documents: Array<{
     title: string;
     docId: string;
+    viewPath: string;
     documentUid: string;
     versionUid: string;
     evidence: LibraryModelEvidence[];
@@ -215,6 +217,7 @@ export function buildLibrarySearchModelContext(input: {
     const modelDocument: LibrarySearchModelContext["documents"][number] = {
       title: document.title,
       docId: document.docId,
+      viewPath: `/library/basic-info/documents/${document.documentId}`,
       documentUid: document.documentUid,
       versionUid: document.versionUid,
       evidence: [],

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { readAgentEventStream } from "./wecom-agent-stream.mjs";
+import { forwardSafeAgentProgress, readAgentEventStream } from "./wecom-agent-stream.mjs";
 
 test("reads NDJSON Agent events across arbitrary response chunks", async () => {
   const encoder = new TextEncoder();
@@ -18,4 +18,19 @@ test("reads NDJSON Agent events across arbitrary response chunks", async () => {
 
   assert.deepEqual(events, ["status", "delta", "result"]);
   assert.deepEqual(result, { type: "answer", message: "完成" });
+});
+
+test("forwards only safe progress and never publishes model draft deltas", () => {
+  const calls = [];
+  const replyStream = {
+    update(message) { calls.push(["update", message]); },
+    touch() { calls.push(["touch"]); },
+  };
+
+  forwardSafeAgentProgress({ event: "status", message: "正在处理…" }, replyStream);
+  forwardSafeAgentProgress({ event: "delta", delta: "我无法发送文件" }, replyStream);
+  forwardSafeAgentProgress({ event: "heartbeat" }, replyStream);
+  forwardSafeAgentProgress({ event: "result", data: { message: "已发送" } }, replyStream);
+
+  assert.deepEqual(calls, [["update", "正在处理…"], ["touch"]]);
 });

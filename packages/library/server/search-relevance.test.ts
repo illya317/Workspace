@@ -67,6 +67,7 @@ test("buildLibrarySearchModelContext keeps exact quotes and locators within budg
     documents: [
       {
         score: 120,
+        documentId: 101,
         documentUid: "document-1",
         versionUid: "version-1",
         docId: "LIB-2026-001",
@@ -89,6 +90,7 @@ test("buildLibrarySearchModelContext keeps exact quotes and locators within budg
       },
       {
         score: 80,
+        documentId: 102,
         documentUid: "document-2",
         versionUid: "version-2",
         docId: "LIB-2026-002",
@@ -104,6 +106,7 @@ test("buildLibrarySearchModelContext keeps exact quotes and locators within budg
 
   assert.ok(JSON.stringify(context).length <= 1_250);
   assert.equal(context.documents[0].docId, "LIB-2026-001");
+  assert.equal(context.documents[0].viewPath, "/library/basic-info/documents/101");
   assert.equal(context.documents[0].versionUid, "version-1");
   assert.equal(context.documents[0].evidence[0].quote, firstQuote);
   assert.deepEqual(context.documents[0].evidence[0].locator, {
@@ -121,6 +124,7 @@ test("buildLibrarySearchModelContext keeps document identity when body evidence 
     totalCandidates: 1,
     documents: [{
       score: 120,
+      documentId: 101,
       documentUid: "document-1",
       versionUid: "version-1",
       docId: "LIB-2026-001",
@@ -133,6 +137,7 @@ test("buildLibrarySearchModelContext keeps document identity when body evidence 
   assert.deepEqual(context.documents, [{
     title: "关账制度",
     docId: "LIB-2026-001",
+    viewPath: "/library/basic-info/documents/101",
     documentUid: "document-1",
     versionUid: "version-1",
     evidence: [],

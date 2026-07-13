@@ -31,3 +31,8 @@ export async function readAgentEventStream(response, onEvent) {
   if (!result) throw new Error("Workspace Agent stream ended without a result");
   return result;
 }
+
+export function forwardSafeAgentProgress(event, replyStream) {
+  if (event?.event === "status") replyStream.update(event.message);
+  if (event?.event === "heartbeat") replyStream.touch();
+}

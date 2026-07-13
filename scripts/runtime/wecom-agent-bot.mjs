@@ -10,7 +10,7 @@ import {
   normalizeWecomReplyLinks,
 } from "./wecom-agent-delivery.mjs";
 import { detectWecomImageMimeType, readWecomAgentInput } from "./wecom-agent-input.mjs";
-import { readAgentEventStream } from "./wecom-agent-stream.mjs";
+import { forwardSafeAgentProgress, readAgentEventStream } from "./wecom-agent-stream.mjs";
 
 const botId = process.env.WECHAT_BOT_ID?.trim();
 const botSecret = process.env.WECHAT_BOT_SECRET?.trim();
@@ -293,7 +293,6 @@ async function handleMessage(frame) {
     }
 
     const key = sessionKey(body);
-    let streamedText = "";
     const result = await callWorkspaceAgent({
       msgId: body.msgid,
       userId: body.from.userid,
@@ -302,14 +301,7 @@ async function handleMessage(frame) {
       message,
       images: input.images,
       sessionId: state.sessions[key] || null,
-    }, (event) => {
-      if (event.event === "status" && !streamedText) replyStream.update(event.message);
-      if (event.event === "delta") {
-        streamedText += event.delta;
-        replyStream.update(streamedText);
-      }
-      if (event.event === "heartbeat") replyStream.touch();
-    });
+    }, (event) => forwardSafeAgentProgress(event, replyStream));
     if (result.session?.id) {
       state.sessions[key] = result.session.id;
       await saveState();
