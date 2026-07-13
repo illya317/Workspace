@@ -45,10 +45,24 @@ export function controlledFileFallback(entries, publicOrigin, sentCount = 0) {
 }
 
 export function normalizeWecomReplyLinks(content, publicOrigin, basePath = "/workspace") {
-  return String(content).replace(/\[([^\]]+)]\((\/[^)]+)\)/g, (_match, label, href) => {
-    if (!publicOrigin) return label;
+  return String(content).replace(/\[([^\]]+)]\(([^)]+)\)/g, (match, label, href) => {
     const normalizedBase = basePath === "/" ? "" : `/${basePath.replace(/^\/+|\/+$/g, "")}`;
-    const path = normalizedBase && !href.startsWith(`${normalizedBase}/`) ? `${normalizedBase}${href}` : href;
+    let path = href;
+    if (!href.startsWith("/")) {
+      try {
+        const parsed = new URL(href);
+        const internalPath = `${parsed.pathname}${parsed.search}${parsed.hash}`;
+        const withoutBase = normalizedBase && internalPath.startsWith(`${normalizedBase}/`)
+          ? internalPath.slice(normalizedBase.length)
+          : internalPath;
+        if (!/^\/(?:library\/basic-info|api\/modules\/library\/basic-info)(?:\/|$)/.test(withoutBase)) return match;
+        path = withoutBase;
+      } catch {
+        return match;
+      }
+    }
+    if (!publicOrigin) return label;
+    path = normalizedBase && !path.startsWith(`${normalizedBase}/`) ? `${normalizedBase}${path}` : path;
     try {
       return `[${label}](${new URL(path, publicOrigin).toString()})`;
     } catch {

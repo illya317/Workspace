@@ -13,7 +13,7 @@ import { buildLibrarySearchModelContext } from "./search-relevance";
 export const searchLibraryTool: AgentTool = {
   key: "library.searchDocuments",
   label: "检索资料库",
-  description: "按当前用户权限检索资料库并回答内容问题，引用 evidence 原文和 locator。生成资料查看链接时必须原样使用结果中的 viewPath，禁止删掉末尾文档 ID 或改成资料列表页。用户明确要求发送原始资料或资料包时，不要用本工具代替发送判断，应先调用 library.planDelivery。",
+  description: "按当前用户权限检索资料库并回答内容问题，引用 evidence 原文和 locator。生成资料查看链接时，Markdown 目标必须原样使用结果中的 viewPath（以 / 开头），禁止添加域名、删掉末尾文档 ID 或改成资料列表页。用户明确要求发送原始资料或资料包时，不要用本工具代替发送判断，应先调用 library.planDelivery。",
   parameters: {
     type: "object",
     properties: {

@@ -34,6 +34,20 @@ test("relative Workspace links become absolute in WeCom or plain text without an
   assert.equal(normalizeWecomReplyLinks(message, "", "/workspace"), "查看");
 });
 
+test("model-invented Library origins are canonicalized without touching external links", () => {
+  const message = [
+    "[营业执照](https://workspace.cnb.cool/library/basic-info/documents/90)",
+    "[外部来源](https://example.com/reference/90)",
+  ].join("\n");
+  assert.equal(
+    normalizeWecomReplyLinks(message, "https://fh-bio.cn", "/workspace"),
+    [
+      "[营业执照](https://fh-bio.cn/workspace/library/basic-info/documents/90)",
+      "[外部来源](https://example.com/reference/90)",
+    ].join("\n"),
+  );
+});
+
 test("fallback describes the actual file and emits only an absolute controlled link", () => {
   const reply = controlledFileFallback([{ artifact, reason: "超过企业微信直传大小限制" }], "https://fh-bio.cn");
   assert.match(reply, /丰华生物财务报表-2025\.12\.xlsx/);
