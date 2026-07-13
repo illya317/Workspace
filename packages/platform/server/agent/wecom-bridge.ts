@@ -13,14 +13,35 @@ import type { ParsedAgentRequest } from "./route-input";
 import type { AgentTool } from "./tools";
 
 const BRIDGE_CLOCK_SKEW_MS = 5 * 60 * 1000;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+const wecomAgentImageSchema = z.object({
+  fileName: z.string().trim().min(1).max(255),
+  mimeType: z.enum(["image/png", "image/jpeg", "image/webp", "image/gif"]),
+  base64: z.string().min(4).max(7_000_000).regex(/^[A-Za-z0-9+/]+={0,2}$/),
+});
 
 const wecomAgentBridgeSchema = z.object({
   msgId: z.string().trim().min(1).max(256),
   userId: z.string().trim().min(1).max(256),
   chatType: z.enum(["single", "group"]),
   chatId: z.string().trim().min(1).max(256).optional().nullable(),
-  message: z.string().trim().min(1).max(2000),
+  message: z.string().trim().max(2000).optional().default(""),
+  images: z.array(wecomAgentImageSchema).max(4).optional().default([]),
   sessionId: z.string().trim().max(80).optional().nullable(),
+}).refine((input) => Boolean(input.message) || input.images.length > 0, {
+  message: "message or image is required",
+}).superRefine((input, context) => {
+  input.images.forEach((image, index) => {
+    const size = Buffer.from(image.base64, "base64").length;
+    if (size <= 0 || size > MAX_IMAGE_BYTES) {
+      context.addIssue({
+        code: "custom",
+        message: "企业微信图片大小无效",
+        path: ["images", index, "base64"],
+      });
+    }
+  });
 });
 
 export type WecomAgentBridgeInput = z.infer<typeof wecomAgentBridgeSchema>;
@@ -126,7 +147,13 @@ export function toParsedAgentRequest(input: WecomAgentBridgeInput): ParsedAgentR
         title: "企业微信智能体",
       },
     },
-    imageFiles: [],
+    imageFiles: input.images.map((image) => {
+      const buffer = Buffer.from(image.base64, "base64");
+      if (buffer.length <= 0 || buffer.length > MAX_IMAGE_BYTES) {
+        throw new Error("企业微信图片大小无效");
+      }
+      return new File([new Uint8Array(buffer)], image.fileName, { type: image.mimeType });
+    }),
   };
 }
 

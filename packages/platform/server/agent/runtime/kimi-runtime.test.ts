@@ -86,16 +86,19 @@ test("Kimi runtime uses an empty builtin toolset and preserves proposal-only wri
   });
 
   try {
+    const deltas: string[] = [];
     const response = await runtime.runTurn({
       message: "create change",
       user,
       tools: [toolReturning({ type: "proposal", message: "请确认", proposal }, true)],
       history: [],
       images: [],
+      onTextDelta: (delta) => deltas.push(delta),
     });
 
     assert.equal(response.type, "proposal");
     assert.deepEqual(response.proposal, proposal);
+    assert.deepEqual(deltas, ["sdk result"]);
     const agentSpec = await readFile(path.join(root, "config", "agent.yaml"), "utf8");
     assert.match(agentSpec, /tools: \[\]/);
     assert.match(agentSpec, /subagents: \{\}/);

@@ -38,6 +38,7 @@ export type ProcessMessageOptions = {
   signal?: AbortSignal;
   identityContext?: string;
   identityAnswer?: string;
+  onTextDelta?: (delta: string) => void;
   runtime?: AgentRuntime;
   /** Internal seam for deterministic tests; production uses the Platform resolver. */
   resolveToolAccess?: typeof resolveAgentToolAccess;
@@ -80,6 +81,7 @@ export async function processMessage(
     history,
     images: options.images ?? [],
     identityContext: options.identityContext,
+    onTextDelta: options.onTextDelta,
     signal: options.signal,
   }));
 }

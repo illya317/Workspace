@@ -46,6 +46,13 @@ export type AgentResponse = {
   };
 };
 
+export type AgentStreamEvent =
+  | { event: "status"; message: string }
+  | { event: "delta"; delta: string }
+  | { event: "heartbeat" }
+  | { event: "result"; data: AgentResponse }
+  | { event: "error"; message: string };
+
 export const MAX_IMAGE_ATTACHMENTS = 4;
 export const MAX_IMAGE_ATTACHMENT_BYTES = 5 * 1024 * 1024;
 export const IMAGE_ACCEPT = "image/png,image/jpeg,image/webp,image/gif";

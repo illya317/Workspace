@@ -10,6 +10,13 @@ Workspace 页面助手与企业微信内部助手统一使用 `@moonshot-ai/kimi
 - SDK 会继承父进程环境，因此生产 executable 必须是 `kimi-agent-sandbox-runner.sh`。runner 的 shebang 在 Bash 启动前清空环境，再通过 Bubblewrap 二次 `--clearenv`，只挂载专用 runtime、空 workdir 和 Kimi 凭据目录；应用 `.env`、数据库、源码和服务器 home 不可见。
 - Web 和企业微信共用 3 个活跃 turn 槽位；这是 Workspace 自身的硬上限，不因选择 OAuth 或 API Key 而放宽。
 
+## 流式传输
+
+- `/api/agent` 与 `/api/integrations/wecom/agent` 都返回 `application/x-ndjson`，事件固定为 `status / delta / heartbeat / result`。调用方必须持续读取到唯一的 `result`，不能再按单个 JSON body 解析。
+- Platform 每 15 秒发送 heartbeat，响应带 `Cache-Control: no-cache, no-transform` 和 `X-Accel-Buffering: no`。这条 heartbeat 独立于模型文本输出，因为连续工具调用可能长时间没有 `ContentPart`。
+- 网页 fetch 取消或企业微信 worker 超时必须向下游 AbortSignal 传播；Kimi turn 上限仍为 15 分钟，企业微信 bridge 客户端上限为 16 分钟，只为最后清理保留余量。
+- 企业微信 worker 部署产物必须同时包含 `wecom-agent-bot.mjs`、`wecom-agent-delivery.mjs`、`wecom-agent-input.mjs` 与 `wecom-agent-stream.mjs`。
+
 ## 安装与认证
 
 生产 Ubuntu/Debian 服务器执行：

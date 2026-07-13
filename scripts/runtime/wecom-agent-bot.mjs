@@ -1,6 +1,6 @@
 import "dotenv/config";
 
-import { createHmac, randomUUID } from "node:crypto";
+import { createHash, createHmac, randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import AiBot from "@wecom/aibot-node-sdk";
@@ -9,6 +9,8 @@ import {
   fileArtifactsFromResult,
   normalizeWecomReplyLinks,
 } from "./wecom-agent-delivery.mjs";
+import { detectWecomImageMimeType, readWecomAgentInput } from "./wecom-agent-input.mjs";
+import { readAgentEventStream } from "./wecom-agent-stream.mjs";
 
 const botId = process.env.WECHAT_BOT_ID?.trim();
 const botSecret = process.env.WECHAT_BOT_SECRET?.trim();
@@ -25,7 +27,10 @@ const statePath = path.join(configDir, "agent", "wecom-bot-state.json");
 const MAX_RECENT_MESSAGE_IDS = 500;
 const MAX_REPLY_BYTES = 20_000;
 const MAX_DIRECT_FILE_BYTES = 45 * 1024 * 1024;
+const MAX_RICH_IMAGE_BYTES = 10 * 1024 * 1024;
 const ARTIFACT_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
+const AGENT_TURN_TIMEOUT_MS = 16 * 60 * 1000;
+const STREAM_UPDATE_INTERVAL_MS = 700;
 
 function safeLogMessage(message) {
   return String(message)
@@ -96,11 +101,11 @@ function signature(rawBody, timestamp) {
   return createHmac("sha256", botSecret).update(`${timestamp}.${rawBody}`).digest("hex");
 }
 
-async function callWorkspaceAgent(payload) {
+async function callWorkspaceAgent(payload, onEvent) {
   const rawBody = JSON.stringify(payload);
   const timestamp = String(Date.now());
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 180_000);
+  const timeout = setTimeout(() => controller.abort(), AGENT_TURN_TIMEOUT_MS);
   try {
     const response = await fetch(bridgeUrl, {
       method: "POST",
@@ -113,12 +118,60 @@ async function callWorkspaceAgent(payload) {
       body: rawBody,
       signal: controller.signal,
     });
-    const data = await response.json().catch(() => ({}));
-    if (!response.ok) throw new Error(data.error || data.message || `Workspace HTTP ${response.status}`);
-    return data;
+    return readAgentEventStream(response, onEvent);
   } finally {
     clearTimeout(timeout);
   }
+}
+
+function createStreamReply(frame, streamId) {
+  let chain = Promise.resolve();
+  let latest = "正在处理…";
+  let timer;
+  let closed = false;
+
+  function queueSend(content, finish, msgItems) {
+    const operation = chain.then(() => client.replyStream(
+      frame,
+      streamId,
+      limitReply(content),
+      finish,
+      finish ? msgItems : undefined,
+    ));
+    chain = operation.catch((error) => {
+      console.error(`[wecom-agent] stream update failed: ${error instanceof Error ? error.message : String(error)}`);
+    });
+    return operation;
+  }
+
+  function schedule(content) {
+    if (closed) return;
+    latest = content || latest;
+    if (timer) return;
+    timer = setTimeout(() => {
+      timer = undefined;
+      void queueSend(latest, false).catch(() => undefined);
+    }, STREAM_UPDATE_INTERVAL_MS);
+  }
+
+  return {
+    async start(content) {
+      latest = content;
+      await queueSend(latest, false);
+    },
+    update: schedule,
+    touch() {
+      if (closed || timer) return;
+      void queueSend(latest, false).catch(() => undefined);
+    },
+    async finish(content, msgItems) {
+      if (closed) return;
+      closed = true;
+      if (timer) clearTimeout(timer);
+      await chain;
+      await queueSend(content || latest, true, msgItems);
+    },
+  };
 }
 
 async function fetchWorkspaceArtifact(artifact) {
@@ -159,6 +212,7 @@ async function cleanupExpiredArtifacts() {
 
 async function deliverFileArtifacts(frame, artifacts) {
   const fallback = [];
+  const richImages = [];
   let sentCount = 0;
   for (const artifact of artifacts) {
     if (artifact.fileSizeBytes > MAX_DIRECT_FILE_BYTES) {
@@ -167,8 +221,28 @@ async function deliverFileArtifacts(frame, artifacts) {
     }
     try {
       const buffer = await fetchWorkspaceArtifact(artifact);
-      const uploaded = await client.uploadMedia(buffer, { type: "file", filename: artifact.fileName });
-      await client.replyMedia(frame, "file", uploaded.media_id);
+      let imageMimeType = null;
+      try {
+        imageMimeType = detectWecomImageMimeType(buffer);
+      } catch {
+        // Non-image library artifacts continue through file delivery.
+      }
+      if (richImages.length < 10
+        && buffer.length <= MAX_RICH_IMAGE_BYTES
+        && (imageMimeType === "image/png" || imageMimeType === "image/jpeg")) {
+        richImages.push({
+          msgtype: "image",
+          image: {
+            base64: buffer.toString("base64"),
+            md5: createHash("md5").update(buffer).digest("hex"),
+          },
+        });
+        sentCount += artifact.itemCount;
+        continue;
+      }
+      const mediaType = imageMimeType ? "image" : "file";
+      const uploaded = await client.uploadMedia(buffer, { type: mediaType, filename: artifact.fileName });
+      await client.replyMedia(frame, mediaType, uploaded.media_id);
       sentCount += artifact.itemCount;
     } catch (error) {
       console.error(`[wecom-agent] file delivery failed: ${error instanceof Error ? error.message : String(error)}`);
@@ -176,9 +250,12 @@ async function deliverFileArtifacts(frame, artifacts) {
     }
   }
   if (fallback.length > 0) {
-    return controlledFileFallback(fallback, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), sentCount);
+    return {
+      message: controlledFileFallback(fallback, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), sentCount),
+      richImages,
+    };
   }
-  return `已按你的当前权限直接发送 ${sentCount} 份原始资料。`;
+  return { message: `已按你的当前权限直接发送 ${sentCount} 份原始资料。`, richImages };
 }
 
 const client = new AiBot.WSClient({
@@ -199,49 +276,62 @@ void cleanupExpiredArtifacts().catch((error) => {
   console.error(`[wecom-agent] startup artifact cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
 });
 
-async function handleMessage(frame, rawContent) {
+async function handleMessage(frame) {
   const body = frame.body;
   if (!body?.msgid || !body.from?.userid || !rememberMessage(body.msgid)) return;
   await saveState();
 
-  const message = stripRobotMention(rawContent, body.chattype);
   const streamId = `workspace-${randomUUID()}`;
-  if (!message) {
-    await client.replyStream(frame, streamId, "请告诉我你想了解什么。", true);
-    return;
-  }
-
-  await client.replyStream(frame, streamId, "正在处理…", false);
+  const replyStream = createStreamReply(frame, streamId);
   try {
+    await replyStream.start(body.msgtype === "image" || body.msgtype === "mixed" ? "正在接收图片…" : "正在处理…");
+    const input = await readWecomAgentInput(client, frame);
+    const message = stripRobotMention(input.message, body.chattype);
+    if (!message && input.images.length === 0) {
+      await replyStream.finish("请告诉我你想了解什么。");
+      return;
+    }
+
     const key = sessionKey(body);
+    let streamedText = "";
     const result = await callWorkspaceAgent({
       msgId: body.msgid,
       userId: body.from.userid,
       chatType: body.chattype || "single",
       chatId: body.chatid || null,
       message,
+      images: input.images,
       sessionId: state.sessions[key] || null,
+    }, (event) => {
+      if (event.event === "status" && !streamedText) replyStream.update(event.message);
+      if (event.event === "delta") {
+        streamedText += event.delta;
+        replyStream.update(streamedText);
+      }
+      if (event.event === "heartbeat") replyStream.touch();
     });
     if (result.session?.id) {
       state.sessions[key] = result.session.id;
       await saveState();
     }
     let reply = result.message || "";
+    let replyImages = [];
     const artifacts = fileArtifactsFromResult(result, basePath);
     if (body.chattype !== "group" && artifacts.length > 0) {
-      reply = await deliverFileArtifacts(frame, artifacts);
+      const delivered = await deliverFileArtifacts(frame, artifacts);
+      reply = delivered.message;
+      replyImages = delivered.richImages;
     } else if (result.type === "proposal") {
       reply = `${reply}\n\n涉及变更，请到 Workspace 网页端确认后执行。`;
     }
-    await client.replyStream(frame, streamId, limitReply(normalizeWecomReplyLinks(
-      reply,
-      process.env.WECHAT_REDIRECT_ORIGIN?.trim(),
-      basePath,
-    )), true);
+    await replyStream.finish(
+      normalizeWecomReplyLinks(reply, process.env.WECHAT_REDIRECT_ORIGIN?.trim(), basePath),
+      replyImages,
+    );
   } catch (error) {
     const message = error instanceof Error ? error.message : "处理失败";
     console.error(`[wecom-agent] message processing failed: ${message}`);
-    await client.replyStream(frame, streamId, limitReply(`暂时无法处理：${message}`), true).catch(() => undefined);
+    await replyStream.finish(`暂时无法处理：${message}`).catch(() => undefined);
   }
 }
 
@@ -249,8 +339,10 @@ client.on("authenticated", () => console.log("[wecom-agent] authenticated"));
 client.on("reconnecting", (attempt) => console.warn(`[wecom-agent] reconnecting attempt=${attempt}`));
 client.on("disconnected", (reason) => console.warn(`[wecom-agent] disconnected: ${reason}`));
 client.on("error", (error) => console.error(`[wecom-agent] socket error: ${error.message}`));
-client.on("message.text", (frame) => void handleMessage(frame, frame.body?.text?.content));
-client.on("message.voice", (frame) => void handleMessage(frame, frame.body?.voice?.content));
+client.on("message.text", (frame) => void handleMessage(frame));
+client.on("message.voice", (frame) => void handleMessage(frame));
+client.on("message.image", (frame) => void handleMessage(frame));
+client.on("message.mixed", (frame) => void handleMessage(frame));
 client.on("event.enter_chat", (frame) => {
   void client.replyWelcome(frame, {
     msgtype: "text",

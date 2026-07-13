@@ -46,6 +46,7 @@ export interface AgentRuntimeInput {
   history: HistoryMessage[];
   images: AgentInputImage[];
   identityContext?: string;
+  onTextDelta?: (delta: string) => void;
   signal?: AbortSignal;
 }
 

@@ -25,5 +25,24 @@ cnb-release:
             fi
             npm run deploy:preflight:ci
         - name: deploy-to-server
+          # CNB 的 stage 级 import 作用域与流水线级 import 分开声明。
+          # 发布时私有 ops/cnb.yml 会替换这里的占位地址和空目录值。
+          imports:
+            - https://cnb.cool/<owner>/<env-repo>/-/blob/main/server-prod.yaml
+          env:
+            REMOTE_DIR: ""
+            REMOTE_WORKSPACE_CONFIG_DIR: ""
+            INSTALL_LIBRARY_RUNTIME_DEPS: "1"
           script: |
+            missing=0
+            for key in SERVER REMOTE_DIR REMOTE_WORKSPACE_CONFIG_DIR KEY_CONTENT; do
+              if [ -z "$(eval "printf '%s' \"\${$key:-}\"")" ]; then
+                echo "[错误] 缺少部署环境变量: $key"
+                missing=1
+              fi
+            done
+            if [ "$missing" = "1" ]; then
+              echo "[提示] 请检查私有 CNB env import 的 allow_slugs / allow_events / allow_branches 是否允许当前仓库、api_trigger_manual 和 cnb-release。"
+              exit 1
+            fi
             bash ./ops/deploy.sh

@@ -88,12 +88,14 @@ cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
 ### 页面助手模型上下文与图片
 
 - 页面和企业微信入口统一进入 Platform 的 Kimi Agent SDK runtime；自研 provider 选择、Kimi/DeepSeek 直连和内部 tool-loop 已废弃。会话仍由 Workspace 持久化和压缩，Kimi CLI 只看到专用空工作目录，结束后删除临时 Wire session。
+- 两个入口统一消费 `application/x-ndjson` 响应流：`status / delta / heartbeat / result` 是固定事件，heartbeat 每 15 秒产生一次，避免工具调用阶段因没有文本 token 而被反向代理按空闲请求中断。网页原位更新当前消息；企业微信使用同一个 stream id 节流刷新，结束时才发送 `finish=true`。
 - Web 与企业微信共用一个进程级活跃 turn 限流器，硬上限为 3。排队请求不计入活跃数；完成、异常和取消都必须在 `finally` 中释放槽位。OAuth 与 API Key 认证共用同一上限。
 - Kimi 自定义 agent 的内置工具列表固定为空；只有经过 `agentAllowedActions` 与当前 `SessionUser` RBAC 过滤的 Workspace 工具才能通过 Wire 注册，工具真正调用前再次授权。写工具必须只返回 proposal，确认仍走独立 API 并重新鉴权。
 - SDK 子进程必须经过 `ops/kimi-agent-sandbox-runner.sh`：在 Bash 启动前清空继承环境，只挂载专用 Kimi home/share、空 workdir、固定 agent config 和只读 Python runtime。禁止给 CLI 挂载应用源码、数据库、`.env`、服务器 home、任意 MCP 或 Shell/文件工具。
 - 页面和企业微信入口都把已认证 `SessionUser` 的 Workspace userId、登录名、员工姓名/工号和企业微信 userId 作为只读身份上下文；“我是谁/我的工号”直接使用该绑定回答，不调用人员搜索，也不把身份绑定解释成额外权限。
 - HR 人员查询必须提供姓名、工号或别名关键词，禁止空关键词返回全员名单；候选按精确值、前缀和包含关系排序，最多给模型 20 人。经 `hr.roster.read` 校验后的姓名和工号必须原样显示，不得用星号脱敏，其他非必要个人字段不进入模型投影。
 - 图片原文件作为不可变 session asset 保存，附件展示和下载继续使用原始文件名、类型与字节数；禁止用模型压缩副本覆盖原图。
+- 企业微信 `image` / `mixed` 由长连接 worker 在五分钟有效期内下载并用消息 `aeskey` 解密，随后进入与网页一致的 4 张、单张 5MiB 图片校验链路；不得把临时下载 URL 直接交给模型。模型返回的资料库 JPG/PNG 原件可作为最终流的 `msg_item` 图文发送，其他图片走企业微信 image media，普通资料仍走 file media。
 - 发送模型前由 `packages/platform/server/agent/model-image.ts` 生成衍生图：输入最大 2500 万像素、单图最长边 2000px，多图共享 800 万像素和 1MiB 原始字节预算，单图最多 512KiB。图片数量为 4 时每张预算为 256KiB、最长边上限约 1414px。
 - 截图、表格和透明图片优先保留 PNG；超过预算后使用抗锯齿缩放和 JPEG 80/60/40/20 质量阶梯，文字类图片使用 4:4:4 色度采样。处理时自动应用 EXIF 方向、转 sRGB、禁止放大，并通过重新编码剥离非必要元数据。
 - GIF/动画 WebP 只有在原始尺寸和字节预算内才直传；超限时明确拒绝并要求转为静态图片，不得静默丢帧。模型副本生成失败时也不得回退发送超限原图。

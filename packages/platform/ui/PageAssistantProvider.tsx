@@ -10,6 +10,7 @@ import { workspacePath } from "@workspace/core/routing";
 
 import { PageAssistantComposer } from "./page-assistant/PageAssistantComposer";
 import { PageAssistantMessages } from "./page-assistant/PageAssistantMessages";
+import { readAgentStream } from "./page-assistant/agent-stream";
 import {
   contextKey,
   contextLabel,
@@ -20,7 +21,6 @@ import {
   messageHistoryContent,
   nextMessageId,
   responseMessage,
-  type AgentResponse,
   type AssistantMessage,
   type PendingAttachment,
 } from "./page-assistant/types";
@@ -275,12 +275,22 @@ function PageAssistantPanel({
         previewUrl: attachment.previewUrl,
       })),
     };
+    const agentMessageId = nextMessageId("agent-stream");
     const fallbackHistory = sessionId ? undefined : messages.map((message) => ({
       role: message.role,
       content: messageHistoryContent(message),
     }));
 
-    updateMessagesForContext(requestContextKey, (current) => [...current, userMessage]);
+    updateMessagesForContext(requestContextKey, (current) => [
+      ...current,
+      userMessage,
+      {
+        id: agentMessageId,
+        role: "agent",
+        content: "正在处理…",
+        responseType: "answer",
+      },
+    ]);
     setDraft("");
     setAttachments([]);
     setSending(true);
@@ -316,45 +326,59 @@ function PageAssistantPanel({
       }
 
       const response = await fetch(workspacePath("/api/agent"), requestInit);
-      const body = (await response.json()) as AgentResponse;
-      if (!response.ok) throw new Error(responseMessage(body));
+      let receivedText = false;
+      const body = await readAgentStream(response, (streamEvent) => {
+        if (streamEvent.event === "heartbeat") return;
+        if (streamEvent.event === "status") {
+          if (receivedText) return;
+          updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+            message.id === agentMessageId ? { ...message, content: streamEvent.message } : message
+          )));
+          return;
+        }
+        if (streamEvent.event === "delta") {
+          const replace = !receivedText;
+          receivedText = true;
+          updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+            message.id === agentMessageId
+              ? { ...message, content: replace ? streamEvent.delta : `${message.content}${streamEvent.delta}` }
+              : message
+          )));
+        }
+      });
       if (body.session?.id) {
         updateSessionForContext(requestContextKey, body.session.id, body.session.summaryShort);
       }
-      updateMessagesForContext(requestContextKey, (current) => [
-        ...current,
-        {
-          id: nextMessageId("agent"),
-          role: "agent",
-          content: responseMessage(body),
-          responseType: body.type,
-          data: body.data,
-          proposal: body.proposal,
-          proposalStatus: body.proposal ? "pending" : undefined,
-        },
-      ]);
+      updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+        message.id === agentMessageId
+          ? {
+              ...message,
+              content: responseMessage(body),
+              responseType: body.type,
+              data: body.data,
+              proposal: body.proposal,
+              proposalStatus: body.proposal ? "pending" : undefined,
+            }
+          : message
+      )));
     } catch (error) {
       if (isAbortError(error)) {
-        updateMessagesForContext(requestContextKey, (current) => [
-          ...current,
-          {
-            id: nextMessageId("agent-aborted"),
-            role: "agent",
-            content: "已中止当前请求。",
-            responseType: "answer",
-          },
-        ]);
+        updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+          message.id === agentMessageId
+            ? { ...message, content: "已中止当前请求。", responseType: "answer" }
+            : message
+        )));
         return;
       }
-      updateMessagesForContext(requestContextKey, (current) => [
-        ...current,
-        {
-          id: nextMessageId("agent-error"),
-          role: "agent",
-          content: error instanceof Error ? error.message : "请求失败。",
-          responseType: "error",
-        },
-      ]);
+      updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+        message.id === agentMessageId
+          ? {
+              ...message,
+              content: error instanceof Error ? error.message : "请求失败。",
+              responseType: "error",
+            }
+          : message
+      )));
     } finally {
       if (abortControllerRef.current === controller) {
         abortControllerRef.current = null;

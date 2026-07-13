@@ -241,7 +241,12 @@ async function rejectInteractiveRequest(client: ProtocolClientLike, event: { typ
   }
 }
 
-async function collectTurn(client: ProtocolClientLike, stream: PromptStream, signal?: AbortSignal) {
+async function collectTurn(
+  client: ProtocolClientLike,
+  stream: PromptStream,
+  signal?: AbortSignal,
+  onTextDelta?: (delta: string) => void,
+) {
   let output = "";
   const onAbort = () => {
     void client.sendCancel().catch(() => undefined);
@@ -252,7 +257,11 @@ async function collectTurn(client: ProtocolClientLike, stream: PromptStream, sig
       const payload = "payload" in event
         ? event.payload as { type?: string; text?: string } | undefined
         : undefined;
-      if (event.type === "ContentPart" && payload?.type === "text") output += payload.text ?? "";
+      if (event.type === "ContentPart" && payload?.type === "text") {
+        const delta = payload.text ?? "";
+        output += delta;
+        if (delta) onTextDelta?.(delta);
+      }
       await rejectInteractiveRequest(client, event);
     }
     await stream.result;
@@ -317,6 +326,7 @@ export class KimiAgentRuntime implements AgentRuntime {
         client,
         client.sendPrompt(buildPrompt(runtimeInput)),
         turnController.signal,
+        runtimeInput.onTextDelta,
       );
 
       if (state.proposal) {
