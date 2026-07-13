@@ -3,8 +3,6 @@ import test from "node:test";
 
 import {
   DIRECT_LIBRARY_FILE_LIMIT,
-  isLibraryDeliveryRequest,
-  resolveLibraryDeliveryQuery,
   selectLibraryDeliveryDocuments,
   shouldSendLibraryFilesDirectly,
 } from "./agent-delivery-selection";
@@ -25,17 +23,6 @@ const documents = [
   categoryName: index >= 2 && index <= 5 ? "财务" : "公司资料",
 }));
 
-test("delivery request keeps the business subject and can recover it from history", () => {
-  assert.equal(resolveLibraryDeliveryQuery("把丰华生物的财务报表打包发给我"), "丰华生物的财务报表");
-  assert.equal(resolveLibraryDeliveryQuery("你直接发给我", [
-    { role: "user", content: "我需要丰华生物的财务报表" },
-    { role: "agent", content: "找到了三份财务报表" },
-  ]), "丰华生物的财务报表");
-  assert.equal(resolveLibraryDeliveryQuery("你直接发给我"), "");
-  assert.equal(isLibraryDeliveryRequest("不用打包发给我"), false);
-  assert.equal(isLibraryDeliveryRequest("有哪些财务资料？"), false);
-});
-
 test("delivery selection narrows a broad candidate set to the strongest title matches", () => {
   assert.deepEqual(
     selectLibraryDeliveryDocuments("丰华生物的财务报表", documents).map((item) => item.title),
@@ -45,7 +32,7 @@ test("delivery selection narrows a broad candidate set to the strongest title ma
       "丰华生物财务报表-2025.12.xlsx",
     ],
   );
-  assert.equal(DIRECT_LIBRARY_FILE_LIMIT, 10);
-  assert.equal(shouldSendLibraryFilesDirectly(7), true);
-  assert.equal(shouldSendLibraryFilesDirectly(11), false);
+  assert.equal(DIRECT_LIBRARY_FILE_LIMIT, 5);
+  assert.equal(shouldSendLibraryFilesDirectly(5), true);
+  assert.equal(shouldSendLibraryFilesDirectly(6), false);
 });

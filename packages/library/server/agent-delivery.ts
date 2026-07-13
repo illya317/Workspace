@@ -2,11 +2,9 @@ import "server-only";
 
 import {
   DIRECT_LIBRARY_FILE_LIMIT,
-  isLibraryDeliveryRequest,
-  resolveLibraryDeliveryQuery,
   selectLibraryDeliveryDocuments,
   shouldSendLibraryFilesDirectly,
-  type LibraryDeliveryHistoryMessage,
+  type LibraryDeliveryDocument,
 } from "./agent-delivery-selection";
 import { buildCreateLibraryExportCommand } from "./domain/export-validation";
 import { createLibraryExport } from "./export";
@@ -24,8 +22,20 @@ export type LibraryAgentDeliveryArtifact = {
   itemCount: number;
 };
 
+export type LibraryAgentDeliveryPlanDocument = LibraryDeliveryDocument & {
+  index: number;
+};
+
+export type LibraryAgentDeliveryPlan =
+  | { status: "denied" }
+  | { status: "empty"; message: string }
+  | {
+      status: "ready";
+      query: string;
+      documents: LibraryAgentDeliveryPlanDocument[];
+    };
+
 export type LibraryAgentDeliveryRequest =
-  | { status: "none" }
   | { status: "denied" }
   | { status: "empty"; message: string }
   | {
@@ -35,24 +45,47 @@ export type LibraryAgentDeliveryRequest =
       artifacts: LibraryAgentDeliveryArtifact[];
     };
 
-export async function createLibraryAgentDelivery(input: {
-  message: string;
-  userId: number;
-  history?: LibraryDeliveryHistoryMessage[];
-}): Promise<LibraryAgentDeliveryRequest> {
-  if (!isLibraryDeliveryRequest(input.message)) return { status: "none" };
+export type LibraryAgentDeliveryReadyData = {
+  kind: "library-delivery-ready-v1";
+  mode: "files" | "bundle";
+  query: string;
+  artifacts: LibraryAgentDeliveryArtifact[];
+};
 
-  const query = resolveLibraryDeliveryQuery(input.message, input.history);
-  if (!query) {
-    return { status: "empty", message: "请说明要发送的资料名称、编号或主题，我会直接发送匹配的文件。" };
-  }
+export async function planLibraryAgentDelivery(input: {
+  query: string;
+  userId: number;
+}): Promise<LibraryAgentDeliveryPlan> {
+  const query = input.query.trim();
+  if (!query) return { status: "empty", message: "请说明要发送的资料名称、编号或主题。" };
   if (!(await checkLibraryExport(input.userId))) return { status: "denied" };
 
   const result = await searchLibraryDocumentSet({ query, limit: 20, userId: input.userId });
   const selected = selectLibraryDeliveryDocuments(query, result.documents);
   if (selected.length === 0) {
-    return { status: "empty", message: `没有找到可直接发送的“${query}”资料，请补充文件名或资料编号。` };
+    return { status: "empty", message: `没有找到可发送的“${query}”资料，请补充文件名或资料编号。` };
   }
+  return {
+    status: "ready",
+    query,
+    documents: selected.map((document, index) => ({ ...document, index: index + 1 })),
+  };
+}
+
+export async function createLibraryAgentDelivery(input: {
+  query: string;
+  versionUids: string[];
+  userId: number;
+}): Promise<LibraryAgentDeliveryRequest> {
+  const plan = await planLibraryAgentDelivery({ query: input.query, userId: input.userId });
+  if (plan.status !== "ready") return plan;
+  const requested = Array.from(new Set(input.versionUids.map((value) => value.trim()).filter(Boolean)));
+  if (requested.length === 0) return { status: "empty", message: "请选择要发送的资料。" };
+  const available = new Map(plan.documents.map((document) => [document.versionUid, document]));
+  if (requested.some((versionUid) => !available.has(versionUid))) {
+    return { status: "empty", message: "待发送清单已变化，请重新确认资料范围。" };
+  }
+  const selected = requested.map((versionUid) => available.get(versionUid)!);
 
   if (shouldSendLibraryFilesDirectly(selected.length)) {
     const artifacts = await Promise.all(selected.map(async (document) => {
@@ -65,7 +98,7 @@ export async function createLibraryAgentDelivery(input: {
         itemCount: 1,
       };
     }));
-    return { status: "ready", mode: "files", query, artifacts };
+    return { status: "ready", mode: "files", query: plan.query, artifacts };
   }
 
   const command = buildCreateLibraryExportCommand({
@@ -84,7 +117,7 @@ export async function createLibraryAgentDelivery(input: {
   return {
     status: "ready",
     mode: "bundle",
-    query,
+    query: plan.query,
     artifacts: [{
       source: "library-export",
       artifactId: job.exportUid,
@@ -93,4 +126,20 @@ export async function createLibraryAgentDelivery(input: {
       itemCount: selected.length,
     }],
   };
+}
+
+export function libraryDeliveryReadyData(value: unknown): LibraryAgentDeliveryReadyData | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  const data = value as Partial<LibraryAgentDeliveryReadyData>;
+  if (data.kind !== "library-delivery-ready-v1" || (data.mode !== "files" && data.mode !== "bundle") || typeof data.query !== "string" || !Array.isArray(data.artifacts)) return null;
+  const artifacts = data.artifacts.filter((artifact): artifact is LibraryAgentDeliveryArtifact => Boolean(
+    artifact
+    && typeof artifact === "object"
+    && (artifact.source === "library-export" || artifact.source === "library-version")
+    && typeof artifact.artifactId === "string"
+    && typeof artifact.fileName === "string"
+    && typeof artifact.fileSizeBytes === "number"
+    && typeof artifact.itemCount === "number",
+  ));
+  return artifacts.length === data.artifacts.length ? { kind: data.kind, mode: data.mode, query: data.query, artifacts } : null;
 }
