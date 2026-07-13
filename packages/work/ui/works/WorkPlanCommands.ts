@@ -84,6 +84,15 @@ export function useWorkPlanCommands({
     setPlanSaving(true);
     try {
       const created = await saveWorkPlanSubmissionDraft(currentSpace, "create", planDraft);
+      if (created.executionMode === "direct") {
+        setPlanCreating(false);
+        setPlanDraft(createEmptyWorkPlanDraft());
+        await loadPlans();
+        const planId = Number(created.result.entityId);
+        if (Number.isInteger(planId) && planId > 0) setActivePlanId(planId);
+        if (options?.feedback !== false) showToast("目标计划已直接生效", "success");
+        return;
+      }
       const submitted = await submitWorkTaskSubmission(created.request.id, created.request.version);
       setPlanCreating(false);
       setPlanDraft(createEmptyWorkPlanDraft());
@@ -104,6 +113,12 @@ export function useWorkPlanCommands({
     setPlanSaving(true);
     try {
       const created = await saveWorkPlanSubmissionDraft(activePlan, "update", planDraft, activePlan.id);
+      if (created.executionMode === "direct") {
+        await Promise.all([loadSpaces(), loadPlans()]);
+        setActivePlanId(activePlan.id);
+        showToast("目标计划修改已直接生效", "success");
+        return;
+      }
       const submitted = await submitWorkTaskSubmission(created.request.id, created.request.version);
       await Promise.all([loadSpaces(), loadPlans()]);
       const committedPlanId = Number(submitted.request.committedEntityId || activePlan.id);
@@ -121,6 +136,12 @@ export function useWorkPlanCommands({
     setPlanSaving(true);
     try {
       const created = await saveWorkPlanRevisionSubmissionDraft(activePlan, planDraft, activePlan.id);
+      if (created.executionMode === "direct") {
+        await Promise.all([loadSpaces(), loadPlans()]);
+        setActivePlanId(activePlan.id);
+        showToast("工作计划修订已直接生效", "success");
+        return;
+      }
       await submitWorkTaskSubmission(created.request.id, created.request.version);
       await Promise.all([loadSpaces(), loadPlans()]);
       setActivePlanId(activePlan.id);
@@ -138,6 +159,11 @@ export function useWorkPlanCommands({
     setPlanSaving(true);
     try {
       const created = await saveObjectivePlanSubmissionDraft(activePlan, activePlan);
+      if (created.executionMode === "direct") {
+        await Promise.all([loadSpaces(), loadPlans()]);
+        showToast(`${packageLabel}已直接生效`, "success");
+        return;
+      }
       await submitWorkTaskSubmission(created.request.id, created.request.version);
       await Promise.all([loadSpaces(), loadPlans()]);
       showToast(`${packageLabel}已提交`, "success");

@@ -59,7 +59,9 @@ type DepartmentCollaborationResponse = {
 };
 
 type SubmitCollaborationResponse = {
+  executionMode: "direct" | "workflow";
   request?: { committedEntityId?: string | null; status?: string };
+  result?: { entityId?: string | number };
 };
 
 export interface DepartmentCollaborationController {
@@ -134,7 +136,7 @@ export function useDepartmentCollaborationController(input: {
         "提交部门协作失败",
       );
       const response = await load();
-      const committedId = Number(result.request?.committedEntityId);
+      const committedId = Number(result.executionMode === "direct" ? result.result?.entityId : result.request?.committedEntityId);
       setRoleFilter("responsible");
       if (Number.isInteger(committedId) && committedId > 0 && response?.collaborations.some((item) => item.id === committedId)) {
         setSelectedId(committedId);
@@ -143,7 +145,9 @@ export function useDepartmentCollaborationController(input: {
       setCreating(false);
       return {
         outcome: "submitted" as const,
-        message: result.request?.status === "submitted" ? "部门协作已提交，等待流程处理" : "部门协作已提交",
+        message: result.executionMode === "direct"
+          ? "部门协作已直接生效"
+          : result.request?.status === "submitted" ? "部门协作已提交，等待流程处理" : "部门协作已提交",
       };
     } catch (error) {
       throw error instanceof Error ? error : new Error("提交部门协作失败");
@@ -162,7 +166,9 @@ export function useDepartmentCollaborationController(input: {
         "保存部门协作失败",
       );
       await load();
-      onToast(result.request?.status === "submitted" ? "协作修改已提交，等待流程处理" : "协作修改已保存", "success");
+      onToast(result.executionMode === "direct"
+        ? "协作修改已直接生效"
+        : result.request?.status === "submitted" ? "协作修改已提交，等待流程处理" : "协作修改已保存", "success");
     } catch (error) {
       onToast(error instanceof Error ? error.message : "保存部门协作失败", "error");
     } finally {

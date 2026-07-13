@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { ApprovalHandlerSource, ApprovalRequestRecord } from "./types";
+import { isRootAdminUser } from "../auth/root";
 import { currentOpenEndedDateWhere } from "../fk-registry";
 import { prisma } from "../prisma";
 import { findWorkflowApprovalTarget } from "../workflow-policy-nodes";
@@ -14,7 +15,9 @@ export async function resolveWorkflowNodeHandlerUserIds<TPayload>(
   },
 ) {
   const activeNode = findWorkflowApprovalTarget(request.workflowNodes, request.activeWorkflowNodeKey);
-  if (!activeNode) return dedupeUserIds(await input.resolvePermission(), input.excludeUserId ?? null);
+  if (!activeNode) return excludeRootAdminUserIds(
+    dedupeUserIds(await input.resolvePermission(), input.excludeUserId ?? null),
+  );
 
   const candidateLists = await Promise.all(activeNode.assignees.map(async (assignee) => {
     if (assignee.fieldKind === "relationship") {
@@ -28,10 +31,19 @@ export async function resolveWorkflowNodeHandlerUserIds<TPayload>(
     return [];
   }));
 
-  const resolved = dedupeUserIds(candidateLists.flat(), input.excludeUserId ?? null);
-  return resolved.length > 0
-    ? resolved
-    : dedupeUserIds(await input.resolvePermission(), input.excludeUserId ?? null);
+  const rawResolved = dedupeUserIds(candidateLists.flat(), input.excludeUserId ?? null);
+  const resolved = await excludeRootAdminUserIds(rawResolved);
+  if (rawResolved.length > 0) return resolved;
+  return excludeRootAdminUserIds(
+    dedupeUserIds(await input.resolvePermission(), input.excludeUserId ?? null),
+  );
+}
+
+async function excludeRootAdminUserIds(userIds: number[]) {
+  const candidates = await Promise.all(userIds.map(async (userId) => (
+    await isRootAdminUser(userId) ? null : userId
+  )));
+  return candidates.filter((userId): userId is number => userId !== null);
 }
 
 async function listActivePositionUserIds(value: string | null) {

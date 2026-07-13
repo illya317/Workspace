@@ -120,7 +120,7 @@ export default function HrPerformanceClient({ user: _user }: { user: SessionUser
     [data?.submissionRows, selectedSubmissionId],
   );
   const selectedCycleId = Number(cycleId || data?.activeCycleId || 0);
-  const canCreateSelfReview = Boolean(data?.currentEmployee && selectedCycleId);
+  const canCreateSelfReview = Boolean(data?.workflowEnabled && data.currentEmployee && selectedCycleId);
 
   async function mutateSubmission(path: string, body: Record<string, unknown>, successMessage: string, method = "POST") {
     setSaving(true);

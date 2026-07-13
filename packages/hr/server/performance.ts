@@ -17,7 +17,7 @@ import { listDirectManagerUserIds } from "@workspace/platform/server/business-sp
 import { resolveWorkflowNodeHandlerUserIds } from "@workspace/platform/server/approvals/workflow-node-handlers";
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
-import type { WorkflowPolicyNodeDefinition } from "@workspace/platform/server/workflows";
+import { resolveWorkflowPolicy, type WorkflowPolicyNodeDefinition } from "@workspace/platform/server/workflows";
 import { buildHrPerformanceReviewArchiveCommand } from "./domain/performance-validation";
 import { buildEmployeeContributionSnapshot, listEmployeeContributionRows } from "./performance-contributions";
 import {
@@ -242,7 +242,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
     ? cycleCandidates.find((cycle) => cycle.id === activeCycleOption.id) ?? null
     : null;
   const cycleId = activeCycle?.id ?? null;
-  const [currentEmployee, audienceCatalog, reviews, submissions, workPlans] = await Promise.all([
+  const [currentEmployee, audienceCatalog, reviews, submissions, workPlans, workflowPolicy] = await Promise.all([
     prisma.employee.findFirst({
       where: { userId: command.userId },
       select: { id: true, employeeId: true, name: true, userId: true },
@@ -274,6 +274,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       },
       orderBy: [{ targetType: "asc" }, { id: "asc" }],
     }) : Promise.resolve([]),
+    resolveHrPerformanceWorkflowPolicy(command.userId),
   ]);
   const { employees, departments, projects } = audienceCatalog;
   const audienceSelection = selectHrPerformanceAudience({
@@ -334,6 +335,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       status: "开启",
     }));
   return serviceOk({
+    workflowEnabled: workflowPolicy.mode === "required" || workflowPolicy.mode === "optional",
     currentEmployee,
     cycleOptions,
     activeCycleId: cycleId,
@@ -435,14 +437,36 @@ export function buildCreateHrPerformanceSubmissionRouteCommand(input: {
   });
 }
 
-export function executeCreateHrPerformanceSubmissionRouteCommand(command: {
+export async function executeCreateHrPerformanceSubmissionRouteCommand(command: {
   actorUserId: number;
   operation: ApprovalOperation;
   subjectId?: string | null;
   payload: HrPerformanceReviewPayload;
   comment?: string | null;
 }) {
+  const workflowPolicy = await resolveHrPerformanceWorkflowPolicy(command.actorUserId);
+  if (workflowPolicy.mode === "direct" || workflowPolicy.mode === "permission_only") {
+    return serviceError("绩效评审流程已关闭", 409);
+  }
   return hrPerformanceApprovalLifecycle.createDraft(command);
+}
+
+function resolveHrPerformanceWorkflowPolicy(actorUserId: number) {
+  return resolveWorkflowPolicy({
+    businessActionKey: HR_PERFORMANCE_BUSINESS_ACTION_KEY,
+    resourceKey: HR_PERFORMANCE_RESOURCE_KEY,
+    scopeType: "global",
+    actorUserId,
+    defaults: {
+      businessActionKey: HR_PERFORMANCE_BUSINESS_ACTION_KEY,
+      scopeType: "global",
+      mode: "required",
+      flowType: "approval",
+      separationPolicy: "auto_pass_if_authorized",
+      handlerSource: "direct_manager",
+      workflowNodes: HR_PERFORMANCE_DEFAULT_WORKFLOW_NODES,
+    },
+  });
 }
 
 export function buildHrPerformanceSubmissionActionRouteCommand(input: {

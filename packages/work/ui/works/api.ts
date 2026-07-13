@@ -39,6 +39,10 @@ export type WorkPeriodScheduleMutationResult =
   | { executionMode: "direct"; schedule: WorkPeriodScheduleCreateResult }
   | { executionMode: "workflow"; request: WorkTaskApprovalRequest };
 
+export type WorkSubmissionMutationResult =
+  | { executionMode: "direct"; result: { entityType: string; entityId: string | number } }
+  | { executionMode: "workflow"; request: WorkTaskApprovalRequest };
+
 async function readJson<T>(response: Response, fallbackError: string): Promise<T> {
   const data = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(data.error || fallbackError);
@@ -266,7 +270,7 @@ export async function saveWorkTaskSubmissionDraft(
       comment,
     }),
   });
-  return readJson<{ request: WorkTaskApprovalRequest }>(response, "创建审批草稿失败");
+  return readJson<WorkSubmissionMutationResult>(response, "创建审批草稿失败");
 }
 
 export async function saveWorkPlanSubmissionDraft(
@@ -288,7 +292,7 @@ export async function saveWorkPlanSubmissionDraft(
       comment,
     }),
   });
-  return readJson<{ request: WorkTaskApprovalRequest }>(response, "创建计划审批草稿失败");
+  return readJson<WorkSubmissionMutationResult>(response, "创建计划审批草稿失败");
 }
 
 export async function saveWorkPlanRevisionSubmissionDraft(
@@ -313,7 +317,7 @@ export async function saveWorkPlanRevisionSubmissionDraft(
       comment,
     }),
   });
-  return readJson<{ request: WorkTaskApprovalRequest }>(response, "创建计划修订审批草稿失败");
+  return readJson<WorkSubmissionMutationResult>(response, "创建计划修订审批草稿失败");
 }
 
 export async function saveObjectivePlanSubmissionDraft(
@@ -333,7 +337,7 @@ export async function saveObjectivePlanSubmissionDraft(
       comment,
     }),
   });
-  return readJson<{ request: WorkTaskApprovalRequest }>(response, "创建目标审查草稿失败");
+  return readJson<WorkSubmissionMutationResult>(response, "创建目标审查草稿失败");
 }
 
 export async function reviseWorkTaskSubmission(id: number, draft: WorkItemDraft, version?: number | null, comment?: string | null) {

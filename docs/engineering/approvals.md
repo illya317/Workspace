@@ -77,6 +77,8 @@ import {
 
 `submit` 和 `approve` 权限不互斥。同一个用户同时有两个权限时，可以提交后再审批同一条审批单；是否做职责分离由 `separationPolicy` 收窄。
 
+root admin 身份只负责系统配置、权限治理和流程台账，不自动成为业务审批人。处理人必须来自流程节点指定的岗位、员工、关系或业务 `approve` 授权；root admin 即使能管理流程设置，也不能仅凭系统身份收到或处理业务待办。
+
 ## Adapter Contract
 
 业务 adapter 必须实现 `ApprovalAdapter<TPayload>`：
@@ -101,6 +103,8 @@ import {
 
 通知标题、正文、链接和默认重要性由 `packages/platform/server/notifications.ts` 的 registry 渲染。通知只跳转审批详情或业务页上的审批详情，不把通知的 acknowledge/reject 当作审批同意/驳回入口。
 
+收件箱可以由业务 provider 根据仍处于 `submitted` 的审批单投影动态待办。这类列表项使用负数合成 ID 与真实 `Notification.id` 隔离，不是可删除通知；UI 不提供“删除”，只能通过同意、驳回、撤回或取消等流程动作收口。
+
 V1 不做独立评论系统。审批备注和自由评论都写入 `ApprovalEvent.comment`；自由评论使用 `eventType = comment`，不支持编辑、删除或线程。
 
 ## Work Task Adapter
@@ -120,7 +124,10 @@ V1 不做独立评论系统。审批备注和自由评论都写入 `ApprovalEven
 - 有 `submit` 权限时，UI 显示“提交审核”；`submit` 和直接写权限同时存在时两个按钮都显示。
 - 有 `approve` 权限时，可 `reviewUpdate`、`approve`、`reject`。
 - approve 时复用 WorkItem create/update domain validator 和 service；成功后把正式 WorkItem id 写回 `ApprovalRequest.committedEntityId`。
+- 审批通过后的正式写入必须保留服务端 `workflow-approved` 授权标记；业务 command 标准化不得丢弃该标记，否则会把 commit 误判成新的流程发起。
 - 引用项目、项目阶段或项目任务时，adapter 必须校验 actor 可见对应项目；审批流只降低 WorkItem 写入授权要求，不放开项目引用可见性。
+
+流程设置里的“关闭流程”写入显式 `permission_only` 策略。具备 direct form/active persistence 的行为回到权限直写且不创建 `ApprovalRequest`；纯多阶段流程没有合法单步正式写入时，关闭表示停止新流程入口，存量流程和正式记录仍可读取。
 
 Work task submissions API：
 

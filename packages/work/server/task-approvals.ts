@@ -1,10 +1,12 @@
 import {
+  createPreparedApprovalDraft,
   listRequests,
+  prepareApprovalDraft,
   type ApprovalOperation,
   type ApprovalStatus,
 } from "@workspace/platform/server/approvals";
 import { bindApprovalLifecycle } from "@workspace/platform/server/approval-lifecycle";
-import { serviceError, serviceResponse } from "@workspace/platform/server/api";
+import { serviceError, serviceOk, serviceResponse } from "@workspace/platform/server/api";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
@@ -15,6 +17,7 @@ import {
 } from "@workspace/platform/server/approvals/serialization";
 import {
   getWorkTaskApprovalResourceKey,
+  commitPreparedWorkTaskPayload,
   mergeWorkTaskSubmissionPayload,
   normalizeApprovalTargetType,
   normalizeApprovalWorkspaceTargetType,
@@ -35,7 +38,7 @@ import {
 } from "./work-okr-stage";
 import { canProcessWorkTaskRequest } from "./task-approval-handlers";
 import { workTaskScopeId } from "./task-spaces";
-import { canViewWorkTaskTarget } from "./access";
+import { canUpdateWorkTaskAction, canViewWorkTaskTarget } from "./access";
 
 const workTaskApprovalLifecycle = bindApprovalLifecycle(workTaskApprovalAdapter);
 
@@ -182,14 +185,41 @@ export function buildCreateWorkTaskSubmissionRouteCommand(input: {
   });
 }
 
-export function executeCreateWorkTaskSubmissionRouteCommand(command: {
+export async function executeCreateWorkTaskSubmissionRouteCommand(command: {
   actorUserId: number;
   operation: ApprovalOperation;
   subjectId?: string | null;
   payload: WorkTaskApprovalPayload;
   comment?: string | null;
 }) {
-  return workTaskApprovalLifecycle.createDraft(command);
+  const prepared = await prepareApprovalDraft({ adapter: workTaskApprovalAdapter, ...command });
+  if (!prepared.ok) return prepared;
+  const workflowPolicy = prepared.data.workflowPolicy;
+  if (workflowPolicy.mode !== "direct" && workflowPolicy.mode !== "permission_only") {
+    const created = await createPreparedApprovalDraft({
+      adapter: workTaskApprovalAdapter,
+      ...command,
+      prepared: prepared.data.prepared,
+      workflowPolicy,
+    });
+    return created.ok
+      ? serviceOk({ executionMode: "workflow" as const, request: created.data.request })
+      : created;
+  }
+  const payload = prepared.data.prepared.payload;
+  if (!(await canUpdateWorkTaskAction(command.actorUserId, payload.targetType, payload.targetId))) {
+    return serviceError("无权限直接保存该工作内容", 403);
+  }
+  const committed = await commitPreparedWorkTaskPayload({
+    actorUserId: command.actorUserId,
+    submitterUserId: command.actorUserId,
+    operation: command.operation,
+    subjectId: prepared.data.prepared.subjectId ?? command.subjectId,
+    payload,
+  });
+  return committed.ok
+    ? serviceOk({ executionMode: "direct" as const, result: committed.data })
+    : committed;
 }
 
 export function buildWorkTaskSubmissionActionRouteCommand(input: {

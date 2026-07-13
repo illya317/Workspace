@@ -404,14 +404,14 @@ function WorkflowNotificationsPanel({
               description: [itemDescription(item), itemMeta(item)].filter(Boolean).join(" · "),
               unread: perspective === "received" && !item.readAt,
               badges: [{ key: "status", label: status.label, tone: status.tone }],
-              actions: [{
+              actions: item.id > 0 ? [{
                 key: "delete-notification",
                 label: "删除",
                 icon: "delete-bin" as const,
                 variant: "danger" as const,
                 disabled: clearingItemId === item.id,
                 onClick: () => void clearWorkflowItem(item),
-              }],
+              }] : [],
               tone: item.id === selectedItem?.id ? "success" as const : item.readAt ? "muted" as const : "default" as const,
               onClick: () => selectWorkflowItem(item),
             };

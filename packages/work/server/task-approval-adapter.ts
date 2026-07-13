@@ -124,32 +124,32 @@ export const workTaskApprovalAdapter: ApprovalAdapter<WorkTaskApprovalPayload> =
     const payload = request.latestPayload;
     const zeroNodeSelfCommit = request.workflowNodes.length === 0 && request.submitterUserId === actorUserId;
     if (!zeroNodeSelfCommit && !(await canProcessWorkTaskRequest(actorUserId, request))) return serviceError("无权限审批该工作项", 403);
-    const entityType = approvalEntityType(payload);
-    const result = entityType === "objective_plan"
-      ? await commitObjectivePlanApproval(actorUserId, payload as WorkTaskObjectivePlanApprovalPayload)
-      : entityType === "kr_review"
-        ? await commitKrReviewApproval(actorUserId, payload as WorkTaskKrReviewApprovalPayload)
-        : entityType === "item"
-          ? await commitWorkItemApproval(actorUserId, request.submitterUserId, request.operation, payload as WorkTaskItemApprovalPayload)
-          : entityType === "plan"
-            ? await commitWorkPlanApproval(actorUserId, request.submitterUserId, request.operation, payload as WorkTaskPlanApprovalPayload)
-            : entityType === "collaboration"
-              ? await commitCollaborationApproval({ submitterUserId: request.submitterUserId, operation: request.operation, subjectId: request.subjectId, payload: payload as WorkTaskCollaborationApprovalPayload })
-            : entityType === "revision"
-              ? await commitRevisionApproval({
-                  actorUserId,
-                  submitterUserId: request.submitterUserId,
-                  payload: payload as WorkTaskRevisionApprovalPayload,
-                })
-              : await commitWorkReportApproval({
-                  actorUserId,
-                  submitterUserId: request.submitterUserId,
-                  payload: payload as WorkTaskReportApprovalPayload,
-                });
-    if (!result.ok) return serviceError(result.error, result.status || 400);
-    return serviceOk(result.data);
+    return commitPreparedWorkTaskPayload({ actorUserId, submitterUserId: request.submitterUserId, operation: request.operation, subjectId: request.subjectId, payload });
   },
 };
+
+export async function commitPreparedWorkTaskPayload(input: {
+  actorUserId: number; submitterUserId: number; operation: ApprovalOperation;
+  subjectId?: string | null;
+  payload: WorkTaskApprovalPayload;
+}) {
+  const entityType = approvalEntityType(input.payload);
+  const result = entityType === "objective_plan"
+    ? await commitObjectivePlanApproval(input.actorUserId, input.payload as WorkTaskObjectivePlanApprovalPayload)
+    : entityType === "kr_review"
+      ? await commitKrReviewApproval(input.actorUserId, input.payload as WorkTaskKrReviewApprovalPayload)
+      : entityType === "item"
+        ? await commitWorkItemApproval(input.actorUserId, input.submitterUserId, input.operation, input.payload as WorkTaskItemApprovalPayload)
+        : entityType === "plan"
+          ? await commitWorkPlanApproval(input.actorUserId, input.submitterUserId, input.operation, input.payload as WorkTaskPlanApprovalPayload)
+          : entityType === "collaboration"
+            ? await commitCollaborationApproval({ submitterUserId: input.submitterUserId, operation: input.operation, subjectId: input.subjectId ?? null, payload: input.payload as WorkTaskCollaborationApprovalPayload })
+          : entityType === "revision"
+            ? await commitRevisionApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskRevisionApprovalPayload })
+            : await commitWorkReportApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskReportApprovalPayload });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
+  return serviceOk(result.data);
+}
 
 export async function commitWorkItemApproval(actorUserId: number, submitterUserId: number, operation: ApprovalOperation, payload: WorkTaskItemApprovalPayload) {
   if (operation === "create" && isWorkPeriodScheduleApprovalPayload(payload)) {

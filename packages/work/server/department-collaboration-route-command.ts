@@ -1,7 +1,8 @@
-import { createDraft, submit } from "@workspace/platform/server/approvals";
+import { createPreparedApprovalDraft, prepareApprovalDraft, submit, type ApprovalOperation } from "@workspace/platform/server/approvals";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-import { workTaskApprovalAdapter } from "./task-approval-adapter";
+import { commitPreparedWorkTaskPayload, workTaskApprovalAdapter } from "./task-approval-adapter";
+import { canUpdateWorkTaskAction } from "./access";
 import { listDepartmentCollaborations, respondDepartmentCollaboration } from "./department-collaborations";
 
 type CollaborationBody = {
@@ -72,25 +73,10 @@ export async function executeSubmitDepartmentCollaborationCommand(command: {
   responsibleDepartmentId: number;
   payload: Record<string, unknown>;
 }) {
-  const draft = await createDraft({
-    adapter: workTaskApprovalAdapter,
-    actorUserId: command.userId,
+  return executeDepartmentCollaborationMutation({
+    ...command,
     operation: "create",
-    payload: {
-      entityType: "collaboration",
-      targetType: "department",
-      targetId: command.responsibleDepartmentId,
-      data: command.payload,
-    },
   });
-  if (!draft.ok) return serviceError(draft.error, draft.status || 400);
-  const result = await submit({
-    adapter: workTaskApprovalAdapter,
-    requestId: draft.data.request.id,
-    actorUserId: command.userId,
-    expectedVersion: draft.data.request.version,
-  });
-  return result.ok ? serviceOk({ request: result.data.request }) : serviceError(result.error, result.status || 400);
 }
 
 export function buildUpdateDepartmentCollaborationCommand(input: {
@@ -115,17 +101,56 @@ export async function executeUpdateDepartmentCollaborationCommand(command: {
   responsibleDepartmentId: number;
   payload: Record<string, unknown>;
 }) {
-  const draft = await createDraft({
-    adapter: workTaskApprovalAdapter,
-    actorUserId: command.userId,
+  return executeDepartmentCollaborationMutation({
+    ...command,
     operation: "update",
     subjectId: String(command.collaborationId),
+  });
+}
+
+async function executeDepartmentCollaborationMutation(command: {
+  userId: number;
+  responsibleDepartmentId: number;
+  payload: Record<string, unknown>;
+  operation: ApprovalOperation;
+  subjectId?: string | null;
+}) {
+  const prepared = await prepareApprovalDraft({
+    adapter: workTaskApprovalAdapter,
+    actorUserId: command.userId,
+    operation: command.operation,
+    subjectId: command.subjectId,
     payload: {
       entityType: "collaboration",
       targetType: "department",
       targetId: command.responsibleDepartmentId,
       data: command.payload,
     },
+  });
+  if (!prepared.ok) return serviceError(prepared.error, prepared.status || 400);
+  const workflowPolicy = prepared.data.workflowPolicy;
+  if (workflowPolicy.mode === "direct" || workflowPolicy.mode === "permission_only") {
+    if (!(await canUpdateWorkTaskAction(command.userId, "department", command.responsibleDepartmentId))) {
+      return serviceError("无权限直接保存部门协作", 403);
+    }
+    const committed = await commitPreparedWorkTaskPayload({
+      actorUserId: command.userId,
+      submitterUserId: command.userId,
+      operation: command.operation,
+      subjectId: prepared.data.prepared.subjectId ?? command.subjectId,
+      payload: prepared.data.prepared.payload,
+    });
+    return committed.ok
+      ? serviceOk({ executionMode: "direct" as const, result: committed.data })
+      : serviceError(committed.error, committed.status || 400);
+  }
+  const draft = await createPreparedApprovalDraft({
+    adapter: workTaskApprovalAdapter,
+    actorUserId: command.userId,
+    operation: command.operation,
+    subjectId: command.subjectId,
+    prepared: prepared.data.prepared,
+    workflowPolicy,
   });
   if (!draft.ok) return serviceError(draft.error, draft.status || 400);
   const result = await submit({
@@ -134,7 +159,9 @@ export async function executeUpdateDepartmentCollaborationCommand(command: {
     actorUserId: command.userId,
     expectedVersion: draft.data.request.version,
   });
-  return result.ok ? serviceOk({ request: result.data.request }) : serviceError(result.error, result.status || 400);
+  return result.ok
+    ? serviceOk({ executionMode: "workflow" as const, request: result.data.request })
+    : serviceError(result.error, result.status || 400);
 }
 
 export function buildRespondDepartmentCollaborationCommand(input: {

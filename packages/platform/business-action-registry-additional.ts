@@ -92,7 +92,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS,
   {
     ...HR_PERFORMANCE,
-    eligibility: "workflow_required",
+    eligibility: "workflow_optional",
     flowType: "approval",
     separationPolicy: "auto_pass_if_authorized",
     submitPermissionAction: "submit",
@@ -114,9 +114,10 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...WORK_OKR_WORKFLOW_ACTIONS,
   {
     ...WORK_TASKS,
-    eligibility: "workflow_required",
+    eligibility: "workflow_optional",
     flowType: "approval",
     separationPolicy: "auto_pass_if_authorized",
+    directPermissionAction: "update",
     submitPermissionAction: "submit",
     processPermissionAction: "approve",
     workflowCategoryKey: "collaboration",
@@ -129,7 +130,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
       route("POST", "/api/modules/work/tasks/collaborations"),
       route("PUT", "/api/modules/work/tasks/collaborations/:id"),
     ],
-    notes: "默认零审批节点，提交后立即写入；管理员后续可为同一 action 配置审批节点。",
+    notes: "默认零审批节点，提交后立即写入；管理员可配置审批节点或关闭流程后按 update 权限直接写入。",
   },
   {
     ...WORK_TASKS,

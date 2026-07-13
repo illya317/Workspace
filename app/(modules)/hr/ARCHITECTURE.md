@@ -109,7 +109,7 @@ roster/page.tsx
 
 绩效范围事实统一由 HR-private `performance-audience` 模块维护：在职员工、M 体系及运营委员会部门、已开启项目空间、部门后代和项目成员有效期使用同一口径；dashboard、贡献材料 dossier 与归档快照不得各自重建范围规则。
 
-业务动作注册为 `hr.performance.review.evaluate`，默认流程为“员工自评 → 直属上级评分 → HR 审批归档”。`WorkflowPolicy` 可以覆盖节点配置，但正式记录只能通过 `hrPerformanceApprovalAdapter.commitApprovedPayload` 归档，不能直写正式表。
+业务动作注册为 `hr.performance.review.evaluate`，默认流程为“员工自评 → 直属上级评分 → HR 审批归档”。`WorkflowPolicy` 可以覆盖节点配置或显式关闭流程；关闭后停止创建新的多阶段自评流程，存量流程和正式记录继续可读。正式记录仍只能通过 `hrPerformanceApprovalAdapter.commitApprovedPayload` 归档，不能用不完整的自评数据直写正式表。
 
 ## Tab 配置 (tabConfigs.ts)
 

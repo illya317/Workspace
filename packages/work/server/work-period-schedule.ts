@@ -253,6 +253,7 @@ function normalizeCreateScheduleCommand(command: CreateWorkPeriodScheduleItemCom
     ok: true,
     data: {
       actorUserId,
+      mutationAuthorization: command.mutationAuthorization,
       rootPlanId,
       cycleId,
       sourceItemId,

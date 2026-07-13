@@ -1,6 +1,5 @@
 import type { ApprovalHandlerSource, ApprovalRequestRecord } from "@workspace/platform/server/approvals";
 import { resolveWorkflowNodeHandlerUserIds } from "@workspace/platform/server/approvals/workflow-node-handlers";
-import { isSuperAdmin } from "@workspace/platform/server/auth";
 import { listDepartmentResponsibleUserIds, listDirectManagerUserIds } from "@workspace/platform/server/business-space-natural-users";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canApproveWorkTaskAction } from "./access";
@@ -10,7 +9,6 @@ export async function canProcessWorkTaskRequest(
   actorUserId: number,
   request: ApprovalRequestRecord<WorkTaskApprovalPayload>,
 ) {
-  if (await isSuperAdmin(actorUserId)) return true;
   const handlers = await resolveWorkTaskHandlerUserIds(request.handlerSource, request);
   return handlers.includes(actorUserId);
 }

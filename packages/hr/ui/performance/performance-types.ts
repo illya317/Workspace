@@ -96,6 +96,7 @@ export type SubmissionRow = {
 };
 
 export type DashboardData = {
+  workflowEnabled: boolean;
   currentEmployee: { id: number; employeeId: string; name: string } | null;
   cycleOptions: CycleOption[];
   activeCycleId: number | null;

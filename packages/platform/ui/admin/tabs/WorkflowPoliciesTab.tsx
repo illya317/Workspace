@@ -302,6 +302,7 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
     const canConfigureWorkflow = canConfigureWorkflowAction(selectedAction);
     const effectiveAccessMode = canConfigureWorkflow ? accessMode : "permission_only";
     const handlerSourceOptions = contractHandlerSourceOptions(selectedAction, data.enums.handlerSources);
+    const supportsDirectWrite = selectedAction.actionContract?.form?.supportedModes?.includes("direct") === true;
     const workflowPolicyFields: FormSurfaceItemSpec[] = [
       {
         key: "workflowAccess",
@@ -319,9 +320,9 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
             items: canConfigureWorkflow
               ? [
                   { value: "workflow", label: ACCESS_LABEL.workflow },
-                  { value: "permission_only", label: ACCESS_LABEL.permission_only },
+                  { value: "permission_only", label: supportsDirectWrite ? ACCESS_LABEL.permission_only : "关闭流程" },
                 ]
-              : [{ value: "permission_only", label: ACCESS_LABEL.permission_only }],
+              : [{ value: "permission_only", label: supportsDirectWrite ? ACCESS_LABEL.permission_only : "关闭流程" }],
           },
         },
         value: effectiveAccessMode,

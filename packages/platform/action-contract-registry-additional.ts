@@ -198,8 +198,8 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
     form: {
       adapterKey: "work.tasks.collaboration",
       payloadVersion: 1,
-      supportedPersistenceModes: ["workflowDraft"],
-      supportedModes: ["workflow"],
+      supportedPersistenceModes: ["active", "workflowDraft"],
+      supportedModes: ["direct", "workflow"],
       notes: "协作目录和未来流程详情复用同一字段契约。",
     },
     domain: {
@@ -209,14 +209,14 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
     },
     api: {
       commandRoute: "POST /api/modules/work/tasks/collaborations",
-      directRoutes: ["PUT /api/modules/work/tasks/collaborations/:id"],
-      workflowRoutes: ["POST /api/modules/work/tasks/collaborations"],
+      directRoutes: ["POST /api/modules/work/tasks/collaborations", "PUT /api/modules/work/tasks/collaborations/:id"],
+      workflowRoutes: ["POST /api/modules/work/tasks/collaborations", "PUT /api/modules/work/tasks/collaborations/:id"],
       envelopeVersion: 1,
     },
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "workflow",
-      allowDirectOverride: false,
+      allowDirectOverride: true,
       statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: WORK_TASKS_WORKFLOW_MUTATION,
@@ -224,7 +224,7 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
       defaultDefinition: { version: 1, nodes: [], notes: "默认不经过人工节点，submit 后立即 commit。" },
       configuration: WORK_TASKS_WORKFLOW_CONFIGURATION,
       validateOn: ["draft", "submit", "commit"],
-      notes: "管理员添加节点后，同一提交命令自动进入正常审批链。",
+      notes: "管理员添加节点后，同一提交命令自动进入正常审批链；关闭流程后复用同一 validator 和 commit 直接写入。",
     },
     display: {
       titleTemplate: "部门协作：{title}",
@@ -504,7 +504,7 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "workflow",
-      allowDirectOverride: false,
+      allowDirectOverride: true,
       statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: HR_PERFORMANCE_WORKFLOW_MUTATION,
