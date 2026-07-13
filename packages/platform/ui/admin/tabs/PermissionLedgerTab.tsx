@@ -4,9 +4,9 @@ import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useMemo, useState } from "react";
 import {
   createPageBody,
-  createPageDataSection,
+  createPageTableSection,
   type BodySurfaceProps,
-  type DataSurfaceStructuredCellSpec,
+  type DataSurfaceColumnSpec,
   type PageSurfaceFooterSpec,
   type SurfaceToolbarItem,
 } from "@workspace/core/ui";
@@ -90,44 +90,60 @@ export function usePermissionLedgerTab({ enabled, showToast }: UsePermissionLedg
   const [page, setPage] = useState(0);
   const [pageSize, setPageSize] = useState(50);
   const [data, setData] = useState<LedgerResponse>({ events: [], page: 0, pageSize: 50, total: 0, totalPages: 1 });
-  const rows = useMemo<DataSurfaceStructuredCellSpec[][]>(() => [
-    [
-      { content: "时间", header: true, width: "lg" },
-      { content: "动作", header: true, width: "sm" },
-      { content: "操作人", header: true, width: "md" },
-      { content: "授权对象", header: true, width: "lg" },
-      { content: "资源", header: true, width: "wide" },
-      { content: "权限", header: true, width: "sm" },
-      { content: "范围", header: true, width: "lg" },
-      { content: "来源", header: true, width: "md" },
-    ],
-    ...data.events.map((row): DataSurfaceStructuredCellSpec[] => [
-      { content: { kind: "text", value: formatDateTime(row.createdAt), font: "mono", tone: "muted" } },
-      { content: { kind: "badge", label: EVENT_LABEL[row.eventType] ?? row.eventType, tone: operationTone(row.eventType) } },
-      { content: row.actorLabel || "系统" },
-      {
-        content: {
-          kind: "stack",
-          items: [
-            { kind: "text", value: row.subjectLabel || subjectFallback(row), emphasis: "medium" },
-            { kind: "text", value: `${SUBJECT_LABEL[row.subjectType] ?? row.subjectType} · ${row.subjectId}`, font: "mono", tone: "muted" },
-          ],
-        },
-      },
-      {
-        content: {
-          kind: "stack",
-          items: [
-            { kind: "text", value: row.resourceName || row.resourceKey, emphasis: "medium" },
-            { kind: "text", value: row.resourceKey, font: "mono", tone: "muted" },
-          ],
-        },
-      },
-      { content: { kind: "text", value: row.actionKey, font: "mono" } },
-      { content: row.scopeId ? { kind: "text", value: row.scopeId, font: "mono", tone: "muted" } : { kind: "empty", content: "全局" } },
-      { content: sourceLabel(row.source) },
-    ]),
-  ], [data.events]);
+  const columns = useMemo<DataSurfaceColumnSpec<PermissionGrantLedgerEvent>[]>(() => [
+    {
+      key: "createdAt",
+      label: "时间",
+      width: "lg",
+      cell: (row) => ({ kind: "text", value: formatDateTime(row.createdAt), font: "mono", tone: "muted" }),
+    },
+    {
+      key: "eventType",
+      label: "动作",
+      width: "sm",
+      cell: (row) => ({ kind: "badge", label: EVENT_LABEL[row.eventType] ?? row.eventType, tone: operationTone(row.eventType) }),
+    },
+    { key: "actor", label: "操作人", width: "md", cell: (row) => row.actorLabel || "系统" },
+    {
+      key: "subject",
+      label: "授权对象",
+      width: "lg",
+      cell: (row) => ({
+        kind: "stack",
+        items: [
+          { kind: "text", value: row.subjectLabel || subjectFallback(row), emphasis: "medium" },
+          { kind: "text", value: `${SUBJECT_LABEL[row.subjectType] ?? row.subjectType} · ${row.subjectId}`, font: "mono", tone: "muted" },
+        ],
+      }),
+    },
+    {
+      key: "resource",
+      label: "资源",
+      width: "wide",
+      cell: (row) => ({
+        kind: "stack",
+        items: [
+          { kind: "text", value: row.resourceName || row.resourceKey, emphasis: "medium" },
+          { kind: "text", value: row.resourceKey, font: "mono", tone: "muted" },
+        ],
+      }),
+    },
+    {
+      key: "actionKey",
+      label: "权限",
+      width: "sm",
+      cell: (row) => ({ kind: "text", value: row.actionKey, font: "mono" }),
+    },
+    {
+      key: "scopeId",
+      label: "范围",
+      width: "lg",
+      cell: (row) => row.scopeId
+        ? { kind: "text", value: row.scopeId, font: "mono", tone: "muted" }
+        : { kind: "empty", content: "全局" },
+    },
+    { key: "source", label: "来源", width: "md", cell: (row) => sourceLabel(row.source) },
+  ], []);
 
   useEffect(() => {
     if (!enabled) return undefined;
@@ -204,11 +220,12 @@ export function usePermissionLedgerTab({ enabled, showToast }: UsePermissionLedg
   ];
 
   const body: BodySurfaceProps = createPageBody(data.events.length > 0 ? [
-    createPageDataSection("permission-grant-ledger", {
-      kind: "structured",
-      rows,
-      structuredScroll: true,
-      scroll: { x: true, y: "auto", maxHeight: "lg" },
+    createPageTableSection("permission-grant-ledger", {
+      rows: data.events,
+      columns,
+      visibleColumns: columns.map((column) => column.key),
+      rowKey: (row) => String(row.id),
+      emptyText: "暂无权限台账记录",
       presentation: { density: "compact", cellWrap: "nowrap" },
     }),
   ] : []);
