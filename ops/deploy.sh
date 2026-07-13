@@ -760,13 +760,27 @@ deploy_remote_artifact() {
     cutover_public_switched=0
     cutover_public_wal_lsn=''
     cutover_candidate_name='$PM2_NAME-candidate'
+    pm2_pid_or_unavailable() {
+      local process_name=\$1
+      local process_pid
+      process_pid=\$(pm2 pid \"\$process_name\" 2>/dev/null) || {
+        printf '__unavailable__'
+        return
+      }
+      case \"\$process_pid\" in
+        0) printf '0' ;;
+        '') printf '__unavailable__' ;;
+        *[!0-9]*) printf '__unavailable__' ;;
+        *) printf '%s' \"\$process_pid\" ;;
+      esac
+    }
     if [ -n \"\$cutover_source\" ]; then
       case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
       test -r \"\$cutover_rollback_env\"
       test -n \"\$old_release\"
       test -f \"\$old_release/.server-entry\"
-      if [ \"\$(pm2 pid '$PM2_NAME' 2>/dev/null || printf '0')\" != '0' ] || [ \"\$(pm2 pid '$PM2_WECOM_BOT_NAME' 2>/dev/null || printf '0')\" != '0' ]; then
-        echo '[错误] SQLite cutover 前必须先停止 Workspace 与企业微信 PM2 writer'
+      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
+        echo '[错误] SQLite cutover 前必须先停止 candidate、Workspace 与企业微信 PM2 writer'
         exit 1
       fi
     fi
@@ -774,35 +788,50 @@ deploy_remote_artifact() {
       exit_code=\$?
       trap - EXIT
       if [ \"\$exit_code\" -ne 0 ] && [ -n \"\$cutover_source\" ] && [ \"\$cutover_public_switched\" = '0' ]; then
-        echo '[回滚] PostgreSQL 尚未对外接收写入，恢复旧 SQLite env 与旧 release。'
         pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
         pm2 delete '$PM2_NAME' 2>/dev/null || true
         pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
-        cp \"\$cutover_rollback_env\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-        chmod 600 '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
-        mv '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-        set -a
-        . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
-        set +a
-        old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
-        old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
-        pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
-        rollback_ready=0
-        for i in \$(seq 1 20); do
-          if curl -fsS '$HEALTHCHECK_URL' >/dev/null; then
-            rollback_ready=1
-            break
+        rollback_candidate_pid=\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")
+        rollback_public_pid=\$(pm2_pid_or_unavailable '$PM2_NAME')
+        rollback_wecom_pid=\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')
+        if [ \"\$rollback_candidate_pid\" != '0' ] || [ \"\$rollback_public_pid\" != '0' ] || [ \"\$rollback_wecom_pid\" != '0' ]; then
+          cutover_public_switched=1
+          echo '[错误] PostgreSQL candidate/public/WeCom writer 未能全部确认停止；禁止自动回退 SQLite。'
+        elif [ -n \"\$cutover_public_wal_lsn\" ]; then
+          rollback_final_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()' 2>/dev/null || printf '__unavailable__')
+          if [ \"\$rollback_final_wal_lsn\" != \"\$cutover_public_wal_lsn\" ]; then
+            cutover_public_switched=1
+            echo '[错误] PostgreSQL 3000 writer 已停止，但最终 WAL 与对外启动前不同；为防止数据丢失，禁止自动回退 SQLite。'
           fi
-          sleep 1
-        done
-        if [ \"\$rollback_ready\" != '1' ]; then
-          echo '[错误] 旧 SQLite release 已尝试恢复，但 3000 端口健康检查失败。'
-          pm2 logs '$PM2_NAME' --lines 80 --nostream || true
         fi
-        if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
-          pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
+        if [ \"\$cutover_public_switched\" = '0' ]; then
+          echo '[回滚] PostgreSQL writer 已停止且 WAL 未变化，恢复旧 SQLite env 与旧 release。'
+          cp \"\$cutover_rollback_env\" '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
+          chmod 600 '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp'
+          mv '$REMOTE_WORKSPACE_CONFIG_DIR/.env.rollback.tmp' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          set -a
+          . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+          set +a
+          old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
+          old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
+          rollback_ready=0
+          for i in \$(seq 1 20); do
+            if curl -fsS '$HEALTHCHECK_URL' >/dev/null; then
+              rollback_ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ \"\$rollback_ready\" != '1' ]; then
+            echo '[错误] 旧 SQLite release 已尝试恢复，但 3000 端口健康检查失败。'
+            pm2 logs '$PM2_NAME' --lines 80 --nostream || true
+          fi
+          if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
+            pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
+          fi
+          pm2 save
         fi
-        pm2 save
       fi
       exit \"\$exit_code\"
     }
@@ -844,7 +873,7 @@ deploy_remote_artifact() {
         --manifest \"\$cutover_manifest\" \\
         --execute
       psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -c \"INSERT INTO \\\"SystemConfig\\\" (\\\"key\\\", \\\"value\\\") VALUES ('database.cutover.marker', '\$SQLITE_CUTOVER_SHA256') ON CONFLICT (\\\"key\\\") DO UPDATE SET \\\"value\\\" = EXCLUDED.\\\"value\\\"\" >/dev/null
-      python3 - \"\$release_dir/.env\" \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
+      python3 - '$REMOTE_WORKSPACE_CONFIG_DIR/.env' \"\$cutover_manifest\" \"\$SQLITE_CUTOVER_SHA256\" <<'PY'
 import json
 import os
 from pathlib import Path
@@ -909,7 +938,15 @@ PY
       exit 1
     fi
     pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+    if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ]; then
+      echo '[错误] PostgreSQL candidate writer 未能确认停止，拒绝启动公网进程'
+      exit 1
+    fi
     pm2 delete '$PM2_NAME' 2>/dev/null || true
+    if [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ]; then
+      echo '[错误] PostgreSQL public writer 未能确认停止，拒绝记录 WAL 基线'
+      exit 1
+    fi
     if [ -n \"\$cutover_source\" ]; then
       cutover_public_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()')
     fi
@@ -923,13 +960,6 @@ PY
       sleep 1
     done
     if [ \"\$public_ready\" != '1' ]; then
-      if [ -n \"\$cutover_source\" ]; then
-        cutover_failure_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()')
-        if [ \"\$cutover_failure_wal_lsn\" != \"\$cutover_public_wal_lsn\" ]; then
-          cutover_public_switched=1
-          echo '[错误] 3000 端口未就绪且 PostgreSQL WAL 已变化；为防止数据丢失，禁止自动回退 SQLite。'
-        fi
-      fi
       pm2 logs '$PM2_NAME' --lines 80 --nostream || true
       exit 1
     fi

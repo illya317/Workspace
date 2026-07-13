@@ -2,7 +2,7 @@
 
 import { createHash } from "node:crypto";
 import { createReadStream, existsSync, readFileSync, readdirSync } from "node:fs";
-import { mkdir, stat, writeFile } from "node:fs/promises";
+import { mkdir, realpath, stat, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { DatabaseSync } from "node:sqlite";
@@ -518,7 +518,7 @@ async function main() {
   const targetUrl = options.target ?? process.env.DIRECT_URL ?? process.env.DATABASE_URL;
   if (!targetUrl || !/^postgres(?:ql)?:\/\//.test(targetUrl)) throw new Error("A PostgreSQL --target, DIRECT_URL, or DATABASE_URL is required");
 
-  const sourcePath = resolve(options.sqlite);
+  const sourcePath = await realpath(resolve(options.sqlite));
   const manifestPath = resolve(options.manifest);
   assertStandaloneSqliteSource(sourcePath);
   const sourceBeforeStat = await stat(sourcePath);
