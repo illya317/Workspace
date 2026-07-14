@@ -93,10 +93,50 @@ else
   echo "[错误] 需要 KEY 或 KEY_CONTENT 环境变量"
   exit 1
 fi
-trap 'rm -f "${TMPKEY:-}"' EXIT
+
+# Reuse one authenticated transport so public pre-auth traffic cannot make the
+# many deployment ssh/rsync steps repeatedly compete with sshd MaxStartups.
+SSH_CONTROL_DIR="$(mktemp -d)"
+SSH_CONTROL_PATH="$SSH_CONTROL_DIR/master"
+SSH_CONTROL_PERSIST_SECONDS="${SSH_CONTROL_PERSIST_SECONDS:-900}"
+SSH_OPTIONS=(
+  -i "$SSH_KEY"
+  -o BatchMode=yes
+  -o ConnectTimeout=15
+  -o ConnectionAttempts=1
+  -o StrictHostKeyChecking=accept-new
+  -o ControlMaster=auto
+  -o "ControlPersist=${SSH_CONTROL_PERSIST_SECONDS}"
+  -o "ControlPath=$SSH_CONTROL_PATH"
+  -o ServerAliveInterval=30
+  -o ServerAliveCountMax=3
+)
+RSYNC_SSH_COMMAND="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 -o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPersist=$SSH_CONTROL_PERSIST_SECONDS -o ControlPath=$SSH_CONTROL_PATH -o ServerAliveInterval=30 -o ServerAliveCountMax=3"
+
+cleanup_deploy() {
+  ssh "${SSH_OPTIONS[@]}" -O exit "$SERVER" >/dev/null 2>&1 || true
+  rm -rf "$SSH_CONTROL_DIR"
+  rm -f "${TMPKEY:-}"
+}
+trap cleanup_deploy EXIT
 
 ssh_cmd() {
-  ssh -i "$SSH_KEY" -o StrictHostKeyChecking=accept-new "$SERVER" "$@"
+  ssh "${SSH_OPTIONS[@]}" "$SERVER" "$@"
+}
+
+start_ssh_master() {
+  local attempt
+  for attempt in 1 2 3 4 5; do
+    if ssh "${SSH_OPTIONS[@]}" -fN "$SERVER"; then
+      return
+    fi
+    if [ "$attempt" -lt 5 ]; then
+      echo "[警告] SSH 控制连接建立失败（第 $attempt/5 次），5 秒后重试..."
+      sleep 5
+    fi
+  done
+  echo "[错误] SSH 控制连接连续 5 次建立失败"
+  exit 1
 }
 
 require_local_cmd() {
@@ -420,7 +460,7 @@ sync_remote_library_source() {
   echo "==> 同步资料库源文件到服务器只读导入目录..."
   ssh_cmd "mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR/library/originals'"
   rsync -az --checksum --exclude='.versions/' \
-    -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+    -e "$RSYNC_SSH_COMMAND" \
     "$LIBRARY_SYNC_SOURCE/" "$SERVER:$REMOTE_WORKSPACE_CONFIG_DIR/library/originals/"
 }
 
@@ -433,7 +473,7 @@ ensure_remote_library_runtime_deps() {
   local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/library-worker"
   echo "==> 同步并安装服务器 OCR/PDF 依赖..."
   ssh_cmd "mkdir -p '$remote_tool_dir'"
-  rsync -az -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  rsync -az -e "$RSYNC_SSH_COMMAND" \
     ops/install-library-runtime-deps.sh \
     ops/install-library-embedding-model.sh \
     ops/library-worker-requirements.txt \
@@ -451,7 +491,7 @@ ensure_remote_kimi_agent_runtime() {
   local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap"
   echo "==> 同步并安装 Kimi Agent SDK 隔离运行时..."
   ssh_cmd "mkdir -p '$remote_tool_dir'"
-  rsync -az -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  rsync -az -e "$RSYNC_SSH_COMMAND" \
     ops/install-kimi-agent-runtime.sh \
     ops/kimi-agent-sandbox-runner.sh \
     "$SERVER:$remote_tool_dir/"
@@ -697,7 +737,7 @@ deploy_remote_artifact() {
   remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
 
   echo "==> 上传 CNB 构建产物到服务器..."
-  rsync -avz -e "ssh -i $SSH_KEY -o StrictHostKeyChecking=accept-new" \
+  rsync -avz -e "$RSYNC_SSH_COMMAND" \
     "$ARTIFACT_PATH" "$SERVER:$remote_tar"
 
   echo "==> 服务器解包产物并重启服务..."
@@ -1070,6 +1110,7 @@ fi
 build_artifact
 
 echo "==> 验证服务器连接..."
+start_ssh_master
 ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
 
 prepare_remote_runtime
