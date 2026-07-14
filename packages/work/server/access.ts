@@ -1,4 +1,6 @@
-import { canEnterResource, evaluatePermissionAction, isSuperAdmin } from "@workspace/platform/server/auth";
+import { isSuperAdmin } from "@workspace/platform/server/auth/admin";
+import { evaluatePermissionAction } from "@workspace/platform/server/rbac/action-grants";
+import { canEnterResource } from "@workspace/platform/server/rbac/resource-entry";
 import { actionImplies, type PermissionActionKey } from "@workspace/platform/permission-actions";
 import {
   getNaturalSpaceActionProfileActionKeys,

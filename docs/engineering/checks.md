@@ -51,7 +51,7 @@
 
 `typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。
 
-`typecheck:quick` 使用 TypeScript incremental cache，缓存文件固定在 `.cache/tsconfig.quick.tsbuildinfo`，用于本地 changed/pre-commit 链路复用；不要为了触发“干净检查”删除 `.cache`，需要全量时跑 `typecheck:full` 或 `check:ci`。
+`typecheck:quick` 使用 TypeScript incremental cache，缓存文件固定在 `.cache/tsconfig.quick.tsbuildinfo`，用于本地 changed/pre-commit 链路复用；不要为了触发“干净检查”删除 `.cache`，需要全量时跑 `typecheck:full` 或 `check:ci`。`typecheck:quick` 和 `typecheck:full` 的脚本都固定使用 `4096 MiB` Node old-space，调用方不需要再手工设置 `NODE_OPTIONS`。
 
 ### blockers
 
@@ -103,6 +103,12 @@
 ### build
 
 `build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space，避免大型 route/type graph 在默认约 `2 GiB` 堆上限下反复 OOM。
+
+### capacity
+
+`test:capacity:workflow` 是 PR CI 主链路中的确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，且成员判定路径不得枚举全部可登录用户。
+
+`db:postgresql:notification-capacity` 是 PostgreSQL CI 容量门禁：只允许在 `*_ci` 数据库中运行，用 `173` 个可登录用户、`7` 张已提交 Work 审批单和 `8` 个并发通知读取验证默认 `10` 连接池。它由 `db:postgresql:ci-smoke` 自动调用，连接等待超时、provider 内部捕获并降级的查询错误，或总耗时超过 `15 s` 都会阻断 CI。
 
 ### deploy/runtime
 

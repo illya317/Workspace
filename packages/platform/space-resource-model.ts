@@ -1,12 +1,10 @@
-import type {
-  ResourceRegistration,
-  SpacePermissionTargetType,
-  SpaceRegistration,
-  WorkspacePackageRegistration,
-} from "@workspace/core";
 import {
   STANDARD_BUSINESS_SPACE_PERMISSION_TARGET_TYPES,
-} from "@workspace/core";
+  type ResourceRegistration,
+  type SpacePermissionTargetType,
+  type SpaceRegistration,
+  type WorkspacePackageRegistration,
+} from "@workspace/core/module-contract";
 
 export type SpaceParentScopeType = "department" | "committee" | "company";
 export type SpaceResourceKind = SpaceRegistration["spaceResourceKind"];

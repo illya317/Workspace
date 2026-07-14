@@ -4,7 +4,7 @@ import {
   type SpacePermissionTargetType,
   type SpaceRegistration,
   type WorkspacePackageRegistration,
-} from "@workspace/core";
+} from "@workspace/core/module-contract";
 import { registeredModuleDefinitions } from "./module-registry";
 
 const STANDARD_BUSINESS_SPACE_NATURAL_MANAGER_SOURCES = {

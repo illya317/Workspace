@@ -23,6 +23,7 @@ import {
   resolveTargetFromScope,
   workApprovalRequestHref,
   workOkrWorkflowBusinessActionKey,
+  WORK_TASK_APPROVAL_SUBJECT,
   type WorkTaskApprovalPayload,
   type WorkTaskCollaborationApprovalPayload,
   type WorkTaskKrReviewApprovalPayload, type WorkTaskItemApprovalPayload, type WorkTaskObjectivePlanApprovalPayload,
@@ -63,7 +64,7 @@ export type {
   WorkTaskApprovalTargetType,
 } from "./task-approval-helpers";
 
-export const WORK_TASK_APPROVAL_SUBJECT = "work.task";
+export { WORK_TASK_APPROVAL_SUBJECT } from "./task-approval-helpers";
 
 export const workTaskApprovalAdapter: ApprovalAdapter<WorkTaskApprovalPayload> = {
   subjectType: WORK_TASK_APPROVAL_SUBJECT,

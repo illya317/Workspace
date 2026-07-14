@@ -6,6 +6,8 @@ import {
 } from "@workspace/platform/server/business-space-permissions";
 import { getWorkTaskPermissionResourceKey, normalizeWorkTargetType, type WorkSpaceTargetType } from "./access";
 
+export const WORK_TASK_APPROVAL_SUBJECT = "work.task";
+
 export type WorkTaskApprovalTargetType = Extract<WorkSpaceTargetType, "company" | "committee" | "department" | "project">;
 export type WorkTaskApprovalWorkspaceTargetType = WorkTaskApprovalTargetType | "personal";
 export type WorkTaskApprovalEntityType = "item" | "plan" | "report" | "objective_plan" | "kr_review" | "revision" | "collaboration";

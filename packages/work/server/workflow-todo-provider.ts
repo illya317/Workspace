@@ -15,11 +15,11 @@ import {
   approvalSummary,
   approvalTitle,
   workApprovalRequestHref,
+  WORK_TASK_APPROVAL_SUBJECT,
   type WorkTaskApprovalWorkspaceTargetType,
   type WorkTaskApprovalPayload,
 } from "./task-approval-helpers";
 import { canProcessWorkTaskRequest } from "./task-approval-handlers";
-import { WORK_TASK_APPROVAL_SUBJECT } from "./task-approval-adapter";
 
 let registered = false;
 

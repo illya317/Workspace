@@ -1,4 +1,5 @@
-import { evaluatePermissionAction } from "@workspace/platform/server/auth";
+import { isSuperAdmin } from "@workspace/platform/server/auth/admin";
+import { evaluatePermissionAction } from "@workspace/platform/server/rbac/action-grants";
 import { PERMISSION_ACTION_KEYS, actionImplies, type PermissionActionKey } from "@workspace/platform/permission-actions";
 import {
   getNaturalSpaceActionProfileActionKeys,
@@ -15,7 +16,6 @@ import {
   getOperatingCommitteeNaturalSpaceActionProfile,
   listDepartmentIdsManagedByUserPosition,
 } from "@workspace/platform/server/business-space-permissions";
-import { isSuperAdmin } from "@workspace/platform/server/auth";
 import { prisma } from "@workspace/platform/server/prisma";
 
 type ProjectSpaceProject = {

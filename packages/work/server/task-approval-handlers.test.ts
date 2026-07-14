@@ -59,13 +59,13 @@ mockModule("./task-approval-helpers", {
 
 const { canProcessWorkTaskRequest } = await import("./task-approval-handlers");
 
-function request(activeWorkflowNodeKey: string | null) {
+function request(activeWorkflowNodeKey: string | null, targetId = 8) {
   return {
     handlerSource: "permission",
     activeWorkflowNodeKey,
     latestPayload: {
       targetType: "department",
-      targetId: 8,
+      targetId,
       entityType: "item",
       data: {},
       workId: null,
@@ -98,5 +98,23 @@ test("rejects the current actor without enumerating other users", async () => {
   approved = false;
   assert.equal(await canProcessWorkTaskRequest(42, request("approval-1")), false);
   assert.equal(permissionCalls.length, 1);
+  assert.equal(userEnumerationCalls, 0);
+});
+
+test("keeps multi-user workflow permission checks linear in users times requests", async () => {
+  reset();
+  const users = Array.from({ length: 64 }, (_, index) => index + 1);
+  const requests = Array.from({ length: 7 }, (_, index) => request("approval-1", index + 1));
+
+  const results = await Promise.all(users.flatMap((userId) => (
+    requests.map((approvalRequest) => canProcessWorkTaskRequest(userId, approvalRequest))
+  )));
+
+  assert.equal(results.every(Boolean), true);
+  assert.equal(permissionCalls.length, users.length * requests.length);
+  assert.equal(
+    new Set(permissionCalls.map((call) => `${call.userId}:${call.targetId}`)).size,
+    users.length * requests.length,
+  );
   assert.equal(userEnumerationCalls, 0);
 });
