@@ -10,8 +10,14 @@ interface DocumentsResult {
   total: number;
 }
 
+interface DocumentVersionsResult {
+  currentVersionId: number | null;
+  versions: LibraryDocumentVersionItem[];
+}
+
 const EMPTY_DOCUMENT_RESULT: DocumentsResult = { documents: [], total: 0 };
 const EMPTY_DOCUMENT_DETAIL: LibraryDocumentItem | null = null;
+const EMPTY_DOCUMENT_VERSIONS: DocumentVersionsResult = { currentVersionId: null, versions: [] };
 
 export function useLibraryDocuments(filters: LibraryFilters, page: number, pageSize: number) {
   const fetchDocuments = useCallback(async () => {
@@ -70,7 +76,7 @@ export function useLibraryDocumentVersions(id: number | null) {
   }, [id]);
 
   const { data, loading, error, refresh } = useAsyncResource(fetchVersions, {
-    initialData: { currentVersionId: null, versions: [] as LibraryDocumentVersionItem[] },
+    initialData: EMPTY_DOCUMENT_VERSIONS,
     errorMessage: "版本列表加载失败",
   });
 
@@ -164,4 +170,28 @@ export async function reviewDocument(id: number): Promise<LibraryDocumentItem> {
   const body = await response.json().catch(() => null) as (LibraryDocumentItem & { error?: string; message?: string }) | null;
   if (!response.ok || !body) throw new Error(body?.error || body?.message || `确认入库失败（${response.status}）`);
   return body;
+}
+
+export async function uploadDocumentVersion(
+  id: number,
+  file: File,
+  changeNote: string,
+): Promise<{ version: { id: number; versionNo: number; versionLabel: string | null } }> {
+  const form = new FormData();
+  form.set("file", file);
+  if (changeNote.trim()) form.set("changeNote", changeNote.trim());
+
+  const response = await fetch(workspacePath(`/api/modules/library/basic-info/documents/${id}/versions`), {
+    method: "POST",
+    body: form,
+  });
+  const body = await response.json().catch(() => null) as {
+    version?: { id: number; versionNo: number; versionLabel: string | null };
+    error?: string;
+    message?: string;
+  } | null;
+  if (!response.ok || !body?.version) {
+    throw new Error(body?.error || body?.message || `上传新版本失败（${response.status}）`);
+  }
+  return { version: body.version };
 }

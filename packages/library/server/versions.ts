@@ -85,11 +85,21 @@ async function loadUploadTarget(documentId: number) {
     select: {
       id: true,
       documentUid: true,
+      fileName: true,
       relativePath: true,
       status: true,
       currentVersionId: true,
     },
   });
+}
+
+function replacementFileName(currentFileName: string, uploadedFileName: string) {
+  const currentExtension = path.extname(currentFileName).toLocaleLowerCase();
+  const uploadedExtension = path.extname(uploadedFileName).toLocaleLowerCase();
+  if (currentExtension !== uploadedExtension) {
+    throw new LibraryVersionError("New version must use the same file type as the current document", 400);
+  }
+  return currentFileName;
 }
 
 export async function uploadDocumentVersion(command: LibraryVersionUploadCommand) {
@@ -98,6 +108,7 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
   if (document.status !== "active") {
     throw new LibraryVersionError("Only active documents can receive a new version", 409);
   }
+  const fileName = replacementFileName(document.fileName, command.fileName);
 
   const buffer = Buffer.from(await command.file.arrayBuffer());
   if (buffer.length <= 0) throw new LibraryVersionError("Uploaded file is empty", 400);
@@ -114,7 +125,7 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
     const storedUpload = await writeManagedVersionFile({
       documentUid: document.documentUid,
       versionUid,
-      fileName: command.fileName,
+      fileName,
       buffer,
     });
     uploadedFile = storedUpload;
@@ -122,7 +133,7 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
     const result = await prisma.$transaction(async (tx) => {
       const current = await tx.libraryDocument.findUnique({
         where: { id: command.documentId },
-        select: { id: true, relativePath: true, status: true, currentVersionId: true },
+        select: { id: true, fileName: true, relativePath: true, status: true, currentVersionId: true },
       });
       if (!current) throw new LibraryVersionError("Not found", 404);
       if (current.status !== "active") {
@@ -130,6 +141,9 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
       }
       if (current.currentVersionId !== document.currentVersionId) {
         throw new LibraryVersionError("Current version changed; retry the upload", 409);
+      }
+      if (current.fileName !== fileName) {
+        throw new LibraryVersionError("Document file name changed; retry the upload", 409);
       }
 
       const latestVersion = await tx.libraryDocumentVersion.findFirst({
@@ -140,7 +154,7 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
       const versionNo = (latestVersion?.versionNo ?? 0) + 1;
       const versionLabel = command.versionLabel || `V${versionNo}`;
       const modifiedAt = sourceModifiedAt(command.file, now);
-      const mimeType = resolveLibraryMimeType(command.fileName, command.file.type);
+      const mimeType = resolveLibraryMimeType(fileName, command.file.type);
 
       const version = await tx.libraryDocumentVersion.create({
         data: {
@@ -148,14 +162,14 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
           documentId: current.id,
           versionNo,
           versionLabel,
-          fileName: command.fileName,
+          fileName,
           storagePath: storedUpload.relativePath,
-          storageFileName: command.fileName,
+          storageFileName: fileName,
           storageMimeType: mimeType,
           storageFileSizeBytes: buffer.length,
           storageChecksumSha256: checksumSha256,
           relativePath: current.relativePath,
-          extension: fileExtension(command.fileName),
+          extension: fileExtension(fileName),
           mimeType,
           fileSizeBytes: buffer.length,
           sourceModifiedAt: modifiedAt,
@@ -182,13 +196,9 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
         where: { id: current.id },
         data: {
           currentVersionId: version.id,
-          fileName: version.fileName,
-          extension: fileExtension(version.fileName),
-          mimeType: version.mimeType,
           fileSizeBytes: version.fileSizeBytes,
           fileMtime: modifiedAt,
           checksumSha256,
-          origin: "uploaded",
           version: version.versionNo,
           versionLabel: version.versionLabel,
           editedBy: command.userId,
@@ -199,7 +209,7 @@ export async function uploadDocumentVersion(command: LibraryVersionUploadCommand
       return version;
     });
 
-    const pipeline = await runUploadedLibraryDocumentPipeline(result.versionUid, fileExtension(command.fileName));
+    const pipeline = await runUploadedLibraryDocumentPipeline(result.versionUid, fileExtension(fileName));
     return { documentId: command.documentId, version: result, pipeline };
   } catch (error) {
     await removeManagedVersionFile(uploadedFile);

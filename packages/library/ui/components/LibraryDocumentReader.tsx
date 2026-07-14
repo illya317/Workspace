@@ -22,12 +22,13 @@ import type {
 } from "@workspace/core/ui";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 
-import { archiveDocument, deleteDocumentPermanently, reviewDocument, updateDocument, useDocumentDetail, useLibraryDocumentVersions, useLibraryPdfPreview } from "../hooks/useLibraryDocuments";
+import { archiveDocument, deleteDocumentPermanently, reviewDocument, updateDocument, uploadDocumentVersion, useDocumentDetail, useLibraryDocumentVersions, useLibraryPdfPreview } from "../hooks/useLibraryDocuments";
 import {
   LIBRARY_DOCUMENT_CONFIDENTIALITY_FIELD_OPTIONS,
   LIBRARY_DOCUMENT_CONFIDENTIALITY_OPTIONS,
   LIBRARY_DOCUMENT_STATUS_OPTIONS,
 } from "./library-document-options";
+import { createLibraryVersionUploadModal } from "./library-version-upload-modal";
 
 interface Props {
   documentId: number;
@@ -82,8 +83,8 @@ export default function LibraryDocumentReader({
   onDirtyChange,
 }: Props) {
   const router = useRouter();
-  const { doc, loading, setDoc } = useDocumentDetail(documentId);
-  const { versions, currentVersionId, loading: versionsLoading } = useLibraryDocumentVersions(documentId);
+  const { doc, loading, setDoc, refresh: refreshDocument } = useDocumentDetail(documentId);
+  const { versions, currentVersionId, loading: versionsLoading, refresh: refreshVersions } = useLibraryDocumentVersions(documentId);
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
   const selectedVersion = versions.find((version) => version.id === selectedVersionId) ?? versions[0];
   const activeVersionId = selectedVersion?.id ?? null;
@@ -93,6 +94,10 @@ export default function LibraryDocumentReader({
   const [archiving, setArchiving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [reviewing, setReviewing] = useState(false);
+  const [versionUploadOpen, setVersionUploadOpen] = useState(false);
+  const [versionUploading, setVersionUploading] = useState(false);
+  const [versionFile, setVersionFile] = useState<File | null>(null);
+  const [versionChangeNote, setVersionChangeNote] = useState("");
   const [form, setForm] = useState<Partial<LibraryDocumentItem>>({});
   const [infoOpen, setInfoOpen] = useState(true);
   const [infoDrawerOpen, setInfoDrawerOpen] = useState(false);
@@ -106,6 +111,9 @@ export default function LibraryDocumentReader({
     setForm({});
     setInfoDrawerOpen(false);
     setSelectedVersionId(null);
+    setVersionUploadOpen(false);
+    setVersionFile(null);
+    setVersionChangeNote("");
   }, [documentId]);
 
   useEffect(() => {
@@ -198,6 +206,31 @@ export default function LibraryDocumentReader({
       feedback.error(error instanceof Error ? error.message : "删除文件失败");
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const closeVersionUpload = () => {
+    if (versionUploading) return;
+    setVersionUploadOpen(false);
+    setVersionFile(null);
+    setVersionChangeNote("");
+  };
+
+  const handleVersionUpload = async () => {
+    if (!doc || !versionFile || versionUploading) return;
+    setVersionUploading(true);
+    try {
+      const result = await uploadDocumentVersion(doc.id, versionFile, versionChangeNote);
+      await Promise.all([refreshDocument(), refreshVersions()]);
+      setSelectedVersionId(result.version.id);
+      setVersionUploadOpen(false);
+      setVersionFile(null);
+      setVersionChangeNote("");
+      feedback.success(`${result.version.versionLabel || `V${result.version.versionNo}`} 已上传，正在处理预览`);
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "上传新版本失败");
+    } finally {
+      setVersionUploading(false);
     }
   };
 
@@ -313,6 +346,14 @@ export default function LibraryDocumentReader({
         : `/api/modules/library/basic-info/documents/${doc.id}/download`), "_blank", "noopener,noreferrer"),
     });
   }
+  if (doc && !editing && canImport && doc.status === "active") {
+    navigationActions.push({
+      key: "upload-version",
+      kind: "upload",
+      label: "上传新版本",
+      onClick: () => setVersionUploadOpen(true),
+    });
+  }
   if (doc && !editing && canImport && doc.reviewStatus !== "approved") {
     reviewActions.push({
       key: "review",
@@ -358,6 +399,16 @@ export default function LibraryDocumentReader({
           kind: "empty",
           content: previewError || "所选版本还没有生成 PDF 预览。",
         });
+  const versionUploadModal = createLibraryVersionUploadModal({
+    open: versionUploadOpen,
+    saving: versionUploading,
+    file: versionFile,
+    changeNote: versionChangeNote,
+    onClose: closeVersionUpload,
+    onFileChange: setVersionFile,
+    onChangeNote: setVersionChangeNote,
+    onSubmit: () => void handleVersionUpload(),
+  });
   const body = doc
     ? createBodySplitSection({
         left: createPageBody([
@@ -369,6 +420,7 @@ export default function LibraryDocumentReader({
             kind: "detail",
             layout: { columns: 1 },
           }),
+          versionUploadModal,
         ]),
         right: createPageBody([previewSection]),
         side: {

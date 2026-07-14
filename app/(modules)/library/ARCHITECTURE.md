@@ -114,7 +114,7 @@ Pilot 固定 30 个版本，金标问题目标 50-100 条。每个 approved case
 - `categoryId`: 指向 `LibraryCategory` 的正式业务分类；`categorySource` 记录 folder/manual/rule 来源
 - `currentDirectoryId`: 指向权威逻辑目录 `LibraryDirectory`；这是资料当前归属事实
 - `directoryPath`: 当前逻辑目录路径快照，用于路径筛选与重命名级联；必须与 `currentDirectoryId.relativePath` 一致，不从源文件路径反推
-- `currentVersionId`: 指向当前有效文件版本；列表所需文件名和大小以当前版本为准
+- `currentVersionId`: 指向当前有效文件版本；文件大小、校验值等文件事实随当前版本更新，`fileName` 是稳定的资料展示/下载名称，不因上传文件自身改名而变化
 - `subcategoryPath`: 子分类路径
 - `title`, `summary`: 人工维护标题和简介
 - `confidentialityLevel`: 0..4，默认 2
@@ -127,7 +127,7 @@ Pilot 固定 30 个版本，金标问题目标 50-100 条。每个 approved case
 
 ### LibraryDocumentVersion（版本历史）
 
-每个版本具有不可变 `versionUid`，并在单个资料内以 `versionNo` 递增。版本保存文件名、存储定位、入库路径快照、扩展名、MIME、字节大小、源文件修改时间、校验和、变更备注和创建人。元数据编辑和归档不增加文件版本号。
+每个版本具有不可变 `versionUid`，并在单个资料内以 `versionNo` 递增。版本保存文件名、存储定位、入库路径快照、扩展名、MIME、字节大小、源文件修改时间、校验和、变更备注和创建人。人工上传新版本只替换文件内容并推进当前版本指针、版本号及文件事实；新版本沿用资料现有文件名，上传文件自身名称不得改写资料名称、目录、分类、标题、简介、标签、密级或来源，文件类型不同则拒绝上传。元数据编辑和归档不增加文件版本号。
 
 扫描、生成和人工上传都会先把每个新版本写入 `.versions/<documentUid>/<versionUid>/<fileName>` 隐藏托管区，再在同一业务事务中推进 `currentVersionId`。版本文件不会覆盖，数据库写入失败时会清理对应的未提交托管文件；运行时不存在从源目录补做历史快照的分支。
 
