@@ -7,6 +7,7 @@ import { CreateStartButton } from "../action/CreateActionControls";
 import { CONTROL_SIZES, TEXT_STYLES } from "../common/interactionTokens";
 import type { ControlSize } from "../common/interactionTokens";
 import FieldValueFilter from "../input/FieldValueFilter";
+import { StagedGroupedAutocompleteChoice } from "../input/input-surface-choice-renderers";
 import SearchInput from "../input/SearchInput";
 import SearchableOptionInput from "../input/SearchableOptionInput";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
@@ -132,7 +133,9 @@ function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
   return action.variant ?? resolveToolbarSemanticAction(action)?.variant;
 }
 
-function getToolbarOptionInputClassName(size: ControlSize) {
+const TOOLBAR_FIXED_CHOICE_WIDTH_CLASS = "w-[120px] min-w-[120px] max-w-[120px]";
+
+function getToolbarOptionInputClassName(size: ControlSize, widthClass = CONTROL_SIZES[size].minWidth) {
   return [
     "border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
     CONTROL_SIZES[size].height,
@@ -140,7 +143,7 @@ function getToolbarOptionInputClassName(size: ControlSize) {
     CONTROL_SIZES[size].paddingX,
     CONTROL_SIZES[size].text,
     CONTROL_SIZES[size].leading,
-    CONTROL_SIZES[size].minWidth,
+    widthClass,
   ].join(" ");
 }
 
@@ -196,6 +199,22 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           placeholder={item.placeholder ?? item.label}
           maxResults={item.visibleCount ?? 5}
           inputClassName={getToolbarOptionInputClassName(size)}
+        />
+      );
+    case "grouped-select":
+      return (
+        <StagedGroupedAutocompleteChoice
+          groups={item.groups}
+          value={item.value}
+          disabled={item.disabled ?? false}
+          placeholder={item.placeholder}
+          groupLabel={item.groupLabel ?? "分类"}
+          optionLabel={item.optionLabel ?? "选项"}
+          emptyText="无匹配选项"
+          visibleCount={item.visibleCount ?? 5}
+          displayGroup
+          inputClassName={getToolbarOptionInputClassName(size)}
+          onChange={(next) => item.onChange(next ?? "")}
         />
       );
     case "autocomplete":
@@ -270,12 +289,10 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           summaryMode="count"
           onChange={onChange}
           placeholder="未选择"
-          inputClassName={getToolbarOptionInputClassName(size)}
-          dropdownHeader={(
-            <div className="flex items-center justify-between border-b border-slate-100 px-3 py-2">
-              <span className={`${CONTROL_SIZES[size].text} font-semibold text-slate-700`}>显示字段</span>
-            </div>
-          )}
+          maxResults={columns.length}
+          inputClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
+          dropdownAlign="right"
+          dropdownMatchTriggerWidth={false}
           dropdownFooter={(
             <div className="border-t border-slate-100 px-3 py-2">
               <button
@@ -297,7 +314,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           options={item.options}
           onChange={(next) => item.onChange(next ?? "")}
           placeholder={item.label}
-          inputClassName={getToolbarOptionInputClassName(size)}
+          inputClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
         />
       );
     case "period":

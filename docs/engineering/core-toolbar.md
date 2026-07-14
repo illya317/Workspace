@@ -36,6 +36,7 @@ Toolbar 只能用标准 item 表达常见能力：
 | 新建 | `create` |
 | 主搜索 | `search` |
 | 普通下拉 | `select` |
+| 二段式分组下拉 | `grouped-select` |
 | 筛选区短标题 | `label` |
 | 紧凑分组筛选 | `option-group` |
 | 二段式字段筛选 | `field-filter` |
@@ -62,9 +63,11 @@ primary -> search -> filter -> edit/action -> meta/view
 
 - `create` 自动进入 `primary`。
 - `search` 自动进入搜索区。
-- `select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
+- `select`、`grouped-select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
 - `icon-button`、`action-group`、`edit-group` 自动进入动作区。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
+- 列显隐只允许使用 `column-toggle`，不得用 `select`、`menu`、`option-group` 或业务自绘控件代替；结构 gate 会阻断其他声明方式。
+- `column-toggle` 与 `page-size` 的触发器固定宽度为 120px；下拉面板仍按内容和视口自适应。
 - `menu` 只接受 typed trigger/items，适合账号菜单、更多操作菜单；不能传 `ReactNode`、`ComponentType` 或 render callback。
 - 业务声明不得传 `section` 或等价排序字段；需要改变分区时先扩展 Core `Toolbar` 语义，而不是在页面里指定位置。
 - `add` 是创建语义，不能通过 `icon-button` 或 `action-group` 渲染；创建入口只能用 `kind: "create"`。

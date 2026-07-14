@@ -151,9 +151,10 @@ export default function InputSurfaceChoiceRenderer({
   return <>{fallback()}</>;
 }
 
-function StagedGroupedAutocompleteChoice({
+export function StagedGroupedAutocompleteChoice({
   className,
   disabled,
+  displayGroup,
   emptyText,
   groupLabel,
   groups,
@@ -162,9 +163,11 @@ function StagedGroupedAutocompleteChoice({
   placeholder,
   value,
   visibleCount,
+  inputClassName,
 }: {
   className?: string;
   disabled: boolean;
+  displayGroup?: boolean;
   emptyText: string;
   groupLabel: string;
   groups: SelectionOptionGroup[];
@@ -173,13 +176,18 @@ function StagedGroupedAutocompleteChoice({
   placeholder?: string;
   value: string;
   visibleCount: number;
+  inputClassName?: string;
 }) {
   const currentMatch = findCurrentGroupedOption(groups, value);
   const [stage, setStage] = useState<"group" | "option">("group");
   const [activeGroupKey, setActiveGroupKey] = useState(currentMatch?.group.key ?? groups[0]?.key ?? "");
   const activeGroup = groups.find((group) => group.key === activeGroupKey) ?? groups[0];
   const groupOptions = groups.map((group) => ({ value: group.key, label: group.label }));
-  const displayValue = currentMatch?.option.label ?? value;
+  const displayValue = currentMatch
+    ? displayGroup
+      ? `${currentMatch.group.label}：${currentMatch.option.label}`
+      : currentMatch.option.label
+    : value;
 
   if (stage === "group") {
     return (
@@ -194,6 +202,7 @@ function StagedGroupedAutocompleteChoice({
         closeOnSelect={false}
         maxResults={Math.max(2, groupOptions.length)}
         className={className}
+        inputClassName={inputClassName}
         onChange={(next) => {
           if (!next) return;
           setActiveGroupKey(next);
@@ -214,6 +223,7 @@ function StagedGroupedAutocompleteChoice({
       autoFocus
       maxResults={visibleCount}
       className={className}
+      inputClassName={inputClassName}
       onOpenChange={(open) => {
         if (!open) setStage("group");
       }}

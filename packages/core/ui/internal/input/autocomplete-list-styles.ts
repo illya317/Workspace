@@ -1,10 +1,10 @@
 export const AUTOCOMPLETE_LIST_CLASS_NAME =
-  "rounded-lg border border-slate-200 bg-white p-2 shadow-xl";
+  "flex flex-col overflow-hidden rounded-lg border border-slate-200 bg-white p-2 shadow-xl";
 
 export const AUTOCOMPLETE_INLINE_LIST_CLASS_NAME =
   "mt-1.5 w-full rounded-lg border border-slate-200 bg-white p-2";
 
-export const AUTOCOMPLETE_LIST_BODY_CLASS_NAME = "max-h-80 overflow-auto";
+export const AUTOCOMPLETE_LIST_BODY_CLASS_NAME = "min-h-0 flex-1 overflow-auto";
 
 export function getAutocompleteOptionClassName({
   active = false,

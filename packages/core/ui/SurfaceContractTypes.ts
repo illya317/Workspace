@@ -18,6 +18,12 @@ export interface SurfaceSelectOptionSpec {
   disabled?: boolean;
 }
 
+export interface SurfaceSelectOptionGroupSpec {
+  key: string;
+  label: string;
+  options: SurfaceSelectOptionSpec[];
+}
+
 export interface SurfaceAutocompleteOptionSpec {
   value: string;
   name: string;
@@ -156,6 +162,19 @@ export interface SurfaceToolbarSelectItem {
   placeholder?: string;
   searchable?: boolean;
   visibleCount?: number;
+}
+
+export interface SurfaceToolbarGroupedSelectItem {
+  kind: "grouped-select";
+  key: string;
+  value: string;
+  groups: SurfaceSelectOptionGroupSpec[];
+  onChange: (value: string) => void;
+  placeholder?: string;
+  groupLabel?: string;
+  optionLabel?: string;
+  visibleCount?: number;
+  disabled?: boolean;
 }
 
 export interface SurfaceToolbarAutocompleteItem {
@@ -339,6 +358,7 @@ export type SurfaceToolbarItem =
   | SurfaceToolbarPanelToggleItem
   | SurfaceToolbarSearchItem
   | SurfaceToolbarSelectItem
+  | SurfaceToolbarGroupedSelectItem
   | SurfaceToolbarAutocompleteItem
   | SurfaceToolbarLabelItem
   | SurfaceToolbarOptionGroupItem

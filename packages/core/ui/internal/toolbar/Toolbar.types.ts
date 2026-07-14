@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SurfaceAutocompleteOptionSpec } from "../../SurfaceContractTypes";
+import type { SurfaceAutocompleteOptionSpec, SurfaceSelectOptionGroupSpec } from "../../SurfaceContractTypes";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
 import type { ColumnDef } from "../data/DataTable";
 import type { FieldValueFilterField } from "../input/FieldValueFilter";
@@ -77,6 +77,19 @@ export interface ToolbarSelectItem {
   placeholder?: string;
   searchable?: boolean;
   visibleCount?: number;
+}
+
+export interface ToolbarGroupedSelectItem {
+  kind: "grouped-select";
+  key: string;
+  value: string;
+  groups: SurfaceSelectOptionGroupSpec[];
+  onChange: (value: string) => void;
+  placeholder?: string;
+  groupLabel?: string;
+  optionLabel?: string;
+  visibleCount?: number;
+  disabled?: boolean;
 }
 
 export interface ToolbarAutocompleteItem {
@@ -253,6 +266,7 @@ export type ToolbarItem =
   | ToolbarPanelToggleItem
   | ToolbarSearchItem
   | ToolbarSelectItem
+  | ToolbarGroupedSelectItem
   | ToolbarAutocompleteItem
   | ToolbarLabelItem
   | ToolbarOptionGroupItem

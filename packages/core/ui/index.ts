@@ -145,6 +145,7 @@ export type {
   SurfaceFilterFieldSpec,
   SurfaceNavigationTabSpec,
   SurfaceOptionSpec,
+  SurfaceSelectOptionGroupSpec,
   SurfaceSelectOptionSpec,
   SurfaceToolbarActionGroupActionSpec,
   SurfaceToolbarItem,

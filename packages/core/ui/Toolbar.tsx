@@ -22,6 +22,7 @@ export type {
   ToolbarPanelToggleItem,
   ToolbarSearchItem,
   ToolbarSelectItem,
+  ToolbarGroupedSelectItem,
   ToolbarOptionGroupItem,
   ToolbarFieldFilterItem,
   ToolbarColumnToggleItem,

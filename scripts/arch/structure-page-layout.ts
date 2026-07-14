@@ -21,6 +21,7 @@ export type BusinessToolbarCompositionWarning = {
     | "embedded-page-surface-toolbar"
     | "inline-form-surface-toolbar"
     | "flex-control-toolbar"
+    | "nonstandard-column-visibility-control"
     | "domain-toolbar-registration";
   detail: string;
 };
@@ -223,6 +224,23 @@ function looksLikeDomainToolbarRegistrationName(name: string) {
   return /^use[A-Z][A-Za-z0-9]*PageToolbar$/.test(name) || /^use[A-Z][A-Za-z0-9]*ToolbarRegistration$/.test(name);
 }
 
+function looksLikeNonstandardColumnVisibilityControl(node: ts.ObjectLiteralExpression) {
+  const kind = objectStringProperty(node, "kind");
+  if (!kind || kind === "column-toggle") return false;
+
+  const semanticText = ["key", "label", "placeholder", "title"]
+    .map((name) => objectStringProperty(node, name))
+    .filter((value): value is string => Boolean(value))
+    .join(" ");
+  const hasVisibilityWording = /显示字段|字段显示|列显隐|显示列|visible[-_ ]?columns?/i.test(semanticText);
+  const hasColumnToggleShape = Boolean(
+    objectProperty(node, "columns")
+    && (objectProperty(node, "visible") || objectProperty(node, "visibleColumns"))
+    && objectProperty(node, "onChange"),
+  );
+  return hasVisibilityWording || hasColumnToggleShape;
+}
+
 export function findBusinessToolbarCompositionWarnings(files: SourceInfo[]) {
   const warnings: BusinessToolbarCompositionWarning[] = [];
 
@@ -256,6 +274,14 @@ export function findBusinessToolbarCompositionWarnings(files: SourceInfo[]) {
 
       if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && looksLikeDomainToolbarRegistrationName(node.expression.text)) {
         addToolbarCompositionWarning(warnings, file, "domain-toolbar-registration", node, "domain component registers PageSurface toolbar outside page contract");
+      }
+
+      if (ts.isObjectLiteralExpression(node) && looksLikeNonstandardColumnVisibilityControl(node)) {
+        warnings.push({
+          file: file.relPath,
+          kind: "nonstandard-column-visibility-control",
+          detail: `field visibility must use Core column-toggle at line ${objectLine(file.sourceFile, node)}`,
+        });
       }
 
       ts.forEachChild(node, visit);

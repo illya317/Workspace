@@ -95892,7 +95892,7 @@ export const generatedCoreUiSurfaceContracts = {
                     },
                     {
                       name: "kind",
-                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
+                      description: "可选值：action-group / autocomplete / column-toggle / create / edit-group / field-filter / grouped-select / icon-button / label / menu / option-group / page-size / panel-toggle / period / period / period / search / select / text。",
                       children: [
                         {
                           name: "action-group",
@@ -96513,6 +96513,58 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "referenceEndpoint",
                               description: "类型：string。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "grouped-select",
+                          description: "grouped-select 分支声明。",
+                          children: [
+                            {
+                              name: "value",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "groups",
+                              description: "类型：SurfaceSelectOptionGroupSpec[]。",
+                              children: [
+                                {
+                                  name: "key",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "label",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "options",
+                                  description: "类型：SurfaceSelectOptionSpec[]。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "onChange",
+                              description: "类型：(value: string) => void。",
+                            },
+                            {
+                              name: "placeholder",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "groupLabel",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "optionLabel",
+                              description: "类型：string。",
+                            },
+                            {
+                              name: "visibleCount",
+                              description: "类型：number。",
+                            },
+                            {
+                              name: "disabled",
+                              description: "类型：boolean。",
                             },
                           ],
                         },

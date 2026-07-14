@@ -78,33 +78,25 @@ export default function AccountTab({
   const extraToolbarItems: SurfaceToolbarItems = [
     ...(!reclassMode ? [
       {
-        kind: "select" as const,
-        key: "extra-field",
-        label: "筛选项",
-        value: extraField,
-        onChange: (key: string) => {
-          setLevelFilter("");
-          setScope("");
-          setExtraField(key as typeof extraField);
-          setExtraValue("");
+        kind: "grouped-select" as const,
+        key: "extra-filter",
+        value: `${extraField}:${extraValue}`,
+        groups: [
+          { key: "level", label: "层级", options: [{ value: "level:", label: "全部" }, { value: "level:1", label: "1级" }, { value: "level:2", label: "2级" }, { value: "level:3", label: "3级" }, { value: "level:4", label: "4级" }, { value: "level:5", label: "5级" }] },
+          { key: "scope", label: "类型", options: [{ value: "scope:", label: "全部" }, { value: "scope:mapped", label: "集团" }, { value: "scope:unmapped", label: "独有" }, { value: "scope:inactive", label: "未启用" }] },
+        ],
+        groupLabel: "筛选项",
+        optionLabel: "筛选值",
+        onChange: (selection: string) => {
+          const [nextField, ...valueParts] = selection.split(":");
+          const nextValue = valueParts.join(":");
+          const field = nextField as typeof extraField;
+          setExtraField(field);
+          setExtraValue(nextValue);
+          setLevelFilter(field === "level" ? nextValue : "");
+          setScope(field === "scope" ? nextValue : "");
           setPage(1);
         },
-        options: [{ value: "level", label: "层级" }, { value: "scope", label: "类型" }],
-      },
-      {
-        kind: "select" as const,
-        key: "extra-value",
-        label: "筛选值",
-        value: extraValue,
-        onChange: (value: string) => {
-          if (extraField === "level") setLevelFilter(value);
-          else setScope(value);
-          setExtraValue(value);
-          setPage(1);
-        },
-        options: extraField === "level"
-          ? [{ value: "", label: "全部" }, { value: "1", label: "1级" }, { value: "2", label: "2级" }, { value: "3", label: "3级" }, { value: "4", label: "4级" }, { value: "5", label: "5级" }]
-          : [{ value: "", label: "全部" }, { value: "mapped", label: "集团" }, { value: "unmapped", label: "独有" }, { value: "inactive", label: "未启用" }],
       },
     ] : []),
     ...(canRevise ? [{

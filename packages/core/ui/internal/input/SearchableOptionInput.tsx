@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { matchText } from "../../../search";
 import FloatingPortalSurface from "../common/FloatingPortalSurface";
+import type { FloatingPortalAlign } from "../common/FloatingPortalSurface";
 import { getFieldInputClassName } from "../form/FormStyles";
 import {
   AUTOCOMPLETE_EMPTY_CLASS_NAME,
@@ -40,6 +41,9 @@ interface SearchableOptionInputBaseProps {
   visibleCount?: number;
   className?: string;
   inputClassName?: string;
+  dropdownAlign?: FloatingPortalAlign;
+  dropdownMatchTriggerWidth?: boolean;
+  dropdownMinWidth?: number;
   dropdownHeader?: ReactNode;
   dropdownFooter?: ReactNode;
   onOpenChange?: (open: boolean) => void;
@@ -86,6 +90,9 @@ export default function SearchableOptionInput({
   visibleCount = 5,
   className,
   inputClassName,
+  dropdownAlign,
+  dropdownMatchTriggerWidth = true,
+  dropdownMinWidth,
   dropdownHeader,
   dropdownFooter,
   onOpenChange,
@@ -267,6 +274,14 @@ export default function SearchableOptionInput({
               onClick={() => choose(option)}
               className={`${getAutocompleteOptionClassName({ active, selected })} ${option.disabled ? "cursor-not-allowed opacity-50" : ""}`}
             >
+              {multiple && (
+                <span
+                  aria-hidden="true"
+                  className={`grid size-4 shrink-0 place-items-center rounded border text-[10px] font-bold ${selected ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-transparent"}`}
+                >
+                  ✓
+                </span>
+              )}
               <span className="min-w-0 flex-1 truncate font-medium">{optionDisplay.primaryText}</span>
             </button>
           );
@@ -330,7 +345,9 @@ export default function SearchableOptionInput({
           open={Boolean(listContent)}
           triggerRef={rootRef}
           surfaceRef={panelRef}
-          matchTriggerWidth
+          align={dropdownAlign}
+          minWidth={dropdownMinWidth}
+          matchTriggerWidth={dropdownMatchTriggerWidth}
           className={AUTOCOMPLETE_LIST_CLASS_NAME}
         >
           {listContent}

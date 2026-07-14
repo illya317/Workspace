@@ -144,7 +144,7 @@ export function useFinanceFilterToolbarItems({
 
   if (showPageSize && onPageSizeChange) {
     items.push({
-      kind: "select",
+      kind: "page-size",
       key: "page-size",
       value: String(pageSize),
       options: PAGE_SIZE_OPTIONS,
