@@ -8,6 +8,8 @@ import {
 
 import { deleteImportById, getImportById, listImports } from "./cost";
 import { getBudgetAnalysis } from "./analysis/budget-analysis";
+import { getFundFlowAnalysis } from "./analysis/fund-flow-analysis";
+import { getManagementAnalysis } from "./analysis/management-analysis";
 import { deriveRows } from "./ledger/reclass-results/derived";
 import { computeReclassification } from "./schedules/reclassify";
 import { getReportDetail } from "./statements/report-detail";
@@ -223,6 +225,22 @@ export function executeInitializeFinanceDefaultsCommand(command: { input: Parame
 
 export function executeBudgetAnalysisCommand(command: { year: number; companyCode?: string }) {
   return getBudgetAnalysis(command.year, command.companyCode);
+}
+
+export function executeFundFlowAnalysisCommand(command: {
+  companyCodes: string[];
+  year: number;
+  month?: number;
+}) {
+  return getFundFlowAnalysis(command);
+}
+
+export function executeManagementAnalysisCommand(command: {
+  companyCodes: string[];
+  year: number;
+  month?: number;
+}) {
+  return getManagementAnalysis(command);
 }
 
 export async function executeListCostImportsCommand(command: { page?: number; pageSize?: number }) {

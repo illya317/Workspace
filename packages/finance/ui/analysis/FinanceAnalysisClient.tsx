@@ -1,64 +1,118 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useMemo, useState, useEffect } from "react";
-import { PageSurface, createPageBody, createStatusSection, createMetricsSection, createPageTabBar } from "@workspace/core/ui";
-import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
+import {
+  PageSurface,
+  createMessageSection,
+  createPageBody,
+  createPageTabBar,
+  createStatusSection,
+  type BodySurfaceSectionSpec,
+  type SurfaceToolbarItems,
+} from "@workspace/core/ui";
+import type { ManagementAnalysis } from "@workspace/finance/types";
+import { useCompanyOptions } from "@workspace/platform/hooks";
 import type { SessionUser } from "@workspace/platform/types";
-import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
+import { useEffect, useMemo, useState } from "react";
+import { getFinanceLifecycleBlocks } from "../components/finance-page-spec";
+import { buildFundFlowSections } from "./FundFlowSections";
+import {
+  buildBudgetForecastSections,
+  buildInvestmentSections,
+  buildManagementOverviewSections,
+  buildPerformanceRiskSections,
+  buildProfitabilityCostSections,
+  buildWorkingCapitalSections,
+  managementAccountingTabs,
+  type ManagementAccountingView,
+} from "./ManagementAccountingSections";
 
-interface BudgetOverview {
-  hasBudget: boolean;
-  version?: { name: string; status: string };
-  deptTotal?: number;
-  rdTotal?: number;
-}
+const DEFAULT_GROUP_CODES = ["01", "02", "03"];
+const DEFAULT_SCOPE = DEFAULT_GROUP_CODES.join(",");
 
-interface Props {
-  user: SessionUser;
-}
-
-export default function FinanceAnalysisClient({ user: _user }: Props) {
-  const [budget, setBudget] = useState<BudgetOverview | null>(null);
-  const activeChildTabs = useMemo(() => getFinancePageViewTabs("analysis", _user), [_user]);
-  const navigation = activeChildTabs.length > 1 ? createPageTabBar({
-    items: activeChildTabs,
-    active: activeChildTabs[0]?.key ?? "",
-    onChange: () => {},
-  }) : undefined;
-  const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
-  const analysisBlocks: BodySurfaceSectionSpec[] = [
-    ...lifecycleBlocks,
-    createMetricsSection("analysis-metrics", {
-      metrics: [
-        { key: "revenue", label: "营业收入", value: "-" },
-        { key: "gross-margin", label: "毛利率", value: "-" },
-        { key: "net-margin", label: "净利率", value: "-" },
-      ],
-    }),
-    budget?.hasBudget
-      ? createMetricsSection("budget-overview", {
-          metrics: [
-            { key: "version", label: "生效版本", value: budget.version?.name ?? "—" },
-            { key: "dept-total", label: "部门预算总额", value: (budget.deptTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
-            { key: "rd-total", label: "研发预算总额", value: (budget.rdTotal ?? 0).toLocaleString("zh-CN", { maximumFractionDigits: 2 }) },
-          ],
-        })
-      : createStatusSection("budget-overview", { kind: "empty", content: "暂无生效预算版本" }),
-    createStatusSection("analysis-placeholder", { kind: "empty", content: "财务分析看板开发中" }),
-  ];
+function useManagementData(scope: string, year: number) {
+  const [data, setData] = useState<ManagementAnalysis | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/finance/analysis/budget?year=2026"))
-      .then((response) => response.json())
-      .then(setBudget)
-      .catch(() => setBudget({ hasBudget: false }));
-  }, []);
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    const params = new URLSearchParams({ companyCodes: scope, year: String(year) });
+    fetch(workspacePath(`/api/modules/finance/analysis/management?${params}`), { signal: controller.signal })
+      .then(async (response) => {
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || "管理会计分析加载失败");
+        return payload as ManagementAnalysis;
+      })
+      .then(setData)
+      .catch((cause: unknown) => {
+        if (cause instanceof DOMException && cause.name === "AbortError") return;
+        setError(cause instanceof Error ? cause.message : "管理会计分析加载失败");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [scope, year]);
+
+  return { data, error, loading };
+}
+
+function viewSections(view: ManagementAccountingView, data: ManagementAnalysis) {
+  if (view === "cash") return [...buildWorkingCapitalSections(data), ...buildFundFlowSections(data.fundFlow)];
+  if (view === "budget") return buildBudgetForecastSections(data);
+  if (view === "profitability") return buildProfitabilityCostSections(data);
+  if (view === "investment") return buildInvestmentSections(data.fundFlow, data);
+  if (view === "performance") return buildPerformanceRiskSections(data);
+  return buildManagementOverviewSections(data);
+}
+
+export default function FinanceAnalysisClient({ user: _user }: { user: SessionUser }) {
+  const companyOptions = useCompanyOptions();
+  const [scope, setScope] = useState(DEFAULT_SCOPE);
+  const [year, setYear] = useState(2025);
+  const [view, setView] = useState<ManagementAccountingView>("overview");
+  const { data, error, loading } = useManagementData(scope, year);
+  const navigation = useMemo(() => createPageTabBar({
+    items: managementAccountingTabs,
+    active: view,
+    onChange: (key) => setView(key as ManagementAccountingView),
+  }), [view]);
+  const selectedCompanyOptions = DEFAULT_GROUP_CODES.map((code) => companyOptions.find((option) => option.value === code)).filter((option): option is NonNullable<typeof option> => Boolean(option));
+  const scopeOptions = [
+    { value: DEFAULT_SCOPE, label: "合并口径" },
+    ...selectedCompanyOptions,
+  ];
+  const availableYears = data?.fundFlow.scope.availableYears.length ? data.fundFlow.scope.availableYears : [2026, 2025, 2024];
+  const yearOptions = availableYears.map((value) => ({ value: String(value), label: String(value) }));
+  const toolbarItems: SurfaceToolbarItems = [
+    { kind: "select", key: "scope", label: "分析范围", options: scopeOptions, value: scope, onChange: setScope },
+    { kind: "select", key: "year", label: "年度", options: yearOptions, value: String(year), onChange: (value) => setYear(Number(value)) },
+    { kind: "text", key: "period", content: data?.scope.periodLabel ?? `${year}年` },
+    ...(loading ? [{ kind: "text" as const, key: "loading", content: "正在核对三表、流水、预算与成本数据…" }] : []),
+  ];
+  const lifecycleBlocks = getFinanceLifecycleBlocks("analysis");
+  let sections: BodySurfaceSectionSpec[];
+  if (!data && loading) {
+    sections = [...lifecycleBlocks, createStatusSection("management-loading", { kind: "loading", content: "正在生成管理会计分析" })];
+  } else if (!data) {
+    sections = [...lifecycleBlocks, createStatusSection("management-error", { kind: "error", content: error || "管理会计分析加载失败" })];
+  } else {
+    sections = [
+      ...lifecycleBlocks,
+      ...(error ? [createMessageSection("management-refresh-error", { tone: "danger", content: error })] : []),
+      ...viewSections(view, data),
+    ];
+  }
 
   return (
-    <PageSurface kind="standard"
+    <PageSurface
+      kind="standard"
       tabbar={navigation}
-      body={createPageBody(analysisBlocks)}
+      toolbar={{ items: toolbarItems }}
+      body={createPageBody(sections)}
     />
   );
 }

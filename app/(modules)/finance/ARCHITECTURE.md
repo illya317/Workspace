@@ -83,6 +83,18 @@
 
 报表配置的科目映射动作贴近具体报表行：添加科目属于 `create`，切换加/减项属于 `update`，删除手工配置或排除默认映射在 UI 上都放在行级删除语义中，避免把“排除默认”显示成新增。
 
+### 管理会计 (`/finance/analysis`)
+
+`FinanceAnalysisClient` 将法定报表、已过账现金类凭证、科目余额、预算和成本子账加工为内部管理口径。资金来源与用途同时保留三层证据：
+
+1. `FinanceStatementWorkpaper` 现金流量表明细提供经营、投资、筹资的法定分类。
+2. `FinanceVoucherItem` 中 1001/1002/1012 现金类科目的非现金对手科目识别借款、客户预收、股东投入、往来、采购、薪酬、税费和投资渠道。
+3. `FinanceAccountBalance` 的期初/期末余额用于货币资金勾稽，并展示借款、合同负债、商业信用、单位往来和股东资本信号。
+
+页面包含管理总览、资金与营运、预算与预测、盈利与成本、投融资、绩效与风险六个视图。多公司结果是所选公司的管理汇总，页面必须标注“未抵销内部资金往来”，不得称为法定合并现金流量表。科目余额变化只是资金来源/占用信号，不等同于当期现金流入/流出。
+
+统一读模型位于 `packages/finance/server/analysis/management-analysis.ts`，资金专项读模型位于 `fund-flow-analysis.ts`。同期底稿缺失时，利润表回退到已过账凭证，资产负债表回退到期末科目余额，并明确提示未含报表重分类。成本子账没有 `companyCode`，只能作为“未分配公司”的经营事实，不能直接与单家公司法定收入相加。
+
 ### 预算管理 (`/finance/budget`)
 
 `BudgetTab` 位于 `packages/finance/ui/budget`，由 route 薄壳挂载：
@@ -122,6 +134,16 @@ statement-config/page.tsx
             ├─ packages/finance/ui/statement-config/LineConfigTab.tsx
             ├─ packages/finance/ui/statement-config/UnmappedTab.tsx
             └─ packages/finance/ui/statement-config/BalanceCheckTab.tsx
+
+analysis/page.tsx
+  └─ FinanceShell
+       └─ @workspace/finance/ui FinanceAnalysisClient
+            ├─ 管理总览
+            ├─ 资金与营运
+            ├─ 预算与预测
+            ├─ 盈利与成本
+            ├─ 投融资
+            └─ 绩效与风险
 
 budget/page.tsx
   └─ FinanceShell
@@ -337,6 +359,8 @@ npm run budget:sync-accounts
 | `GET /api/modules/finance/statements/reports` | 财务报表 |
 | `GET /api/modules/finance/statements/reports/detail` | 财务报表取数明细 |
 | `GET /api/modules/finance/analysis/budget` | 预算分析 |
+| `GET /api/modules/finance/analysis/fund-flow` | 资金来源/用途、现金流水、余额信号与母子公司核对 |
+| `GET /api/modules/finance/analysis/management` | 三表、成本、预算/基线、绩效与风险统一管理分析 |
 | `POST /api/modules/finance/ledger/init` | 财务初始化 |
 | `GET/PUT /api/modules/finance/ledger/reclass-rules` | 重分类规则读取与 change-set 保存 |
 | `GET/POST/PATCH /api/modules/finance/ledger/reclass-results` | 重分类结果列表/生成/审核 |
@@ -394,6 +418,8 @@ npm run budget:sync-accounts
 | `/api/modules/finance/ledger/init` | `finance.ledger.create` | 财务初始化 |
 | `/api/modules/finance/statements/reports*` | `finance.statements.read` | 报表生成/取数明细 |
 | `/api/modules/finance/analysis/budget` | `finance.analysis.read` | 预算分析 |
+| `/api/modules/finance/analysis/fund-flow` | `finance.analysis.read` | 资金来源与用途管理分析 |
+| `/api/modules/finance/analysis/management` | `finance.analysis.read` | 统一管理会计读模型 |
 | `/api/modules/finance/budget` | `finance.budget.read/import` | 预算查询/导入 |
 | `/api/modules/finance/import/preview` | `finance.import.read` | 导入预览（非变更操作，用 read） |
 | `/api/modules/finance/import/confirm` | `finance.import.import` | 导入确认（写入数据库，用 import） |
