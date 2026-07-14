@@ -1,5 +1,6 @@
 import { defineActionContractMetadataList } from "./action-contract";
 import { ADMINISTRATION_ACTION_CONTRACT_METADATA } from "./action-contract-registry-administration";
+import { EXTERNAL_ACTION_CONTRACT_METADATA } from "./action-contract-registry-external";
 import { HR_DIRECT_ACTION_CONTRACT_METADATA } from "./action-contract-registry-hr-direct";
 import { SMALL_MODULE_ACTION_CONTRACT_METADATA } from "./action-contract-registry-small-modules";
 import { WORK_DIRECT_ACTION_CONTRACT_METADATA } from "./action-contract-registry-work-direct";
@@ -109,6 +110,7 @@ const WORK_TASKS_WORKFLOW_CONFIGURATION = {
 
 export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   ...ADMINISTRATION_ACTION_CONTRACT_METADATA,
+  ...EXTERNAL_ACTION_CONTRACT_METADATA,
   ...HR_DIRECT_ACTION_CONTRACT_METADATA,
   ...SMALL_MODULE_ACTION_CONTRACT_METADATA,
   ...WORK_DIRECT_ACTION_CONTRACT_METADATA,

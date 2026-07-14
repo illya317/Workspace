@@ -1,18 +1,7 @@
 "use client";
 
-import { createPageBody, createSectionSection, createStatusSection, PageSurface } from "@workspace/core/ui";
+import ExternalPartyClient from "./ExternalPartyClient";
 
-export default function SuppliersClient() {
-  return (
-    <PageSurface kind="standard"
-      body={createPageBody([
-        createSectionSection("suppliers", {
-          title: "供应商列表",
-          sections: [
-            createStatusSection("empty", { kind: "empty", content: "暂无供应商数据" }),
-          ],
-        }),
-      ])}
-    />
-  );
+export default function SuppliersClient(props: { canCreate: boolean; canUpdate: boolean; canDelete: boolean }) {
+  return <ExternalPartyClient category="supplier" apiPath="/api/modules/external/suppliers" {...props} />;
 }

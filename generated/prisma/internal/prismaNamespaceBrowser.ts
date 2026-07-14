@@ -67,6 +67,7 @@ export const ModelName = {
   Contract: 'Contract',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
+  ExternalParty: 'ExternalParty',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -499,6 +500,41 @@ export const DocumentTemplateScalarFieldEnum = {
 } as const
 
 export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFieldEnum)[keyof typeof DocumentTemplateScalarFieldEnum]
+
+
+export const ExternalPartyScalarFieldEnum = {
+  id: 'id',
+  category: 'category',
+  subjectType: 'subjectType',
+  relatedPartyType: 'relatedPartyType',
+  code: 'code',
+  name: 'name',
+  fullName: 'fullName',
+  classification: 'classification',
+  identityNumber: 'identityNumber',
+  legalRepresentative: 'legalRepresentative',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  email: 'email',
+  bankName: 'bankName',
+  bankAccount: 'bankAccount',
+  address: 'address',
+  invoiceTitle: 'invoiceTitle',
+  invoiceAddressPhone: 'invoiceAddressPhone',
+  settlementTerms: 'settlementTerms',
+  creditLimit: 'creditLimit',
+  creditDays: 'creditDays',
+  taxRate: 'taxRate',
+  remark: 'remark',
+  isActive: 'isActive',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExternalPartyScalarFieldEnum = (typeof ExternalPartyScalarFieldEnum)[keyof typeof ExternalPartyScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {

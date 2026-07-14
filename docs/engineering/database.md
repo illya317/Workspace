@@ -341,6 +341,40 @@
 | publishedByUserId | Int? | - |  |
 | space | DocumentTemplateSpace | @relation(fields: [spaceId], references: [id], onDelete: Cascade) |  |
 
+### ExternalParty
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| category | String | - |  |
+| subjectType | String | @default("organization") |  |
+| relatedPartyType | String | @default("unrelated") |  |
+| code | String | - |  |
+| name | String | - |  |
+| fullName | String? | - |  |
+| classification | String? | - |  |
+| identityNumber | String? | - |  |
+| legalRepresentative | String? | - |  |
+| contactPerson | String? | - |  |
+| phone | String? | - |  |
+| email | String? | - |  |
+| bankName | String? | - |  |
+| bankAccount | String? | - |  |
+| address | String? | - |  |
+| invoiceTitle | String? | - |  |
+| invoiceAddressPhone | String? | - |  |
+| settlementTerms | String? | - |  |
+| creditLimit | Float? | - |  |
+| creditDays | Int? | - |  |
+| taxRate | Float? | - |  |
+| remark | String? | - |  |
+| isActive | Boolean | @default(true) |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+
 ### FinanceBudgetVersion
 
 | 字段 | 类型 | 属性 | 说明 |

@@ -1,0 +1,39 @@
+/// 外部往来主体主数据（事实表，来源于 Workspace 人工录入；客户/供应商为角色，单位/个人为主体类型）
+model ExternalParty {
+  id                  Int      @id @default(autoincrement())
+  category            String
+  subjectType         String   @default("organization")
+  relatedPartyType    String   @default("unrelated")
+  code                String
+  name                String
+  fullName            String?
+  classification      String?
+  identityNumber      String?
+  legalRepresentative String?
+  contactPerson       String?
+  phone               String?
+  email               String?
+  bankName            String?
+  bankAccount         String?
+  address             String?
+  invoiceTitle        String?
+  invoiceAddressPhone String?
+  settlementTerms     String?
+  creditLimit         Float?
+  creditDays          Int?
+  taxRate             Float?
+  remark              String?
+  isActive            Boolean  @default(true)
+  editedBy            Int?
+  editedAt            DateTime?
+  version             Int      @default(1)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @default(now()) @updatedAt
+
+  @@unique([category, code])
+  @@index([category, name])
+  @@index([category, isActive])
+  @@index([category, subjectType])
+  @@index([category, relatedPartyType])
+  @@index([category, classification])
+}

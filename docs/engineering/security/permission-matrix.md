@@ -44,8 +44,8 @@
 | `production` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `production.qc` | business | `entry`, `read`, `create`, `update`, `delete`, `submit`, `approve`, `export`, `grant` |
 | `external` | container | `entry`, `read`, `grant` |
-| `external.customers` | planned | `entry`, `read`, `grant` |
-| `external.suppliers` | planned | `entry`, `read`, `grant` |
+| `external.customers` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
+| `external.suppliers` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `capitalSecurities` | container | `entry`, `read`, `create`, `update`, `grant` |
 | `capitalSecurities.investors` | planned | `entry`, `read`, `grant` |
 | `capitalSecurities.governance` | business | `entry`, `read`, `create`, `update`, `grant` |

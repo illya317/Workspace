@@ -6,6 +6,18 @@ const ADMINISTRATION_CONTRACTS = {
   originHrefPattern: "/administration/contracts",
 } as const;
 
+const EXTERNAL_CUSTOMERS = {
+  moduleKey: "external",
+  resourceKey: "external.customers",
+  originHrefPattern: "/external/customers",
+} as const;
+
+const EXTERNAL_SUPPLIERS = {
+  moduleKey: "external",
+  resourceKey: "external.suppliers",
+  originHrefPattern: "/external/suppliers",
+} as const;
+
 const HR_ROSTER = {
   moduleKey: "hr",
   resourceKey: "hr.roster",
@@ -32,6 +44,12 @@ export const OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.update", label: "更新行政合同", writeKind: "update", targetKind: "Contract", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/administration/contracts/:id")] },
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.delete", label: "删除行政合同", writeKind: "delete", targetKind: "Contract", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/administration/contracts/:id")] },
 
+  { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.create", label: "创建客户", writeKind: "create", targetKind: "ExternalParty", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/external/customers")] },
+  { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.update", label: "更新客户", writeKind: "update", targetKind: "ExternalParty", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/external/customers/:id")] },
+  { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.delete", label: "删除客户", writeKind: "delete", targetKind: "ExternalParty", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/external/customers/:id")] },
+  { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.create", label: "创建供应商", writeKind: "create", targetKind: "ExternalParty", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/external/suppliers")] },
+  { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.update", label: "更新供应商", writeKind: "update", targetKind: "ExternalParty", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/external/suppliers/:id")] },
+  { ...EXTERNAL_SUPPLIERS, ...PERMISSION_ONLY, key: "external.suppliers.party.delete", label: "删除供应商", writeKind: "delete", targetKind: "ExternalParty", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/external/suppliers/:id")] },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.company.create", label: "创建公司", writeKind: "create", targetKind: "Company", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/hr/roster/companies")] },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.company.update", label: "更新公司", writeKind: "update", targetKind: "Company", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/hr/roster/companies"), route("PUT", "/api/modules/hr/roster/companies/:id")] },
   { ...HR_ROSTER, ...PERMISSION_ONLY, key: "hr.roster.company.delete", label: "删除公司", writeKind: "delete", targetKind: "Company", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/hr/roster/companies"), route("DELETE", "/api/modules/hr/roster/companies/:id")] },

@@ -2,58 +2,63 @@
 
 ## 定位
 
-管理客户、供应商等外部利益相关方信息；投资人关系已迁入资本证券。
+外部关系维护客户和供应商主数据。客户/供应商是往来角色，单位/个人是主体类型：自然人客户在客户表维护，自然人供应商在供应商表维护，不建立独立个人往来入口。两个角色复用同一个 `ExternalParty` 事实表和写入规则，但通过固定页面、API 前缀和 RBAC 资源保持权限独立。投资人关系仍归资本证券。
 
-## 目录
+## 路由与包边界
 
 ```text
 app/(modules)/external/
-  page.tsx                 # L1 首页，ModuleHome 展示子模块卡片
-  ARCHITECTURE.md          # 本文件
+  customers/             # 客户主数据页面壳
+  suppliers/             # 供应商主数据页面壳
 
-app/(modules)/external/customers/
-  page.tsx                 # 服务端组件，AppShell + CustomersClient
-
-app/(modules)/external/suppliers/
-  page.tsx                 # 服务端组件，AppShell + SuppliersClient
+app/api/modules/external/
+  customers/             # GET / POST / PATCH / DELETE
+  suppliers/             # GET / POST / PATCH / DELETE
 
 packages/external/
-  module.ts                # 从 Platform module registry 读取外部关系 moduleDefinition
-  types/index.ts           # 共享类型：Customer, Supplier
-  ui/*                     # 客户、供应商占位页面 UI
+  ui/ExternalPartyClient.tsx     # 客户/供应商共享的列表与录入交互
+  server/external-parties.ts     # 查询、版本、审计与落库
+  server/domain/*                # 业务字段与命令校验
+  types/*                        # DTO 与 category 契约
 ```
 
-## 数据模型（待建）
+页面和 API route 只承担鉴权、请求形状和挂载；真实 UI、domain validator 与 Prisma 写入均在 `packages/external`。
 
-建议在 `prisma/models/` 新增 `external.prisma`：
+## 数据模型
 
-```prisma
-model Customer { ... }
-model Supplier { ... }
+`ExternalParty` 是人工录入的外部往来主体事实表：
+
+- `category` 固定为 `customer` 或 `supplier`，由 route 注入，客户端不能改变。
+- `subjectType` 固定为 `organization` 或 `individual`，表单展示为“单位 / 个人”。
+- `relatedPartyType` 是财务披露口径的关系性质，默认 `unrelated`；它与客户/供应商角色、单位/个人主体类型、可配置业务分类相互独立。
+- `code + category` 唯一；客户和供应商可使用相同编码而互不冲突。
+- 单位和个人共用名称、分类、联系、地址、银行、结算、信用和启停字段。
+- 单位展示简称、全称、统一社会信用代码、法定代表人、税率和开票信息；个人展示姓名和证件号码。
+- `version / editedBy / editedAt` 用于并发保护和编辑历史；更新和删除都要求 `If-Match` 版本。
+
+## 写入链路
+
+```text
+CreateSurface / 编辑弹窗
+  -> route Zod schema
+  -> external-party domain command
+  -> direct BusinessAction adapter
+  -> service transaction / Prisma / EditHistory
 ```
+
+新增和更新在 service 中显式检查同类别编码重复。更新保存前建立历史基线并在成功后写快照；删除走 `guardedDelete`，验证类别、版本、记录存在性和审计策略。
 
 ## 权限
 
-| 资源 | 状态 | 支持 action | 说明 |
-|---|---|---|---|
-| `external` | container | `entry`, `read`, `grant` | 外部关系 L1 入口 |
-| `external.customers` | planned | `entry`, `read`, `grant` | 客户管理占位页 |
-| `external.suppliers` | planned | `entry`, `read`, `grant` | 供应商管理占位页 |
+| 资源 | action | 页面/API 含义 |
+|---|---|---|
+| `external.customers` | `entry/read/create/update/delete` | 客户列表与客户主数据 CRUD |
+| `external.suppliers` | `entry/read/create/update/delete` | 供应商列表与供应商主数据 CRUD |
 
-页面入口使用 registry route guard：
+页面按钮按对应 resource action 显示，API 再由 module registry contract 和 guard 校验。两个资源不共享写权限。
 
-- `/external`：`requireRouteAccess("/external")`
-- `/external/customers`：`requireRouteAccess("/external/customers")`
-- `/external/suppliers`：`requireRouteAccess("/external/suppliers")`
+## UI 约定
 
-当前没有客户/供应商业务 API、记录写入、导入导出或流程动作，因此不开放 `create` / `update` / `delete` / `import` / `export` 等业务 action。后续接入 CRM、合同或供应商资料台账时，再按真实 API 和按钮位置补 resource action；新增记录入口应放在对应列表/分组工具栏，单条编辑入口应贴近具体客户/供应商记录。
+两个页面均使用 Core `PageSurface` 和标准 split `BodySurface`：左侧 `SelectorSurface` 是往来目录，右侧复用同一组表单 section 直接展示和编辑所选记录，移动端由 Core 切换为抽屉。新增继续使用 Toolbar 触发的 Modal `CreateSurface`。主体类型、关系性质和状态使用标准下拉；业务分类保留为可配置文本，不与关联方判断混用。
 
-当前前端只展示空状态，不渲染 toolbar command 或权限动作图标；不要在业务 API 和记录模型落地前预留新建、编辑、删除或导出按钮。
-
-## 状态
-
-骨架已搭好，当前仅为空状态页面；暂无业务 API、写入动作或工具栏操作。
-
-## 生命周期标记
-
-客户和供应商为 `workspace-analysis`。外部事实来源仍可来自 CRM、合同台账、用友或人工导入，Workspace 负责跟进记录、评级、资料归档和分析。
+关系性质按《企业会计准则第 36 号——关联方披露》收敛为：非关联方、集团内、合营/联营、控制或重大影响投资方、关键管理人员关联方、其他关联方。大客户、核心供应商、渠道、地区等经营分组只进入 `classification`，不得据此自动判断关联方。详细持股/控制链仍归资本证券，External 只保存 Finance 分析所需的关系口径。

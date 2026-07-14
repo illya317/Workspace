@@ -285,6 +285,15 @@ export const historyPolicyRegistry = {
     ignoredFields: AUDIT_FIELDS,
     restore: RESTORE_UPDATE_OR_CREATE_WITHOUT_AUDIT_METADATA,
   },
+  ExternalParty: {
+    entityType: "ExternalParty",
+    modelKey: "externalParty",
+    trackHistory: true,
+    baseline: "before-first-update",
+    displayName: { field: "name", fallback: "未知外部往来主体" },
+    ignoredFields: AUDIT_FIELDS,
+    restore: false,
+  },
   Contract: {
     entityType: "Contract",
     modelKey: "contract",

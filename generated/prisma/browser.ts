@@ -100,6 +100,11 @@ export type DocumentTemplateSpace = Prisma.DocumentTemplateSpaceModel
  */
 export type DocumentTemplate = Prisma.DocumentTemplateModel
 /**
+ * Model ExternalParty
+ * 外部往来主体主数据（事实表，来源于 Workspace 人工录入；客户/供应商为角色，单位/个人为主体类型）
+ */
+export type ExternalParty = Prisma.ExternalPartyModel
+/**
  * Model FinanceBudgetVersion
  * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
  */

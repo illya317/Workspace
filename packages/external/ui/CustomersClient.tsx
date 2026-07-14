@@ -1,18 +1,7 @@
 "use client";
 
-import { createPageBody, createSectionSection, createStatusSection, PageSurface } from "@workspace/core/ui";
+import ExternalPartyClient from "./ExternalPartyClient";
 
-export default function CustomersClient() {
-  return (
-    <PageSurface kind="standard"
-      body={createPageBody([
-        createSectionSection("customers", {
-          title: "客户列表",
-          sections: [
-            createStatusSection("empty", { kind: "empty", content: "暂无客户数据" }),
-          ],
-        }),
-      ])}
-    />
-  );
+export default function CustomersClient(props: { canCreate: boolean; canUpdate: boolean; canDelete: boolean }) {
+  return <ExternalPartyClient category="customer" apiPath="/api/modules/external/customers" {...props} />;
 }

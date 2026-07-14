@@ -265,18 +265,22 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "external",
       label: "外部关系",
-      desc: "客户、供应商",
+      desc: "客户与供应商往来主数据",
       href: "/external",
       iconKey: "customers",
       color: "orange",
       resourceKey: "external",
       resourceSortOrder: 5,
-      lifecycleStatus: "workspace-analysis",
+      lifecycleStatus: "workspace-owned",
       children: [
-        { key: "customers", label: "客户管理", desc: "客户信息、跟进记录", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", lifecycleStatus: "workspace-analysis", noApiReason: "规划中页面，暂无业务 API" },
-        { key: "suppliers", label: "供应商管理", desc: "供应商信息、采购记录", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", lifecycleStatus: "workspace-analysis", noApiReason: "规划中页面，暂无业务 API" },
+        { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
+        { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
       ],
     },
+    apiGuards: [
+      ...apiResourceGuards("/api/modules/external/customers", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/external/suppliers", ["GET", "POST", "PATCH", "DELETE"]),
+    ],
   },
   {
     packageName: "@workspace/capital-securities",

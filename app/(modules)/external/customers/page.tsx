@@ -1,9 +1,18 @@
-import { createProtectedModulePage } from "@workspace/platform/ui/protected-page";
 import { CustomersClient } from "@workspace/external/ui";
+import { evaluatePermissionAction, requireRouteAccess } from "@workspace/platform/server/auth";
+import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 
-export default createProtectedModulePage({
-  route: "/external/customers",
-  title: "客户管理",
-  backHref: "/external",
-  render: () => <CustomersClient />,
-});
+export default async function CustomersPage() {
+  const user = await requireRouteAccess("/external/customers");
+  const [canCreate, canUpdate, canDelete] = await Promise.all([
+    evaluatePermissionAction(user.id, "external.customers", "create"),
+    evaluatePermissionAction(user.id, "external.customers", "update"),
+    evaluatePermissionAction(user.id, "external.customers", "delete"),
+  ]);
+  return renderAppShellPage({
+    title: "客户管理",
+    backHref: "/external",
+    user,
+    children: <CustomersClient canCreate={canCreate} canUpdate={canUpdate} canDelete={canDelete} />,
+  });
+}
