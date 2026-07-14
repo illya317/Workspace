@@ -9,8 +9,31 @@ export async function canProcessWorkTaskRequest(
   actorUserId: number,
   request: ApprovalRequestRecord<WorkTaskApprovalPayload>,
 ) {
-  const handlers = await resolveWorkTaskHandlerUserIds(request.handlerSource, request);
-  return handlers.includes(actorUserId);
+  const payload = request.latestPayload;
+  let actorPermissionHandlers: Promise<number[]> | null = null;
+  const resolvePermission = () => {
+    actorPermissionHandlers ??= canApproveWorkTaskPayload(actorUserId, payload)
+      .then((allowed) => allowed ? [actorUserId] : []);
+    return actorPermissionHandlers;
+  };
+  if (request.activeWorkflowNodeKey) {
+    const handlers = await resolveWorkflowNodeHandlerUserIds(request, {
+      resolveRelationship: (source): Promise<number[]> => resolveWorkTaskHandlerUserIds(source, { ...request, activeWorkflowNodeKey: null }),
+      resolvePermission,
+    });
+    return handlers.includes(actorUserId);
+  }
+  if (request.handlerSource === "direct_manager") {
+    return (await listDirectManagerUserIds(request.submitterUserId)).includes(actorUserId);
+  }
+  const controlTarget = approvalControlTarget(payload);
+  if (request.handlerSource === "department_owner") {
+    return Boolean(
+      controlTarget?.targetType === "department"
+      && (await listDepartmentResponsibleUserIds(controlTarget.targetId)).includes(actorUserId),
+    );
+  }
+  return (await resolvePermission()).length > 0;
 }
 
 export async function resolveWorkTaskHandlerUserIds(
@@ -48,6 +71,14 @@ async function listWorkTaskApproverUserIds(payload: WorkTaskApprovalPayload, exc
     await canApproveWorkTaskAction(user.id, controlTarget.targetType, controlTarget.targetId) ? user.id : null
   )));
   return allowed.filter((id): id is number => id !== null);
+}
+
+async function canApproveWorkTaskPayload(actorUserId: number, payload: WorkTaskApprovalPayload) {
+  const controlTarget = approvalControlTarget(payload);
+  return Boolean(
+    controlTarget
+    && await canApproveWorkTaskAction(actorUserId, controlTarget.targetType, controlTarget.targetId),
+  );
 }
 
 function filterUserIds(userIds: number[], excludeUserId: number | null) {
