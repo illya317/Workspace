@@ -19,7 +19,7 @@ REMOTE_AGENT_SOURCE_DIR="${REMOTE_AGENT_SOURCE_DIR:-$REMOTE_AGENT_SOURCE_ROOT/Wo
 REMOTE_AGENT_SOURCE_REPO_URL="${REMOTE_AGENT_SOURCE_REPO_URL:-${AGENT_SOURCE_REPO_URL:-https://cnb.cool/illya317/Workspace.git}}"
 REMOTE_AGENT_SOURCE_BRANCH="${REMOTE_AGENT_SOURCE_BRANCH:-${AGENT_SOURCE_BRANCH:-main}}"
 BACKUP_RETENTION_DAYS="${BACKUP_RETENTION_DAYS:-30}"
-BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-20}"
+BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-5}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
 INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
 INSTALL_KIMI_AGENT_RUNTIME_DEPS="${INSTALL_KIMI_AGENT_RUNTIME_DEPS:-1}"
@@ -69,6 +69,7 @@ elif [ "$REMOTE_BACKUP_DIR" != "$REMOTE_DIR/.workspace.backups" ]; then
   echo "[警告] REMOTE_BACKUP_DIR 已统一为 $REMOTE_DIR/.workspace.backups，忽略旧值: $REMOTE_BACKUP_DIR"
   REMOTE_BACKUP_DIR="$REMOTE_DIR/.workspace.backups"
 fi
+REMOTE_RUNTIME_SNAPSHOT_DIR="$REMOTE_BACKUP_DIR/workspace-runtime-snapshots"
 
 case "$BACKUP_RETENTION_DAYS" in
   ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_DAYS 必须是非负整数"; exit 1 ;;
@@ -669,32 +670,27 @@ backup_remote_postgresql() {
 }
 
 backup_remote_runtime() {
-  echo "==> 备份服务器运行态配置和数据..."
+  echo "==> 创建服务器运行态增量快照..."
   ssh_cmd "
     set -e
-    mkdir -p '$REMOTE_BACKUP_DIR'
+    command -v rsync >/dev/null
+    mkdir -p '$REMOTE_RUNTIME_SNAPSHOT_DIR'
     if [ -d '$REMOTE_WORKSPACE_CONFIG_DIR' ]; then
       stamp=\$(date +%Y%m%d%H%M%S)
-      backup='$REMOTE_BACKUP_DIR/workspace-runtime-'\$stamp'.tgz'
-      parent=\$(dirname '$REMOTE_WORKSPACE_CONFIG_DIR')
-      base=\$(basename '$REMOTE_WORKSPACE_CONFIG_DIR')
-      tar_log=\$(mktemp)
-      set +e
-      tar -C \"\$parent\" -czf \"\$backup\" \"\$base\" 2>\"\$tar_log\"
-      tar_status=\$?
-      set -e
-      if [ \"\$tar_status\" -ne 0 ]; then
-        if [ \"\$tar_status\" -eq 1 ] && grep -q 'file changed as we read it' \"\$tar_log\"; then
-          echo '[警告] 运行态备份时有文件正在写入，已保留本次备份并继续部署。'
-          cat \"\$tar_log\"
-        else
-          cat \"\$tar_log\"
-          rm -f \"\$tar_log\"
-          exit \"\$tar_status\"
-        fi
+      snapshot='$REMOTE_RUNTIME_SNAPSHOT_DIR/'\$stamp
+      snapshot_tmp='$REMOTE_RUNTIME_SNAPSHOT_DIR/.'\$stamp'.tmp'
+      previous=\$(find '$REMOTE_RUNTIME_SNAPSHOT_DIR' -mindepth 1 -maxdepth 1 -type d -name '20*' -printf '%f\\n' | sort | tail -n 1)
+      rm -rf \"\$snapshot_tmp\"
+      mkdir -p \"\$snapshot_tmp\"
+      trap 'rm -rf \"\$snapshot_tmp\"' EXIT
+      if [ -n \"\$previous\" ]; then
+        rsync -a --delete --link-dest=\"$REMOTE_RUNTIME_SNAPSHOT_DIR/\$previous\" '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
+      else
+        rsync -a --delete '$REMOTE_WORKSPACE_CONFIG_DIR/' \"\$snapshot_tmp/\"
       fi
-      rm -f \"\$tar_log\"
-      ls -lh \"\$backup\"
+      mv \"\$snapshot_tmp\" \"\$snapshot\"
+      trap - EXIT
+      du -sh \"\$snapshot\"
     else
       echo '[警告] 运行态目录不存在，跳过备份: $REMOTE_WORKSPACE_CONFIG_DIR'
     fi
@@ -708,14 +704,36 @@ cleanup_remote_backups() {
     mkdir -p '$REMOTE_BACKUP_DIR'
     python3 - <<'PY'
 from pathlib import Path
+import shutil
 import time
 
 backup_dir = Path('$REMOTE_BACKUP_DIR')
+runtime_snapshot_dir = backup_dir / 'workspace-runtime-snapshots'
 retention_days = int('$BACKUP_RETENTION_DAYS')
 retention_count = int('$BACKUP_RETENTION_COUNT')
 now = time.time()
 cutoff = now - retention_days * 86400
-for pattern in ('workspace-runtime-*.tgz', 'workspace-postgresql-*.dump'):
+if runtime_snapshot_dir.is_dir():
+    snapshots = sorted(
+        (path for path in runtime_snapshot_dir.iterdir() if path.is_dir() and path.name.startswith('20')),
+        key=lambda path: path.stat().st_mtime,
+        reverse=True,
+    )
+    for index, path in enumerate(snapshots):
+        too_many = index >= retention_count
+        too_old = retention_days > 0 and path.stat().st_mtime < cutoff
+        if too_many or too_old:
+            shutil.rmtree(path)
+    for path in runtime_snapshot_dir.glob('.*.tmp'):
+        shutil.rmtree(path, ignore_errors=True)
+    remaining_snapshots = [path for path in runtime_snapshot_dir.iterdir() if path.is_dir() and path.name.startswith('20')]
+    print(f'runtime snapshots kept: {len(remaining_snapshots)}')
+    if remaining_snapshots:
+        for path in backup_dir.glob('workspace-runtime-*.tgz'):
+            path.unlink()
+        print('legacy runtime tarballs removed')
+
+for pattern in ('workspace-postgresql-*.dump',):
     files = sorted(backup_dir.glob(pattern), key=lambda path: path.stat().st_mtime, reverse=True)
     for index, path in enumerate(files):
         too_many = index >= retention_count
