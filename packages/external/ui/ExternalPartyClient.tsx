@@ -83,7 +83,7 @@ export default function ExternalPartyClient({
           relatedPartyType: "unrelated",
           name: "",
           fullName: null,
-          identityNumber: null,
+          identityNumber: "",
           legalRepresentative: null,
         };
       }
@@ -248,7 +248,7 @@ export default function ExternalPartyClient({
         },
         submission: {
           action: "save" as const,
-          disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim(),
+          disabled: saving || !createDraft?.code.trim() || !createDraft.name.trim() || !createDraft.identityNumber.trim(),
           execute: saveCreate,
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
@@ -269,7 +269,7 @@ export default function ExternalPartyClient({
         actions: [
           ...(canUpdate ? [
             { key: "reset", action: "reset" as const, label: "撤销修改", disabled: saving || !dirty, onClick: resetDetail },
-            { key: "save", action: "save" as const, label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !detailDraft.code.trim() || !detailDraft.name.trim(), onClick: () => void saveDetail() },
+            { key: "save", action: "save" as const, label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !detailDraft.code.trim() || !detailDraft.name.trim() || !detailDraft.identityNumber.trim(), onClick: () => void saveDetail() },
           ] : []),
           ...(canDelete ? [{ key: "delete", action: "delete" as const, label: `移除${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
         ],

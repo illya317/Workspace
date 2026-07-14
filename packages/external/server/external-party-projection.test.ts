@@ -46,7 +46,7 @@ test("hides role metadata outside the visible permission set", () => {
     relatedPartyType: "unrelated",
     name: "同一主体",
     fullName: null,
-    identityNumber: null,
+    identityNumber: "P-001",
     legalRepresentative: null,
     editedBy: 7,
     editedAt: timestamp,

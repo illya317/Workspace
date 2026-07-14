@@ -50,7 +50,7 @@ export function emptyExternalPartyDraft(): ExternalPartyDraft {
     name: "",
     fullName: null,
     classification: null,
-    identityNumber: null,
+    identityNumber: "",
     legalRepresentative: null,
     contactPerson: null,
     phone: null,
@@ -216,7 +216,10 @@ export function externalPartyFormSections(
         textField("code", `${singular}编码`, draft, onChange, { required: true, readOnly }),
         textField("name", individual ? "姓名" : "简称", draft, onChange, { required: true, readOnly: subjectReadOnly }),
         ...(!individual ? [textField("fullName", "全称", draft, onChange, { readOnly: subjectReadOnly })] : []),
-        textField("identityNumber", individual ? "证件号码" : "统一社会信用代码", draft, onChange, { readOnly: subjectReadOnly }),
+        textField("identityNumber", individual ? "证件号码" : "统一代码", draft, onChange, {
+          required: true,
+          readOnly: subjectReadOnly,
+        }),
         ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("classification", "业务分类", draft, onChange, { readOnly }),
         {

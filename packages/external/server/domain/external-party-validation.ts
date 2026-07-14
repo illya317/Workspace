@@ -15,7 +15,7 @@ export interface ExternalPartySubjectMutableData {
   relatedPartyType?: ExternalPartyRelatedPartyType;
   name?: string;
   fullName?: string | null;
-  identityNumber?: string | null;
+  identityNumber?: string;
   legalRepresentative?: string | null;
 }
 
@@ -46,6 +46,7 @@ export interface ExternalPartyCreateCommand {
     subjectType: ExternalPartySubjectType;
     relatedPartyType: ExternalPartyRelatedPartyType;
     name: string;
+    identityNumber: string;
   };
   roleData: ExternalPartyRoleMutableData & { code: string; isActive: boolean };
 }
@@ -77,9 +78,8 @@ function nullableText(value: string | null | undefined) {
   return value?.trim() || null;
 }
 
-function normalizedIdentity(value: string | null | undefined) {
-  const normalized = nullableText(value);
-  return typeof normalized === "string" ? normalized.toUpperCase() : normalized;
+function normalizedIdentity(value: string | undefined) {
+  return value === undefined ? undefined : value.trim().toUpperCase();
 }
 
 function normalizeSubjectData(
@@ -127,6 +127,8 @@ export function buildExternalPartyCreateCommand(
   if (!validUserId.ok) return validUserId;
   if (!input.code.trim()) return failCommand("编码必填", 400, "code");
   if (!input.name.trim()) return failCommand("名称必填", 400, "name");
+  const identityNumber = normalizedIdentity(input.identityNumber);
+  if (!identityNumber) return failCommand("统一代码或证件号码必填", 400, "identityNumber");
   const existingPartyId = input.existingPartyId === undefined
     ? undefined
     : positiveInt(input.existingPartyId, "existingPartyId");
@@ -140,6 +142,7 @@ export function buildExternalPartyCreateCommand(
       subjectType: input.subjectType ?? "organization",
       relatedPartyType: input.relatedPartyType ?? "unrelated",
       name: input.name.trim(),
+      identityNumber,
     },
     roleData: {
       ...normalizeRoleData(input),

@@ -350,7 +350,7 @@
 | relatedPartyType | String | @default("unrelated") |  |
 | name | String | - |  |
 | fullName | String? | - |  |
-| identityNumber | String? | - |  |
+| identityNumber | String | - |  |
 | legalRepresentative | String? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |

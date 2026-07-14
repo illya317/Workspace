@@ -235,7 +235,7 @@ export type ExternalPartyGroupByOutputType = {
   relatedPartyType: string
   name: string
   fullName: string | null
-  identityNumber: string | null
+  identityNumber: string
   legalRepresentative: string | null
   editedBy: number | null
   editedAt: Date | null
@@ -273,7 +273,7 @@ export type ExternalPartyWhereInput = {
   relatedPartyType?: Prisma.StringFilter<"ExternalParty"> | string
   name?: Prisma.StringFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  identityNumber?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
+  identityNumber?: Prisma.StringFilter<"ExternalParty"> | string
   legalRepresentative?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   editedBy?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"ExternalParty"> | Date | string | null
@@ -289,7 +289,7 @@ export type ExternalPartyOrderByWithRelationInput = {
   relatedPartyType?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
-  identityNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  identityNumber?: Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -309,7 +309,7 @@ export type ExternalPartyWhereUniqueInput = Prisma.AtLeast<{
   relatedPartyType?: Prisma.StringFilter<"ExternalParty"> | string
   name?: Prisma.StringFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  identityNumber?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
+  identityNumber?: Prisma.StringFilter<"ExternalParty"> | string
   legalRepresentative?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   editedBy?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"ExternalParty"> | Date | string | null
@@ -325,7 +325,7 @@ export type ExternalPartyOrderByWithAggregationInput = {
   relatedPartyType?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
-  identityNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  identityNumber?: Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -348,7 +348,7 @@ export type ExternalPartyScalarWhereWithAggregatesInput = {
   relatedPartyType?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   name?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  identityNumber?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
+  identityNumber?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   legalRepresentative?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ExternalParty"> | Date | string | null
@@ -362,7 +362,7 @@ export type ExternalPartyCreateInput = {
   relatedPartyType?: string
   name: string
   fullName?: string | null
-  identityNumber?: string | null
+  identityNumber: string
   legalRepresentative?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -378,7 +378,7 @@ export type ExternalPartyUncheckedCreateInput = {
   relatedPartyType?: string
   name: string
   fullName?: string | null
-  identityNumber?: string | null
+  identityNumber: string
   legalRepresentative?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -393,7 +393,7 @@ export type ExternalPartyUpdateInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -409,7 +409,7 @@ export type ExternalPartyUncheckedUpdateInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -425,7 +425,7 @@ export type ExternalPartyCreateManyInput = {
   relatedPartyType?: string
   name: string
   fullName?: string | null
-  identityNumber?: string | null
+  identityNumber: string
   legalRepresentative?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -439,7 +439,7 @@ export type ExternalPartyUpdateManyMutationInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -454,7 +454,7 @@ export type ExternalPartyUncheckedUpdateManyInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -549,7 +549,7 @@ export type ExternalPartyCreateWithoutRolesInput = {
   relatedPartyType?: string
   name: string
   fullName?: string | null
-  identityNumber?: string | null
+  identityNumber: string
   legalRepresentative?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -564,7 +564,7 @@ export type ExternalPartyUncheckedCreateWithoutRolesInput = {
   relatedPartyType?: string
   name: string
   fullName?: string | null
-  identityNumber?: string | null
+  identityNumber: string
   legalRepresentative?: string | null
   editedBy?: number | null
   editedAt?: Date | string | null
@@ -594,7 +594,7 @@ export type ExternalPartyUpdateWithoutRolesInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -609,7 +609,7 @@ export type ExternalPartyUncheckedUpdateWithoutRolesInput = {
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.StringFieldUpdateOperationsInput | string
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -730,7 +730,7 @@ export type $ExternalPartyPayload<ExtArgs extends runtime.Types.Extensions.Inter
     relatedPartyType: string
     name: string
     fullName: string | null
-    identityNumber: string | null
+    identityNumber: string
     legalRepresentative: string | null
     editedBy: number | null
     editedAt: Date | null

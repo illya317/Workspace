@@ -39,10 +39,22 @@ test("accepts an explicit existing subject when adding a second role", () => {
     existingPartyId: 42,
     code: "V-009",
     name: "示例公司",
+    identityNumber: "9132X",
   }, 7);
 
   assert.equal(result.ok, true);
   if (result.ok) assert.equal(result.data.existingPartyId, 42);
+});
+
+test("requires a unified code or identity number for a new role record", () => {
+  const result = buildExternalPartyCreateCommand("customer", {
+    code: "C-002",
+    name: "缺少统一代码的单位",
+    identityNumber: "",
+  }, 7);
+
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "identityNumber");
 });
 
 test("keeps aggregate version mandatory for role updates", () => {

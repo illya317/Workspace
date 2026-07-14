@@ -23,7 +23,7 @@ export const ExternalPartyCreateSchema = z.object({
   name: z.string().trim().min(1, "名称必填").max(120),
   fullName: optionalText(200),
   classification: optionalText(80),
-  identityNumber: optionalText(64),
+  identityNumber: z.string().trim().min(1, "统一代码或证件号码必填").max(64),
   legalRepresentative: optionalText(80),
   contactPerson: optionalText(80),
   phone: optionalText(64),

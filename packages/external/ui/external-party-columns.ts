@@ -15,7 +15,7 @@ export function externalPartyColumns(category: ExternalPartyCategory): DataSurfa
     { key: "name", label: "名称", required: true, cell: (row) => text(row.name, { wrap: "nowrap" }) },
     { key: "fullName", label: "全称", defaultVisible: true, cell: (row) => text(row.fullName) },
     { key: "classification", label: "业务分类", defaultVisible: true, cell: (row) => text(row.classification, { wrap: "nowrap" }) },
-    { key: "identityNumber", label: "证件/信用代码", cell: (row) => text(row.identityNumber, { font: "mono", wrap: "nowrap" }) },
+    { key: "identityNumber", label: "证件/统一代码", cell: (row) => text(row.identityNumber, { font: "mono", wrap: "nowrap" }) },
     { key: "legalRepresentative", label: "法定代表人", cell: (row) => text(row.legalRepresentative, { wrap: "nowrap" }) },
     { key: "contactPerson", label: "联系人", defaultVisible: true, cell: (row) => text(row.contactPerson, { wrap: "nowrap" }) },
     { key: "phone", label: "联系电话", defaultVisible: true, cell: (row) => text(row.phone, { wrap: "nowrap" }) },

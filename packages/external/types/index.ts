@@ -24,7 +24,7 @@ export interface ExternalParty {
   name: string;
   fullName: string | null;
   classification: string | null;
-  identityNumber: string | null;
+  identityNumber: string;
   legalRepresentative: string | null;
   contactPerson: string | null;
   phone: string | null;
