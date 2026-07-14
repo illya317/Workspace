@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { buildHrRouteCommand, createEmployeeContract, getContracts } from "@workspace/hr/server";
+import { buildHrRouteCommand, createEmployeeContract, getContracts, updateContractPageDraft } from "@workspace/hr/server";
+import { updateFieldsBodySchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const contractsQuerySchema = z.object({
   company: z.string().optional(),
   department: z.string().catch(""),
@@ -30,4 +31,14 @@ export const POST = createCommandRoute({
     return buildHrRouteCommand({ employeeId, contractData, editorId: user.userId });
   },
   action: createEmployeeContract,
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: updateFieldsBodySchema,
+  bodyError: "修改内容无效",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({
+    changes: body.changes.map((change) => ({ ...change, value: change.value ?? null })),
+    userId: user.userId,
+  }),
+  action: updateContractPageDraft,
 });

@@ -60,6 +60,7 @@ export function useExternalParties(apiPath: string) {
         ...(editing && draft.version ? { "If-Match": String(draft.version) } : {}),
       },
       body: JSON.stringify({
+        ...(!editing && draft.existingPartyId ? { existingPartyId: draft.existingPartyId } : {}),
         subjectType: draft.subjectType,
         relatedPartyType: draft.relatedPartyType,
         code: draft.code,
@@ -115,4 +116,40 @@ export function useExternalParties(apiPath: string) {
     save,
     remove,
   };
+}
+
+export function useExternalPartyCandidates(apiPath: string | undefined, enabled: boolean) {
+  const endpoint = apiPath ? workspacePath(apiPath) : null;
+  const [items, setItems] = useState<ExternalParty[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!endpoint || !enabled) {
+      setItems([]);
+      setError(null);
+      setLoading(false);
+      return;
+    }
+    const controller = new AbortController();
+    setLoading(true);
+    setError(null);
+    void fetch(`${endpoint}?page=1&pageSize=1000`, { signal: controller.signal })
+      .then(async (response) => {
+        const data = await response.json().catch(() => null) as ExternalPartyListResponse | { error?: string } | null;
+        if (!response.ok) throw new Error(errorMessage(data, `加载已有主体失败 (${response.status})`));
+        setItems((data as ExternalPartyListResponse).items);
+      })
+      .catch((caught: unknown) => {
+        if (controller.signal.aborted) return;
+        setItems([]);
+        setError(caught instanceof Error ? caught.message : "加载已有主体失败");
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) setLoading(false);
+      });
+    return () => controller.abort();
+  }, [enabled, endpoint]);
+
+  return { items, loading, error };
 }

@@ -11,7 +11,12 @@ import { getBudgetAnalysis } from "./analysis/budget-analysis";
 import { deriveRows } from "./ledger/reclass-results/derived";
 import { computeReclassification } from "./schedules/reclassify";
 import { getReportDetail } from "./statements/report-detail";
-import { buildFinanceIdCommand, buildFinancePeriodScopeCommand } from "./domain/finance-validation";
+import {
+  buildFinanceIdCommand,
+  buildFinancePeriodScopeCommand,
+  buildSaveReclassRuleChangeSetCommand,
+  type SaveReclassRuleChangeSetInput,
+} from "./domain/finance-validation";
 import { listFinanceBalances, recomputeFinanceBalances } from "./ledger/balance-api";
 import { reconcileBalanceSheet } from "./ledger/balance-reconcile";
 import { lookupFinancePeriodId, initializeFinanceDefaults } from "./ledger/periods";
@@ -26,7 +31,7 @@ import {
   manualReclassResultSchema,
   reviewReclassPayloadSchema,
 } from "./ledger/reclass-results/schemas";
-import { deleteReclassRule, scanCandidates, upsertReclassRule } from "./ledger/reclass-rules";
+import { saveReclassRuleChangeSet, scanCandidates } from "./ledger/reclass-rules";
 import { ensureReclassRulesForYear } from "./ledger/reclass-rules/ensure";
 import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
 import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
@@ -346,16 +351,12 @@ export function executeScanReclassRulesCommand(command: Parameters<typeof scanCa
   return scanCandidates(command);
 }
 
-export function buildUpsertReclassRuleRouteCommand(input: Parameters<typeof upsertReclassRule>[0]) {
-  return okCommand(input);
+export function buildSaveReclassRuleChangeSetRouteCommand(input: SaveReclassRuleChangeSetInput) {
+  return buildSaveReclassRuleChangeSetCommand(input);
 }
 
-export function executeUpsertReclassRuleRouteCommand(command: Parameters<typeof upsertReclassRule>[0]) {
-  return upsertReclassRule(command);
-}
-
-export function executeDeleteReclassRuleRouteCommand(command: { id: number }) {
-  return deleteReclassRule(command.id);
+export function executeSaveReclassRuleChangeSetRouteCommand(command: { input: SaveReclassRuleChangeSetInput }) {
+  return saveReclassRuleChangeSet(command.input);
 }
 
 export function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {

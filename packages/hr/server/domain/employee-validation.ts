@@ -7,6 +7,10 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
 import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { normalizeEmployeeOption, rejectInvalidDateField } from "../field-validation";
+import {
+  buildHrPageDraftEnvelopeCommand,
+  type HrPageDraftInput,
+} from "./page-draft-validation";
 
 export const EMPLOYEE_ALLOWED_FIELDS = [
   "employeeId",
@@ -91,6 +95,19 @@ export function buildEmployeeFieldUpdateCommand(
     return okCommand({ field: result.field, value: result.value });
   }
   return okCommand({ field, value });
+}
+
+export function buildEmployeePageDraftCommand(input: HrPageDraftInput) {
+  const envelope = buildHrPageDraftEnvelopeCommand(input);
+  if (!envelope.ok) return envelope;
+  const changes = [];
+  for (const change of envelope.data.changes) {
+    if (!EMPLOYEE_ALLOWED_FIELDS.includes(change.field)) return failCommand("字段不允许修改", 400, change.field);
+    const field = buildEmployeeFieldUpdateCommand(change.field, change.value);
+    if (!field.ok) return field;
+    changes.push({ id: change.id, field: field.data.field, value: field.data.value });
+  }
+  return okCommand({ userId: envelope.data.userId, changes });
 }
 
 export async function validateEmployeeDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {

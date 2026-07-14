@@ -48,11 +48,10 @@ function deleteContract(key: string) {
     key,
     activeEntity: "ExternalParty",
     domain: domain.delete,
-    operation: "delete",
+    operation: "custom",
     targetIdKey: "id",
     versionKey: "expectedVersion",
-    deleteMode: "hard",
-    referencePolicy: "none",
+    referencePolicy: "domain",
     auditPolicy: "history",
   });
 }

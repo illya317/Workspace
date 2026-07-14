@@ -12,7 +12,6 @@ export { getBaseItemColumns } from "./components/VoucherItemTable";
 
 export type { VoucherItem, VoucherItemRow } from "./components/VoucherItemTable";
 export type { Account } from "./components/AccountTable";
-export { RECLASS_HEADERS, REVIEW_HEADERS, dirBadge, targetDisplay } from "./ledger/reclassColumns";
 export {
   allFinanceModules,
   allFinanceNavItems,

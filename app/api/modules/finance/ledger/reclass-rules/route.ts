@@ -2,23 +2,23 @@ import { z } from "zod";
 
 import {
   buildScanReclassRulesCommand,
-  buildUpsertReclassRuleRouteCommand,
+  buildSaveReclassRuleChangeSetRouteCommand,
   executeScanReclassRulesCommand,
-  executeUpsertReclassRuleRouteCommand,
+  executeSaveReclassRuleChangeSetRouteCommand,
 } from "@workspace/finance/server/route-commands";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const scanRulesQuerySchema = z.object({
   companyCode: z.string().min(1),
   year: z.coerce.number().int(),
 });
 
-const upsertRuleSchema = z.object({
+const saveRulesSchema = z.object({
   companyCode: z.string().min(1),
   year: z.coerce.number().int(),
-  sourceAccountCode: z.string().min(1),
-  abnormalSide: z.enum(["debit", "credit", "both"]),
-  targetAccountCode: z.string().min(1),
-  enabled: z.boolean().optional(),
-  note: z.string().nullable().optional(),
+  changes: z.array(z.object({
+    sourceAccountCode: z.string().min(1),
+    abnormalSide: z.enum(["debit", "credit", "both"]),
+    targetAccountCode: z.string().min(1).nullable(),
+  })).min(1).max(500),
 });
 
 export const GET = createCommandRoute({
@@ -29,8 +29,8 @@ export const GET = createCommandRoute({
 });
 
 export const PUT = createCommandRoute({
-  bodySchema: upsertRuleSchema,
-  bodyError: "companyCode, year, sourceAccountCode, abnormalSide, targetAccountCode 为必填",
-  buildCommand: ({ body }) => buildUpsertReclassRuleRouteCommand(body),
-  action: executeUpsertReclassRuleRouteCommand,
+  bodySchema: saveRulesSchema,
+  bodyError: "companyCode、year 和 changes 为必填",
+  buildCommand: ({ body, user }) => buildSaveReclassRuleChangeSetRouteCommand({ ...body, userId: user.userId }),
+  action: executeSaveReclassRuleChangeSetRouteCommand,
 });

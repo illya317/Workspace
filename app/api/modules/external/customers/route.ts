@@ -9,7 +9,7 @@ import {
 
 export const GET = createCommandRoute({
   querySchema: ExternalPartyQuerySchema,
-  buildCommand: ({ query }) => okCommand({ category: "customer" as const, ...query }),
+  buildCommand: ({ query, user }) => okCommand({ category: "customer" as const, userId: user.userId, ...query }),
   action: listExternalParties,
 });
 

@@ -10,15 +10,18 @@ import type {
 } from "@workspace/external/types";
 import type { ExternalPartyCreateInput, ExternalPartyUpdateInput } from "../schemas";
 
-export interface ExternalPartyMutableData {
+export interface ExternalPartySubjectMutableData {
   subjectType?: ExternalPartySubjectType;
   relatedPartyType?: ExternalPartyRelatedPartyType;
-  code?: string;
   name?: string;
   fullName?: string | null;
-  classification?: string | null;
   identityNumber?: string | null;
   legalRepresentative?: string | null;
+}
+
+export interface ExternalPartyRoleMutableData {
+  code?: string;
+  classification?: string | null;
   contactPerson?: string | null;
   phone?: string | null;
   email?: string | null;
@@ -38,7 +41,13 @@ export interface ExternalPartyMutableData {
 export interface ExternalPartyCreateCommand {
   category: ExternalPartyCategory;
   userId: number;
-  data: ExternalPartyMutableData & { subjectType: ExternalPartySubjectType; code: string; name: string; isActive: boolean };
+  existingPartyId?: number;
+  subjectData: ExternalPartySubjectMutableData & {
+    subjectType: ExternalPartySubjectType;
+    relatedPartyType: ExternalPartyRelatedPartyType;
+    name: string;
+  };
+  roleData: ExternalPartyRoleMutableData & { code: string; isActive: boolean };
 }
 
 export interface ExternalPartyUpdateCommand {
@@ -46,7 +55,8 @@ export interface ExternalPartyUpdateCommand {
   category: ExternalPartyCategory;
   userId: number;
   expectedVersion: number;
-  data: ExternalPartyMutableData;
+  subjectData: ExternalPartySubjectMutableData;
+  roleData: ExternalPartyRoleMutableData;
 }
 
 export interface ExternalPartyDeleteCommand {
@@ -67,16 +77,30 @@ function nullableText(value: string | null | undefined) {
   return value?.trim() || null;
 }
 
-function normalizeData(input: ExternalPartyCreateInput | ExternalPartyUpdateInput): ExternalPartyMutableData {
+function normalizedIdentity(value: string | null | undefined) {
+  const normalized = nullableText(value);
+  return typeof normalized === "string" ? normalized.toUpperCase() : normalized;
+}
+
+function normalizeSubjectData(
+  input: ExternalPartyCreateInput | ExternalPartyUpdateInput,
+): ExternalPartySubjectMutableData {
   return {
     ...(input.subjectType !== undefined ? { subjectType: input.subjectType } : {}),
     ...(input.relatedPartyType !== undefined ? { relatedPartyType: input.relatedPartyType } : {}),
-    ...(input.code !== undefined ? { code: input.code.trim() } : {}),
     ...(input.name !== undefined ? { name: input.name.trim() } : {}),
     ...(input.fullName !== undefined ? { fullName: nullableText(input.fullName) } : {}),
-    ...(input.classification !== undefined ? { classification: nullableText(input.classification) } : {}),
-    ...(input.identityNumber !== undefined ? { identityNumber: nullableText(input.identityNumber) } : {}),
+    ...(input.identityNumber !== undefined ? { identityNumber: normalizedIdentity(input.identityNumber) } : {}),
     ...(input.legalRepresentative !== undefined ? { legalRepresentative: nullableText(input.legalRepresentative) } : {}),
+  };
+}
+
+function normalizeRoleData(
+  input: ExternalPartyCreateInput | ExternalPartyUpdateInput,
+): ExternalPartyRoleMutableData {
+  return {
+    ...(input.code !== undefined ? { code: input.code.trim() } : {}),
+    ...(input.classification !== undefined ? { classification: nullableText(input.classification) } : {}),
     ...(input.contactPerson !== undefined ? { contactPerson: nullableText(input.contactPerson) } : {}),
     ...(input.phone !== undefined ? { phone: nullableText(input.phone) } : {}),
     ...(input.email !== undefined ? { email: nullableText(input.email) } : {}),
@@ -103,16 +127,23 @@ export function buildExternalPartyCreateCommand(
   if (!validUserId.ok) return validUserId;
   if (!input.code.trim()) return failCommand("编码必填", 400, "code");
   if (!input.name.trim()) return failCommand("名称必填", 400, "name");
-  const data = normalizeData(input);
+  const existingPartyId = input.existingPartyId === undefined
+    ? undefined
+    : positiveInt(input.existingPartyId, "existingPartyId");
+  if (existingPartyId && !existingPartyId.ok) return existingPartyId;
   return okCommand({
     category,
     userId: validUserId.data,
-    data: {
-      ...data,
+    ...(existingPartyId ? { existingPartyId: existingPartyId.data } : {}),
+    subjectData: {
+      ...normalizeSubjectData(input),
       subjectType: input.subjectType ?? "organization",
       relatedPartyType: input.relatedPartyType ?? "unrelated",
-      code: input.code.trim(),
       name: input.name.trim(),
+    },
+    roleData: {
+      ...normalizeRoleData(input),
+      code: input.code.trim(),
       isActive: input.isActive ?? true,
     },
   });
@@ -139,7 +170,8 @@ export function buildExternalPartyUpdateCommand(
     category,
     userId: validUserId.data,
     expectedVersion: validVersion.data,
-    data: normalizeData(input),
+    subjectData: normalizeSubjectData(input),
+    roleData: normalizeRoleData(input),
   });
 }
 

@@ -293,6 +293,13 @@ export const historyPolicyRegistry = {
     displayName: { field: "name", fallback: "未知外部往来主体" },
     ignoredFields: AUDIT_FIELDS,
     restore: false,
+    prepareSnapshot: async (record, client) => {
+      const roles = await getDelegate(client, "externalPartyRole").findMany?.({
+        where: { partyId: record.id },
+        orderBy: [{ category: "asc" }, { id: "asc" }],
+      });
+      return { ...record, roles: roles ?? [] };
+    },
   },
   Contract: {
     entityType: "Contract",

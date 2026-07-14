@@ -77,7 +77,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
       { key: "accounts", label: "科目设置" },
       { key: "vouchers", label: "凭证明细" },
       { key: "ledger", label: "余额表" },
-      { key: "reclass", label: "重分类表" },
+      { key: "reclass", label: "重分类" },
       { key: "depreciation", label: "资产折旧" },
     ],
   },

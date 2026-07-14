@@ -1,5 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { Prisma } from "@workspace/platform/server/prisma";
+import { checkHRUpdate } from "@workspace/platform/server/auth";
+import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
@@ -15,7 +17,7 @@ import {
 import {
   buildContractCreateCommand,
   buildContractDeleteCommand,
-  buildContractFieldUpdateCommand,
+  buildContractPageDraftCommand,
 } from "./domain/contract-validation";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 export {
@@ -185,35 +187,82 @@ async function loadSyntheticContract(contractId: number) {
   return { ok: true as const, employment, employmentId, index, contracts };
 }
 
-export async function updateContractField(
-  contractId: number,
-  field: string,
-  value: unknown,
-  userId: number,
-) {
-  const command = mapValidationToServiceResult(await buildContractFieldUpdateCommand(field, value));
+export async function updateContractPageDraft(input: {
+  userId: number;
+  changes: Array<{ id: number; field: string; value: unknown }>;
+}) {
+  const command = mapValidationToServiceResult(await buildContractPageDraftCommand(input));
   if (!command.ok) return command;
+  if (!(await checkHRUpdate(command.data.userId, "hr.roster"))) return serviceError("无权限", 403);
+  const direct = await assertBusinessActionDirectExecutionAllowed({
+    businessActionKey: "hr.roster.employeeContract.update",
+    actorUserId: command.data.userId,
+    resourceKey: "hr.roster",
+    scopeType: "global",
+    scopeId: null,
+    blockedMessage: "员工合同更新已配置为必须走流程，请从统一保存入口提交",
+  });
+  if (!direct.ok) return direct;
 
-  const loaded = await loadSyntheticContract(contractId);
-  if (!loaded.ok) return serviceError(loaded.error, loaded.status);
+  const targetEmploymentIds = Array.from(new Set(command.data.changes.map((change) => decodeSyntheticContractId(change.id).employmentId)));
+  const targets = await prisma.employment.findMany({
+    where: { id: { in: targetEmploymentIds } },
+    select: { id: true, employeeId: true, contracts: true },
+  });
+  if (targets.length !== targetEmploymentIds.length) return serviceError("部分合同不存在，请刷新后重试", 404);
+  const employeeIds = Array.from(new Set(targets.map((row) => row.employeeId)));
+  const employments = await prisma.employment.findMany({
+    where: { employeeId: { in: employeeIds } },
+    select: { id: true, employeeId: true, contracts: true },
+  });
+  const rows = new Map(employments.map((employment) => [employment.id, {
+    ...employment,
+    contracts: parseContracts(employment.contracts).map(normalizeContractRecord),
+  }]));
+  const changedEmploymentIds = new Set<number>();
 
-  let contracts = loaded.contracts;
-  contracts[loaded.index][command.data.field] = command.data.value ?? null;
-  contracts[loaded.index] = normalizeContractRecord(contracts[loaded.index]);
-  if (command.data.field === "isPrimary" && command.data.value === true) {
-    const result = clearPrimaryContractFlags(contracts, loaded.index);
-    contracts = result.contracts.map(normalizeContractRecord);
-    await clearPrimaryContractsForEmployee(loaded.employment.employeeId, userId, loaded.employmentId);
+  for (const change of command.data.changes) {
+    const { employmentId, index } = decodeSyntheticContractId(change.id);
+    const employment = rows.get(employmentId);
+    if (!employment || !employment.contracts[index]) return serviceError("合同不存在，请刷新后重试", 404);
+    if (change.field === "isPrimary" && change.value === true) {
+      for (const row of rows.values()) {
+        if (row.employeeId !== employment.employeeId) continue;
+        const cleared = clearPrimaryContractFlags(row.contracts);
+        if (cleared.changed) {
+          row.contracts = cleared.contracts.map(normalizeContractRecord);
+          changedEmploymentIds.add(row.id);
+        }
+      }
+    }
+    employment.contracts[index] = normalizeContractRecord({
+      ...employment.contracts[index],
+      [change.field]: change.value ?? null,
+    });
+    changedEmploymentIds.add(employmentId);
   }
 
-  await ensureEditHistoryBaseline("Employment", loaded.employmentId, userId);
-  await prisma.employment.update({
-    where: { id: loaded.employmentId },
-    data: { contracts: JSON.stringify(contracts), editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
+  await prisma.$transaction(async (tx) => {
+    for (const employmentId of changedEmploymentIds) {
+      const employment = rows.get(employmentId)!;
+      await ensureEditHistoryBaseline("Employment", employmentId, command.data.userId, tx);
+      await tx.employment.update({
+        where: { id: employmentId },
+        data: {
+          contracts: JSON.stringify(employment.contracts),
+          editedBy: command.data.userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      await snapshotHistory("Employment", employmentId, command.data.userId, tx);
+    }
   });
-  await snapshotHistory("Employment", loaded.employmentId, userId);
-
-  return serviceOk({ success: true });
+  return serviceOk({
+    success: true,
+    updatedCount: changedEmploymentIds.size,
+    changeCount: command.data.changes.length,
+  });
 }
 
 export async function deleteContract(contractId: number, userId: number) {

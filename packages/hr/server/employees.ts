@@ -13,6 +13,7 @@ import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/sea
 import {
   buildEmployeeCreateCommand,
   buildEmployeeFieldUpdateCommand,
+  buildEmployeePageDraftCommand,
   EMPLOYEE_ALLOWED_FIELDS,
   validateEmployeeDeleteCommand,
 } from "./domain/employee-validation";
@@ -374,25 +375,46 @@ export async function createEmployeeWithAccount(name: string, editorUserId: numb
   }
 }
 
-export async function updateEmployeeFieldById(input: {
-  id: number;
-  field: string;
-  value: unknown;
+export async function updateEmployeePageDraft(input: {
   userId: number;
+  changes: Array<{ id: number; field: string; value: unknown }>;
 }) {
-  const command = buildEmployeeFieldUpdateCommand(input.field, input.value);
-  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
-  const employee = await prisma.employee.findUnique({
-    where: { id: input.id },
-    select: { employeeId: true },
+  const command = mapValidationToServiceResult(buildEmployeePageDraftCommand(input));
+  if (!command.ok) return command;
+  if (!(await checkHRUpdate(command.data.userId, "hr.roster"))) return serviceError("无 HR 编辑权限", 403);
+  const direct = await assertBusinessActionDirectExecutionAllowed({
+    businessActionKey: "hr.roster.employee.update",
+    actorUserId: command.data.userId,
+    resourceKey: "hr.roster",
+    scopeType: "global",
+    scopeId: null,
+    blockedMessage: "员工更新已配置为必须走流程，请从统一保存入口提交",
   });
-  if (!employee) return serviceError("员工不存在", 404);
-  return updateEmployeeFieldsByEmployeeIds({
-    employeeIds: [employee.employeeId],
-    field: command.data.field,
-    value: command.data.value,
-    userId: input.userId,
+  if (!direct.ok) return direct;
+
+  const ids = Array.from(new Set(command.data.changes.map((change) => change.id)));
+  const rows = await prisma.employee.findMany({ where: { id: { in: ids } }, select: { id: true } });
+  if (rows.length !== ids.length) return serviceError("部分员工不存在，请刷新后重试", 404);
+  const changesById = new Map<number, Record<string, unknown>>();
+  for (const change of command.data.changes) {
+    changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), [change.field]: change.value ?? null });
+  }
+  await prisma.$transaction(async (tx) => {
+    for (const id of ids) {
+      await ensureEditHistoryBaseline("Employee", id, command.data.userId, tx);
+      await tx.employee.update({
+        where: { id },
+        data: {
+          ...changesById.get(id),
+          editedBy: command.data.userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      await snapshotHistory("Employee", id, command.data.userId, tx);
+    }
   });
+  return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
 }
 
 export async function updateEmployeeFieldsByEmployeeIds(input: {

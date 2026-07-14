@@ -17,19 +17,34 @@ import { downloadGenericTableCsv } from "./generic-table-export";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { RosterSurfaceTabBarProps } from "../roster-surface";
 
-export default function GenericTableTab({ config, user, surface }: { config: TabConfig; user: HRUser; surface?: RosterSurfaceTabBarProps }) {
+export default function GenericTableTab({
+  config,
+  user,
+  surface,
+  onUnsavedChange,
+}: {
+  config: TabConfig;
+  user: HRUser;
+  surface?: RosterSurfaceTabBarProps;
+  onUnsavedChange?: (dirty: boolean) => void;
+}) {
   const canEdit = hrCanEdit(user);
   const {
     items, loading, error, keyword, searchKeyword, setKeyword, filters, setFilter, resetFilters,
-    editMode, setEditMode,
-    editingCell, editValue, setEditValue, startEdit, cancelEdit, saveCell,
+    editMode, dirty, startPageEdit, cancelPageEdit,
+    editingCell, editValue, setEditValue, startEdit, finishCellEdit, discardCellEdit, saveDraft,
     saving, load, showHistory, setShowHistory,
     page, pageSize, total, setPage,
   } = useGenericTab(config);
 
-  const feedback = useFeedback();
+  const feedback = useFeedback({ unsavedChanges: dirty });
   const inputRef = useRef<HTMLInputElement>(null);
   const [downloading, setDownloading] = useState(false);
+
+  useEffect(() => {
+    onUnsavedChange?.(dirty);
+    return () => onUnsavedChange?.(false);
+  }, [dirty, onUnsavedChange]);
 
   // 动态加载公司列表作为编码池选项
   const [companyOptions, setCompanyOptions] = useState<Array<{ label: string; value: string }>>([]);
@@ -134,8 +149,7 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
   }
 
   async function handleSave() {
-    if (!editingCell) { setEditMode(false); return; }
-    const result = await saveCell();
+    const result = await saveDraft();
     if (result.ok) {
       feedback.success("保存成功");
       return;
@@ -162,8 +176,14 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
-    if (e.key === "Enter") handleSave();
-    if (e.key === "Escape") cancelEdit();
+    if (e.key === "Enter") {
+      e.preventDefault();
+      finishCellEdit();
+    }
+    if (e.key === "Escape") {
+      e.preventDefault();
+      discardCellEdit();
+    }
   }
 
   const editingField = editingCell
@@ -200,12 +220,10 @@ export default function GenericTableTab({ config, user, surface }: { config: Tab
     editGroup: canEdit
       ? {
           editMode,
-          onStartEdit: () => setEditMode(true),
+          dirty,
+          onStartEdit: startPageEdit,
           onSave: handleSave,
-          onCancel: () => {
-            cancelEdit();
-            setEditMode(false);
-          },
+          onCancel: cancelPageEdit,
           canEdit,
           saving,
           onShowHistory: () => setShowHistory(true),

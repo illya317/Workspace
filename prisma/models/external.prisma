@@ -1,15 +1,31 @@
-/// 外部往来主体主数据（事实表，来源于 Workspace 人工录入；客户/供应商为角色，单位/个人为主体类型）
+/// 外部往来法定主体主数据（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
 model ExternalParty {
-  id                  Int      @id @default(autoincrement())
-  category            String
-  subjectType         String   @default("organization")
-  relatedPartyType    String   @default("unrelated")
-  code                String
+  id                  Int                 @id @default(autoincrement())
+  subjectType         String              @default("organization")
+  relatedPartyType    String              @default("unrelated")
   name                String
   fullName            String?
-  classification      String?
   identityNumber      String?
   legalRepresentative String?
+  editedBy            Int?
+  editedAt            DateTime?
+  version             Int                 @default(1)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now()) @updatedAt
+  roles               ExternalPartyRole[]
+
+  @@unique([subjectType, identityNumber])
+  @@index([name])
+  @@index([relatedPartyType])
+}
+
+/// 外部往来主体的客户或供应商角色资料（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
+model ExternalPartyRole {
+  id                  Int           @id @default(autoincrement())
+  partyId             Int
+  category            String
+  code                String
+  classification      String?
   contactPerson       String?
   phone               String?
   email               String?
@@ -23,17 +39,13 @@ model ExternalParty {
   creditDays          Int?
   taxRate             Float?
   remark              String?
-  isActive            Boolean  @default(true)
-  editedBy            Int?
-  editedAt            DateTime?
-  version             Int      @default(1)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @default(now()) @updatedAt
+  isActive            Boolean       @default(true)
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @default(now()) @updatedAt
+  party               ExternalParty @relation(fields: [partyId], references: [id], onDelete: Cascade)
 
+  @@unique([partyId, category])
   @@unique([category, code])
-  @@index([category, name])
   @@index([category, isActive])
-  @@index([category, subjectType])
-  @@index([category, relatedPartyType])
   @@index([category, classification])
 }

@@ -1,67 +1,88 @@
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import { syncReclassRuleResults } from "./sync";
-import { buildFinanceIdCommand, buildUpsertReclassRuleCommand } from "../../domain/finance-validation";
+import {
+  buildSaveReclassRuleChangeSetCommand,
+  type SaveReclassRuleChangeSetInput,
+} from "../../domain/finance-validation";
 
-export type UpsertReclassRuleInput = {
-  companyCode: string;
-  year: number;
-  sourceAccountCode: string;
-  abnormalSide: "debit" | "credit" | "both";
-  targetAccountCode: string;
-  enabled?: boolean;
-  note?: string | null;
-};
-
-export async function upsertReclassRule(input: UpsertReclassRuleInput) {
-  const command = buildUpsertReclassRuleCommand(input);
-  if (!command.ok) throw new Error(command.issue.message);
-  const rule = await prisma.financeReclassRule.upsert({
-    where: {
-      companyCode_year_sourceAccountCode_abnormalSide: {
-        companyCode: command.data.input.companyCode,
-        year: command.data.input.year,
-        sourceAccountCode: command.data.input.sourceAccountCode,
-        abnormalSide: command.data.input.abnormalSide,
-      },
-    },
-    create: {
-      companyCode: command.data.input.companyCode,
-      year: command.data.input.year,
-      sourceAccountCode: command.data.input.sourceAccountCode,
-      abnormalSide: command.data.input.abnormalSide,
-      targetAccountCode: command.data.input.targetAccountCode,
-      enabled: command.data.input.enabled ?? true,
-      note: command.data.input.note || null,
-      source: "manual",
-    },
-    update: {
-      targetAccountCode: command.data.input.targetAccountCode,
-      enabled: command.data.input.enabled ?? undefined,
-      note: command.data.input.note !== undefined ? (command.data.input.note || null) : undefined,
-    },
+export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetInput) {
+  const command = buildSaveReclassRuleChangeSetCommand(input);
+  if (!command.ok) return serviceError(command.issue.message, command.issue.status);
+  const { companyCode, year, userId, changes } = command.data.input;
+  const direct = await assertBusinessActionDirectExecutionAllowed({
+    businessActionKey: "finance.ledger.reclassRule.save",
+    actorUserId: userId,
+    resourceKey: "finance.ledger",
+    scopeType: "global",
+    scopeId: null,
+    blockedMessage: "重分类规则已配置为必须走流程，请从统一保存入口提交",
   });
-
-  const sync = await syncReclassRuleResults(command.data.input.companyCode, command.data.input.year);
-  return { success: true, rule, sync };
-}
-
-export async function deleteReclassRule(ruleId: number) {
-  const command = buildFinanceIdCommand(ruleId, "ruleId");
-  if (!command.ok) throw new Error(command.issue.message);
-  const existing = await prisma.financeReclassRule.findUnique({
-    where: { id: command.data.id },
+  if (!direct.ok) return direct;
+  const accountCodes = Array.from(new Set(changes.flatMap((change) => (
+    change.targetAccountCode
+      ? [change.sourceAccountCode, change.targetAccountCode]
+      : [change.sourceAccountCode]
+  ))));
+  const accounts = await prisma.financeAccount.findMany({
+    where: { companyCode, year, code: { in: accountCodes }, isActive: true },
+    select: { code: true },
   });
-  if (!existing) return { success: false, status: 404 as const, error: "规则不存在" };
+  const existingCodes = new Set(accounts.map((account) => account.code));
+  const missingCodes = accountCodes.filter((code) => !existingCodes.has(code));
+  if (missingCodes.length > 0) {
+    return serviceError(`科目不存在或已停用：${missingCodes.join("、")}`, 400);
+  }
 
-  const { companyCode, year } = existing;
-
-  await prisma.$transaction([
-    prisma.reclassResult.deleteMany({
-      where: { ruleId: command.data.id, status: { in: ["approved", "pending"] } },
-    }),
-    prisma.financeReclassRule.delete({ where: { id: command.data.id } }),
-  ]);
+  const now = new Date();
+  let saved = 0;
+  let cleared = 0;
+  await prisma.$transaction(async (tx) => {
+    for (const change of changes) {
+      const key = {
+        companyCode_year_sourceAccountCode_abnormalSide: {
+          companyCode,
+          year,
+          sourceAccountCode: change.sourceAccountCode,
+          abnormalSide: change.abnormalSide,
+        },
+      };
+      if (change.targetAccountCode === null) {
+        const existing = await tx.financeReclassRule.findUnique({ where: key, select: { id: true } });
+        if (!existing) continue;
+        await tx.reclassResult.deleteMany({
+          where: { ruleId: existing.id, status: { in: ["approved", "pending"] } },
+        });
+        await tx.financeReclassRule.delete({ where: { id: existing.id } });
+        cleared += 1;
+        continue;
+      }
+      await tx.financeReclassRule.upsert({
+        where: key,
+        create: {
+          companyCode,
+          year,
+          sourceAccountCode: change.sourceAccountCode,
+          abnormalSide: change.abnormalSide,
+          targetAccountCode: change.targetAccountCode,
+          enabled: true,
+          source: "manual",
+          confirmedBy: userId,
+          confirmedAt: now,
+        },
+        update: {
+          targetAccountCode: change.targetAccountCode,
+          enabled: true,
+          source: "manual",
+          confirmedBy: userId,
+          confirmedAt: now,
+        },
+      });
+      saved += 1;
+    }
+  });
 
   const sync = await syncReclassRuleResults(companyCode, year);
-  return { success: true, sync };
+  return serviceOk({ success: true, saved, cleared, sync });
 }

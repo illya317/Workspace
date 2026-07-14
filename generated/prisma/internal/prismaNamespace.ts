@@ -401,6 +401,7 @@ export const ModelName = {
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
   ExternalParty: 'ExternalParty',
+  ExternalPartyRole: 'ExternalPartyRole',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -521,7 +522,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeLedgerImport" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementAccountMapping" | "financeStatementLineConfig" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1780,6 +1781,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ExternalPartyCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ExternalPartyCountAggregateOutputType> | number
+        }
+      }
+    }
+    ExternalPartyRole: {
+      payload: Prisma.$ExternalPartyRolePayload<ExtArgs>
+      fields: Prisma.ExternalPartyRoleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.ExternalPartyRoleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.ExternalPartyRoleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        findFirst: {
+          args: Prisma.ExternalPartyRoleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.ExternalPartyRoleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        findMany: {
+          args: Prisma.ExternalPartyRoleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>[]
+        }
+        create: {
+          args: Prisma.ExternalPartyRoleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        createMany: {
+          args: Prisma.ExternalPartyRoleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.ExternalPartyRoleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>[]
+        }
+        delete: {
+          args: Prisma.ExternalPartyRoleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        update: {
+          args: Prisma.ExternalPartyRoleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        deleteMany: {
+          args: Prisma.ExternalPartyRoleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.ExternalPartyRoleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.ExternalPartyRoleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>[]
+        }
+        upsert: {
+          args: Prisma.ExternalPartyRoleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$ExternalPartyRolePayload>
+        }
+        aggregate: {
+          args: Prisma.ExternalPartyRoleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateExternalPartyRole>
+        }
+        groupBy: {
+          args: Prisma.ExternalPartyRoleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalPartyRoleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.ExternalPartyRoleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.ExternalPartyRoleCountAggregateOutputType> | number
         }
       }
     }
@@ -9905,15 +9980,28 @@ export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFiel
 
 export const ExternalPartyScalarFieldEnum = {
   id: 'id',
-  category: 'category',
   subjectType: 'subjectType',
   relatedPartyType: 'relatedPartyType',
-  code: 'code',
   name: 'name',
   fullName: 'fullName',
-  classification: 'classification',
   identityNumber: 'identityNumber',
   legalRepresentative: 'legalRepresentative',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExternalPartyScalarFieldEnum = (typeof ExternalPartyScalarFieldEnum)[keyof typeof ExternalPartyScalarFieldEnum]
+
+
+export const ExternalPartyRoleScalarFieldEnum = {
+  id: 'id',
+  partyId: 'partyId',
+  category: 'category',
+  code: 'code',
+  classification: 'classification',
   contactPerson: 'contactPerson',
   phone: 'phone',
   email: 'email',
@@ -9928,14 +10016,11 @@ export const ExternalPartyScalarFieldEnum = {
   taxRate: 'taxRate',
   remark: 'remark',
   isActive: 'isActive',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ExternalPartyScalarFieldEnum = (typeof ExternalPartyScalarFieldEnum)[keyof typeof ExternalPartyScalarFieldEnum]
+export type ExternalPartyRoleScalarFieldEnum = (typeof ExternalPartyRoleScalarFieldEnum)[keyof typeof ExternalPartyRoleScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {
@@ -12206,6 +12291,7 @@ export type GlobalOmitConfig = {
   documentTemplateSpace?: Prisma.DocumentTemplateSpaceOmit
   documentTemplate?: Prisma.DocumentTemplateOmit
   externalParty?: Prisma.ExternalPartyOmit
+  externalPartyRole?: Prisma.ExternalPartyRoleOmit
   financeBudgetVersion?: Prisma.FinanceBudgetVersionOmit
   financeBudgetDept?: Prisma.FinanceBudgetDeptOmit
   financeBudgetRd?: Prisma.FinanceBudgetRdOmit

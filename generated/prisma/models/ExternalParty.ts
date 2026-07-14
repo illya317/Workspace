@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model ExternalParty
- * 外部往来主体主数据（事实表，来源于 Workspace 人工录入；客户/供应商为角色，单位/个人为主体类型）
+ * 外部往来法定主体主数据（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
  */
 export type ExternalPartyModel = runtime.Types.Result.DefaultSelection<Prisma.$ExternalPartyPayload>
 
@@ -28,47 +28,24 @@ export type AggregateExternalParty = {
 
 export type ExternalPartyAvgAggregateOutputType = {
   id: number | null
-  creditLimit: number | null
-  creditDays: number | null
-  taxRate: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type ExternalPartySumAggregateOutputType = {
   id: number | null
-  creditLimit: number | null
-  creditDays: number | null
-  taxRate: number | null
   editedBy: number | null
   version: number | null
 }
 
 export type ExternalPartyMinAggregateOutputType = {
   id: number | null
-  category: string | null
   subjectType: string | null
   relatedPartyType: string | null
-  code: string | null
   name: string | null
   fullName: string | null
-  classification: string | null
   identityNumber: string | null
   legalRepresentative: string | null
-  contactPerson: string | null
-  phone: string | null
-  email: string | null
-  bankName: string | null
-  bankAccount: string | null
-  address: string | null
-  invoiceTitle: string | null
-  invoiceAddressPhone: string | null
-  settlementTerms: string | null
-  creditLimit: number | null
-  creditDays: number | null
-  taxRate: number | null
-  remark: string | null
-  isActive: boolean | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -78,29 +55,12 @@ export type ExternalPartyMinAggregateOutputType = {
 
 export type ExternalPartyMaxAggregateOutputType = {
   id: number | null
-  category: string | null
   subjectType: string | null
   relatedPartyType: string | null
-  code: string | null
   name: string | null
   fullName: string | null
-  classification: string | null
   identityNumber: string | null
   legalRepresentative: string | null
-  contactPerson: string | null
-  phone: string | null
-  email: string | null
-  bankName: string | null
-  bankAccount: string | null
-  address: string | null
-  invoiceTitle: string | null
-  invoiceAddressPhone: string | null
-  settlementTerms: string | null
-  creditLimit: number | null
-  creditDays: number | null
-  taxRate: number | null
-  remark: string | null
-  isActive: boolean | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -110,29 +70,12 @@ export type ExternalPartyMaxAggregateOutputType = {
 
 export type ExternalPartyCountAggregateOutputType = {
   id: number
-  category: number
   subjectType: number
   relatedPartyType: number
-  code: number
   name: number
   fullName: number
-  classification: number
   identityNumber: number
   legalRepresentative: number
-  contactPerson: number
-  phone: number
-  email: number
-  bankName: number
-  bankAccount: number
-  address: number
-  invoiceTitle: number
-  invoiceAddressPhone: number
-  settlementTerms: number
-  creditLimit: number
-  creditDays: number
-  taxRate: number
-  remark: number
-  isActive: number
   editedBy: number
   editedAt: number
   version: number
@@ -144,47 +87,24 @@ export type ExternalPartyCountAggregateOutputType = {
 
 export type ExternalPartyAvgAggregateInputType = {
   id?: true
-  creditLimit?: true
-  creditDays?: true
-  taxRate?: true
   editedBy?: true
   version?: true
 }
 
 export type ExternalPartySumAggregateInputType = {
   id?: true
-  creditLimit?: true
-  creditDays?: true
-  taxRate?: true
   editedBy?: true
   version?: true
 }
 
 export type ExternalPartyMinAggregateInputType = {
   id?: true
-  category?: true
   subjectType?: true
   relatedPartyType?: true
-  code?: true
   name?: true
   fullName?: true
-  classification?: true
   identityNumber?: true
   legalRepresentative?: true
-  contactPerson?: true
-  phone?: true
-  email?: true
-  bankName?: true
-  bankAccount?: true
-  address?: true
-  invoiceTitle?: true
-  invoiceAddressPhone?: true
-  settlementTerms?: true
-  creditLimit?: true
-  creditDays?: true
-  taxRate?: true
-  remark?: true
-  isActive?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -194,29 +114,12 @@ export type ExternalPartyMinAggregateInputType = {
 
 export type ExternalPartyMaxAggregateInputType = {
   id?: true
-  category?: true
   subjectType?: true
   relatedPartyType?: true
-  code?: true
   name?: true
   fullName?: true
-  classification?: true
   identityNumber?: true
   legalRepresentative?: true
-  contactPerson?: true
-  phone?: true
-  email?: true
-  bankName?: true
-  bankAccount?: true
-  address?: true
-  invoiceTitle?: true
-  invoiceAddressPhone?: true
-  settlementTerms?: true
-  creditLimit?: true
-  creditDays?: true
-  taxRate?: true
-  remark?: true
-  isActive?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -226,29 +129,12 @@ export type ExternalPartyMaxAggregateInputType = {
 
 export type ExternalPartyCountAggregateInputType = {
   id?: true
-  category?: true
   subjectType?: true
   relatedPartyType?: true
-  code?: true
   name?: true
   fullName?: true
-  classification?: true
   identityNumber?: true
   legalRepresentative?: true
-  contactPerson?: true
-  phone?: true
-  email?: true
-  bankName?: true
-  bankAccount?: true
-  address?: true
-  invoiceTitle?: true
-  invoiceAddressPhone?: true
-  settlementTerms?: true
-  creditLimit?: true
-  creditDays?: true
-  taxRate?: true
-  remark?: true
-  isActive?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -345,29 +231,12 @@ export type ExternalPartyGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 
 export type ExternalPartyGroupByOutputType = {
   id: number
-  category: string
   subjectType: string
   relatedPartyType: string
-  code: string
   name: string
   fullName: string | null
-  classification: string | null
   identityNumber: string | null
   legalRepresentative: string | null
-  contactPerson: string | null
-  phone: string | null
-  email: string | null
-  bankName: string | null
-  bankAccount: string | null
-  address: string | null
-  invoiceTitle: string | null
-  invoiceAddressPhone: string | null
-  settlementTerms: string | null
-  creditLimit: number | null
-  creditDays: number | null
-  taxRate: number | null
-  remark: string | null
-  isActive: boolean
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -400,129 +269,64 @@ export type ExternalPartyWhereInput = {
   OR?: Prisma.ExternalPartyWhereInput[]
   NOT?: Prisma.ExternalPartyWhereInput | Prisma.ExternalPartyWhereInput[]
   id?: Prisma.IntFilter<"ExternalParty"> | number
-  category?: Prisma.StringFilter<"ExternalParty"> | string
   subjectType?: Prisma.StringFilter<"ExternalParty"> | string
   relatedPartyType?: Prisma.StringFilter<"ExternalParty"> | string
-  code?: Prisma.StringFilter<"ExternalParty"> | string
   name?: Prisma.StringFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  classification?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   identityNumber?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   legalRepresentative?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  contactPerson?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  phone?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  email?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  bankName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  bankAccount?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  address?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  invoiceTitle?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  invoiceAddressPhone?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  settlementTerms?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  creditLimit?: Prisma.FloatNullableFilter<"ExternalParty"> | number | null
-  creditDays?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
-  taxRate?: Prisma.FloatNullableFilter<"ExternalParty"> | number | null
-  remark?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  isActive?: Prisma.BoolFilter<"ExternalParty"> | boolean
   editedBy?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"ExternalParty"> | Date | string | null
   version?: Prisma.IntFilter<"ExternalParty"> | number
   createdAt?: Prisma.DateTimeFilter<"ExternalParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalParty"> | Date | string
+  roles?: Prisma.ExternalPartyRoleListRelationFilter
 }
 
 export type ExternalPartyOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   relatedPartyType?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
-  classification?: Prisma.SortOrderInput | Prisma.SortOrder
   identityNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrderInput | Prisma.SortOrder
-  contactPerson?: Prisma.SortOrderInput | Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankAccount?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrderInput | Prisma.SortOrder
-  invoiceTitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  invoiceAddressPhone?: Prisma.SortOrderInput | Prisma.SortOrder
-  settlementTerms?: Prisma.SortOrderInput | Prisma.SortOrder
-  creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
-  creditDays?: Prisma.SortOrderInput | Prisma.SortOrder
-  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
-  remark?: Prisma.SortOrderInput | Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  roles?: Prisma.ExternalPartyRoleOrderByRelationAggregateInput
 }
 
 export type ExternalPartyWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  category_code?: Prisma.ExternalPartyCategoryCodeCompoundUniqueInput
+  subjectType_identityNumber?: Prisma.ExternalPartySubjectTypeIdentityNumberCompoundUniqueInput
   AND?: Prisma.ExternalPartyWhereInput | Prisma.ExternalPartyWhereInput[]
   OR?: Prisma.ExternalPartyWhereInput[]
   NOT?: Prisma.ExternalPartyWhereInput | Prisma.ExternalPartyWhereInput[]
-  category?: Prisma.StringFilter<"ExternalParty"> | string
   subjectType?: Prisma.StringFilter<"ExternalParty"> | string
   relatedPartyType?: Prisma.StringFilter<"ExternalParty"> | string
-  code?: Prisma.StringFilter<"ExternalParty"> | string
   name?: Prisma.StringFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  classification?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   identityNumber?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
   legalRepresentative?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  contactPerson?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  phone?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  email?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  bankName?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  bankAccount?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  address?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  invoiceTitle?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  invoiceAddressPhone?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  settlementTerms?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  creditLimit?: Prisma.FloatNullableFilter<"ExternalParty"> | number | null
-  creditDays?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
-  taxRate?: Prisma.FloatNullableFilter<"ExternalParty"> | number | null
-  remark?: Prisma.StringNullableFilter<"ExternalParty"> | string | null
-  isActive?: Prisma.BoolFilter<"ExternalParty"> | boolean
   editedBy?: Prisma.IntNullableFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"ExternalParty"> | Date | string | null
   version?: Prisma.IntFilter<"ExternalParty"> | number
   createdAt?: Prisma.DateTimeFilter<"ExternalParty"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalParty"> | Date | string
-}, "id" | "category_code">
+  roles?: Prisma.ExternalPartyRoleListRelationFilter
+}, "id" | "subjectType_identityNumber">
 
 export type ExternalPartyOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   relatedPartyType?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrderInput | Prisma.SortOrder
-  classification?: Prisma.SortOrderInput | Prisma.SortOrder
   identityNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrderInput | Prisma.SortOrder
-  contactPerson?: Prisma.SortOrderInput | Prisma.SortOrder
-  phone?: Prisma.SortOrderInput | Prisma.SortOrder
-  email?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankName?: Prisma.SortOrderInput | Prisma.SortOrder
-  bankAccount?: Prisma.SortOrderInput | Prisma.SortOrder
-  address?: Prisma.SortOrderInput | Prisma.SortOrder
-  invoiceTitle?: Prisma.SortOrderInput | Prisma.SortOrder
-  invoiceAddressPhone?: Prisma.SortOrderInput | Prisma.SortOrder
-  settlementTerms?: Prisma.SortOrderInput | Prisma.SortOrder
-  creditLimit?: Prisma.SortOrderInput | Prisma.SortOrder
-  creditDays?: Prisma.SortOrderInput | Prisma.SortOrder
-  taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
-  remark?: Prisma.SortOrderInput | Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -540,29 +344,12 @@ export type ExternalPartyScalarWhereWithAggregatesInput = {
   OR?: Prisma.ExternalPartyScalarWhereWithAggregatesInput[]
   NOT?: Prisma.ExternalPartyScalarWhereWithAggregatesInput | Prisma.ExternalPartyScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"ExternalParty"> | number
-  category?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   subjectType?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   relatedPartyType?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
-  code?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   name?: Prisma.StringWithAggregatesFilter<"ExternalParty"> | string
   fullName?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  classification?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
   identityNumber?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
   legalRepresentative?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  contactPerson?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  phone?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  email?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  bankName?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  bankAccount?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  address?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  invoiceTitle?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  invoiceAddressPhone?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  settlementTerms?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  creditLimit?: Prisma.FloatNullableWithAggregatesFilter<"ExternalParty"> | number | null
-  creditDays?: Prisma.IntNullableWithAggregatesFilter<"ExternalParty"> | number | null
-  taxRate?: Prisma.FloatNullableWithAggregatesFilter<"ExternalParty"> | number | null
-  remark?: Prisma.StringNullableWithAggregatesFilter<"ExternalParty"> | string | null
-  isActive?: Prisma.BoolWithAggregatesFilter<"ExternalParty"> | boolean
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"ExternalParty"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ExternalParty"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"ExternalParty"> | number
@@ -571,156 +358,75 @@ export type ExternalPartyScalarWhereWithAggregatesInput = {
 }
 
 export type ExternalPartyCreateInput = {
-  category: string
   subjectType?: string
   relatedPartyType?: string
-  code: string
   name: string
   fullName?: string | null
-  classification?: string | null
   identityNumber?: string | null
   legalRepresentative?: string | null
-  contactPerson?: string | null
-  phone?: string | null
-  email?: string | null
-  bankName?: string | null
-  bankAccount?: string | null
-  address?: string | null
-  invoiceTitle?: string | null
-  invoiceAddressPhone?: string | null
-  settlementTerms?: string | null
-  creditLimit?: number | null
-  creditDays?: number | null
-  taxRate?: number | null
-  remark?: string | null
-  isActive?: boolean
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roles?: Prisma.ExternalPartyRoleCreateNestedManyWithoutPartyInput
 }
 
 export type ExternalPartyUncheckedCreateInput = {
   id?: number
-  category: string
   subjectType?: string
   relatedPartyType?: string
-  code: string
   name: string
   fullName?: string | null
-  classification?: string | null
   identityNumber?: string | null
   legalRepresentative?: string | null
-  contactPerson?: string | null
-  phone?: string | null
-  email?: string | null
-  bankName?: string | null
-  bankAccount?: string | null
-  address?: string | null
-  invoiceTitle?: string | null
-  invoiceAddressPhone?: string | null
-  settlementTerms?: string | null
-  creditLimit?: number | null
-  creditDays?: number | null
-  taxRate?: number | null
-  remark?: string | null
-  isActive?: boolean
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  roles?: Prisma.ExternalPartyRoleUncheckedCreateNestedManyWithoutPartyInput
 }
 
 export type ExternalPartyUpdateInput = {
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.ExternalPartyRoleUpdateManyWithoutPartyNestedInput
 }
 
 export type ExternalPartyUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  roles?: Prisma.ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput
 }
 
 export type ExternalPartyCreateManyInput = {
   id?: number
-  category: string
   subjectType?: string
   relatedPartyType?: string
-  code: string
   name: string
   fullName?: string | null
-  classification?: string | null
   identityNumber?: string | null
   legalRepresentative?: string | null
-  contactPerson?: string | null
-  phone?: string | null
-  email?: string | null
-  bankName?: string | null
-  bankAccount?: string | null
-  address?: string | null
-  invoiceTitle?: string | null
-  invoiceAddressPhone?: string | null
-  settlementTerms?: string | null
-  creditLimit?: number | null
-  creditDays?: number | null
-  taxRate?: number | null
-  remark?: string | null
-  isActive?: boolean
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -729,29 +435,12 @@ export type ExternalPartyCreateManyInput = {
 }
 
 export type ExternalPartyUpdateManyMutationInput = {
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -761,29 +450,12 @@ export type ExternalPartyUpdateManyMutationInput = {
 
 export type ExternalPartyUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  category?: Prisma.StringFieldUpdateOperationsInput | string
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
-  code?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -791,36 +463,19 @@ export type ExternalPartyUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-export type ExternalPartyCategoryCodeCompoundUniqueInput = {
-  category: string
-  code: string
+export type ExternalPartySubjectTypeIdentityNumberCompoundUniqueInput = {
+  subjectType: string
+  identityNumber: string
 }
 
 export type ExternalPartyCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   relatedPartyType?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  classification?: Prisma.SortOrder
   identityNumber?: Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrder
-  contactPerson?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  bankName?: Prisma.SortOrder
-  bankAccount?: Prisma.SortOrder
-  address?: Prisma.SortOrder
-  invoiceTitle?: Prisma.SortOrder
-  invoiceAddressPhone?: Prisma.SortOrder
-  settlementTerms?: Prisma.SortOrder
-  creditLimit?: Prisma.SortOrder
-  creditDays?: Prisma.SortOrder
-  taxRate?: Prisma.SortOrder
-  remark?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -830,38 +485,18 @@ export type ExternalPartyCountOrderByAggregateInput = {
 
 export type ExternalPartyAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  creditLimit?: Prisma.SortOrder
-  creditDays?: Prisma.SortOrder
-  taxRate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
 export type ExternalPartyMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   relatedPartyType?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  classification?: Prisma.SortOrder
   identityNumber?: Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrder
-  contactPerson?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  bankName?: Prisma.SortOrder
-  bankAccount?: Prisma.SortOrder
-  address?: Prisma.SortOrder
-  invoiceTitle?: Prisma.SortOrder
-  invoiceAddressPhone?: Prisma.SortOrder
-  settlementTerms?: Prisma.SortOrder
-  creditLimit?: Prisma.SortOrder
-  creditDays?: Prisma.SortOrder
-  taxRate?: Prisma.SortOrder
-  remark?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -871,29 +506,12 @@ export type ExternalPartyMaxOrderByAggregateInput = {
 
 export type ExternalPartyMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  category?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   relatedPartyType?: Prisma.SortOrder
-  code?: Prisma.SortOrder
   name?: Prisma.SortOrder
   fullName?: Prisma.SortOrder
-  classification?: Prisma.SortOrder
   identityNumber?: Prisma.SortOrder
   legalRepresentative?: Prisma.SortOrder
-  contactPerson?: Prisma.SortOrder
-  phone?: Prisma.SortOrder
-  email?: Prisma.SortOrder
-  bankName?: Prisma.SortOrder
-  bankAccount?: Prisma.SortOrder
-  address?: Prisma.SortOrder
-  invoiceTitle?: Prisma.SortOrder
-  invoiceAddressPhone?: Prisma.SortOrder
-  settlementTerms?: Prisma.SortOrder
-  creditLimit?: Prisma.SortOrder
-  creditDays?: Prisma.SortOrder
-  taxRate?: Prisma.SortOrder
-  remark?: Prisma.SortOrder
-  isActive?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -903,72 +521,159 @@ export type ExternalPartyMinOrderByAggregateInput = {
 
 export type ExternalPartySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  creditLimit?: Prisma.SortOrder
-  creditDays?: Prisma.SortOrder
-  taxRate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
 
+export type ExternalPartyScalarRelationFilter = {
+  is?: Prisma.ExternalPartyWhereInput
+  isNot?: Prisma.ExternalPartyWhereInput
+}
+
+export type ExternalPartyCreateNestedOneWithoutRolesInput = {
+  create?: Prisma.XOR<Prisma.ExternalPartyCreateWithoutRolesInput, Prisma.ExternalPartyUncheckedCreateWithoutRolesInput>
+  connectOrCreate?: Prisma.ExternalPartyCreateOrConnectWithoutRolesInput
+  connect?: Prisma.ExternalPartyWhereUniqueInput
+}
+
+export type ExternalPartyUpdateOneRequiredWithoutRolesNestedInput = {
+  create?: Prisma.XOR<Prisma.ExternalPartyCreateWithoutRolesInput, Prisma.ExternalPartyUncheckedCreateWithoutRolesInput>
+  connectOrCreate?: Prisma.ExternalPartyCreateOrConnectWithoutRolesInput
+  upsert?: Prisma.ExternalPartyUpsertWithoutRolesInput
+  connect?: Prisma.ExternalPartyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExternalPartyUpdateToOneWithWhereWithoutRolesInput, Prisma.ExternalPartyUpdateWithoutRolesInput>, Prisma.ExternalPartyUncheckedUpdateWithoutRolesInput>
+}
+
+export type ExternalPartyCreateWithoutRolesInput = {
+  subjectType?: string
+  relatedPartyType?: string
+  name: string
+  fullName?: string | null
+  identityNumber?: string | null
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExternalPartyUncheckedCreateWithoutRolesInput = {
+  id?: number
+  subjectType?: string
+  relatedPartyType?: string
+  name: string
+  fullName?: string | null
+  identityNumber?: string | null
+  legalRepresentative?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ExternalPartyCreateOrConnectWithoutRolesInput = {
+  where: Prisma.ExternalPartyWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExternalPartyCreateWithoutRolesInput, Prisma.ExternalPartyUncheckedCreateWithoutRolesInput>
+}
+
+export type ExternalPartyUpsertWithoutRolesInput = {
+  update: Prisma.XOR<Prisma.ExternalPartyUpdateWithoutRolesInput, Prisma.ExternalPartyUncheckedUpdateWithoutRolesInput>
+  create: Prisma.XOR<Prisma.ExternalPartyCreateWithoutRolesInput, Prisma.ExternalPartyUncheckedCreateWithoutRolesInput>
+  where?: Prisma.ExternalPartyWhereInput
+}
+
+export type ExternalPartyUpdateToOneWithWhereWithoutRolesInput = {
+  where?: Prisma.ExternalPartyWhereInput
+  data: Prisma.XOR<Prisma.ExternalPartyUpdateWithoutRolesInput, Prisma.ExternalPartyUncheckedUpdateWithoutRolesInput>
+}
+
+export type ExternalPartyUpdateWithoutRolesInput = {
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ExternalPartyUncheckedUpdateWithoutRolesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  subjectType?: Prisma.StringFieldUpdateOperationsInput | string
+  relatedPartyType?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalRepresentative?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+
+/**
+ * Count Type ExternalPartyCountOutputType
+ */
+
+export type ExternalPartyCountOutputType = {
+  roles: number
+}
+
+export type ExternalPartyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  roles?: boolean | ExternalPartyCountOutputTypeCountRolesArgs
+}
+
+/**
+ * ExternalPartyCountOutputType without action
+ */
+export type ExternalPartyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExternalPartyCountOutputType
+   */
+  select?: Prisma.ExternalPartyCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ExternalPartyCountOutputType without action
+ */
+export type ExternalPartyCountOutputTypeCountRolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExternalPartyRoleWhereInput
+}
 
 
 export type ExternalPartySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  category?: boolean
   subjectType?: boolean
   relatedPartyType?: boolean
-  code?: boolean
   name?: boolean
   fullName?: boolean
-  classification?: boolean
   identityNumber?: boolean
   legalRepresentative?: boolean
-  contactPerson?: boolean
-  phone?: boolean
-  email?: boolean
-  bankName?: boolean
-  bankAccount?: boolean
-  address?: boolean
-  invoiceTitle?: boolean
-  invoiceAddressPhone?: boolean
-  settlementTerms?: boolean
-  creditLimit?: boolean
-  creditDays?: boolean
-  taxRate?: boolean
-  remark?: boolean
-  isActive?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  roles?: boolean | Prisma.ExternalParty$rolesArgs<ExtArgs>
+  _count?: boolean | Prisma.ExternalPartyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["externalParty"]>
 
 export type ExternalPartySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  category?: boolean
   subjectType?: boolean
   relatedPartyType?: boolean
-  code?: boolean
   name?: boolean
   fullName?: boolean
-  classification?: boolean
   identityNumber?: boolean
   legalRepresentative?: boolean
-  contactPerson?: boolean
-  phone?: boolean
-  email?: boolean
-  bankName?: boolean
-  bankAccount?: boolean
-  address?: boolean
-  invoiceTitle?: boolean
-  invoiceAddressPhone?: boolean
-  settlementTerms?: boolean
-  creditLimit?: boolean
-  creditDays?: boolean
-  taxRate?: boolean
-  remark?: boolean
-  isActive?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -978,29 +683,12 @@ export type ExternalPartySelectCreateManyAndReturn<ExtArgs extends runtime.Types
 
 export type ExternalPartySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  category?: boolean
   subjectType?: boolean
   relatedPartyType?: boolean
-  code?: boolean
   name?: boolean
   fullName?: boolean
-  classification?: boolean
   identityNumber?: boolean
   legalRepresentative?: boolean
-  contactPerson?: boolean
-  phone?: boolean
-  email?: boolean
-  bankName?: boolean
-  bankAccount?: boolean
-  address?: boolean
-  invoiceTitle?: boolean
-  invoiceAddressPhone?: boolean
-  settlementTerms?: boolean
-  creditLimit?: boolean
-  creditDays?: boolean
-  taxRate?: boolean
-  remark?: boolean
-  isActive?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1010,29 +698,12 @@ export type ExternalPartySelectUpdateManyAndReturn<ExtArgs extends runtime.Types
 
 export type ExternalPartySelectScalar = {
   id?: boolean
-  category?: boolean
   subjectType?: boolean
   relatedPartyType?: boolean
-  code?: boolean
   name?: boolean
   fullName?: boolean
-  classification?: boolean
   identityNumber?: boolean
   legalRepresentative?: boolean
-  contactPerson?: boolean
-  phone?: boolean
-  email?: boolean
-  bankName?: boolean
-  bankAccount?: boolean
-  address?: boolean
-  invoiceTitle?: boolean
-  invoiceAddressPhone?: boolean
-  settlementTerms?: boolean
-  creditLimit?: boolean
-  creditDays?: boolean
-  taxRate?: boolean
-  remark?: boolean
-  isActive?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1040,36 +711,27 @@ export type ExternalPartySelectScalar = {
   updatedAt?: boolean
 }
 
-export type ExternalPartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "category" | "subjectType" | "relatedPartyType" | "code" | "name" | "fullName" | "classification" | "identityNumber" | "legalRepresentative" | "contactPerson" | "phone" | "email" | "bankName" | "bankAccount" | "address" | "invoiceTitle" | "invoiceAddressPhone" | "settlementTerms" | "creditLimit" | "creditDays" | "taxRate" | "remark" | "isActive" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["externalParty"]>
+export type ExternalPartyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "subjectType" | "relatedPartyType" | "name" | "fullName" | "identityNumber" | "legalRepresentative" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["externalParty"]>
+export type ExternalPartyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  roles?: boolean | Prisma.ExternalParty$rolesArgs<ExtArgs>
+  _count?: boolean | Prisma.ExternalPartyCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type ExternalPartyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type ExternalPartyIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $ExternalPartyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "ExternalParty"
-  objects: {}
+  objects: {
+    roles: Prisma.$ExternalPartyRolePayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    category: string
     subjectType: string
     relatedPartyType: string
-    code: string
     name: string
     fullName: string | null
-    classification: string | null
     identityNumber: string | null
     legalRepresentative: string | null
-    contactPerson: string | null
-    phone: string | null
-    email: string | null
-    bankName: string | null
-    bankAccount: string | null
-    address: string | null
-    invoiceTitle: string | null
-    invoiceAddressPhone: string | null
-    settlementTerms: string | null
-    creditLimit: number | null
-    creditDays: number | null
-    taxRate: number | null
-    remark: string | null
-    isActive: boolean
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1469,6 +1131,7 @@ readonly fields: ExternalPartyFieldRefs;
  */
 export interface Prisma__ExternalPartyClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  roles<T extends Prisma.ExternalParty$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalParty$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalPartyRolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1499,29 +1162,12 @@ export interface Prisma__ExternalPartyClient<T, Null = never, ExtArgs extends ru
  */
 export interface ExternalPartyFieldRefs {
   readonly id: Prisma.FieldRef<"ExternalParty", 'Int'>
-  readonly category: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly subjectType: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly relatedPartyType: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly code: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly name: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly fullName: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly classification: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly identityNumber: Prisma.FieldRef<"ExternalParty", 'String'>
   readonly legalRepresentative: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly contactPerson: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly phone: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly email: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly bankName: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly bankAccount: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly address: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly invoiceTitle: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly invoiceAddressPhone: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly settlementTerms: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly creditLimit: Prisma.FieldRef<"ExternalParty", 'Float'>
-  readonly creditDays: Prisma.FieldRef<"ExternalParty", 'Int'>
-  readonly taxRate: Prisma.FieldRef<"ExternalParty", 'Float'>
-  readonly remark: Prisma.FieldRef<"ExternalParty", 'String'>
-  readonly isActive: Prisma.FieldRef<"ExternalParty", 'Boolean'>
   readonly editedBy: Prisma.FieldRef<"ExternalParty", 'Int'>
   readonly editedAt: Prisma.FieldRef<"ExternalParty", 'DateTime'>
   readonly version: Prisma.FieldRef<"ExternalParty", 'Int'>
@@ -1544,6 +1190,10 @@ export type ExternalPartyFindUniqueArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * Filter, which ExternalParty to fetch.
    */
   where: Prisma.ExternalPartyWhereUniqueInput
@@ -1562,6 +1212,10 @@ export type ExternalPartyFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * Filter, which ExternalParty to fetch.
    */
   where: Prisma.ExternalPartyWhereUniqueInput
@@ -1579,6 +1233,10 @@ export type ExternalPartyFindFirstArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the ExternalParty
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
   /**
    * Filter, which ExternalParty to fetch.
    */
@@ -1628,6 +1286,10 @@ export type ExternalPartyFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * Filter, which ExternalParty to fetch.
    */
   where?: Prisma.ExternalPartyWhereInput
@@ -1675,6 +1337,10 @@ export type ExternalPartyFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the ExternalParty
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
   /**
    * Filter, which ExternalParties to fetch.
    */
@@ -1724,6 +1390,10 @@ export type ExternalPartyCreateArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * The data needed to create a ExternalParty.
    */
   data: Prisma.XOR<Prisma.ExternalPartyCreateInput, Prisma.ExternalPartyUncheckedCreateInput>
@@ -1771,6 +1441,10 @@ export type ExternalPartyUpdateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the ExternalParty
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
   /**
    * The data needed to update a ExternalParty.
    */
@@ -1838,6 +1512,10 @@ export type ExternalPartyUpsertArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * The filter to search for the ExternalParty to update in case it exists.
    */
   where: Prisma.ExternalPartyWhereUniqueInput
@@ -1864,6 +1542,10 @@ export type ExternalPartyDeleteArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
+  /**
    * Filter which ExternalParty to delete.
    */
   where: Prisma.ExternalPartyWhereUniqueInput
@@ -1884,6 +1566,30 @@ export type ExternalPartyDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
+ * ExternalParty.roles
+ */
+export type ExternalParty$rolesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExternalPartyRole
+   */
+  select?: Prisma.ExternalPartyRoleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExternalPartyRole
+   */
+  omit?: Prisma.ExternalPartyRoleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyRoleInclude<ExtArgs> | null
+  where?: Prisma.ExternalPartyRoleWhereInput
+  orderBy?: Prisma.ExternalPartyRoleOrderByWithRelationInput | Prisma.ExternalPartyRoleOrderByWithRelationInput[]
+  cursor?: Prisma.ExternalPartyRoleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExternalPartyRoleScalarFieldEnum | Prisma.ExternalPartyRoleScalarFieldEnum[]
+}
+
+/**
  * ExternalParty without action
  */
 export type ExternalPartyDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1895,4 +1601,8 @@ export type ExternalPartyDefaultArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the ExternalParty
    */
   omit?: Prisma.ExternalPartyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyInclude<ExtArgs> | null
 }

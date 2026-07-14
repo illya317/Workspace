@@ -5,6 +5,10 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } from "../field-validation";
+import {
+  buildHrPageDraftEnvelopeCommand,
+  type HrPageDraftInput,
+} from "./page-draft-validation";
 
 const DATE_FIELDS = ["joinDate", "leaveDate"];
 const OPTION_FIELDS = ["officeLocation", "personnelType", "rank", "title", "leaveReason"];
@@ -85,4 +89,17 @@ export async function buildEmploymentFieldUpdateCommand(
   const optionResult = validateEmploymentOption(field, value);
   if (!optionResult) return failCommand("字段值不在允许范围内");
   return okCommand({ field, value });
+}
+
+export async function buildEmploymentPageDraftCommand(input: HrPageDraftInput) {
+  const envelope = buildHrPageDraftEnvelopeCommand(input);
+  if (!envelope.ok) return envelope;
+  const changes = [];
+  for (const change of envelope.data.changes) {
+    if (!EMPLOYMENT_ALLOWED_FIELDS.includes(change.field)) return failCommand("非法字段", 400, change.field);
+    const field = await buildEmploymentFieldUpdateCommand(change.field, change.value, change.id);
+    if (!field.ok) return field;
+    changes.push({ id: change.id, field: field.data.field, value: field.data.value });
+  }
+  return okCommand({ userId: envelope.data.userId, changes });
 }

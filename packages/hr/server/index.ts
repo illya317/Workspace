@@ -17,7 +17,7 @@ export {
   createEmployeeContract,
   deleteContract,
   getContracts,
-  updateContractField,
+  updateContractPageDraft,
 } from "./contracts";
 
 export {
@@ -53,7 +53,7 @@ export {
   createEdp,
   deleteEdp,
   listEdps,
-  updateEdpField,
+  updateEdpPageDraft,
 } from "./edps";
 
 export { updateEmployeeProfileContracts } from "./employee-contracts";
@@ -62,14 +62,14 @@ export { updateEmployeeProfileEdps } from "./employee-edps";
 export {
   deleteEmployee,
   listEmployees,
-  updateEmployeeFieldById,
+  updateEmployeePageDraft,
 } from "./employees";
 
 export {
   createEmploymentRecord,
   listEmployments,
   rejectEmploymentDelete,
-  updateEmploymentField,
+  updateEmploymentPageDraft,
 } from "./employments";
 
 export {

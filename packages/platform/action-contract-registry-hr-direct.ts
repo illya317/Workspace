@@ -181,9 +181,9 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/edps.createEdp",
   ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.edp.update", "EDP", domain(
-    "packages/hr/server/domain/edp-validation.buildEdpFieldUpdateCommand",
-    "packages/hr/server/edps.updateEdpField",
-  )),
+    "packages/hr/server/domain/edp-validation.buildEdpPageDraftCommand",
+    "packages/hr/server/edps.updateEdpPageDraft",
+  ), { shape: "change_set", commitMode: "native_transition" }),
   lifecycle("hr.roster.edp.delete", "EDP", domain(
     "packages/hr/server/domain/edp-validation.validateEdpDeleteCommand",
     "packages/hr/server/edps.deleteEdp",
@@ -193,9 +193,9 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/employees.createEmployeeWithAccount",
   ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.employee.update", "Employee", domain(
-    "packages/hr/server/domain/employee-validation.buildEmployeeFieldUpdateCommand",
-    "packages/hr/server/employees.updateEmployeeFieldById",
-  )),
+    "packages/hr/server/domain/employee-validation.buildEmployeePageDraftCommand",
+    "packages/hr/server/employees.updateEmployeePageDraft",
+  ), { shape: "change_set", commitMode: "native_transition" }),
   lifecycle("hr.roster.employee.delete", "Employee", domain(
     "packages/hr/server/domain/employee-validation.validateEmployeeDeleteCommand",
     "packages/hr/server/employees.deleteEmployee",
@@ -205,9 +205,9 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/contracts.createEmployeeContract",
   ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.employeeContract.update", "Employment.contracts", domain(
-    "packages/hr/server/domain/contract-validation.buildContractFieldUpdateCommand",
-    "packages/hr/server/contracts.updateContractField",
-  ), { targetIdKey: "contractId" }),
+    "packages/hr/server/domain/contract-validation.buildContractPageDraftCommand",
+    "packages/hr/server/contracts.updateContractPageDraft",
+  ), { shape: "change_set", commitMode: "native_transition" }),
   lifecycle("hr.roster.employeeContract.delete", "Employment.contracts", domain(
     "packages/hr/server/domain/contract-validation.buildContractDeleteCommand",
     "packages/hr/server/contracts.deleteContract",
@@ -225,9 +225,9 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/employments.createEmploymentRecord",
   ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.employment.update", "Employment", domain(
-    "packages/hr/server/domain/employment-validation.buildEmploymentFieldUpdateCommand",
-    "packages/hr/server/employments.updateEmploymentField",
-  )),
+    "packages/hr/server/domain/employment-validation.buildEmploymentPageDraftCommand",
+    "packages/hr/server/employments.updateEmploymentPageDraft",
+  ), { shape: "change_set", commitMode: "native_transition" }),
   lifecycle("hr.roster.position.archive", "Position", domain(
     "packages/hr/server/domain/position-validation.buildPositionUpdateCommand",
     "packages/hr/server/positions.updatePosition",

@@ -68,6 +68,7 @@ export const ModelName = {
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
   ExternalParty: 'ExternalParty',
+  ExternalPartyRole: 'ExternalPartyRole',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -504,15 +505,28 @@ export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFiel
 
 export const ExternalPartyScalarFieldEnum = {
   id: 'id',
-  category: 'category',
   subjectType: 'subjectType',
   relatedPartyType: 'relatedPartyType',
-  code: 'code',
   name: 'name',
   fullName: 'fullName',
-  classification: 'classification',
   identityNumber: 'identityNumber',
   legalRepresentative: 'legalRepresentative',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ExternalPartyScalarFieldEnum = (typeof ExternalPartyScalarFieldEnum)[keyof typeof ExternalPartyScalarFieldEnum]
+
+
+export const ExternalPartyRoleScalarFieldEnum = {
+  id: 'id',
+  partyId: 'partyId',
+  category: 'category',
+  code: 'code',
+  classification: 'classification',
   contactPerson: 'contactPerson',
   phone: 'phone',
   email: 'email',
@@ -527,14 +541,11 @@ export const ExternalPartyScalarFieldEnum = {
   taxRate: 'taxRate',
   remark: 'remark',
   isActive: 'isActive',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
-  version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type ExternalPartyScalarFieldEnum = (typeof ExternalPartyScalarFieldEnum)[keyof typeof ExternalPartyScalarFieldEnum]
+export type ExternalPartyRoleScalarFieldEnum = (typeof ExternalPartyRoleScalarFieldEnum)[keyof typeof ExternalPartyRoleScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {

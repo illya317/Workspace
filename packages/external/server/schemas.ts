@@ -5,10 +5,11 @@ const optionalText = (max: number) => z.string().trim().max(max).optional().null
 export const ExternalPartyQuerySchema = z.object({
   keyword: z.string().trim().max(120).optional(),
   page: z.coerce.number().int().positive().catch(1),
-  pageSize: z.coerce.number().int().positive().max(200).catch(50),
+  pageSize: z.coerce.number().int().positive().max(1000).catch(50),
 });
 
 export const ExternalPartyCreateSchema = z.object({
+  existingPartyId: z.number().int().positive().optional(),
   subjectType: z.enum(["organization", "individual"]).optional(),
   relatedPartyType: z.enum([
     "unrelated",

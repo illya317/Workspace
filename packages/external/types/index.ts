@@ -15,7 +15,9 @@ export type ExternalPartyRelatedPartyType = (typeof EXTERNAL_PARTY_RELATED_PARTY
 
 export interface ExternalParty {
   id: number;
+  /** 当前 L2/API 投影的角色；主体本身可以同时拥有多个角色。 */
   category: ExternalPartyCategory;
+  roles: ExternalPartyCategory[];
   subjectType: ExternalPartySubjectType;
   relatedPartyType: ExternalPartyRelatedPartyType;
   code: string;
@@ -67,7 +69,7 @@ export type ExternalPartyDraft = Pick<
   | "taxRate"
   | "remark"
   | "isActive"
-> & { id?: number; version?: number };
+> & { id?: number; version?: number; existingPartyId?: number | null };
 
 export interface ExternalPartyListResponse {
   items: ExternalParty[];

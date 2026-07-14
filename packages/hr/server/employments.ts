@@ -1,6 +1,6 @@
 import { checkHRUpdate } from "@workspace/platform/server/auth";
+import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma } from "@workspace/platform/server/prisma";
-import { executeUpdateField, type CrudUpdateFieldCommand } from "./hr-crud";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
@@ -8,18 +8,12 @@ import { matchEmployee } from "@workspace/platform/search";
 import { parseContracts } from "./contracts";
 import {
   buildEmploymentCreateCommand,
-  buildEmploymentFieldUpdateCommand,
-  EMPLOYMENT_ALLOWED_FIELDS,
+  buildEmploymentPageDraftCommand,
 } from "./domain/employment-validation";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 
-const EMPLOYMENT_CONFIG = { entityType: "Employment", modelKey: "employment" as const };
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
-
-function isFalseValue(value: unknown) {
-  return value === false || value === "false";
-}
 
 function openEndedAtDateWhere(employeeId: number, date: string) {
   return {
@@ -33,11 +27,6 @@ export function primaryContractCompany(contractsJson: string | null, fallback: s
   const primaryCompany = String(contracts.find((contract) => contract.isPrimary === true && contract.company)?.company ?? "");
   const firstCompany = String(contracts.find((contract) => contract.company)?.company ?? "");
   return primaryCompany || firstCompany || fallback || null;
-}
-
-async function normalizeEmploymentFieldUpdate(field: string, value: unknown, id?: number) {
-  const command = await buildEmploymentFieldUpdateCommand(field, value, id);
-  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
 }
 
 export async function listEmployments(input: {
@@ -127,69 +116,70 @@ export async function createEmploymentRecord(
   return serviceOk({ success: true, record });
 }
 
-export async function updateEmploymentField(command: CrudUpdateFieldCommand) {
-  if (command.field !== "isActive" || !isFalseValue(command.value)) {
-    return executeUpdateField(command, {
-      ...EMPLOYMENT_CONFIG,
-      allowedFields: EMPLOYMENT_ALLOWED_FIELDS,
-      onBeforeUpdate: normalizeEmploymentFieldUpdate,
-    });
+export async function updateEmploymentPageDraft(input: {
+  userId: number;
+  changes: Array<{ id: number; field: string; value: unknown }>;
+}) {
+  const command = mapValidationToServiceResult(await buildEmploymentPageDraftCommand(input));
+  if (!command.ok) return command;
+  if (!(await checkHRUpdate(command.data.userId, "hr.roster"))) return serviceError("无权限", 403);
+  const direct = await assertBusinessActionDirectExecutionAllowed({
+    businessActionKey: "hr.roster.employment.update",
+    actorUserId: command.data.userId,
+    resourceKey: "hr.roster",
+    scopeType: "global",
+    scopeId: null,
+    blockedMessage: "雇佣关系更新已配置为必须走流程，请从统一保存入口提交",
+  });
+  if (!direct.ok) return direct;
+
+  const ids = Array.from(new Set(command.data.changes.map((change) => change.id)));
+  const rows = await prisma.employment.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, employeeId: true, leaveDate: true },
+  });
+  if (rows.length !== ids.length) return serviceError("部分雇佣记录不存在，请刷新后重试", 404);
+  const rowMap = new Map(rows.map((row) => [row.id, row]));
+  const changesById = new Map<number, Record<string, unknown>>();
+  for (const change of command.data.changes) {
+    changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), [change.field]: change.value ?? null });
   }
 
-  if (!(await checkHRUpdate(command.userId, "hr.roster"))) return serviceError("无权限", 403);
-  const recordId = command.id;
-  if (!Number.isInteger(recordId) || recordId <= 0) return serviceError("记录ID无效", 400);
-
-  const validation = await buildEmploymentFieldUpdateCommand(command.field, command.value, recordId);
-  if (!validation.ok) return serviceError(validation.issue.message, validation.issue.status || 400);
-
-  const employment = await prisma.employment.findUnique({
-    where: { id: recordId },
-    select: { employeeId: true, leaveDate: true },
-  });
-  if (!employment) return serviceError("雇佣记录不存在", 404);
-
-  const endDate = employment.leaveDate || new Date().toISOString().slice(0, 10);
-
   await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("Employment", recordId, command.userId, tx);
-    await tx.employment.update({
-      where: { id: recordId },
-      data: { isActive: false, editedBy: command.userId, editedAt: new Date(), version: { increment: 1 } },
-    });
-
-    const [edps, projectMembers] = await Promise.all([
-      tx.eDP.findMany({
-        where: openEndedAtDateWhere(employment.employeeId, endDate),
-        select: { id: true },
-      }),
-      tx.employeeProject.findMany({
-        where: openEndedAtDateWhere(employment.employeeId, endDate),
-        select: { id: true },
-      }),
-    ]);
-
-    if (edps.length > 0) {
-      for (const row of edps) await ensureEditHistoryBaseline("EDP", row.id, command.userId, tx);
-      await tx.eDP.updateMany({
-        where: { id: { in: edps.map((row) => row.id) } },
-        data: { endDate, editedBy: command.userId, editedAt: new Date(), version: { increment: 1 } },
+    for (const id of ids) {
+      const row = rowMap.get(id)!;
+      const data = changesById.get(id) ?? {};
+      await ensureEditHistoryBaseline("Employment", id, command.data.userId, tx);
+      await tx.employment.update({
+        where: { id },
+        data: { ...data, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
       });
-    }
-    if (projectMembers.length > 0) {
-      for (const row of projectMembers) await ensureEditHistoryBaseline("EmployeeProject", row.id, command.userId, tx);
-      await tx.employeeProject.updateMany({
-        where: { id: { in: projectMembers.map((row) => row.id) } },
-        data: { endDate, editedBy: command.userId, editedAt: new Date(), version: { increment: 1 } },
-      });
-    }
 
-    for (const row of edps) await snapshotHistory("EDP", row.id, command.userId, tx);
-    for (const row of projectMembers) await snapshotHistory("EmployeeProject", row.id, command.userId, tx);
-    await snapshotHistory("Employment", recordId, command.userId, tx);
+      if (data.isActive === false) {
+        const endDate = typeof data.leaveDate === "string" && data.leaveDate
+          ? data.leaveDate
+          : row.leaveDate || new Date().toISOString().slice(0, 10);
+        const [edps, projectMembers] = await Promise.all([
+          tx.eDP.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
+          tx.employeeProject.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
+        ]);
+        for (const item of edps) await ensureEditHistoryBaseline("EDP", item.id, command.data.userId, tx);
+        for (const item of projectMembers) await ensureEditHistoryBaseline("EmployeeProject", item.id, command.data.userId, tx);
+        if (edps.length > 0) await tx.eDP.updateMany({
+          where: { id: { in: edps.map((item) => item.id) } },
+          data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        if (projectMembers.length > 0) await tx.employeeProject.updateMany({
+          where: { id: { in: projectMembers.map((item) => item.id) } },
+          data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        for (const item of edps) await snapshotHistory("EDP", item.id, command.data.userId, tx);
+        for (const item of projectMembers) await snapshotHistory("EmployeeProject", item.id, command.data.userId, tx);
+      }
+      await snapshotHistory("Employment", id, command.data.userId, tx);
+    }
   });
-
-  return serviceOk({ success: true });
+  return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
 }
 
 export function rejectEmploymentDelete() {

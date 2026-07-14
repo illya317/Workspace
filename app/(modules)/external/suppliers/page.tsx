@@ -4,15 +4,25 @@ import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 
 export default async function SuppliersPage() {
   const user = await requireRouteAccess("/external/suppliers");
-  const [canCreate, canUpdate, canDelete] = await Promise.all([
+  const [canCreate, canUpdate, canDelete, canReadCustomers, canUpdateCustomers] = await Promise.all([
     evaluatePermissionAction(user.id, "external.suppliers", "create"),
     evaluatePermissionAction(user.id, "external.suppliers", "update"),
     evaluatePermissionAction(user.id, "external.suppliers", "delete"),
+    evaluatePermissionAction(user.id, "external.customers", "read"),
+    evaluatePermissionAction(user.id, "external.customers", "update"),
   ]);
   return renderAppShellPage({
     title: "供应商管理",
     backHref: "/external",
     user,
-    children: <SuppliersClient canCreate={canCreate} canUpdate={canUpdate} canDelete={canDelete} />,
+    children: (
+      <SuppliersClient
+        canCreate={canCreate}
+        canUpdate={canUpdate}
+        canDelete={canDelete}
+        canReadOtherRole={canReadCustomers}
+        canUpdateOtherRole={canUpdateCustomers}
+      />
+    ),
   });
 }

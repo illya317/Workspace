@@ -37,10 +37,10 @@ export default function LedgerClient({
 
   return (
     <>
-      {activeTab === "accounts" && <AccountTab canRevise={canRevise} {...pageChrome} />}
-      {activeTab === "vouchers" && <VoucherTab canRevise={canRevise} {...pageChrome} />}
+      {activeTab === "accounts" && <AccountTab {...pageChrome} />}
+      {activeTab === "vouchers" && <VoucherTab {...pageChrome} />}
       {activeTab === "ledger" && <LedgerTab canImport={canImport} {...pageChrome} />}
-      {activeTab === "reclass" && <ReclassTab canExport={canExport} {...pageChrome} />}
+      {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} {...pageChrome} />}
       {activeTab === "depreciation" && <DepreciationPlaceholder {...pageChrome} />}
     </>
   );

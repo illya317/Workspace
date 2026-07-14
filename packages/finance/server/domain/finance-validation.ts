@@ -275,21 +275,59 @@ export function buildReclassRuleScopeCommand(companyCode: unknown, year: unknown
   return buildFinancePeriodScopeCommand({ companyCode, year });
 }
 
-export function buildUpsertReclassRuleCommand<T extends {
+export type SaveReclassRuleChangeSetInput = {
   companyCode: string;
   year: number;
-  sourceAccountCode: string;
-  abnormalSide: string;
-  targetAccountCode: string;
-}>(input: T): DomainValidationResult<{ input: T }> {
+  userId: number;
+  changes: Array<{
+    sourceAccountCode: string;
+    abnormalSide: "debit" | "credit" | "both";
+    targetAccountCode: string | null;
+  }>;
+};
+
+export function buildSaveReclassRuleChangeSetCommand(
+  input: SaveReclassRuleChangeSetInput,
+): DomainValidationResult<{ input: SaveReclassRuleChangeSetInput }> {
   const scope = buildReclassRuleScopeCommand(input.companyCode, input.year);
   if (!scope.ok) return scope;
-  for (const field of ["sourceAccountCode", "targetAccountCode"] as const) {
-    const text = requiredText(input[field], field);
-    if (!text.ok) return text;
+  const userId = positiveId(input.userId, "userId");
+  if (!userId.ok) return userId;
+  if (!Array.isArray(input.changes) || input.changes.length === 0) {
+    return failCommand("至少需要一项重分类规则变更", 400, "changes");
   }
-  if (!RECLASS_SIDES.has(input.abnormalSide)) return failCommand("异常方向无效", 400, "abnormalSide");
-  return okCommand({ input });
+  if (input.changes.length > 500) return failCommand("批量保存上限 500 项", 400, "changes");
+
+  const seen = new Set<string>();
+  const changes: SaveReclassRuleChangeSetInput["changes"] = [];
+  for (const change of input.changes) {
+    const source = requiredText(change.sourceAccountCode, "sourceAccountCode");
+    if (!source.ok) return source;
+    if (!RECLASS_SIDES.has(change.abnormalSide)) return failCommand("异常方向无效", 400, "abnormalSide");
+    const target = change.targetAccountCode === null
+      ? null
+      : requiredText(change.targetAccountCode, "targetAccountCode");
+    if (target !== null && !target.ok) return target;
+    const targetAccountCode = target === null ? null : target.data;
+    if (targetAccountCode === source.data) return failCommand("目标科目不能与源科目相同", 400, "targetAccountCode");
+    const key = `${source.data}::${change.abnormalSide}`;
+    if (seen.has(key)) return failCommand("同一源科目和异常方向不能重复提交", 400, "changes");
+    seen.add(key);
+    changes.push({
+      sourceAccountCode: source.data,
+      abnormalSide: change.abnormalSide,
+      targetAccountCode,
+    });
+  }
+
+  return okCommand({
+    input: {
+      companyCode: scope.data.companyCode,
+      year: scope.data.year,
+      userId: userId.data,
+      changes,
+    },
+  });
 }
 
 export function buildReclassBuildCommand(periodId: unknown): DomainValidationResult<FinanceIdCommand> {

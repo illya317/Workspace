@@ -1,22 +1,19 @@
 import { checkHRUpdate } from "@workspace/platform/server/auth";
+import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
 import { prisma } from "@workspace/platform/server/prisma";
-import { executeDelete, type CrudDeleteCommand, type CrudUpdateFieldCommand } from "./hr-crud";
+import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import {
   buildEdpCreateCommand,
-  buildEdpFieldUpdateCommand,
+  buildEdpPageDraftCommand,
   EDP_ALLOWED_FIELDS,
   validateEdpDeleteCommand,
   type EdpCreateInput,
 } from "./domain/edp-validation";
-import {
-  edpUpdateAffectsCurrentTotal,
-  validateEdpCreateCurrentTotal,
-  validateEdpFieldUpdateCurrentTotal,
-} from "./domain/edp-total-validation";
+import { validateEdpCreateCurrentTotal } from "./domain/edp-total-validation";
 import { primaryContractCompany } from "./employments";
 
 const EDP_CONFIG = {
@@ -163,34 +160,44 @@ export async function createEdp(
   return serviceOk({ success: true, record });
 }
 
-export async function updateEdpField(input: CrudUpdateFieldCommand) {
-  if (!(await checkHRUpdate(input.userId, "hr.roster"))) return serviceError("无权限", 403);
-  const recordId = input.id;
-  if (!Number.isInteger(recordId) || recordId <= 0) return serviceError("记录ID无效", 400);
-
-  const command = mapValidationToServiceResult(await buildEdpFieldUpdateCommand(input.field, input.value, recordId));
+export async function updateEdpPageDraft(input: {
+  userId: number;
+  changes: Array<{ id: number; field: string; value: unknown }>;
+}) {
+  const command = mapValidationToServiceResult(await buildEdpPageDraftCommand(input));
   if (!command.ok) return command;
-  if (!EDP_ALLOWED_FIELDS.includes(command.data.field)) return serviceError("非法字段", 400);
-  if (edpUpdateAffectsCurrentTotal(command.data.data)) {
-    const currentTotal = mapValidationToServiceResult(
-      await validateEdpFieldUpdateCurrentTotal(recordId, command.data.data),
-    );
-    if (!currentTotal.ok) return currentTotal;
-  }
-
-  const data: Record<string, unknown> = {
-    ...command.data.data,
-    editedBy: input.userId,
-    editedAt: new Date(),
-    version: { increment: 1 },
-  };
-
-  await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("EDP", recordId, input.userId, tx);
-    await tx.eDP.update({ where: { id: recordId }, data });
-    await snapshotHistory("EDP", recordId, input.userId, tx);
+  if (!(await checkHRUpdate(command.data.userId, "hr.roster"))) return serviceError("无权限", 403);
+  const direct = await assertBusinessActionDirectExecutionAllowed({
+    businessActionKey: "hr.roster.edp.update",
+    actorUserId: command.data.userId,
+    resourceKey: "hr.roster",
+    scopeType: "global",
+    scopeId: null,
+    blockedMessage: "部门岗位更新已配置为必须走流程，请从统一保存入口提交",
   });
-  return serviceOk({ success: true });
+  if (!direct.ok) return direct;
+
+  const changesById = new Map<number, Record<string, unknown>>();
+  for (const change of command.data.changes) {
+    changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), ...change.data });
+  }
+  const ids = Array.from(changesById.keys());
+  await prisma.$transaction(async (tx) => {
+    for (const id of ids) {
+      await ensureEditHistoryBaseline("EDP", id, command.data.userId, tx);
+      await tx.eDP.update({
+        where: { id },
+        data: {
+          ...changesById.get(id),
+          editedBy: command.data.userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      await snapshotHistory("EDP", id, command.data.userId, tx);
+    }
+  });
+  return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
 }
 
 export async function deleteEdp(command: CrudDeleteCommand) {

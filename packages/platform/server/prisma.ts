@@ -11,7 +11,7 @@ export type {
   LibraryDocumentVersion,
 } from "../../../generated/prisma/client";
 
-const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "externalParty", "agentSession", "agentProposal", "openApiClient", "notification", "workReport", "workReportItem", "approvalRequest", "approvalEvent", "workflowPolicy", "permissionGrantLedgerEvent"] as const;
+const REQUIRED_DELEGATES = ["financeBalanceSnapshot", "financeBalanceSnapshotRow", "externalParty", "externalPartyRole", "agentSession", "agentProposal", "openApiClient", "notification", "workReport", "workReportItem", "approvalRequest", "approvalEvent", "workflowPolicy", "permissionGrantLedgerEvent"] as const;
 
 type RequiredDelegate = (typeof REQUIRED_DELEGATES)[number];
 type CachedPrismaClient = PrismaClient & Partial<Record<RequiredDelegate, unknown>>;

@@ -5,6 +5,7 @@ import type {
 } from "@workspace/core/ui";
 import type {
   ExternalPartyCategory,
+  ExternalParty,
   ExternalPartyDraft,
   ExternalPartyRelatedPartyType,
 } from "@workspace/external/types";
@@ -17,6 +18,11 @@ export const EXTERNAL_PARTY_LABELS: Record<ExternalPartyCategory, { singular: st
   supplier: { singular: "供应商", title: "供应商信息" },
 };
 
+export const EXTERNAL_PARTY_ROLE_LABELS: Record<ExternalPartyCategory, string> = {
+  customer: "客户",
+  supplier: "供应商",
+};
+
 export const EXTERNAL_PARTY_RELATED_PARTY_LABELS: Record<ExternalPartyRelatedPartyType, string> = {
   unrelated: "非关联方",
   group: "集团内",
@@ -26,9 +32,19 @@ export const EXTERNAL_PARTY_RELATED_PARTY_LABELS: Record<ExternalPartyRelatedPar
   other_related: "其他关联方",
 };
 
+interface ExternalPartyFormOptions {
+  readOnly?: boolean;
+  subjectReadOnly?: boolean;
+  existingCandidates?: ExternalParty[];
+  candidatesLoading?: boolean;
+  candidatesError?: string | null;
+  onExistingPartyChange?: (party: ExternalParty | null) => void;
+}
+
 export function emptyExternalPartyDraft(): ExternalPartyDraft {
   return {
     subjectType: "organization",
+    existingPartyId: null,
     relatedPartyType: "unrelated",
     code: "",
     name: "",
@@ -108,10 +124,11 @@ export function externalPartyFormSections(
   category: ExternalPartyCategory,
   draft: ExternalPartyDraft,
   onChange: (field: DraftField, value: ExternalPartyDraftValue) => void,
-  options: { readOnly?: boolean } = {},
+  options: ExternalPartyFormOptions = {},
 ): CreateSurfaceSectionSpec<FormSurfaceFieldSpec>[] {
   const individual = draft.subjectType === "individual";
   const readOnly = options.readOnly ?? false;
+  const subjectReadOnly = readOnly || options.subjectReadOnly || Boolean(draft.existingPartyId);
   const singular = EXTERNAL_PARTY_LABELS[category].singular;
   return [
     {
@@ -119,6 +136,38 @@ export function externalPartyFormSections(
       title: "主体信息",
       layout: { columns: 2, density: "compact" },
       items: [
+        ...(options.existingCandidates ? [{
+          key: "existingPartyId",
+          label: "关联已有主体",
+          hint: "同一单位或个人已存在时，直接补充当前往来角色",
+          spec: {
+            valueType: "string" as const,
+            control: "choice" as const,
+            options: {
+              source: "static" as const,
+              items: [
+                { value: "", label: "新建主体" },
+                ...options.existingCandidates.map((party) => ({
+                  value: String(party.id),
+                  label: `${party.name} · ${party.code}${party.identityNumber ? ` · ${party.identityNumber}` : ""}`,
+                })),
+              ],
+              visibleCount: 8,
+            },
+          },
+          value: draft.existingPartyId ? String(draft.existingPartyId) : "",
+          disabled: readOnly,
+          loading: options.candidatesLoading,
+          emptyText: options.candidatesError || "没有可关联的已有主体",
+          onChange: (value: unknown) => {
+            const id = Number(value);
+            options.onExistingPartyChange?.(
+              Number.isInteger(id) && id > 0
+                ? options.existingCandidates?.find((party) => party.id === id) ?? null
+                : null,
+            );
+          },
+        }] : []),
         {
           key: "subjectType",
           label: "主体类型",
@@ -136,7 +185,7 @@ export function externalPartyFormSections(
             },
           },
           value: draft.subjectType,
-          disabled: readOnly,
+          disabled: subjectReadOnly,
           onChange: (value) => onChange("subjectType", value === "individual" ? "individual" : "organization"),
         },
         {
@@ -153,7 +202,7 @@ export function externalPartyFormSections(
             },
           },
           value: draft.relatedPartyType,
-          disabled: readOnly,
+          disabled: subjectReadOnly,
           onChange: (value) => {
             const normalized = String(value);
             onChange(
@@ -165,10 +214,10 @@ export function externalPartyFormSections(
           },
         },
         textField("code", `${singular}编码`, draft, onChange, { required: true, readOnly }),
-        textField("name", individual ? "姓名" : "简称", draft, onChange, { required: true, readOnly }),
-        ...(!individual ? [textField("fullName", "全称", draft, onChange, { readOnly })] : []),
-        textField("identityNumber", individual ? "证件号码" : "统一社会信用代码", draft, onChange, { readOnly }),
-        ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly })] : []),
+        textField("name", individual ? "姓名" : "简称", draft, onChange, { required: true, readOnly: subjectReadOnly }),
+        ...(!individual ? [textField("fullName", "全称", draft, onChange, { readOnly: subjectReadOnly })] : []),
+        textField("identityNumber", individual ? "证件号码" : "统一社会信用代码", draft, onChange, { readOnly: subjectReadOnly }),
+        ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("classification", "业务分类", draft, onChange, { readOnly }),
         {
           key: "isActive",
@@ -225,7 +274,7 @@ export function externalPartyEditSections(
   category: ExternalPartyCategory,
   draft: ExternalPartyDraft,
   onChange: (field: DraftField, value: ExternalPartyDraftValue) => void,
-  options: { readOnly?: boolean } = {},
+  options: ExternalPartyFormOptions = {},
 ): FormSurfaceSectionSpec[] {
   return externalPartyFormSections(category, draft, onChange, options).map((section) => ({
     kind: "section",

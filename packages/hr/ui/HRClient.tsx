@@ -184,15 +184,15 @@ export default function HRClient({
 
   if (renderedView === "bulk") {
     if (activeBulkTab === "employment") {
-      return <GenericTableTab config={employmentConfig} user={hrUser} surface={surface} />;
+      return <GenericTableTab config={employmentConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
     }
     if (activeBulkTab === "edp") {
-      return <GenericTableTab config={edpConfig} user={hrUser} surface={surface} />;
+      return <GenericTableTab config={edpConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
     }
     if (activeBulkTab === "contract") {
-      return <GenericTableTab config={contractConfig} user={hrUser} surface={surface} />;
+      return <GenericTableTab config={contractConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
     }
-    return <GenericTableTab config={employeeConfig} user={hrUser} surface={surface} />;
+    return <GenericTableTab config={employeeConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
   }
 
   if (renderedView === "generated") {

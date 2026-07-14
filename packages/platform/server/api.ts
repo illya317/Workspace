@@ -76,6 +76,14 @@ export const updateFieldBodySchema = z.object({
   value: z.unknown().optional(),
 }).passthrough();
 
+export const updateFieldsBodySchema = z.object({
+  changes: z.array(z.object({
+    id: z.coerce.number().int().positive(),
+    field: z.string().min(1),
+    value: z.unknown().optional(),
+  })).min(1).max(500),
+});
+
 export const rowsRequestBodySchema = z.object({
   rows: z.unknown().optional(),
 }).passthrough();

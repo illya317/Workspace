@@ -25,7 +25,7 @@ import {
   persistBasic,
   persistContracts,
   persistEdps,
-  persistEmployment,
+  persistEmployments,
 } from "./EmployeeProfilePersistence";
 import type {
   ContractRow,
@@ -231,7 +231,7 @@ export default function EmployeeProfileClient({
         const employmentsDirty = !sameDraft(employments, profile.employments);
         const contractsDirty = !sameDraft(persistableContractRows(contracts), profile.contracts);
         if (employmentsDirty) {
-          for (const row of employments) await persistEmployment(profile, row);
+          await persistEmployments(profile, employments);
         }
         if (contractsDirty) await persistContracts(profile, contracts);
       }

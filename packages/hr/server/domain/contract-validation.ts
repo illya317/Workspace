@@ -10,6 +10,10 @@ import {
   CONTRACT_DATE_FIELDS,
   normalizeContractRecord,
 } from "../contract-records";
+import {
+  buildHrPageDraftEnvelopeCommand,
+  type HrPageDraftInput,
+} from "./page-draft-validation";
 
 const CONTRACT_OPTION_FIELDS = ["legalRelation", "contractType", "employmentForm", "insuranceStatus"];
 const PROFILE_CONTRACT_FIELDS = [
@@ -89,6 +93,18 @@ export async function buildContractFieldUpdateCommand(
   const error = await validateContractValues({ [field]: value });
   if (error) return failCommand(error);
   return okCommand({ field, value });
+}
+
+export async function buildContractPageDraftCommand(input: HrPageDraftInput) {
+  const envelope = buildHrPageDraftEnvelopeCommand(input);
+  if (!envelope.ok) return envelope;
+  const changes = [];
+  for (const change of envelope.data.changes) {
+    const field = await buildContractFieldUpdateCommand(change.field, change.value);
+    if (!field.ok) return field;
+    changes.push({ id: change.id, field: field.data.field, value: field.data.value });
+  }
+  return okCommand({ userId: envelope.data.userId, changes });
 }
 
 export function buildContractDeleteCommand(contractId: unknown): DomainValidationResult<{ contractId: number }> {

@@ -1,6 +1,7 @@
 import { z } from "zod";
 
-import { buildHrRouteCommand, createEdp, EDPCreateSchema, listEdps } from "@workspace/hr/server";
+import { buildHrRouteCommand, createEdp, EDPCreateSchema, listEdps, updateEdpPageDraft } from "@workspace/hr/server";
+import { updateFieldsBodySchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";const edpsQuerySchema = z.object({
   keyword: z.string().catch(""),
   isActive: z.string().nullable().optional(),
@@ -22,4 +23,14 @@ export const POST = createCommandRoute({
   bodySchema: EDPCreateSchema,
   buildCommand: ({ body, user }) => buildHrRouteCommand({ body, userId: user.userId }),
   action: ({ body, userId }) => createEdp(body, userId),
+});
+
+export const PUT = createCommandRoute({
+  bodySchema: updateFieldsBodySchema,
+  bodyError: "修改内容无效",
+  buildCommand: ({ body, user }) => buildHrRouteCommand({
+    changes: body.changes.map((change) => ({ ...change, value: change.value ?? null })),
+    userId: user.userId,
+  }),
+  action: updateEdpPageDraft,
 });

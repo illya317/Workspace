@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useCallback, useEffect } from "react";
-import { useDebouncedEffect } from "@workspace/core/hooks";
+import { useState, useCallback, useEffect, useMemo } from "react";
+import { useDebouncedEffect, usePageDraft } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import type { TabConfig } from "@workspace/hr/types";
 
@@ -10,13 +10,38 @@ export interface TabItem {
   [key: string]: unknown;
 }
 
-export interface SaveCellResult {
+export interface SaveDraftResult {
   ok: boolean;
   error?: string;
 }
 
 function isFkEditValue(value: unknown): value is { id?: number; name?: string } {
   return Boolean(value && typeof value === "object" && ("id" in value || "name" in value));
+}
+
+function editValuesEqual(left: unknown, right: unknown) {
+  if (isFkEditValue(left) || isFkEditValue(right)) {
+    return (isFkEditValue(left) ? left.id ?? null : left ?? null)
+      === (isFkEditValue(right) ? right.id ?? null : right ?? null);
+  }
+  if ((left === null || left === undefined || left === "") && (right === null || right === undefined || right === "")) return true;
+  if (typeof left === "boolean" || typeof right === "boolean") return left === right;
+  return String(left) === String(right);
+}
+
+function cellKey(id: number, field: string) {
+  return `${id}:${field}`;
+}
+
+function parseCellKey(key: string) {
+  const separator = key.indexOf(":");
+  return { id: Number(key.slice(0, separator)), field: key.slice(separator + 1) };
+}
+
+function valueForSave(field: string, value: unknown) {
+  if (isFkEditValue(value)) return value.id ?? null;
+  if (field === "gender") return value === "男" || value === true ? true : value === "女" || value === false ? false : null;
+  return value ?? null;
 }
 
 export interface GenericTabState {
@@ -31,13 +56,16 @@ export interface GenericTabState {
   applyFilters: (next: Record<string, string>) => void;
   resetFilters: () => void;
   editMode: boolean;
-  setEditMode: (v: boolean) => void;
+  dirty: boolean;
+  startPageEdit: () => void;
+  cancelPageEdit: () => void;
   editingCell: { id: number; field: string } | null;
   editValue: unknown;
   setEditValue: (v: unknown) => void;
   startEdit: (id: number, field: string, initialValue: unknown) => void;
-  cancelEdit: () => void;
-  saveCell: () => Promise<SaveCellResult>;
+  finishCellEdit: () => void;
+  discardCellEdit: () => void;
+  saveDraft: () => Promise<SaveDraftResult>;
 
   saving: boolean;
   load: () => Promise<void>;
@@ -53,7 +81,7 @@ export interface GenericTabState {
 
 export function useGenericTab(config: TabConfig): GenericTabState {
   const apiPath = workspacePath(config.apiPath);
-  const [items, setItems] = useState<TabItem[]>([]);
+  const [baseItems, setBaseItems] = useState<TabItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [keyword, setKeyword] = useState("");
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -66,9 +94,9 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     }
     return init;
   });
-  const [editMode, setEditMode] = useState(false);
   const [editingCell, setEditingCell] = useState<{ id: number; field: string } | null>(null);
-  const [editValue, setEditValue] = useState<unknown>("");
+  const [editingInitialValue, setEditingInitialValue] = useState<unknown>("");
+  const pageDraft = usePageDraft<string, unknown>({ isEqual: editValuesEqual });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
@@ -106,17 +134,17 @@ export function useGenericTab(config: TabConfig): GenericTabState {
       if (res.ok) {
         const data = await res.json();
         const list = config.listGetter ? config.listGetter(data) : data.items || data;
-        setItems(Array.isArray(list) ? (list as TabItem[]) : []);
+        setBaseItems(Array.isArray(list) ? (list as TabItem[]) : []);
         setTotal(typeof data.total === "number" ? data.total : 0);
       } else {
         const data = await res.json().catch(() => ({ error: `请求失败 (${res.status})` }));
         setError(data.error || `请求失败 (${res.status})`);
-        setItems([]);
+        setBaseItems([]);
         setTotal(0);
       }
     } catch (e: unknown) {
       setError(e instanceof Error ? e.message : "网络错误");
-      setItems([]);
+      setBaseItems([]);
       setTotal(0);
     } finally {
       setLoading(false);
@@ -150,43 +178,65 @@ export function useGenericTab(config: TabConfig): GenericTabState {
 
   const startEdit = useCallback((id: number, field: string, initialValue: unknown) => {
     setEditingCell({ id, field });
-    setEditValue(initialValue ?? "");
+    setEditingInitialValue(initialValue ?? "");
   }, []);
 
-  const cancelEdit = useCallback(() => {
+  const finishCellEdit = useCallback(() => {
     setEditingCell(null);
-    setEditValue("");
+    setEditingInitialValue("");
   }, []);
 
-  const saveCell = useCallback(async () => {
-    if (!editingCell) return { ok: false, error: "没有正在编辑的单元格" };
+  const discardCellEdit = useCallback(() => {
+    if (editingCell) pageDraft.discardDraft(cellKey(editingCell.id, editingCell.field));
+    setEditingCell(null);
+    setEditingInitialValue("");
+  }, [editingCell, pageDraft]);
+
+  const setEditValue = useCallback((value: unknown) => {
+    if (!editingCell) return;
+    pageDraft.setDraft(cellKey(editingCell.id, editingCell.field), editingInitialValue, value);
+  }, [editingCell, editingInitialValue, pageDraft]);
+
+  const editValue = editingCell
+    ? pageDraft.valueFor(cellKey(editingCell.id, editingCell.field), editingInitialValue)
+    : "";
+
+  const items = useMemo(() => baseItems.map((item) => {
+    const next = { ...item };
+    for (const field of config.fields) {
+      const key = cellKey(Number(item.id), field.key);
+      const change = pageDraft.changes.find((entry) => entry.key === key);
+      if (!change) continue;
+      next[field.key] = valueForSave(field.key, change.value);
+      if (field.displayField && isFkEditValue(change.value)) next[field.displayField] = change.value.name ?? "";
+    }
+    return next;
+  }), [baseItems, config.fields, pageDraft.changes]);
+
+  const cancelPageEdit = useCallback(() => {
+    setEditingCell(null);
+    setEditingInitialValue("");
+    pageDraft.cancelEdit();
+  }, [pageDraft]);
+
+  const saveDraft = useCallback(async () => {
+    if (!pageDraft.dirty) return { ok: true };
     setSaving(true);
     try {
-      const { id, field } = editingCell;
-      const fieldConfig = config.fields.find((item) => item.key === field);
-      const editValueForSave = isFkEditValue(editValue) ? editValue.id ?? null : editValue;
-      const res = await fetch(`${apiPath}/${id}`, {
+      const changes = pageDraft.changes.map((change) => {
+        const { id, field } = parseCellKey(change.key);
+        return { id, field, value: valueForSave(field, change.value) };
+      });
+      const res = await fetch(apiPath, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ field, value: editValueForSave ?? null }),
+        body: JSON.stringify({ changes }),
       });
       if (res.ok) {
-        let newValue = editValueForSave ?? null;
-        if (field === "gender") {
-          newValue = editValue === "男" ? true : editValue === "女" ? false : null;
-        }
-        setItems((prev) =>
-          prev.map((item) => {
-            if (item.id !== id) return item;
-            const displayField = fieldConfig?.displayField;
-            return {
-              ...item,
-              [field]: newValue,
-              ...(displayField && isFkEditValue(editValue) ? { [displayField]: editValue.name ?? "" } : {}),
-            };
-          })
-        );
         setEditingCell(null);
+        setEditingInitialValue("");
+        pageDraft.acceptChanges();
+        await load();
         return { ok: true };
       }
       const data = await res.json().catch(() => null) as { error?: string } | null;
@@ -196,14 +246,15 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     } finally {
       setSaving(false);
     }
-  }, [config.fields, editingCell, editValue, apiPath]);
+  }, [apiPath, load, pageDraft]);
 
   return {
     items, loading, error, keyword, searchKeyword, setKeyword,
     filters, setFilter, applyFilters, resetFilters,
-    editMode, setEditMode,
+    editMode: pageDraft.editMode, dirty: pageDraft.dirty,
+    startPageEdit: pageDraft.startEdit, cancelPageEdit,
     editingCell, editValue, setEditValue,
-    startEdit, cancelEdit, saveCell,
+    startEdit, finishCellEdit, discardCellEdit, saveDraft,
     saving, load,
     showHistory, setShowHistory,
     page, pageSize, total, setPage,

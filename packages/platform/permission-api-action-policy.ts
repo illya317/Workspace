@@ -157,7 +157,6 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/init", requiredActions: ["create"] },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/balances", requiredActions: ["revise"] },
   { method: "PUT", pathPrefix: "/api/modules/finance/ledger/reclass-rules", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-rules$/ },
-  { method: "DELETE", pathPrefix: "/api/modules/finance/ledger/reclass-rules", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-rules\/[^/]+$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/reclass-results", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-results$/ },
   { method: "PATCH", pathPrefix: "/api/modules/finance/ledger/reclass-results", requiredActions: ["revise"], pathPattern: /^\/api\/modules\/finance\/ledger\/reclass-results\/[^/]+$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/budget/versions", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/budget\/versions$/ },

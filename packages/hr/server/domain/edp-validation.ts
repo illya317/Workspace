@@ -16,6 +16,10 @@ import {
   type EdpPositionAssignment,
 } from "./position-report-override-validation";
 import { validateCurrentTotal } from "./edp-total-validation";
+import {
+  buildHrPageDraftEnvelopeCommand,
+  type HrPageDraftInput,
+} from "./page-draft-validation";
 
 export const EDP_ALLOWED_FIELDS = [
   "reportingCompanyId",
@@ -28,6 +32,8 @@ export const EDP_ALLOWED_FIELDS = [
   "reportTo",
   "workPercent",
 ];
+
+const EDP_PAGE_DRAFT_FIELDS = ["isPrimary", "startDate", "endDate", "workPercent"];
 
 export interface EdpCreateInput {
   employeeId: number;
@@ -393,6 +399,46 @@ export async function buildEdpFieldUpdateCommand(
   }
 
   return okCommand({ field, value, data: { [field]: value ?? null } });
+}
+
+export async function buildEdpPageDraftCommand(input: HrPageDraftInput) {
+  const envelope = buildHrPageDraftEnvelopeCommand(input);
+  if (!envelope.ok) return envelope;
+  const changes: Array<{ id: number; field: string; value: unknown; data: Record<string, unknown> }> = [];
+  for (const change of envelope.data.changes) {
+    if (!EDP_PAGE_DRAFT_FIELDS.includes(change.field)) return failCommand("字段不支持在批量表中修改", 400, change.field);
+    const field = await buildEdpFieldUpdateCommand(change.field, change.value, change.id);
+    if (!field.ok) return field;
+    changes.push({ id: change.id, field: field.data.field, value: field.data.value, data: field.data.data });
+  }
+
+  const ids = Array.from(new Set(changes.map((change) => change.id)));
+  const targets = await prisma.eDP.findMany({
+    where: { id: { in: ids } },
+    select: { id: true, employeeId: true },
+  });
+  if (targets.length !== ids.length) return failCommand("部分岗位记录不存在，请刷新后重试", 404);
+  const employeeIds = Array.from(new Set(targets.map((row) => row.employeeId)));
+  const rows = await prisma.eDP.findMany({
+    where: { employeeId: { in: employeeIds } },
+    select: { id: true, employeeId: true, endDate: true, workPercent: true },
+  });
+  const patches = new Map<number, Record<string, unknown>>();
+  for (const change of changes) patches.set(change.id, { ...(patches.get(change.id) ?? {}), ...change.data });
+  for (const employeeId of employeeIds) {
+    const candidates = rows.filter((row) => row.employeeId === employeeId).map((row) => ({
+      id: row.id,
+      endDate: Object.prototype.hasOwnProperty.call(patches.get(row.id) ?? {}, "endDate")
+        ? patches.get(row.id)!.endDate as string | null
+        : row.endDate,
+      workPercent: Object.prototype.hasOwnProperty.call(patches.get(row.id) ?? {}, "workPercent")
+        ? patches.get(row.id)!.workPercent as string | null
+        : row.workPercent,
+    }));
+    const error = validateCurrentTotal(candidates);
+    if (error) return failCommand(error, 400, "workPercent");
+  }
+  return okCommand({ userId: envelope.data.userId, changes });
 }
 
 async function normalizeEdpRow(row: Record<string, unknown>, employeeId: number): Promise<DomainValidationResult<NormalizedEdpRow>> {

@@ -16,21 +16,32 @@ import {
   emptyExternalPartyDraft,
   EXTERNAL_PARTY_LABELS,
   EXTERNAL_PARTY_RELATED_PARTY_LABELS,
+  EXTERNAL_PARTY_ROLE_LABELS,
   externalPartyEditSections,
   externalPartyFormSections,
   type ExternalPartyDraftValue,
 } from "./external-party-form";
-import { useExternalParties } from "./useExternalParties";
+import { useExternalParties, useExternalPartyCandidates } from "./useExternalParties";
 
 interface ExternalPartyClientProps {
   category: ExternalPartyCategory;
   apiPath: string;
+  otherApiPath?: string;
   canCreate: boolean;
   canUpdate: boolean;
   canDelete: boolean;
+  canUpdateOtherRole: boolean;
 }
 
-export default function ExternalPartyClient({ category, apiPath, canCreate, canUpdate, canDelete }: ExternalPartyClientProps) {
+export default function ExternalPartyClient({
+  category,
+  apiPath,
+  otherApiPath,
+  canCreate,
+  canUpdate,
+  canDelete,
+  canUpdateOtherRole,
+}: ExternalPartyClientProps) {
   const data = useExternalParties(apiPath);
   const labels = EXTERNAL_PARTY_LABELS[category];
   const [selected, setSelected] = useState<ExternalParty | null>(null);
@@ -40,6 +51,7 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
   const [saving, setSaving] = useState(false);
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const candidates = useExternalPartyCandidates(otherApiPath, Boolean(createDraft));
   const feedback = useFeedback({ unsavedChanges: dirty });
 
   useEffect(() => {
@@ -58,6 +70,34 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
 
   function updateCreateDraft(field: keyof ExternalPartyDraft, value: ExternalPartyDraftValue) {
     setCreateDraft((current) => current ? { ...current, [field]: value } : current);
+  }
+
+  function selectExistingParty(party: ExternalParty | null) {
+    setCreateDraft((current) => {
+      if (!current) return current;
+      if (!party) {
+        return {
+          ...current,
+          existingPartyId: null,
+          subjectType: "organization",
+          relatedPartyType: "unrelated",
+          name: "",
+          fullName: null,
+          identityNumber: null,
+          legalRepresentative: null,
+        };
+      }
+      return {
+        ...current,
+        existingPartyId: party.id,
+        subjectType: party.subjectType,
+        relatedPartyType: party.relatedPartyType,
+        name: party.name,
+        fullName: party.fullName,
+        identityNumber: party.identityNumber,
+        legalRepresentative: party.legalRepresentative,
+      };
+    });
   }
 
   function updateDetailDraft(field: keyof ExternalPartyDraft, value: ExternalPartyDraftValue) {
@@ -122,7 +162,7 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
   async function deleteSelected() {
     if (!selected) return;
     const confirmed = await feedback.confirmDelete({
-      message: `确定删除“${selected.name}”吗？此操作不可撤销。`,
+      message: `确定移除“${selected.name}”的${labels.singular}角色吗？若主体还有其他往来角色将继续保留。`,
     });
     if (!confirmed) return;
     const removedId = selected.id;
@@ -132,7 +172,7 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
     setSelected(next);
     setDetailDraft(next ? { ...next } : null);
     setDirty(false);
-    feedback.success("删除成功");
+    feedback.success("角色已移除");
   }
 
   const selector: SelectorSurfaceProps<ExternalParty> = {
@@ -152,6 +192,7 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
         code: item.code,
         meta: [
           item.subjectType === "individual" ? "个人" : "单位",
+          item.roles.map((role) => EXTERNAL_PARTY_ROLE_LABELS[role]).join(" / "),
           EXTERNAL_PARTY_RELATED_PARTY_LABELS[item.relatedPartyType],
           item.classification ? `业务：${item.classification}` : null,
         ].filter(Boolean) as string[],
@@ -189,14 +230,21 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
       create: {
         id: `external-${category}-create`,
         trigger: "toolbar" as const,
-        presentation: "modal" as const,
+        presentation: "block" as const,
         title: `新增${labels.singular}`,
         open: Boolean(createDraft),
         canCreate,
         disabled: saving,
         content: {
           kind: "sections" as const,
-          sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft),
+          sections: externalPartyFormSections(category, createDraft ?? emptyExternalPartyDraft(), updateCreateDraft, {
+            existingCandidates: otherApiPath
+              ? candidates.items.filter((party) => !party.roles.includes(category))
+              : undefined,
+            candidatesLoading: candidates.loading,
+            candidatesError: candidates.error,
+            onExistingPartyChange: selectExistingParty,
+          }),
         },
         submission: {
           action: "save" as const,
@@ -204,22 +252,26 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
           execute: saveCreate,
         },
         onOpenChange: (open: boolean) => setCreateDraft(open ? emptyExternalPartyDraft() : null),
+        onCancel: () => setCreateDraft(null),
       },
     },
   };
 
   const detailSection = detailDraft && selected
-    ? createFieldsSection("external-party-detail", externalPartyEditSections(category, detailDraft, updateDetailDraft, { readOnly: !canUpdate }), {
+    ? createFieldsSection("external-party-detail", externalPartyEditSections(category, detailDraft, updateDetailDraft, {
+        readOnly: !canUpdate,
+        subjectReadOnly: selected.roles.length > 1 && !canUpdateOtherRole,
+      }), {
         header: {
           title: selected.name,
-          description: `${labels.singular}编码 ${selected.code} · ${EXTERNAL_PARTY_RELATED_PARTY_LABELS[detailDraft.relatedPartyType]}`,
+          description: `${labels.singular}编码 ${selected.code} · ${selected.roles.map((role) => EXTERNAL_PARTY_ROLE_LABELS[role]).join(" / ")} · ${EXTERNAL_PARTY_RELATED_PARTY_LABELS[detailDraft.relatedPartyType]}`,
         },
         actions: [
           ...(canUpdate ? [
             { key: "reset", action: "reset" as const, label: "撤销修改", disabled: saving || !dirty, onClick: resetDetail },
             { key: "save", action: "save" as const, label: saving ? "保存中..." : "保存", disabled: saving || !dirty || !detailDraft.code.trim() || !detailDraft.name.trim(), onClick: () => void saveDetail() },
           ] : []),
-          ...(canDelete ? [{ key: "delete", action: "delete" as const, label: `删除${labels.singular}`, disabled: saving, onClick: () => void deleteSelected() }] : []),
+          ...(canDelete ? [{ key: "delete", action: "delete" as const, label: `移除${labels.singular}角色`, disabled: saving, onClick: () => void deleteSelected() }] : []),
         ],
         submit: canUpdate ? { onSubmit: () => void saveDetail() } : undefined,
       })
@@ -235,7 +287,10 @@ export default function ExternalPartyClient({ category, apiPath, canCreate, canU
       body={createBodySplitSection({
         left: { kind: "selector", selector },
         drawerLeft: { kind: "selector", selector },
-        right: createPageBody([createSection, detailSection]),
+        right: createPageBody([
+          createSection,
+          ...(createDraft ? [] : [detailSection]),
+        ]),
         side: {
           label: `${labels.singular}目录`,
           open: sideOpen,

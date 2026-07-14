@@ -62,7 +62,7 @@ export function SelectorCard({
         {tone ? <span aria-hidden="true" className={joinClassNames("mt-0.5 h-10 w-1.5 shrink-0 rounded-full", accentClassName)} /> : null}
         {leading && <div className="shrink-0">{leading}</div>}
         <div className="min-w-0 flex-1">
-          <div className="flex min-w-0 items-baseline gap-2">
+          <div className="flex min-w-0 items-center gap-2">
             <div className="min-w-0 truncate text-sm font-semibold text-slate-900">{title}</div>
             {code && <div className={joinClassNames("shrink-0 rounded px-1.5 py-0.5 text-xs font-medium", codeClassName)}>{code}</div>}
           </div>

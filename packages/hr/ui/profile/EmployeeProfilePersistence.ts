@@ -30,16 +30,29 @@ async function updateChangedFields(
   draft: EditableRecord,
   fields: ProfileField[],
 ) {
+  const changes = collectChangedFields(id, original, draft, fields);
+  if (changes.length === 0) return;
+  await requestJson(endpoint, {
+    method: "PUT",
+    body: JSON.stringify({ changes }),
+  });
+}
+
+function collectChangedFields(
+  id: number,
+  original: EditableRecord,
+  draft: EditableRecord,
+  fields: ProfileField[],
+) {
+  const changes: Array<{ id: number; field: string; value: unknown }> = [];
   for (const field of fields) {
     if (field.readOnly) continue;
     const next = normalizeValue(draft[field.key]);
     const prev = normalizeValue(original[field.key]);
     if (valuesEqual(next, prev)) continue;
-    await requestJson(`${endpoint}/${id}`, {
-      method: "PUT",
-      body: JSON.stringify({ field: field.key, value: next }),
-    });
+    changes.push({ id, field: field.key, value: next });
   }
+  return changes;
 }
 
 export async function persistBasic(
@@ -57,37 +70,43 @@ export async function persistBasic(
   );
 }
 
-export async function persistEmployment(profile: EmployeeProfile, row: EmploymentRow) {
-  const normalizedRow = row.isActive ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row;
-  if (row.isNew) {
-    await requestJson("/api/modules/hr/roster/employments", {
-      method: "POST",
-      body: JSON.stringify({
-        employeeId: profile.employee.id,
-        isActive: normalizedRow.isActive,
-        joinDate: normalizedRow.joinDate,
-        leaveDate: normalizedRow.leaveDate,
-        leaveReason: normalizedRow.leaveReason,
-        leaveNote: normalizedRow.leaveNote,
-        officeLocation: normalizedRow.officeLocation,
-        personnelType: normalizedRow.personnelType,
-        rank: normalizedRow.rank,
-        title: normalizedRow.title,
-      }),
-    });
-    return;
+export async function persistEmployments(profile: EmployeeProfile, rows: EmploymentRow[]) {
+  const changes: Array<{ id: number; field: string; value: unknown }> = [];
+  for (const row of rows) {
+    const normalizedRow = row.isActive ? { ...row, leaveDate: null, leaveReason: null, leaveNote: null } : row;
+    if (row.isNew) {
+      await requestJson("/api/modules/hr/roster/employments", {
+        method: "POST",
+        body: JSON.stringify({
+          employeeId: profile.employee.id,
+          isActive: normalizedRow.isActive,
+          joinDate: normalizedRow.joinDate,
+          leaveDate: normalizedRow.leaveDate,
+          leaveReason: normalizedRow.leaveReason,
+          leaveNote: normalizedRow.leaveNote,
+          officeLocation: normalizedRow.officeLocation,
+          personnelType: normalizedRow.personnelType,
+          rank: normalizedRow.rank,
+          title: normalizedRow.title,
+        }),
+      });
+      continue;
+    }
+    if (!row.id) continue;
+    const original = profile.employments.find((item) => item.id === row.id);
+    if (!original) continue;
+    changes.push(...collectChangedFields(
+      row.id,
+      original as unknown as EditableRecord,
+      normalizedRow as unknown as EditableRecord,
+      employmentFields,
+    ));
   }
-
-  if (!row.id) return;
-  const original = profile.employments.find((item) => item.id === row.id);
-  if (!original) return;
-  await updateChangedFields(
-    "/api/modules/hr/roster/employments",
-    row.id,
-    original as unknown as EditableRecord,
-    normalizedRow as unknown as EditableRecord,
-    employmentFields,
-  );
+  if (changes.length === 0) return;
+  await requestJson("/api/modules/hr/roster/employments", {
+    method: "PUT",
+    body: JSON.stringify({ changes }),
+  });
 }
 
 function serializeContract(row: ContractRow) {

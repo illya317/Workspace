@@ -19,7 +19,7 @@
 - `员工资料`：默认入口，先显示员工列表，再进入 `/hr/roster/employees/[id]` 维护单个员工的多维资料。
 - `组织架构`：通过 `DepartmentPositionTab` 的组织模式维护组织单元树。底层仍使用兼容 Prisma model `Department`，产品语义已收敛为“组织单元”。
 - `部门岗位`：通过 `DepartmentPositionTab` 的岗位模式维护岗位与说明书。
-- `员工信息表`：保留原有多人表格编辑方式，用于集中修正员工、雇佣、合同、部门岗位数据。
+- `员工信息表`：用于集中修正员工、雇佣、合同、部门岗位数据。四个表统一先进入编辑态，跨行、跨字段修改只形成页面草稿，最后由顶部保存一次提交当前 change set；取消会丢弃整页草稿，不提供逐单元格保存。
 
 组织单元层级分两条线：`Department.hierarchyKind = "G"` 表示治理线，使用 `G1/G2/G3`；`Department.hierarchyKind = "M"` 表示管理线，使用 `M1/M2/M3`。旧 L1/L2/L3 管理部门默认迁为 M1/M2/M3；治理线固定节点包括 `BOD` 董事会、`NOM/STR/EXC/AUD` 四个 G2 委员会，以及 `OPS` 运营委员会、`BSC` 董秘办及资本证券部两个 G3 节点。
 
@@ -61,6 +61,8 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 | 合同信息 | GenericTableTab + contractConfig | 批量维护合同信息 |
 | 项目 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
+这些 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；API 请求统一使用 `{ changes: [{ id, field, value }] }`。员工、雇佣关系、部门岗位、合同分别在 HR domain service 中做整批校验和事务写入，不能在前端循环调用旧的行级 PUT。离职联动、当前岗位占比合计和主合同互斥仍由各自领域服务负责。
+
 ## 核心组件链
 
 ```
@@ -78,15 +80,15 @@ roster/page.tsx
 ## 数据流
 
 1. **tabConfigs.ts** 定义每个 Tab 的字段配置（FieldConfig[]）、FK 映射、API 端点
-2. **packages/hr/ui/hooks/useGenericTab.ts** 提供 HR 批量表 CRUD hook：加载/创建/更新/搜索/筛选/审计日志
+2. **packages/hr/ui/hooks/useGenericTab.ts** 提供 HR 批量表加载、页面草稿、统一保存、搜索、筛选和审计日志 hook
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
-4. **API 路由** 在 `app/api/modules/hr/roster/` 下，统一通过 `packages/hr/server` service 和 `@workspace/platform/server/crud-factory` 的领域 wrapper 处理字段级 CRUD，搜索使用 HR server helper
+4. **API 路由** 在 `app/api/modules/hr/roster/` 下；`employees/employments/edps/contracts` 的 base `PUT` 接收统一 change-set envelope，route 只组 command，HR service 负责领域校验和事务写入
 
 员工详情页的数据流：
 
 1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位。
-2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees/[id]`。
-3. 雇佣、合同、部门岗位写入复用现有行级 CRUD API。
+2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees` 的批量 change set。
+3. 雇佣关系保存复用 `PUT /api/modules/hr/roster/employments` 的批量 change set；合同、部门岗位继续使用员工详情的整组保存 API。
 4. 员工详情页的部门岗位保存走 `PUT /api/modules/hr/roster/employee-profiles/[id]/edps`，按员工整组保存并校验当前岗位工作占比合计为 1。
 5. 合同仍读取并写入 `Employment.contracts` JSON，前端沿用 `employmentId * 1000 + index` 的合成合同 ID。
 
