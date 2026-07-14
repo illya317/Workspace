@@ -5,7 +5,6 @@ import { previewReadableBatch } from "./preview";
 import type { NormalizedReadableBatch, ReadableBatchSpec, ReadableImportPreview } from "./types";
 
 export { commitFinanceArchiveImport } from "./commit";
-export { selectReadableBatches } from "./source-plan";
 
 export const ReadableImportRequestSchema = z.object({
   root: z.string().min(1),

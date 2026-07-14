@@ -3,8 +3,8 @@ import {
   commitFinanceArchiveImport,
   prepareFinanceArchiveImport,
   ReadableImportRequestSchema,
-  selectReadableBatches,
 } from "../../packages/finance/server/import/readable/index";
+import { selectReadableBatches } from "./finance-readable-source-plan";
 
 const DEFAULT_ROOT = "/Users/koito/Desktop/workspace/input/json/Finance/readable/2026-07-14 5";
 

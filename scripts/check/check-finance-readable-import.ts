@@ -1,5 +1,5 @@
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
-import { FINANCE_READABLE_BATCHES } from "../../packages/finance/server/import/readable/source-plan";
+import { FINANCE_READABLE_BATCHES } from "../import/finance-readable-source-plan";
 import { generateFinanceReport } from "../../packages/finance/server/statements/report-generator";
 
 type Control = Record<string, number>;

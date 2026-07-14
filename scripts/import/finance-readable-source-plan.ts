@@ -1,4 +1,4 @@
-import type { ReadableBatchSpec } from "./types";
+import type { ReadableBatchSpec } from "../../packages/finance/server/import/readable/types";
 
 function range(start: number, end: number): number[] {
   return Array.from({ length: end - start + 1 }, (_, index) => start + index);
