@@ -4,7 +4,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import {
   buildEdpCreateCommand,
@@ -45,6 +45,51 @@ export async function listEdps(input: {
   page: number;
   pageSize: number;
 }) {
+  const isActive = activeFilterValue(input.isActive);
+  const defaultPage = !input.keyword && !input.company && !input.department && !input.position;
+  if (defaultPage) {
+    const where: Prisma.EDPWhereInput = isActive === null
+      ? {}
+      : isActive
+        ? { employee: { employments: { some: { isActive: true } } } }
+        : { employee: { employments: { none: { isActive: true } } } };
+    const [total, edps] = await Promise.all([
+      prisma.eDP.count({ where }),
+      prisma.eDP.findMany({
+        where,
+        include: {
+          employee: { select: { id: true, employeeId: true, name: true } },
+          department: { select: { name: true } },
+          position: { select: { name: true } },
+          reportingCompany: { select: { id: true, code: true, name: true } },
+        },
+        orderBy: { id: "asc" },
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      }),
+    ]);
+    return {
+      positions: edps.map((edp) => ({
+        id: edp.id,
+        employeeId: edp.employeeId,
+        employeeName: edp.employee?.name || "",
+        reportingCompanyId: edp.reportingCompanyId,
+        reportingCompanyName: edp.reportingCompany?.name || "",
+        departmentId: edp.departmentId,
+        departmentName: edp.department?.name || "",
+        positionId: edp.positionId,
+        positionReportOverrideId: edp.positionReportOverrideId,
+        positionName: edp.position?.name || "",
+        isPrimary: edp.isPrimary,
+        startDate: edp.startDate,
+        endDate: edp.endDate,
+        reportTo: edp.reportTo,
+        workPercent: edp.workPercent,
+      })),
+      total,
+    };
+  }
+
   const employees = await prisma.employee.findMany({
     select: {
       id: true,
@@ -70,7 +115,6 @@ export async function listEdps(input: {
     orderBy: [{ id: "asc" }],
   });
 
-  const isActive = activeFilterValue(input.isActive);
   let rows = edps.map((edp) => {
     const employee = employeeMap.get(edp.employeeId);
     return {

@@ -44,6 +44,45 @@ export async function listEmployments(input: {
     where.isActive = input.isActive === "true" ? true : input.isActive === "false" ? false : undefined;
   }
 
+  const defaultPage = !input.keyword
+    && !input.company
+    && !input.department
+    && !input.position
+    && !input.personnelType;
+  if (defaultPage) {
+    const [total, items] = await Promise.all([
+      prisma.employment.count({ where }),
+      prisma.employment.findMany({
+        where,
+        include: {
+          employee: { select: { id: true, employeeId: true, name: true } },
+        },
+        orderBy: { id: "asc" },
+        skip: (input.page - 1) * input.pageSize,
+        take: input.pageSize,
+      }),
+    ]);
+    return {
+      items: items.map((item) => ({
+        id: item.id,
+        employeeId: item.employeeId,
+        employeeName: item.employee?.name || "",
+        isActive: item.isActive,
+        currentCompany: primaryContractCompany(item.contracts, item.currentCompany),
+        joinDate: item.joinDate,
+        leaveDate: item.leaveDate,
+        leaveReason: item.leaveReason,
+        leaveNote: item.leaveNote,
+        officeLocation: item.officeLocation,
+        personnelType: item.personnelType,
+        rank: item.rank,
+        title: item.title,
+        contracts: item.contracts,
+      })),
+      total,
+    };
+  }
+
   const items = await prisma.employment.findMany({
     where,
     include: {

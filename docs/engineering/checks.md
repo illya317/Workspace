@@ -108,6 +108,8 @@
 
 `test:capacity:workflow` 是 PR CI 主链路中的确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，且成员判定路径不得枚举全部可登录用户。
 
+`test:capacity:hr` 是 HR 默认 Tab 读取的结构容量门禁：花名册、雇佣关系、员工岗位和合同默认读取必须在数据库内完成计数和分页，不允许先全量加载员工及关系后再在 Node 内存分页；同时锁定尽调版默认列契约。它进入 `check:ci`，因此 full pre-commit、pre-push、发布和 GitHub Actions 都会阻断回归。
+
 `db:postgresql:notification-capacity` 是 PostgreSQL CI 容量门禁：只允许在 `*_ci` 数据库中运行，用 `173` 个可登录用户、`7` 张已提交 Work 审批单和 `8` 个并发通知读取验证默认 `10` 连接池。它由 `db:postgresql:ci-smoke` 自动调用，连接等待超时、provider 内部捕获并降级的查询错误，或总耗时超过 `15 s` 都会阻断 CI。
 
 ### deploy/runtime

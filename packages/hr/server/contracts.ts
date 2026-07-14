@@ -30,6 +30,89 @@ export {
 };
 export type { ContractRow, PaginatedContracts } from "./contract-records";
 
+interface ContractPageSourceRow {
+  contractIndex: number;
+  contractJson: string;
+  employeeId: string;
+  employeeName: string;
+  employmentId: number;
+}
+
+function contractSourceSql(isActive?: boolean) {
+  const activeFilter = isActive === undefined
+    ? Prisma.empty
+    : Prisma.sql`AND e."isActive" = ${isActive}`;
+
+  return Prisma.sql`
+    WITH valid_employments AS (
+      SELECT
+        e."id",
+        e."employeeId",
+        e."contracts"::jsonb AS "contractsJson"
+      FROM "Employment" e
+      WHERE e."contracts" IS NOT NULL
+        AND pg_input_is_valid(e."contracts", 'jsonb')
+        ${activeFilter}
+    ), contract_rows AS (
+      SELECT
+        e."id" AS "employmentId",
+        e."employeeId",
+        contract."value" AS "contractJson",
+        contract."ordinality" - 1 AS "contractIndex"
+      FROM valid_employments e
+      CROSS JOIN LATERAL jsonb_array_elements(
+        CASE jsonb_typeof(e."contractsJson")
+          WHEN 'array' THEN e."contractsJson"
+          WHEN 'object' THEN jsonb_build_array(e."contractsJson")
+          ELSE '[]'::jsonb
+        END
+      ) WITH ORDINALITY AS contract("value", "ordinality")
+    )
+  `;
+}
+
+async function getDefaultContractPage(options: {
+  isActive?: boolean;
+  page: number;
+  pageSize: number;
+}): Promise<PaginatedContracts> {
+  const sourceSql = contractSourceSql(options.isActive);
+  const offset = (options.page - 1) * options.pageSize;
+  const [totals, pageRows] = await Promise.all([
+    prisma.$queryRaw<Array<{ total: number }>>(Prisma.sql`
+      ${sourceSql}
+      SELECT COUNT(*)::int AS "total" FROM contract_rows
+    `),
+    prisma.$queryRaw<ContractPageSourceRow[]>(Prisma.sql`
+      ${sourceSql}
+      SELECT
+        contract_rows."employmentId",
+        contract_rows."contractIndex"::int AS "contractIndex",
+        contract_rows."contractJson"::text AS "contractJson",
+        employee."employeeId",
+        employee."name" AS "employeeName"
+      FROM contract_rows
+      JOIN "Employee" employee ON employee."id" = contract_rows."employeeId"
+      ORDER BY contract_rows."employmentId" ASC, contract_rows."contractIndex" ASC
+      OFFSET ${offset}
+      LIMIT ${options.pageSize}
+    `),
+  ]);
+
+  const contracts = pageRows.flatMap((row) =>
+    buildContractRows([{
+      id: row.employmentId,
+      contracts: row.contractJson,
+      employee: { employeeId: row.employeeId, name: row.employeeName },
+    }]).map((contract) => ({
+      ...contract,
+      id: row.employmentId * 1000 + row.contractIndex,
+    })),
+  );
+
+  return { contracts, total: totals[0]?.total ?? 0 };
+}
+
 async function clearPrimaryContractsForEmployee(
   employeeId: number,
   editorId: number,
@@ -67,6 +150,21 @@ export async function getContracts(options: {
   page: number;
   pageSize: number;
 }): Promise<PaginatedContracts> {
+  const hasComplexFilter = Boolean(
+    options.keyword || options.company || options.department || options.position,
+  );
+  if (!hasComplexFilter) {
+    return getDefaultContractPage({
+      isActive: options.isActive === "true"
+        ? true
+        : options.isActive === "false"
+          ? false
+          : undefined,
+      page: options.page,
+      pageSize: options.pageSize,
+    });
+  }
+
   const where: Prisma.EmploymentWhereInput = {};
   if (options.isActive === "true") where.isActive = true;
   if (options.isActive === "false") where.isActive = false;

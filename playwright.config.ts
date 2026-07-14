@@ -16,7 +16,7 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run dev",
-    url: "http://localhost:3000",
+    url: "http://localhost:3000/workspace/login",
     reuseExistingServer: !process.env.CI,
   },
 });

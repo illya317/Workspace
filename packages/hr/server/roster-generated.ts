@@ -1,5 +1,5 @@
 import { matchSearchFields } from "@workspace/platform/search";
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type {
   RosterGeneratedColumn,
   RosterGeneratedFilterField,
@@ -34,21 +34,21 @@ const MANAGEMENT_COLUMNS: RosterGeneratedColumn[] = [
 ];
 
 const DUE_DILIGENCE_COLUMNS: RosterGeneratedColumn[] = [
-  { key: "employeeId", label: "员工编号", scope: "employee", required: true },
   { key: "name", label: "姓名", scope: "employee", required: true },
-  { key: "currentCompany", label: "当前公司", scope: "employee", defaultVisible: true },
-  { key: "gender", label: "性别", scope: "employee", defaultVisible: true },
-  { key: "education", label: "学历", scope: "employee" },
-  { key: "isActive", label: "在职状态", scope: "employee", defaultVisible: true },
-  { key: "joinDate", label: "入职日期", scope: "employee", defaultVisible: true },
-  { key: "leaveDate", label: "离职日期", scope: "employee" },
   { key: "departmentName", label: "部门", scope: "row", defaultVisible: true },
   { key: "positionName", label: "岗位", scope: "row", defaultVisible: true },
+  { key: "gender", label: "性别", scope: "employee", defaultVisible: true },
+  { key: "education", label: "学历", scope: "employee", defaultVisible: true },
+  { key: "joinDate", label: "入职时间", scope: "employee", defaultVisible: true },
+  { key: "employeeId", label: "员工编号", scope: "employee" },
+  { key: "currentCompany", label: "当前公司", scope: "employee" },
+  { key: "isActive", label: "在职状态", scope: "employee" },
+  { key: "leaveDate", label: "离职日期", scope: "employee" },
   { key: "positionStartDate", label: "任岗开始", scope: "row" },
   { key: "positionEndDate", label: "任岗结束", scope: "row" },
-  { key: "company", label: "合同公司", scope: "row", defaultVisible: true },
-  { key: "contractType", label: "合同类型", scope: "row", defaultVisible: true },
-  { key: "legalRelation", label: "法律关系", scope: "row", defaultVisible: true },
+  { key: "company", label: "合同公司", scope: "row" },
+  { key: "contractType", label: "合同类型", scope: "row" },
+  { key: "legalRelation", label: "法律关系", scope: "row" },
   { key: "employmentForm", label: "用工形式", scope: "row" },
   { key: "insuranceStatus", label: "参保状态", scope: "row" },
   { key: "firstContractStartDate", label: "首签开始", scope: "row" },
@@ -84,15 +84,17 @@ export async function previewRosterGenerated(input: RosterGeneratedPreviewInput)
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(10000, Math.max(1, input.pageSize ?? 50));
   const columns = columnsForVariant(variant);
-  const employees = await loadRosterEmployees();
-  const filtered = filterEmployees(employees, {
+  const filters = {
     variant,
     keyword: input.keyword?.trim() ?? "",
     status,
     filterField: input.filterField ?? "",
     filterValue: input.filterValue ?? "",
-  });
-  const paged = filtered.slice((page - 1) * pageSize, page * pageSize);
+  };
+  const defaultPage = !filters.keyword && !(filters.filterField && filters.filterValue);
+  const { paged, totalEmployees } = defaultPage
+    ? await loadRosterEmployeePage({ status, page, pageSize })
+    : await loadFilteredRosterEmployeePage(filters, page, pageSize);
   const groups = paged.map((employee) => buildGroup(employee, variant));
 
   return {
@@ -109,7 +111,7 @@ export async function previewRosterGenerated(input: RosterGeneratedPreviewInput)
     filterFields: FILTER_FIELDS,
     columns,
     groups,
-    totalEmployees: filtered.length,
+    totalEmployees,
     totalRows: groups.reduce((sum, group) => sum + group.rows.length, 0),
   };
 }
@@ -161,6 +163,54 @@ async function loadRosterEmployees() {
     },
     orderBy: { employeeId: "asc" },
   });
+}
+
+function rosterEmployeeWhere(status: RosterGeneratedStatus): Prisma.EmployeeWhereInput {
+  if (status === "active") return { employments: { some: { isActive: true } } };
+  if (status === "inactive") return { employments: { none: { isActive: true } } };
+  return {};
+}
+
+async function loadRosterEmployeePage(input: {
+  status: RosterGeneratedStatus;
+  page: number;
+  pageSize: number;
+}) {
+  const where = rosterEmployeeWhere(input.status);
+  const [totalEmployees, paged] = await Promise.all([
+    prisma.employee.count({ where }),
+    prisma.employee.findMany({
+      where,
+      include: {
+        employments: {
+          orderBy: [{ isActive: "desc" }, { id: "desc" }],
+        },
+        positions: {
+          include: {
+            department: { include: { parent: { include: { parent: true } } } },
+            position: { include: { department: { include: { parent: { include: { parent: true } } } } } },
+          },
+          orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
+        },
+      },
+      orderBy: { employeeId: "asc" },
+      skip: (input.page - 1) * input.pageSize,
+      take: input.pageSize,
+    }),
+  ]);
+  return { paged, totalEmployees };
+}
+
+async function loadFilteredRosterEmployeePage(
+  filters: Parameters<typeof filterEmployees>[1],
+  page: number,
+  pageSize: number,
+) {
+  const filtered = filterEmployees(await loadRosterEmployees(), filters);
+  return {
+    paged: filtered.slice((page - 1) * pageSize, page * pageSize),
+    totalEmployees: filtered.length,
+  };
 }
 
 function filterEmployees(

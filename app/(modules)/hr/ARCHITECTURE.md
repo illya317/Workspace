@@ -84,6 +84,8 @@ roster/page.tsx
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
 4. **API 路由** 在 `app/api/modules/hr/roster/` 下；`employees/employments/edps/contracts` 的 base `PUT` 接收统一 change-set envelope，route 只组 command，HR service 负责领域校验和事务写入
 
+默认无搜索/高级筛选的 HR 列表读取必须在 PostgreSQL 先完成计数和分页，再只加载当前页的关系数据；合同列表也必须在数据库内展开 JSON 后分页，不得先 `findMany` 全量员工、雇佣或员工岗位后在 Node 内存分页。需要跨 JSON 合同或组织路径的复杂筛选可以走明确的慢路径，但不能污染打开 Tab 的默认路径。尽调版花名册默认列固定为“姓名、部门、岗位、性别、学历、入职时间”，其他字段由列设置按需开启。
+
 员工详情页的数据流：
 
 1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位。
