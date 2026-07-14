@@ -1,0 +1,54 @@
+/// ERP 现金流量项目来源主数据
+model FinanceCashFlowItem {
+  id              Int                           @id @default(autoincrement())
+  companyCode     String
+  sourceSystem    String
+  sourceLedger    String
+  sourceCode      String
+  sourceName      String
+  parentId        Int?
+  direction       String?
+  firstYear       Int?
+  lastYear        Int?
+  latestImportId  Int?
+  createdAt       DateTime                      @default(now())
+  updatedAt       DateTime                      @default(now()) @updatedAt
+  latestImport    FinanceLedgerImport?           @relation(fields: [latestImportId], references: [id])
+  parent          FinanceCashFlowItem?           @relation("FinanceCashFlowHierarchy", fields: [parentId], references: [id])
+  children        FinanceCashFlowItem[]          @relation("FinanceCashFlowHierarchy")
+  allocations     FinanceCashFlowAllocation[]
+
+  @@unique([companyCode, sourceSystem, sourceLedger, sourceCode])
+  @@index([parentId])
+  @@index([latestImportId])
+}
+
+/// 凭证现金流量分配事实
+model FinanceCashFlowAllocation {
+  id                    Int                    @id @default(autoincrement())
+  importId              Int
+  companyCode           String
+  periodId              Int
+  voucherId             Int
+  cashFlowItemId        Int
+  ownerVoucherItemId    Int?
+  counterpartItemId     Int?
+  sourceSystem          String
+  sourceDatabase        String
+  sourceKey             String
+  direction             String
+  amount                Decimal                @db.Decimal(20, 2)
+  createdAt             DateTime               @default(now())
+  updatedAt             DateTime               @default(now()) @updatedAt
+  import                FinanceLedgerImport    @relation(fields: [importId], references: [id], onDelete: Cascade)
+  period                FinancePeriod          @relation(fields: [periodId], references: [id])
+  voucher               FinanceVoucher         @relation(fields: [voucherId], references: [id], onDelete: Cascade)
+  cashFlowItem          FinanceCashFlowItem    @relation(fields: [cashFlowItemId], references: [id])
+  ownerVoucherItem      FinanceVoucherItem?    @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id])
+  counterpartItem       FinanceVoucherItem?    @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id])
+
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
+  @@index([companyCode, periodId, cashFlowItemId])
+  @@index([voucherId])
+}

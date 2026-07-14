@@ -14,9 +14,9 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceStatementWorkpaperLine
- * 报表底稿行（P3 Batch 2：底稿每行的手工/导入输入）
+ * 报表底稿行（底稿每行的手工/导入输入）
  * 唯一键：workpaperId + lineCode
- * lineCode 必须存在于对应 reportType 的 FinanceStatementLineConfig
+ * lineCode 必须存在于代码内对应 reportType 的固定报表行定义
  */
 export type FinanceStatementWorkpaperLineModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceStatementWorkpaperLinePayload>
 

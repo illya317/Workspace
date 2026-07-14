@@ -72,17 +72,26 @@ export const ModelName = {
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
+  FinanceCashFlowItem: 'FinanceCashFlowItem',
+  FinanceCashFlowAllocation: 'FinanceCashFlowAllocation',
   FinanceDataImport: 'FinanceDataImport',
   FinanceShipment: 'FinanceShipment',
   FinanceSalesSalary: 'FinanceSalesSalary',
   FinanceCostStructureRow: 'FinanceCostStructureRow',
   FinanceCostAnalysisRow: 'FinanceCostAnalysisRow',
   FinanceWorkshopReport: 'FinanceWorkshopReport',
+  FinanceAuxiliaryMember: 'FinanceAuxiliaryMember',
+  FinanceVoucherItemAuxiliary: 'FinanceVoucherItemAuxiliary',
+  FinanceAuxiliaryBalance: 'FinanceAuxiliaryBalance',
+  FinanceAuxiliaryBalanceMember: 'FinanceAuxiliaryBalanceMember',
+  FinanceOpenItem: 'FinanceOpenItem',
+  FinanceOpenItemAuxiliary: 'FinanceOpenItemAuxiliary',
+  FinanceLedgerImport: 'FinanceLedgerImport',
+  FinanceSourceAccountBalance: 'FinanceSourceAccountBalance',
   FinanceAccount: 'FinanceAccount',
   FinancePeriod: 'FinancePeriod',
   FinanceVoucher: 'FinanceVoucher',
   FinanceVoucherItem: 'FinanceVoucherItem',
-  FinanceLedgerImport: 'FinanceLedgerImport',
   FinanceAccountBalance: 'FinanceAccountBalance',
   FinanceBalanceSnapshot: 'FinanceBalanceSnapshot',
   FinanceBalanceSnapshotRow: 'FinanceBalanceSnapshotRow',
@@ -90,10 +99,10 @@ export const ModelName = {
   FinanceReclassItemRule: 'FinanceReclassItemRule',
   FinanceBalanceReclassAdjustment: 'FinanceBalanceReclassAdjustment',
   ReclassResult: 'ReclassResult',
-  FinanceStatementAccountMapping: 'FinanceStatementAccountMapping',
-  FinanceStatementLineConfig: 'FinanceStatementLineConfig',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
+  FinanceCurrency: 'FinanceCurrency',
+  FinanceBankAccount: 'FinanceBankAccount',
   DepartmentDescription: 'DepartmentDescription',
   PositionDescription: 'PositionDescription',
   HrPerformanceReview: 'HrPerformanceReview',
@@ -625,6 +634,46 @@ export const FinanceBudgetRdScalarFieldEnum = {
 export type FinanceBudgetRdScalarFieldEnum = (typeof FinanceBudgetRdScalarFieldEnum)[keyof typeof FinanceBudgetRdScalarFieldEnum]
 
 
+export const FinanceCashFlowItemScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  sourceCode: 'sourceCode',
+  sourceName: 'sourceName',
+  parentId: 'parentId',
+  direction: 'direction',
+  firstYear: 'firstYear',
+  lastYear: 'lastYear',
+  latestImportId: 'latestImportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceCashFlowItemScalarFieldEnum = (typeof FinanceCashFlowItemScalarFieldEnum)[keyof typeof FinanceCashFlowItemScalarFieldEnum]
+
+
+export const FinanceCashFlowAllocationScalarFieldEnum = {
+  id: 'id',
+  importId: 'importId',
+  companyCode: 'companyCode',
+  periodId: 'periodId',
+  voucherId: 'voucherId',
+  cashFlowItemId: 'cashFlowItemId',
+  ownerVoucherItemId: 'ownerVoucherItemId',
+  counterpartItemId: 'counterpartItemId',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  direction: 'direction',
+  amount: 'amount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceCashFlowAllocationScalarFieldEnum = (typeof FinanceCashFlowAllocationScalarFieldEnum)[keyof typeof FinanceCashFlowAllocationScalarFieldEnum]
+
+
 export const FinanceDataImportScalarFieldEnum = {
   id: 'id',
   profile: 'profile',
@@ -754,6 +803,165 @@ export const FinanceWorkshopReportScalarFieldEnum = {
 export type FinanceWorkshopReportScalarFieldEnum = (typeof FinanceWorkshopReportScalarFieldEnum)[keyof typeof FinanceWorkshopReportScalarFieldEnum]
 
 
+export const FinanceAuxiliaryMemberScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  dimensionType: 'dimensionType',
+  sourceCode: 'sourceCode',
+  sourceName: 'sourceName',
+  shortName: 'shortName',
+  identityNumber: 'identityNumber',
+  contactPerson: 'contactPerson',
+  phone: 'phone',
+  address: 'address',
+  bankName: 'bankName',
+  bankAccount: 'bankAccount',
+  firstYear: 'firstYear',
+  lastYear: 'lastYear',
+  latestImportId: 'latestImportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAuxiliaryMemberScalarFieldEnum = (typeof FinanceAuxiliaryMemberScalarFieldEnum)[keyof typeof FinanceAuxiliaryMemberScalarFieldEnum]
+
+
+export const FinanceVoucherItemAuxiliaryScalarFieldEnum = {
+  id: 'id',
+  itemId: 'itemId',
+  memberId: 'memberId',
+  sourceRole: 'sourceRole'
+} as const
+
+export type FinanceVoucherItemAuxiliaryScalarFieldEnum = (typeof FinanceVoucherItemAuxiliaryScalarFieldEnum)[keyof typeof FinanceVoucherItemAuxiliaryScalarFieldEnum]
+
+
+export const FinanceAuxiliaryBalanceScalarFieldEnum = {
+  id: 'id',
+  importId: 'importId',
+  periodId: 'periodId',
+  accountId: 'accountId',
+  companyCode: 'companyCode',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  openingDebit: 'openingDebit',
+  openingCredit: 'openingCredit',
+  currentDebit: 'currentDebit',
+  currentCredit: 'currentCredit',
+  closingDebit: 'closingDebit',
+  closingCredit: 'closingCredit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAuxiliaryBalanceScalarFieldEnum = (typeof FinanceAuxiliaryBalanceScalarFieldEnum)[keyof typeof FinanceAuxiliaryBalanceScalarFieldEnum]
+
+
+export const FinanceAuxiliaryBalanceMemberScalarFieldEnum = {
+  id: 'id',
+  balanceId: 'balanceId',
+  memberId: 'memberId',
+  sourceRole: 'sourceRole'
+} as const
+
+export type FinanceAuxiliaryBalanceMemberScalarFieldEnum = (typeof FinanceAuxiliaryBalanceMemberScalarFieldEnum)[keyof typeof FinanceAuxiliaryBalanceMemberScalarFieldEnum]
+
+
+export const FinanceOpenItemScalarFieldEnum = {
+  id: 'id',
+  importId: 'importId',
+  companyCode: 'companyCode',
+  periodId: 'periodId',
+  accountId: 'accountId',
+  voucherItemId: 'voucherItemId',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  documentNo: 'documentNo',
+  documentDate: 'documentDate',
+  dueDate: 'dueDate',
+  memo: 'memo',
+  currencyCode: 'currencyCode',
+  originalDebit: 'originalDebit',
+  originalCredit: 'originalCredit',
+  outstandingDebit: 'outstandingDebit',
+  outstandingCredit: 'outstandingCredit',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceOpenItemScalarFieldEnum = (typeof FinanceOpenItemScalarFieldEnum)[keyof typeof FinanceOpenItemScalarFieldEnum]
+
+
+export const FinanceOpenItemAuxiliaryScalarFieldEnum = {
+  id: 'id',
+  openItemId: 'openItemId',
+  memberId: 'memberId',
+  sourceRole: 'sourceRole'
+} as const
+
+export type FinanceOpenItemAuxiliaryScalarFieldEnum = (typeof FinanceOpenItemAuxiliaryScalarFieldEnum)[keyof typeof FinanceOpenItemAuxiliaryScalarFieldEnum]
+
+
+export const FinanceLedgerImportScalarFieldEnum = {
+  id: 'id',
+  batchKey: 'batchKey',
+  type: 'type',
+  companyCode: 'companyCode',
+  year: 'year',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  sourceDatabase: 'sourceDatabase',
+  sourceFile: 'sourceFile',
+  sourcePath: 'sourcePath',
+  snapshotDate: 'snapshotDate',
+  cutoffDate: 'cutoffDate',
+  checksum: 'checksum',
+  controlJson: 'controlJson',
+  status: 'status',
+  rowCount: 'rowCount',
+  createdCount: 'createdCount',
+  updatedCount: 'updatedCount',
+  skippedCount: 'skippedCount',
+  deletedCount: 'deletedCount',
+  conflictCount: 'conflictCount',
+  blockedCount: 'blockedCount',
+  warnings: 'warnings',
+  importedBy: 'importedBy',
+  importedAt: 'importedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceLedgerImportScalarFieldEnum = (typeof FinanceLedgerImportScalarFieldEnum)[keyof typeof FinanceLedgerImportScalarFieldEnum]
+
+
+export const FinanceSourceAccountBalanceScalarFieldEnum = {
+  id: 'id',
+  importId: 'importId',
+  periodId: 'periodId',
+  accountId: 'accountId',
+  companyCode: 'companyCode',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  openingDebit: 'openingDebit',
+  openingCredit: 'openingCredit',
+  currentDebit: 'currentDebit',
+  currentCredit: 'currentCredit',
+  closingDebit: 'closingDebit',
+  closingCredit: 'closingCredit',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceSourceAccountBalanceScalarFieldEnum = (typeof FinanceSourceAccountBalanceScalarFieldEnum)[keyof typeof FinanceSourceAccountBalanceScalarFieldEnum]
+
+
 export const FinanceAccountScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -765,6 +973,10 @@ export const FinanceAccountScalarFieldEnum = {
   companyCode: 'companyCode',
   mnemonicCode: 'mnemonicCode',
   currency: 'currency',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
   groupSubjectCode: 'groupSubjectCode',
   subjectLevel: 'subjectLevel',
   year: 'year',
@@ -786,6 +998,10 @@ export const FinancePeriodScalarFieldEnum = {
   startDate: 'startDate',
   endDate: 'endDate',
   isClosed: 'isClosed',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  sourceClosed: 'sourceClosed',
   companyCode: 'companyCode',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -804,6 +1020,10 @@ export const FinanceVoucherScalarFieldEnum = {
   totalCredit: 'totalCredit',
   status: 'status',
   companyCode: 'companyCode',
+  importId: 'importId',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -827,36 +1047,17 @@ export const FinanceVoucherItemScalarFieldEnum = {
   sourceFile: 'sourceFile',
   sourceSheet: 'sourceSheet',
   sourceRow: 'sourceRow',
+  sourceSystem: 'sourceSystem',
+  sourceDatabase: 'sourceDatabase',
+  sourceKey: 'sourceKey',
+  currencyCode: 'currencyCode',
+  exchangeRate: 'exchangeRate',
+  originalDebit: 'originalDebit',
+  originalCredit: 'originalCredit',
   importId: 'importId'
 } as const
 
 export type FinanceVoucherItemScalarFieldEnum = (typeof FinanceVoucherItemScalarFieldEnum)[keyof typeof FinanceVoucherItemScalarFieldEnum]
-
-
-export const FinanceLedgerImportScalarFieldEnum = {
-  id: 'id',
-  type: 'type',
-  companyCode: 'companyCode',
-  year: 'year',
-  sourceFile: 'sourceFile',
-  sourcePath: 'sourcePath',
-  checksum: 'checksum',
-  status: 'status',
-  rowCount: 'rowCount',
-  createdCount: 'createdCount',
-  updatedCount: 'updatedCount',
-  skippedCount: 'skippedCount',
-  deletedCount: 'deletedCount',
-  conflictCount: 'conflictCount',
-  blockedCount: 'blockedCount',
-  warnings: 'warnings',
-  importedBy: 'importedBy',
-  importedAt: 'importedAt',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceLedgerImportScalarFieldEnum = (typeof FinanceLedgerImportScalarFieldEnum)[keyof typeof FinanceLedgerImportScalarFieldEnum]
 
 
 export const FinanceAccountBalanceScalarFieldEnum = {
@@ -997,51 +1198,6 @@ export const ReclassResultScalarFieldEnum = {
 export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
 
 
-export const FinanceStatementAccountMappingScalarFieldEnum = {
-  id: 'id',
-  companyCode: 'companyCode',
-  year: 'year',
-  statementType: 'statementType',
-  lineCode: 'lineCode',
-  accountCode: 'accountCode',
-  includeChildren: 'includeChildren',
-  operator: 'operator',
-  source: 'source',
-  note: 'note',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceStatementAccountMappingScalarFieldEnum = (typeof FinanceStatementAccountMappingScalarFieldEnum)[keyof typeof FinanceStatementAccountMappingScalarFieldEnum]
-
-
-export const FinanceStatementLineConfigScalarFieldEnum = {
-  id: 'id',
-  companyCode: 'companyCode',
-  year: 'year',
-  reportType: 'reportType',
-  lineCode: 'lineCode',
-  label: 'label',
-  displayCode: 'displayCode',
-  section: 'section',
-  side: 'side',
-  sortOrder: 'sortOrder',
-  prefixesJson: 'prefixesJson',
-  subtractPrefixesJson: 'subtractPrefixesJson',
-  formulaJson: 'formulaJson',
-  reclassSource: 'reclassSource',
-  reclassTarget: 'reclassTarget',
-  isHeader: 'isHeader',
-  isTotal: 'isTotal',
-  isGrandTotal: 'isGrandTotal',
-  enabled: 'enabled',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type FinanceStatementLineConfigScalarFieldEnum = (typeof FinanceStatementLineConfigScalarFieldEnum)[keyof typeof FinanceStatementLineConfigScalarFieldEnum]
-
-
 export const FinanceStatementWorkpaperScalarFieldEnum = {
   id: 'id',
   companyCode: 'companyCode',
@@ -1075,6 +1231,45 @@ export const FinanceStatementWorkpaperLineScalarFieldEnum = {
 } as const
 
 export type FinanceStatementWorkpaperLineScalarFieldEnum = (typeof FinanceStatementWorkpaperLineScalarFieldEnum)[keyof typeof FinanceStatementWorkpaperLineScalarFieldEnum]
+
+
+export const FinanceCurrencyScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  sourceCode: 'sourceCode',
+  sourceName: 'sourceName',
+  symbol: 'symbol',
+  decimalDigits: 'decimalDigits',
+  isBase: 'isBase',
+  latestImportId: 'latestImportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceCurrencyScalarFieldEnum = (typeof FinanceCurrencyScalarFieldEnum)[keyof typeof FinanceCurrencyScalarFieldEnum]
+
+
+export const FinanceBankAccountScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  accountId: 'accountId',
+  sourceSystem: 'sourceSystem',
+  sourceLedger: 'sourceLedger',
+  sourceKey: 'sourceKey',
+  sourceCode: 'sourceCode',
+  sourceName: 'sourceName',
+  accountNo: 'accountNo',
+  bankName: 'bankName',
+  currencyCode: 'currencyCode',
+  isActive: 'isActive',
+  latestImportId: 'latestImportId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceBankAccountScalarFieldEnum = (typeof FinanceBankAccountScalarFieldEnum)[keyof typeof FinanceBankAccountScalarFieldEnum]
 
 
 export const DepartmentDescriptionScalarFieldEnum = {
@@ -2605,6 +2800,14 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
+
+
 export const QueryMode = {
   default: 'default',
   insensitive: 'insensitive'
@@ -2619,4 +2822,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

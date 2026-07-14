@@ -51,7 +51,7 @@ model FinanceBalanceReclassAdjustment {
   sourceAccountCode String
   targetAccountCode String
   amount            Float
-  sourceType        String    @default("balance_residual") // balance_residual | manual
+  sourceType        String    @default("balance_residual") // balance_residual | auxiliary_balance | reference_workpaper | manual
   ruleId            Int?
   status            String    @default("approved") // approved | adjusted | rejected
   note              String?

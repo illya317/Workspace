@@ -291,8 +291,6 @@ assertApiActions("POST", "/api/modules/finance/import/confirm", ["import"]);
 assertApiActions("POST", "/api/modules/finance/budget", ["import"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions", ["create"]);
 assertApiActions("POST", "/api/modules/finance/budget/versions/123/activate", ["approve"]);
-assertApiActions("POST", "/api/modules/finance/statement-config/mappings", ["create"]);
-assertApiActions("PATCH", "/api/modules/finance/statement-config/mappings", ["update"]);
 assertApiActions("GET", "/api/modules/work/tasks/submissions", ["read"]);
 assertApiRuntime("GET", "/api/modules/work/tasks/submissions", "serviceDelegated");
 assertApiAuthorization("GET", "/api/modules/work/tasks/spaces/department/123/permissions", {

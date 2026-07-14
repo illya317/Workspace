@@ -24,6 +24,7 @@ export interface CashFlowLineConfig {
   /** Sub-total / total / grandTotal markers for UI grouping */
   isSubtotal?: boolean;
   isGrandTotal?: boolean;
+  isHeader?: boolean;
 }
 
 // ─── Config ────────────────────────────────────────────────
@@ -38,46 +39,48 @@ export interface CashFlowLineConfig {
 
 export const CASH_FLOW_LINES: CashFlowLineConfig[] = [
   // ─── 经营活动 ───
-  { lineCode: "operatingInHeader", label: "一、经营活动产生的现金流量：", section: "operating", direction: "in", isSubtotal: false },
+  { lineCode: "operatingInHeader", label: "一、经营活动产生的现金流量：", section: "operating", direction: "in", isHeader: true },
   { lineCode: "salesReceipt", label: "    销售商品、提供劳务收到的现金", section: "operating", direction: "in", chnPrefixes: ["6001"], canPrefixes: ["5001"] },
   { lineCode: "taxRefund",    label: "    收到的税费返还",             section: "operating", direction: "in", chnPrefixes: ["6051"] },
   { lineCode: "otherOpIn",    label: "    收到其他与经营活动有关的现金", section: "operating", direction: "in", chnPrefixes: ["6117", "6301"] },
-  { lineCode: "operatingInSubtotal", label: "    经营活动现金流入小计", section: "operating", direction: "net", isSubtotal: true },
+  { lineCode: "operatingInSubtotal", label: "经营活动现金流入小计", section: "operating", direction: "net", isSubtotal: true },
 
   { lineCode: "purchasePayment", label: "    购买商品、接受劳务支付的现金", section: "operating", direction: "out", chnPrefixes: ["6401", "6402"], canPrefixes: ["5401", "5402"] },
   { lineCode: "staffPayment",    label: "    支付给职工以及为职工支付的现金", section: "operating", direction: "out", chnPrefixes: ["2211"] },
   { lineCode: "taxPayment",      label: "    支付的各项税费",               section: "operating", direction: "out", chnPrefixes: ["2221", "6801"], canPrefixes: ["5801"] },
   { lineCode: "otherOpOut",      label: "    支付其他与经营活动有关的现金", section: "operating", direction: "out", chnPrefixes: ["6601", "6602", "6603", "6605", "6711"] },
-  { lineCode: "operatingOutSubtotal", label: "    经营活动现金流出小计", section: "operating", direction: "net", isSubtotal: true },
+  { lineCode: "operatingOutSubtotal", label: "经营活动现金流出小计", section: "operating", direction: "net", isSubtotal: true },
 
   { lineCode: "operatingNet", label: "    经营活动产生的现金流量净额", section: "operating", direction: "net", isSubtotal: true },
 
   // ─── 投资活动 ───
-  { lineCode: "investingInHeader", label: "二、投资活动产生的现金流量：", section: "investing", direction: "in" },
+  { lineCode: "investingInHeader", label: "二、投资活动产生的现金流量：", section: "investing", direction: "in", isHeader: true },
   { lineCode: "investRecovery", label: "    收回投资收到的现金",         section: "investing", direction: "in", chnPrefixes: ["1511"] },
   { lineCode: "investIncome",    label: "    取得投资收益收到的现金",     section: "investing", direction: "in", chnPrefixes: ["6111"], canPrefixes: ["5111"] },
-  { lineCode: "fixedAssetDisposal", label: "    处置固定资产、无形资产收到的现金", section: "investing", direction: "in", chnPrefixes: ["1601", "1701"] },
+  { lineCode: "fixedAssetDisposal", label: "    处置固定资产、无形资产和其他长期资产收回的现金净额", section: "investing", direction: "in", chnPrefixes: ["1601", "1701"] },
+  { lineCode: "subsidiaryDisposal", label: "    处置子公司及其他营业单位收到的现金净额", section: "investing", direction: "in" },
   { lineCode: "otherInvIn",      label: "    收到其他与投资活动有关的现金", section: "investing", direction: "in" },
-  { lineCode: "investingInSubtotal", label: "    投资活动现金流入小计", section: "investing", direction: "net", isSubtotal: true },
+  { lineCode: "investingInSubtotal", label: "投资活动现金流入小计", section: "investing", direction: "net", isSubtotal: true },
 
-  { lineCode: "fixedAssetPurchase", label: "    购建固定资产、无形资产支付的现金", section: "investing", direction: "out", chnPrefixes: ["1601", "1604", "1701"] },
+  { lineCode: "fixedAssetPurchase", label: "    购建固定资产、无形资产和其他长期资产所支付的现金", section: "investing", direction: "out", chnPrefixes: ["1601", "1604", "1701"] },
   { lineCode: "investPayment",    label: "    投资支付的现金",              section: "investing", direction: "out", chnPrefixes: ["1511", "1512", "1521"] },
+  { lineCode: "subsidiaryAcquisition", label: "    取得子公司及其他营业单位支付的现金净额", section: "investing", direction: "out" },
   { lineCode: "otherInvOut",      label: "    支付其他与投资活动有关的现金", section: "investing", direction: "out" },
-  { lineCode: "investingOutSubtotal", label: "    投资活动现金流出小计", section: "investing", direction: "net", isSubtotal: true },
+  { lineCode: "investingOutSubtotal", label: "投资活动现金流出小计", section: "investing", direction: "net", isSubtotal: true },
 
   { lineCode: "investingNet", label: "    投资活动产生的现金流量净额", section: "investing", direction: "net", isSubtotal: true },
 
   // ─── 筹资活动 ───
-  { lineCode: "financingInHeader", label: "三、筹资活动产生的现金流量：", section: "financing", direction: "in" },
+  { lineCode: "financingInHeader", label: "三、筹资活动产生的现金流量：", section: "financing", direction: "in", isHeader: true },
   { lineCode: "capitalInjection",  label: "    吸收投资收到的现金",         section: "financing", direction: "in", chnPrefixes: ["4001"] },
   { lineCode: "loanReceipt",       label: "    取得借款收到的现金",         section: "financing", direction: "in", chnPrefixes: ["2001", "2501"] },
   { lineCode: "otherFinIn",        label: "    收到其他与筹资活动有关的现金", section: "financing", direction: "in" },
-  { lineCode: "financingInSubtotal", label: "    筹资活动现金流入小计", section: "financing", direction: "net", isSubtotal: true },
+  { lineCode: "financingInSubtotal", label: "筹资活动现金流入小计", section: "financing", direction: "net", isSubtotal: true },
 
   { lineCode: "loanRepayment",     label: "    偿还债务支付的现金",         section: "financing", direction: "out", chnPrefixes: ["2001", "2501"] },
   { lineCode: "dividendPayment",   label: "    分配股利、利润或偿付利息支付的现金", section: "financing", direction: "out", chnPrefixes: ["2231", "2232", "6603"] },
   { lineCode: "otherFinOut",       label: "    支付其他与筹资活动有关的现金", section: "financing", direction: "out" },
-  { lineCode: "financingOutSubtotal", label: "    筹资活动现金流出小计", section: "financing", direction: "net", isSubtotal: true },
+  { lineCode: "financingOutSubtotal", label: "筹资活动现金流出小计", section: "financing", direction: "net", isSubtotal: true },
 
   { lineCode: "financingNet", label: "    筹资活动产生的现金流量净额", section: "financing", direction: "net", isSubtotal: true },
 

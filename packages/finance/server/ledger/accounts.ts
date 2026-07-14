@@ -5,6 +5,7 @@ import {
   buildFinanceAccountCreateCommand,
   buildFinanceAccountUpdateCommand,
   buildFinanceIdCommand,
+  validYear,
 } from "../domain/finance-validation";
 
 export type FinanceAccountScope = "mapped" | "unmapped" | "inactive" | "all";
@@ -56,8 +57,8 @@ function parsePositiveInt(value: string | undefined, fallback: number) {
 
 function parseYear(value: string | undefined) {
   if (!value) return null;
-  const parsed = parseInt(value, 10);
-  return Number.isNaN(parsed) || parsed < 2020 || parsed > 2099 ? null : parsed;
+  const parsed = validYear(value);
+  return parsed.ok ? parsed.data : null;
 }
 
 function optionalString(value: unknown) {

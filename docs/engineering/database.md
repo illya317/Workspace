@@ -834,7 +834,7 @@
 | sourceAccountCode | String | - |  |
 | targetAccountCode | String | - |  |
 | amount | Float | - |  |
-| sourceType | String | @default("balance_residual") | balance_residual | manual |
+| sourceType | String | @default("balance_residual") | balance_residual | auxiliary_balance | reference_workpaper | manual |
 | ruleId | Int? | - |  |
 | status | String | @default("approved") | approved | adjusted | rejected |
 | note | String? | - |  |
@@ -867,41 +867,6 @@
 | rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id], onDelete: SetNull) |  |
 | reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
 
-### FinanceStatementAccountMapping
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| companyCode | String | - |  |
-| year | Int | - |  |
-| statementType | String | @default("balance") | balance | income | cashflow |
-| lineCode | String | - | 报表项目 lineCode |
-| accountCode | String | - | 科目编码 |
-| includeChildren | Boolean | @default(true) |  |
-| operator | String | @default("add") | add | subtract |
-| source | String | @default("default") | default | manual | copied | migrated |
-| note | String? | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-
-### FinanceStatementLineConfig
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| companyCode | String | - |  |
-| year | Int | - |  |
-| reportType | String | @default("balanceSheet") | balanceSheet | incomeStatement | cashFlow |
-| lineCode | String | - | unique line identifier |
-| label | String | - | display label |
-| displayCode | String | @default("") | display code hint |
-| section | String | - | currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity |
-| side | String | @default("debit") | debit | credit |
-| sortOrder | Int | @default(0) |  |
-| prefixesJson | String | @default("[]") | JSON array of account code prefixes |
-| subtractPrefixesJson | String | @default("[]") | JSON array of subtract prefixes (e.g. accumulated depreciation) |
-| formulaJson | String | @default("{ |  |
-
 ### FinanceStatementWorkpaper
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -910,7 +875,7 @@
 | companyCode | String | - |  |
 | year | Int | - |  |
 | month | Int | - |  |
-| reportType | String | - | incomeStatement | cashFlow |
+| reportType | String | - | balanceSheet | incomeStatement | cashFlow |
 | status | String | @default("draft") | draft | submitted |
 | note | String? | - |  |
 | updatedBy | Int? | - |  |

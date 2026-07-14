@@ -10,6 +10,10 @@ model FinanceAccount {
   companyCode      String
   mnemonicCode     String?
   currency         String?
+  sourceSystem     String?
+  sourceLedger     String?
+  sourceDatabase   String?
+  sourceKey        String?
   groupSubjectCode String?
   subjectLevel     Int?
   year             Int?
@@ -25,10 +29,15 @@ model FinanceAccount {
   balances         FinanceAccountBalance[]
   voucherItems     FinanceVoucherItem[]
   snapshotRows     FinanceBalanceSnapshotRow[]
+  sourceBalances   FinanceSourceAccountBalance[]
+  auxiliaryBalances FinanceAuxiliaryBalance[]
+  openItems        FinanceOpenItem[]
+  bankAccounts     FinanceBankAccount[]
   deptBudgets      FinanceBudgetDept[]
   rdBudgets        FinanceBudgetRd[]
 
   @@unique([code, companyCode, year])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
 }
 
 /// 会计期间
@@ -39,12 +48,20 @@ model FinancePeriod {
   startDate      String
   endDate        String
   isClosed       Boolean                 @default(false)
+  sourceSystem   String?
+  sourceDatabase String?
+  sourceKey      String?
+  sourceClosed   Boolean?
   companyCode    String
   createdAt      DateTime                @default(now())
   updatedAt      DateTime                @default(now()) @updatedAt
   balances       FinanceAccountBalance[]
   vouchers       FinanceVoucher[]
   reclassResults ReclassResult[]
+  sourceBalances FinanceSourceAccountBalance[]
+  auxiliaryBalances FinanceAuxiliaryBalance[]
+  cashFlowAllocations FinanceCashFlowAllocation[]
+  openItems      FinanceOpenItem[]
 
   @@unique([companyCode, year, month])
 }
@@ -60,6 +77,10 @@ model FinanceVoucher {
   totalCredit Float                @default(0)
   status      String               @default("draft")
   companyCode String
+  importId     Int?
+  sourceSystem String?
+  sourceDatabase String?
+  sourceKey    String?
   editedBy    Int?
   editedAt    DateTime?
   version     Int                  @default(1)
@@ -67,9 +88,13 @@ model FinanceVoucher {
   updatedAt   DateTime             @default(now()) @updatedAt
   editor      User?                @relation("FinanceVoucherEditor", fields: [editedBy], references: [id])
   period      FinancePeriod        @relation(fields: [periodId], references: [id])
+  import      FinanceLedgerImport? @relation(fields: [importId], references: [id])
   items       FinanceVoucherItem[]
+  cashFlowAllocations FinanceCashFlowAllocation[]
 
   @@unique([voucherNo, companyCode, periodId])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
   @@index([periodId, date, companyCode])
   @@index([status])
 }
@@ -92,45 +117,28 @@ model FinanceVoucherItem {
   sourceSheet       String?
   /// 导入来源行号
   sourceRow         Int?
+  sourceSystem      String?
+  sourceDatabase    String?
+  sourceKey         String?
+  currencyCode      String?
+  exchangeRate      Decimal?              @db.Decimal(20, 8)
+  originalDebit     Decimal?              @db.Decimal(20, 2)
+  originalCredit    Decimal?              @db.Decimal(20, 2)
   /// 关联导入批次
   importId          Int?
   account           FinanceAccount       @relation(fields: [accountId], references: [id])
   voucher           FinanceVoucher       @relation(fields: [voucherId], references: [id], onDelete: Cascade)
   reclassResults    ReclassResult[]
   import            FinanceLedgerImport? @relation(fields: [importId], references: [id])
+  auxiliaryLinks    FinanceVoucherItemAuxiliary[]
+  cashFlowOwnerAllocations FinanceCashFlowAllocation[] @relation("FinanceCashFlowOwnerItem")
+  cashFlowCounterpartAllocations FinanceCashFlowAllocation[] @relation("FinanceCashFlowCounterpartItem")
+  openItems         FinanceOpenItem[]
 
   @@unique([voucherId, accountId, sortOrder])
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importFingerprint])
   @@index([importId])
-}
-
-/// 总账导入批次（科目/凭证/余额导入追溯）
-model FinanceLedgerImport {
-  id            Int                  @id @default(autoincrement())
-  type          String // account | voucher | balance
-  companyCode   String
-  year          Int
-  sourceFile    String?
-  sourcePath    String?
-  checksum      String?
-  status        String               @default("completed") // completed | partial | failed
-  rowCount      Int                  @default(0)
-  createdCount  Int                  @default(0)
-  updatedCount  Int                  @default(0)
-  skippedCount  Int                  @default(0)
-  deletedCount  Int                  @default(0)
-  conflictCount Int                  @default(0)
-  blockedCount  Int                  @default(0)
-  warnings      String? // JSON array of warning messages
-  importedBy    Int?
-  importedAt    DateTime             @default(now())
-  createdAt     DateTime             @default(now())
-  updatedAt     DateTime             @default(now()) @updatedAt
-  importer      User?                @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id])
-  items         FinanceVoucherItem[]
-
-  @@index([companyCode, year, type])
-  @@index([sourceFile])
 }
 
 /// 科目余额（事实：期初/本期/期末借贷）

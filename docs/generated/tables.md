@@ -1,4 +1,4 @@
-# HR Database Schema (122 tables)
+# HR Database Schema (121 tables)
 
 ## 
 
@@ -143,7 +143,7 @@
 | `createdAt` | DateTime | * |  |  |
 | `sessionVersion` | Int | * |  |  |
 
-← Referenced by: [1-3 ApprovalRequest](#approvalrequest), [1-3 ApprovalRequest](#approvalrequest), [1-4 ApprovalEvent](#approvalevent), [1-9 UserResourceActionGrant](#userresourceactiongrant), [1-12 PermissionGrantLedgerEvent](#permissiongrantledgerevent), [1-13 Notification](#notification), [1-13 Notification](#notification), [1-14 Contract](#contract), [1-27 FinanceAccount](#financeaccount), [1-29 FinanceVoucher](#financevoucher), [1-31 FinanceLedgerImport](#financeledgerimport), [1-33 FinanceBalanceSnapshot](#financebalancesnapshot), [1-33 FinanceBalanceSnapshot](#financebalancesnapshot), [1-35 FinanceReclassRule](#financereclassrule), [1-38 ReclassResult](#reclassresult), [1-41 FinanceStatementWorkpaper](#financestatementworkpaper), [1-46 Employee](#employee), [1-55 EditHistory](#edithistory), [1-56 StockRawMaterial](#stockrawmaterial), [1-57 StockPackaging](#stockpackaging), [1-58 StockFinishedGoods](#stockfinishedgoods), [1-60 StockOperation](#stockoperation), [1-62 LibraryTagCandidate](#librarytagcandidate), [1-64 LibraryMetadataCandidate](#librarymetadatacandidate), [1-65 LibraryEvaluationCase](#libraryevaluationcase), [1-65 LibraryEvaluationCase](#libraryevaluationcase), [1-71 LibraryExportJob](#libraryexportjob), [1-72 LibraryDocument](#librarydocument), [1-72 LibraryDocument](#librarydocument), [1-72 LibraryDocument](#librarydocument), [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-82 LibraryDocumentTag](#librarydocumenttag), [1-90 DepartmentCollaboration](#departmentcollaboration), [1-91 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-95 Meeting](#meeting), [1-95 Meeting](#meeting), [1-96 MeetingParticipant](#meetingparticipant), [1-100 MeetingVote](#meetingvote), [1-113 WorkReport](#workreport), [1-121 DepartmentWorkAssignee](#departmentworkassignee), [1-122 ProjectWorkAssignee](#projectworkassignee)
+← Referenced by: [1-3 ApprovalRequest](#approvalrequest), [1-3 ApprovalRequest](#approvalrequest), [1-4 ApprovalEvent](#approvalevent), [1-9 UserResourceActionGrant](#userresourceactiongrant), [1-12 PermissionGrantLedgerEvent](#permissiongrantledgerevent), [1-13 Notification](#notification), [1-13 Notification](#notification), [1-14 Contract](#contract), [1-28 FinanceAccount](#financeaccount), [1-30 FinanceVoucher](#financevoucher), [1-32 FinanceLedgerImport](#financeledgerimport), [1-34 FinanceBalanceSnapshot](#financebalancesnapshot), [1-34 FinanceBalanceSnapshot](#financebalancesnapshot), [1-36 FinanceReclassRule](#financereclassrule), [1-39 ReclassResult](#reclassresult), [1-40 FinanceStatementWorkpaper](#financestatementworkpaper), [1-45 Employee](#employee), [1-54 EditHistory](#edithistory), [1-55 StockRawMaterial](#stockrawmaterial), [1-56 StockPackaging](#stockpackaging), [1-57 StockFinishedGoods](#stockfinishedgoods), [1-59 StockOperation](#stockoperation), [1-61 LibraryTagCandidate](#librarytagcandidate), [1-63 LibraryMetadataCandidate](#librarymetadatacandidate), [1-64 LibraryEvaluationCase](#libraryevaluationcase), [1-64 LibraryEvaluationCase](#libraryevaluationcase), [1-70 LibraryExportJob](#libraryexportjob), [1-71 LibraryDocument](#librarydocument), [1-71 LibraryDocument](#librarydocument), [1-71 LibraryDocument](#librarydocument), [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-81 LibraryDocumentTag](#librarydocumenttag), [1-89 DepartmentCollaboration](#departmentcollaboration), [1-90 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-94 Meeting](#meeting), [1-94 Meeting](#meeting), [1-95 MeetingParticipant](#meetingparticipant), [1-99 MeetingVote](#meetingvote), [1-112 WorkReport](#workreport), [1-120 DepartmentWorkAssignee](#departmentworkassignee), [1-121 ProjectWorkAssignee](#projectworkassignee)
 
 ### 1-7 Resource
 
@@ -192,7 +192,7 @@
 | `actionKey` | String | * | cUK |  |
 | `scopeId` | String |  | cUK |  |
 
-→ Depends on: [1-7 Resource](#resource), [1-52 Position](#position)
+→ Depends on: [1-7 Resource](#resource), [1-51 Position](#position)
 
 ### 1-11 DepartmentResourceActionGrant
 
@@ -204,7 +204,7 @@
 | `actionKey` | String | * | cUK |  |
 | `scopeId` | String |  | cUK |  |
 
-→ Depends on: [1-7 Resource](#resource), [1-50 Department](#department)
+→ Depends on: [1-7 Resource](#resource), [1-49 Department](#department)
 
 ### 1-12 PermissionGrantLedgerEvent
 
@@ -329,15 +329,30 @@
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
-| `id` | Int | * | PK |  |
-| `category` | String | * | cUK |  |
-| `subjectType` | String | * |  |  |
-| `code` | String | * | cUK |  |
+| `id` | Int | * | PK+REF |  |
+| `subjectType` | String | * | cUK |  |
+| `relatedPartyType` | String | * |  |  |
 | `name` | String | * |  |  |
 | `fullName` | String |  |  |  |
-| `classification` | String |  |  |  |
-| `identityNumber` | String |  |  |  |
+| `identityNumber` | String | * | cUK |  |
 | `legalRepresentative` | String |  |  |  |
+| `editedBy` | Int |  |  |  |
+| `editedAt` | DateTime |  |  |  |
+| `version` | Int | * |  |  |
+| `createdAt` | DateTime | * |  |  |
+| `updatedAt` | DateTime | * |  |  |
+
+← Referenced by: [1-18 ExternalPartyRole](#externalpartyrole)
+
+### 1-18 ExternalPartyRole
+
+| Field | Type | Required | FK | Note |
+|-------|------|----------|----|------|
+| `id` | Int | * | PK |  |
+| `partyId` | Int | * | cUK+FK | → ExternalParty.id |
+| `category` | String | * | cUK |  |
+| `code` | String | * | cUK |  |
+| `classification` | String |  |  |  |
 | `contactPerson` | String |  |  |  |
 | `phone` | String |  |  |  |
 | `email` | String |  |  |  |
@@ -352,13 +367,12 @@
 | `taxRate` | Float |  |  |  |
 | `remark` | String |  |  |  |
 | `isActive` | Boolean | * |  |  |
-| `editedBy` | Int |  |  |  |
-| `editedAt` | DateTime |  |  |  |
-| `version` | Int | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-### 1-18 FinanceBudgetVersion
+→ Depends on: [1-17 ExternalParty](#externalparty)
+
+### 1-19 FinanceBudgetVersion
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -373,9 +387,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-19 FinanceBudgetDept](#financebudgetdept), [1-20 FinanceBudgetRd](#financebudgetrd)
+← Referenced by: [1-20 FinanceBudgetDept](#financebudgetdept), [1-21 FinanceBudgetRd](#financebudgetrd)
 
-### 1-19 FinanceBudgetDept
+### 1-20 FinanceBudgetDept
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -405,9 +419,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-18 FinanceBudgetVersion](#financebudgetversion), [1-27 FinanceAccount](#financeaccount)
+→ Depends on: [1-19 FinanceBudgetVersion](#financebudgetversion), [1-28 FinanceAccount](#financeaccount)
 
-### 1-20 FinanceBudgetRd
+### 1-21 FinanceBudgetRd
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -436,9 +450,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-18 FinanceBudgetVersion](#financebudgetversion), [1-27 FinanceAccount](#financeaccount)
+→ Depends on: [1-19 FinanceBudgetVersion](#financebudgetversion), [1-28 FinanceAccount](#financeaccount)
 
-### 1-21 FinanceDataImport
+### 1-22 FinanceDataImport
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -458,9 +472,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-22 FinanceShipment](#financeshipment), [1-23 FinanceSalesSalary](#financesalessalary), [1-24 FinanceCostStructureRow](#financecoststructurerow), [1-25 FinanceCostAnalysisRow](#financecostanalysisrow), [1-26 FinanceWorkshopReport](#financeworkshopreport)
+← Referenced by: [1-23 FinanceShipment](#financeshipment), [1-24 FinanceSalesSalary](#financesalessalary), [1-25 FinanceCostStructureRow](#financecoststructurerow), [1-26 FinanceCostAnalysisRow](#financecostanalysisrow), [1-27 FinanceWorkshopReport](#financeworkshopreport)
 
-### 1-22 FinanceShipment
+### 1-23 FinanceShipment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -484,9 +498,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-46 Employee](#employee), [1-21 FinanceDataImport](#financedataimport)
+→ Depends on: [1-45 Employee](#employee), [1-22 FinanceDataImport](#financedataimport)
 
-### 1-23 FinanceSalesSalary
+### 1-24 FinanceSalesSalary
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -505,9 +519,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-46 Employee](#employee), [1-21 FinanceDataImport](#financedataimport)
+→ Depends on: [1-45 Employee](#employee), [1-22 FinanceDataImport](#financedataimport)
 
-### 1-24 FinanceCostStructureRow
+### 1-25 FinanceCostStructureRow
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -527,9 +541,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-21 FinanceDataImport](#financedataimport)
+→ Depends on: [1-22 FinanceDataImport](#financedataimport)
 
-### 1-25 FinanceCostAnalysisRow
+### 1-26 FinanceCostAnalysisRow
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -549,9 +563,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-21 FinanceDataImport](#financedataimport)
+→ Depends on: [1-22 FinanceDataImport](#financedataimport)
 
-### 1-26 FinanceWorkshopReport
+### 1-27 FinanceWorkshopReport
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -571,9 +585,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-52 Position](#position), [1-46 Employee](#employee), [1-21 FinanceDataImport](#financedataimport)
+→ Depends on: [1-51 Position](#position), [1-45 Employee](#employee), [1-22 FinanceDataImport](#financedataimport)
 
-### 1-27 FinanceAccount
+### 1-28 FinanceAccount
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -597,11 +611,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-6 User](#user), [1-27 FinanceAccount](#financeaccount)
+→ Depends on: [1-6 User](#user), [1-28 FinanceAccount](#financeaccount)
 
-← Referenced by: [1-19 FinanceBudgetDept](#financebudgetdept), [1-20 FinanceBudgetRd](#financebudgetrd), [1-30 FinanceVoucherItem](#financevoucheritem), [1-32 FinanceAccountBalance](#financeaccountbalance), [1-34 FinanceBalanceSnapshotRow](#financebalancesnapshotrow)
+← Referenced by: [1-20 FinanceBudgetDept](#financebudgetdept), [1-21 FinanceBudgetRd](#financebudgetrd), [1-31 FinanceVoucherItem](#financevoucheritem), [1-33 FinanceAccountBalance](#financeaccountbalance), [1-35 FinanceBalanceSnapshotRow](#financebalancesnapshotrow)
 
-### 1-28 FinancePeriod
+### 1-29 FinancePeriod
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -615,9 +629,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-29 FinanceVoucher](#financevoucher), [1-32 FinanceAccountBalance](#financeaccountbalance), [1-38 ReclassResult](#reclassresult)
+← Referenced by: [1-30 FinanceVoucher](#financevoucher), [1-33 FinanceAccountBalance](#financeaccountbalance), [1-39 ReclassResult](#reclassresult)
 
-### 1-29 FinanceVoucher
+### 1-30 FinanceVoucher
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -636,11 +650,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-6 User](#user), [1-28 FinancePeriod](#financeperiod)
+→ Depends on: [1-6 User](#user), [1-29 FinancePeriod](#financeperiod)
 
-← Referenced by: [1-30 FinanceVoucherItem](#financevoucheritem)
+← Referenced by: [1-31 FinanceVoucherItem](#financevoucheritem)
 
-### 1-30 FinanceVoucherItem
+### 1-31 FinanceVoucherItem
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -658,11 +672,11 @@
 | `sourceRow` | Int |  |  |  |
 | `importId` | Int |  | FK | → FinanceLedgerImport.id |
 
-→ Depends on: [1-27 FinanceAccount](#financeaccount), [1-29 FinanceVoucher](#financevoucher), [1-31 FinanceLedgerImport](#financeledgerimport)
+→ Depends on: [1-28 FinanceAccount](#financeaccount), [1-30 FinanceVoucher](#financevoucher), [1-32 FinanceLedgerImport](#financeledgerimport)
 
-← Referenced by: [1-38 ReclassResult](#reclassresult)
+← Referenced by: [1-39 ReclassResult](#reclassresult)
 
-### 1-31 FinanceLedgerImport
+### 1-32 FinanceLedgerImport
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -689,9 +703,9 @@
 
 → Depends on: [1-6 User](#user)
 
-← Referenced by: [1-30 FinanceVoucherItem](#financevoucheritem)
+← Referenced by: [1-31 FinanceVoucherItem](#financevoucheritem)
 
-### 1-32 FinanceAccountBalance
+### 1-33 FinanceAccountBalance
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -708,9 +722,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-28 FinancePeriod](#financeperiod), [1-27 FinanceAccount](#financeaccount)
+→ Depends on: [1-29 FinancePeriod](#financeperiod), [1-28 FinanceAccount](#financeaccount)
 
-### 1-33 FinanceBalanceSnapshot
+### 1-34 FinanceBalanceSnapshot
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -734,9 +748,9 @@
 
 → Depends on: [1-6 User](#user), [1-6 User](#user)
 
-← Referenced by: [1-34 FinanceBalanceSnapshotRow](#financebalancesnapshotrow)
+← Referenced by: [1-35 FinanceBalanceSnapshotRow](#financebalancesnapshotrow)
 
-### 1-34 FinanceBalanceSnapshotRow
+### 1-35 FinanceBalanceSnapshotRow
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -754,9 +768,9 @@
 | `sourceSheet` | String |  |  |  |
 | `sourceRow` | Int |  |  |  |
 
-→ Depends on: [1-33 FinanceBalanceSnapshot](#financebalancesnapshot), [1-27 FinanceAccount](#financeaccount)
+→ Depends on: [1-34 FinanceBalanceSnapshot](#financebalancesnapshot), [1-28 FinanceAccount](#financeaccount)
 
-### 1-35 FinanceReclassRule
+### 1-36 FinanceReclassRule
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -776,9 +790,9 @@
 
 → Depends on: [1-6 User](#user)
 
-← Referenced by: [1-38 ReclassResult](#reclassresult)
+← Referenced by: [1-39 ReclassResult](#reclassresult)
 
-### 1-36 FinanceReclassItemRule
+### 1-37 FinanceReclassItemRule
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -794,7 +808,7 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-### 1-37 FinanceBalanceReclassAdjustment
+### 1-38 FinanceBalanceReclassAdjustment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -805,7 +819,7 @@
 | `sourceAccountCode` | String | * | cUK |  |
 | `targetAccountCode` | String | * |  |  |
 | `amount` | Float | * |  |  |
-| `sourceType` | String | * |  | balance_residual | manual |
+| `sourceType` | String | * |  | balance_residual | auxiliary_balance | reference_workpaper | manual |
 | `ruleId` | Int |  |  |  |
 | `status` | String | * |  | approved | adjusted | rejected |
 | `note` | String |  |  |  |
@@ -814,7 +828,7 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-### 1-38 ReclassResult
+### 1-39 ReclassResult
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -834,52 +848,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-28 FinancePeriod](#financeperiod), [1-30 FinanceVoucherItem](#financevoucheritem), [1-35 FinanceReclassRule](#financereclassrule), [1-6 User](#user)
+→ Depends on: [1-29 FinancePeriod](#financeperiod), [1-31 FinanceVoucherItem](#financevoucheritem), [1-36 FinanceReclassRule](#financereclassrule), [1-6 User](#user)
 
-### 1-39 FinanceStatementAccountMapping
-
-| Field | Type | Required | FK | Note |
-|-------|------|----------|----|------|
-| `id` | Int | * | PK |  |
-| `companyCode` | String | * | cUK |  |
-| `year` | Int | * | cUK |  |
-| `statementType` | String | * | cUK | balance | income | cashflow |
-| `lineCode` | String | * |  | 报表项目 lineCode |
-| `accountCode` | String | * | cUK | 科目编码 |
-| `includeChildren` | Boolean | * |  |  |
-| `operator` | String | * |  | add | subtract |
-| `source` | String | * |  | default | manual | copied | migrated |
-| `note` | String |  |  |  |
-| `createdAt` | DateTime | * |  |  |
-| `updatedAt` | DateTime | * |  |  |
-
-### 1-40 FinanceStatementLineConfig
-
-| Field | Type | Required | FK | Note |
-|-------|------|----------|----|------|
-| `id` | Int | * | PK |  |
-| `companyCode` | String | * | cUK |  |
-| `year` | Int | * | cUK |  |
-| `reportType` | String | * | cUK | balanceSheet | incomeStatement | cashFlow |
-| `lineCode` | String | * | cUK | unique line identifier |
-| `label` | String | * |  | display label |
-| `displayCode` | String | * |  | display code hint |
-| `section` | String | * |  | currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity |
-| `side` | String | * |  | debit | credit |
-| `sortOrder` | Int | * |  |  |
-| `prefixesJson` | String | * |  | JSON array of account code prefixes |
-| `subtractPrefixesJson` | String | * |  | JSON array of subtract prefixes (e.g. accumulated depreciation) |
-| `formulaJson` | String | * |  |  |
-| `reclassSource` | Boolean | * |  |  |
-| `reclassTarget` | Boolean | * |  |  |
-| `isHeader` | Boolean | * |  |  |
-| `isTotal` | Boolean | * |  |  |
-| `isGrandTotal` | Boolean | * |  |  |
-| `enabled` | Boolean | * |  |  |
-| `createdAt` | DateTime | * |  |  |
-| `updatedAt` | DateTime | * |  |  |
-
-### 1-41 FinanceStatementWorkpaper
+### 1-40 FinanceStatementWorkpaper
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -887,7 +858,7 @@
 | `companyCode` | String | * | cUK |  |
 | `year` | Int | * | cUK |  |
 | `month` | Int | * | cUK |  |
-| `reportType` | String | * | cUK | incomeStatement | cashFlow |
+| `reportType` | String | * | cUK | balanceSheet | incomeStatement | cashFlow |
 | `status` | String | * |  | draft | submitted |
 | `note` | String |  |  |  |
 | `updatedBy` | Int |  | FK | → User.id |
@@ -898,9 +869,9 @@
 
 → Depends on: [1-6 User](#user)
 
-← Referenced by: [1-42 FinanceStatementWorkpaperLine](#financestatementworkpaperline)
+← Referenced by: [1-41 FinanceStatementWorkpaperLine](#financestatementworkpaperline)
 
-### 1-42 FinanceStatementWorkpaperLine
+### 1-41 FinanceStatementWorkpaperLine
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -916,9 +887,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-41 FinanceStatementWorkpaper](#financestatementworkpaper)
+→ Depends on: [1-40 FinanceStatementWorkpaper](#financestatementworkpaper)
 
-### 1-43 DepartmentDescription
+### 1-42 DepartmentDescription
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -932,9 +903,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-50 Department](#department)
+→ Depends on: [1-49 Department](#department)
 
-### 1-44 PositionDescription
+### 1-43 PositionDescription
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -951,9 +922,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-52 Position](#position), [1-115 PositionResponsibilityNode](#positionresponsibilitynode)
+← Referenced by: [1-51 Position](#position), [1-114 PositionResponsibilityNode](#positionresponsibilitynode)
 
-### 1-45 HrPerformanceReview
+### 1-44 HrPerformanceReview
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -977,9 +948,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-46 Employee](#employee)
+→ Depends on: [1-45 Employee](#employee)
 
-### 1-46 Employee
+### 1-45 Employee
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1009,9 +980,9 @@
 
 → Depends on: [1-6 User](#user)
 
-← Referenced by: [1-22 FinanceShipment](#financeshipment), [1-23 FinanceSalesSalary](#financesalessalary), [1-26 FinanceWorkshopReport](#financeworkshopreport), [1-45 HrPerformanceReview](#hrperformancereview), [1-47 Employment](#employment), [1-51 DepartmentManagerEmployee](#departmentmanageremployee), [1-53 EDP](#edp), [1-108 EmployeeProject](#employeeproject), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-23 FinanceShipment](#financeshipment), [1-24 FinanceSalesSalary](#financesalessalary), [1-27 FinanceWorkshopReport](#financeworkshopreport), [1-44 HrPerformanceReview](#hrperformancereview), [1-46 Employment](#employment), [1-50 DepartmentManagerEmployee](#departmentmanageremployee), [1-52 EDP](#edp), [1-107 EmployeeProject](#employeeproject), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-47 Employment
+### 1-46 Employment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1033,9 +1004,9 @@
 | `editedAt` | DateTime |  |  |  |
 | `version` | Int | * |  |  |
 
-→ Depends on: [1-46 Employee](#employee)
+→ Depends on: [1-45 Employee](#employee)
 
-### 1-48 Company
+### 1-47 Company
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1059,9 +1030,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-49 CompanyRelation](#companyrelation), [1-49 CompanyRelation](#companyrelation), [1-53 EDP](#edp), [1-54 PositionReportOverride](#positionreportoverride)
+← Referenced by: [1-48 CompanyRelation](#companyrelation), [1-48 CompanyRelation](#companyrelation), [1-52 EDP](#edp), [1-53 PositionReportOverride](#positionreportoverride)
 
-### 1-49 CompanyRelation
+### 1-48 CompanyRelation
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1073,9 +1044,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-48 Company](#company), [1-48 Company](#company)
+→ Depends on: [1-47 Company](#company), [1-47 Company](#company)
 
-### 1-50 Department
+### 1-49 Department
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1094,11 +1065,11 @@
 | `editedAt` | DateTime |  |  |  |
 | `version` | Int | * |  |  |
 
-→ Depends on: [1-52 Position](#position), [1-50 Department](#department)
+→ Depends on: [1-51 Position](#position), [1-49 Department](#department)
 
-← Referenced by: [1-11 DepartmentResourceActionGrant](#departmentresourceactiongrant), [1-43 DepartmentDescription](#departmentdescription), [1-51 DepartmentManagerEmployee](#departmentmanageremployee), [1-52 Position](#position), [1-53 EDP](#edp), [1-54 PositionReportOverride](#positionreportoverride), [1-90 DepartmentCollaboration](#departmentcollaboration), [1-91 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-106 Project](#project), [1-106 Project](#project), [1-107 ProjectEnablingDepartment](#projectenablingdepartment), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem), [1-121 DepartmentWorkAssignee](#departmentworkassignee)
+← Referenced by: [1-11 DepartmentResourceActionGrant](#departmentresourceactiongrant), [1-42 DepartmentDescription](#departmentdescription), [1-50 DepartmentManagerEmployee](#departmentmanageremployee), [1-51 Position](#position), [1-52 EDP](#edp), [1-53 PositionReportOverride](#positionreportoverride), [1-89 DepartmentCollaboration](#departmentcollaboration), [1-90 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-105 Project](#project), [1-105 Project](#project), [1-106 ProjectEnablingDepartment](#projectenablingdepartment), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem), [1-120 DepartmentWorkAssignee](#departmentworkassignee)
 
-### 1-51 DepartmentManagerEmployee
+### 1-50 DepartmentManagerEmployee
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1107,9 +1078,9 @@
 | `employeeId` | Int | * | cUK+FK | → Employee.id |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-50 Department](#department), [1-46 Employee](#employee)
+→ Depends on: [1-49 Department](#department), [1-45 Employee](#employee)
 
-### 1-52 Position
+### 1-51 Position
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1127,11 +1098,11 @@
 | `editedAt` | DateTime |  |  |  |
 | `version` | Int | * |  |  |
 
-→ Depends on: [1-44 PositionDescription](#positiondescription), [1-52 Position](#position), [1-50 Department](#department)
+→ Depends on: [1-43 PositionDescription](#positiondescription), [1-51 Position](#position), [1-49 Department](#department)
 
-← Referenced by: [1-10 PositionResourceActionGrant](#positionresourceactiongrant), [1-26 FinanceWorkshopReport](#financeworkshopreport), [1-50 Department](#department), [1-53 EDP](#edp), [1-54 PositionReportOverride](#positionreportoverride), [1-54 PositionReportOverride](#positionreportoverride), [1-92 DepartmentCollaborationPosition](#departmentcollaborationposition)
+← Referenced by: [1-10 PositionResourceActionGrant](#positionresourceactiongrant), [1-27 FinanceWorkshopReport](#financeworkshopreport), [1-49 Department](#department), [1-52 EDP](#edp), [1-53 PositionReportOverride](#positionreportoverride), [1-53 PositionReportOverride](#positionreportoverride), [1-91 DepartmentCollaborationPosition](#departmentcollaborationposition)
 
-### 1-53 EDP
+### 1-52 EDP
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1150,9 +1121,9 @@
 | `editedAt` | DateTime |  |  |  |
 | `version` | Int | * |  |  |
 
-→ Depends on: [1-52 Position](#position), [1-50 Department](#department), [1-48 Company](#company), [1-54 PositionReportOverride](#positionreportoverride), [1-46 Employee](#employee)
+→ Depends on: [1-51 Position](#position), [1-49 Department](#department), [1-47 Company](#company), [1-53 PositionReportOverride](#positionreportoverride), [1-45 Employee](#employee)
 
-### 1-54 PositionReportOverride
+### 1-53 PositionReportOverride
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1169,11 +1140,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-52 Position](#position), [1-48 Company](#company), [1-50 Department](#department), [1-52 Position](#position)
+→ Depends on: [1-51 Position](#position), [1-47 Company](#company), [1-49 Department](#department), [1-51 Position](#position)
 
-← Referenced by: [1-53 EDP](#edp)
+← Referenced by: [1-52 EDP](#edp)
 
-### 1-55 EditHistory
+### 1-54 EditHistory
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1188,7 +1159,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-56 StockRawMaterial
+### 1-55 StockRawMaterial
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1212,7 +1183,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-57 StockPackaging
+### 1-56 StockPackaging
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1238,7 +1209,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-58 StockFinishedGoods
+### 1-57 StockFinishedGoods
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1262,7 +1233,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-59 StockBatch
+### 1-58 StockBatch
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1277,7 +1248,7 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-### 1-60 StockOperation
+### 1-59 StockOperation
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1293,7 +1264,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-61 StockReturn
+### 1-60 StockReturn
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1305,7 +1276,7 @@
 | `reason` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-### 1-62 LibraryTagCandidate
+### 1-61 LibraryTagCandidate
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1328,9 +1299,9 @@
 | `reviewNote` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-72 LibraryDocument](#librarydocument), [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-81 LibraryTag](#librarytag), [1-6 User](#user)
+→ Depends on: [1-71 LibraryDocument](#librarydocument), [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-80 LibraryTag](#librarytag), [1-6 User](#user)
 
-### 1-63 LibraryEntityMention
+### 1-62 LibraryEntityMention
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1349,9 +1320,9 @@
 | `status` | String | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-69 LibraryContentChunk](#librarycontentchunk)
+→ Depends on: [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-68 LibraryContentChunk](#librarycontentchunk)
 
-### 1-64 LibraryMetadataCandidate
+### 1-63 LibraryMetadataCandidate
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1375,9 +1346,9 @@
 | `reviewNote` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-72 LibraryDocument](#librarydocument), [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-6 User](#user)
+→ Depends on: [1-71 LibraryDocument](#librarydocument), [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-6 User](#user)
 
-### 1-65 LibraryEvaluationCase
+### 1-64 LibraryEvaluationCase
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1397,9 +1368,9 @@
 
 → Depends on: [1-6 User](#user), [1-6 User](#user)
 
-← Referenced by: [1-66 LibraryEvaluationEvidence](#libraryevaluationevidence)
+← Referenced by: [1-65 LibraryEvaluationEvidence](#libraryevaluationevidence)
 
-### 1-66 LibraryEvaluationEvidence
+### 1-65 LibraryEvaluationEvidence
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1412,9 +1383,9 @@
 | `required` | Boolean | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-65 LibraryEvaluationCase](#libraryevaluationcase), [1-73 LibraryDocumentVersion](#librarydocumentversion)
+→ Depends on: [1-64 LibraryEvaluationCase](#libraryevaluationcase), [1-72 LibraryDocumentVersion](#librarydocumentversion)
 
-### 1-67 LibraryProcessingJob
+### 1-66 LibraryProcessingJob
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1440,11 +1411,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-73 LibraryDocumentVersion](#librarydocumentversion)
+→ Depends on: [1-72 LibraryDocumentVersion](#librarydocumentversion)
 
-← Referenced by: [1-68 LibraryArtifact](#libraryartifact)
+← Referenced by: [1-67 LibraryArtifact](#libraryartifact)
 
-### 1-68 LibraryArtifact
+### 1-67 LibraryArtifact
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1463,11 +1434,11 @@
 | `toolchainJson` | String | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-67 LibraryProcessingJob](#libraryprocessingjob)
+→ Depends on: [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-66 LibraryProcessingJob](#libraryprocessingjob)
 
-← Referenced by: [1-69 LibraryContentChunk](#librarycontentchunk), [1-70 LibrarySearchIndex](#librarysearchindex)
+← Referenced by: [1-68 LibraryContentChunk](#librarycontentchunk), [1-69 LibrarySearchIndex](#librarysearchindex)
 
-### 1-69 LibraryContentChunk
+### 1-68 LibraryContentChunk
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1484,11 +1455,11 @@
 | `language` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-68 LibraryArtifact](#libraryartifact)
+→ Depends on: [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-67 LibraryArtifact](#libraryartifact)
 
-← Referenced by: [1-63 LibraryEntityMention](#libraryentitymention)
+← Referenced by: [1-62 LibraryEntityMention](#libraryentitymention)
 
-### 1-70 LibrarySearchIndex
+### 1-69 LibrarySearchIndex
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1507,9 +1478,9 @@
 | `builtAt` | DateTime |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-68 LibraryArtifact](#libraryartifact)
+→ Depends on: [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-67 LibraryArtifact](#libraryartifact)
 
-### 1-71 LibraryExportJob
+### 1-70 LibraryExportJob
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1532,7 +1503,7 @@
 
 → Depends on: [1-6 User](#user)
 
-### 1-72 LibraryDocument
+### 1-71 LibraryDocument
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1577,11 +1548,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-6 User](#user), [1-6 User](#user), [1-6 User](#user), [1-74 LibraryCategory](#librarycategory), [1-75 LibraryDirectory](#librarydirectory), [1-73 LibraryDocumentVersion](#librarydocumentversion)
+→ Depends on: [1-6 User](#user), [1-6 User](#user), [1-6 User](#user), [1-73 LibraryCategory](#librarycategory), [1-74 LibraryDirectory](#librarydirectory), [1-72 LibraryDocumentVersion](#librarydocumentversion)
 
-← Referenced by: [1-62 LibraryTagCandidate](#librarytagcandidate), [1-64 LibraryMetadataCandidate](#librarymetadatacandidate), [1-73 LibraryDocumentVersion](#librarydocumentversion), [1-79 DueDiligenceMaterialSelection](#duediligencematerialselection), [1-82 LibraryDocumentTag](#librarydocumenttag)
+← Referenced by: [1-61 LibraryTagCandidate](#librarytagcandidate), [1-63 LibraryMetadataCandidate](#librarymetadatacandidate), [1-72 LibraryDocumentVersion](#librarydocumentversion), [1-78 DueDiligenceMaterialSelection](#duediligencematerialselection), [1-81 LibraryDocumentTag](#librarydocumenttag)
 
-### 1-73 LibraryDocumentVersion
+### 1-72 LibraryDocumentVersion
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1607,11 +1578,11 @@
 | `createdBy` | Int |  | FK | → User.id |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-72 LibraryDocument](#librarydocument), [1-6 User](#user)
+→ Depends on: [1-71 LibraryDocument](#librarydocument), [1-6 User](#user)
 
-← Referenced by: [1-62 LibraryTagCandidate](#librarytagcandidate), [1-63 LibraryEntityMention](#libraryentitymention), [1-64 LibraryMetadataCandidate](#librarymetadatacandidate), [1-66 LibraryEvaluationEvidence](#libraryevaluationevidence), [1-67 LibraryProcessingJob](#libraryprocessingjob), [1-68 LibraryArtifact](#libraryartifact), [1-69 LibraryContentChunk](#librarycontentchunk), [1-70 LibrarySearchIndex](#librarysearchindex), [1-72 LibraryDocument](#librarydocument), [1-79 DueDiligenceMaterialSelection](#duediligencematerialselection)
+← Referenced by: [1-61 LibraryTagCandidate](#librarytagcandidate), [1-62 LibraryEntityMention](#libraryentitymention), [1-63 LibraryMetadataCandidate](#librarymetadatacandidate), [1-65 LibraryEvaluationEvidence](#libraryevaluationevidence), [1-66 LibraryProcessingJob](#libraryprocessingjob), [1-67 LibraryArtifact](#libraryartifact), [1-68 LibraryContentChunk](#librarycontentchunk), [1-69 LibrarySearchIndex](#librarysearchindex), [1-71 LibraryDocument](#librarydocument), [1-78 DueDiligenceMaterialSelection](#duediligencematerialselection)
 
-### 1-74 LibraryCategory
+### 1-73 LibraryCategory
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1626,11 +1597,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-74 LibraryCategory](#librarycategory)
+→ Depends on: [1-73 LibraryCategory](#librarycategory)
 
-← Referenced by: [1-72 LibraryDocument](#librarydocument)
+← Referenced by: [1-71 LibraryDocument](#librarydocument)
 
-### 1-75 LibraryDirectory
+### 1-74 LibraryDirectory
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1644,9 +1615,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-72 LibraryDocument](#librarydocument)
+← Referenced by: [1-71 LibraryDocument](#librarydocument)
 
-### 1-76 DueDiligenceParty
+### 1-75 DueDiligenceParty
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1659,9 +1630,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-77 DueDiligenceRequest](#duediligencerequest)
+← Referenced by: [1-76 DueDiligenceRequest](#duediligencerequest)
 
-### 1-77 DueDiligenceRequest
+### 1-76 DueDiligenceRequest
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1676,11 +1647,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-76 DueDiligenceParty](#duediligenceparty)
+→ Depends on: [1-75 DueDiligenceParty](#duediligenceparty)
 
-← Referenced by: [1-78 DueDiligenceQuestion](#duediligencequestion)
+← Referenced by: [1-77 DueDiligenceQuestion](#duediligencequestion)
 
-### 1-78 DueDiligenceQuestion
+### 1-77 DueDiligenceQuestion
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1694,11 +1665,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-77 DueDiligenceRequest](#duediligencerequest)
+→ Depends on: [1-76 DueDiligenceRequest](#duediligencerequest)
 
-← Referenced by: [1-79 DueDiligenceMaterialSelection](#duediligencematerialselection)
+← Referenced by: [1-78 DueDiligenceMaterialSelection](#duediligencematerialselection)
 
-### 1-79 DueDiligenceMaterialSelection
+### 1-78 DueDiligenceMaterialSelection
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1712,9 +1683,9 @@
 | `selectedBy` | Int |  |  |  |
 | `selectedAt` | DateTime |  |  |  |
 
-→ Depends on: [1-78 DueDiligenceQuestion](#duediligencequestion), [1-72 LibraryDocument](#librarydocument), [1-73 LibraryDocumentVersion](#librarydocumentversion)
+→ Depends on: [1-77 DueDiligenceQuestion](#duediligencequestion), [1-71 LibraryDocument](#librarydocument), [1-72 LibraryDocumentVersion](#librarydocumentversion)
 
-### 1-80 LibraryGeneratedSource
+### 1-79 LibraryGeneratedSource
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1727,7 +1698,7 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-### 1-81 LibraryTag
+### 1-80 LibraryTag
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1741,9 +1712,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-62 LibraryTagCandidate](#librarytagcandidate), [1-82 LibraryDocumentTag](#librarydocumenttag)
+← Referenced by: [1-61 LibraryTagCandidate](#librarytagcandidate), [1-81 LibraryDocumentTag](#librarydocumenttag)
 
-### 1-82 LibraryDocumentTag
+### 1-81 LibraryDocumentTag
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1753,9 +1724,9 @@
 | `createdBy` | Int |  | FK | → User.id |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-72 LibraryDocument](#librarydocument), [1-81 LibraryTag](#librarytag), [1-6 User](#user)
+→ Depends on: [1-71 LibraryDocument](#librarydocument), [1-80 LibraryTag](#librarytag), [1-6 User](#user)
 
-### 1-83 OpenApiClient
+### 1-82 OpenApiClient
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1770,9 +1741,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-86 OpenApiClientScopeGrant](#openapiclientscopegrant), [1-87 OpenApiAccessLog](#openapiaccesslog)
+← Referenced by: [1-85 OpenApiClientScopeGrant](#openapiclientscopegrant), [1-86 OpenApiAccessLog](#openapiaccesslog)
 
-### 1-84 OpenApiResource
+### 1-83 OpenApiResource
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1785,9 +1756,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-85 OpenApiScope](#openapiscope)
+← Referenced by: [1-84 OpenApiScope](#openapiscope)
 
-### 1-85 OpenApiScope
+### 1-84 OpenApiScope
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1802,11 +1773,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-84 OpenApiResource](#openapiresource)
+→ Depends on: [1-83 OpenApiResource](#openapiresource)
 
-← Referenced by: [1-86 OpenApiClientScopeGrant](#openapiclientscopegrant)
+← Referenced by: [1-85 OpenApiClientScopeGrant](#openapiclientscopegrant)
 
-### 1-86 OpenApiClientScopeGrant
+### 1-85 OpenApiClientScopeGrant
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1816,9 +1787,9 @@
 | `action` | String | * | cUK |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-83 OpenApiClient](#openapiclient), [1-85 OpenApiScope](#openapiscope)
+→ Depends on: [1-82 OpenApiClient](#openapiclient), [1-84 OpenApiScope](#openapiscope)
 
-### 1-87 OpenApiAccessLog
+### 1-86 OpenApiAccessLog
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1835,16 +1806,16 @@
 | `ip` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-83 OpenApiClient](#openapiclient)
+→ Depends on: [1-82 OpenApiClient](#openapiclient)
 
-### 1-88 SystemConfig
+### 1-87 SystemConfig
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
 | `key` | String | * |  |  |
 | `value` | String | * |  |  |
 
-### 1-89 LoginAttempt
+### 1-88 LoginAttempt
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1854,7 +1825,7 @@
 | `success` | Boolean | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-### 1-90 DepartmentCollaboration
+### 1-89 DepartmentCollaboration
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1879,11 +1850,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-50 Department](#department), [1-6 User](#user)
+→ Depends on: [1-49 Department](#department), [1-6 User](#user)
 
-← Referenced by: [1-91 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-92 DepartmentCollaborationPosition](#departmentcollaborationposition), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-90 DepartmentCollaborationDepartment](#departmentcollaborationdepartment), [1-91 DepartmentCollaborationPosition](#departmentcollaborationposition), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-91 DepartmentCollaborationDepartment
+### 1-90 DepartmentCollaborationDepartment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1896,9 +1867,9 @@
 | `respondedAt` | DateTime |  |  |  |
 | `invitedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-90 DepartmentCollaboration](#departmentcollaboration), [1-50 Department](#department), [1-6 User](#user)
+→ Depends on: [1-89 DepartmentCollaboration](#departmentcollaboration), [1-49 Department](#department), [1-6 User](#user)
 
-### 1-92 DepartmentCollaborationPosition
+### 1-91 DepartmentCollaborationPosition
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1908,9 +1879,9 @@
 | `positionId` | Int | * | cUK+FK | → Position.id |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-90 DepartmentCollaboration](#departmentcollaboration), [1-52 Position](#position)
+→ Depends on: [1-89 DepartmentCollaboration](#departmentcollaboration), [1-51 Position](#position)
 
-### 1-93 MeetingType
+### 1-92 MeetingType
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1923,9 +1894,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-← Referenced by: [1-94 MeetingSeries](#meetingseries), [1-95 Meeting](#meeting)
+← Referenced by: [1-93 MeetingSeries](#meetingseries), [1-94 Meeting](#meeting)
 
-### 1-94 MeetingSeries
+### 1-93 MeetingSeries
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1939,11 +1910,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-93 MeetingType](#meetingtype)
+→ Depends on: [1-92 MeetingType](#meetingtype)
 
-← Referenced by: [1-95 Meeting](#meeting)
+← Referenced by: [1-94 Meeting](#meeting)
 
-### 1-95 Meeting
+### 1-94 Meeting
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1963,11 +1934,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-93 MeetingType](#meetingtype), [1-94 MeetingSeries](#meetingseries), [1-6 User](#user), [1-6 User](#user)
+→ Depends on: [1-92 MeetingType](#meetingtype), [1-93 MeetingSeries](#meetingseries), [1-6 User](#user), [1-6 User](#user)
 
-← Referenced by: [1-96 MeetingParticipant](#meetingparticipant), [1-97 MeetingAgendaItem](#meetingagendaitem), [1-98 MeetingMinuteEntry](#meetingminuteentry), [1-99 MeetingProposal](#meetingproposal), [1-101 MeetingDecision](#meetingdecision), [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-95 MeetingParticipant](#meetingparticipant), [1-96 MeetingAgendaItem](#meetingagendaitem), [1-97 MeetingMinuteEntry](#meetingminuteentry), [1-98 MeetingProposal](#meetingproposal), [1-100 MeetingDecision](#meetingdecision), [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-96 MeetingParticipant
+### 1-95 MeetingParticipant
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1979,9 +1950,9 @@
 | `attendanceStatus` | String | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting), [1-6 User](#user)
+→ Depends on: [1-94 Meeting](#meeting), [1-6 User](#user)
 
-### 1-97 MeetingAgendaItem
+### 1-96 MeetingAgendaItem
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -1996,11 +1967,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting)
+→ Depends on: [1-94 Meeting](#meeting)
 
-← Referenced by: [1-98 MeetingMinuteEntry](#meetingminuteentry), [1-99 MeetingProposal](#meetingproposal), [1-101 MeetingDecision](#meetingdecision), [1-102 MeetingActionCandidate](#meetingactioncandidate)
+← Referenced by: [1-97 MeetingMinuteEntry](#meetingminuteentry), [1-98 MeetingProposal](#meetingproposal), [1-100 MeetingDecision](#meetingdecision), [1-101 MeetingActionCandidate](#meetingactioncandidate)
 
-### 1-98 MeetingMinuteEntry
+### 1-97 MeetingMinuteEntry
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2013,9 +1984,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting), [1-97 MeetingAgendaItem](#meetingagendaitem)
+→ Depends on: [1-94 Meeting](#meeting), [1-96 MeetingAgendaItem](#meetingagendaitem)
 
-### 1-99 MeetingProposal
+### 1-98 MeetingProposal
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2033,11 +2004,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting), [1-97 MeetingAgendaItem](#meetingagendaitem)
+→ Depends on: [1-94 Meeting](#meeting), [1-96 MeetingAgendaItem](#meetingagendaitem)
 
-← Referenced by: [1-100 MeetingVote](#meetingvote), [1-101 MeetingDecision](#meetingdecision)
+← Referenced by: [1-99 MeetingVote](#meetingvote), [1-100 MeetingDecision](#meetingdecision)
 
-### 1-100 MeetingVote
+### 1-99 MeetingVote
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2049,9 +2020,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-99 MeetingProposal](#meetingproposal), [1-6 User](#user)
+→ Depends on: [1-98 MeetingProposal](#meetingproposal), [1-6 User](#user)
 
-### 1-101 MeetingDecision
+### 1-100 MeetingDecision
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2069,11 +2040,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting), [1-97 MeetingAgendaItem](#meetingagendaitem), [1-99 MeetingProposal](#meetingproposal)
+→ Depends on: [1-94 Meeting](#meeting), [1-96 MeetingAgendaItem](#meetingagendaitem), [1-98 MeetingProposal](#meetingproposal)
 
-← Referenced by: [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-102 MeetingActionCandidate
+### 1-101 MeetingActionCandidate
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2091,11 +2062,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-95 Meeting](#meeting), [1-97 MeetingAgendaItem](#meetingagendaitem), [1-101 MeetingDecision](#meetingdecision), [1-118 WorkItem](#workitem), [1-117 WorkPlan](#workplan)
+→ Depends on: [1-94 Meeting](#meeting), [1-96 MeetingAgendaItem](#meetingagendaitem), [1-100 MeetingDecision](#meetingdecision), [1-117 WorkItem](#workitem), [1-116 WorkPlan](#workplan)
 
-← Referenced by: [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-103 WorkPlanAlignment
+### 1-102 WorkPlanAlignment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2110,9 +2081,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-117 WorkPlan](#workplan), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+→ Depends on: [1-116 WorkPlan](#workplan), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-104 WorkOkrCycle
+### 1-103 WorkOkrCycle
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2128,11 +2099,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-104 WorkOkrCycle](#workokrcycle)
+→ Depends on: [1-103 WorkOkrCycle](#workokrcycle)
 
-← Referenced by: [1-105 WorkOkrControlPolicy](#workokrcontrolpolicy), [1-117 WorkPlan](#workplan)
+← Referenced by: [1-104 WorkOkrControlPolicy](#workokrcontrolpolicy), [1-116 WorkPlan](#workplan)
 
-### 1-105 WorkOkrControlPolicy
+### 1-104 WorkOkrControlPolicy
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2149,9 +2120,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-104 WorkOkrCycle](#workokrcycle)
+→ Depends on: [1-103 WorkOkrCycle](#workokrcycle)
 
-### 1-106 Project
+### 1-105 Project
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2187,11 +2158,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-50 Department](#department), [1-50 Department](#department)
+→ Depends on: [1-49 Department](#department), [1-49 Department](#department)
 
-← Referenced by: [1-107 ProjectEnablingDepartment](#projectenablingdepartment), [1-108 EmployeeProject](#employeeproject), [1-109 ProjectPlanPhase](#projectplanphase), [1-110 ProjectPlanDependency](#projectplandependency), [1-111 ProjectPlanBaseline](#projectplanbaseline), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem), [1-122 ProjectWorkAssignee](#projectworkassignee)
+← Referenced by: [1-106 ProjectEnablingDepartment](#projectenablingdepartment), [1-107 EmployeeProject](#employeeproject), [1-108 ProjectPlanPhase](#projectplanphase), [1-109 ProjectPlanDependency](#projectplandependency), [1-110 ProjectPlanBaseline](#projectplanbaseline), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem), [1-121 ProjectWorkAssignee](#projectworkassignee)
 
-### 1-107 ProjectEnablingDepartment
+### 1-106 ProjectEnablingDepartment
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2200,9 +2171,9 @@
 | `departmentId` | Int | * | cUK+FK | → Department.id |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-106 Project](#project), [1-50 Department](#department)
+→ Depends on: [1-105 Project](#project), [1-49 Department](#department)
 
-### 1-108 EmployeeProject
+### 1-107 EmployeeProject
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2218,9 +2189,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-106 Project](#project), [1-46 Employee](#employee)
+→ Depends on: [1-105 Project](#project), [1-45 Employee](#employee)
 
-### 1-109 ProjectPlanPhase
+### 1-108 ProjectPlanPhase
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2238,11 +2209,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-106 Project](#project)
+→ Depends on: [1-105 Project](#project)
 
-← Referenced by: [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+← Referenced by: [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-110 ProjectPlanDependency
+### 1-109 ProjectPlanDependency
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2261,9 +2232,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-106 Project](#project)
+→ Depends on: [1-105 Project](#project)
 
-### 1-111 ProjectPlanBaseline
+### 1-110 ProjectPlanBaseline
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2279,11 +2250,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-106 Project](#project)
+→ Depends on: [1-105 Project](#project)
 
-← Referenced by: [1-112 ProjectPlanBaselineItem](#projectplanbaselineitem)
+← Referenced by: [1-111 ProjectPlanBaselineItem](#projectplanbaselineitem)
 
-### 1-112 ProjectPlanBaselineItem
+### 1-111 ProjectPlanBaselineItem
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2300,9 +2271,9 @@
 | `plannedStartDate` | DateTime |  |  |  |
 | `plannedEndDate` | DateTime |  |  |  |
 
-→ Depends on: [1-111 ProjectPlanBaseline](#projectplanbaseline)
+→ Depends on: [1-110 ProjectPlanBaseline](#projectplanbaseline)
 
-### 1-113 WorkReport
+### 1-112 WorkReport
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2320,9 +2291,9 @@
 
 → Depends on: [1-6 User](#user)
 
-← Referenced by: [1-114 WorkReportItem](#workreportitem)
+← Referenced by: [1-113 WorkReportItem](#workreportitem)
 
-### 1-114 WorkReportItem
+### 1-113 WorkReportItem
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2352,9 +2323,9 @@
 | `performanceScore` | Int |  |  |  |
 | `sortOrder` | Int | * |  |  |
 
-→ Depends on: [1-113 WorkReport](#workreport), [1-117 WorkPlan](#workplan), [1-118 WorkItem](#workitem)
+→ Depends on: [1-112 WorkReport](#workreport), [1-116 WorkPlan](#workplan), [1-117 WorkItem](#workitem)
 
-### 1-115 PositionResponsibilityNode
+### 1-114 PositionResponsibilityNode
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2375,11 +2346,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-44 PositionDescription](#positiondescription), [1-115 PositionResponsibilityNode](#positionresponsibilitynode)
+→ Depends on: [1-43 PositionDescription](#positiondescription), [1-114 PositionResponsibilityNode](#positionresponsibilitynode)
 
-← Referenced by: [1-116 WorkResponsibilityReference](#workresponsibilityreference)
+← Referenced by: [1-115 WorkResponsibilityReference](#workresponsibilityreference)
 
-### 1-116 WorkResponsibilityReference
+### 1-115 WorkResponsibilityReference
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2404,9 +2375,9 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-118 WorkItem](#workitem), [1-115 PositionResponsibilityNode](#positionresponsibilitynode)
+→ Depends on: [1-117 WorkItem](#workitem), [1-114 PositionResponsibilityNode](#positionresponsibilitynode)
 
-### 1-117 WorkPlan
+### 1-116 WorkPlan
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2456,11 +2427,11 @@
 | `createdAt` | DateTime | * |  |  |
 | `updatedAt` | DateTime | * |  |  |
 
-→ Depends on: [1-46 Employee](#employee), [1-90 DepartmentCollaboration](#departmentcollaboration), [1-104 WorkOkrCycle](#workokrcycle), [1-117 WorkPlan](#workplan), [1-117 WorkPlan](#workplan), [1-117 WorkPlan](#workplan), [1-106 Project](#project), [1-109 ProjectPlanPhase](#projectplanphase), [1-95 Meeting](#meeting), [1-101 MeetingDecision](#meetingdecision), [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-50 Department](#department)
+→ Depends on: [1-45 Employee](#employee), [1-89 DepartmentCollaboration](#departmentcollaboration), [1-103 WorkOkrCycle](#workokrcycle), [1-116 WorkPlan](#workplan), [1-116 WorkPlan](#workplan), [1-116 WorkPlan](#workplan), [1-105 Project](#project), [1-108 ProjectPlanPhase](#projectplanphase), [1-94 Meeting](#meeting), [1-100 MeetingDecision](#meetingdecision), [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-49 Department](#department)
 
-← Referenced by: [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-103 WorkPlanAlignment](#workplanalignment), [1-103 WorkPlanAlignment](#workplanalignment), [1-114 WorkReportItem](#workreportitem), [1-118 WorkItem](#workitem)
+← Referenced by: [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-102 WorkPlanAlignment](#workplanalignment), [1-102 WorkPlanAlignment](#workplanalignment), [1-113 WorkReportItem](#workreportitem), [1-117 WorkItem](#workitem)
 
-### 1-118 WorkItem
+### 1-117 WorkItem
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2515,11 +2486,11 @@
 | `sortOrder` | Int | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-117 WorkPlan](#workplan), [1-46 Employee](#employee), [1-90 DepartmentCollaboration](#departmentcollaboration), [1-106 Project](#project), [1-109 ProjectPlanPhase](#projectplanphase), [1-95 Meeting](#meeting), [1-101 MeetingDecision](#meetingdecision), [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-50 Department](#department), [1-118 WorkItem](#workitem), [1-118 WorkItem](#workitem), [1-118 WorkItem](#workitem)
+→ Depends on: [1-116 WorkPlan](#workplan), [1-45 Employee](#employee), [1-89 DepartmentCollaboration](#departmentcollaboration), [1-105 Project](#project), [1-108 ProjectPlanPhase](#projectplanphase), [1-94 Meeting](#meeting), [1-100 MeetingDecision](#meetingdecision), [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-49 Department](#department), [1-117 WorkItem](#workitem), [1-117 WorkItem](#workitem), [1-117 WorkItem](#workitem)
 
-← Referenced by: [1-102 MeetingActionCandidate](#meetingactioncandidate), [1-103 WorkPlanAlignment](#workplanalignment), [1-114 WorkReportItem](#workreportitem), [1-116 WorkResponsibilityReference](#workresponsibilityreference), [1-119 WorkKrEvidence](#workkrevidence), [1-119 WorkKrEvidence](#workkrevidence), [1-120 WorkParticipant](#workparticipant)
+← Referenced by: [1-101 MeetingActionCandidate](#meetingactioncandidate), [1-102 WorkPlanAlignment](#workplanalignment), [1-113 WorkReportItem](#workreportitem), [1-115 WorkResponsibilityReference](#workresponsibilityreference), [1-118 WorkKrEvidence](#workkrevidence), [1-118 WorkKrEvidence](#workkrevidence), [1-119 WorkParticipant](#workparticipant)
 
-### 1-119 WorkKrEvidence
+### 1-118 WorkKrEvidence
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2530,9 +2501,9 @@
 | `sortOrder` | Int | * |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-118 WorkItem](#workitem), [1-118 WorkItem](#workitem)
+→ Depends on: [1-117 WorkItem](#workitem), [1-117 WorkItem](#workitem)
 
-### 1-120 WorkParticipant
+### 1-119 WorkParticipant
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2542,9 +2513,9 @@
 | `wxUserId` | String |  |  |  |
 | `createdAt` | DateTime | * |  |  |
 
-→ Depends on: [1-118 WorkItem](#workitem)
+→ Depends on: [1-117 WorkItem](#workitem)
 
-### 1-121 DepartmentWorkAssignee
+### 1-120 DepartmentWorkAssignee
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2553,9 +2524,9 @@
 | `userId` | Int | * | cUK+FK | → User.id |
 | `kind` | String | * | cUK | "task" |
 
-→ Depends on: [1-50 Department](#department), [1-6 User](#user)
+→ Depends on: [1-49 Department](#department), [1-6 User](#user)
 
-### 1-122 ProjectWorkAssignee
+### 1-121 ProjectWorkAssignee
 
 | Field | Type | Required | FK | Note |
 |-------|------|----------|----|------|
@@ -2564,4 +2535,4 @@
 | `userId` | Int | * | cUK+FK | → User.id |
 | `kind` | String | * | cUK | "task" |
 
-→ Depends on: [1-106 Project](#project), [1-6 User](#user)
+→ Depends on: [1-105 Project](#project), [1-6 User](#user)

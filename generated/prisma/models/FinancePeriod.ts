@@ -45,6 +45,10 @@ export type FinancePeriodMinAggregateOutputType = {
   startDate: string | null
   endDate: string | null
   isClosed: boolean | null
+  sourceSystem: string | null
+  sourceDatabase: string | null
+  sourceKey: string | null
+  sourceClosed: boolean | null
   companyCode: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -57,6 +61,10 @@ export type FinancePeriodMaxAggregateOutputType = {
   startDate: string | null
   endDate: string | null
   isClosed: boolean | null
+  sourceSystem: string | null
+  sourceDatabase: string | null
+  sourceKey: string | null
+  sourceClosed: boolean | null
   companyCode: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -69,6 +77,10 @@ export type FinancePeriodCountAggregateOutputType = {
   startDate: number
   endDate: number
   isClosed: number
+  sourceSystem: number
+  sourceDatabase: number
+  sourceKey: number
+  sourceClosed: number
   companyCode: number
   createdAt: number
   updatedAt: number
@@ -95,6 +107,10 @@ export type FinancePeriodMinAggregateInputType = {
   startDate?: true
   endDate?: true
   isClosed?: true
+  sourceSystem?: true
+  sourceDatabase?: true
+  sourceKey?: true
+  sourceClosed?: true
   companyCode?: true
   createdAt?: true
   updatedAt?: true
@@ -107,6 +123,10 @@ export type FinancePeriodMaxAggregateInputType = {
   startDate?: true
   endDate?: true
   isClosed?: true
+  sourceSystem?: true
+  sourceDatabase?: true
+  sourceKey?: true
+  sourceClosed?: true
   companyCode?: true
   createdAt?: true
   updatedAt?: true
@@ -119,6 +139,10 @@ export type FinancePeriodCountAggregateInputType = {
   startDate?: true
   endDate?: true
   isClosed?: true
+  sourceSystem?: true
+  sourceDatabase?: true
+  sourceKey?: true
+  sourceClosed?: true
   companyCode?: true
   createdAt?: true
   updatedAt?: true
@@ -218,6 +242,10 @@ export type FinancePeriodGroupByOutputType = {
   startDate: string
   endDate: string
   isClosed: boolean
+  sourceSystem: string | null
+  sourceDatabase: string | null
+  sourceKey: string | null
+  sourceClosed: boolean | null
   companyCode: string
   createdAt: Date
   updatedAt: Date
@@ -253,12 +281,20 @@ export type FinancePeriodWhereInput = {
   startDate?: Prisma.StringFilter<"FinancePeriod"> | string
   endDate?: Prisma.StringFilter<"FinancePeriod"> | string
   isClosed?: Prisma.BoolFilter<"FinancePeriod"> | boolean
+  sourceSystem?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceDatabase?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceClosed?: Prisma.BoolNullableFilter<"FinancePeriod"> | boolean | null
   companyCode?: Prisma.StringFilter<"FinancePeriod"> | string
   createdAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
   vouchers?: Prisma.FinanceVoucherListRelationFilter
   reclassResults?: Prisma.ReclassResultListRelationFilter
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceListRelationFilter
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceListRelationFilter
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
+  openItems?: Prisma.FinanceOpenItemListRelationFilter
 }
 
 export type FinancePeriodOrderByWithRelationInput = {
@@ -268,12 +304,20 @@ export type FinancePeriodOrderByWithRelationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
+  sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceClosed?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   balances?: Prisma.FinanceAccountBalanceOrderByRelationAggregateInput
   vouchers?: Prisma.FinanceVoucherOrderByRelationAggregateInput
   reclassResults?: Prisma.ReclassResultOrderByRelationAggregateInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceOrderByRelationAggregateInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceOrderByRelationAggregateInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationOrderByRelationAggregateInput
+  openItems?: Prisma.FinanceOpenItemOrderByRelationAggregateInput
 }
 
 export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
@@ -287,12 +331,20 @@ export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
   startDate?: Prisma.StringFilter<"FinancePeriod"> | string
   endDate?: Prisma.StringFilter<"FinancePeriod"> | string
   isClosed?: Prisma.BoolFilter<"FinancePeriod"> | boolean
+  sourceSystem?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceDatabase?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceKey?: Prisma.StringNullableFilter<"FinancePeriod"> | string | null
+  sourceClosed?: Prisma.BoolNullableFilter<"FinancePeriod"> | boolean | null
   companyCode?: Prisma.StringFilter<"FinancePeriod"> | string
   createdAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancePeriod"> | Date | string
   balances?: Prisma.FinanceAccountBalanceListRelationFilter
   vouchers?: Prisma.FinanceVoucherListRelationFilter
   reclassResults?: Prisma.ReclassResultListRelationFilter
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceListRelationFilter
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceListRelationFilter
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
+  openItems?: Prisma.FinanceOpenItemListRelationFilter
 }, "id" | "companyCode_year_month">
 
 export type FinancePeriodOrderByWithAggregationInput = {
@@ -302,6 +354,10 @@ export type FinancePeriodOrderByWithAggregationInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
+  sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceClosed?: Prisma.SortOrderInput | Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -322,6 +378,10 @@ export type FinancePeriodScalarWhereWithAggregatesInput = {
   startDate?: Prisma.StringWithAggregatesFilter<"FinancePeriod"> | string
   endDate?: Prisma.StringWithAggregatesFilter<"FinancePeriod"> | string
   isClosed?: Prisma.BoolWithAggregatesFilter<"FinancePeriod"> | boolean
+  sourceSystem?: Prisma.StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+  sourceDatabase?: Prisma.StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+  sourceKey?: Prisma.StringNullableWithAggregatesFilter<"FinancePeriod"> | string | null
+  sourceClosed?: Prisma.BoolNullableWithAggregatesFilter<"FinancePeriod"> | boolean | null
   companyCode?: Prisma.StringWithAggregatesFilter<"FinancePeriod"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinancePeriod"> | Date | string
@@ -333,12 +393,20 @@ export type FinancePeriodCreateInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateInput = {
@@ -348,12 +416,20 @@ export type FinancePeriodUncheckedCreateInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUpdateInput = {
@@ -362,12 +438,20 @@ export type FinancePeriodUpdateInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateInput = {
@@ -377,12 +461,20 @@ export type FinancePeriodUncheckedUpdateInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateManyInput = {
@@ -392,6 +484,10 @@ export type FinancePeriodCreateManyInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -403,6 +499,10 @@ export type FinancePeriodUpdateManyMutationInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -415,9 +515,23 @@ export type FinancePeriodUncheckedUpdateManyInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinancePeriodScalarRelationFilter = {
+  is?: Prisma.FinancePeriodWhereInput
+  isNot?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodNullableScalarRelationFilter = {
+  is?: Prisma.FinancePeriodWhereInput | null
+  isNot?: Prisma.FinancePeriodWhereInput | null
 }
 
 export type FinancePeriodCompanyCodeYearMonthCompoundUniqueInput = {
@@ -433,6 +547,10 @@ export type FinancePeriodCountOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
+  sourceSystem?: Prisma.SortOrder
+  sourceDatabase?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceClosed?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -451,6 +569,10 @@ export type FinancePeriodMaxOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
+  sourceSystem?: Prisma.SortOrder
+  sourceDatabase?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceClosed?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -463,6 +585,10 @@ export type FinancePeriodMinOrderByAggregateInput = {
   startDate?: Prisma.SortOrder
   endDate?: Prisma.SortOrder
   isClosed?: Prisma.SortOrder
+  sourceSystem?: Prisma.SortOrder
+  sourceDatabase?: Prisma.SortOrder
+  sourceKey?: Prisma.SortOrder
+  sourceClosed?: Prisma.SortOrder
   companyCode?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -474,9 +600,66 @@ export type FinancePeriodSumOrderByAggregateInput = {
   month?: Prisma.SortOrder
 }
 
-export type FinancePeriodScalarRelationFilter = {
-  is?: Prisma.FinancePeriodWhereInput
-  isNot?: Prisma.FinancePeriodWhereInput
+export type FinancePeriodCreateNestedOneWithoutCashFlowAllocationsInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutCashFlowAllocationsInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneRequiredWithoutCashFlowAllocationsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutCashFlowAllocationsInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutCashFlowAllocationsInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUpdateWithoutCashFlowAllocationsInput>, Prisma.FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput>
+}
+
+export type FinancePeriodCreateNestedOneWithoutAuxiliaryBalancesInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAuxiliaryBalancesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneRequiredWithoutAuxiliaryBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAuxiliaryBalancesInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutAuxiliaryBalancesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUpdateWithoutAuxiliaryBalancesInput>, Prisma.FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput>
+}
+
+export type FinancePeriodCreateNestedOneWithoutOpenItemsInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedCreateWithoutOpenItemsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutOpenItemsInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneWithoutOpenItemsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedCreateWithoutOpenItemsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutOpenItemsInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutOpenItemsInput
+  disconnect?: Prisma.FinancePeriodWhereInput | boolean
+  delete?: Prisma.FinancePeriodWhereInput | boolean
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutOpenItemsInput, Prisma.FinancePeriodUpdateWithoutOpenItemsInput>, Prisma.FinancePeriodUncheckedUpdateWithoutOpenItemsInput>
+}
+
+export type FinancePeriodCreateNestedOneWithoutSourceBalancesInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutSourceBalancesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutSourceBalancesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneRequiredWithoutSourceBalancesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutSourceBalancesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutSourceBalancesInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutSourceBalancesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutSourceBalancesInput, Prisma.FinancePeriodUpdateWithoutSourceBalancesInput>, Prisma.FinancePeriodUncheckedUpdateWithoutSourceBalancesInput>
+}
+
+export type NullableBoolFieldUpdateOperationsInput = {
+  set?: boolean | null
 }
 
 export type FinancePeriodCreateNestedOneWithoutVouchersInput = {
@@ -521,17 +704,433 @@ export type FinancePeriodUpdateOneRequiredWithoutReclassResultsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutReclassResultsInput, Prisma.FinancePeriodUpdateWithoutReclassResultsInput>, Prisma.FinancePeriodUncheckedUpdateWithoutReclassResultsInput>
 }
 
+export type FinancePeriodCreateWithoutCashFlowAllocationsInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutCashFlowAllocationsInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput>
+}
+
+export type FinancePeriodUpsertWithoutCashFlowAllocationsInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutCashFlowAllocationsInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput>
+}
+
+export type FinancePeriodUpdateWithoutCashFlowAllocationsInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodCreateWithoutAuxiliaryBalancesInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutAuxiliaryBalancesInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput>
+}
+
+export type FinancePeriodUpsertWithoutAuxiliaryBalancesInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutAuxiliaryBalancesInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAuxiliaryBalancesInput, Prisma.FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput>
+}
+
+export type FinancePeriodUpdateWithoutAuxiliaryBalancesInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodCreateWithoutOpenItemsInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutOpenItemsInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutOpenItemsInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedCreateWithoutOpenItemsInput>
+}
+
+export type FinancePeriodUpsertWithoutOpenItemsInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedUpdateWithoutOpenItemsInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedCreateWithoutOpenItemsInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutOpenItemsInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutOpenItemsInput, Prisma.FinancePeriodUncheckedUpdateWithoutOpenItemsInput>
+}
+
+export type FinancePeriodUpdateWithoutOpenItemsInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutOpenItemsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodCreateWithoutSourceBalancesInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutSourceBalancesInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutSourceBalancesInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutSourceBalancesInput>
+}
+
+export type FinancePeriodUpsertWithoutSourceBalancesInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedUpdateWithoutSourceBalancesInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedCreateWithoutSourceBalancesInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutSourceBalancesInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutSourceBalancesInput, Prisma.FinancePeriodUncheckedUpdateWithoutSourceBalancesInput>
+}
+
+export type FinancePeriodUpdateWithoutSourceBalancesInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutSourceBalancesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
 export type FinancePeriodCreateWithoutVouchersInput = {
   year: number
   month: number
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutVouchersInput = {
@@ -541,11 +1140,19 @@ export type FinancePeriodUncheckedCreateWithoutVouchersInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutVouchersInput = {
@@ -570,11 +1177,19 @@ export type FinancePeriodUpdateWithoutVouchersInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutVouchersInput = {
@@ -584,11 +1199,19 @@ export type FinancePeriodUncheckedUpdateWithoutVouchersInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutBalancesInput = {
@@ -597,11 +1220,19 @@ export type FinancePeriodCreateWithoutBalancesInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutBalancesInput = {
@@ -611,11 +1242,19 @@ export type FinancePeriodUncheckedCreateWithoutBalancesInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutBalancesInput = {
@@ -640,11 +1279,19 @@ export type FinancePeriodUpdateWithoutBalancesInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutBalancesInput = {
@@ -654,11 +1301,19 @@ export type FinancePeriodUncheckedUpdateWithoutBalancesInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutReclassResultsInput = {
@@ -667,11 +1322,19 @@ export type FinancePeriodCreateWithoutReclassResultsInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutReclassResultsInput = {
@@ -681,11 +1344,19 @@ export type FinancePeriodUncheckedCreateWithoutReclassResultsInput = {
   startDate: string
   endDate: string
   isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
   companyCode: string
   createdAt?: Date | string
   updatedAt?: Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutReclassResultsInput = {
@@ -710,11 +1381,19 @@ export type FinancePeriodUpdateWithoutReclassResultsInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutReclassResultsInput = {
@@ -724,11 +1403,19 @@ export type FinancePeriodUncheckedUpdateWithoutReclassResultsInput = {
   startDate?: Prisma.StringFieldUpdateOperationsInput | string
   endDate?: Prisma.StringFieldUpdateOperationsInput | string
   isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 
@@ -740,12 +1427,20 @@ export type FinancePeriodCountOutputType = {
   balances: number
   vouchers: number
   reclassResults: number
+  sourceBalances: number
+  auxiliaryBalances: number
+  cashFlowAllocations: number
+  openItems: number
 }
 
 export type FinancePeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   balances?: boolean | FinancePeriodCountOutputTypeCountBalancesArgs
   vouchers?: boolean | FinancePeriodCountOutputTypeCountVouchersArgs
   reclassResults?: boolean | FinancePeriodCountOutputTypeCountReclassResultsArgs
+  sourceBalances?: boolean | FinancePeriodCountOutputTypeCountSourceBalancesArgs
+  auxiliaryBalances?: boolean | FinancePeriodCountOutputTypeCountAuxiliaryBalancesArgs
+  cashFlowAllocations?: boolean | FinancePeriodCountOutputTypeCountCashFlowAllocationsArgs
+  openItems?: boolean | FinancePeriodCountOutputTypeCountOpenItemsArgs
 }
 
 /**
@@ -779,6 +1474,34 @@ export type FinancePeriodCountOutputTypeCountReclassResultsArgs<ExtArgs extends 
   where?: Prisma.ReclassResultWhereInput
 }
 
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountSourceBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceSourceAccountBalanceWhereInput
+}
+
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountAuxiliaryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAuxiliaryBalanceWhereInput
+}
+
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountCashFlowAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceCashFlowAllocationWhereInput
+}
+
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountOpenItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceOpenItemWhereInput
+}
+
 
 export type FinancePeriodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -787,12 +1510,20 @@ export type FinancePeriodSelect<ExtArgs extends runtime.Types.Extensions.Interna
   startDate?: boolean
   endDate?: boolean
   isClosed?: boolean
+  sourceSystem?: boolean
+  sourceDatabase?: boolean
+  sourceKey?: boolean
+  sourceClosed?: boolean
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   balances?: boolean | Prisma.FinancePeriod$balancesArgs<ExtArgs>
   vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   reclassResults?: boolean | Prisma.FinancePeriod$reclassResultsArgs<ExtArgs>
+  sourceBalances?: boolean | Prisma.FinancePeriod$sourceBalancesArgs<ExtArgs>
+  auxiliaryBalances?: boolean | Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>
+  cashFlowAllocations?: boolean | Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>
+  openItems?: boolean | Prisma.FinancePeriod$openItemsArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financePeriod"]>
 
@@ -803,6 +1534,10 @@ export type FinancePeriodSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   startDate?: boolean
   endDate?: boolean
   isClosed?: boolean
+  sourceSystem?: boolean
+  sourceDatabase?: boolean
+  sourceKey?: boolean
+  sourceClosed?: boolean
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -815,6 +1550,10 @@ export type FinancePeriodSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   startDate?: boolean
   endDate?: boolean
   isClosed?: boolean
+  sourceSystem?: boolean
+  sourceDatabase?: boolean
+  sourceKey?: boolean
+  sourceClosed?: boolean
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -827,16 +1566,24 @@ export type FinancePeriodSelectScalar = {
   startDate?: boolean
   endDate?: boolean
   isClosed?: boolean
+  sourceSystem?: boolean
+  sourceDatabase?: boolean
+  sourceKey?: boolean
+  sourceClosed?: boolean
   companyCode?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinancePeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "year" | "month" | "startDate" | "endDate" | "isClosed" | "companyCode" | "createdAt" | "updatedAt", ExtArgs["result"]["financePeriod"]>
+export type FinancePeriodOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "year" | "month" | "startDate" | "endDate" | "isClosed" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "sourceClosed" | "companyCode" | "createdAt" | "updatedAt", ExtArgs["result"]["financePeriod"]>
 export type FinancePeriodInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   balances?: boolean | Prisma.FinancePeriod$balancesArgs<ExtArgs>
   vouchers?: boolean | Prisma.FinancePeriod$vouchersArgs<ExtArgs>
   reclassResults?: boolean | Prisma.FinancePeriod$reclassResultsArgs<ExtArgs>
+  sourceBalances?: boolean | Prisma.FinancePeriod$sourceBalancesArgs<ExtArgs>
+  auxiliaryBalances?: boolean | Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>
+  cashFlowAllocations?: boolean | Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>
+  openItems?: boolean | Prisma.FinancePeriod$openItemsArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinancePeriodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -848,6 +1595,10 @@ export type $FinancePeriodPayload<ExtArgs extends runtime.Types.Extensions.Inter
     balances: Prisma.$FinanceAccountBalancePayload<ExtArgs>[]
     vouchers: Prisma.$FinanceVoucherPayload<ExtArgs>[]
     reclassResults: Prisma.$ReclassResultPayload<ExtArgs>[]
+    sourceBalances: Prisma.$FinanceSourceAccountBalancePayload<ExtArgs>[]
+    auxiliaryBalances: Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs>[]
+    cashFlowAllocations: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>[]
+    openItems: Prisma.$FinanceOpenItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -856,6 +1607,10 @@ export type $FinancePeriodPayload<ExtArgs extends runtime.Types.Extensions.Inter
     startDate: string
     endDate: string
     isClosed: boolean
+    sourceSystem: string | null
+    sourceDatabase: string | null
+    sourceKey: string | null
+    sourceClosed: boolean | null
     companyCode: string
     createdAt: Date
     updatedAt: Date
@@ -1256,6 +2011,10 @@ export interface Prisma__FinancePeriodClient<T, Null = never, ExtArgs extends ru
   balances<T extends Prisma.FinancePeriod$balancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$balancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vouchers<T extends Prisma.FinancePeriod$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reclassResults<T extends Prisma.FinancePeriod$reclassResultsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$reclassResultsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ReclassResultPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  sourceBalances<T extends Prisma.FinancePeriod$sourceBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$sourceBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSourceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auxiliaryBalances<T extends Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  cashFlowAllocations<T extends Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  openItems<T extends Prisma.FinancePeriod$openItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$openItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1291,6 +2050,10 @@ export interface FinancePeriodFieldRefs {
   readonly startDate: Prisma.FieldRef<"FinancePeriod", 'String'>
   readonly endDate: Prisma.FieldRef<"FinancePeriod", 'String'>
   readonly isClosed: Prisma.FieldRef<"FinancePeriod", 'Boolean'>
+  readonly sourceSystem: Prisma.FieldRef<"FinancePeriod", 'String'>
+  readonly sourceDatabase: Prisma.FieldRef<"FinancePeriod", 'String'>
+  readonly sourceKey: Prisma.FieldRef<"FinancePeriod", 'String'>
+  readonly sourceClosed: Prisma.FieldRef<"FinancePeriod", 'Boolean'>
   readonly companyCode: Prisma.FieldRef<"FinancePeriod", 'String'>
   readonly createdAt: Prisma.FieldRef<"FinancePeriod", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinancePeriod", 'DateTime'>
@@ -1756,6 +2519,102 @@ export type FinancePeriod$reclassResultsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.ReclassResultScalarFieldEnum | Prisma.ReclassResultScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.sourceBalances
+ */
+export type FinancePeriod$sourceBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceSourceAccountBalance
+   */
+  select?: Prisma.FinanceSourceAccountBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceSourceAccountBalance
+   */
+  omit?: Prisma.FinanceSourceAccountBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourceAccountBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceSourceAccountBalanceWhereInput
+  orderBy?: Prisma.FinanceSourceAccountBalanceOrderByWithRelationInput | Prisma.FinanceSourceAccountBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceSourceAccountBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceSourceAccountBalanceScalarFieldEnum | Prisma.FinanceSourceAccountBalanceScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.auxiliaryBalances
+ */
+export type FinancePeriod$auxiliaryBalancesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAuxiliaryBalance
+   */
+  select?: Prisma.FinanceAuxiliaryBalanceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAuxiliaryBalance
+   */
+  omit?: Prisma.FinanceAuxiliaryBalanceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAuxiliaryBalanceInclude<ExtArgs> | null
+  where?: Prisma.FinanceAuxiliaryBalanceWhereInput
+  orderBy?: Prisma.FinanceAuxiliaryBalanceOrderByWithRelationInput | Prisma.FinanceAuxiliaryBalanceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAuxiliaryBalanceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAuxiliaryBalanceScalarFieldEnum | Prisma.FinanceAuxiliaryBalanceScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.cashFlowAllocations
+ */
+export type FinancePeriod$cashFlowAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceCashFlowAllocation
+   */
+  select?: Prisma.FinanceCashFlowAllocationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceCashFlowAllocation
+   */
+  omit?: Prisma.FinanceCashFlowAllocationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceCashFlowAllocationInclude<ExtArgs> | null
+  where?: Prisma.FinanceCashFlowAllocationWhereInput
+  orderBy?: Prisma.FinanceCashFlowAllocationOrderByWithRelationInput | Prisma.FinanceCashFlowAllocationOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceCashFlowAllocationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceCashFlowAllocationScalarFieldEnum | Prisma.FinanceCashFlowAllocationScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.openItems
+ */
+export type FinancePeriod$openItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceOpenItem
+   */
+  select?: Prisma.FinanceOpenItemSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceOpenItem
+   */
+  omit?: Prisma.FinanceOpenItemOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceOpenItemInclude<ExtArgs> | null
+  where?: Prisma.FinanceOpenItemWhereInput
+  orderBy?: Prisma.FinanceOpenItemOrderByWithRelationInput | Prisma.FinanceOpenItemOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceOpenItemWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceOpenItemScalarFieldEnum | Prisma.FinanceOpenItemScalarFieldEnum[]
 }
 
 /**

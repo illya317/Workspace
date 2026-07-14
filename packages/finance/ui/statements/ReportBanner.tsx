@@ -17,7 +17,7 @@ export function createReportBannerSection(key: string, props: ReportBannerProps)
     return createMessageSection(key, {
       tone: "success",
 
-      content: "当前报表来自已导入的现金流量表底稿。",
+      content: "当前报表来自已导入的法定财务报表底稿。",
     });
   }
   if (source === "empty" && diagnostics?.length) {

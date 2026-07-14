@@ -31,13 +31,13 @@
 <body>
 <div class="container">
 <h1>HR API Reference</h1>
-<p class="subtitle">339 endpoints across 7 groups</p>
+<p class="subtitle">334 endpoints across 7 groups</p>
 <div class="summary">
   <div class="summary-grid">
     <div class="summary-item"><div class="num">133</div><div class="label">GET</div></div>
-    <div class="summary-item"><div class="num">105</div><div class="label">POST</div></div>
-    <div class="summary-item"><div class="num">54</div><div class="label">PUT</div></div>
-    <div class="summary-item"><div class="num">36</div><div class="label">DELETE</div></div>
+    <div class="summary-item"><div class="num">104</div><div class="label">POST</div></div>
+    <div class="summary-item"><div class="num">53</div><div class="label">PUT</div></div>
+    <div class="summary-item"><div class="num">34</div><div class="label">DELETE</div></div>
   </div>
 </div>
 
@@ -540,6 +540,18 @@
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/analysis/fund-flow</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/finance/analysis/management</span>
+  <span class="auth">公开</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/budget</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
@@ -749,12 +761,6 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/finance/ledger/reclass-rules/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/finance/ledger/schedules/reclassify</span>
   <span class="auth">公开</span>
@@ -781,42 +787,6 @@
 <div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/finance/ledger/vouchers/:id</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/finance/statement-config</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/finance/statement-config</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/finance/statement-config/mappings</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#2563eb">GET</span>
-  <span class="path">/api/modules/finance/statement-config/mappings</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#7c3aed">PATCH</span>
-  <span class="path">/api/modules/finance/statement-config/mappings</span>
-  <span class="auth">公开</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/finance/statement-config/mappings</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
@@ -1001,13 +971,13 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/contracts/:id</span>
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/contracts</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
+  <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/contracts/:id</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
@@ -1085,13 +1055,13 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/edps/:id</span>
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/edps</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
+  <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/edps/:id</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
@@ -1133,13 +1103,13 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/employees/:id</span>
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/employees</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
+  <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/employees/:id</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
@@ -1163,13 +1133,13 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/employments/:id</span>
+  <span class="method" style="background:#d97706">PUT</span>
+  <span class="path">/api/modules/hr/roster/employments</span>
   <span class="auth">公开</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
+  <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/employments/:id</span>
   <span class="auth">公开</span>
   <span class="desc"></span>

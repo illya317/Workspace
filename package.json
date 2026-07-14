@@ -96,6 +96,8 @@
     "budget:sync-accounts": "node scripts/sync-budget-accounts.js",
     "finance:cashflow-import": "npx tsx scripts/import-cash-flow-workpapers.ts",
     "finance:cashflow-import:execute": "npx tsx scripts/import-cash-flow-workpapers.ts --execute",
+    "finance:statements-import": "npx tsx scripts/import-financial-statement-workpapers.ts",
+    "finance:statements-reconcile-balance": "npx tsx scripts/reconcile-balance-workpaper-adjustments.ts",
     "work:company-tasks:clean": "npx tsx scripts/import/clean-company-task-plans.ts",
     "work:company-projects:import": "npx tsx scripts/import/import-company-priority-projects.ts",
     "work:project-codes:recode": "npx tsx scripts/migrate/recode-work-project-codes.ts",

@@ -11,7 +11,7 @@ export interface GenerateReportParams {
   yearBalances: BalanceItem[];
   reportType: "balance" | "income" | "cashflow";
   isCanada: boolean;
-  /** Phase 7: approved/adjusted ReclassResult entries with precise amounts */
+  /** Approved balance-reclassification entries with precise amounts. */
   reclassEntries?: ReclassEntry[];
 }
 
@@ -49,7 +49,7 @@ export async function generateFinanceReport(input: GenerateFinanceReportInput) {
     });
   }
 
-  const [balances, yearBalances, voucherRows, balanceRows] = await Promise.all([
+  const [balances, yearBalances, balanceRows] = await Promise.all([
     prisma.financeAccountBalance.findMany({
       where: { periodId: targetPeriodId },
       include: { account: true },
@@ -59,27 +59,16 @@ export async function generateFinanceReport(input: GenerateFinanceReportInput) {
       where: { period: { companyCode: period.companyCode, year: period.year } },
       include: { account: true },
     }),
-    prisma.reclassResult.findMany({
-      where: { periodId: targetPeriodId, status: { in: ["approved", "adjusted"] } },
-      select: { sourceAccount: true, targetAccount: true, amount: true },
-    }),
     prisma.financeBalanceReclassAdjustment.findMany({
       where: { periodId: targetPeriodId, status: { in: ["approved", "adjusted"] } },
       select: { sourceAccountCode: true, targetAccountCode: true, amount: true },
     }),
   ]);
-  const allRows = [
-    ...voucherRows.map((row) => ({
-      sourceAccount: row.sourceAccount,
-      targetAccount: row.targetAccount,
-      amount: row.amount,
-    })),
-    ...balanceRows.map((row) => ({
+  const allRows = balanceRows.map((row) => ({
       sourceAccount: row.sourceAccountCode,
       targetAccount: row.targetAccountCode,
       amount: row.amount,
-    })),
-  ];
+    }));
 
   return generateReport({
     period,

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceStatementWorkpaper
- * 报表底稿头（P3 Batch 2：利润表/现金流量表手工输入底稿）
+ * 报表底稿头（资产负债表/利润表/现金流量表导入或手工底稿）
  * 唯一键：companyCode + year + month + reportType
  * 只存事实输入（manualAmount / importedAmount / formulaText / note / source），不存计算结果
  */

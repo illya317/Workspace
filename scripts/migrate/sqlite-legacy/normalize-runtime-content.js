@@ -433,34 +433,13 @@ function normalizeLibrary(db, root) {
   return counters;
 }
 
-function checkFinanceMappings(db) {
-  const periods = db.prepare(`
-    SELECT DISTINCT p.companyCode, p.year
-    FROM FinancePeriod p
-    JOIN FinanceAccountBalance b ON b.periodId = p.id
-    WHERE p.companyCode IS NOT NULL
-    ORDER BY p.companyCode, p.year
-  `).all();
-  const countMappings = db.prepare(`
-    SELECT COUNT(*) AS count
-    FROM FinanceStatementAccountMapping
-    WHERE companyCode = ? AND year = ? AND statementType = 'balance'
-  `);
-  const missing = periods.filter((period) => Number(countMappings.get(period.companyCode, period.year).count) === 0);
-  if (missing.length > 0) {
-    throw new Error(`Finance mapping missing for: ${missing.map((item) => `${item.companyCode}/${item.year}`).join(", ")}`);
-  }
-  return { periods: periods.length, missing: missing.length };
-}
-
 function main() {
   const db = new Database(databasePath());
   db.pragma("foreign_keys = ON");
   try {
     const docs = normalizeDocs(db, workspaceRoot());
     const library = normalizeLibrary(db, libraryRoot());
-    const finance = checkFinanceMappings(db);
-    process.stdout.write(`${JSON.stringify({ mode: checkOnly ? "check" : dryRun ? "dry-run" : "execute", docs, library, finance }, null, 2)}\n`);
+    process.stdout.write(`${JSON.stringify({ mode: checkOnly ? "check" : dryRun ? "dry-run" : "execute", docs, library }, null, 2)}\n`);
   } finally {
     db.close();
   }

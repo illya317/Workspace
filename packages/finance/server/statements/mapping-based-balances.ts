@@ -1,6 +1,9 @@
 /** M10a: mapping-based balance aggregation with residual leaf. residual = own - children sum. */
 import { prisma } from "@workspace/platform/server/prisma";
-import { ensureStatementMappings } from "./mapping/seed-from-config";
+import {
+  buildFixedBalanceLineSideMap,
+  buildFixedBalanceAssignments,
+} from "./config/fixed-balance-definition";
 import { resolveMappedLineWithOperator } from "./shared/mapping-resolver";
 
 // ─── Types ─────────────────────────────────────────────────
@@ -53,9 +56,9 @@ export async function aggregateMappingBasedBalances(
   year: number,
   month: number,
   statementType: string = "balance",
+  balancePoint: "opening" | "closing" = "closing",
 ): Promise<MappingBasedBalancesResult> {
-  // Ensure mappings exist before resolving
-  await ensureStatementMappings(companyCode, year, statementType);
+  if (statementType !== "balance") throw new Error("statementType 暂只支持 balance");
 
   // 1. Find period
   const period = await prisma.financePeriod.findFirst({
@@ -78,8 +81,8 @@ export async function aggregateMappingBasedBalances(
     ownByCode.set(b.account.code, {
       code: b.account.code,
       name: b.account.name,
-      debit: b.closingDebit,
-      credit: b.closingCredit,
+      debit: balancePoint === "opening" ? b.openingDebit : b.closingDebit,
+      credit: balancePoint === "opening" ? b.openingCredit : b.closingCredit,
       parentId: b.account.parentId,
       id: b.account.id,
     });
@@ -108,29 +111,16 @@ export async function aggregateMappingBasedBalances(
         childCredit += c.credit;
       }
     }
-    const resDebit = a.debit - childDebit;
-    const resCredit = a.credit - childCredit;
-    if (Math.abs(resDebit) > 0.01 || Math.abs(resCredit) > 0.01) {
+    const resDebit = roundMoney(a.debit - childDebit);
+    const resCredit = roundMoney(a.credit - childCredit);
+    if (resDebit !== 0 || resCredit !== 0) {
       residuals.push({ code: a.code, name: a.name, debit: resDebit, credit: resCredit });
     }
   }
 
-  // 6. Preload mappings with operator (batch)
-  const mappings = await prisma.financeStatementAccountMapping.findMany({
-    where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true, operator: true },
-  });
-  const mappingMap = new Map<string, string>();
-  const operatorMap = new Map<string, "add" | "subtract" | "exclude">();
-  for (const m of mappings) { mappingMap.set(m.accountCode, m.lineCode); operatorMap.set(m.accountCode, (m.operator as "add" | "subtract" | "exclude") || "add"); }
-
-  // 6b. Preload line configs for side lookup
-  const lineConfigs = await prisma.financeStatementLineConfig.findMany({
-    where: { companyCode, year, reportType: "balanceSheet", enabled: true },
-    select: { lineCode: true, side: true },
-  });
-  const lineSideMap = new Map<string, "debit" | "credit">();
-  for (const lc of lineConfigs) lineSideMap.set(lc.lineCode, lc.side as "debit" | "credit");
+  // 6. Fixed statutory mapping (single source of truth).
+  const { mappingMap, operatorMap } = buildFixedBalanceAssignments();
+  const lineSideMap = buildFixedBalanceLineSideMap();
 
   // 7. Preload accounts for parent-chain resolution (batch)
   const accounts = await prisma.financeAccount.findMany({
@@ -186,6 +176,10 @@ export async function aggregateMappingBasedBalances(
     resolvedCount: residuals.length - unresolved.length,
     residualParents: residualParents.sort((a, b) => a.accountCode.localeCompare(b.accountCode)),
   };
+}
+
+function roundMoney(value: number): number {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
 // ─── Helpers ───────────────────────────────────────────────

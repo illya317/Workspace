@@ -8,26 +8,24 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { AUXILIARY_RECLASS_PAIRS } from "../../../types/auxiliary-reclass";
+import { resolveAuxiliaryReclassPair } from "../../../types/auxiliary-reclass";
 import type { RuleCandidate, ScanCandidatesParams, ScanCandidatesResult } from "./types";
 
 export async function scanCandidates(params: ScanCandidatesParams): Promise<ScanCandidatesResult> {
   const { companyCode, year } = params;
-  const supportedCodes = Object.keys(AUXILIARY_RECLASS_PAIRS);
-  const [accounts, rules] = await Promise.all([
-    prisma.financeAccount.findMany({
-      where: { companyCode, year, code: { in: supportedCodes } },
-      select: { code: true, name: true, balanceDirection: true },
-      orderBy: { code: "asc" },
-    }),
-    prisma.financeReclassRule.findMany({
-      where: { companyCode, year, sourceAccountCode: { in: supportedCodes } },
-      select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true, source: true, enabled: true },
-    }),
-  ]);
+  const accounts = (await prisma.financeAccount.findMany({
+    where: { companyCode, year },
+    select: { code: true, name: true, balanceDirection: true },
+    orderBy: { code: "asc" },
+  })).filter((account) => resolveAuxiliaryReclassPair(account.code));
+  const supportedCodes = accounts.map((account) => account.code);
+  const rules = await prisma.financeReclassRule.findMany({
+    where: { companyCode, year, sourceAccountCode: { in: supportedCodes } },
+    select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true, source: true, enabled: true },
+  });
   const ruleMap = new Map(rules.map((rule) => [`${rule.sourceAccountCode}::${rule.abnormalSide}`, rule]));
   const candidates: RuleCandidate[] = accounts.map((account) => {
-    const pair = AUXILIARY_RECLASS_PAIRS[account.code];
+    const pair = resolveAuxiliaryReclassPair(account.code)!;
     const rule = ruleMap.get(`${account.code}::${pair.abnormalSide}`);
     return {
       accountCode: account.code,

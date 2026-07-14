@@ -1,24 +1,26 @@
 "use client";
 
 import { workspacePath } from "@workspace/core/routing";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { createPageBody, createSectionsSection, createMessageSection, createPanelSection, PageSurface } from "@workspace/core/ui";
+import { createPageBody, createMessageSection, createPanelSection, createSectionsSection, PageSurface } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerSection } from "./ReportBanner";
 import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
 import { formatFinanceAmount } from "../formatters";
+import { useStatementScope } from "./useStatementScope";
 import { REPORT_TYPE_OPTIONS } from "./report-options";
 const REPORT_TYPES = new Set(["balance", "income", "cashflow"]);
-const YEAR_OPTIONS = [2024, 2025, 2026].map((year) => ({
-  value: String(year),
-  label: String(year),
-}));
 const MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => ({
   value: String(index + 1),
   label: `${index + 1}月`,
 }));
+
+function balanceCheck(label: string, assets: number, liabilitiesAndEquity: number) {
+  const gap = Math.round((assets - liabilitiesAndEquity) * 100) / 100;
+  return `${label}：资产总计 ${formatFinanceAmount(assets)} | 负债和权益总计 ${formatFinanceAmount(liabilitiesAndEquity)} | ${gap === 0 ? "平衡" : `不平衡 ${formatFinanceAmount(Math.abs(gap))}`}`;
+}
 interface Period {
   id: number;
   year: number;
@@ -32,6 +34,7 @@ interface ReportData {
   liabilities?: ReportLine[];
   equity?: ReportLine[];
   totalLiabilitiesAndEquity?: number;
+  previousTotalLiabilitiesAndEquity?: number;
   lines?: ReportLine[];
   source?: "system" | "workpaper" | "empty";
   diagnostics?: {
@@ -42,64 +45,74 @@ interface ReportData {
 export default function ReportTab() {
   const searchParams = useSearchParams();
   const companyOptions = useCompanyOptions();
+  const { company: companyFilter, setCompany: setCompanyFilter, year, setYear, availablePairs } = useStatementScope();
+  const yearOptions = useMemo(
+    () => [...new Set(availablePairs.map((pair) => pair.year))].sort((a, b) => b - a).map((optionYear) => ({ value: String(optionYear), label: String(optionYear) })),
+    [availablePairs],
+  );
   const rtFromQuery = searchParams.get("reportType");
-  const [companyFilter, setCompanyFilter] = useState(searchParams.get("companyCode") || "02");
-  const [yearFilter, setYearFilter] = useState(searchParams.get("year") || "2025");
   const [monthFilter, setMonthFilter] = useState(searchParams.get("month") || "12");
   const [reportType, setReportType] = useState<"balance" | "income" | "cashflow">(rtFromQuery && REPORT_TYPES.has(rtFromQuery) ? rtFromQuery as "balance" | "income" | "cashflow" : "balance");
-  const [_periods, setPeriods] = useState<Period[]>([]);
   const [data, setData] = useState<ReportData | null>(null);
   const [loading, setLoading] = useState(false);
   const [expandedCodes, setExpandedCodes] = useState<Set<string>>(new Set());
   const [details, setDetails] = useState<Record<string, AccountDetail[]>>({});
   const [loadingDetail, setLoadingDetail] = useState<string | null>(null);
   const loadReport = useCallback(async () => {
-    if (!companyFilter || !yearFilter || !monthFilter) return;
+    if (!companyFilter || !year || !monthFilter) return;
     setLoading(true);
     setExpandedCodes(new Set());
     setDetails({});
-    const res = await fetch(workspacePath(`/api/modules/finance/statements/reports?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&type=${reportType}`));
+    const res = await fetch(workspacePath(`/api/modules/finance/statements/reports?companyCode=${companyFilter}&year=${year}&month=${monthFilter}&type=${reportType}`));
     if (res.ok) setData(await res.json());
     setLoading(false);
-  }, [companyFilter, monthFilter, reportType, yearFilter]);
+  }, [companyFilter, monthFilter, reportType, year]);
   useEffect(() => {
-    fetch(workspacePath("/api/modules/finance/ledger/periods")).then(response => response.json()).then(result => {
-      setPeriods(result.periods || []);
-    });
     void loadReport();
   }, [loadReport]);
-  const toggleDetail = useCallback(async (code: string) => {
-    if (!code) return;
+  const toggleDetail = useCallback(async (key: string, code: string) => {
+    if (!key || !code) return;
     const newSet = new Set(expandedCodes);
-    if (newSet.has(code)) {
-      newSet.delete(code);
+    if (newSet.has(key)) {
+      newSet.delete(key);
       setExpandedCodes(newSet);
       return;
     }
-    newSet.add(code);
+    newSet.add(key);
     setExpandedCodes(newSet);
-    if (!details[code]) {
-      setLoadingDetail(code);
+    if (!details[key]) {
+      setLoadingDetail(key);
       try {
-        const res = await fetch(workspacePath(`/api/modules/finance/statements/reports/detail?companyCode=${companyFilter}&year=${yearFilter}&month=${monthFilter}&codes=${encodeURIComponent(code)}`));
+      const res = await fetch(workspacePath(`/api/modules/finance/statements/reports/detail?companyCode=${companyFilter}&year=${year}&month=${monthFilter}&codes=${encodeURIComponent(code)}`));
         if (res.ok) {
           const result = await res.json();
           setDetails(prev => ({
             ...prev,
-            [code]: result.details || []
+            [key]: result.details || []
           }));
         }
       } finally {
         setLoadingDetail(null);
       }
     }
-  }, [companyFilter, details, expandedCodes, monthFilter, yearFilter]);
+  }, [companyFilter, details, expandedCodes, monthFilter, year]);
   const lineProps = {
     expandedCodes,
     details,
     loadingDetail,
     onToggle: toggleDetail
   };
+  const liabilityEquityLines: ReportLine[] = data?.type === "balance" ? [
+    ...(data.liabilities || []),
+    ...(data.equity || []),
+    {
+      label: "负债和所有者权益（或股东权益）总计",
+      amount: data.totalLiabilitiesAndEquity || 0,
+      previousAmount: data.previousTotalLiabilitiesAndEquity,
+      isGrandTotal: true,
+    },
+  ] : [];
+  const assetGrandTotal = data?.assets?.find((item) => item.isGrandTotal);
   const toolbarItems: SurfaceToolbarItems = [
     {
       kind: "select",
@@ -114,9 +127,9 @@ export default function ReportTab() {
       kind: "select",
       key: "year",
       label: "年度",
-      options: YEAR_OPTIONS,
-      value: yearFilter,
-      onChange: setYearFilter,
+      options: yearOptions,
+      value: String(year),
+      onChange: (value) => setYear(Number(value)),
       placeholder: "全部",
     },
     {
@@ -145,47 +158,58 @@ export default function ReportTab() {
     },
   ];
   const reportBlocks = ([
-    ...(loading ? [{
-      kind: "message" as const,
-      key: "loading",
+    ...(loading ? [createMessageSection("loading", {
       tone: "muted" as const,
-      align: "center",
       content: "加载中...",
-    }] : []),
+    })] : []),
     ...(data?.type === "balance" ? [createPanelSection("balance-report", {
             title: "资 产 负 债 表",
             sections: [
-              createSectionsSection("balance-lines", {
+              createMessageSection("balance-meta", {
+                tone: "muted" as const,
+                content: `编制单位：${companyOptions.find((option) => option.value === companyFilter)?.label || companyFilter}　${year}年${monthFilter}月31日　单位：元`,
+              }),
+              createSectionsSection("balance-columns", {
                 layout: "grid",
-
+                gridColumns: 2,
                 sections: [
                   {
-                    key: "assets",
+                    key: "asset-lines",
+                    framed: false,
                     body: { kind: "data", data: {
-                      ...createReportLinesSurface({ items: data.assets || [], labelHeader: "资 产", amountHeader: "年末余额", ...lineProps }),
-                      frame: "bordered",
+                      ...createReportLinesSurface({
+                        items: data.assets || [],
+                        labelHeader: "资产",
+                        previousAmountHeader: "期初余额",
+                        amountHeader: "期末余额",
+                        detailKeyPrefix: "assets",
+                        ...lineProps,
+                      }),
                     } },
                   },
-                  createSectionsSection("liability-equity", {
-                    layout: "stack",
-
-                    sections: [
-                      {
-                        key: "liabilities",
-                        body: { kind: "data", data: createReportLinesSurface({ items: data.liabilities || [], labelHeader: "负债", amountHeader: "年末余额", ...lineProps }) },
-                      },
-                      {
-                        key: "equity",
-                        body: { kind: "data", data: createReportLinesSurface({ items: data.equity || [], labelHeader: "所有者权益", amountHeader: "年末余额", ...lineProps }) },
-                      },
-                    ],
-                  }),
+                  {
+                    key: "liability-equity-lines",
+                    framed: false,
+                    body: { kind: "data", data: {
+                      ...createReportLinesSurface({
+                        items: liabilityEquityLines,
+                        labelHeader: "负债和所有者权益（或股东权益）",
+                        previousAmountHeader: "期初余额",
+                        amountHeader: "期末余额",
+                        detailKeyPrefix: "liability-equity",
+                        ...lineProps,
+                      }),
+                    } },
+                  },
                 ],
               }),
               ...(data.totalLiabilitiesAndEquity !== undefined ? [createMessageSection("balance-check", {
                 tone: "muted" as const,
 
-                content: `资产总计 = ${formatFinanceAmount(data.assets?.find(item => item.isGrandTotal)?.amount || 0)} | 负债和权益总计 = ${formatFinanceAmount(data.totalLiabilitiesAndEquity)}${Math.abs((data.assets?.find(item => item.isGrandTotal)?.amount || 0) - data.totalLiabilitiesAndEquity) > 0.01 ? " | 不平衡" : ""}`,
+                content: [
+                  balanceCheck("期初", assetGrandTotal?.previousAmount || 0, data.previousTotalLiabilitiesAndEquity || 0),
+                  balanceCheck("期末", assetGrandTotal?.amount || 0, data.totalLiabilitiesAndEquity),
+                ].join("　"),
               })] : []),
             ],
           })] : []),
@@ -198,7 +222,7 @@ export default function ReportTab() {
               })(),
               {
                 key: "income-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "本年金额", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", previousAmountHeader: `${year - 1}年金额`, amountHeader: `${year}年金额`, detailKeyPrefix: "income", ...lineProps }) },
               },
             ],
           })] : []),
@@ -211,7 +235,7 @@ export default function ReportTab() {
               })(),
               {
                 key: "cashflow-lines",
-                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", amountHeader: "金额", ...lineProps }) },
+                body: { kind: "data", data: createReportLinesSurface({ items: data.lines || [], labelHeader: "项 目", previousAmountHeader: `${year - 1}年金额`, amountHeader: `${year}年金额`, detailKeyPrefix: "cashflow", ...lineProps }) },
               },
             ],
           })] : []),

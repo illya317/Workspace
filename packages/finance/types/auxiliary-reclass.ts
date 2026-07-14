@@ -16,8 +16,13 @@ export const AUXILIARY_RECLASS_PAIRS: Readonly<Record<string, AuxiliaryReclassPa
   "2241": { abnormalSide: "debit", target: "1221" },
   "224101": { abnormalSide: "debit", target: "122101" },
   "224102": { abnormalSide: "debit", target: "122102" },
+  "2221": { abnormalSide: "debit", target: "1463" },
 };
 
+const AUXILIARY_RECLASS_PREFIXES = Object.keys(AUXILIARY_RECLASS_PAIRS)
+  .sort((left, right) => right.length - left.length);
+
 export function resolveAuxiliaryReclassPair(accountCode: string): AuxiliaryReclassPair | null {
-  return AUXILIARY_RECLASS_PAIRS[accountCode] ?? null;
+  const prefix = AUXILIARY_RECLASS_PREFIXES.find((candidate) => accountCode.startsWith(candidate));
+  return prefix ? AUXILIARY_RECLASS_PAIRS[prefix] ?? null : null;
 }

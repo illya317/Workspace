@@ -50,6 +50,15 @@ function readJson(filePath) {
   return JSON.parse(text);
 }
 
+function resolveSourceFile(json, fallback) {
+  if (!Array.isArray(json)) return safeString(json?.sourceFile) ?? fallback;
+  for (const row of json) {
+    const sourceFile = safeString(row?.source?.file);
+    if (sourceFile) return sourceFile;
+  }
+  return fallback;
+}
+
 function safeFloat(v) {
   if (v === null || v === undefined) return null;
   const n = typeof v === "number" ? v : parseFloat(String(v).replace(/,/g, ""));
@@ -315,8 +324,12 @@ function parseWorkshopReports(json, sourceFile, sourcePath, employeeMap, positio
               employeeId,
               positionId,
               sourceFile: safeString(sourceFile) ?? safeString(report.source?.file) ?? "",
-              sourceSheet: safeString(person.source?.sheet) ?? safeString(batch.source?.sheet),
-              sourceRow: safeInt(person.source?.row) ?? safeInt(batch.source?.row),
+              sourceSheet: safeString(person.source?.sheet)
+                ?? safeString(detail.source?.sheet)
+                ?? safeString(batch.source?.sheet),
+              sourceRow: safeInt(person.source?.row)
+                ?? safeInt(detail.source?.row)
+                ?? safeInt(batch.source?.row),
             });
           }
         }
@@ -369,7 +382,7 @@ async function main() {
 
       const json = readJson(filePath);
       const checksum = await getChecksum(filePath);
-      const sourceFile = json.sourceFile ?? file;
+      const sourceFile = resolveSourceFile(json, file);
       const year = safeInt(json.year) ?? safeInt(file.replace(/\.json$/, ""));
 
       const parser = PARSERS[profile];
@@ -397,13 +410,20 @@ async function main() {
 
       const importRecord = await prisma.$transaction(async (tx) => {
         // Replacing a prior source batch and all of its facts is atomic.
-        const existing = await tx.financeDataImport.findFirst({
-          where: { profile, year: year ?? null, sourceFile },
+        const replaceableSourceFiles = [...new Set([sourceFile, file])];
+        const existing = await tx.financeDataImport.findMany({
+          where: {
+            profile,
+            year: year ?? null,
+            sourceFile: { in: replaceableSourceFiles },
+          },
+          select: { id: true },
         });
 
-        if (existing) {
-          log("  -> removing existing import id", existing.id);
-          await tx.financeDataImport.delete({ where: { id: existing.id } });
+        if (existing.length > 0) {
+          const existingIds = existing.map((item) => item.id);
+          log("  -> removing existing import ids", existingIds.join(", "));
+          await tx.financeDataImport.deleteMany({ where: { id: { in: existingIds } } });
         }
 
         const created = await tx.financeDataImport.create({

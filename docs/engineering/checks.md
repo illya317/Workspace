@@ -49,7 +49,7 @@
 
 ### typecheck
 
-`typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。
+`typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。`typecheck:full` 固定使用 `4096 MiB` Node old-space，避免大型类型图在 Node 默认约 `2 GiB` 堆上限下 OOM；`check:ci`、pre-push 和 GitHub Actions 都通过该入口自动继承。
 
 `typecheck:quick` 使用 TypeScript incremental cache，缓存文件固定在 `.cache/tsconfig.quick.tsbuildinfo`，用于本地 changed/pre-commit 链路复用；不要为了触发“干净检查”删除 `.cache`，需要全量时跑 `typecheck:full` 或 `check:ci`。`typecheck:quick` 和 `typecheck:full` 的脚本都固定使用 `4096 MiB` Node old-space，调用方不需要再手工设置 `NODE_OPTIONS`。
 

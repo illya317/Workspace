@@ -37,13 +37,6 @@ import { saveReclassRuleChangeSet, scanCandidates } from "./ledger/reclass-rules
 import { ensureReclassRulesForYear } from "./ledger/reclass-rules/ensure";
 import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
 import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
-import { getStatementConfigView, saveStatementConfigLines } from "./statements/statement-config-view";
-import {
-  deleteStatementMapping,
-  listStatementMappings,
-  saveStatementMapping,
-  StatementMappingServiceError,
-} from "./statements/mapping/statement-mappings";
 
 export {
   buildFinanceImportConfirmCommand,
@@ -406,55 +399,6 @@ export async function executeUpdateVoucherCommand(command: { id: number; body: P
 
 export async function executeDeleteVoucherCommand(command: { id: number }) {
   return financeLegacyErrorResult(await deleteVoucher(command.id));
-}
-
-export function buildStatementConfigViewCommand(input: { companyCode?: string; year?: number; type?: "balance" }) {
-  if (!input.companyCode || input.year === undefined) return failCommand("companyCode, year 为必填");
-  return okCommand({ companyCode: input.companyCode, year: input.year, type: input.type ?? "balance" });
-}
-
-export function executeStatementConfigViewCommand(command: { companyCode: string; year: number; type: "balance" }) {
-  return getStatementConfigView(command.companyCode, command.year, command.type);
-}
-
-export function buildSaveStatementConfigCommand(input: Parameters<typeof saveStatementConfigLines>[0]) {
-  if (!Array.isArray(input.lines)) return failCommand("lines 数组为必填");
-  return okCommand(input);
-}
-
-export function executeSaveStatementConfigCommand(command: Parameters<typeof saveStatementConfigLines>[0]) {
-  return saveStatementConfigLines(command);
-}
-
-function statementMappingError(error: unknown) {
-  if (error instanceof StatementMappingServiceError) {
-    return serviceError(error.message, error.status);
-  }
-  throw error;
-}
-
-export async function executeListStatementMappingsCommand(command: Parameters<typeof listStatementMappings>[0]) {
-  try {
-    return await listStatementMappings(command);
-  } catch (error) {
-    return statementMappingError(error);
-  }
-}
-
-export async function executeSaveStatementMappingCommand(command: Parameters<typeof saveStatementMapping>[0]) {
-  try {
-    return await saveStatementMapping(command);
-  } catch (error) {
-    return statementMappingError(error);
-  }
-}
-
-export async function executeDeleteStatementMappingCommand(command: Parameters<typeof deleteStatementMapping>[0]) {
-  try {
-    return await deleteStatementMapping(command);
-  } catch (error) {
-    return statementMappingError(error);
-  }
 }
 
 export function executeReportDetailCommand(command: Parameters<typeof getReportDetail>[0]) {

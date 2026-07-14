@@ -24,12 +24,6 @@ const FINANCE_LEDGER = {
   originHrefPattern: "/finance/ledger",
 } as const;
 
-const FINANCE_STATEMENT_CONFIG = {
-  moduleKey: "finance",
-  resourceKey: "finance.statementConfig",
-  originHrefPattern: "/finance/statement-config",
-} as const;
-
 const FINANCE_BUDGET = {
   moduleKey: "finance",
   resourceKey: "finance.budget",
@@ -452,10 +446,6 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassRule.save", label: "保存重分类规则", writeKind: "save", targetKind: "FinanceReclassRule", directPermissionAction: "revise", apiRoutes: [route("PUT", "/api/modules/finance/ledger/reclass-rules")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.generate", label: "生成重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/reclass-results")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.adjust", label: "调整重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("PATCH", "/api/modules/finance/ledger/reclass-results/:id")] },
-  { ...FINANCE_STATEMENT_CONFIG, ...PERMISSION_ONLY, key: "finance.statementConfig.line.update", label: "保存报表项目配置", writeKind: "save", targetKind: "FinanceStatementLineConfig", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/statement-config")] },
-  { ...FINANCE_STATEMENT_CONFIG, ...PERMISSION_ONLY, key: "finance.statementConfig.mapping.create", label: "添加报表科目映射", writeKind: "create", targetKind: "FinanceStatementAccountMapping", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/statement-config/mappings")] },
-  { ...FINANCE_STATEMENT_CONFIG, ...PERMISSION_ONLY, key: "finance.statementConfig.mapping.update", label: "更新报表科目映射", writeKind: "update", targetKind: "FinanceStatementAccountMapping", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/finance/statement-config/mappings")] },
-  { ...FINANCE_STATEMENT_CONFIG, ...PERMISSION_ONLY, key: "finance.statementConfig.mapping.delete", label: "删除报表科目映射", writeKind: "delete", targetKind: "FinanceStatementAccountMapping", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/finance/statement-config/mappings")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.import", label: "导入预算数据", writeKind: "import", targetKind: "FinanceBudgetImport", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/finance/budget")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.create", label: "创建预算版本", writeKind: "create", targetKind: "BudgetVersion", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/budget/versions")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.activate", label: "启用预算版本", writeKind: "approve", targetKind: "BudgetVersion", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/budget/versions/:id/activate")] },

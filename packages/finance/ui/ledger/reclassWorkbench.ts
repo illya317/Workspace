@@ -167,6 +167,7 @@ function targetLabel(row: ReclassEntry) {
 
 function sourceLabel(row: ReclassEntry) {
   if (row.sourceType === "auxiliary_balance") return `辅助余额表${row.detailCount ? ` · ${row.detailCount} 个对象` : ""}`;
+  if (row.sourceType === "reference_workpaper") return "法定报表底稿勾稽";
   if (row.sourceType === "legacy_voucher") return "历史凭证明细";
   if (row.sourceType === "rule") return "公司年度规则";
   if (row.sourceType === "manual") return "人工调整";

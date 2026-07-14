@@ -4,7 +4,7 @@ export interface DetailParams {
   companyCode: string;
   year: number;
   month: number;
-  codes: string[]; // account code prefixes (split from + or ,)
+  codes: string[]; // account code prefixes (split from +, -, or ,)
 }
 
 export interface AccountDetail {
@@ -36,74 +36,200 @@ export interface DetailResult {
   reclassImpact?: number;
 }
 
+interface BalanceAdjustmentRow {
+  sourceAccountCode: string;
+  targetAccountCode: string;
+  amount: number;
+  status: string;
+}
+
 export async function getReportDetail(params: DetailParams): Promise<DetailResult> {
-  const period = await prisma.financePeriod.findFirst({
-    where: { companyCode: params.companyCode, year: params.year, month: params.month },
-  });
+  const [period, previousPeriod] = await Promise.all([
+    prisma.financePeriod.findFirst({
+      where: { companyCode: params.companyCode, year: params.year, month: params.month },
+    }),
+    prisma.financePeriod.findFirst({
+      where: { companyCode: params.companyCode, year: params.year - 1, month: params.month },
+    }),
+  ]);
   if (!period) return { details: [], total: 0 };
 
-  const balances = await prisma.financeAccountBalance.findMany({
-    where: { periodId: period.id },
-    include: { account: true },
-    orderBy: { account: { code: "asc" } },
-  });
+  const [balances, previousBalances, currentAdjustments, previousAdjustments, currentWorkpaper, previousWorkpaper] = await Promise.all([
+    loadBalances(period.id),
+    previousPeriod ? loadBalances(previousPeriod.id) : Promise.resolve([]),
+    loadBalanceAdjustments(period.id),
+    previousPeriod ? loadBalanceAdjustments(previousPeriod.id) : Promise.resolve([]),
+    loadBalanceWorkpaper(params.companyCode, params.year, params.month),
+    loadBalanceWorkpaper(params.companyCode, params.year - 1, params.month),
+  ]);
 
-  // Filter balances whose account code starts with any requested code
-  const matched = balances.filter((b) =>
-    params.codes.some((code) => b.account.code.startsWith(code))
-  );
+  const matched = balances.filter((balance) => matchesCodes(balance.account.code, params.codes));
+  const allCodes = matched.map((balance) => balance.account.code);
+  const hasChildren = (code: string) => allCodes.some((candidate) => candidate.startsWith(code) && candidate.length > code.length);
+  const leaves = matched.filter((balance) => !hasChildren(balance.account.code));
 
-  // Only show leaf accounts (exclude parent if children exist)
-  const allCodes = matched.map((b) => b.account.code);
-  const hasChildren = (code: string) => allCodes.some((c) => c.startsWith(code) && c.length > code.length);
-  const leaves = matched.filter((b) => !hasChildren(b.account.code));
-
-  const details: AccountDetail[] = leaves.map((b) => {
-    const closing = b.openingDebit - b.openingCredit + b.currentDebit - b.currentCredit;
+  const previousClosingByCode = new Map(previousBalances.map((balance) => [
+    balance.account.code,
+    closingAmount(balance),
+  ]));
+  const usePreviousWorkpaper = Boolean(currentWorkpaper && previousWorkpaper);
+  const accountDetails: AccountDetail[] = leaves.map((balance) => {
+    const opening = currentWorkpaper
+      ? usePreviousWorkpaper ? previousClosingByCode.get(balance.account.code) ?? 0 : 0
+      : balance.openingDebit - balance.openingCredit;
+    const closing = closingAmount(balance);
     return {
-      code: b.account.code, name: b.account.name,
-      category: b.account.category, balanceDirection: b.account.balanceDirection,
-      openingDebit: b.openingDebit, openingCredit: b.openingCredit,
-      currentDebit: b.currentDebit, currentCredit: b.currentCredit,
+      code: balance.account.code,
+      name: balance.account.name,
+      category: balance.account.category,
+      balanceDirection: balance.account.balanceDirection,
+      openingDebit: Math.max(opening, 0),
+      openingCredit: Math.max(-opening, 0),
+      currentDebit: Math.max(money(closing - opening), 0),
+      currentCredit: Math.max(money(opening - closing), 0),
       closing,
     };
   });
 
-  // Fetch reclass adjustments for this period
-  const reclassRows = await prisma.reclassResult.findMany({
-    where: { periodId: period.id, status: { in: ["approved", "adjusted"] } },
-    select: { sourceAccount: true, targetAccount: true, amount: true, status: true },
-  });
-
   const reclassAdjustments: ReclassAdjustment[] = [];
   let reclassImpact = 0;
-
-  for (const rr of reclassRows) {
-    const sourceMatch = params.codes.some((code) => rr.sourceAccount.startsWith(code));
-    const targetMatch = params.codes.some((code) => rr.targetAccount.startsWith(code));
-
+  for (const row of currentAdjustments) {
+    const sourceMatch = matchesCodes(row.sourceAccountCode, params.codes);
+    const targetMatch = matchesCodes(row.targetAccountCode, params.codes);
     if (sourceMatch) {
       reclassAdjustments.push({
-        sourceAccount: rr.sourceAccount, targetAccount: rr.targetAccount,
-        amount: rr.amount, status: rr.status, type: "deduction",
+        sourceAccount: row.sourceAccountCode,
+        targetAccount: row.targetAccountCode,
+        amount: row.amount,
+        status: row.status,
+        type: "deduction",
       });
-      // Asset source deduction = reduce asset (negative impact)
-      // Liability source deduction = reduce liability (positive impact from liability perspective)
-      reclassImpact -= rr.sourceAccount.startsWith("1") ? rr.amount : -rr.amount;
+      reclassImpact += presentationAmount(row.sourceAccountCode, row.amount);
     }
     if (targetMatch) {
       reclassAdjustments.push({
-        sourceAccount: rr.sourceAccount, targetAccount: rr.targetAccount,
-        amount: rr.amount, status: rr.status, type: "addition",
+        sourceAccount: row.sourceAccountCode,
+        targetAccount: row.targetAccountCode,
+        amount: row.amount,
+        status: row.status,
+        type: "addition",
       });
-      // Asset→Liability target = add to liability (positive from liability perspective)
-      reclassImpact += rr.sourceAccount.startsWith("1") ? rr.amount : -rr.amount;
+      reclassImpact += presentationAmount(row.targetAccountCode, row.amount);
     }
   }
 
-  const total = details.reduce((s, d) => s + d.closing, 0);
-  if (reclassAdjustments.length > 0) {
-    return { details, total, reclassAdjustments, reclassImpact };
-  }
+  const adjustmentDetails = buildAdjustmentDetails(
+    params.codes,
+    usePreviousWorkpaper ? previousAdjustments : [],
+    currentAdjustments,
+  );
+  const details = [...accountDetails, ...adjustmentDetails];
+  const total = details.reduce((sum, detail) => sum + detail.closing, 0);
+  if (reclassAdjustments.length > 0) return { details, total, reclassAdjustments, reclassImpact };
   return { details, total };
+}
+
+function loadBalances(periodId: number) {
+  return prisma.financeAccountBalance.findMany({
+    where: { periodId },
+    include: { account: true },
+    orderBy: { account: { code: "asc" as const } },
+  });
+}
+
+function loadBalanceWorkpaper(companyCode: string, year: number, month: number) {
+  return prisma.financeStatementWorkpaper.findUnique({
+    where: {
+      companyCode_year_month_reportType: {
+        companyCode,
+        year,
+        month,
+        reportType: "balanceSheet",
+      },
+    },
+    select: { id: true },
+  });
+}
+
+function closingAmount(balance: {
+  openingDebit: number;
+  openingCredit: number;
+  currentDebit: number;
+  currentCredit: number;
+}) {
+  return money(balance.openingDebit - balance.openingCredit + balance.currentDebit - balance.currentCredit);
+}
+
+function loadBalanceAdjustments(periodId: number): Promise<BalanceAdjustmentRow[]> {
+  return prisma.financeBalanceReclassAdjustment.findMany({
+    where: { periodId, status: { in: ["approved", "adjusted"] } },
+    select: {
+      sourceAccountCode: true,
+      targetAccountCode: true,
+      amount: true,
+      status: true,
+    },
+  });
+}
+
+function matchesCodes(accountCode: string, codes: string[]) {
+  return codes.some((code) => accountCode.startsWith(code));
+}
+
+function presentationAmount(accountCode: string, amount: number) {
+  return accountCode.startsWith("2") ? -amount : amount;
+}
+
+function money(value: number) {
+  return Math.round((value + Number.EPSILON) * 100) / 100;
+}
+
+function buildAdjustmentDetails(
+  codes: string[],
+  previousRows: BalanceAdjustmentRow[],
+  currentRows: BalanceAdjustmentRow[],
+): AccountDetail[] {
+  const values = new Map<string, {
+    sourceAccountCode: string;
+    targetAccountCode: string;
+    role: "source" | "target";
+    opening: number;
+    closing: number;
+  }>();
+
+  const add = (row: BalanceAdjustmentRow, period: "opening" | "closing") => {
+    for (const role of ["source", "target"] as const) {
+      const accountCode = role === "source" ? row.sourceAccountCode : row.targetAccountCode;
+      if (!matchesCodes(accountCode, codes)) continue;
+      const key = `${role}:${row.sourceAccountCode}->${row.targetAccountCode}`;
+      const value = values.get(key) ?? {
+        sourceAccountCode: row.sourceAccountCode,
+        targetAccountCode: row.targetAccountCode,
+        role,
+        opening: 0,
+        closing: 0,
+      };
+      value[period] = money(value[period] + presentationAmount(accountCode, row.amount));
+      values.set(key, value);
+    }
+  };
+
+  previousRows.forEach((row) => add(row, "opening"));
+  currentRows.forEach((row) => add(row, "closing"));
+
+  return [...values.values()].map((value) => {
+    const movement = money(value.closing - value.opening);
+    const directionAmount = value.closing || value.opening;
+    return {
+      code: `R-${value.role}-${value.sourceAccountCode}-${value.targetAccountCode}`,
+      name: `重分类调整：${value.sourceAccountCode} → ${value.targetAccountCode}`,
+      category: "reclass",
+      balanceDirection: directionAmount < 0 ? "credit" : "debit",
+      openingDebit: Math.max(value.opening, 0),
+      openingCredit: Math.max(-value.opening, 0),
+      currentDebit: Math.max(movement, 0),
+      currentCredit: Math.max(-movement, 0),
+      closing: value.closing,
+    };
+  });
 }

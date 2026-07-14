@@ -7,7 +7,6 @@
 | 财务首页 | `/finance` | `page.tsx` → Platform `ModuleHome` |
 | 总账会计 | `/finance/ledger` | `ledger/page.tsx` → `@workspace/finance/ui` 的 `LedgerClient` |
 | 财务报表 | `/finance/statements` | `statements/page.tsx` → `@workspace/finance/ui` 的 `StatementsClient` |
-| 报表配置 | `/finance/statement-config` | `statement-config/page.tsx` → `@workspace/finance/ui` 的 `StatementConfigClient` |
 | 管理会计 | `/finance/analysis` | `analysis/page.tsx` → `@workspace/finance/ui` 的 `FinanceAnalysisClient` |
 | 预算管理 | `/finance/budget` | `budget/page.tsx` → `@workspace/finance/ui` 的 `BudgetTab` |
 | 成本管理 | `/finance/cost` | `cost/page.tsx` → `@workspace/finance/ui` 的 `FinanceCostClient` |
@@ -36,7 +35,7 @@
 
 ### 生命周期标记
 
-财务模块当前全部按 `workspace-owned` 管理。数据来源为 Workspace 本地资料、Excel 导入和本地数据库表；不再通过 ERP/ERPNext API 取数。
+财务模块当前全部按 `workspace-owned` 管理。数据来源为 Workspace 本地资料、Excel 导入、ERP readable 归档和本地数据库表；不在运行时通过 ERP/ERPNext API 取数。
 
 ### 总账会计 (`/finance/ledger`)
 
@@ -63,37 +62,36 @@
 
 ### 财务报表 (`/finance/statements`)
 
-`StatementsClient` 位于 `packages/finance/ui/statements`，由 route 薄壳挂载：
+`StatementsClient` 位于 `packages/finance/ui/statements`，由 route 薄壳挂载。页面只展示资产负债表、利润表、现金流量表及取数明细；资产负债表按资产与负债/权益两列独立展开，明细统一显示“科目名称 · 科目编码、期初余额、期末余额”。
 
-| Tab | 组件 | 说明 |
-|-----|------|------|
-| 财务报表 | ReportTab | 资产负债表/利润表 |
+三张表优先读取已导入的 `FinanceStatementWorkpaper` 事实数据，从而保留法定报表中的重分类后金额；没有底稿时，资产负债表回退到固定报表映射和余额重分类调整，利润表回退到期间凭证明细。报表行及科目映射由 `packages/finance/server/statements/config/*-lines.ts` 定义，`fixed-balance-definition.ts` 是资产负债表聚合与重分类路由的统一入口，不按公司/年度写入配置表。
 
-利润表直接按期间凭证明细计算；现金流量表直接读取已导入的 `FinanceStatementWorkpaper` 事实数据。两者都不经过独立的校对、调整或签核页面。
-
-### 报表配置 (`/finance/statement-config`)
-
-`StatementConfigClient` 位于 `packages/finance/ui/statement-config`，由 route 薄壳挂载：
-
-| Tab | 组件 | 说明 |
-|-----|------|------|
-| 报表项目配置 | LineConfigTab | 资产负债表项目、科目映射和默认规则调整 |
-| 遗漏科目 | UnmappedTab | 余额非零但未被 add 消费的科目检查 |
-| 余额校对 | BalanceCheckTab | 父子科目余额一致性校对 |
-
-报表配置的科目映射动作贴近具体报表行：添加科目属于 `create`，切换加/减项属于 `update`，删除手工配置或排除默认映射在 UI 上都放在行级删除语义中，避免把“排除默认”显示成新增。
+法定资产负债表与系统口径的差异必须用成对的源/目标科目重分类解释，禁止把差额塞入权益；`npm run finance:statements-reconcile-balance -- --company=<公司> --years=<年度> --execute` 会先校验资产、负债和权益勾稽，再写入 `sourceType="reference_workpaper"` 的余额调整。原“报表项目配置、遗漏科目、余额校对”仅服务于建立映射，现已连同写 API、业务动作和配置表删除。
 
 ### 管理会计 (`/finance/analysis`)
 
-`FinanceAnalysisClient` 将法定报表、已过账现金类凭证、科目余额、预算和成本子账加工为内部管理口径。资金来源与用途同时保留三层证据：
+`FinanceAnalysisClient` 将法定报表事实加工为内部管理口径。资金来源与用途分析同时读取三层证据：
 
-1. `FinanceStatementWorkpaper` 现金流量表明细提供经营、投资、筹资的法定分类。
-2. `FinanceVoucherItem` 中 1001/1002/1012 现金类科目的非现金对手科目识别借款、客户预收、股东投入、往来、采购、薪酬、税费和投资渠道。
-3. `FinanceAccountBalance` 的期初/期末余额用于货币资金勾稽，并展示借款、合同负债、商业信用、单位往来和股东资本信号。
+1. `FinanceStatementWorkpaper` 的现金流量表明细负责经营、投资、筹资的法定分类；管理口径按流入/流出明细重新计算净额，不直接信任导入底稿中的合计符号。
+2. 已过账 `FinanceVoucherItem` 中 1001/1002/1012 现金类科目的非现金对手科目，用于识别借款、客户预收、股东投入、单位往来、采购、薪酬、税费和投资等管理渠道。
+3. `FinanceAccountBalance` 的年度首月期初和所选期间期末用于核对货币资金变动，并展示借款、合同负债、商业信用、单位往来和股东资本等余额信号。
 
-页面包含管理总览、资金与营运、预算与预测、盈利与成本、投融资、绩效与风险六个视图。多公司结果是所选公司的管理汇总，页面必须标注“未抵销内部资金往来”，不得称为法定合并现金流量表。科目余额变化只是资金来源/占用信号，不等同于当期现金流入/流出。
+多公司结果是所选公司简单管理汇总，必须显示“未抵销内部资金往来”提示，不能标为法定合并现金流量表。科目余额变化只作为资金来源/占用信号，不等同于当期现金流入或流出。
 
-统一读模型位于 `packages/finance/server/analysis/management-analysis.ts`，资金专项读模型位于 `fund-flow-analysis.ts`。同期底稿缺失时，利润表回退到已过账凭证，资产负债表回退到期末科目余额，并明确提示未含报表重分类。成本子账没有 `companyCode`，只能作为“未分配公司”的经营事实，不能直接与单家公司法定收入相加。
+页面按同一公司/年度上下文组织六个管理视图：
+
+| 视图 | 当前口径 |
+|------|----------|
+| 管理总览 | 汇总收入、利润、经营现金、营运资金、母子公司对比、风险诊断和管理会计七领域覆盖 |
+| 资金与营运 | 计算流动/速动/现金比率、周转天数、营运资金构成，并下钻经营/投资/筹资来源用途和三层勾稽 |
+| 预算与预测 | 有有效预算时计算科目累计预算、实际、偏差和执行率；无预算时自动改用上年同期滚动基线，并提供透明假设的13周现金运行率情景 |
+| 盈利与成本 | 从利润表计算公司盈利和费用结构；从成本业务子账展示产品、客户、回款、成本类别和产品成本，同时单列未分配公司及未与总账勾稽的差异 |
+| 投融资 | 计算资本结构、资产负债率、投资/筹资现金、资本性支出和自由现金流，并展示余额与流水渠道证据 |
+| 绩效与风险 | 计算增长、利润、ROA/ROE、偿债和现金 KPI，按负权益、短期偿债、亏损、现金和数据勾稽规则生成风险发现 |
+
+统一读模型位于 `packages/finance/server/analysis/management-analysis.ts`：优先读取三张法定报表底稿；同期底稿缺失时，利润表回退到已过账凭证方向发生额，资产负债表回退到期末科目余额，并明确提示未含报表重分类。成本子账没有 `companyCode`，所以仅作为“未分配公司”的经营事实，不能与单家公司法定收入直接相加或据此生成审计口径毛利。
+
+法定报表继续由 `/finance/statements` 负责，预算编制和版本管理继续由 `/finance/budget` 负责，成本业务明细继续由 `/finance/cost` 负责。管理会计页只做跨事实加工、决策解释、风险阈值和数据覆盖说明，不复制这些模块的编辑流程。NPV/IRR、资本成本、责任中心利润和到期日现金排程缺少项目/合同/责任维度时必须显示边界，不得从总账猜测。
 
 ### 预算管理 (`/finance/budget`)
 
@@ -128,13 +126,6 @@ statements/page.tsx
        └─ @workspace/finance/ui StatementsClient
             └─ packages/finance/ui/statements/ReportTab.tsx
 
-statement-config/page.tsx
-  └─ FinanceShell
-       └─ @workspace/finance/ui StatementConfigClient
-            ├─ packages/finance/ui/statement-config/LineConfigTab.tsx
-            ├─ packages/finance/ui/statement-config/UnmappedTab.tsx
-            └─ packages/finance/ui/statement-config/BalanceCheckTab.tsx
-
 analysis/page.tsx
   └─ FinanceShell
        └─ @workspace/finance/ui FinanceAnalysisClient
@@ -157,6 +148,15 @@ budget/page.tsx
 3. 年度余额表作为本地导入资料，导入后存为 `FinanceBalanceSnapshot`（批次）+ `FinanceBalanceSnapshotRow`（明细）
 4. 月度余额 `FinanceAccountBalance` 由系统从 active baseline snapshot + 已过账序时账凭证逐月滚动计算
 5. 上传后续年度余额表做校准时，系统比较"基准+序时账滚动结果"和后续导入余额表，只做校准对比，不覆盖月度余额
+
+### ERP readable 归档导入
+
+- `scripts/import/import-finance-readable.ts` 通过统一 prepare/commit 接口导入 T6/TPlus；两个来源的字段差异只存在于 `packages/finance/server/import/readable/*-adapter.ts`。
+- `FinanceLedgerImport` 保存公司、年度、账套、数据库、快照日期和控制数；科目、凭证、分录及新增事实均保存稳定 source key，年度事务可幂等重跑。
+- `FinanceSourceAccountBalance` 保存 ERP 原始余额控制事实；`FinanceAccountBalance` 继续由期初事实加已过账凭证生成，报表不直接覆盖源控制数。
+- 辅助成员/余额/凭证链接、现金流分配、AP/AR 未清项、币种和银行账户使用独立规范化事实，供三表下钻和管理会计复用。
+- `scripts/check/check-finance-readable-import.ts` 核对批次控制数、借贷平衡、月度连续性、法定资产负债表和当期三表。ERP 未提供或自身不勾稽的历史现金流分配作为 diagnostics 暴露，不自动制造抵销数。
+- readable 快照不包含固定资产卡片或折旧明细；资产折旧表必须等待独立来源，不能由总账余额反推卡片。
 
 ## 余额表口径
 
@@ -186,9 +186,7 @@ budget/page.tsx
 | `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
 | `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 明细例外规则：`(companyCode, year, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
 | `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空 |
-| `FinanceStatementAccountMapping` | `prisma/models/finance-ledger.prisma` | 科目→报表项目映射：`(companyCode, year, statementType, accountCode)` → `lineCode` |
-| `FinanceStatementLineConfig` | `prisma/models/finance-ledger.prisma` | 报表行定义：section/side/isTotal/isGrandTotal |
-| `FinanceBalanceReclassAdjustment` | `prisma/models/finance-reclass.prisma` | 期末余额层调整；正确的自动结果来自辅助余额导入，人工调整受保护 |
+| `FinanceBalanceReclassAdjustment` | `prisma/models/finance-reclass.prisma` | 余额层调整；来自辅助余额或经严格勾稽的法定底稿，人工调整受保护 |
 
 ### 规则表 (`FinanceReclassRule`)
 
@@ -218,7 +216,7 @@ budget/page.tsx
 ┌─ 生成结果 ──────────────────────────────────────────────┐
 │ 导入辅助余额表 → 按辅助对象期末净余额判断                 │
 │   importAuxiliaryReclassAdjustments()                     │
-│   应收/预收、预付/应付等支持配对 → FinanceBalanceReclassAdjustment │
+│   应收/预收、预付/应付、应交税费借方等支持配对 → FinanceBalanceReclassAdjustment │
 │   sourceType="auxiliary_balance"，note 保存辅助对象明细  │
 │   adjusted/rejected 受保护，不被后续自动导入覆盖           │
 └──────────────────────────────────────────────────────────┘
@@ -233,42 +231,38 @@ budget/page.tsx
                     ↓
 ┌─ 报表消费 (只读) ───────────────────────────────────────┐
 │ /api/modules/finance/statements/reports → generateReport()                   │
-│   查询 ReclassResult + FinanceBalanceReclassAdjustment     │
+│   资产负债表查询 FinanceBalanceReclassAdjustment           │
 │   只消费 status IN (approved, adjusted)                    │
 │   reclassifyFromEntries() 构建 deductions + additions      │
 │   按 sourceAccount 扣减 → 按 targetAccount 增加           │
-│   资产负债表 reclassLine() 统一应用 src+tgt 路由          │
+│   展开明细按本年/上年调整展示期末/期初余额                │
 └──────────────────────────────────────────────────────────┘
 ```
 
 ### 报表消费口径
 
-- **只消费** `ReclassResult` 和 `FinanceBalanceReclassAdjustment` 中 `status IN ("approved", "adjusted")` 的记录，不消费 `pending` / `rejected`
+- 资产负债表及其展开明细只消费 `FinanceBalanceReclassAdjustment` 中 `status IN ("approved", "adjusted")` 的记录，不消费 `pending` / `rejected`
+- `sourceType="reference_workpaper"` 只允许由严格勾稽脚本写入：源/目标行差额必须成对相等，全部资产与负债差额必须被解释，权益必须保持不变，源底稿自身必须平衡
 - 按 `sourceAccount` 前缀扣减对应资产负债表行（资产 1xxx 扣贷方，负债 2xxx 扣借方）
 - 按 `targetAccount` 前缀增加到对应资产负债表行
 - `ReclassEntry { sourceAccount, targetAccount, amount }` 精确金额，非整科目余额
 - 报表页不触发生成、不编辑规则、不审核结果；这些入口统一归重分类工作台
 - 重分类规则唯一存放于 `FinanceReclassRule`；旧科目字段已迁移并删除，科目 API 不再接受规则写入。
 
-### 科目→报表项目映射
+### 固定科目→报表项目映射
 
-- **`FinanceStatementAccountMapping`** 定义科目归属哪个报表行
-- **解析规则**：最近祖先优先
-  - 优先用 `FinanceAccount.parentId` 构建 parent chain
-  - parent 缺失时 prefix fallback（逐位截断）
-  - 无需手动 exclude — 更深层 mapping 自动覆盖父级
-- **继承**：`ensureStatementMappings(companyCode, year)` → 已有不覆盖 → 上年复制 → prefix 迁移
-- **Resolver**：`statements/shared/mapping-resolver.ts` 的纯内存解析器统一返回行、来源、祖先科目和 operator，报表聚合与重分类共用同一套最近祖先规则。
+- `balance-sheet-lines.ts` 定义法定报表行、加项前缀、减项前缀和左右侧。
+- `fixed-balance-definition.ts` 从同一份定义构建 `mappingMap`、`operatorMap`、`lineSideMap`，并拒绝同一前缀指向两个报表行。
+- `mapping-resolver.ts` 先沿 `FinanceAccount.parentId` 找最近祖先；父关系缺失时逐位截断科目编码，因此固定根科目自然覆盖其明细科目。
+- 坏账准备、累计折旧、累计摊销等减项通过 `subtractPrefixes` 映射到同一报表行，不再依赖数据库人工配置。
 
-### 资产负债表口径（M11/M12 authoritative + Phase 2.3B residual）
-
-资产负债表走 **mapping-based** 口径，legacy prefixes 仅作为 fallback / 诊断对比。
+### 资产负债表口径（fixed mapping + residual）
 
 ```
-科目录属 ─→ FinanceStatementAccountMapping 解析（最近祖先优先）
+固定报表配置 ─→ 最近祖先/科目前缀解析
   ↓
 聚合 ─→ residual = own_balance - direct_children_balance_sum
-       若 abs(residual) > 0.01 → 贡献该 residual 到所属 line
+       按分四舍五入后 residual ≠ 0 → 贡献到所属 line
        （避免 parent 自身有余额但 children 全 0 时丢失）
   ↓
 行计算 ─→ mappingByLine + reclassByLine（lineCode-keyed）
@@ -278,51 +272,30 @@ budget/page.tsx
 
 关键不变量：
 
-1. **Residual leaf 聚合**（Phase 2.3B）：`aggregateMappingBasedBalances()` 计算每个 account node 的 `residual = own - direct_children_sum`，仅当 `abs(residual) > 0.01` 时纳入。真正叶子（无 children）的 residual = own，与原 leaf-only 行为一致；父级有余额但 children 全 0 时，parent 自身余额代表有效余额，纳入；parent 完全等于 children 汇总时排除，避免双算。`residualParents` 列表作为 diagnostics。
+1. **Residual leaf 聚合**（Phase 2.3B）：`aggregateMappingBasedBalances()` 计算每个 account node 的 `residual = own - direct_children_sum`，先按分四舍五入，再纳入所有非零分差额。真正叶子（无 children）的 residual = own，与原 leaf-only 行为一致；父级有余额但 children 全 0 时，parent 自身余额代表有效余额，纳入；parent 完全等于 children 汇总时排除，避免双算。`residualParents` 列表作为 diagnostics。
 2. **Contra 科目自然抵减**：坏账准备（1231）/ 累计折旧（1602 / 1642）等减项科目必须显式映射到与 gross 同一 lineCode。聚合时借方 - 贷方 = 净值，减项的贷方自然抵减 gross 的借方。
 3. **重分类按 lineCode 路由**：`resolveReclassEntriesToLines(companyCode, year, entries)` 把每条 `ReclassEntry.sourceAccount / targetAccount` 解析为 lineCode，按 `lineCode` 增减扣；不再用 `line.prefixes` 前缀匹配。
-4. **Mapping 是唯一计算口径**：`computeBalanceSheet(config, mappingByLine, reclassByLine)` 的两个路由参数均为必填；聚合或重分类解析失败直接暴露错误，不存在 prefixes 计算或回退分支。
-5. **Additive mapping seed**：`ensureStatementMappings(companyCode, year, statementType)` 永不"有就跳过整年"，只按 accountCode 维度跳过（manual / 已有），缺失的 accountCode 从 `line.prefixes` + `line.subtractPrefixes` 补齐。复制上一年后**继续跑 backfill**，避免上一年自身的缺漏跨年漏到新年。
+4. **固定 Mapping 是唯一计算口径**：`computeBalanceSheet(config, mappingByLine, reclassByLine)` 的两个路由参数均为必填；聚合或重分类解析失败直接暴露错误，不存在租户配置或数据库回退分支。
 
-诊断与防回归：
+### 默认重分类口径
 
-- `npm run runtime-content:check` 校验所有有余额期间均已建立 balance mapping，并与 Docs/Library 的规范数据检查一起作为部署硬门。
-- `npx tsx scripts/repair-statement-mappings.ts [--all] [--dry-run]` 调用 `ensureStatementMappings` 修补缺失；`--all` 已批处理 14 个 (company, year) 补 42 条。
-- `MAPPING_OK` 条件：`|mappingBalanceGap| < 0.01` 且 `unresolvedGroups.relevant.length === 0`。
-
-### 已知 outstanding 项（业务待确认）
-
-`npm run finance:bs-smoke:all` 当前结果：**14 OK / 1 GAP**（05 加拿大 2025/2026）。
-
-| 期间 | 缺口来源 | 状态 |
-|---|---|---|
-| 05 / 2025-2026 | `3001 清算资金往来`，credit 100K（3 年同笔） | **业务待财务确认列示**：paidInCapital / otherEquityItems / 其他权益项目 |
-
-2024 同笔 100K credit 在 05 账上名为「实收资本」(cat=equity)，2025/2026 改名为「清算资金往来」(cat=other)。Phase 2.4A 已对 05/2024 加 `3001 → paidInCapital`，2024 现在 OK。2025/2026 不自动归类，避免污染 paidInCapital 语义；财务确认后再补。
-
-### Phase 3 Batch 1：利润表 / 现金流量表 line config 框架
-
-P3 Batch 1 只搭**配置**层（line config + DB 行），**不接 compute、不接 UI、不接 workpaper/review**。
-
-新增：
-- `packages/finance/server/statements/config/cash-flow-lines.ts` — 完整现金流量表项目框架（经营 / 投资 / 筹资 三大活动 + 流入小计 + 流出小计 + 净额 + 净增加额 + 期末余额），支持 chnPrefixes / canPrefixes 双轨。
-- `packages/finance/server/statements/config/load-config-reports.ts` — 新增 `loadIncomeStatementConfig` / `loadCashFlowConfig`，与 `loadBalanceSheetConfig` 同样的 3-tier 加载（DB → 上年 → TS default）。从主文件 re-export 以保持 ≤260 行。
-- `packages/finance/server/statements/config/ensure-line-configs.ts` — 新增 `ensureStatementLineConfigs(companyCode, year, reportType)` 与 `ensureAllStatementLineConfigs(companyCode, year)`，封装 3-tier cascade：当年有 → no-op；无 + 上年有 → 复制；上年无 → TS default seed。`source` 返回 `existing | copied | migrated` 标签。
-
-复用 `FinanceStatementLineConfig`：`reportType = "balanceSheet" | "incomeStatement" | "cashFlow"`。每张表独立 sortOrder，按行分。
-
-不做的：
-- 不接 `generateIncomeStatement` / `generateCashFlow`（依然返回"未实现"或走老路径）。
-- 不动 `/finance/statements` 页面计算逻辑；`/finance/statement-config` route 只保留薄壳，UI 位于 `packages/finance/ui/statement-config`。
-- 不建 workpaper / review 表。
-- 不动资产负债表 authoritative 口径。
+- 常用往来配对覆盖：1122↔2203、1123↔2202、1221↔2241；更具体的 122101/122102 与 224101/224102 优先于父级规则。
+- 应交税费 2221 出现借方余额时，默认重分类到 1463 其他流动资产。
+- 默认规则按“最长科目前缀”继承，企业自设明细科目无需逐个配置；用户仍可在重分类工作台调整目标科目，人工调整继续受保护。
 
 ### 利润表与现金流量表数据源
 
-- 利润表使用 `reports/income-system-amounts.ts` 按公司、年度和截至所选月份的凭证明细聚合本年累计金额，并根据行配置生成合计。
-- 现金流量表读取 `FinanceStatementWorkpaper` / `FinanceStatementWorkpaperLine` 中已导入的事实金额；导入仍由 `scripts/import-cash-flow-workpapers.ts` 负责。
+- 资产负债表、利润表和现金流量表均优先读取 `FinanceStatementWorkpaper` / `FinanceStatementWorkpaperLine` 中已导入的法定报表事实；三表工作簿由 `scripts/import-financial-statement-workpapers.ts` 导入。
+- 没有利润表底稿时，使用 `reports/income-system-amounts.ts` 按公司、年度和截至所选月份的已过账凭证明细聚合本年累计金额，并根据行配置生成合计。
+- 没有现金流底稿时，使用 `FinanceCashFlowAllocation` 和 ERP 现金流项目生成经营、投资、筹资分类，并以年度首月期初和所选期间期末货币资金勾稽；无源分配或分配不完整时明确返回 diagnostics。
 - `FinanceStatementWorkpaper` 仅作为内部报表事实来源，不再暴露独立页面或写入 API。
 - 独立校对数据层、权限资源、业务动作和确认流程已删除。
+
+### 合并报表边界
+
+合并报表不等于多公司简单相加，也不复用单体报表的负数重分类。后续应新增独立 `/finance/consolidation` 工作台，以 `CompanyRelation.isConsolidated` 确定范围，并补齐控制日期、持股比例、币种和会计政策口径。工作台按“合并范围 → 单体报表汇集 → 抵销分录 → 复核锁定 → 合并三表”组织。
+
+抵销至少覆盖母公司投资与子公司权益、内部往来与借款、内部销售及未实现存货利润、内部固定/无形资产交易及折旧摊销、股利与投资收益、内部现金流，以及相关减值和递延所得税。抵销分录需独立版本、证据和审计轨迹，不能写回单体账或用报表差额自动配平。
 
 ## 预算管理
 

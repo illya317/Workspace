@@ -149,6 +149,16 @@ export type FinanceBudgetDept = Prisma.FinanceBudgetDeptModel
  */
 export type FinanceBudgetRd = Prisma.FinanceBudgetRdModel
 /**
+ * Model FinanceCashFlowItem
+ * ERP 现金流量项目来源主数据
+ */
+export type FinanceCashFlowItem = Prisma.FinanceCashFlowItemModel
+/**
+ * Model FinanceCashFlowAllocation
+ * 凭证现金流量分配事实
+ */
+export type FinanceCashFlowAllocation = Prisma.FinanceCashFlowAllocationModel
+/**
  * Model FinanceDataImport
  * 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
  */
@@ -179,6 +189,46 @@ export type FinanceCostAnalysisRow = Prisma.FinanceCostAnalysisRowModel
  */
 export type FinanceWorkshopReport = Prisma.FinanceWorkshopReportModel
 /**
+ * Model FinanceAuxiliaryMember
+ * ERP 辅助核算成员（客户、供应商、个人、部门、项目和费用等来源主数据）
+ */
+export type FinanceAuxiliaryMember = Prisma.FinanceAuxiliaryMemberModel
+/**
+ * Model FinanceVoucherItemAuxiliary
+ * 凭证明细与辅助核算成员的多值关联
+ */
+export type FinanceVoucherItemAuxiliary = Prisma.FinanceVoucherItemAuxiliaryModel
+/**
+ * Model FinanceAuxiliaryBalance
+ * ERP 原生辅助核算余额事实
+ */
+export type FinanceAuxiliaryBalance = Prisma.FinanceAuxiliaryBalanceModel
+/**
+ * Model FinanceAuxiliaryBalanceMember
+ * 辅助余额与一个或多个核算成员的关联
+ */
+export type FinanceAuxiliaryBalanceMember = Prisma.FinanceAuxiliaryBalanceMemberModel
+/**
+ * Model FinanceOpenItem
+ * 应收应付未清项（来源有逐笔核销事实时导入）
+ */
+export type FinanceOpenItem = Prisma.FinanceOpenItemModel
+/**
+ * Model FinanceOpenItemAuxiliary
+ * 未清项与客户、供应商等辅助成员的关联
+ */
+export type FinanceOpenItemAuxiliary = Prisma.FinanceOpenItemAuxiliaryModel
+/**
+ * Model FinanceLedgerImport
+ * 财务来源导入批次（统一承载 T6/TPlus 账套级追溯与控制数）
+ */
+export type FinanceLedgerImport = Prisma.FinanceLedgerImportModel
+/**
+ * Model FinanceSourceAccountBalance
+ * ERP 原生科目余额控制事实（与系统计算的 FinanceAccountBalance 展示缓存分离）
+ */
+export type FinanceSourceAccountBalance = Prisma.FinanceSourceAccountBalanceModel
+/**
  * Model FinanceAccount
  * 财务科目（含层级）
  */
@@ -198,11 +248,6 @@ export type FinanceVoucher = Prisma.FinanceVoucherModel
  * 凭证明细分录（事实：借/贷金额）
  */
 export type FinanceVoucherItem = Prisma.FinanceVoucherItemModel
-/**
- * Model FinanceLedgerImport
- * 总账导入批次（科目/凭证/余额导入追溯）
- */
-export type FinanceLedgerImport = Prisma.FinanceLedgerImportModel
 /**
  * Model FinanceAccountBalance
  * 科目余额（事实：期初/本期/期末借贷）
@@ -243,30 +288,29 @@ export type FinanceBalanceReclassAdjustment = Prisma.FinanceBalanceReclassAdjust
  */
 export type ReclassResult = Prisma.ReclassResultModel
 /**
- * Model FinanceStatementAccountMapping
- * 科目→报表项目映射（一个科目节点只能归属一个报表项目）
- */
-export type FinanceStatementAccountMapping = Prisma.FinanceStatementAccountMappingModel
-/**
- * Model FinanceStatementLineConfig
- * 报表项目配置（资产负债表/利润表/现金流量表）
- * 按公司+年度+报表类型存储，新年度从上年度复制
- */
-export type FinanceStatementLineConfig = Prisma.FinanceStatementLineConfigModel
-/**
  * Model FinanceStatementWorkpaper
- * 报表底稿头（P3 Batch 2：利润表/现金流量表手工输入底稿）
+ * 报表底稿头（资产负债表/利润表/现金流量表导入或手工底稿）
  * 唯一键：companyCode + year + month + reportType
  * 只存事实输入（manualAmount / importedAmount / formulaText / note / source），不存计算结果
  */
 export type FinanceStatementWorkpaper = Prisma.FinanceStatementWorkpaperModel
 /**
  * Model FinanceStatementWorkpaperLine
- * 报表底稿行（P3 Batch 2：底稿每行的手工/导入输入）
+ * 报表底稿行（底稿每行的手工/导入输入）
  * 唯一键：workpaperId + lineCode
- * lineCode 必须存在于对应 reportType 的 FinanceStatementLineConfig
+ * lineCode 必须存在于代码内对应 reportType 的固定报表行定义
  */
 export type FinanceStatementWorkpaperLine = Prisma.FinanceStatementWorkpaperLineModel
+/**
+ * Model FinanceCurrency
+ * ERP 币种来源主数据
+ */
+export type FinanceCurrency = Prisma.FinanceCurrencyModel
+/**
+ * Model FinanceBankAccount
+ * ERP 银行账户来源主数据
+ */
+export type FinanceBankAccount = Prisma.FinanceBankAccountModel
 /**
  * Model DepartmentDescription
  * 部门职责说明书（原始 JSON 导入，details 为 JSON blob）

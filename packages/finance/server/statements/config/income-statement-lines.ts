@@ -15,6 +15,7 @@ export interface IncomeLineConfig {
   direction: "debit" | "credit";
   /** Subtract from total (e.g. expenses, tax) */
   subtract?: boolean;
+  isHeader?: boolean;
   isTotal?: boolean;
   isGrandTotal?: boolean;
 }
@@ -58,27 +59,34 @@ export const INCOME_STATEMENT_LINES: IncomeLineConfig[] = [
     direction: "debit", subtract: true,
   },
   {
-    lineCode: "creditLoss", label: "        信用减值损失",
-    chnPrefixes: ["6702"], canPrefixes: [],
-    direction: "debit", subtract: true,
-  },
-  {
     lineCode: "assetLoss", label: "        资产减值损失",
     chnPrefixes: ["6701"], canPrefixes: [],
     direction: "debit", subtract: true,
   },
   {
-    lineCode: "otherIncome", label: "    加：其他收益",
+    lineCode: "creditLoss", label: "        信用减值损失",
+    chnPrefixes: ["6702"], canPrefixes: [],
+    direction: "debit", subtract: true,
+  },
+  {
+    lineCode: "fairValueGain", label: "    加：公允价值变动收益（损失以\"-\"填列）",
+    chnPrefixes: ["6101"], canPrefixes: [], direction: "credit",
+  },
+  {
+    lineCode: "invest", label: "        投资收益（损失以\"-\"填列）",
+    chnPrefixes: ["6111"], canPrefixes: ["5111"], direction: "credit",
+  },
+  {
+    lineCode: "associateJointVentureIncome", label: "        其中：对联营企业和合营企业的投资收益",
+    direction: "credit",
+  },
+  {
+    lineCode: "otherIncome", label: "        其他收益",
     chnPrefixes: ["6117"], canPrefixes: ["5301"],
     direction: "credit",
   },
   {
-    lineCode: "invest", label: "        投资收益",
-    chnPrefixes: ["6111"], canPrefixes: ["5111"],
-    direction: "credit",
-  },
-  {
-    lineCode: "operatingProfit", label: "二、营业利润",
+    lineCode: "operatingProfit", label: "二、营业利润（亏损以\"－\"号填列）",
     direction: "debit", isTotal: true,
   },
   {
@@ -92,7 +100,11 @@ export const INCOME_STATEMENT_LINES: IncomeLineConfig[] = [
     direction: "debit", subtract: true,
   },
   {
-    lineCode: "totalProfit", label: "三、利润总额",
+    lineCode: "nonCurrentAssetDisposalLoss", label: "    其中：非流动资产处置损失",
+    direction: "debit", subtract: true,
+  },
+  {
+    lineCode: "totalProfit", label: "三、利润总额（亏损总额以\"－\"号填列）",
     direction: "debit", isTotal: true,
   },
   {
@@ -101,7 +113,10 @@ export const INCOME_STATEMENT_LINES: IncomeLineConfig[] = [
     direction: "debit", subtract: true,
   },
   {
-    lineCode: "netProfit", label: "四、净利润",
+    lineCode: "netProfit", label: "四、净利润（净亏损以\"－\"号填列）",
     direction: "debit", isGrandTotal: true,
   },
+  { lineCode: "epsHeader", label: "五、每股收益：", direction: "debit", isHeader: true },
+  { lineCode: "basicEps", label: "（一）基本每股收益", direction: "debit" },
+  { lineCode: "dilutedEps", label: "（二）稀释每股收益", direction: "debit" },
 ];

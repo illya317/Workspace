@@ -1,0 +1,196 @@
+import type { Prisma } from "@workspace/platform/server/prisma";
+import { assertFinanceReadableBatchWriteScope } from "../../domain/readable-import-validation";
+import type { NormalizedReadableBatch } from "./types";
+
+export interface CoreCommitContext {
+  periods: Map<number, number>;
+  accounts: Map<string, number>;
+  vouchers: Map<string, number>;
+  items: Map<string, number>;
+  itemsByVoucherSort: Map<string, number>;
+  itemIds: number[];
+}
+
+function periodDates(year: number, month: number) {
+  const startDate = `${year}-${String(month).padStart(2, "0")}-01`;
+  const endDate = new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+  return { startDate, endDate };
+}
+
+async function upsertPeriods(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+): Promise<Map<number, number>> {
+  const periods = new Map<number, number>();
+  for (let month = 1; month <= 12; month += 1) {
+    const dates = periodDates(batch.spec.year, month);
+    const record = await tx.financePeriod.upsert({
+      where: { companyCode_year_month: { companyCode: batch.spec.companyCode, year: batch.spec.year, month } },
+      create: {
+        companyCode: batch.spec.companyCode, year: batch.spec.year, month, ...dates,
+        isClosed: batch.closedMonths.has(month), sourceClosed: batch.closedMonths.has(month),
+        sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
+        sourceKey: `${batch.spec.sourceDatabase}:${month}`,
+      },
+      update: {
+        ...dates, isClosed: batch.closedMonths.has(month), sourceClosed: batch.closedMonths.has(month),
+        sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
+        sourceKey: `${batch.spec.sourceDatabase}:${month}`,
+      },
+    });
+    periods.set(month, record.id);
+  }
+  return periods;
+}
+
+async function groupSubjectMap(tx: Prisma.TransactionClient, batch: NormalizedReadableBatch) {
+  if (batch.spec.companyCode === "01") return { codes: new Map<string, string>(), names: new Map<string, string>() };
+  const rows = await tx.financeAccount.findMany({
+    where: { companyCode: "01", year: batch.spec.year }, select: { code: true, name: true },
+  });
+  return {
+    codes: new Map(rows.map((item) => [item.code, item.code])),
+    names: new Map(rows.map((item) => [item.name, item.code])),
+  };
+}
+
+async function upsertAccounts(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+): Promise<Map<string, number>> {
+  const result = new Map<string, number>();
+  const sourceToCode = new Map(batch.accounts.map((item) => [item.sourceKey, item.code]));
+  const group = await groupSubjectMap(tx, batch);
+  const sorted = [...batch.accounts].sort((left, right) => (left.subjectLevel ?? left.code.length) - (right.subjectLevel ?? right.code.length));
+  for (const item of sorted) {
+    const parentId = item.parentSourceKey ? result.get(item.parentSourceKey) ?? null : null;
+    const groupSubjectCode = batch.spec.companyCode === "01"
+      ? item.code
+      : group.codes.get(item.code) ?? group.names.get(item.name) ?? null;
+    const data = {
+      name: item.name, category: item.category, balanceDirection: item.balanceDirection,
+      parentId, isActive: item.isActive, companyCode: batch.spec.companyCode,
+      mnemonicCode: item.mnemonicCode ?? null, currency: item.currency ?? null,
+      groupSubjectCode, subjectLevel: item.subjectLevel ?? null, year: batch.spec.year,
+      sourceSystem: batch.spec.sourceSystem, sourceLedger: batch.spec.sourceLedger,
+      sourceDatabase: batch.spec.sourceDatabase, sourceKey: item.sourceKey,
+    };
+    const record = await tx.financeAccount.upsert({
+      where: { code_companyCode_year: { code: item.code, companyCode: batch.spec.companyCode, year: batch.spec.year } },
+      create: { code: item.code, ...data }, update: data,
+    });
+    result.set(item.sourceKey, record.id);
+    if (item.parentSourceKey && !sourceToCode.has(item.parentSourceKey)) {
+      batch.warnings.push(`科目 ${item.code} 的来源父级 ${item.parentSourceKey} 不在本年度科目表`);
+    }
+  }
+  return result;
+}
+
+async function upsertVouchers(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+  importId: number,
+  periods: Map<number, number>,
+) {
+  const result = new Map<string, number>();
+  for (const item of batch.vouchers) {
+    const periodId = periods.get(item.month);
+    if (!periodId) throw new Error(`Missing period ${batch.spec.year}-${item.month}`);
+    const data = {
+      date: item.date, description: item.description, totalDebit: item.totalDebit,
+      totalCredit: item.totalCredit, status: item.status, companyCode: batch.spec.companyCode,
+      importId, sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
+      sourceKey: item.sourceKey,
+    };
+    const record = await tx.financeVoucher.upsert({
+      where: { voucherNo_companyCode_periodId: { voucherNo: item.voucherNo, companyCode: batch.spec.companyCode, periodId } },
+      create: { voucherNo: item.voucherNo, periodId, ...data }, update: data,
+    });
+    result.set(item.sourceKey, record.id);
+  }
+  return result;
+}
+
+async function removeLegacyVouchersOutsideSource(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+  periods: Map<number, number>,
+  voucherIds: Map<string, number>,
+) {
+  const sourceIds = new Set(voucherIds.values());
+  const existing = await tx.financeVoucher.findMany({
+    where: {
+      companyCode: batch.spec.companyCode, periodId: { in: [...periods.values()] },
+      sourceSystem: null,
+    },
+    select: { id: true },
+  });
+  const staleIds = existing.filter((item) => !sourceIds.has(item.id)).map((item) => item.id);
+  if (staleIds.length) await tx.financeVoucher.deleteMany({ where: { id: { in: staleIds } } });
+}
+
+async function upsertVoucherItems(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+  importId: number,
+  accountIds: Map<string, number>,
+  voucherIds: Map<string, number>,
+) {
+  const items = new Map<string, number>();
+  const itemsByVoucherSort = new Map<string, number>();
+  const itemIds: number[] = [];
+  for (const voucher of batch.vouchers) {
+    const voucherId = voucherIds.get(voucher.sourceKey);
+    if (!voucherId) throw new Error(`Missing voucher ${voucher.sourceKey}`);
+    for (const item of voucher.items) {
+      const accountId = accountIds.get(item.accountSourceKey);
+      if (!accountId) throw new Error(`Missing account ${item.accountCode} for item ${item.sourceKey}`);
+      const data = {
+        debit: item.debit, credit: item.credit, description: item.description ?? null,
+        importId, sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
+        sourceKey: item.sourceKey, currencyCode: item.currencyCode ?? null,
+        exchangeRate: item.exchangeRate ?? null, originalDebit: item.originalDebit ?? null,
+        originalCredit: item.originalCredit ?? null,
+      };
+      const record = await tx.financeVoucherItem.upsert({
+        where: { voucherId_accountId_sortOrder: { voucherId, accountId, sortOrder: item.sortOrder } },
+        create: { voucherId, accountId, sortOrder: item.sortOrder, ...data }, update: data,
+      });
+      items.set(item.sourceKey, record.id);
+      itemsByVoucherSort.set(`${voucher.sourceKey}:${item.sortOrder}`, record.id);
+      itemIds.push(record.id);
+    }
+  }
+  return { items, itemsByVoucherSort, itemIds };
+}
+
+
+async function removeLegacyItemsOutsideSource(
+  tx: Prisma.TransactionClient,
+  voucherIds: Map<string, number>,
+  itemIds: number[],
+) {
+  const sourceIds = new Set(itemIds);
+  const existing = await tx.financeVoucherItem.findMany({
+    where: { voucherId: { in: [...voucherIds.values()] }, sourceSystem: null },
+    select: { id: true },
+  });
+  const staleIds = existing.filter((item) => !sourceIds.has(item.id)).map((item) => item.id);
+  if (staleIds.length) await tx.financeVoucherItem.deleteMany({ where: { id: { in: staleIds } } });
+}
+
+export async function commitReadableCore(
+  tx: Prisma.TransactionClient,
+  batch: NormalizedReadableBatch,
+  importId: number,
+): Promise<CoreCommitContext> {
+  assertFinanceReadableBatchWriteScope(batch.spec);
+  const periods = await upsertPeriods(tx, batch);
+  const accounts = await upsertAccounts(tx, batch);
+  const vouchers = await upsertVouchers(tx, batch, importId, periods);
+  await removeLegacyVouchersOutsideSource(tx, batch, periods, vouchers);
+  const itemResult = await upsertVoucherItems(tx, batch, importId, accounts, vouchers);
+  await removeLegacyItemsOutsideSource(tx, vouchers, itemResult.itemIds);
+  return { periods, accounts, vouchers, ...itemResult };
+}

@@ -956,10 +956,6 @@ export type EmployeeUpdateOneRequiredWithoutPerformanceReviewsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeUpdateToOneWithWhereWithoutPerformanceReviewsInput, Prisma.EmployeeUpdateWithoutPerformanceReviewsInput>, Prisma.EmployeeUncheckedUpdateWithoutPerformanceReviewsInput>
 }
 
-export type NullableBoolFieldUpdateOperationsInput = {
-  set?: boolean | null
-}
-
 export type EmployeeCreateNestedOneWithoutEmploymentsInput = {
   create?: Prisma.XOR<Prisma.EmployeeCreateWithoutEmploymentsInput, Prisma.EmployeeUncheckedCreateWithoutEmploymentsInput>
   connectOrCreate?: Prisma.EmployeeCreateOrConnectWithoutEmploymentsInput

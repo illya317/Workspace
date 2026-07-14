@@ -34,7 +34,7 @@ export function positiveId(value: unknown, field = "id"): DomainValidationResult
 
 export function validYear(value: unknown, field = "year"): DomainValidationResult<number> {
   const year = typeof value === "number" ? value : Number(value);
-  if (!Number.isInteger(year) || year < 2020 || year > 2099) return failCommand(`${field} must be 2020..2099`, 400, field);
+  if (!Number.isInteger(year) || year < 2000 || year > 2099) return failCommand(`${field} must be 2000..2099`, 400, field);
   return okCommand(year);
 }
 
@@ -347,63 +347,4 @@ export function buildVoucherUpdateCommand(voucherId: unknown, body: Record<strin
   const write = buildVoucherWriteCommand(body, editorId);
   if (!write.ok) return write;
   return okCommand({ voucherId: id.data, body: write.data.body, editorId: write.data.editorId });
-}
-
-export function buildStatementConfigLoadCommand(companyCode: unknown, year: unknown) {
-  return buildFinancePeriodScopeCommand({ companyCode, year });
-}
-
-export function buildStatementMappingCommand<T extends {
-  companyCode: string;
-  year: number;
-  statementType?: string;
-  accountCode?: string;
-  lineCode?: string;
-  operator?: string;
-}>(input: T, options: { requireAccount?: boolean; requireLine?: boolean } = {}): DomainValidationResult<{ input: T }> {
-  const scope = buildFinancePeriodScopeCommand({ companyCode: input.companyCode, year: input.year });
-  if (!scope.ok) return scope;
-  if (input.statementType && input.statementType !== "balance") return failCommand("statementType 暂只支持 balance", 400, "statementType");
-  if (options.requireAccount || input.accountCode !== undefined) {
-    const accountCode = requiredText(input.accountCode, "accountCode");
-    if (!accountCode.ok) return accountCode;
-  }
-  if (options.requireLine || input.lineCode !== undefined) {
-    const lineCode = requiredText(input.lineCode, "lineCode");
-    if (!lineCode.ok) return lineCode;
-  }
-  if (input.operator && !["add", "subtract", "exclude"].includes(input.operator)) {
-    return failCommand("operator 无效", 400, "operator");
-  }
-  return okCommand({ input });
-}
-
-export function buildStatementMappingDeleteCommand<T extends {
-  companyCode: string;
-  year: number;
-  statementType?: string;
-  accountCode?: string;
-}>(input: T): DomainValidationResult<{ input: T & { accountCode: string } }> {
-  const command = buildStatementMappingCommand(input, { requireAccount: true });
-  if (!command.ok) return command;
-  return okCommand({
-    input: {
-      ...input,
-      accountCode: command.data.input.accountCode!,
-    },
-  });
-}
-
-export function buildStatementConfigLinesCommand<T extends { companyCode: string; year: number; lines: unknown[] }>(
-  input: T,
-): DomainValidationResult<{ input: T }> {
-  const scope = buildFinancePeriodScopeCommand({ companyCode: input.companyCode, year: input.year });
-  if (!scope.ok) return scope;
-  if (!Array.isArray(input.lines)) return failCommand("lines must be an array", 400, "lines");
-  for (const line of input.lines) {
-    if (!line || typeof line !== "object" || Array.isArray(line)) return failCommand("line must be an object", 400, "lines");
-    const lineCode = requiredText((line as { lineCode?: unknown }).lineCode, "lineCode");
-    if (!lineCode.ok) return lineCode;
-  }
-  return okCommand({ input });
 }

@@ -14,7 +14,7 @@
 
 - [ ] L2 先按用户认知钉死：L2 = `moduleDef.children[*]` 中的业务入口单元，不按 resource key 点号数量猜。
 - [ ] 每个 L2 必须具备四件套：直接二级 app route、同名 RBAC resource、明确 API contract 前缀或 `noApiReason`、权限页可授权资源。
-- [ ] L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`；多个页面不能共用一个模糊 resource。
+- [ ] L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statements`；多个页面不能共用一个模糊 resource。
 - [ ] L1/L2 主资源由 `packages/platform/module-registry.ts` 自动派生；不要在业务包 `resourceDefs` 或 seed 里重复注册主资源。
 - [ ] 新增的 L2 必须在 registry child 中写明 `resourceKey`、`href`、`apiPrefixes` 或 `noApiReason`；`scripts/seed-resources.ts` 会按 registry 同步 DB 资源。
 - [ ] L2 以下 capability 才进入 `resourceDefs`；需要权限继承时才设 `parentKey`，不应继承 owner 权限的独立能力必须保持 `parentKey` 为空。

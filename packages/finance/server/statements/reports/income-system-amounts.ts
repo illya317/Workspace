@@ -21,6 +21,7 @@ async function computeFromVouchers(
   const items = await prisma.financeVoucherItem.findMany({
     where: {
       voucher: {
+        status: "posted",
         period: {
           companyCode,
           year,

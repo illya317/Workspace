@@ -7,6 +7,7 @@ export interface ReportLine {
   label: string;
   code?: string;
   amount: number;
+  previousAmount?: number;
   isHeader?: boolean;
   isTotal?: boolean;
   isGrandTotal?: boolean;
@@ -30,49 +31,68 @@ function amountDisplay(value: number): DataSurfaceDisplaySpec {
   return { kind: "text", value: `${isNegative ? "-" : ""}${formatFinanceAmount(Math.abs(value))}`, tone: isNegative ? "danger" : "default" };
 }
 
+function detailBalanceDisplay(value: number): DataSurfaceDisplaySpec {
+  if (Math.abs(value) < 0.01) return { kind: "empty" };
+  return {
+    kind: "text",
+    value: `${formatFinanceAmount(Math.abs(value))}${value < 0 ? " (贷)" : " (借)"}`,
+    tone: value < 0 ? "danger" : "default",
+  };
+}
+
 interface Props {
   items: ReportLine[];
   labelHeader: string;
   amountHeader: string;
+  previousAmountHeader?: string;
   expandedCodes: Set<string>;
   details: Record<string, AccountDetail[]>;
   loadingDetail: string | null;
-  onToggle: (code: string) => void;
+  detailKeyPrefix?: string;
+  onToggle: (key: string, code: string) => void;
+}
+
+function detailKey(item: ReportLine, prefix = "report") {
+  return `${prefix}:${item.label}:${item.code}`;
 }
 
 function createDetailColumns(): DataSurfaceColumnSpec<AccountDetail>[] {
   return [
-    { key: "code", label: "科目编码", required: true, font: "mono", cell: (row) => row.code },
-    { key: "name", label: "科目名称", required: true, cell: (row) => row.name },
-    { key: "openingDebit", label: "期初借", required: true, align: "right", cell: (row) => row.openingDebit > 0 ? formatFinanceAmount(row.openingDebit) : "" },
-    { key: "openingCredit", label: "期初贷", required: true, align: "right", cell: (row) => row.openingCredit > 0 ? formatFinanceAmount(row.openingCredit) : "" },
-    { key: "currentDebit", label: "本期借", required: true, align: "right", cell: (row) => row.currentDebit > 0 ? formatFinanceAmount(row.currentDebit) : "" },
-    { key: "currentCredit", label: "本期贷", required: true, align: "right", cell: (row) => row.currentCredit > 0 ? formatFinanceAmount(row.currentCredit) : "" },
+    {
+      key: "account",
+      label: "科目",
+      required: true,
+      cell: (row) => row.category === "reclass" ? row.name : `${row.name} · ${row.code}`,
+    },
+    {
+      key: "opening",
+      label: "期初余额",
+      required: true,
+      align: "right",
+      cell: (row) => detailBalanceDisplay(row.openingDebit - row.openingCredit),
+    },
     {
       key: "closing",
       label: "期末余额",
       required: true,
       align: "right", emphasis: "medium",
-      cell: (row) => ({
-        kind: "text",
-        value: `${formatFinanceAmount(Math.abs(row.closing))}${row.balanceDirection === "credit" && row.closing !== 0 ? " (贷)" : ""}`,
-        tone: row.closing < 0 ? "danger" : "default",
-      }),
+      cell: (row) => detailBalanceDisplay(row.closing),
     },
   ];
 }
 
 /** @ui-structural-declaration Expanded account-detail table and aggregate. */
 function createDetailRowsSpec(rows: AccountDetail[]): DataSurfaceCellSpec {
-  const total = rows.reduce((sum, detail) => sum + detail.closing, 0);
+  const openingTotal = rows.reduce((sum, detail) => sum + detail.openingDebit - detail.openingCredit, 0);
+  const closingTotal = rows.reduce((sum, detail) => sum + detail.closing, 0);
   const detailColumns = createDetailColumns();
   return { kind: "group", direction: "column", items: [
     { kind: "data", data: { kind: "table", rows, columns: detailColumns, visibleColumns: detailColumns.map((column) => column.key), presentation: { density: "compact" }, rowKey: (row) => row.code } },
-    { kind: "text", value: `合计：${formatFinanceAmount(Math.abs(total))}`, emphasis: "strong" },
+    { kind: "text", value: `期初合计：${formatFinanceAmount(Math.abs(openingTotal))}　期末合计：${formatFinanceAmount(Math.abs(closingTotal))}`, emphasis: "strong" },
   ] };
 }
 
-export function createReportLinesSurface({ items, labelHeader, amountHeader, expandedCodes, details, loadingDetail, onToggle }: Props): DataSurfaceTableProps<ReportLine> {
+export function createReportLinesSurface({ items, labelHeader, amountHeader, previousAmountHeader, expandedCodes, details, loadingDetail, detailKeyPrefix, onToggle }: Props): DataSurfaceTableProps<ReportLine> {
   const columns: DataSurfaceColumnSpec<ReportLine>[] = [
     {
       key: "label",
@@ -80,11 +100,18 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
       required: true,
       cell: (item) => {
         const hasCode = !!item.code;
-        const isExpanded = hasCode && expandedCodes.has(item.code!);
+        const isExpanded = hasCode && expandedCodes.has(detailKey(item, detailKeyPrefix));
         if (!hasCode) return { kind: "text", value: item.label, emphasis: item.isHeader || item.isTotal || item.isGrandTotal ? "strong" : "normal" };
         return { kind: "disclosure", label: item.label, expanded: isExpanded, level: item.isHeader || item.isTotal || item.isGrandTotal ? 0 : 1 };
       },
     },
+    ...(previousAmountHeader ? [{
+      key: "previousAmount",
+      label: previousAmountHeader,
+      required: true,
+      align: "right" as const,
+      cell: (item: ReportLine) => amountDisplay(item.previousAmount ?? 0),
+    }] : []),
     {
       key: "amount",
       label: amountHeader,
@@ -99,20 +126,21 @@ export function createReportLinesSurface({ items, labelHeader, amountHeader, exp
     kind: "table",
     rows: items,
     columns,
-    visibleColumns: ["label", "amount"],
+    visibleColumns: ["label", ...(previousAmountHeader ? ["previousAmount"] : []), "amount"],
         presentation: { density: "compact" },
 
     rowKey: (_, index) => index,
-    onRowClick: (item) => item.code && onToggle(item.code),
+    onRowClick: (item) => item.code && onToggle(detailKey(item, detailKeyPrefix), item.code),
     rowState: (item) =>
       item.isGrandTotal ? "total" :
       item.isTotal ? "total" :
       item.isHeader ? "section" : "normal",
-    expandedRowKeys: items.map((item, index) => item.code && expandedCodes.has(item.code) ? index : null).filter((key): key is number => key !== null),
+    expandedRowKeys: items.map((item, index) => item.code && expandedCodes.has(detailKey(item, detailKeyPrefix)) ? index : null).filter((key): key is number => key !== null),
     expandedRow: (item) => {
       if (!item.code) return null;
-      const rows = details[item.code];
-      return loadingDetail === item.code
+      const key = detailKey(item, detailKeyPrefix);
+      const rows = details[key];
+      return loadingDetail === key
         ? { kind: "text", value: "加载明细...", tone: "muted" }
         : rows?.length ? createDetailRowsSpec(rows) : { kind: "empty", content: "无明细数据" };
     },

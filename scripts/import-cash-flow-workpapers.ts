@@ -27,13 +27,13 @@ const IS_EXEC = process.argv.includes("--execute");
 const SRC_DIR = path.resolve("prisma/seed-data/现金流");
 
 // ─── Company mapping ─────────────────────────────────────────
-// 丰华悦通 → 06 为暂定映射，如不正确请修改后重新导入
+// 文件名使用的是业务简称；编号与公司主数据一致。
 
 const COMPANY_MAP: Record<string, string> = {
   "丰华生物": "01",
   "天力通": "02",
-  "悦通大药房": "03",
-  "丰华悦通": "06", // 暂定：上海悦通
+  "悦通大药房": "06",
+  "丰华悦通": "03",
   "加拿大": "05",
 };
 

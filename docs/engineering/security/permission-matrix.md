@@ -33,8 +33,7 @@
 | `administration.contracts` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `finance` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `finance.ledger` | business | `entry`, `read`, `create`, `update`, `delete`, `revise`, `import`, `export`, `grant` |
-| `finance.statementConfig` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
-| `finance.statements` | business | `entry`, `read`, `grant` |
+| `finance.statements` | business | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `finance.analysis` | business | `entry`, `read`, `grant` |
 | `finance.budget` | business | `entry`, `read`, `create`, `import`, `approve`, `grant` |
 | `finance.cost` | business | `entry`, `read`, `delete`, `import`, `export`, `grant` |

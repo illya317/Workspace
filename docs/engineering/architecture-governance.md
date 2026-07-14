@@ -233,9 +233,9 @@ app/* route shell
 - API route 只做认证、权限、Zod 参数校验、调用 service、返回 DTO；复杂业务逻辑必须进入领域 service 或业务包。
 - `app/lib/module-nav.tsx` 只是兼容出口，模块真实注册来源是 `packages/platform/module-registry.ts`。`packages/platform/modules.tsx` 只消费 registry 并生成运行时聚合，不直接 import domain 包。
 - 模块注册的 `href` 和 `routes` 只写不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止把 `@workspace/*` package 名或 `/workspace` basePath 写入 URL。
-- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*]` 是 L2 业务入口单元，必须是直接二级页面 route，例如 `/finance/statement-config`、`/production/qc`、`/work/me`。禁止用嵌套三级页面伪装 L2，也禁止在 app 顶层另建绕开 L1/L2 registry 的 route shell。
+- `moduleDef.href` 必须是 L1 根路径，例如 `/work`；`moduleDef.children[*]` 是 L2 业务入口单元，必须是直接二级页面 route，例如 `/finance/statements`、`/production/qc`、`/work/me`。禁止用嵌套三级页面伪装 L2，也禁止在 app 顶层另建绕开 L1/L2 registry 的 route shell。
 - L1/L2 页面不再在 `routes` 中重复登记；`routes` 只登记 L2 以下页面或无 moduleDef 的系统页面。资源页面默认继承最长匹配的 L1/L2 `href` 作为 `gatePath`，特殊页面必须显式声明 `access`，例如 `adminManage`、`authenticated` 或 `public`。
-- L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statementConfig`、`finance.statements`、`production.qc`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
+- L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statements`、`production.qc`、`work.me`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
 - 每个 L2 必须声明规范 API URL 或明确 `noApiReason`。规范 URL 是 `/api/modules/<module>/<resource path>`，由 resourceKey 自动生成并推导；`apiPrefixes` 只保留旧兼容路径，必须配套 `migrationNote`。API contract 只写 `method/pathPrefix/access`，由 Platform 按最长前缀推导 owner resource；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/page.tsx` 对外仍是 `/work`。禁止重新创建绕开 L1 的顶层 route shell。
 - `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；普通 L1 目录页必须使用 Platform `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面；Work 的默认 L2 是 `/work/me`。

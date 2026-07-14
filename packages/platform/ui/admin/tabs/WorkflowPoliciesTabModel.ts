@@ -240,8 +240,6 @@ const TARGET_KIND_LABEL: Record<string, string> = {
   FinanceBalanceReconcile: "余额校准",
   FinanceReclassRule: "重分类规则",
   ReclassResult: "重分类结果",
-  FinanceStatementLineConfig: "报表项目配置",
-  FinanceStatementAccountMapping: "报表科目映射",
   FinanceBudgetImport: "预算导入",
   BudgetVersion: "预算版本",
   FinanceCostImport: "成本导入",

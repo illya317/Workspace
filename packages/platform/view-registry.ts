@@ -82,16 +82,6 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     ],
   },
   {
-    route: "/finance/statement-config",
-    moduleKey: "finance",
-    label: "报表配置",
-    views: [
-      { key: "lines", label: "报表项目配置" },
-      { key: "unmapped", label: "遗漏科目" },
-      { key: "balance", label: "余额校对" },
-    ],
-  },
-  {
     route: "/finance/cost",
     moduleKey: "finance",
     label: "成本管理",
@@ -109,9 +99,7 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     route: "/finance/statements",
     moduleKey: "finance",
     label: "财务报表",
-    views: [
-      { key: "statements", label: "报表数据" },
-    ],
+    views: [],
   },
   {
     route: "/finance/analysis",

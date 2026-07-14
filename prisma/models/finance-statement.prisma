@@ -1,53 +1,4 @@
-/// 科目→报表项目映射（一个科目节点只能归属一个报表项目）
-model FinanceStatementAccountMapping {
-  id              Int      @id @default(autoincrement())
-  companyCode     String
-  year            Int
-  statementType   String   @default("balance") // balance | income | cashflow
-  lineCode        String // 报表项目 lineCode
-  accountCode     String // 科目编码
-  includeChildren Boolean  @default(true)
-  operator        String   @default("add") // add | subtract
-  source          String   @default("default") // default | manual | copied | migrated
-  note            String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @default(now()) @updatedAt
-
-  @@unique([companyCode, year, statementType, accountCode])
-  @@index([companyCode, year, statementType, lineCode])
-  @@index([companyCode, year, accountCode])
-}
-
-/// 报表项目配置（资产负债表/利润表/现金流量表）
-/// 按公司+年度+报表类型存储，新年度从上年度复制
-model FinanceStatementLineConfig {
-  id                   Int      @id @default(autoincrement())
-  companyCode          String
-  year                 Int
-  reportType           String   @default("balanceSheet") // balanceSheet | incomeStatement | cashFlow
-  lineCode             String // unique line identifier
-  label                String // display label
-  displayCode          String   @default("") // display code hint
-  section              String // currentAssets | nonCurrentAssets | currentLiabilities | nonCurrentLiabilities | equity
-  side                 String   @default("debit") // debit | credit
-  sortOrder            Int      @default(0)
-  prefixesJson         String   @default("[]") // JSON array of account code prefixes
-  subtractPrefixesJson String   @default("[]") // JSON array of subtract prefixes (e.g. accumulated depreciation)
-  formulaJson          String   @default("{}")
-  reclassSource        Boolean  @default(false)
-  reclassTarget        Boolean  @default(false)
-  isHeader             Boolean  @default(false)
-  isTotal              Boolean  @default(false)
-  isGrandTotal         Boolean  @default(false)
-  enabled              Boolean  @default(true)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @default(now()) @updatedAt
-
-  @@unique([companyCode, year, reportType, lineCode])
-  @@index([companyCode, year, reportType])
-}
-
-/// 报表底稿头（P3 Batch 2：利润表/现金流量表手工输入底稿）
+/// 报表底稿头（资产负债表/利润表/现金流量表导入或手工底稿）
 /// 唯一键：companyCode + year + month + reportType
 /// 只存事实输入（manualAmount / importedAmount / formulaText / note / source），不存计算结果
 model FinanceStatementWorkpaper {
@@ -55,7 +6,7 @@ model FinanceStatementWorkpaper {
   companyCode String
   year        Int
   month       Int
-  reportType  String // incomeStatement | cashFlow
+  reportType  String // balanceSheet | incomeStatement | cashFlow
   status      String                          @default("draft") // draft | submitted
   note        String?
   updatedBy   Int?
@@ -70,9 +21,9 @@ model FinanceStatementWorkpaper {
   @@index([companyCode, year, reportType])
 }
 
-/// 报表底稿行（P3 Batch 2：底稿每行的手工/导入输入）
+/// 报表底稿行（底稿每行的手工/导入输入）
 /// 唯一键：workpaperId + lineCode
-/// lineCode 必须存在于对应 reportType 的 FinanceStatementLineConfig
+/// lineCode 必须存在于代码内对应 reportType 的固定报表行定义
 model FinanceStatementWorkpaperLine {
   id             Int                       @id @default(autoincrement())
   workpaperId    Int

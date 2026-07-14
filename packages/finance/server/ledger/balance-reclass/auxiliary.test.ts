@@ -17,7 +17,7 @@ test("reclassifies only opposite-side auxiliary closing balances in supported pa
   ];
 
   const result = buildAuxiliaryReclassEntries(rows);
-  assert.deepEqual(result.coveredAccountCodes.sort(), ["1123", "122101", "2202", "224101"]);
+  assert.deepEqual(result.coveredAccountCodes.sort(), ["1123", "122101", "2202", "2221", "224101"]);
   assert.deepEqual(
     result.entries.map((entry) => ({
       sourceAccount: entry.sourceAccount,
@@ -29,8 +29,20 @@ test("reclassifies only opposite-side auxiliary closing balances in supported pa
       { sourceAccount: "2202", targetAccount: "1123", amount: 12520, count: 3 },
       { sourceAccount: "224101", targetAccount: "122101", amount: 51081.2, count: 2 },
       { sourceAccount: "122101", targetAccount: "224101", amount: 58913072.19, count: 1 },
+      { sourceAccount: "2221", targetAccount: "1463", amount: 192617.25, count: 1 },
     ],
   );
+});
+
+test("inherits defaults for child accounts while preserving specific auxiliary pairs", () => {
+  const result = buildAuxiliaryReclassEntries([
+    row("220299", "supplier", "1", "供应商", 100, 0),
+    row("22410199", "supplier", "2", "单位", 80, 0),
+  ]);
+  assert.deepEqual(result.entries.map((entry) => [entry.sourceAccount, entry.targetAccount]), [
+    ["220299", "1123"],
+    ["22410199", "122101"],
+  ]);
 });
 
 test("nets debit and credit before deciding the closing side", () => {

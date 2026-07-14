@@ -220,8 +220,6 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/work/meetings", requiredActions: ["update"], pathPattern: /^\/api\/modules\/work\/meetings\/[^/]+\/proposals$/ },
   { method: "POST", pathPrefix: "/api/modules/work/meetings", requiredActions: ["submit"], pathPattern: /^\/api\/modules\/work\/meetings\/[^/]+\/votes\/[^/]+\/cast$/ },
   { method: "POST", pathPrefix: "/api/modules/work/meetings", requiredActions: ["approve"], pathPattern: /^\/api\/modules\/work\/meetings\/[^/]+\/votes\/[^/]+\/close$/ },
-  { method: "POST", pathPrefix: "/api/modules/finance/statement-config/mappings", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/statement-config\/mappings$/ },
-  { method: "PATCH", pathPrefix: "/api/modules/finance/statement-config/mappings", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/statement-config\/mappings$/ },
   { method: "GET", pathPrefix: "/api/modules/library/basic-info", requiredActions: ["export"], pathPattern: /^\/api\/modules\/library\/basic-info\/(?!(?:categories|directories|documents|generated-sources|scan|search)(?:\/|$)).+$/ },
   { method: "GET", pathPrefix: "/api/modules/library/basic-info/documents", requiredActions: ["export"], pathPattern: /^\/api\/modules\/library\/basic-info\/documents\/[^/]+\/download$/ },
   { method: "GET", pathPrefix: "/api/modules/library/basic-info/documents", requiredActions: ["export"], pathPattern: /^\/api\/modules\/library\/basic-info\/documents\/[^/]+\/versions\/[^/]+\/download$/ },

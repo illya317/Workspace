@@ -19,7 +19,7 @@
  */
 import { prisma } from "@workspace/platform/server/prisma";
 import type { ReclassEntry } from "../report-helpers";
-import { ensureStatementMappings } from "./seed-from-config";
+import { buildFixedBalanceAssignments } from "../config/fixed-balance-definition";
 import { resolveMappedLineCode } from "../shared/mapping-resolver";
 
 export type UnresolvedReclassReason = "noSourceLine" | "noTargetLine";
@@ -51,15 +51,8 @@ export async function resolveReclassEntriesToLines(
   entries: ReclassEntry[],
   statementType: string = "balance",
 ): Promise<ReclassLineRouting> {
-  await ensureStatementMappings(companyCode, year, statementType);
-
-  // Preload mappings for in-memory resolution
-  const mappings = await prisma.financeStatementAccountMapping.findMany({
-    where: { companyCode, year, statementType },
-    select: { accountCode: true, lineCode: true },
-  });
-  const mappingMap = new Map<string, string>();
-  for (const m of mappings) mappingMap.set(m.accountCode, m.lineCode);
+  if (statementType !== "balance") throw new Error("statementType 暂只支持 balance");
+  const { mappingMap } = buildFixedBalanceAssignments();
 
   // Preload parent chain info for nearest-ancestor resolution
   const accounts = await prisma.financeAccount.findMany({
