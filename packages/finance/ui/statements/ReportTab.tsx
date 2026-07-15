@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { createPageBody, createMessageSection, createPanelSection, createSectionsSection, PageSurface } from "@workspace/core/ui";
-import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
+import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createReportBannerSection } from "./ReportBanner";
 import { createReportLinesSurface, type AccountDetail, type ReportLine } from "./ReportLines";
@@ -42,10 +42,15 @@ interface ReportData {
     message: string;
   }[];
 }
-export default function ReportTab() {
+export default function ReportTab({ navigation, companyCodes }: { navigation?: PageSurfaceTabBarSpec; companyCodes?: string[] }) {
   const searchParams = useSearchParams();
-  const companyOptions = useCompanyOptions();
-  const { company: companyFilter, setCompany: setCompanyFilter, year, setYear, availablePairs } = useStatementScope();
+  const allCompanyOptions = useCompanyOptions();
+  const companyOptions = useMemo(() => {
+    if (!companyCodes) return allCompanyOptions;
+    const allowed = new Set(companyCodes);
+    return allCompanyOptions.filter((option) => allowed.has(option.value));
+  }, [allCompanyOptions, companyCodes]);
+  const { company: companyFilter, setCompany: setCompanyFilter, year, setYear, availablePairs } = useStatementScope(companyCodes);
   const yearOptions = useMemo(
     () => [...new Set(availablePairs.map((pair) => pair.year))].sort((a, b) => b - a).map((optionYear) => ({ value: String(optionYear), label: String(optionYear) })),
     [availablePairs],
@@ -242,6 +247,7 @@ export default function ReportTab() {
   ]) as BodySurfaceSectionSpec[];
   return (
     <PageSurface kind="standard"
+      tabbar={navigation}
       toolbar={{ items: toolbarItems }}
       body={reportBlocks.length > 0 ? createPageBody(reportBlocks) : undefined}
     />

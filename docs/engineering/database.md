@@ -386,6 +386,134 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | party | ExternalParty | @relation(fields: [partyId], references: [id], onDelete: Cascade) |  |
 
+### FinanceAssetCard
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| assetCode | String | - |  |
+| name | String | - |  |
+| assetKind | String | - |  |
+| category | String? | - |  |
+| assetAccountCode | String | - |  |
+| accumulatedAccountCode | String? | - |  |
+| acquisitionDate | String? | - |  |
+| depreciationStartDate | String? | - |  |
+| originalCost | Decimal | @db.Decimal(20, 2) |  |
+| residualRate | Decimal | @default(0) @db.Decimal(10, 6) |  |
+| usefulLifeMonths | Int? | - |  |
+| method | String | @default("straight_line") |  |
+| openingAccumulatedAmount | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| openingAsOfDate | String? | - |  |
+| status | String | @default("active") |  |
+| nonAmortizationReason | String? | - |  |
+| note | String? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceRow | Int? | - |  |
+| sourceKey | String? | - |  |
+| editedBy | Int? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| costLines | FinanceAssetCostLine[] | - |  |
+| allocations | FinanceAssetExpenseAllocation[] | - |  |
+| periodEntries | FinanceAssetPeriodEntry[] | - |  |
+| adjustments | FinanceAssetAdjustment[] | - |  |
+
+### FinanceAssetCostLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| assetId | Int | - |  |
+| lineType | String | @default("invoice") |  |
+| treatment | String | @default("included") |  |
+| referenceNo | String? | - |  |
+| referenceDate | String? | - |  |
+| amount | Decimal | @db.Decimal(20, 2) |  |
+| reason | String? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceRow | Int? | - |  |
+| sourceKey | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| asset | FinanceAssetCard | @relation(fields: [assetId], references: [id], onDelete: Cascade) |  |
+
+### FinanceAssetExpenseAllocation
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| assetId | Int | - |  |
+| expenseAccountCode | String | - |  |
+| allocationRate | Decimal | @db.Decimal(10, 6) |  |
+| note | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| asset | FinanceAssetCard | @relation(fields: [assetId], references: [id], onDelete: Cascade) |  |
+
+### FinanceAssetImportBatch
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| sourceFile | String | - |  |
+| checksum | String | - |  |
+| status | String | @default("confirmed") |  |
+| cardCount | Int | @default(0) |  |
+| costLineCount | Int | @default(0) |  |
+| warningCount | Int | @default(0) |  |
+| importedBy | Int? | - |  |
+| importedAt | DateTime | @default(now()) |  |
+| note | String? | - |  |
+
+### FinanceAssetPeriodEntry
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| assetId | Int | - |  |
+| periodId | Int | - |  |
+| normalAmount | Decimal | @db.Decimal(20, 2) |  |
+| status | String | @default("calculated") |  |
+| calculationVersion | String | @default("straight-line-v1") |  |
+| voucherId | Int? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceRow | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| asset | FinanceAssetCard | @relation(fields: [assetId], references: [id], onDelete: Cascade) |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id], onDelete: Cascade) |  |
+| voucher | FinanceVoucher? | @relation(fields: [voucherId], references: [id], onDelete: SetNull) |  |
+
+### FinanceAssetAdjustment
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| periodId | Int | - |  |
+| assetId | Int? | - |  |
+| accountCode | String | - |  |
+| amount | Decimal | @db.Decimal(20, 2) |  |
+| reason | String | - |  |
+| status | String | @default("confirmed") |  |
+| reversedById | Int? | - |  |
+| voucherId | Int? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceRow | Int? | - |  |
+| sourceKey | String? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| asset | FinanceAssetCard? | @relation(fields: [assetId], references: [id], onDelete: SetNull) |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id], onDelete: Cascade) |  |
+| voucher | FinanceVoucher? | @relation(fields: [voucherId], references: [id], onDelete: SetNull) |  |
+
 ### FinanceBudgetVersion
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -465,6 +593,54 @@
 | importedAt | DateTime | @default(now()) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
+
+### FinanceCashFlowItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| sourceSystem | String | - |  |
+| sourceLedger | String | - |  |
+| sourceCode | String | - |  |
+| sourceName | String | - |  |
+| parentId | Int? | - |  |
+| direction | String? | - |  |
+| firstYear | Int? | - |  |
+| lastYear | Int? | - |  |
+| latestImportId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| latestImport | FinanceLedgerImport? | @relation(fields: [latestImportId], references: [id]) |  |
+| parent | FinanceCashFlowItem? | @relation("FinanceCashFlowHierarchy", fields: [parentId], references: [id]) |  |
+| children | FinanceCashFlowItem[] | @relation("FinanceCashFlowHierarchy") |  |
+| allocations | FinanceCashFlowAllocation[] | - |  |
+
+### FinanceCashFlowAllocation
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| importId | Int | - |  |
+| companyCode | String | - |  |
+| periodId | Int | - |  |
+| voucherId | Int | - |  |
+| cashFlowItemId | Int | - |  |
+| ownerVoucherItemId | Int? | - |  |
+| counterpartItemId | Int? | - |  |
+| sourceSystem | String | - |  |
+| sourceDatabase | String | - |  |
+| sourceKey | String | - |  |
+| direction | String | - |  |
+| amount | Decimal | @db.Decimal(20, 2) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| import | FinanceLedgerImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
+| voucher | FinanceVoucher | @relation(fields: [voucherId], references: [id], onDelete: Cascade) |  |
+| cashFlowItem | FinanceCashFlowItem | @relation(fields: [cashFlowItemId], references: [id]) |  |
+| ownerVoucherItem | FinanceVoucherItem? | @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id]) |  |
+| counterpartItem | FinanceVoucherItem? | @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id]) |  |
 
 ### FinanceDataImport
 
@@ -603,6 +779,190 @@
 | employee | Employee? | @relation(fields: [employeeId], references: [id]) |  |
 | import | FinanceDataImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
 
+### FinanceAuxiliaryMember
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| sourceSystem | String | - |  |
+| sourceLedger | String | - |  |
+| dimensionType | String | - |  |
+| sourceCode | String | - |  |
+| sourceName | String | - |  |
+| shortName | String? | - |  |
+| identityNumber | String? | - |  |
+| contactPerson | String? | - |  |
+| phone | String? | - |  |
+| address | String? | - |  |
+| bankName | String? | - |  |
+| bankAccount | String? | - |  |
+| firstYear | Int? | - |  |
+| lastYear | Int? | - |  |
+| latestImportId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| latestImport | FinanceLedgerImport? | @relation(fields: [latestImportId], references: [id]) |  |
+| voucherLinks | FinanceVoucherItemAuxiliary[] | - |  |
+| balanceLinks | FinanceAuxiliaryBalanceMember[] | - |  |
+| openItemLinks | FinanceOpenItemAuxiliary[] | - |  |
+
+### FinanceVoucherItemAuxiliary
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| itemId | Int | - |  |
+| memberId | Int | - |  |
+| sourceRole | String | - |  |
+| item | FinanceVoucherItem | @relation(fields: [itemId], references: [id], onDelete: Cascade) |  |
+| member | FinanceAuxiliaryMember | @relation(fields: [memberId], references: [id]) |  |
+
+### FinanceAuxiliaryBalance
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| importId | Int | - |  |
+| periodId | Int | - |  |
+| accountId | Int | - |  |
+| companyCode | String | - |  |
+| sourceSystem | String | - |  |
+| sourceDatabase | String | - |  |
+| sourceKey | String | - |  |
+| openingDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| openingCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currentDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currentCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| closingDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| closingCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| import | FinanceLedgerImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
+| account | FinanceAccount | @relation(fields: [accountId], references: [id]) |  |
+| members | FinanceAuxiliaryBalanceMember[] | - |  |
+
+### FinanceAuxiliaryBalanceMember
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| balanceId | Int | - |  |
+| memberId | Int | - |  |
+| sourceRole | String | - |  |
+| balance | FinanceAuxiliaryBalance | @relation(fields: [balanceId], references: [id], onDelete: Cascade) |  |
+| member | FinanceAuxiliaryMember | @relation(fields: [memberId], references: [id]) |  |
+
+### FinanceOpenItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| importId | Int | - |  |
+| companyCode | String | - |  |
+| periodId | Int? | - |  |
+| accountId | Int? | - |  |
+| voucherItemId | Int? | - |  |
+| sourceSystem | String | - |  |
+| sourceDatabase | String | - |  |
+| sourceKey | String | - |  |
+| documentNo | String? | - |  |
+| documentDate | String? | - |  |
+| dueDate | String? | - |  |
+| memo | String? | - |  |
+| currencyCode | String? | - |  |
+| originalDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| originalCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| outstandingDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| outstandingCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| status | String | @default("open") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| import | FinanceLedgerImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
+| period | FinancePeriod? | @relation(fields: [periodId], references: [id]) |  |
+| account | FinanceAccount? | @relation(fields: [accountId], references: [id]) |  |
+| voucherItem | FinanceVoucherItem? | @relation(fields: [voucherItemId], references: [id]) |  |
+| members | FinanceOpenItemAuxiliary[] | - |  |
+
+### FinanceOpenItemAuxiliary
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| openItemId | Int | - |  |
+| memberId | Int | - |  |
+| sourceRole | String | - |  |
+| openItem | FinanceOpenItem | @relation(fields: [openItemId], references: [id], onDelete: Cascade) |  |
+| member | FinanceAuxiliaryMember | @relation(fields: [memberId], references: [id]) |  |
+
+### FinanceLedgerImport
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchKey | String? | @unique |  |
+| type | String | - |  |
+| companyCode | String | - |  |
+| year | Int | - |  |
+| sourceSystem | String? | - |  |
+| sourceLedger | String? | - |  |
+| sourceDatabase | String? | - |  |
+| sourceFile | String? | - |  |
+| sourcePath | String? | - |  |
+| snapshotDate | String? | - |  |
+| cutoffDate | String? | - |  |
+| checksum | String? | - |  |
+| controlJson | Json? | - |  |
+| status | String | @default("completed") |  |
+| rowCount | Int | @default(0) |  |
+| createdCount | Int | @default(0) |  |
+| updatedCount | Int | @default(0) |  |
+| skippedCount | Int | @default(0) |  |
+| deletedCount | Int | @default(0) |  |
+| conflictCount | Int | @default(0) |  |
+| blockedCount | Int | @default(0) |  |
+| warnings | String? | - |  |
+| importedBy | Int? | - |  |
+| importedAt | DateTime | @default(now()) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| importer | User? | @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id]) |  |
+| vouchers | FinanceVoucher[] | - |  |
+| items | FinanceVoucherItem[] | - |  |
+| sourceBalances | FinanceSourceAccountBalance[] | - |  |
+| auxiliaryMembers | FinanceAuxiliaryMember[] | - |  |
+| auxiliaryBalances | FinanceAuxiliaryBalance[] | - |  |
+| cashFlowItems | FinanceCashFlowItem[] | - |  |
+| cashFlowAllocations | FinanceCashFlowAllocation[] | - |  |
+| openItems | FinanceOpenItem[] | - |  |
+| currencies | FinanceCurrency[] | - |  |
+| bankAccounts | FinanceBankAccount[] | - |  |
+
+### FinanceSourceAccountBalance
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| importId | Int | - |  |
+| periodId | Int | - |  |
+| accountId | Int | - |  |
+| companyCode | String | - |  |
+| sourceSystem | String | - |  |
+| sourceDatabase | String | - |  |
+| sourceKey | String | - |  |
+| openingDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| openingCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currentDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currentCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| closingDebit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| closingCredit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| import | FinanceLedgerImport | @relation(fields: [importId], references: [id], onDelete: Cascade) |  |
+| period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
+| account | FinanceAccount | @relation(fields: [accountId], references: [id]) |  |
+
 ### FinanceAccount
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -617,6 +977,10 @@
 | companyCode | String | - |  |
 | mnemonicCode | String? | - |  |
 | currency | String? | - |  |
+| sourceSystem | String? | - |  |
+| sourceLedger | String? | - |  |
+| sourceDatabase | String? | - |  |
+| sourceKey | String? | - |  |
 | groupSubjectCode | String? | - |  |
 | subjectLevel | Int? | - |  |
 | year | Int? | - |  |
@@ -632,6 +996,10 @@
 | balances | FinanceAccountBalance[] | - |  |
 | voucherItems | FinanceVoucherItem[] | - |  |
 | snapshotRows | FinanceBalanceSnapshotRow[] | - |  |
+| sourceBalances | FinanceSourceAccountBalance[] | - |  |
+| auxiliaryBalances | FinanceAuxiliaryBalance[] | - |  |
+| openItems | FinanceOpenItem[] | - |  |
+| bankAccounts | FinanceBankAccount[] | - |  |
 | deptBudgets | FinanceBudgetDept[] | - |  |
 | rdBudgets | FinanceBudgetRd[] | - |  |
 
@@ -645,12 +1013,22 @@
 | startDate | String | - |  |
 | endDate | String | - |  |
 | isClosed | Boolean | @default(false) |  |
+| sourceSystem | String? | - |  |
+| sourceDatabase | String? | - |  |
+| sourceKey | String? | - |  |
+| sourceClosed | Boolean? | - |  |
 | companyCode | String | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | balances | FinanceAccountBalance[] | - |  |
 | vouchers | FinanceVoucher[] | - |  |
 | reclassResults | ReclassResult[] | - |  |
+| sourceBalances | FinanceSourceAccountBalance[] | - |  |
+| auxiliaryBalances | FinanceAuxiliaryBalance[] | - |  |
+| cashFlowAllocations | FinanceCashFlowAllocation[] | - |  |
+| openItems | FinanceOpenItem[] | - |  |
+| assetPeriodEntries | FinanceAssetPeriodEntry[] | - |  |
+| assetAdjustments | FinanceAssetAdjustment[] | - |  |
 
 ### FinanceVoucher
 
@@ -665,6 +1043,10 @@
 | totalCredit | Float | @default(0) |  |
 | status | String | @default("draft") |  |
 | companyCode | String | - |  |
+| importId | Int? | - |  |
+| sourceSystem | String? | - |  |
+| sourceDatabase | String? | - |  |
+| sourceKey | String? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
@@ -672,7 +1054,11 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | editor | User? | @relation("FinanceVoucherEditor", fields: [editedBy], references: [id]) |  |
 | period | FinancePeriod | @relation(fields: [periodId], references: [id]) |  |
+| import | FinanceLedgerImport? | @relation(fields: [importId], references: [id]) |  |
 | items | FinanceVoucherItem[] | - |  |
+| cashFlowAllocations | FinanceCashFlowAllocation[] | - |  |
+| assetPeriodEntries | FinanceAssetPeriodEntry[] | - |  |
+| assetAdjustments | FinanceAssetAdjustment[] | - |  |
 
 ### FinanceVoucherItem
 
@@ -690,38 +1076,22 @@
 | sourceFile | String? | - |  |
 | sourceSheet | String? | - |  |
 | sourceRow | Int? | - |  |
+| sourceSystem | String? | - |  |
+| sourceDatabase | String? | - |  |
+| sourceKey | String? | - |  |
+| currencyCode | String? | - |  |
+| exchangeRate | Decimal? | @db.Decimal(20, 8) |  |
+| originalDebit | Decimal? | @db.Decimal(20, 2) |  |
+| originalCredit | Decimal? | @db.Decimal(20, 2) |  |
 | importId | Int? | - |  |
 | account | FinanceAccount | @relation(fields: [accountId], references: [id]) |  |
 | voucher | FinanceVoucher | @relation(fields: [voucherId], references: [id], onDelete: Cascade) |  |
 | reclassResults | ReclassResult[] | - |  |
 | import | FinanceLedgerImport? | @relation(fields: [importId], references: [id]) |  |
-
-### FinanceLedgerImport
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| type | String | - | account | voucher | balance |
-| companyCode | String | - |  |
-| year | Int | - |  |
-| sourceFile | String? | - |  |
-| sourcePath | String? | - |  |
-| checksum | String? | - |  |
-| status | String | @default("completed") | completed | partial | failed |
-| rowCount | Int | @default(0) |  |
-| createdCount | Int | @default(0) |  |
-| updatedCount | Int | @default(0) |  |
-| skippedCount | Int | @default(0) |  |
-| deletedCount | Int | @default(0) |  |
-| conflictCount | Int | @default(0) |  |
-| blockedCount | Int | @default(0) |  |
-| warnings | String? | - | JSON array of warning messages |
-| importedBy | Int? | - |  |
-| importedAt | DateTime | @default(now()) |  |
-| createdAt | DateTime | @default(now()) |  |
-| updatedAt | DateTime | @default(now()) @updatedAt |  |
-| importer | User? | @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id]) |  |
-| items | FinanceVoucherItem[] | - |  |
+| auxiliaryLinks | FinanceVoucherItemAuxiliary[] | - |  |
+| cashFlowOwnerAllocations | FinanceCashFlowAllocation[] | @relation("FinanceCashFlowOwnerItem") |  |
+| cashFlowCounterpartAllocations | FinanceCashFlowAllocation[] | @relation("FinanceCashFlowCounterpartItem") |  |
+| openItems | FinanceOpenItem[] | - |  |
 
 ### FinanceAccountBalance
 
@@ -792,13 +1162,12 @@
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
-| companyCode | String | - |  |
-| year | Int | - |  |
 | sourceAccountCode | String | - |  |
 | abnormalSide | String | - | debit | credit | both |
-| targetAccountCode | String | - |  |
+| decision | String | @default("reclassify") | reclassify | no_reclass |
+| targetAccountCode | String? | - |  |
 | enabled | Boolean | @default(true) |  |
-| source | String | @default("manual") | suggested | manual | auto | copied |
+| source | String | @default("manual") | 仅保留 manual；字段用于历史追溯 |
 | confirmedBy | Int? | - |  |
 | confirmedAt | DateTime? | - |  |
 | note | String? | - |  |
@@ -902,6 +1271,46 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | workpaper | FinanceStatementWorkpaper | @relation(fields: [workpaperId], references: [id], onDelete: Cascade) |  |
+
+### FinanceCurrency
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| sourceSystem | String | - |  |
+| sourceLedger | String | - |  |
+| sourceCode | String | - |  |
+| sourceName | String | - |  |
+| symbol | String? | - |  |
+| decimalDigits | Int? | - |  |
+| isBase | Boolean | @default(false) |  |
+| latestImportId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| latestImport | FinanceLedgerImport? | @relation(fields: [latestImportId], references: [id]) |  |
+
+### FinanceBankAccount
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| accountId | Int? | - |  |
+| sourceSystem | String | - |  |
+| sourceLedger | String | - |  |
+| sourceKey | String | - |  |
+| sourceCode | String? | - |  |
+| sourceName | String | - |  |
+| accountNo | String? | - |  |
+| bankName | String? | - |  |
+| currencyCode | String? | - |  |
+| isActive | Boolean | @default(true) |  |
+| latestImportId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| account | FinanceAccount? | @relation(fields: [accountId], references: [id]) |  |
+| latestImport | FinanceLedgerImport? | @relation(fields: [latestImportId], references: [id]) |  |
 
 ### DepartmentDescription
 
@@ -1193,6 +1602,221 @@
 | createdAt | DateTime | @default(now()) |  |
 | tag | String? | - |  |
 | editor | User | @relation("EditHistoryEditor", fields: [editedBy], references: [id]) |  |
+
+### InventoryItem
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| code | String | - |  |
+| name | String | - |  |
+| itemType | String | @default("finished_goods") |  |
+| specification | String? | - |  |
+| baseUnit | String | - |  |
+| status | String | @default("active") |  |
+| note | String? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceKey | String? | - |  |
+| editedBy | Int? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| conversions | InventoryUnitConversion[] | - |  |
+| batches | InventoryBatch[] | - |  |
+| documentLines | InventoryDocumentLine[] | - |  |
+| ledgerEntries | InventoryLedgerEntry[] | - |  |
+| stocktakeLines | InventoryStocktakeLine[] | - |  |
+
+### InventoryUnitConversion
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| itemId | Int | - |  |
+| unit | String | - |  |
+| factor | Decimal | @db.Decimal(20, 6) |  |
+| createdAt | DateTime | @default(now()) |  |
+| item | InventoryItem | @relation(fields: [itemId], references: [id], onDelete: Cascade) |  |
+
+### InventoryWarehouse
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| code | String | - |  |
+| name | String | - |  |
+| status | String | @default("active") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| batches | InventoryBatch[] | - |  |
+| documentLines | InventoryDocumentLine[] | - |  |
+| ledgerEntries | InventoryLedgerEntry[] | - |  |
+| stocktakes | InventoryStocktake[] | - |  |
+| stocktakeLines | InventoryStocktakeLine[] | - |  |
+
+### InventoryBatch
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| itemId | Int | - |  |
+| warehouseId | Int | - |  |
+| batchNo | String | - |  |
+| productionDate | String? | - |  |
+| expiryDate | String? | - |  |
+| status | String | @default("normal") |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| item | InventoryItem | @relation(fields: [itemId], references: [id], onDelete: Cascade) |  |
+| warehouse | InventoryWarehouse | @relation(fields: [warehouseId], references: [id], onDelete: Restrict) |  |
+| documentLines | InventoryDocumentLine[] | - |  |
+| ledgerEntries | InventoryLedgerEntry[] | - |  |
+| stocktakeLines | InventoryStocktakeLine[] | - |  |
+
+### InventoryDocument
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| documentNo | String | - |  |
+| documentType | String | - |  |
+| documentDate | String | - |  |
+| status | String | @default("draft") |  |
+| counterparty | String? | - |  |
+| referenceNo | String? | - |  |
+| note | String? | - |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceKey | String? | - |  |
+| createdBy | Int? | - |  |
+| postedBy | Int? | - |  |
+| postedAt | DateTime? | - |  |
+| reversedById | Int? | - |  |
+| version | Int | @default(1) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| lines | InventoryDocumentLine[] | - |  |
+
+### InventoryDocumentLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| documentId | Int | - |  |
+| itemId | Int | - |  |
+| warehouseId | Int | - |  |
+| batchId | Int? | - |  |
+| quantity | Decimal | @db.Decimal(20, 6) |  |
+| unit | String | - |  |
+| unitFactor | Decimal | @default(1) @db.Decimal(20, 6) |  |
+| unitPrice | Decimal? | @db.Decimal(20, 6) |  |
+| paymentStatus | String? | - |  |
+| invoiceStatus | String? | - |  |
+| sourceRow | Int? | - |  |
+| sourceKey | String? | - |  |
+| document | InventoryDocument | @relation(fields: [documentId], references: [id], onDelete: Cascade) |  |
+| item | InventoryItem | @relation(fields: [itemId], references: [id], onDelete: Restrict) |  |
+| warehouse | InventoryWarehouse | @relation(fields: [warehouseId], references: [id], onDelete: Restrict) |  |
+| batch | InventoryBatch? | @relation(fields: [batchId], references: [id], onDelete: SetNull) |  |
+| ledgerEntry | InventoryLedgerEntry? | - |  |
+
+### InventoryLedgerEntry
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| documentLineId | Int | @unique |  |
+| companyCode | String | - |  |
+| itemId | Int | - |  |
+| warehouseId | Int | - |  |
+| batchId | Int? | - |  |
+| movementDate | String | - |  |
+| signedQuantity | Decimal | @db.Decimal(20, 6) |  |
+| unitCost | Decimal? | @db.Decimal(20, 6) |  |
+| createdAt | DateTime | @default(now()) |  |
+| documentLine | InventoryDocumentLine | @relation(fields: [documentLineId], references: [id], onDelete: Restrict) |  |
+| item | InventoryItem | @relation(fields: [itemId], references: [id], onDelete: Restrict) |  |
+| warehouse | InventoryWarehouse | @relation(fields: [warehouseId], references: [id], onDelete: Restrict) |  |
+| batch | InventoryBatch? | @relation(fields: [batchId], references: [id], onDelete: SetNull) |  |
+
+### InventoryStocktake
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| stocktakeNo | String | - |  |
+| warehouseId | Int | - |  |
+| stocktakeDate | String | - |  |
+| status | String | @default("draft") |  |
+| sourceFile | String? | - |  |
+| sourceSheet | String? | - |  |
+| sourceKey | String? | - |  |
+| createdBy | Int? | - |  |
+| approvedBy | Int? | - |  |
+| approvedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| warehouse | InventoryWarehouse | @relation(fields: [warehouseId], references: [id], onDelete: Restrict) |  |
+| lines | InventoryStocktakeLine[] | - |  |
+
+### InventoryStocktakeLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| stocktakeId | Int | - |  |
+| itemId | Int | - |  |
+| warehouseId | Int | - |  |
+| batchId | Int? | - |  |
+| bookQuantity | Decimal | @db.Decimal(20, 6) |  |
+| actualQuantity | Decimal | @db.Decimal(20, 6) |  |
+| note | String? | - |  |
+| sourceRow | Int? | - |  |
+| stocktake | InventoryStocktake | @relation(fields: [stocktakeId], references: [id], onDelete: Cascade) |  |
+| item | InventoryItem | @relation(fields: [itemId], references: [id], onDelete: Restrict) |  |
+| warehouse | InventoryWarehouse | @relation(fields: [warehouseId], references: [id], onDelete: Restrict) |  |
+| batch | InventoryBatch? | @relation(fields: [batchId], references: [id], onDelete: SetNull) |  |
+
+### InventoryPeriodClose
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| year | Int | - |  |
+| month | Int | - |  |
+| status | String | @default("open") |  |
+| voucherId | Int? | - |  |
+| lockedBy | Int? | - |  |
+| lockedAt | DateTime? | - |  |
+| unlockedBy | Int? | - |  |
+| unlockedAt | DateTime? | - |  |
+| note | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+
+### InventoryImportBatch
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyCode | String | - |  |
+| sourceFile | String | - |  |
+| sourceSheet | String? | - |  |
+| checksum | String | - |  |
+| status | String | @default("confirmed") |  |
+| itemCount | Int | @default(0) |  |
+| documentCount | Int | @default(0) |  |
+| rowCount | Int | @default(0) |  |
+| warningCount | Int | @default(0) |  |
+| importedBy | Int? | - |  |
+| importedAt | DateTime | @default(now()) |  |
+| note | String? | - |  |
 
 ### StockRawMaterial
 

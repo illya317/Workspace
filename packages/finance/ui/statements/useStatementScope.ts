@@ -8,11 +8,12 @@ export interface StatementScopeOption {
   year: number;
 }
 
-export function useStatementScope() {
+export function useStatementScope(allowedCompanyCodes?: string[]) {
   const [company, setCompany] = useState("02");
   const [year, setYear] = useState(2025);
   const [availablePairs, setAvailablePairs] = useState<StatementScopeOption[]>([]);
-  const initializedDefault = useRef(false);
+  const initializedScope = useRef("");
+  const allowedKey = allowedCompanyCodes?.join(",") ?? "*";
 
   useEffect(() => {
     let cancelled = false;
@@ -28,17 +29,20 @@ export function useStatementScope() {
             year: period.year,
           });
         }
-        const next = [...pairs.values()].sort((left, right) =>
+        const allowed = allowedCompanyCodes ? new Set(allowedCompanyCodes) : null;
+        const next = [...pairs.values()].filter((pair) => !allowed || allowed.has(pair.companyCode)).sort((left, right) =>
           right.year - left.year || left.companyCode.localeCompare(right.companyCode));
         setAvailablePairs(next);
-        if (!initializedDefault.current && next[0]) {
-          initializedDefault.current = true;
+        if (initializedScope.current !== allowedKey && next[0]) {
+          initializedScope.current = allowedKey;
           setCompany(next[0].companyCode);
           setYear(next[0].year);
+        } else if (next.length === 0) {
+          setCompany("");
         }
       });
     return () => { cancelled = true; };
-  }, []);
+  }, [allowedCompanyCodes, allowedKey]);
 
   return { company, setCompany, year, setYear, availablePairs };
 }
