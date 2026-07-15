@@ -5,7 +5,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPageBody, createPageTabBar, PageSurface, useFeedback, type PageSurfaceFooterSpec, type SurfaceAutocompleteOptionSpec, type SurfaceToolbarItem } from "@workspace/core/ui";
 import { useModuleManagementSection } from "./tabs/ModuleManagementTab";
 import { usePermissionsTabBody } from "./tabs/PermissionsTab";
-import { useSpacePermissionsTabBody } from "./tabs/SpacePermissionsTab";
+import { useSpacePermissionsTabBody, type SpaceFilter } from "./tabs/SpacePermissionsTab";
 import { usePermissionLedgerTab } from "./tabs/PermissionLedgerTab";
 import { useWorkflowLedgerTab } from "./tabs/WorkflowLedgerTab";
 import { useWorkflowPoliciesTab } from "./tabs/WorkflowPoliciesTab";
@@ -30,6 +30,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const [resourcesLoading, setResourcesLoading] = useState(false);
   const [resourcesLoaded, setResourcesLoaded] = useState(false);
   const [spaceNameSearch, setSpaceNameSearch] = useState("");
+  const [spaceFilter, setSpaceFilter] = useState<SpaceFilter>("all");
   const [spacePage, setSpacePage] = useState(0);
   const [spacePageSize, setSpacePageSize] = useState(50);
   const [spaceTotalSubjects, setSpaceTotalSubjects] = useState(0);
@@ -180,6 +181,23 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   }, []);
   const spaceToolbarItems: SurfaceToolbarItem[] = [
     {
+      kind: "option-group",
+      key: "space-filter",
+      label: "空间类型",
+      value: spaceFilter,
+      options: [
+        { value: "all", label: "全部空间" },
+        { value: "department", label: "部门空间" },
+        { value: "project", label: "项目空间" },
+      ],
+      presentation: "segmented",
+      onChange: (value) => {
+        setSpaceFilter(value as SpaceFilter);
+        setSpacePage(0);
+      },
+      ariaLabel: "空间类型筛选",
+    },
+    {
       kind: "autocomplete",
       key: "space-subject-search",
       value: spaceNameSearch,
@@ -248,6 +266,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     enabled: activeTab === "permissions" && permissionMode === "space",
     onToast: showToast,
     nameSearch: spaceNameSearch,
+    spaceFilter,
     page: spacePage,
     pageSize: spacePageSize,
     onPageMetaChange: handleSpacePageMetaChange,

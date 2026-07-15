@@ -6,5 +6,8 @@ export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
   if (!auth.ok) return auth.response;
 
-  return NextResponse.json(await listUnifiedSpacesForUser(auth.user.userId));
+  const url = new URL(request.url);
+  return NextResponse.json(await listUnifiedSpacesForUser(auth.user.userId, {
+    includeAllManagedDepartments: url.searchParams.get("scope") === "all",
+  }));
 }

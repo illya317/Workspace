@@ -10,6 +10,7 @@ import {
 import { ensureDocsEditorSpaceForTarget } from "./docs-editor";
 import { prisma } from "./prisma";
 import { getUserPreferredDepartmentIds } from "./user-preferences";
+import { hasGlobalGrantManagementAccess } from "./rbac/admin-scope";
 import { PERMISSION_ACTION_KEYS, type PermissionActionKey } from "../permission-actions";
 import {
   getSpaceChildResourceKeyForTargetType,
@@ -63,13 +64,22 @@ type SpaceSeed = {
   subtitle: string | null;
 };
 
-export async function listUnifiedSpacesForUser(userId: number): Promise<{ spaces: UnifiedSpaceDto[] }> {
-  const seeds = await listUnifiedSpaceSeeds(userId);
+export interface UnifiedSpaceListOptions {
+  includeAllManagedDepartments?: boolean;
+}
+
+export async function listUnifiedSpacesForUser(
+  userId: number,
+  options: UnifiedSpaceListOptions = {},
+): Promise<{ spaces: UnifiedSpaceDto[] }> {
+  const seeds = await listUnifiedSpaceSeeds(userId, options);
   const spaces = await Promise.all(seeds.map((seed) => toUnifiedSpaceDto(userId, seed)));
   return { spaces: spaces.filter((space): space is UnifiedSpaceDto => Boolean(space)) };
 }
 
-async function listUnifiedSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
+async function listUnifiedSpaceSeeds(userId: number, options: UnifiedSpaceListOptions): Promise<SpaceSeed[]> {
+  const includeAllManagedDepartments = options.includeAllManagedDepartments === true
+    && await hasGlobalGrantManagementAccess(userId);
   const [user, departments, committee, company] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
@@ -78,7 +88,7 @@ async function listUnifiedSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
         employees: { select: { name: true }, take: 1 },
       },
     }),
-    listSelectedDepartments(userId),
+    includeAllManagedDepartments ? listAllDepartments() : listSelectedDepartments(userId),
     getOperatingCommitteeDepartmentContext(),
     getGroupCompanyContext(),
   ]);
@@ -108,6 +118,14 @@ async function listUnifiedSpaceSeeds(userId: number): Promise<SpaceSeed[]> {
       subtitle: "公司空间",
     }] : []),
   ];
+}
+
+async function listAllDepartments() {
+  return prisma.department.findMany({
+    where: { isArchived: false, hierarchyKind: "M" },
+    select: { id: true, name: true, code: true },
+    orderBy: [{ code: "asc" }, { id: "asc" }],
+  });
 }
 
 async function listSelectedDepartments(userId: number) {

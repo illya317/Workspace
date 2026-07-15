@@ -14,6 +14,7 @@ import type { ResourceTreeNode } from "../components/ResourceTree";
 
 type SpaceEntryKind = string;
 type SpaceType = "personal" | "department" | "committee" | "company";
+export type SpaceFilter = "all" | "department" | "project";
 
 interface UnifiedSpaceResourceDto {
   key: string;
@@ -101,8 +102,28 @@ function flattenEntries(entries: SpaceEntry[]): SpaceEntry[] {
   return entries.flatMap((entry) => [entry, ...(entry.children ? flattenEntries(entry.children as SpaceEntry[]) : [])]);
 }
 
+function filterSpaceEntries(entries: SpaceEntry[], filter: SpaceFilter) {
+  if (filter === "all") return entries;
+  if (filter === "department") {
+    return entries
+      .filter((entry) => entry.target?.targetType === "department")
+      .map((entry) => ({ ...entry, children: [], selectableWithChildren: false }));
+  }
+  return entries.flatMap((entry) =>
+    (entry.children as SpaceEntry[] ?? [])
+      .filter((child) => child.entryKind === "work-project")
+      .map((child) => ({
+        ...child,
+        name: `${entry.name} · ${child.name}`,
+        statusLabel: "项目",
+        selectableWithChildren: false,
+        children: [],
+      })),
+  );
+}
+
 async function loadUnifiedSpaces() {
-  const data = await requestJson<UnifiedSpacesResponse>("/api/settings/account/spaces", {
+  const data = await requestJson<UnifiedSpacesResponse>("/api/settings/account/spaces?scope=all", {
     fallbackMessage: "加载空间权限入口失败",
   });
   return (data.spaces ?? []).map(toTreeEntry).filter((entry): entry is SpaceEntry => Boolean(entry));
@@ -158,6 +179,7 @@ export function useSpacePermissionsTabBody({
   enabled,
   onToast,
   nameSearch = "",
+  spaceFilter = "all",
   page = 0,
   pageSize = 50,
   onPageMetaChange,
@@ -166,6 +188,7 @@ export function useSpacePermissionsTabBody({
   enabled: boolean;
   onToast: (message: string, type?: "success" | "error") => void;
   nameSearch?: string;
+  spaceFilter?: SpaceFilter;
   page?: number;
   pageSize?: number;
   onPageMetaChange?: (meta: { total: number; totalPages: number }) => void;
@@ -174,10 +197,10 @@ export function useSpacePermissionsTabBody({
   const [loading, setLoading] = useState(false);
   const [entries, setEntries] = useState<SpaceEntry[]>([]);
   const [selectedEntryKey, setSelectedEntryKey] = useState<string | null>(null);
-  const selectableEntries = useMemo(() => flattenEntries(entries).filter((entry) => entry.entryKind && entry.target && entry.canManage), [entries]);
+  const visibleEntries = useMemo(() => filterSpaceEntries(entries, spaceFilter), [entries, spaceFilter]);
   const selectedEntry = useMemo(
-    () => selectableEntries.find((entry) => entry.key === selectedEntryKey) ?? null,
-    [selectableEntries, selectedEntryKey],
+    () => flattenEntries(visibleEntries).find((entry) => entry.key === selectedEntryKey && entry.entryKind && entry.target && entry.canManage) ?? null,
+    [selectedEntryKey, visibleEntries],
   );
 
   useEffect(() => {
@@ -188,10 +211,6 @@ export function useSpacePermissionsTabBody({
       .then((nextEntries) => {
         if (cancelled) return;
         setEntries(nextEntries);
-        setSelectedEntryKey((current) => {
-          if (current && flattenEntries(nextEntries).some((entry) => entry.key === current && entry.entryKind && entry.target && entry.canManage)) return current;
-          return null;
-        });
       })
       .catch((error) => {
         if (!cancelled) onToast(error instanceof Error ? error.message : "加载空间权限入口失败", "error");
@@ -203,6 +222,13 @@ export function useSpacePermissionsTabBody({
       cancelled = true;
     };
   }, [enabled, onToast]);
+
+  useEffect(() => {
+    setSelectedEntryKey((current) => {
+      if (current && flattenEntries(visibleEntries).some((entry) => entry.key === current && entry.entryKind && entry.target && entry.canManage)) return current;
+      return null;
+    });
+  }, [visibleEntries]);
 
   const notifyPermissionToast = useCallback((toast: { message: string; type: "success" | "error" }) => {
     onToast(toast.message, toast.type);
@@ -232,7 +258,7 @@ export function useSpacePermissionsTabBody({
 
   return createAdminSelectorSplitBody({
     title: "空间权限",
-    items: entries,
+    items: visibleEntries,
     selectedId: selectedEntryKey,
     sections: bodySections,
     onSelect: (entry) => {
