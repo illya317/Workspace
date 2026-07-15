@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import {
   createPageBody,
   type DataSurfaceColumnSpec,
+  type FormSurfaceFieldSpec,
   createMessageSection,
   PageSurface,
   type BodySurfaceSectionSpec,
@@ -46,10 +47,12 @@ function genderLabel(value: boolean | null) {
 export default function EmployeeDirectory({
   employmentStatus,
   surface,
+  canCreate = false,
 }: {
   user: HRUser;
   employmentStatus?: "active" | "inactive";
   surface?: RosterSurfaceTabBarProps;
+  canCreate?: boolean;
 }) {
   const router = useRouter();
   const [keyword, setKeyword] = useState("");
@@ -61,6 +64,9 @@ export default function EmployeeDirectory({
   const [filterField, setFilterField] = useState("");
   const [filterValue, setFilterValue] = useState("");
   const [visibleColumns, setVisibleColumns] = useState<string[]>(EMPLOYEE_DIRECTORY_DEFAULT_VISIBLE_COLUMNS);
+  const [createName, setCreateName] = useState<string | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [reloadVersion, setReloadVersion] = useState(0);
 
   const [pageSize, setPageSize] = useState(50);
   const totalPages = useMemo(() => Math.max(1, Math.ceil(total / pageSize)), [pageSize, total]);
@@ -121,7 +127,29 @@ export default function EmployeeDirectory({
     return () => {
       cancelled = true;
     };
-  }, [employmentStatus, filterField, filterValue, keyword, page, pageSize]);
+  }, [employmentStatus, filterField, filterValue, keyword, page, pageSize, reloadVersion]);
+
+  async function createEmployee() {
+    if (!canCreate || createName === null) throw new Error("无权限新增员工");
+    setCreating(true);
+    try {
+      const response = await fetch(workspacePath("/api/modules/hr/roster/employees"), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: createName.trim() }),
+      });
+      if (!response.ok) {
+        const body = await response.json().catch(() => null) as { error?: unknown } | null;
+        throw new Error(typeof body?.error === "string" ? body.error : `新增员工失败 (${response.status})`);
+      }
+      setCreateName(null);
+      setPage(1);
+      setReloadVersion((version) => version + 1);
+      return { outcome: "saved" as const, message: "员工已新增，员工编号和登录账号已自动生成" };
+    } finally {
+      setCreating(false);
+    }
+  }
 
   const toolbarItems = buildHRToolbarItems({
     search: {
@@ -172,7 +200,44 @@ export default function EmployeeDirectory({
       : undefined,
   });
 
+  const createField: FormSurfaceFieldSpec = {
+    key: "name",
+    label: "姓名",
+    required: true,
+    spec: { valueType: "string", control: "text" },
+    value: createName ?? "",
+    placeholder: "请输入员工姓名",
+    onChange: (value) => setCreateName(String(value ?? "")),
+  };
+
   const sections: BodySurfaceSectionSpec[] = [
+    ...(canCreate ? [{
+      key: "employee-create",
+      chrome: "plain" as const,
+      body: {
+        kind: "create" as const,
+        create: {
+          id: "employee-create",
+          trigger: "toolbar" as const,
+          presentation: "inline" as const,
+          title: "新增员工",
+          open: createName !== null,
+          canCreate,
+          disabled: creating,
+          content: {
+            kind: "form" as const,
+            form: { items: [createField], layout: { columns: 1 as const, density: "compact" as const } },
+          },
+          submission: {
+            action: "save" as const,
+            disabled: creating || !createName?.trim(),
+            execute: createEmployee,
+          },
+          onOpenChange: (open: boolean) => setCreateName(open ? "" : null),
+          onCancel: () => setCreateName(null),
+        },
+      },
+    }] : []),
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
     {
       key: "employees",

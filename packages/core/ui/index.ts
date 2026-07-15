@@ -42,6 +42,7 @@ export type {
   BodySurfaceProps,
   BodySurfaceSelectorProps,
   BodySurfaceSectionGridColumns,
+  BodySurfaceSectionCreateSpec,
   BodySurfaceSectionHeaderSpec,
   BodySurfaceSectionLayout,
   BodySurfaceSectionProps,

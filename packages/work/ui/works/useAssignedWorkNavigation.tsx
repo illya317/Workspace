@@ -87,7 +87,6 @@ export function useAssignedWorkNavigation({
       canSubmitKrReview: false,
       canArchivePlan: false,
       nodeCreating: false,
-      nodeCreateInline: false,
       planSubmitDisabled: true,
       krSubmitDisabled: true,
       planFormSurface: okrSurface.planFormSurface,

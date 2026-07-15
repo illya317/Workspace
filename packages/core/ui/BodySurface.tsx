@@ -1,7 +1,7 @@
 "use client";
 
 import DataSurface from "./DataSurface";
-import CreateSurface from "./CreateSurface";
+import CreateSurface, { type CreateSurfaceSurfaceProps } from "./CreateSurface";
 import DocumentSurface from "./DocumentSurface";
 import FormSurface from "./FormSurface";
 import NavigationSurface from "./NavigationSurface";
@@ -41,11 +41,15 @@ function renderBodyList(list?: BodySurfaceListSpec) {
 
 const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrome => section.chrome ?? (section.framed === false ? "plain" : "card");
 
-function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfaceSectionChrome = sectionChrome(section)) {
+function renderSectionHeader(
+  section: BodySurfaceSectionSpec,
+  chrome: BodySurfaceSectionChrome = sectionChrome(section),
+  create: CreateSurfaceSurfaceProps | undefined = section.header?.create,
+) {
   const header = section.header;
   const disclosure = section.disclosure;
   const title = header?.title ?? section.label;
-  if (!title && !header?.badges?.length && !header?.actions?.length && !header?.create) return null;
+  if (!title && !header?.badges?.length && !header?.actions?.length && !create) return null;
   const actions = (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
       {renderCommands(header?.actions)}
@@ -73,9 +77,9 @@ function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfac
           </div>
         )}
       </div>
-      {header?.actions?.length || header?.create ? (
+      {header?.actions?.length || create ? (
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {header?.create ? <CreateSurface {...header.create} /> : null}
+          {create ? <CreateSurface {...create} /> : null}
           {header?.actions?.length ? actions : null}
         </div>
       ) : null}
@@ -108,6 +112,11 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   if (section.body.kind === "create" && section.body.create.presentation === "inline") return null;
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
+  const declaredCreate = section.header?.create;
+  const renderedCreate: CreateSurfaceSurfaceProps | undefined = declaredCreate?.presentation === "block"
+    ? { ...declaredCreate, anchor: `body-section-create:${declaredCreate.id}` }
+    : declaredCreate;
+  const createAnchor = renderedCreate?.presentation === "block" ? renderedCreate.anchor ?? null : null;
   const sectionClassName = joinClassNames(
     chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4",
     chrome === "plain" && section.header?.title ? "pt-2" : "",
@@ -116,7 +125,8 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   return (
     <BodySurfaceSectionFrame key={section.key} revealKey={section.key} itemRef={section.itemRef} className={stretchClassName}>
       <section className={sectionClassName}>
-        {renderSectionHeader(section, chrome)}
+        {renderSectionHeader(section, chrome, renderedCreate)}
+        {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
         {!section.disclosure || section.disclosure.expanded ? <BodySurface {...section.body} /> : null}
       </section>
     </BodySurfaceSectionFrame>

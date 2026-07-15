@@ -14,6 +14,9 @@ const AUTOCOMPLETE_RENDERERS = [
   "packages/core/ui/internal/input/FkFieldInput.tsx",
   "packages/core/ui/internal/input/SearchableOptionInput.tsx",
 ];
+const BODY_SURFACE_TYPES = "packages/core/ui/BodySurface.types.ts";
+const BODY_SURFACE_RENDERER = "packages/core/ui/BodySurface.tsx";
+const CREATE_ANCHOR_CONTEXT = "packages/core/ui/internal/create/CreateSurfaceAnchorContext.tsx";
 
 const mode = process.argv.includes("--staged") ? "staged" : "working-tree";
 
@@ -188,6 +191,32 @@ function findAutocompleteDisplayContractViolations() {
   return violations;
 }
 
+function findSectionCreatePlacementContractViolations() {
+  const violations = [];
+  const types = fs.readFileSync(path.join(ROOT, BODY_SURFACE_TYPES), "utf8");
+  const renderer = fs.readFileSync(path.join(ROOT, BODY_SURFACE_RENDERER), "utf8");
+  const anchorContext = fs.readFileSync(path.join(ROOT, CREATE_ANCHOR_CONTEXT), "utf8");
+
+  if (!types.includes("create?: BodySurfaceSectionCreateSpec;")) {
+    violations.push(`${BODY_SURFACE_TYPES}: section header create must use the local placement spec`);
+  }
+  if (!types.includes('{ anchor?: never }')) {
+    violations.push(`${BODY_SURFACE_TYPES}: section header block create must reject caller-provided anchors`);
+  }
+  if (!renderer.includes('`body-section-create:${declaredCreate.id}`')) {
+    violations.push(`${BODY_SURFACE_RENDERER}: section block create must receive a Core-owned anchor`);
+  }
+  const anchorIndex = renderer.indexOf("<CreateSurfaceAnchorTarget anchor={createAnchor} />");
+  const bodyIndex = renderer.indexOf("<BodySurface {...section.body} />");
+  if (anchorIndex < 0 || bodyIndex < 0 || anchorIndex > bodyIndex) {
+    violations.push(`${BODY_SURFACE_RENDERER}: section create anchor must render before the section body`);
+  }
+  if (!anchorContext.includes('className="contents"')) {
+    violations.push(`${CREATE_ANCHOR_CONTEXT}: create anchors must remain layout-neutral when closed`);
+  }
+  return violations;
+}
+
 function main() {
   const entries = getChangedEntries();
   const changedFiles = entries.map(({ file }) => file);
@@ -204,6 +233,7 @@ function main() {
   const unsyncedAdditions = findUnsyncedCoreUiAdditions(entries, registeredNames);
   const unsyncedDeletions = findUnsyncedCoreUiDeletions(entries);
   const autocompleteDisplayContractViolations = findAutocompleteDisplayContractViolations();
+  const sectionCreatePlacementContractViolations = findSectionCreatePlacementContractViolations();
   const authorized = hasAuthorization(changedFiles);
   let failed = false;
 
@@ -254,6 +284,13 @@ function main() {
     console.error("\n✗ Core UI guard: autocomplete option display contract violated.");
     console.error("  Selectable rows show only the primary search name; secondary details belong in hover/search metadata.");
     for (const violation of autocompleteDisplayContractViolations) console.error(`  - ${violation}`);
+  }
+
+  if (sectionCreatePlacementContractViolations.length > 0) {
+    failed = true;
+    console.error("\n✗ Core UI guard: section create placement contract violated.");
+    console.error("  Section header block create belongs immediately below its trigger row and before the section body.");
+    for (const violation of sectionCreatePlacementContractViolations) console.error(`  - ${violation}`);
   }
 
   if (failed) process.exit(1);

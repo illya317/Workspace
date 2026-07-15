@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type CreateSurfaceFormSpec, type CreateSurfaceProps, type FormSurfaceProps } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type CreateSurfaceProps, type FormSurfaceProps } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
@@ -9,7 +9,7 @@ import type { SessionUser } from "@workspace/platform/types";
 import { fetchWorkPeriodCollection, listTaskSpaces, listWorkTaskSubmissions, postWorkPeriodScheduleItem, type WorkPeriodScheduleCreateResult } from "./api";
 import { createEmptyWorkPlanDraft, createWorkPlanDraft, getWorkSpacePath, getWorkTargetFromPath, isWorkDraftDirty, isWorkPlanDraftDirty } from "./model";
 import { useWorks } from "./useWorks";
-import { canMaintainWorkByType, createDefaultNodeDraft, createInlineNodeAnchorId, createSpaceMetricsSection, isPlanDraftComplete, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
+import { canMaintainWorkByType, createDefaultNodeDraft, createSpaceMetricsSection, isPlanDraftComplete, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
 import { createWorkReportPeriodNavigationBody, useWorkReportsController } from "./WorkReportsPanel";
 import { workReportingSection } from "./WorkReportingSections";
 import { useWorkOkrSettingsController, workOkrSettingsBody } from "./WorkOkrSettingsPanel";
@@ -422,8 +422,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     "workflow.request.submit": { disabled: editNodeDisabled, onClick: runUpdateNodeMutation },
     "form.cancel": { label: "取消编辑", onClick: worksState.cancelEdit },
   }));
-  const createNodeAnchorId = worksState.creating && activePlan?.kind !== "routine" ? createInlineNodeAnchorId(worksState.createDraft, worksState.works) : null;
-  const createNodeInline = worksState.creating && createNodeAnchorId != null;
   const contextualNodeCreating = Boolean(
     worksState.creating
     && !(activePlan?.kind === "routine" && worksState.createDraft.routineTaskType === "task"),
@@ -432,10 +430,9 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     disabled: nodeSaveDisabled,
     execute: () => runCreateNodeMutation({ feedback: false, rethrow: true }),
   });
-  const nodeCreateSurface: Extract<CreateSurfaceProps, { trigger: "surface" }> | undefined = nodeCreateSubmission ? {
+  const nodeCreateSurface: BodySurfaceSectionCreateSpec | undefined = nodeCreateSubmission ? {
     id: "work-node-create",
     trigger: "surface",
-    anchor: "work-node-create",
     presentation: "block",
     title: activePlan?.kind === "routine" ? "新增常设职责" : createNodeLabel,
     open: contextualNodeCreating,
@@ -540,9 +537,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       editingId: worksState.editingId,
       editDraft: worksState.editDraft,
       formWorks: worksState.works,
-      creating: createNodeInline,
-      createAnchorId: createNodeAnchorId,
-      createSurfaceAnchor: "work-node-create",
       workflowRequests: approvalRequests,
       statusFilter,
       itemTypeFilter: "all",
@@ -899,11 +893,9 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     canSubmitKrReview,
     canArchivePlan: canArchive && activePlan?.kind !== "routine",
     nodeCreating: worksState.creating,
-    nodeCreateInline: createNodeInline,
     planSubmitDisabled: planSaving || worksState.saving || !activePlan || (activePlan.kind === "okr" && rootObjectives.length === 0),
     krSubmitDisabled: planSaving || worksState.saving || !activePlan,
     planFormSurface: okrPlanSurface.planFormSurface,
-    createSurfaceAnchor: "work-node-create",
     workSections: okrPlanSurface.workSections,
     plansLoading,
     hasCurrentSpacePlans: currentSpacePlans.length > 0,
