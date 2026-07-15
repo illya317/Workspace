@@ -430,7 +430,7 @@ function serializeControlPolicy(policy: {
   };
 }
 
-async function getWorkOkrControlSettings() {
+export async function getWorkOkrControlSettings() {
   const row = await prisma.systemConfig.findUnique({ where: { key: WORK_OKR_CONTROL_SETTINGS_KEY } });
   if (!row) return DEFAULT_WORK_OKR_CONTROL_SETTINGS;
   try {

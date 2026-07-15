@@ -10,7 +10,7 @@ import {
   syncDueKrReviewForPlan,
   syncDueKrReviewsForTarget,
 } from "./work-okr-stage";
-import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
+import { getWorkOkrControlSettings, resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureSystemOkrPeriodPlans, isWorkPlanVisibleInCurrentWindow, resolveDefaultPlanOwnerEmployeeId, standardOkrPlanTitle } from "./work-plan-system-periods";
 import {
   normalizeWorkPlanAlignmentInput,
@@ -163,14 +163,17 @@ export async function listWorkPlans(opts: {
   };
   if (opts.kind) where.kind = opts.kind;
   if (!opts.includeArchived) where.isArchived = false;
-  const rows = await prisma.workPlan.findMany({
-    where,
-    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-    include: workPlanInclude,
-  });
+  const [rows, { enabled: timeControlEnabled }] = await Promise.all([
+    prisma.workPlan.findMany({
+      where,
+      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+      include: workPlanInclude,
+    }),
+    getWorkOkrControlSettings(),
+  ]);
   return normalizeRoutinePlanRows(rows)
     .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds))
-    .map(toWorkPlanDto);
+    .map((row) => toWorkPlanDto(row, { timeControlEnabled }));
 }
 
 async function ensureRoutineWorkPlan(targetType: string, targetId: number) {
@@ -259,7 +262,8 @@ export async function createWorkPlan(opts: WorkPlanCommandInput & { title?: stri
     await replaceWorkPlanDecomposeAlignment(tx, created.id, command.alignment ?? null);
     return tx.workPlan.findUniqueOrThrow({ where: { id: created.id }, include: workPlanInclude });
   });
-  return { ok: true, data: toWorkPlanDto(row) };
+  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
+  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
 }
 
 export async function updateWorkPlan(planId: number, opts: Partial<Parameters<typeof createWorkPlan>[0]>): Promise<DomainServiceResult<unknown>> {
@@ -355,7 +359,8 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
     await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
     return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
   });
-  return { ok: true, data: toWorkPlanDto(row) };
+  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
+  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
 }
 
 export async function adjustWorkPlanKrReviewOpensAt(planId: number, opensAt: Date | string | null): Promise<DomainServiceResult<unknown>> {
@@ -367,7 +372,8 @@ export async function adjustWorkPlanKrReviewOpensAt(planId: number, opensAt: Dat
   if (!result.ok) return result;
   const row = await prisma.workPlan.findUnique({ where: { id }, include: workPlanInclude });
   if (!row) return { ok: false, error: "工作计划不存在", status: 404 };
-  return { ok: true, data: toWorkPlanDto(row) };
+  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
+  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
 }
 
 export async function archiveWorkPlan(planId: number, actorUserId: number): Promise<DomainServiceResult<{ success: true }>> {

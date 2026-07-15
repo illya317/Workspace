@@ -47,13 +47,14 @@ export function withFormActions(surface: FormSurfaceProps, actions: FormSurfaceA
   return { ...surface, actions };
 }
 
-export function canEditWorkByType(
+export function canMaintainWorkByType(
   work: WorkItem,
-  rules: { canEditObjectives: boolean; canEditTasks: boolean; canEditKrs: boolean },
+  maintenance: WorkPlan["maintenance"] | null | undefined,
 ) {
-  if (work.itemType === "objective") return rules.canEditObjectives;
-  if (work.itemType === "key_result") return rules.canEditKrs;
-  return rules.canEditTasks;
+  if (!maintenance) return false;
+  if (work.itemType === "objective") return maintenance.objective;
+  if (work.itemType === "key_result") return maintenance.keyResult;
+  return maintenance.task;
 }
 
 export function isPlanDraftComplete(draft: Pick<WorkPlan, "kind" | "title" | "okrCycleId" | "periodType" | "plannedStartDate" | "plannedEndDate" | "ownerEmployeeId">) {

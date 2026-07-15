@@ -65,9 +65,8 @@ export interface WorkPlan extends WorkTarget {
   kind: WorkPlanKind;
   title: string;
   description: string;
-  status: "active" | "done";
-  isArchived: boolean;
-  okrStage: WorkOkrStage;
+  status: "active" | "done"; isArchived: boolean;
+  okrStage: WorkOkrStage; maintenance: WorkPlanMaintenance;
   objectiveSubmittedAt: string | null;
   objectiveApprovedAt: string | null;
   objectiveApprovedByUserId: number | null;
@@ -126,6 +125,7 @@ export interface WorkPlan extends WorkTarget {
   updatedAt: string;
 }
 
+export type WorkPlanMaintenance = { plan: boolean; objective: boolean; task: boolean; keyResult: boolean };
 export interface WorkPlanDraft {
   id: number | null;
   kind: WorkPlanKind;

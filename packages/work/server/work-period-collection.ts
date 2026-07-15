@@ -1,6 +1,7 @@
 import { countWorkdayOverlap as countCalendarWorkdayOverlap } from "@workspace/platform/calendar";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getWorkOkrControlSettings } from "./work-okr-control";
 import { toWorkItemDto, workItemInclude } from "./work-item-dto";
 import { toWorkPlanDto, workPlanInclude } from "./work-plan-dto";
 
@@ -66,12 +67,13 @@ export async function listWorkPeriodCollection(
   });
   if (!rootCycle) return serviceError("OKR 周期不存在", 404);
   const displayPeriodType = resolveDisplayPeriodType(rootCycle.periodType, input.displayPeriodType);
-  const cycles = displayPeriodType
-    ? await listOverlapCycles(rootCycle, displayPeriodType)
-    : [];
-  const plans = await listOverlapPlans(input, rootCycle);
+  const [cycles, plans, timeControlEnabled] = await Promise.all([
+    displayPeriodType ? listOverlapCycles(rootCycle, displayPeriodType) : Promise.resolve([]),
+    listOverlapPlans(input, rootCycle),
+    getWorkOkrControlSettings().then((settings) => settings.enabled),
+  ]);
   const mappedPlans = plans.map((plan) => ({
-    plan: toWorkPlanDto(plan),
+    plan: toWorkPlanDto(plan, { timeControlEnabled }),
     overlapCycleIds: overlapCycleIds(plan.okrCycle, cycles),
   }));
   const items = input.includeItems

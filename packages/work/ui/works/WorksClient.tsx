@@ -9,7 +9,7 @@ import type { SessionUser } from "@workspace/platform/types";
 import { fetchWorkPeriodCollection, listTaskSpaces, listWorkTaskSubmissions, postWorkPeriodScheduleItem, type WorkPeriodScheduleCreateResult } from "./api";
 import { createEmptyWorkPlanDraft, createWorkPlanDraft, getWorkSpacePath, getWorkTargetFromPath, isWorkDraftDirty, isWorkPlanDraftDirty } from "./model";
 import { useWorks } from "./useWorks";
-import { canEditWorkByType, createDefaultNodeDraft, createInlineNodeAnchorId, createSpaceMetricsSection, isPlanDraftComplete, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
+import { canMaintainWorkByType, createDefaultNodeDraft, createInlineNodeAnchorId, createSpaceMetricsSection, isPlanDraftComplete, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
 import { createWorkReportPeriodNavigationBody, useWorkReportsController } from "./WorkReportsPanel";
 import { workReportingSection } from "./WorkReportingSections";
 import { useWorkOkrSettingsController, workOkrSettingsBody } from "./WorkOkrSettingsPanel";
@@ -182,6 +182,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     rootObjectives,
     createAllowedItemTypes,
     defaultCreateItemType,
+    canEditPlan,
     canEditObjectives,
     canEditTasks,
     canEditKrs,
@@ -554,8 +555,8 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       canDelete,
       canArchive,
       emptyText: activePlan?.kind === "routine" ? activeRoutineTaskId ? "该任务不存在或已删除。" : "暂无常设职责。" : "暂无目标。周期初先添加根级目标。",
-      canEditWork: (work) => !work.isArchived && canEditWorkByType(work, { canEditObjectives, canEditTasks, canEditKrs }),
-      canDeleteWork: (work) => canEditWorkByType(work, { canEditObjectives, canEditTasks, canEditKrs }),
+      canEditWork: (work) => !work.isArchived && canUpdateItem && canMaintainWorkByType(work, activePlan?.maintenance),
+      canDeleteWork: (work) => !work.isArchived && canMaintainWorkByType(work, activePlan?.maintenance),
       canArchiveWork: (work) => work.itemType === "task",
       onEditDraftChange: worksState.setEditDraft,
       editFormActions: editNodeActions,
@@ -877,7 +878,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     sectionTitle: isolatedRoutineTaskCreate ? "新建任务" : "工作计划",
     hideWorkSections: isolatedRoutineTaskCreate,
     activePlan,
-    canEditPlan: canEditObjectives,
+    canEditPlan,
     canDeletePlan: canDelete && activePlan?.kind !== "routine" && !activePlan?.okrCycleId,
     canSubmitPlanApproval: canSubmitPlanRevision,
     canSubmitObjectiveReview,

@@ -72,6 +72,7 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - `WorkOkrCycle`：工作周期事实表，统一维护年、半年、季度、月、周的固定起止日期和父子关系。
 - 周期收纳不写入 `WorkOkrCycle.parentId`，也不建立唯一上级周期；`/api/modules/work/tasks/period-collection` 是只读 read model，按 `@workspace/platform/calendar` 的中国工作日口径计算当前周期与更小粒度周期的工作日交集，决定计划和 O/KR 在哪些周期视图中展示。业务承接仍由 `WorkPlanAlignment` 和 `WorkItem.parentPeriodWorkItemId` 显式表达。
 - `WorkOkrControlPolicy`：OKR 管控策略，按周期和 `global/company/committee/department` 范围管理锁定、提交截止、KR 开放等配置；不允许建立 personal 管控范围。
+- OKR 时间管控停用时，活动计划不再按 OKR 阶段锁定计划头、目标、任务或 KR；时间管控启用时，计划头和目标只在目标草拟期维护，任务和 KR 只在执行期或 KR 开放期维护。已完成、已关闭或已归档计划始终不可维护。前端新增/编辑/删除与服务端写入共用服务端下发的维护能力，RBAC 和审批权限在此基础上继续独立叠加。
 - `WorkReport` / `WorkReportItem`：工作空间的周期汇报快照。周报、月报属于工作记录，不走目标考核流程、不锁定；同一空间、周期和汇报阶段只保留一份快照，重复保存覆盖当前快照，`submittedBy` 只记录最后保存或提交人，不参与报告身份。汇报按“目标 / 关键结果 / 本期完成情况 / 下期计划”聚合，并收纳适用于本期的日常职责；周报/月报任务已有实际开始时只按实际执行窗口归类，未实际结束或实际结束早于下一周期开始归本期，实际结束达到下一周期开始归下期，只有未实际开始时才回退计划日期；保存时固化目标与关键结果归属、任务状态、实际完成时间和计划开始/结束时间，后续修改工作计划不反写历史快照。任务没有实际完成时间时按未完成展示。
 - `sourceType`：工作项来源，允许 `department | project | meeting | other`。`department` / `project` 只允许个人空间工作项使用；`department` 只能引用当前用户自己的部门和上级管理部门链，不包含治理组织。
 - `linkedProjectId`：个人工作项项目来源的关联；`linkedProjectPhaseId` 作为阶段级项目来源。

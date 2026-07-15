@@ -144,18 +144,6 @@ export function getWorkPlanKindLabel(kind: WorkPlanKind | string | null | undefi
   return WORK_PLAN_KIND_OPTIONS.find((option) => option.value === kind)?.label || "目标计划";
 }
 
-export function canEditObjectivePlan(stage: WorkOkrStage | string | null | undefined) {
-  return stage === "objective_draft";
-}
-
-export function canMaintainTask(stage: WorkOkrStage | string | null | undefined) {
-  return stage === "executing" || stage === "kr_open";
-}
-
-export function canMaintainKr(stage: WorkOkrStage | string | null | undefined) {
-  return stage === "executing" || stage === "kr_open";
-}
-
 export function defaultWorkItemTypeForStage(stage: WorkOkrStage | string | null | undefined): WorkItemType {
   if (stage === "objective_draft") return "objective";
   if (stage === "kr_open") return "key_result";

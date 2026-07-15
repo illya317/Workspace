@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getWorkOkrControlSettings } from "./work-okr-control";
 import { toWorkItemDto, workItemInclude } from "./work-item-dto";
 import { toWorkPlanDto, workPlanInclude, type WorkPlanRow } from "./work-plan-dto";
 
@@ -56,11 +57,12 @@ async function listAssignedWorkPlanGroups(userId: number, input: { targetTypes: 
   const personalOwnerNames = await employeeNamesByUserId(plans.filter((plan) => plan.targetType === "personal").map((plan) => plan.targetId));
   const departmentNames = await departmentNamesById(plans.filter((plan) => plan.targetType === "department").map((plan) => plan.targetId));
   const projectNames = await projectNamesById(plans.filter((plan) => plan.targetType === "project").map((plan) => plan.targetId));
+  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
   return plans.map((plan) => {
     const assignedIds = assignedIdsByPlan.get(plan.id) ?? new Set<number>();
     const assignedWorks = plan.items.map(toWorkItemDto).filter((work) => assignedIds.has(work.id));
     return {
-      plan: toWorkPlanDto({ ...plan, planAlignments: [] } as WorkPlanRow),
+      plan: toWorkPlanDto({ ...plan, planAlignments: [] } as WorkPlanRow, { timeControlEnabled }),
       works: assignedWorks,
       assignedWorks,
       assignedWorkIds: [...assignedIds],

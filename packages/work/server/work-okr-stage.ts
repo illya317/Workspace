@@ -1,7 +1,9 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { validateWorkOkrStageCommand } from "./domain/work-okr-stage-validation";
+import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
 import {
+  getWorkOkrControlSettings,
   resolveWorkOkrControlScopeForPlan,
   resolveWorkOkrKrReviewOpensAt,
   upsertWorkOkrKrReviewOpenPolicy,
@@ -72,22 +74,6 @@ export function workOkrStageLabel(stage: WorkOkrStage) {
   if (stage === "kr_open") return "KR开放";
   if (stage === "kr_submitted") return "KR待核查";
   return "已关闭";
-}
-
-export function canEditWorkPlanHeader(stage: WorkOkrStage) {
-  return stage === "objective_draft";
-}
-
-export function canMaintainObjective(stage: WorkOkrStage) {
-  return stage === "objective_draft";
-}
-
-export function canMaintainTask(stage: WorkOkrStage) {
-  return stage === "executing" || stage === "kr_open";
-}
-
-export function canMaintainKr(stage: WorkOkrStage) {
-  return stage === "executing" || stage === "kr_open";
 }
 
 export function effectiveWorkOkrStage(plan: Pick<PlanStageRow, "okrStage" | "krReviewOpensAt" | "status" | "isArchived">, now = new Date()): WorkOkrStage {
@@ -173,7 +159,14 @@ export async function getWorkPlanStage(planId: number) {
 export async function assertWorkPlanHeaderStageAllowed(planId: number): Promise<DomainServiceResult<{ stage: WorkOkrStage }>> {
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (!canEditWorkPlanHeader(plan.okrStage)) {
+  const maintenance = resolveWorkPlanMaintenance({
+    kind: plan.kind,
+    stage: plan.okrStage,
+    status: plan.status,
+    isArchived: plan.isArchived,
+    timeControlEnabled: (await getWorkOkrControlSettings()).enabled,
+  });
+  if (!maintenance.plan) {
     return { ok: false, error: `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，目标审查后计划头已锁定`, status: 409 };
   }
   return { ok: true, data: { stage: plan.okrStage } };
@@ -183,8 +176,21 @@ export async function assertWorkItemStageAllowed(input: WorkItemStageInput): Pro
   if (!input.planId) return { ok: false, error: "必须选择 OKR 计划", status: 400 };
   const plan = await getWorkPlanStage(input.planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.isArchived || plan.status === "done") {
-    return { ok: false, error: "已关闭或归档的工作计划不能维护节点", status: 409 };
+  const maintenance = resolveWorkPlanMaintenance({
+    kind: plan.kind,
+    stage: plan.okrStage,
+    status: plan.status,
+    isArchived: plan.isArchived,
+    timeControlEnabled: (await getWorkOkrControlSettings()).enabled,
+  });
+  if (!canMaintainWorkItem(maintenance, input.itemType)) {
+    return {
+      ok: false,
+      error: plan.isArchived || plan.status === "done" || plan.okrStage === "closed"
+        ? "已关闭或归档的工作计划不能维护节点"
+        : `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，不能维护该类型节点`,
+      status: 409,
+    };
   }
   return { ok: true, data: { stage: plan.okrStage } };
 }
