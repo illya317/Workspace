@@ -5,33 +5,60 @@ import type {
   FinanceAssetCardDto,
   FinanceAssetKind,
   FinanceAssetWorkspaceDto,
+  UpdateFinanceAssetCardInput,
 } from "../../types/assets";
 import { calculateStraightLinePeriod } from "./calculator";
-import { buildCreateFinanceAssetAdjustmentCommand, buildCreateFinanceAssetCardCommand, buildRecalculateFinanceAssetPeriodCommand } from "../domain/asset-validation";
+import { buildCreateFinanceAssetAdjustmentCommand, buildCreateFinanceAssetCardCommand, buildRecalculateFinanceAssetPeriodCommand, buildUpdateFinanceAssetCardCommand } from "../domain/asset-validation";
 
 const money = (value: unknown) => Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+
+function assetCardWriteData(input: CreateFinanceAssetCardInput, userId: number) {
+  return {
+    companyCode: input.companyCode,
+    assetCode: input.assetCode,
+    name: input.name,
+    assetKind: input.assetKind,
+    category: input.category || null,
+    assetAccountCode: input.assetAccountCode,
+    accumulatedAccountCode: input.accumulatedAccountCode || null,
+    acquisitionDate: input.acquisitionDate || null,
+    depreciationStartDate: input.depreciationStartDate || null,
+    originalCost: input.originalCost,
+    residualRate: input.residualRate ?? 0,
+    usefulLifeMonths: input.usefulLifeMonths ?? null,
+    method: input.method || "straight_line",
+    openingAccumulatedAmount: input.openingAccumulatedAmount ?? 0,
+    openingAsOfDate: input.openingAsOfDate || null,
+    nonAmortizationReason: input.nonAmortizationReason || null,
+    note: input.note || null,
+    editedBy: userId,
+  };
+}
 
 export async function createFinanceAssetCard(input: CreateFinanceAssetCardInput, userId: number) {
   const command = buildCreateFinanceAssetCardCommand(input, userId);
   if (!command.ok) throw new Error(command.issue.message);
   input = command.data.input;
   return prisma.financeAssetCard.create({
-    data: {
-      ...input,
-      category: input.category || null,
-      accumulatedAccountCode: input.accumulatedAccountCode || null,
-      acquisitionDate: input.acquisitionDate || null,
-      depreciationStartDate: input.depreciationStartDate || null,
-      residualRate: input.residualRate ?? 0,
-      usefulLifeMonths: input.usefulLifeMonths ?? null,
-      method: input.method || "straight_line",
-      openingAccumulatedAmount: input.openingAccumulatedAmount ?? 0,
-      openingAsOfDate: input.openingAsOfDate || null,
-      nonAmortizationReason: input.nonAmortizationReason || null,
-      note: input.note || null,
-      editedBy: userId,
-    },
+    data: assetCardWriteData(input, userId),
   });
+}
+
+export async function updateFinanceAssetCard(input: UpdateFinanceAssetCardInput, userId: number) {
+  const command = buildUpdateFinanceAssetCardCommand(input, userId);
+  if (!command.ok) throw new Error(command.issue.message);
+  input = command.data.input;
+  const existing = await prisma.financeAssetCard.findUnique({ where: { id: input.id }, select: { companyCode: true, version: true } });
+  if (!existing || existing.companyCode !== input.companyCode) throw new Error("资产卡片不存在或不属于当前公司");
+  if (existing.version !== input.version) throw new Error("资产卡片已被其他人修改，请刷新后重试");
+  const duplicate = await prisma.financeAssetCard.findFirst({ where: { companyCode: input.companyCode, assetCode: input.assetCode, id: { not: input.id } }, select: { id: true } });
+  if (duplicate) throw new Error("资产编号已存在");
+  const updated = await prisma.financeAssetCard.updateMany({
+    where: { id: input.id, companyCode: input.companyCode, version: input.version },
+    data: { ...assetCardWriteData(input, userId), version: { increment: 1 } },
+  });
+  if (updated.count !== 1) throw new Error("资产卡片已被其他人修改，请刷新后重试");
+  return prisma.financeAssetCard.findUniqueOrThrow({ where: { id: input.id } });
 }
 
 export async function createFinanceAssetAdjustment(input: CreateFinanceAssetAdjustmentInput, userId: number) {
@@ -85,6 +112,8 @@ function toCardDto(card: Awaited<ReturnType<typeof loadCards>>[number]): Finance
     note: card.note,
     sourceSheet: card.sourceSheet,
     sourceRow: card.sourceRow,
+    openingAsOfDate: card.openingAsOfDate,
+    version: card.version,
     grossCost: money(gross),
     waivedCost: money(waived),
     capitalizedCost: money(gross - waived),

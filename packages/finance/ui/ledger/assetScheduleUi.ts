@@ -10,6 +10,7 @@ import type {
   FinanceAssetCardDto,
   FinanceAssetPeriodRowDto,
   FinanceAssetReconciliationDto,
+  UpdateFinanceAssetCardInput,
 } from "../../types/assets";
 import { formatFinanceAmount } from "../formatters";
 
@@ -26,6 +27,30 @@ export function emptyAssetDraft(companyCode: string): CreateFinanceAssetCardInpu
 
 export function emptyAdjustmentDraft(companyCode: string, year: number, month: number): CreateFinanceAssetAdjustmentInput {
   return { companyCode, year, month, assetId: null, accountCode: "1602", amount: 0, reason: "" };
+}
+
+export function editAssetDraft(card: FinanceAssetCardDto): UpdateFinanceAssetCardInput {
+  return {
+    id: card.id,
+    version: card.version,
+    companyCode: card.companyCode,
+    assetCode: card.assetCode,
+    name: card.name,
+    assetKind: card.assetKind,
+    category: card.category,
+    assetAccountCode: card.assetAccountCode,
+    accumulatedAccountCode: card.accumulatedAccountCode,
+    acquisitionDate: card.acquisitionDate,
+    depreciationStartDate: card.depreciationStartDate,
+    originalCost: card.originalCost,
+    residualRate: card.residualRate,
+    usefulLifeMonths: card.usefulLifeMonths,
+    method: card.method,
+    openingAccumulatedAmount: card.openingAccumulatedAmount,
+    openingAsOfDate: card.openingAsOfDate,
+    nonAmortizationReason: card.nonAmortizationReason,
+    note: card.note,
+  };
 }
 
 function textField(key: keyof CreateFinanceAssetCardInput, label: string, draft: CreateFinanceAssetCardInput, onChange: (key: keyof CreateFinanceAssetCardInput, value: unknown) => void, required = false): FormSurfaceFieldSpec {
@@ -72,10 +97,14 @@ export function adjustmentFormSections(draft: CreateFinanceAssetAdjustmentInput,
 }
 
 const amountCell = (value: number) => ({ kind: "amount" as const, value, minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const assetNameCell = (value: string) => {
+  const characters = Array.from(value);
+  return { kind: "text" as const, value: characters.length > 10 ? `${characters.slice(0, 10).join("")}...` : value, title: value };
+};
 
 export const assetCardColumns: DataSurfaceColumnSpec<FinanceAssetCardDto>[] = [
   { key: "code", label: "资产编号", required: true, font: "mono", cell: (row) => row.assetCode },
-  { key: "name", label: "资产名称", required: true, cell: (row) => row.name },
+  { key: "name", label: "资产名称", required: true, cell: (row) => assetNameCell(row.name) },
   { key: "kind", label: "类型", cell: (row) => KIND_LABELS[row.assetKind] },
   { key: "account", label: "资产/累计科目", cell: (row) => `${row.assetAccountCode}${row.accumulatedAccountCode ? ` / ${row.accumulatedAccountCode}` : ""}` },
   { key: "start", label: "起算日期", cell: (row) => row.depreciationStartDate || "—" },
@@ -88,7 +117,7 @@ export const assetCardColumns: DataSurfaceColumnSpec<FinanceAssetCardDto>[] = [
 
 export const assetPeriodColumns: DataSurfaceColumnSpec<FinanceAssetPeriodRowDto>[] = [
   { key: "code", label: "资产编号", required: true, font: "mono", cell: (row) => row.assetCode },
-  { key: "name", label: "资产名称", required: true, cell: (row) => row.name },
+  { key: "name", label: "资产名称", required: true, cell: (row) => assetNameCell(row.name) },
   { key: "account", label: "累计科目", font: "mono", cell: (row) => row.accountCode },
   { key: "start", label: "起算日期", cell: (row) => row.depreciationStartDate || "—" },
   { key: "cost", label: "原值", align: "right", cell: (row) => amountCell(row.originalCost) },

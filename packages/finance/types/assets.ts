@@ -21,6 +21,8 @@ export type FinanceAssetCardDto = {
   note: string | null;
   sourceSheet: string | null;
   sourceRow: number | null;
+  openingAsOfDate: string | null;
+  version: number;
   grossCost: number;
   waivedCost: number;
   capitalizedCost: number;
@@ -99,6 +101,11 @@ export type CreateFinanceAssetCardInput = {
   openingAsOfDate?: string | null;
   nonAmortizationReason?: string | null;
   note?: string | null;
+};
+
+export type UpdateFinanceAssetCardInput = CreateFinanceAssetCardInput & {
+  id: number;
+  version: number;
 };
 
 export type CreateFinanceAssetAdjustmentInput = {

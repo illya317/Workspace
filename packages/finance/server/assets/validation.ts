@@ -1,5 +1,5 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
-import type { CreateFinanceAssetAdjustmentInput, CreateFinanceAssetCardInput, FinanceAssetKind } from "../../types/assets";
+import type { CreateFinanceAssetAdjustmentInput, CreateFinanceAssetCardInput, FinanceAssetKind, UpdateFinanceAssetCardInput } from "../../types/assets";
 
 const ASSET_KINDS = new Set<FinanceAssetKind>(["fixed_asset", "intangible", "prepaid", "long_term_deferred"]);
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
@@ -32,6 +32,17 @@ export function buildCreateFinanceAssetCardCommand(
   }
   if (body.usefulLifeMonths && !body.depreciationStartDate) return failCommand("设置期限时必须填写起算日期", 400, "depreciationStartDate");
   return okCommand({ input: { ...body, companyCode, assetCode, name, assetAccountCode, residualRate }, userId });
+}
+
+export function buildUpdateFinanceAssetCardCommand(
+  body: UpdateFinanceAssetCardInput,
+  userId: number,
+): DomainValidationResult<{ input: UpdateFinanceAssetCardInput; userId: number }> {
+  if (!Number.isInteger(body.id) || body.id <= 0) return failCommand("资产卡片无效", 400, "id");
+  if (!Number.isInteger(body.version) || body.version <= 0) return failCommand("资产版本无效", 400, "version");
+  const command = buildCreateFinanceAssetCardCommand(body, userId);
+  if (!command.ok) return command;
+  return okCommand({ input: { ...command.data.input, id: body.id, version: body.version }, userId });
 }
 
 export function buildCreateFinanceAssetAdjustmentCommand(

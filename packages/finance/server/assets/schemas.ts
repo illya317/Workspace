@@ -29,6 +29,11 @@ export const createFinanceAssetCardSchema = z.object({
   note: nullableText,
 });
 
+export const updateFinanceAssetCardSchema = createFinanceAssetCardSchema.extend({
+  id: z.coerce.number().int().positive(),
+  version: z.coerce.number().int().positive(),
+});
+
 export const createFinanceAssetAdjustmentSchema = z.object({
   companyCode: z.string().trim().min(1),
   year: z.coerce.number().int().min(2000).max(2100),

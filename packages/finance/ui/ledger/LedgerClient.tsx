@@ -13,12 +13,14 @@ import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 export default function LedgerClient({
   canCreate,
+  canUpdate,
   canRevise,
   canExport,
   defaultScope,
   user,
 }: {
   canCreate: boolean;
+  canUpdate: boolean;
   canRevise: boolean;
   canExport: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
@@ -54,7 +56,7 @@ export default function LedgerClient({
       {activeTab === "vouchers" && <VoucherTab defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "ledger" && <LedgerTab defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canUpdate={canUpdate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
     </>
   );
 }

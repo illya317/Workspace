@@ -341,7 +341,7 @@ npm run budget:sync-accounts
 | `GET/PUT /api/modules/finance/ledger/reclass-rules` | 重分类规则读取与 change-set 保存 |
 | `PUT /api/modules/finance/ledger/reclass-adjustments` | 期间重分类调整 change-set 保存 |
 | `GET/POST/PATCH /api/modules/finance/ledger/reclass-results` | 重分类结果列表/生成/审核 |
-| `GET/POST /api/modules/finance/ledger/assets` | 资产卡片和月度折旧摊销工作台 |
+| `GET/POST/PUT /api/modules/finance/ledger/assets` | 资产卡片和月度折旧摊销工作台；更新使用卡片版本防止覆盖并发修改 |
 | `POST /api/modules/finance/ledger/asset-adjustments` | 独立补录调整，不改写正常计算政策 |
 | `POST /api/modules/finance/ledger/asset-periods/recalculate` | 按资产卡片重算开放期间 |
 | `GET/POST/DELETE /api/modules/finance/cost/*` | 成本管理子模块 |

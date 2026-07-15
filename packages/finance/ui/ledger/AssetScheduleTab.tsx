@@ -5,6 +5,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { matchSearchFields } from "@workspace/platform/search";
 import {
   PageSurface,
+  createFieldsSection,
   createMessageSection,
   createMetricsSection,
   createPageBody,
@@ -18,7 +19,9 @@ import {
 import type {
   CreateFinanceAssetAdjustmentInput,
   CreateFinanceAssetCardInput,
+  FinanceAssetCardDto,
   FinanceAssetWorkspaceDto,
+  UpdateFinanceAssetCardInput,
 } from "../../types/assets";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
@@ -31,6 +34,7 @@ import {
   assetReconciliationColumns,
   emptyAdjustmentDraft,
   emptyAssetDraft,
+  editAssetDraft,
   formatFinanceAmount,
 } from "./assetScheduleUi";
 
@@ -38,12 +42,14 @@ type AssetView = "cards" | "period" | "adjustments" | "reconciliation";
 
 export default function AssetScheduleTab({
   canCreate,
+  canUpdate,
   canRevise,
   defaultScope,
   navigation,
   lifecycleBlocks = [],
 }: {
   canCreate: boolean;
+  canUpdate: boolean;
   canRevise: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
@@ -57,7 +63,10 @@ export default function AssetScheduleTab({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [assetDraft, setAssetDraft] = useState<CreateFinanceAssetCardInput | null>(null);
+  const [editingAssetDraft, setEditingAssetDraft] = useState<UpdateFinanceAssetCardInput | null>(null);
   const [adjustmentDraft, setAdjustmentDraft] = useState<CreateFinanceAssetAdjustmentInput | null>(null);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
   const [saving, setSaving] = useState(false);
   const feedback = useFeedback();
   const activeView: AssetView = isAssetView(navigation?.activeChild) ? navigation.activeChild : "cards";
@@ -111,6 +120,21 @@ export default function AssetScheduleTab({
     }
   }
 
+  async function saveAssetEdit() {
+    if (!editingAssetDraft) return;
+    setSaving(true);
+    try {
+      await putJson("/api/modules/finance/ledger/assets", editingAssetDraft);
+      setEditingAssetDraft(null);
+      feedback.success("资产卡片已更新；如计算政策有变化，请重新计算开放期间");
+      await load();
+    } catch (caught) {
+      feedback.error(caught instanceof Error ? caught.message : "资产卡片更新失败");
+    } finally {
+      setSaving(false);
+    }
+  }
+
   async function recalculate() {
     if (!companyCode || !year || !month) return;
     setSaving(true);
@@ -127,33 +151,40 @@ export default function AssetScheduleTab({
 
   const cards = useMemo(() => (workspace?.cards ?? []).filter((row) => matchSearchFields(row, keyword, ["assetCode", "name", "category", "assetAccountCode"])), [keyword, workspace?.cards]);
   const periodRows = useMemo(() => (workspace?.periodRows ?? []).filter((row) => matchSearchFields(row, keyword, ["assetCode", "name", "accountCode"])), [keyword, workspace?.periodRows]);
+  const total = activeView === "cards" ? cards.length : activeView === "period" ? periodRows.length : activeView === "adjustments" ? workspace?.adjustments.length ?? 0 : workspace?.reconciliation.length ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / pageSize));
+
+  useEffect(() => { setPage(1); }, [activeView, companyCode, keyword, month, pageSize, year]);
+  useEffect(() => { if (page > totalPages) setPage(totalPages); }, [page, totalPages]);
 
   const extraItems: SurfaceToolbarItems = [
     ...(activeView === "period" && canRevise ? [{ kind: "action-group" as const, key: "asset-period-actions", actions: [{ key: "recalculate", kind: "refresh" as const, label: "重新计算", disabled: saving || workspace?.scope.isClosed, onClick: () => void recalculate() }] }] : []),
-    { kind: "text", key: "asset-period-state", content: workspace?.scope.isClosed ? "期间已关闭 · 调整需单独留痕" : "期间开放" },
+    ...(activeView === "cards" ? [] : [{ kind: "text" as const, key: "asset-period-state", content: periodStateText(workspace) }]),
   ];
   const toolbarItems = useFinanceFilterToolbarItems({
     companyFilter: companyCode,
     yearFilter: year,
     monthFilter: month,
     keyword,
-    onCompanyChange: (value) => { setCompanyCode(value); setAssetDraft(null); setAdjustmentDraft(null); },
-    onYearChange: (value) => { setYear(value); setAssetDraft(null); setAdjustmentDraft(null); },
-    onMonthChange: (value) => { setMonth(value); setAssetDraft(null); setAdjustmentDraft(null); },
+    pageSize,
+    onCompanyChange: (value) => { setCompanyCode(value); setAssetDraft(null); setEditingAssetDraft(null); setAdjustmentDraft(null); },
+    onYearChange: (value) => { setYear(value); setAssetDraft(null); setEditingAssetDraft(null); setAdjustmentDraft(null); },
+    onMonthChange: (value) => { setMonth(value); setAssetDraft(null); setEditingAssetDraft(null); setAdjustmentDraft(null); },
     onKeywordChange: setKeyword,
-    showPageSize: false,
+    onPageSizeChange: setPageSize,
     extraItems,
   });
   const sections = [
     ...lifecycleBlocks,
     ...(loading ? [createStatusSection("asset-loading", { kind: "loading", content: "正在加载资产折旧摊销" })] : []),
     ...(error ? [createStatusSection("asset-error", { kind: "error", content: error })] : []),
-    ...(!loading && !error ? buildViewSections(activeView, workspace, cards, periodRows) : []),
+    ...(!loading && !error ? buildViewSections({ view: activeView, workspace, cards, periodRows, page, pageSize, canEdit: canUpdate, saving, onEdit: (card) => setEditingAssetDraft(editAssetDraft(card)) }) : []),
     ...(activeView === "cards" ? [assetCreateSection()] : []),
+    ...(editingAssetDraft ? [assetEditModalSection()] : []),
     ...(activeView === "adjustments" ? [adjustmentCreateSection()] : []),
   ];
 
-  return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
+  return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }} />;
 
   function assetCreateSection(): BodySurfaceSectionSpec {
     return { key: "asset-create", chrome: "plain", body: { kind: "create", create: {
@@ -172,17 +203,49 @@ export default function AssetScheduleTab({
       onOpenChange: (open) => setAdjustmentDraft(open ? emptyAdjustmentDraft(companyCode, Number(year), Number(month)) : null), onCancel: () => setAdjustmentDraft(null),
     } } };
   }
+
+  function assetEditModalSection(): BodySurfaceSectionSpec {
+    const draft = editingAssetDraft!;
+    const formSections = assetFormSections(draft, (key, value) => setEditingAssetDraft((current) => current ? ({ ...current, [key]: value } as UpdateFinanceAssetCardInput) : null));
+    return {
+      key: "asset-edit-modal-host",
+      chrome: "plain",
+      body: { kind: "section", modals: [{
+        key: "asset-edit-modal",
+        open: true,
+        title: "编辑资产卡片",
+        size: "lg",
+        onClose: () => setEditingAssetDraft(null),
+        sections: formSections.map((section) => createFieldsSection(`asset-edit-${section.key}`, section.items, { layout: section.layout, header: section.title ? { title: section.title } : undefined })),
+        actions: [
+          { key: "cancel", label: "取消", onClick: () => setEditingAssetDraft(null), disabled: saving },
+          { key: "save", label: saving ? "保存中..." : "保存", icon: "save", variant: "primary", onClick: () => void saveAssetEdit(), disabled: saving || !draft.assetCode || !draft.name || !draft.assetAccountCode },
+        ],
+      }] },
+    };
+  }
 }
 
-function buildViewSections(view: AssetView, workspace: FinanceAssetWorkspaceDto | null, cards: FinanceAssetWorkspaceDto["cards"], periodRows: FinanceAssetWorkspaceDto["periodRows"]): BodySurfaceSectionSpec[] {
+function buildViewSections({ view, workspace, cards, periodRows, page, pageSize, canEdit, saving, onEdit }: {
+  view: AssetView;
+  workspace: FinanceAssetWorkspaceDto | null;
+  cards: FinanceAssetWorkspaceDto["cards"];
+  periodRows: FinanceAssetWorkspaceDto["periodRows"];
+  page: number;
+  pageSize: number;
+  canEdit: boolean;
+  saving: boolean;
+  onEdit: (card: FinanceAssetCardDto) => void;
+}): BodySurfaceSectionSpec[] {
   if (!workspace) return [createStatusSection("asset-empty-scope", { kind: "empty", content: "请选择公司、年度和月份" })];
+  const pageRows = <T,>(rows: T[]) => rows.slice((page - 1) * pageSize, page * pageSize);
   if (view === "cards") return [
     createMetricsSection("asset-card-metrics", { metrics: [
       { key: "count", label: "资产卡片", value: cards.length },
       { key: "cost", label: "入账原值", value: `¥${formatFinanceAmount(cards.reduce((sum, row) => sum + row.originalCost, 0))}` },
       { key: "waived", label: "成本免除", value: `¥${formatFinanceAmount(cards.reduce((sum, row) => sum + row.waivedCost, 0))}` },
     ] }),
-    createPageTableSection("asset-cards", { rows: cards, columns: assetCardColumns, visibleColumns: assetCardColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无资产卡片", presentation: { density: "compact" }, scroll: { x: true } }),
+    createPageTableSection("asset-cards", { rows: pageRows(cards), columns: assetCardColumns, visibleColumns: assetCardColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无资产卡片", presentation: { density: "compact" }, scroll: { x: true }, rowActions: canEdit ? (row) => [{ key: "edit", kind: "edit", label: "编辑资产", disabled: saving, onClick: () => onEdit(row) }] : undefined }),
   ];
   if (view === "period") return [
     createMetricsSection("asset-period-metrics", { metrics: [
@@ -192,11 +255,11 @@ function buildViewSections(view: AssetView, workspace: FinanceAssetWorkspaceDto 
       { key: "difference", label: "凭证差异", value: `¥${formatFinanceAmount(workspace.metrics.difference)}` },
     ] }),
     createMessageSection("asset-period-rule", { tone: "muted", content: "正常折旧/摊销由资产卡片政策计算；补录金额只进入调整事项，不修改资产原值、期限或未来月份公式。" }),
-    createPageTableSection("asset-period-rows", { rows: periodRows, columns: assetPeriodColumns, visibleColumns: assetPeriodColumns.map((column) => column.key), rowKey: (row) => row.assetId, emptyText: "本期尚未生成折旧摊销", presentation: { density: "compact" }, scroll: { x: true } }),
+    createPageTableSection("asset-period-rows", { rows: pageRows(periodRows), columns: assetPeriodColumns, visibleColumns: assetPeriodColumns.map((column) => column.key), rowKey: (row) => row.assetId, emptyText: "本期尚未生成折旧摊销", presentation: { density: "compact" }, scroll: { x: true } }),
   ];
   if (view === "adjustments") return [
     createMetricsSection("asset-adjustment-metrics", { metrics: [{ key: "count", label: "调整事项", value: workspace.adjustments.length }, { key: "amount", label: "已确认调整", value: `¥${formatFinanceAmount(workspace.metrics.adjustmentAmount)}` }] }),
-    createPageTableSection("asset-adjustments", { rows: workspace.adjustments, columns: assetAdjustmentColumns, visibleColumns: assetAdjustmentColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无调整事项", presentation: { density: "compact" } }),
+    createPageTableSection("asset-adjustments", { rows: pageRows(workspace.adjustments), columns: assetAdjustmentColumns, visibleColumns: assetAdjustmentColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无调整事项", presentation: { density: "compact" } }),
   ];
   return [
     createMetricsSection("asset-reconciliation-metrics", { metrics: [
@@ -205,7 +268,7 @@ function buildViewSections(view: AssetView, workspace: FinanceAssetWorkspaceDto 
       { key: "ledger", label: "总账本期净额", value: `¥${formatFinanceAmount(workspace.metrics.ledgerAmount)}` },
       { key: "difference", label: "凭证差异", value: `¥${formatFinanceAmount(workspace.metrics.difference)}` },
     ] }),
-    createPageTableSection("asset-reconciliation", { rows: workspace.reconciliation, columns: assetReconciliationColumns, visibleColumns: assetReconciliationColumns.map((column) => column.key), rowKey: (row) => row.accountCode, emptyText: "本期暂无可勾稽数据", presentation: { density: "compact" } }),
+    createPageTableSection("asset-reconciliation", { rows: pageRows(workspace.reconciliation), columns: assetReconciliationColumns, visibleColumns: assetReconciliationColumns.map((column) => column.key), rowKey: (row) => row.accountCode, emptyText: "本期暂无可勾稽数据", presentation: { density: "compact" } }),
   ];
 }
 
@@ -217,8 +280,21 @@ function errorMessage(value: unknown, fallback: string) {
   return value && typeof value === "object" && "error" in value && typeof value.error === "string" ? value.error : fallback;
 }
 
+function periodStateText(workspace: FinanceAssetWorkspaceDto | null) {
+  if (!workspace?.scope.periodId) return "当前期间：未创建";
+  return workspace.scope.isClosed ? "当前期间：已关账 · 调整需单独留痕" : "当前期间：未关账";
+}
+
 async function postJson(path: string, body: unknown) {
-  const response = await fetch(workspacePath(path), { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  return sendJson(path, "POST", body);
+}
+
+async function putJson(path: string, body: unknown) {
+  return sendJson(path, "PUT", body);
+}
+
+async function sendJson(path: string, method: "POST" | "PUT", body: unknown) {
+  const response = await fetch(workspacePath(path), { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
   const data = await response.json().catch(() => null);
   if (!response.ok) throw new Error(errorMessage(data, `操作失败 (${response.status})`));
   return data;

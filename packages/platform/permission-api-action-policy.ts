@@ -105,6 +105,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/finance/import/confirm", requiredActions: ["import"] },
   { method: "POST", pathPrefix: "/api/modules/finance/import", requiredActions: ["import"] },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/assets", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/ledger\/assets$/ },
+  { method: "PUT", pathPrefix: "/api/modules/finance/ledger/assets", requiredActions: ["update"], pathPattern: /^\/api\/modules\/finance\/ledger\/assets$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/asset-adjustments", requiredActions: ["revise"] },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/asset-periods/recalculate", requiredActions: ["revise"] },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["update"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/post$/ },

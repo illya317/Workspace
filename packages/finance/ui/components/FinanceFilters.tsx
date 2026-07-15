@@ -18,7 +18,7 @@ const LEVEL_OPTIONS = [1, 2, 3, 4, 5].map((level) => ({
   label: `${level}级`,
 }));
 
-const PAGE_SIZE_OPTIONS = [20, 50, 100, 200].map((size) => ({
+const PAGE_SIZE_OPTIONS = [20, 50, 100].map((size) => ({
   value: String(size),
   label: `${size}条/页`,
 }));
