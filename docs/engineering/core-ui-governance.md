@@ -245,7 +245,7 @@ Surface 使用红线：
 Platform Core UI direct import 按以下 recipe 清：
 
 1. 权限矩阵这类 inline action：使用 `BodySurface` + `createActionsSection`，或在上级 table cell spec 中返回 `DataSurfaceCellSpec kind="action/actions"`。
-2. `AuditLogModal`、`NotificationBell` 这类 overlay：外层 overlay 可以保留 Platform 专有行为；内部筛选、表单内容使用 typed BodySurface sections，分页使用 `BodySurfaceModalSpec.pagination` 并固定渲染在 modal footer。
+2. `AuditLogModal`、`NotificationBell` 这类 overlay：外层 overlay 保留在实际 owner（例如 HR roster 审计或 Platform 通知）；内部筛选、表单内容使用 typed BodySurface sections，分页使用 `BodySurfaceModalSpec.pagination` 并固定渲染在 modal footer。
 3. Admin tabs 的表单/表格：返回 `BodySurfaceProps` 或 typed sections 给唯一 PageSurface；不要为了系统页重新开放直接 renderer。
 
 28 个 `AppShell` primitive 是页面壳迁移债，单独处理：

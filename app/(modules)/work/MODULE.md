@@ -147,7 +147,7 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - root admin 只管理流程设置和台账，不自动成为 Work 业务审批人。动态 Work 待办来自 `submitted` 审批单投影，不是可删除通知；只能通过流程动作结束。
 - 八个目标/考核流程默认启用，但允许管理员显式关闭。关闭后，具备对应 `update` 权限的操作者复用同一 domain validator 和 commit 直接写入，不创建伪审批单；时间安排审批通过后的 command 必须保留 `workflow-approved` 标记，避免正式写入再次触发同一流程。
 - `提交部门协作` 同样允许关闭；关闭后创建和修改都按负责部门的 `work.tasks:update` 权限复用协作 validator 与 commit 直接写入，不创建 `ApprovalRequest`。
-- 员工侧绩效评审入口挂在 `/work/performance`；HR 汇总只读与终评处理入口挂在 `/hr/performance`。两个入口可以分别演进，但正式绩效记录仍写入 HR-owned `HrPerformanceReview`，HR 的 `hr.performance` resource 继续控制归档和终审能力。跨入口复用的周期材料布局只放在 Platform render contract，Work/HR 各自保留查询、权限与编辑状态。
+- 员工侧绩效评审入口挂在 `/work/performance`，但由 HR-owned `EmployeePerformanceClient` 挂载；HR 汇总只读与终评处理入口挂在 `/hr/performance`。两个入口可以分别演进，但绩效 API、编辑状态和正式记录统一归 HR，Work 包不直接调用 HR API。HR 的 `hr.performance` resource 继续控制归档和终审能力，跨入口复用的周期材料布局只放在 Platform render contract。
 - 员工所属部门优先取当前有效主岗位；没有主岗位但只有一个有效部门时使用该部门；多部门无法判断时禁止提交。
 - 部门绩效看组织目标/KR、重点项目、目标考核表和协同结果；个人绩效看个人 owner/参与的工作项、岗位职责履行和评价证据。个人绩效材料可以来自 department、project、personal 空间，不要求先复制成个人 OKR。
 - 部门目标和个人目标本轮使用独立 business action key；个人流程仍可按管控部门投影审批，不让 personal 空间直接进入组织流程配置。

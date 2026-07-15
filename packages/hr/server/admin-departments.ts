@@ -1,6 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { loadCompanyMap, resolveCompanyCode } from "./company-directory";
+import { loadCompanyMap, resolveCompanyCode } from "@workspace/platform/server/company-directory";
 
 type CompanyMapEntry = {
   name?: string;

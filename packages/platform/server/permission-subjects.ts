@@ -1,32 +1,32 @@
 import {
   type SubjectType,
-} from "@workspace/platform/server/auth";
-import { getActionGrants } from "@workspace/platform/server/rbac/action-grants";
-import { buildPermissionRecords, type PermissionRecord } from "@workspace/platform/server/rbac/action-records";
-import { buildSpaceEntryImplicitAccessGrants } from "@workspace/platform/server/rbac/space-entry";
+} from "./auth";
+import { getActionGrants } from "./rbac/action-grants";
+import { buildPermissionRecords, type PermissionRecord } from "./rbac/action-records";
+import { buildSpaceEntryImplicitAccessGrants } from "./rbac/space-entry";
 import {
   getProjectedAncestorResourceKeys,
   getProjectedChildResourceKeys,
   type PermissionResourceProjectionKind,
-} from "@workspace/platform/server/rbac/resource-projection";
-import type { PermissionActionKey, PermissionActionSource } from "@workspace/platform/permission-actions";
-import { prisma } from "@workspace/platform/server/prisma";
-import { isCapabilityResource } from "@workspace/platform/resources";
+} from "./rbac/resource-projection";
+import type { PermissionActionKey, PermissionActionSource } from "../permission-actions";
+import { prisma } from "./prisma";
+import { isCapabilityResource } from "../resources";
 import {
   getDefaultResourceAction,
   IMPLICIT_ALL_ADMIN_EMPLOYEE_IDS,
   isDefaultAccessResource,
-} from "@workspace/platform/server/rbac/implicit";
-import { getGrantablePermissionActions } from "@workspace/platform/permission-action-grantability";
-import { getImplicitGrantManagerPositionIds } from "@workspace/platform/server/rbac/implicit-admins";
+} from "./rbac/implicit";
+import { getGrantablePermissionActions } from "../permission-action-grantability";
+import { getImplicitGrantManagerPositionIds } from "./rbac/implicit-admins";
 import {
   getImplicitAllResourceAdminActionKeys,
   getImplicitAllResourceGrantActionKeys,
-} from "@workspace/platform/permission-implicit-actions";
+} from "../permission-implicit-actions";
 import {
   getNaturalSpaceActionProfileActionKeys,
   type NaturalSpaceActionProfile,
-} from "@workspace/platform/permission-natural-space-actions";
+} from "../permission-natural-space-actions";
 
 import { loadCompanyMap, getCompanyNameSync } from "./company-directory";
 

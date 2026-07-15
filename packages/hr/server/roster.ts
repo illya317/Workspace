@@ -2,7 +2,7 @@ import { Prisma } from "@workspace/platform/server/prisma";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import * as XLSX from "xlsx";
-import { getCompanyNameSync, isPharmaSync, listActiveCompanies, loadCompanyMap } from "./company-directory";
+import { getCompanyNameSync, isPharmaSync, listActiveCompanies, loadCompanyMap } from "@workspace/platform/server/company-directory";
 
 export const ROSTER_FIELDS = [
   { key: "employeeId", label: "ID" },

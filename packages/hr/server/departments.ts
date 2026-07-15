@@ -6,7 +6,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { matchAnyField } from "@workspace/platform/search";
 import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
-import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
+import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";
 import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import {
   buildDepartmentUpdateCommand,

@@ -42,7 +42,7 @@ const emptyDraft: ReviewDraft = {
   comment: "",
 };
 
-export default function WorkPerformanceClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
+export default function EmployeePerformanceClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
   const [activeTab, setActiveTab] = useState<PerfTab>("attendance");
   const [data, setData] = useState<DashboardData | null>(null);
   const [cycleId, setCycleId] = useState<string>("");

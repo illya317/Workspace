@@ -9,6 +9,12 @@ type CompanyDirectoryRow = {
   sortOrder: number;
 };
 
+export interface CompanyDirectoryOption {
+  code: string;
+  name: string;
+  isActive: boolean;
+}
+
 let cache: Map<string, unknown> | null = null;
 let cacheTime = 0;
 const CACHE_TTL_MS = 30_000;
@@ -38,6 +44,13 @@ async function getAll(): Promise<CompanyDirectoryRow[]> {
 export async function listActiveCompanies() {
   const all = await getAll();
   return all.filter((company) => company.isActive);
+}
+
+export async function listCompanyDirectoryOptions(activeOnly = true): Promise<CompanyDirectoryOption[]> {
+  const all = await getAll();
+  return all
+    .filter((company) => !activeOnly || company.isActive)
+    .map(({ code, name, isActive }) => ({ code, name, isActive }));
 }
 
 export async function getCompanyByCode(code: string) {

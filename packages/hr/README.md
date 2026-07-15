@@ -34,7 +34,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/autocomplete.ts` 和 `server/autocomplete-config.ts`：HR FK/autocomplete 查询与搜索字段配置。
 - `server/crud.ts`：HR 字段级 CRUD wrapper，统一注入 HR 权限检查并复用 Platform CRUD 契约。
 - `server/companies.ts`：公司列表、创建、更新和删除。
-- `server/company-directory.ts`：HR 包内公司事实查询、编码解析和缓存。
+- 公司事实查询、编码解析和缓存由共享的 `@workspace/platform/server/company-directory` 提供；HR 只保留公司 CRUD 与领域校验。
 - `server/company-relations.ts`：公司关系列表、创建、更新和删除。
 - `server/contracts.ts`：合同 JSON 解析、列表、创建、更新、删除和主合同同步。
 - `server/departments.ts`：部门列表、创建、更新、删除和部门说明书保存。

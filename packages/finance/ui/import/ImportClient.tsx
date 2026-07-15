@@ -4,6 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useState, useCallback, useEffect, useMemo } from "react";
 import type { SessionUser } from "@workspace/platform/types";
 import { PageSurface, createPageBody, createPageTabBar } from "@workspace/core/ui";
+import { useCompanyOptions } from "@workspace/platform/hooks";
 import { createImportUploadSections } from "./components/ImportUploadForm";
 import { createImportPreviewSections } from "./components/ImportPreview";
 import { createImportResultSection } from "./components/ImportResult";
@@ -11,7 +12,11 @@ import type { Company, ImportType, PreviewResult } from "./components/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 
 export default function ImportClient({ user, canImport }: { user: SessionUser; canImport: boolean }) {
-  const [companies, setCompanies] = useState<Company[]>([]);
+  const companyOptions = useCompanyOptions(false);
+  const companies = useMemo<Company[]>(
+    () => companyOptions.map((company) => ({ code: company.value, name: company.label })),
+    [companyOptions],
+  );
   const [companyCode, setCompanyCode] = useState("");
   const [importType, setImportType] = useState<ImportType>("balance");
   const [year, setYear] = useState("2026");
@@ -29,19 +34,10 @@ export default function ImportClient({ user, canImport }: { user: SessionUser; c
   const lifecycleBlocks = getFinanceLifecycleBlocks("import");
 
   useEffect(() => {
-    fetch(workspacePath("/api/modules/hr/roster/companies"))
-      .then((r) => r.json())
-      .then((data) => {
-        const list = (data.companies || []) as Company[];
-        setCompanies(list);
-        if (list.length > 0) {
-          setCompanyCode((prev) => prev || list[0].code);
-        }
-      })
-      .catch(() => {
-        setResult({ success: false, message: "加载公司列表失败" });
-      });
-  }, []);
+    if (companies.length > 0) {
+      setCompanyCode((previous) => previous || companies[0].code);
+    }
+  }, [companies]);
 
   const handleFileChange = useCallback((newFile: File | null) => {
     setFile(newFile);

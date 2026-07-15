@@ -13,10 +13,11 @@ const inflight = new Map<boolean, Promise<CompanyOption[]>>();
 
 async function fetchCompanies(activeOnly: boolean): Promise<CompanyOption[]> {
   const url = activeOnly
-    ? workspacePath("/api/modules/hr/roster/companies?active=1")
-    : workspacePath("/api/modules/hr/roster/companies");
+    ? workspacePath("/api/settings/account/company-options?active=1")
+    : workspacePath("/api/settings/account/company-options?active=0");
   const res = await fetch(url);
-  const data = await res.json();
+  if (!res.ok) throw new Error("公司选项加载失败");
+  const data = await res.json() as { companies?: Array<{ code: string; name: string }> };
   const companies = (data.companies || []) as Array<{ code: string; name: string }>;
   return companies.map((company) => ({ value: company.code, label: company.name }));
 }
@@ -28,11 +29,12 @@ function getCompanies(activeOnly: boolean): Promise<CompanyOption[]> {
   const existing = inflight.get(activeOnly);
   if (existing) return existing;
 
-  const promise = fetchCompanies(activeOnly).then((options) => {
-    cache.set(activeOnly, options);
-    inflight.delete(activeOnly);
-    return options;
-  });
+  const promise = fetchCompanies(activeOnly)
+    .then((options) => {
+      cache.set(activeOnly, options);
+      return options;
+    })
+    .finally(() => inflight.delete(activeOnly));
   inflight.set(activeOnly, promise);
   return promise;
 }

@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantData } from "@workspace/hr/server/permission-subjects";
+import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantData } from "@workspace/platform/server/permission-subjects";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import {

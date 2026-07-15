@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { requireAdminApiAccess, isSuperAdmin, getManageableResourceKeys } from "@workspace/platform/server/auth";
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
-import { getPermissionGrantData } from "@workspace/hr/server/permission-subjects";
+import { getPermissionGrantData } from "@workspace/platform/server/permission-subjects";
 import type { SubjectType } from "@workspace/platform/server/auth";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { setPermissionGrantFromRequest } from "@workspace/platform/server/rbac/action-grant-request";

@@ -1,8 +1,3 @@
-export { default as AuditLogEntry } from "./AuditLogEntry";
-export type { AuditChange, AuditEntry, AuditLogEntryProps } from "./AuditLogEntry";
-export { default as AuditLogModal } from "./AuditLogModal";
-export type { AuditLogModalProps } from "./AuditLogModal";
-export { default as DepartmentSwitcher } from "./DepartmentSwitcher";
 export { default as LoginClient } from "./LoginClient";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";

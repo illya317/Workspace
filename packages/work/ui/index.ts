@@ -7,6 +7,5 @@ export type { WorkDepartmentHomeData } from "./home/WorkDepartmentHomePage";
 export { default as WorksClient } from "./works/WorksClient";
 export { WorkTasksPageView } from "./works/WorksPage";
 export { default as WorkApprovalInboxDetail } from "./works/WorkApprovalInboxDetail";
-export { default as WorkPerformanceClient } from "./performance/WorkPerformanceClient";
 export { default as WorkAccountSettingsClient } from "./settings/WorkAccountSettingsClient";
 export { renderWorkAccountSettingsRoutePage } from "./settings/pages";

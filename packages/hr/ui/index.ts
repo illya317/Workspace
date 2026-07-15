@@ -12,6 +12,7 @@ export { useGenericTab } from "./hooks/useGenericTab";
 export * from "./profile/lunar-birthday";
 export { default as HRClient } from "./HRClient";
 export { default as HrPerformanceClient } from "./performance/HrPerformanceClient";
+export { default as EmployeePerformanceClient } from "./performance/EmployeePerformanceClient";
 export { default as EthnicityPicker } from "./components/EthnicityPicker";
 export { default as MajorPicker } from "./components/MajorPicker";
 export { default as ProfessionalTitlePicker } from "./components/ProfessionalTitlePicker";

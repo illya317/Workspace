@@ -13,7 +13,7 @@ import {
   type CrudDeleteCommand,
   type CrudUpdateFieldCommand,
 } from "./hr-crud";
-import { invalidateCompanyCache } from "./company-directory";
+import { invalidateCompanyCache } from "@workspace/platform/server/company-directory";
 import {
   buildCompanyCreateCommand,
   buildCompanyFieldUpdateCommand,

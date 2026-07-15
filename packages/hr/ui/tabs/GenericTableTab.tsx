@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
-import { useAuditLogModal } from "@workspace/platform/ui/AuditLogModal";
+import { useAuditLogModal } from "../audit/AuditLogModal";
 import { createPageBody, PageSurface, useFeedback, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createGenericEditInputSpec } from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";

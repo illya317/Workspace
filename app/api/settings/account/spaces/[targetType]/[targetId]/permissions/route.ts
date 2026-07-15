@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantData } from "@workspace/hr/server/permission-subjects";
+import { getPermissionGrantData, mergeBusinessSpaceActionsIntoPermissionGrantData } from "@workspace/platform/server/permission-subjects";
 import { isSuperAdmin } from "@workspace/platform/server/auth";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";

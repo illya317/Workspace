@@ -2,7 +2,7 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect } from "react";
-import AuditLogModal from "@workspace/platform/ui/AuditLogModal";
+import AuditLogModal from "../audit/AuditLogModal";
 import { type DataSurfaceCommandSpec } from "@workspace/core/ui";
 import { useCodeTab } from "./useCodeTab";
 import CodeTable from "./CodeTable";

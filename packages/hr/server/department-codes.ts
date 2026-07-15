@@ -1,7 +1,7 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 
-import { getCodePoolCode } from "./company-directory";
+import { getCodePoolCode } from "@workspace/platform/server/company-directory";
 import {
   buildDepartmentCodeDeleteCommand,
   buildDepartmentCodeSaveCommand,

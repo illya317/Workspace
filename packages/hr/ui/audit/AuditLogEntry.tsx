@@ -3,7 +3,7 @@
 import type { MouseEventHandler } from "react";
 import { createPageBody, createRecordSection, BodySurface } from "@workspace/core/ui";
 import type { DataSurfaceRecordSpec } from "@workspace/core/ui";
-import { label, formatVal } from "../audit";
+import { label, formatVal } from "@workspace/platform/audit";
 
 const AUDIT_DATE_FORMATTER = new Intl.DateTimeFormat("zh-CN", {
   year: "numeric",

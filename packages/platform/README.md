@@ -11,8 +11,10 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 提供 `getAccessibleModules`、`getSubModules`、`getEmptyMessage`
 - 提供登录后的 Portal、L1 模块首页、AppShell、跨页导航、用户菜单和审计日志 UI 壳
 - 提供 `SessionUser` 等登录态平台契约类型
-- 提供审计日志字段标签与值格式化工具
+- 提供审计日志字段标签与值格式化工具；具体业务审计弹窗留在各业务包
 - 提供 `@workspace/platform/hooks` 的跨模块平台 hook，例如 `useCompanyOptions`
+- 提供 `@workspace/platform/server/company-directory` 作为公司主数据的共享只读查询、编码解析和缓存 seam；公司 CRUD 仍由 HR 业务域负责
+- 提供 `@workspace/platform/server/permission-subjects` 作为 Settings、Docs、Work 共用的 RBAC 主体投影，不由 HR 反向承载平台授权能力
 - 提供 `@workspace/platform/calendar` 作为中国法定节假日与调休工作日查询契约；Core 只负责无事实的日期展示，HR、Work、Finance 等业务包通过该入口判断工作日、节假日和补班日
 - 提供 `@workspace/platform/completion-date-policy` 作为跨业务完成状态与计划/实际日期契约；项目、计划和任务统一使用 canonical date fields，并共享未来实际日期、完成后实际结束、日期顺序和 UI 可编辑状态规则
 - 提供 `@workspace/platform/workflow-category-registry` 作为流程业务分类的唯一注册表；workflow-eligible business action 必须声明合法的 `workflowCategoryKey`，设置、台账和收件箱不得另建映射

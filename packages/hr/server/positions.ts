@@ -14,7 +14,7 @@ import { mapValidationToServiceResult, type DomainServiceResult } from "@workspa
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
-import { getCompanyNameSync, loadCompanyMap } from "./company-directory";
+import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";
 import {
   buildPositionCreateCommand,
   buildPositionUpdateCommand,

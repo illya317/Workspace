@@ -96,7 +96,7 @@ roster/page.tsx
 
 ## 考勤绩效工作台
 
-`/work/performance` 由 `packages/work/ui/performance/WorkPerformanceClient.tsx` 渲染，`/hr/performance` 由 `packages/hr/ui/performance/HrPerformanceClient.tsx` 渲染，route shell 只做鉴权和挂载。页面分三块：
+`/work/performance` 由 HR-owned `packages/hr/ui/performance/EmployeePerformanceClient.tsx` 渲染，`/hr/performance` 由 `packages/hr/ui/performance/HrPerformanceClient.tsx` 渲染，route shell 只做鉴权和挂载。员工入口仍位于 Work，但绩效 API、UI 实现和正式记录保持同一 HR owner。页面分三块：
 
 - `考勤`：只读展示 HR 在职口径，包括员工、公司、部门、岗位、人员类型和 `Employment.attendanceType`。V1 不新增打卡事实表。
 - `贡献材料`：按二级范围列出工作空间目录。个人范围一人一行；部门范围按 Work 标准组织空间列出 M 体系部门和运营委员会，一空间一行；项目范围一已开启项目空间一行。点击后按 `(targetType, targetId, cycleId)` 读取对应空间材料：周/月展示工作汇报，季度/半年/年度展示期初目标。这里只读，不要求 `work.tasks` 权限。

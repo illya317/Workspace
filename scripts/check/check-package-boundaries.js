@@ -18,6 +18,17 @@ const WORKSPACE_PACKAGES = {
   "@workspace/work": "work",
 };
 
+const API_MODULE_OWNERS = {
+  administration: "administration",
+  capitalSecurities: "capital-securities",
+  external: "external",
+  finance: "finance",
+  hr: "hr",
+  library: "library",
+  production: "production",
+  work: "work",
+};
+
 const PACKAGE_RULES = {
   core: {
     forbidden: [
@@ -138,6 +149,24 @@ function stripComments(text) {
     .replace(/(^|[^:])\/\/.*$/gm, "$1");
 }
 
+function referencedApiModuleOwners(text) {
+  const owners = new Set();
+  const pattern = /\/api\/modules\/([A-Za-z][A-Za-z0-9_-]*)/g;
+  let match;
+  while ((match = pattern.exec(text))) {
+    const owner = API_MODULE_OWNERS[match[1]];
+    if (owner) owners.add(owner);
+  }
+  return owners;
+}
+
+function isPlatformRuntimeApiCaller(file) {
+  const relative = path.relative(PACKAGES_DIR, file).replace(/\\/g, "/");
+  return relative.startsWith("platform/ui/")
+    || relative.startsWith("platform/hooks/")
+    || relative.startsWith("platform/server/");
+}
+
 const UI_PRIMITIVE_RULES = [
   {
     pattern: /<select\b/i,
@@ -204,6 +233,21 @@ for (const packageName of Object.keys(PACKAGE_RULES)) {
     const text = fs.readFileSync(file, "utf8");
     const code = stripComments(text);
     const imports = collectImports(text);
+    for (const apiOwner of referencedApiModuleOwners(code)) {
+      const isCrossDomainCaller = packageName !== "core"
+        && packageName !== "platform"
+        && apiOwner !== packageName;
+      const isPlatformRuntimeCaller = packageName === "platform" && isPlatformRuntimeApiCaller(file);
+      if (isCrossDomainCaller || isPlatformRuntimeCaller) {
+        violations.push({
+          file: path.relative(ROOT, file).replace(/\\/g, "/"),
+          specifier: `/api/modules/${apiOwner}`,
+          reason: isPlatformRuntimeCaller
+            ? "Platform runtime must not call a domain API; move owner-specific UI into the domain or expose a Platform-owned interface"
+            : `domain package ${packageName} must not call ${apiOwner} APIs; move the caller to the owner or expose a Platform-owned interface`,
+        });
+      }
+    }
     for (const specifier of imports) {
       for (const rule of PACKAGE_RULES[packageName].forbidden) {
         if (rule.pattern.test(specifier)) {

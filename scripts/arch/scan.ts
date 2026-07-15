@@ -177,11 +177,16 @@ function isModuleRoutePage(rel: string) {
   return rel.startsWith("app/(modules)/") && rel.endsWith("/page.tsx");
 }
 
-function isAllowedModuleShellComponentImport(moduleKey: string, specifier: string) {
+const CROSS_OWNER_MODULE_SHELL_UI = new Map<string, ReadonlySet<string>>([
+  ["app/(modules)/work/performance/page.tsx", new Set(["@workspace/hr/ui"])],
+]);
+
+function isAllowedModuleShellComponentImport(rel: string, moduleKey: string, specifier: string) {
   return specifier === `@workspace/${moduleKey}/ui`
     || specifier.startsWith(`@workspace/${moduleKey}/ui/`)
     || specifier === "@workspace/platform/ui"
-    || specifier.startsWith("@workspace/platform/ui/");
+    || specifier.startsWith("@workspace/platform/ui/")
+    || CROSS_OWNER_MODULE_SHELL_UI.get(rel)?.has(specifier) === true;
 }
 
 function importedJsxComponentMap(sourceFile: ts.SourceFile) {
@@ -242,8 +247,8 @@ function collectModuleShellViolations(sourceFile: ts.SourceFile, rel: string) {
         violations.push(`module app route must not render intrinsic <${rootName}> UI; move UI to packages/${moduleKey}/ui`);
       } else {
         const specifier = importedComponents.get(rootName);
-        if (!specifier || !isAllowedModuleShellComponentImport(moduleKey, specifier)) {
-          violations.push(`module app route JSX <${rootName}> must come from @workspace/${moduleKey}/ui or @workspace/platform/ui`);
+        if (!specifier || !isAllowedModuleShellComponentImport(rel, moduleKey, specifier)) {
+          violations.push(`module app route JSX <${rootName}> must come from its domain UI, Platform UI, or an explicit cross-owner shell declaration`);
         }
       }
     }

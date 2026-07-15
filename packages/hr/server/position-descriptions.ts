@@ -5,7 +5,7 @@ import { getPublishedHrPositionDescriptionOfficialTemplate } from "@workspace/pl
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchSearchFields } from "@workspace/platform/search";
-import { getManagementGroupByCode } from "./company-directory";
+import { getManagementGroupByCode } from "@workspace/platform/server/company-directory";
 import {
   buildPositionDescriptionUpdateCommand,
   type PositionDescriptionUpdateInput,
