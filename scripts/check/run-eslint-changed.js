@@ -12,26 +12,6 @@ const repoRoot = path.resolve(__dirname, "../..");
 const { files: changedFiles, source } = changedFileSets({ cwd: repoRoot });
 const files = changedFiles.filter((file) => ESLINT_EXTENSIONS.test(file));
 
-const responseFormat = spawnSync(
-  "node",
-  ["scripts/check/check-api-response-format.js"],
-  { stdio: "inherit" },
-);
-
-if (responseFormat.status !== 0) {
-  process.exit(responseFormat.status ?? 1);
-}
-
-const historyPolicy = spawnSync(
-  "npx",
-  ["tsx", "scripts/check/check-history-policy-registry.ts"],
-  { stdio: "inherit" },
-);
-
-if (historyPolicy.status !== 0) {
-  process.exit(historyPolicy.status ?? 1);
-}
-
 if (files.length === 0) {
   process.stdout.write(`No changed JS/TS files to lint (${source}).\n`);
   process.exit(0);

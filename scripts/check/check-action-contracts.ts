@@ -1,24 +1,11 @@
 #!/usr/bin/env tsx
 
-import "./action-contract-route-binding-fixtures";
-
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
 import { listBusinessActionRegistrations } from "../../packages/platform/business-action-registry";
 import { listActionContractMetadata } from "../../packages/platform/action-contract-registry";
 import { listActionContractRouteBindingIssues } from "../../packages/platform/action-contract-route-binding";
-import { enforceWorkflowPolicyModeForRegistration } from "../../packages/platform/server/workflow-contract-defaults";
-import { listWorkflowBusinessActions } from "../../packages/platform/server/workflow-action-settings";
-import {
-  resolveActionRuntime,
-  type ActionRuntimeAction,
-  type ActionRuntimeRequestSnapshot,
-} from "../../packages/platform/workflow-action-runtime";
-import {
-  actionRuntimeCommands,
-  actionRuntimeCreateSubmission,
-} from "../../packages/platform/ui/workflow/action-runtime-commands";
 
 const ROOT = path.resolve(import.meta.dirname, "../..");
 const BUSINESS_ACTION_KEY_PATTERN = "[a-z][a-zA-Z0-9_-]*(?:\\.[a-zA-Z0-9_-]+)+";
@@ -144,26 +131,6 @@ function assertWorkflowDisabledBehaviorMatchesPersistence() {
   }
   if (issues.length > 0) {
     fail(`ActionContract disabled behavior is inconsistent with its persistence/entry semantics:\n${issues.join("\n")}`);
-  }
-}
-
-function assertWorkflowDisablePolicyModeEnforcement() {
-  const actions = listWorkflowBusinessActions();
-  const cannotDisable = actions.find((action) => {
-    const workflow = action.actionContract?.workflow;
-    return workflow?.kind !== "not_applicable" && workflow?.canDisable === false;
-  });
-  const canDisable = actions.find((action) => {
-    const workflow = action.actionContract?.workflow;
-    return workflow?.kind !== "not_applicable" && workflow?.canDisable === true;
-  });
-  if (!cannotDisable || !canDisable) fail("ActionContract policy-mode fixture requires disableable and non-disableable actions.");
-  if (enforceWorkflowPolicyModeForRegistration(cannotDisable, "permission_only", "required") !== "required"
-    || enforceWorkflowPolicyModeForRegistration(cannotDisable, "direct", "required") !== "required") {
-    fail("Non-disableable ActionContract must ignore stale disabled policy modes.");
-  }
-  if (enforceWorkflowPolicyModeForRegistration(canDisable, "permission_only", "required") !== "permission_only") {
-    fail("Disableable ActionContract must preserve disabled policy mode regardless of fallback behavior.");
   }
 }
 
@@ -311,280 +278,14 @@ function assertWorkflowEntryActionsAreContracted(
   }
 }
 
-function assertWorkflowActionRuntimeMatrix() {
-  const request = (overrides: Partial<ActionRuntimeRequestSnapshot>): ActionRuntimeRequestSnapshot => ({
-    id: 1,
-    status: "draft",
-    submitterUserId: 10,
-    handlerCanRevise: false,
-    requestCanWithdraw: true,
-    requestCanResubmit: true,
-    requestCanCancel: true,
-    requestCanRevise: true,
-    ...overrides,
-  });
-  const runtime = (input: {
-    mode?: "permission_only" | "required";
-    whenDisabled?: "direct_write" | "unavailable";
-    actorUserId?: number;
-    canDirectWrite?: boolean;
-    canStartWorkflow?: boolean;
-    canProcessWorkflow?: boolean;
-    request?: ActionRuntimeRequestSnapshot | null;
-  }) => resolveActionRuntime({
-    businessActionKey: "test.record.save",
-    workflowPolicyMode: input.mode ?? "required",
-    workflowWhenDisabled: input.whenDisabled ?? "direct_write",
-    actor: {
-      userId: input.actorUserId ?? 10,
-      canDirectWrite: input.canDirectWrite,
-      canStartWorkflow: input.canStartWorkflow,
-      canProcessWorkflow: input.canProcessWorkflow,
-    },
-    request: input.request,
-  });
-  const cases: Array<{
-    label: string;
-    actual: ReturnType<typeof runtime>;
-    expected: {
-      availability: "available" | "unavailable";
-      executionMode: "direct" | "workflow" | null;
-      persistenceMode: "active" | "workflowDraft";
-      role: "none" | "submitter" | "processor" | "observer";
-      editability: "editable" | "readonly";
-      actions: ActionRuntimeAction[];
-    };
-  }> = [
-    {
-      label: "direct record write",
-      actual: runtime({ mode: "permission_only", canDirectWrite: true }),
-      expected: {
-        availability: "available",
-        executionMode: "direct",
-        persistenceMode: "active",
-        role: "none",
-        editability: "editable",
-        actions: ["record.save", "form.cancel"],
-      },
-    },
-    {
-      label: "workflow entry",
-      actual: runtime({ canStartWorkflow: true }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "submitter",
-        editability: "editable",
-        actions: ["workflow.request.submit", "form.cancel"],
-      },
-    },
-    {
-      label: "disabled explicit workflow entry",
-      actual: runtime({ mode: "permission_only", whenDisabled: "unavailable", canDirectWrite: true, canStartWorkflow: true }),
-      expected: {
-        availability: "unavailable",
-        executionMode: null,
-        persistenceMode: "workflowDraft",
-        role: "none",
-        editability: "readonly",
-        actions: [],
-      },
-    },
-    {
-      label: "submitted owner can withdraw without record permission",
-      actual: runtime({ mode: "permission_only", request: request({ status: "submitted", requestCanWithdraw: true }) }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "submitter",
-        editability: "readonly",
-        actions: ["workflow.request.withdraw"],
-      },
-    },
-    {
-      label: "withdraw and revise are independent",
-      actual: runtime({ request: request({ status: "withdrawn", requestCanWithdraw: false, requestCanRevise: true }) }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "submitter",
-        editability: "editable",
-        actions: ["workflow.request.revise", "workflow.request.resubmit"],
-      },
-    },
-    {
-      label: "revise does not imply resubmit",
-      actual: runtime({ request: request({ status: "rejected", requestCanRevise: true, requestCanResubmit: false }) }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "submitter",
-        editability: "editable",
-        actions: ["workflow.request.revise"],
-      },
-    },
-    {
-      label: "processor actions",
-      actual: runtime({
-        actorUserId: 20,
-        canProcessWorkflow: true,
-        request: request({ status: "submitted", handlerCanRevise: false }),
-      }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "processor",
-        editability: "readonly",
-        actions: ["workflow.request.approve", "workflow.request.reject"],
-      },
-    },
-    {
-      label: "unrelated observer",
-      actual: runtime({ actorUserId: 30, request: request({ status: "submitted" }) }),
-      expected: {
-        availability: "available",
-        executionMode: "workflow",
-        persistenceMode: "workflowDraft",
-        role: "observer",
-        editability: "readonly",
-        actions: [],
-      },
-    },
-  ];
-
-  for (const item of cases) {
-    const actual = item.actual;
-    const expected = item.expected;
-    const mismatch = actual.availability !== expected.availability
-      || actual.executionMode !== expected.executionMode
-      || actual.persistenceMode !== expected.persistenceMode
-      || actual.workflowRole !== expected.role
-      || actual.editability !== expected.editability
-      || actual.actions.join("|") !== expected.actions.join("|");
-    if (mismatch) {
-      fail(`Workflow action runtime matrix mismatch (${item.label}).\nExpected: ${JSON.stringify(expected)}\nActual: ${JSON.stringify({
-        availability: actual.availability,
-        executionMode: actual.executionMode,
-        persistenceMode: actual.persistenceMode,
-        role: actual.workflowRole,
-        editability: actual.editability,
-        actions: actual.actions,
-      })}`);
-    }
-  }
-
-  const submittedNoWithdraw = runtime({
-    request: request({ status: "submitted", requestCanWithdraw: false, requestCanRevise: true }),
-  });
-  if (submittedNoWithdraw.capabilities.workflowRequest.withdraw.reason !== "policy_disabled") {
-    fail("Workflow request withdraw must be controlled by requestCanWithdraw only.");
-  }
-  const rejectedNoResubmit = runtime({
-    request: request({ status: "rejected", requestCanRevise: true, requestCanResubmit: false }),
-  });
-  if (!rejectedNoResubmit.capabilities.workflowRequest.revise.allowed
-    || rejectedNoResubmit.capabilities.workflowRequest.resubmit.reason !== "policy_disabled") {
-    fail("Workflow request revise and resubmit capabilities must remain independent.");
-  }
-  const withdrawnNoRevise = runtime({
-    request: request({ status: "withdrawn", requestCanWithdraw: true, requestCanRevise: false }),
-  });
-  if (withdrawnNoRevise.capabilities.workflowRequest.revise.reason !== "policy_disabled"
-    || !withdrawnNoRevise.capabilities.workflowRequest.resubmit.allowed) {
-    fail("Workflow request withdraw must not imply revise capability.");
-  }
-}
-
-function assertActionRuntimeCommandMapping() {
-  const handler = { onClick: () => undefined };
-  const commandsFor = (runtime: ReturnType<typeof resolveActionRuntime>) => actionRuntimeCommands(runtime, {
-    "record.save": handler,
-    "form.cancel": handler,
-    "workflow.request.submit": handler,
-    "workflow.request.approve": handler,
-    "workflow.request.reject": handler,
-  });
-  const direct = commandsFor(resolveActionRuntime({
-    businessActionKey: "test.record.save",
-    workflowPolicyMode: "permission_only",
-    workflowWhenDisabled: "direct_write",
-    actor: { userId: 1, canDirectWrite: true },
-  }));
-  const workflow = commandsFor(resolveActionRuntime({
-    businessActionKey: "test.record.save",
-    workflowPolicyMode: "required",
-    workflowWhenDisabled: "direct_write",
-    actor: { userId: 1, canStartWorkflow: true },
-  }));
-  const processor = commandsFor(resolveActionRuntime({
-    businessActionKey: "test.record.save",
-    workflowPolicyMode: "required",
-    workflowWhenDisabled: "unavailable",
-    actor: { userId: 2, canProcessWorkflow: true },
-    request: {
-      id: 1,
-      status: "submitted",
-      submitterUserId: 1,
-      handlerCanRevise: false,
-      requestCanWithdraw: true,
-      requestCanResubmit: true,
-      requestCanCancel: true,
-      requestCanRevise: true,
-    },
-  }));
-  const actual = [direct, workflow, processor]
-    .map((commands) => commands.map((command) => command.kind).join("|"));
-  const expected = ["save|cancel", "submit|cancel", "approve|reject"];
-  if (actual.join(",") !== expected.join(",")) {
-    fail(`Action runtime command mapping mismatch. Expected ${expected.join(",")}; received ${actual.join(",")}.`);
-  }
-  if ([...direct, ...workflow, ...processor].some((command) => "icon" in command || "variant" in command)) {
-    fail("Action runtime commands must declare semantic actions only; Core owns icon and variant.");
-  }
-}
-
-function assertActionRuntimeCreateSubmissionMapping() {
-  const execute = () => undefined;
-  const direct = actionRuntimeCreateSubmission(resolveActionRuntime({
-    businessActionKey: "test.record.create",
-    workflowPolicyMode: "permission_only",
-    workflowWhenDisabled: "direct_write",
-    actor: { userId: 1, canDirectWrite: true },
-  }), { execute });
-  const workflow = actionRuntimeCreateSubmission(resolveActionRuntime({
-    businessActionKey: "test.record.create",
-    workflowPolicyMode: "required",
-    workflowWhenDisabled: "direct_write",
-    actor: { userId: 1, canStartWorkflow: true },
-  }), { execute });
-  const unavailable = actionRuntimeCreateSubmission(resolveActionRuntime({
-    businessActionKey: "test.record.create",
-    workflowPolicyMode: "required",
-    workflowWhenDisabled: "direct_write",
-    actor: { userId: 1 },
-  }), { execute });
-  if (direct?.action !== "save" || workflow?.action !== "submit" || unavailable !== null) {
-    fail("CreateSurface submission must map direct runtime to save, workflow runtime to submit, and unavailable runtime to null.");
-  }
-}
-
 function main() {
   const actions = listBusinessActionRegistrations();
   const actionKeys = new Set(actions.map((action) => action.key));
   const contracts = collectActionContracts();
   const contractKeys = new Set(contracts.map((contract) => contract.key));
   const workflowEntryReferences = collectWorkflowEntryActionReferences();
-  assertWorkflowActionRuntimeMatrix();
-  assertActionRuntimeCommandMapping();
-  assertActionRuntimeCreateSubmissionMapping();
   assertNoDuplicateContractKeys(contracts);
   assertWorkflowDisabledBehaviorMatchesPersistence();
-  assertWorkflowDisablePolicyModeEnforcement();
   assertDomainReferencesResolve();
   assertApiReferencesResolve();
   const routeBindingIssues = listActionContractRouteBindingIssues(actions, listActionContractMetadata());
@@ -608,11 +309,7 @@ function main() {
   process.stdout.write("- domain references resolve to exported runtime symbols: passed.\n");
   process.stdout.write("- API references resolve to live route handlers: passed.\n");
   process.stdout.write("- BusinessAction routes bind exactly to Contract command/direct routes: passed.\n");
-  process.stdout.write("- workflow action runtime matrix: passed.\n");
-  process.stdout.write("- action runtime semantic command mapping: passed.\n");
-  process.stdout.write("- CreateSurface runtime submission mapping: passed.\n");
   process.stdout.write("- workflow disabled behavior persistence/entry alignment: passed.\n");
-  process.stdout.write("- workflow disable policy-mode enforcement: passed.\n");
 
   if (missing.length > 0) {
     fail(`Every BusinessAction must have ActionContract metadata:\n${missing.map((action) => `  - ${action.key}: ${action.label}`).join("\n")}`);

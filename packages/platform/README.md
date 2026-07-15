@@ -57,8 +57,7 @@ Platform 可以读取业务包的注册信息，但不能直接 import 业务页
 维护检查：
 
 ```bash
-npm run lint:history-policy
-npx tsx scripts/check/check-history-policy-registry.ts
+npm run check:history-policy
 ```
 
-这个检查会失败于未注册的标准 `snapshotHistory` / `ensureEditHistoryBaseline` 字面量实体、未注册的 `entityType + modelKey` CRUD config、restore policy 未剥离 `id` 的配置，也会失败于绕过 `@workspace/platform/server/history` 直接写 `EditHistory` 的模块代码；`lint:changed` 会自动执行它。
+这个静态 contract 检查会失败于未注册的标准 `snapshotHistory` / `ensureEditHistoryBaseline` 字面量实体、未注册的 `entityType + modelKey` CRUD config、restore policy 未剥离 `id` 的配置，也会失败于绕过 `@workspace/platform/server/history` 直接写 `EditHistory` 的模块代码；它由 `check:contracts` 执行，不属于 ESLint。
