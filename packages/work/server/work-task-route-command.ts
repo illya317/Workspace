@@ -118,6 +118,7 @@ export type UpdateWorkItemRouteCommand = {
 };
 
 export type DeleteWorkItemRouteCommand = {
+  userId: number;
   workId: number;
 };
 
@@ -449,11 +450,11 @@ export async function buildDeleteWorkItemRouteCommand(input: {
   if (!(await canDeleteWorkTaskAction(input.userId, existing.targetType, existing.targetId ?? 0))) {
     return failCommand("无权限删除工作计划", 403);
   }
-  return okCommand({ workId: input.workId });
+  return okCommand({ userId: input.userId, workId: input.workId });
 }
 
 export async function executeDeleteWorkItemRouteCommand(command: DeleteWorkItemRouteCommand) {
-  const result = await deleteWorkItem(command.workId);
+  const result = await deleteWorkItem(command.workId, command.userId);
   if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk(result.data);
 }

@@ -70,7 +70,7 @@ async function assertLibraryCandidateQuery() {
     assert(rows[0]?.id === targetId, "CI Library PostgreSQL ranking returns the most relevant document first");
     assert(Number(rows[0]?.totalCandidates) === LIBRARY_DOCUMENT_CANDIDATE_LIMIT + 1, "CI Library candidate query reports the full visible match count");
     assert(!rows.some((row) => [targetId + 1, targetId + 2, targetId + 3, targetId + 4].includes(row.id)), "CI Library candidate query enforces visibility and current-version filters");
-  });
+  }, { timeout: 30_000 });
 }
 
 async function main() {

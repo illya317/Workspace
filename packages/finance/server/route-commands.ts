@@ -135,6 +135,11 @@ export function buildFinanceRouteIdCommand(id: unknown) {
   return buildFinanceIdCommand(id);
 }
 
+export function buildFinanceActorRouteIdCommand(id: unknown, userId: number) {
+  const command = buildFinanceIdCommand(id);
+  return command.ok ? okCommand({ ...command.data, userId }) : command;
+}
+
 export async function executeGetCostImportCommand(
   command: { id: number },
 ): Promise<ServiceResult<{ success: true; data: Awaited<ReturnType<typeof getImportById>> }>> {
@@ -143,10 +148,11 @@ export async function executeGetCostImportCommand(
   return serviceOk({ success: true, data });
 }
 
-export async function executeDeleteCostImportCommand(command: { id: number }) {
+export async function executeDeleteCostImportCommand(command: { id: number; userId: number }) {
   const existing = await getImportById(command.id);
   if (!existing) return serviceError("记录不存在", 404);
-  await deleteImportById(command.id);
+  const result = await deleteImportById(command.id, command.userId);
+  if (!result.success) return serviceError(result.error, result.status);
   return serviceOk({ success: true });
 }
 
@@ -388,8 +394,8 @@ export async function executeUpdateVoucherCommand(command: { id: number; body: P
   return financeLegacyErrorResult(await updateVoucher(command.id, command.body, command.userId));
 }
 
-export async function executeDeleteVoucherCommand(command: { id: number }) {
-  return financeLegacyErrorResult(await deleteVoucher(command.id));
+export async function executeDeleteVoucherCommand(command: { id: number; userId: number }) {
+  return financeLegacyErrorResult(await deleteVoucher(command.id, command.userId));
 }
 
 export function executeReportDetailCommand(command: Parameters<typeof getReportDetail>[0]) {

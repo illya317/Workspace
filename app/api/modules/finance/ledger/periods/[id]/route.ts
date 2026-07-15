@@ -23,6 +23,6 @@ export const PUT = createCommandRoute({
 export const DELETE = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   paramsError: "参数无效",
-  buildCommand: ({ params }) => okCommand({ id: params.id }),
-  action: (command) => deleteFinancePeriod(command.id),
+  buildCommand: ({ params, user }) => okCommand({ id: params.id, userId: user.userId }),
+  action: (command) => deleteFinancePeriod(command.id, command.userId),
 });

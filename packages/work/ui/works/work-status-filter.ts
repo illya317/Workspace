@@ -10,10 +10,10 @@ export function matchesWorkStatusFilter(
 }
 
 export function matchesWorkPlanStatusFilter(
-  plan: Pick<WorkPlan, "status" | "isArchived">,
+  plan: Pick<WorkPlan, "status" | "isArchived" | "itemStatusCounts">,
   filter: WorkStatusFilter,
 ) {
-  return workPlanStatusCategory(plan) === filter;
+  return workPlanStatusCategory(plan) === filter || plan.itemStatusCounts[filter] > 0;
 }
 
 export function workStatusCategory(

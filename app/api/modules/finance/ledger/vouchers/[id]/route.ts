@@ -33,6 +33,6 @@ export const PUT = createCommandRoute({
 export const DELETE = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   paramsError: "id 必须为正整数",
-  buildCommand: ({ params }) => okCommand({ id: params.id }),
+  buildCommand: ({ params, user }) => okCommand({ id: params.id, userId: user.userId }),
   action: executeDeleteVoucherCommand,
 });

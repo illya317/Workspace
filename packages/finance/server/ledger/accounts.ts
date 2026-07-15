@@ -1,4 +1,5 @@
 import { matchText } from "@workspace/core/search";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import {
@@ -202,7 +203,28 @@ export async function updateFinanceAccount(id: number, input: UpdateFinanceAccou
 export async function deleteFinanceAccount(id: number, userId: number) {
   const command = buildFinanceIdCommand(id);
   if (!command.ok) throw new Error(command.issue.message);
-  await snapshotHistory("FinanceAccount", command.data.id, userId);
-  await prisma.financeAccount.delete({ where: { id: command.data.id } });
-  return { success: true };
+  const result = await guardedDelete({
+    entityType: "FinanceAccount",
+    modelKey: "financeAccount",
+    id: command.data.id,
+    userId,
+    actionLabel: "删除财务科目",
+    deleteMode: "hard",
+    references: [
+      { label: "下级科目", count: (tx) => tx.financeAccount.count({ where: { parentId: command.data.id } }) },
+      { label: "科目余额", count: (tx) => tx.financeAccountBalance.count({ where: { accountId: command.data.id } }) },
+      { label: "凭证明细", count: (tx) => tx.financeVoucherItem.count({ where: { accountId: command.data.id } }) },
+      { label: "余额快照", count: (tx) => tx.financeBalanceSnapshotRow.count({ where: { accountId: command.data.id } }) },
+      { label: "来源余额", count: (tx) => tx.financeSourceAccountBalance.count({ where: { accountId: command.data.id } }) },
+      { label: "辅助余额", count: (tx) => tx.financeAuxiliaryBalance.count({ where: { accountId: command.data.id } }) },
+      { label: "往来项目", count: (tx) => tx.financeOpenItem.count({ where: { accountId: command.data.id } }) },
+      { label: "银行账户", count: (tx) => tx.financeBankAccount.count({ where: { accountId: command.data.id } }) },
+      { label: "部门预算", count: (tx) => tx.financeBudgetDept.count({ where: { accountId: command.data.id } }) },
+      { label: "研发预算", count: (tx) => tx.financeBudgetRd.count({ where: { accountId: command.data.id } }) },
+    ],
+    referencePolicy: "checked",
+  });
+  return result.ok
+    ? { success: true as const }
+    : { success: false as const, error: result.error, status: result.status || 400 };
 }

@@ -11,7 +11,7 @@ export type ViolationKind =
   | "serviceUsesLowLevelRule"
   | "routeImportsDomainValidator"
   | "serverRootReexportsDomainValidator"
-  | "archiveEntryBypassesGuard";
+  | "lifecycleEntryBypassesGuard";
 
 interface DomainPackage {
   packageName: string;
@@ -486,12 +486,41 @@ function isWriteEntry(entry: ExportedEntry) {
   return hasWriteEntryName(entry.name) || hasPrismaWriteSignal(entry.text) || hasCrudWriteSignal(entry.text);
 }
 
-function isArchiveEntry(entry: ExportedEntry) {
-  return /^archive[A-Z\w]/.test(entry.name);
+function isDestructiveLifecycleEntry(entry: ExportedEntry) {
+  return /^(?:(?:delete|archive|deactivate|disable|remove)|(?:commit|execute)(?:Delete|Archive|Deactivate|Disable|Remove))[A-Z\w]/.test(entry.name);
 }
 
-function callsArchiveGuard(entry: ExportedEntry) {
-  return /\bguardedDelete\s*\(/.test(entry.text);
+function hasDirectPrismaLifecycleWrite(entry: ExportedEntry) {
+  if (/\b[A-Za-z_$][\w$]*\.\w+\.(?:delete|deleteMany)\s*\(/.test(entry.text)) return true;
+  if (/delete/i.test(entry.name) && /\b(?:deletedAt|isDeleted)\b/.test(entry.text)) {
+    return /\b[A-Za-z_$][\w$]*\.\w+\.(?:update|updateMany)\s*\(/.test(entry.text);
+  }
+  if (!/(?:archive|deactivate|disable)/i.test(entry.name)) return false;
+  return /\b[A-Za-z_$][\w$]*\.\w+\.(?:update|updateMany)\s*\(/.test(entry.text);
+}
+
+function usesAuditedTransactionalLifecycleProtocol(entry: ExportedEntry) {
+  return /\.\$transaction\s*\(/.test(entry.text)
+    && /\bensureEditHistoryBaseline\s*\(/.test(entry.text)
+    && /\bsnapshotHistory\s*\(/.test(entry.text)
+    && /\b(?:expectedVersion|version)\b/.test(entry.text)
+    && /(?:reference|count|roles|status)/i.test(entry.text);
+}
+
+function callsLifecycleGuard(file: string, source: string, entry: ExportedEntry) {
+  return /\bguardedDelete\s*\(/.test(entry.text)
+    || usesValidatedCrudHelper(file, source, entry.text)
+    || usesAuditedTransactionalLifecycleProtocol(entry);
+}
+
+export function lifecycleGuardBypassEntryNames(file: string, source: string) {
+  return exportedEntries(file, source)
+    .filter((entry) => (
+      isDestructiveLifecycleEntry(entry)
+      && hasDirectPrismaLifecycleWrite(entry)
+      && !callsLifecycleGuard(file, source, entry)
+    ))
+    .map((entry) => entry.name);
 }
 
 function violationKey(kind: ViolationKind, file: string, detail: string) {
@@ -691,17 +720,30 @@ export function createDomainValidationReport() {
         }
       }
 
-      for (const entry of exportedEntries(file, source)) {
-        if (!isArchiveEntry(entry) || callsArchiveGuard(entry)) continue;
+      for (const entryName of lifecycleGuardBypassEntryNames(file, source)) {
         violations.push(
           createViolation(
-            "archiveEntryBypassesGuard",
+            "lifecycleEntryBypassesGuard",
             file,
-            `archive entry ${entry.name} bypasses guardedDelete archive hook`,
-            `Route ${entry.name} through @workspace/platform/server/delete-guard with deleteMode \"archive\" and an explicit referencePolicy.`,
+            `lifecycle entry ${entryName} performs a direct Prisma lifecycle write`,
+            `Route ${entryName} through @workspace/platform/server/delete-guard (or the validated CRUD delete helper) with an explicit deleteMode and referencePolicy.`,
           ),
         );
       }
+    }
+  }
+
+  for (const file of collectTsFiles("packages/platform/server")) {
+    const source = readFile(file);
+    for (const entryName of lifecycleGuardBypassEntryNames(file, source)) {
+      violations.push(
+        createViolation(
+          "lifecycleEntryBypassesGuard",
+          file,
+          `lifecycle entry ${entryName} performs a direct Prisma lifecycle write`,
+          `Route ${entryName} through @workspace/platform/server/delete-guard (or the validated CRUD delete helper) with an explicit deleteMode and referencePolicy.`,
+        ),
+      );
     }
   }
 

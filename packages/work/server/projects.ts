@@ -1,5 +1,6 @@
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import type { ProjectCreateInput } from "./schemas";
@@ -236,10 +237,25 @@ export async function deleteProject(input: { userId: number; projectId: number }
   if (!Number.isInteger(input.projectId) || input.projectId <= 0) return serviceError("ID 无效", 400);
   const command = await validateProjectDeleteCommand(input.userId, input.projectId);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
-  await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("Project", command.data.projectId, input.userId, tx);
-    await snapshotHistory("Project", command.data.projectId, input.userId, tx);
-    await tx.project.delete({ where: { id: command.data.projectId } });
+  const result = await guardedDelete({
+    entityType: "Project",
+    modelKey: "project",
+    id: command.data.projectId,
+    userId: input.userId,
+    actionLabel: "删除项目",
+    deleteMode: "hard",
+    references: [
+      { label: "项目成员", count: (tx) => tx.employeeProject.count({ where: { projectId: command.data.projectId } }) },
+      { label: "赋能部门", count: (tx) => tx.projectEnablingDepartment.count({ where: { projectId: command.data.projectId } }) },
+      { label: "项目阶段", count: (tx) => tx.projectPlanPhase.count({ where: { projectId: command.data.projectId } }) },
+      { label: "项目依赖", count: (tx) => tx.projectPlanDependency.count({ where: { projectId: command.data.projectId } }) },
+      { label: "计划基线", count: (tx) => tx.projectPlanBaseline.count({ where: { projectId: command.data.projectId } }) },
+      { label: "项目任务责任人", count: (tx) => tx.projectWorkAssignee.count({ where: { projectId: command.data.projectId } }) },
+      { label: "关联工作项", count: (tx) => tx.workItem.count({ where: { linkedProjectId: command.data.projectId } }) },
+      { label: "关联工作计划", count: (tx) => tx.workPlan.count({ where: { linkedProjectId: command.data.projectId } }) },
+    ],
+    referencePolicy: "checked",
   });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ success: true });
 }

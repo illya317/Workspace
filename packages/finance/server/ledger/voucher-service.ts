@@ -1,4 +1,5 @@
 import { matchText } from "@workspace/core/search";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   buildFinanceIdCommand,
@@ -262,9 +263,25 @@ export async function updateVoucher(
   return { success: true, voucher: updated };
 }
 
-export async function deleteVoucher(voucherId: number) {
+export async function deleteVoucher(voucherId: number, userId: number) {
   const command = buildFinanceIdCommand(voucherId, "voucherId");
   if (!command.ok) throw new Error(command.issue.message);
-  await prisma.financeVoucher.delete({ where: { id: command.data.id } });
-  return { success: true };
+  const result = await guardedDelete({
+    entityType: "FinanceVoucher",
+    modelKey: "financeVoucher",
+    id: command.data.id,
+    userId,
+    actionLabel: "删除会计凭证",
+    deleteMode: "hard",
+    references: [
+      { label: "凭证明细", count: (tx) => tx.financeVoucherItem.count({ where: { voucherId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeVoucherItem.deleteMany({ where: { voucherId: command.data.id } }).then(() => undefined) },
+      { label: "现金流分配", count: (tx) => tx.financeCashFlowAllocation.count({ where: { voucherId: command.data.id } }) },
+      { label: "资产期间分录", count: (tx) => tx.financeAssetPeriodEntry.count({ where: { voucherId: command.data.id } }) },
+      { label: "资产调整", count: (tx) => tx.financeAssetAdjustment.count({ where: { voucherId: command.data.id } }) },
+    ],
+    referencePolicy: "checked",
+  });
+  return result.ok
+    ? { success: true as const }
+    : { success: false as const, error: result.error, status: result.status || 400 };
 }

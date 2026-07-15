@@ -19,13 +19,12 @@ import {
 } from "./access";
 import {
   adjustWorkPlanKrReviewOpensAt,
-  archiveWorkPlan,
   createWorkPlan,
-  deleteWorkPlan,
   getWorkPlanTargetMetadata,
   listWorkPlans,
   updateWorkPlan,
 } from "./work-plans";
+import { archiveWorkPlan, deleteWorkPlan } from "./work-plan-lifecycle";
 import { assertWorkTaskDirectUpdateAllowed } from "./work-task-workflow-policy";
 
 type WorkPlanUserContext = {
@@ -247,7 +246,7 @@ export async function executeDeleteWorkPlanCommand(
   if (!(await canDeleteWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限删除工作计划", 403);
   }
-  const result = await deleteWorkPlan(command.planId);
+  const result = await deleteWorkPlan(command.planId, command.userId);
   if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk(result.data);
 }

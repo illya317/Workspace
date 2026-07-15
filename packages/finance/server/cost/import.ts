@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { Prisma } from "@workspace/platform/server/prisma";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import {
   buildFinanceDataImportCommand,
   buildFinanceIdCommand,
@@ -48,12 +49,28 @@ export async function findExistingImport(profile: string, year: number | undefin
   });
 }
 
-export async function deleteImportById(id: number) {
+export async function deleteImportById(id: number, userId: number) {
   const command = buildFinanceIdCommand(id);
   if (!command.ok) throw new Error(command.issue.message);
-  return prisma.financeDataImport.delete({
-    where: { id: command.data.id },
+  const result = await guardedDelete({
+    entityType: "FinanceDataImport",
+    modelKey: "financeDataImport",
+    id: command.data.id,
+    userId,
+    actionLabel: "删除成本导入批次",
+    deleteMode: "hard",
+    references: [
+      { label: "成本分析明细", count: (tx) => tx.financeCostAnalysisRow.count({ where: { importId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeCostAnalysisRow.deleteMany({ where: { importId: command.data.id } }).then(() => undefined) },
+      { label: "成本结构明细", count: (tx) => tx.financeCostStructureRow.count({ where: { importId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeCostStructureRow.deleteMany({ where: { importId: command.data.id } }).then(() => undefined) },
+      { label: "销售工资明细", count: (tx) => tx.financeSalesSalary.count({ where: { importId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeSalesSalary.deleteMany({ where: { importId: command.data.id } }).then(() => undefined) },
+      { label: "发货明细", count: (tx) => tx.financeShipment.count({ where: { importId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeShipment.deleteMany({ where: { importId: command.data.id } }).then(() => undefined) },
+      { label: "车间报表明细", count: (tx) => tx.financeWorkshopReport.count({ where: { importId: command.data.id } }), policy: "cascade", cleanup: (tx) => tx.financeWorkshopReport.deleteMany({ where: { importId: command.data.id } }).then(() => undefined) },
+    ],
+    referencePolicy: "checked",
   });
+  return result.ok
+    ? { success: true as const, id: result.data.id }
+    : { success: false as const, error: result.error, status: result.status || 400 };
 }
 
 export async function listImports(params: { page?: number; pageSize?: number }) {

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canCreateProjectAction, canDeleteProjectSubresourceAction, canViewProject, canUpdateProjectAction, getProjectPermissionsById } from "./access";
@@ -276,7 +277,32 @@ export async function deleteProjectPlanPhase(input: { userId: number; projectId:
   if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const existing = await prisma.projectPlanPhase.findUnique({ where: { id: input.phaseId }, select: { projectId: true } });
   if (!existing || existing.projectId !== input.projectId) return serviceError("项目阶段不存在", 404);
-  await prisma.projectPlanPhase.delete({ where: { id: input.phaseId } });
+  const result = await guardedDelete({
+    entityType: "ProjectPlanPhase",
+    modelKey: "projectPlanPhase",
+    id: input.phaseId,
+    userId: input.userId,
+    actionLabel: "删除项目阶段",
+    deleteMode: "hard",
+    references: [
+      { label: "关联工作项", count: (tx) => tx.workItem.count({ where: { linkedProjectPhaseId: input.phaseId } }) },
+      { label: "关联工作计划", count: (tx) => tx.workPlan.count({ where: { linkedProjectPhaseId: input.phaseId } }) },
+      { label: "计划基线条目", count: (tx) => tx.projectPlanBaselineItem.count({ where: { phaseId: input.phaseId } }) },
+      {
+        label: "项目阶段依赖",
+        count: (tx) => tx.projectPlanDependency.count({
+          where: {
+            OR: [
+              { predecessorKind: "phase", predecessorId: input.phaseId },
+              { successorKind: "phase", successorId: input.phaseId },
+            ],
+          },
+        }),
+      },
+    ],
+    referencePolicy: "checked",
+  });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ success: true });
 }
 

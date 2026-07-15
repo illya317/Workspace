@@ -29,6 +29,26 @@ export interface ContractListFilters {
   pageSize?: number;
 }
 
+export type ContractExportRecord = {
+  id: number;
+  version: number;
+  contractNo: string | null;
+  name: string;
+  partyA: string | null;
+  partyB: string | null;
+  shareholder: string | null;
+  category: string | null;
+  content: string | null;
+  handler: string | null;
+  signDate: string | null;
+  endDate: string | null;
+  status: string | null;
+  amount: number | null;
+  executedAmount: number | null;
+  location: string | null;
+  remark: string | null;
+};
+
 type CreateContractInput = {
   userId: number;
   body: ContractCreateInput;
@@ -105,6 +125,55 @@ export async function listContracts(filters: ContractListFilters) {
     categories: allCategories.map((c) => c.category).filter((v): v is string => Boolean(v)),
     statuses: allStatuses.map((c) => c.status).filter((v): v is string => Boolean(v)),
   };
+}
+
+export function renderContractsCsv(contracts: readonly ContractExportRecord[]) {
+  const header = [
+    "ID", "版本", "合同编号", "合同名称", "甲方", "乙方", "股东", "合同类型",
+    "合同内容", "经办人", "签订日期", "结束日期", "状态", "合同金额", "已执行金额",
+    "位置", "备注",
+  ];
+  const rows = contracts.map((contract) => [
+    contract.id,
+    contract.version,
+    contract.contractNo,
+    contract.name,
+    contract.partyA,
+    contract.partyB,
+    contract.shareholder,
+    contract.category,
+    contract.content,
+    contract.handler,
+    contract.signDate,
+    contract.endDate,
+    contract.status,
+    contract.amount,
+    contract.executedAmount,
+    contract.location,
+    contract.remark,
+  ]);
+  return [header, ...rows]
+    .map((row) => row.map(escapeCsvCell).join(","))
+    .join("\n");
+}
+
+export async function exportContracts(filters: ContractListFilters) {
+  const contracts = await prisma.contract.findMany({
+    where: buildWhere(filters),
+    orderBy: { id: "desc" },
+  });
+  const csv = renderContractsCsv(contracts);
+  return new Response(`\uFEFF${csv}`, {
+    headers: {
+      "Content-Type": "text/csv; charset=utf-8",
+      "Content-Disposition": `attachment; filename="contract-ledger-${new Date().toISOString().slice(0, 10)}.csv"`,
+    },
+  });
+}
+
+function escapeCsvCell(value: unknown) {
+  const text = value === null || value === undefined ? "" : String(value);
+  return /[",\n\r]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
 export async function commitCreateContractCommand(

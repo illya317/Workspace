@@ -112,6 +112,7 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/documents", requiredActions: ["reverse"], pathPattern: /^\/api\/modules\/inventory\/operations\/documents\/[^/]+\/reverse$/ },
   { method: "POST", pathPrefix: "/api/modules/inventory/operations/closing/link-voucher", requiredActions: ["lock"] },
   { method: "POST", pathPrefix: "/api/modules/administration/contracts", requiredActions: ["create"], pathPattern: /^\/api\/modules\/administration\/contracts$/ },
+  { method: "GET", pathPrefix: "/api/modules/administration/contracts/export", requiredActions: ["export"], pathPattern: /^\/api\/modules\/administration\/contracts\/export$/ },
   { method: "POST", pathPrefix: "/api/modules/docs/editor", requiredActions: ["create"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/docs\/editor$/, notes: "Template create is enforced by docs-editor service from target template space." },
   { method: "GET", pathPrefix: "/api/modules/docs/editor", requiredActions: ["read"], runtimeEnforcement: "serviceDelegated", notes: "Docs editor read APIs list or load objects through template-space visibility in the docs-editor service." },
   { method: "PUT", pathPrefix: "/api/modules/docs/editor", requiredActions: ["update"], runtimeEnforcement: "serviceDelegated", notes: "Docs editor updates are enforced by docs-editor service from the concrete template space." },

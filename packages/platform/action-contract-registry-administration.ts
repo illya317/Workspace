@@ -20,6 +20,43 @@ const DIRECT_ONLY = {
 
 export const ADMINISTRATION_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   {
+    key: "administration.contract.export",
+    version: 1,
+    kind: "exchange",
+    label: "下载行政合同台账",
+    targetKind: "ContractExport",
+    resource: { ...ADMINISTRATION_CONTRACT_RESOURCE, directPermissionAction: "export" },
+    payload: {
+      cardinality: "batch",
+      shape: "full_record",
+      target: "mixed",
+      notes: "导出全部匹配合同，不受当前列表分页限制；查询条件沿用合同台账筛选条件。",
+    },
+    exchange: {
+      direction: "export",
+      transport: "file",
+      result: "file",
+      contentTypes: ["text/csv; charset=utf-8"],
+      notes: "响应是带 UTF-8 BOM 的合同台账 CSV 文件，不产生业务持久化。",
+    },
+    domain: {
+      executeKey: "packages/administration/server/contracts.exportContracts",
+    },
+    api: {
+      commandRoute: "GET /api/modules/administration/contracts/export",
+      directRoutes: ["GET /api/modules/administration/contracts/export"],
+      envelopeVersion: 1,
+    },
+    workflow: {
+      kind: "not_applicable",
+      reason: "合同台账下载是只读文件生成，不创建审批草稿或正式业务记录。",
+    },
+    display: {
+      titleTemplate: "下载行政合同台账",
+      hrefPattern: "/administration/contracts",
+    },
+  },
+  {
     key: "administration.contract.create",
     version: 1,
     kind: "write",

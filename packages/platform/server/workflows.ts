@@ -1,4 +1,5 @@
 import { prisma } from "./prisma";
+import { guardedDelete } from "./delete-guard";
 import {
   listWorkflowBusinessActions,
   withWorkflowPolicyStatus,
@@ -135,8 +136,8 @@ export type UpsertWorkflowPolicyInput = {
 };
 
 export type DeleteWorkflowPolicyInput =
-  | { id: number; actorUserId?: number | null }
-  | { businessActionKey: string; actorUserId?: number | null };
+  | { id: number; actorUserId: number }
+  | { businessActionKey: string; actorUserId: number };
 
 const FLOW_TYPES = new Set<WorkflowFlowType>(WORKFLOW_FLOW_TYPES);
 const SEPARATION_POLICIES = new Set<WorkflowSeparationPolicy>(WORKFLOW_SEPARATION_POLICIES);
@@ -262,19 +263,27 @@ export async function upsertWorkflowPolicy(
   return serviceOk(serializeWorkflowPolicy(row));
 }
 
-export async function deleteWorkflowPolicy(
-  input: DeleteWorkflowPolicyInput,
-): Promise<ServiceResult<{ deleted: true }>> {
-  const result = "id" in input
-    ? await prisma.workflowPolicy.deleteMany({ where: { id: input.id, scopeType: "global", scopeId: "" } })
-    : await prisma.workflowPolicy.deleteMany({
-        where: {
-          businessActionKey: normalizeKey(input.businessActionKey),
-          scopeType: "global",
-          scopeId: "",
-        },
-      });
-  if (result.count === 0) return serviceError("流程策略不存在", 404);
+export async function deleteWorkflowPolicy(input: DeleteWorkflowPolicyInput): Promise<ServiceResult<{ deleted: true }>> {
+  const policy = await prisma.workflowPolicy.findFirst({
+    where: "id" in input
+      ? { id: input.id, scopeType: "global", scopeId: "" }
+      : { businessActionKey: normalizeKey(input.businessActionKey), scopeType: "global", scopeId: "" },
+    select: { id: true },
+  });
+  if (!policy) return serviceError("流程策略不存在", 404);
+  const result = await guardedDelete({
+    entityType: "WorkflowPolicy",
+    modelKey: "workflowPolicy",
+    id: policy.id,
+    userId: input.actorUserId,
+    actionLabel: "删除流程策略",
+    deleteMode: "hard",
+    referencePolicy: "none",
+    scopeGuard: ({ record }) => record.scopeType === "global" && record.scopeId === ""
+      ? { ok: true }
+      : { error: "流程策略不存在", status: 404 },
+  });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ deleted: true });
 }
 

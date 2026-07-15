@@ -225,5 +225,7 @@ export function executeRosterGeneratedCsvCommand(
     producer: rosterGeneratedCsvProducer,
     input,
     context: undefined,
-  });
+  }).then((result) => (
+    result.ok && result.data instanceof Response ? result.data : result
+  ));
 }

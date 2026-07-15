@@ -1,6 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
 import { loadCompanyMap, resolveCompanyCode } from "@workspace/platform/server/company-directory";
+import { deleteDepartment } from "./departments";
 
 type CompanyMapEntry = {
   name?: string;
@@ -31,13 +32,9 @@ export async function listAdminDepartments() {
   };
 }
 
-export async function deleteAdminDepartment(departmentId: number) {
-  try {
-    await prisma.department.delete({
-      where: { id: departmentId },
-    });
-    return { success: true as const, message: "部门已删除" };
-  } catch {
-    return { success: false as const, status: 400, error: "删除失败，部门可能不存在或有关联数据" };
-  }
+export async function deleteAdminDepartment(departmentId: number, userId: number) {
+  const result = await deleteDepartment({ id: departmentId, userId });
+  return result.ok
+    ? { success: true as const, message: "部门已删除" }
+    : { success: false as const, status: result.status || 400, error: result.error };
 }

@@ -3,5 +3,5 @@
   "serviceUsesLowLevelRule": [],
   "routeImportsDomainValidator": [],
   "serverRootReexportsDomainValidator": [],
-  "archiveEntryBypassesGuard": []
+  "lifecycleEntryBypassesGuard": []
 }

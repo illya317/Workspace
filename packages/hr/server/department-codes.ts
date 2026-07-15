@@ -1,4 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 
 import { getCodePoolCode } from "@workspace/platform/server/company-directory";
@@ -6,6 +7,7 @@ import {
   buildDepartmentCodeDeleteCommand,
   buildDepartmentCodeSaveCommand,
 } from "./domain/code-governance-validation";
+import { validateDepartmentDelete } from "./domain/department-validation";
 
 export type GetDepartmentCodesInput = {
   companys?: string;
@@ -102,20 +104,21 @@ export async function deleteDepartmentCode(code: string, userId: number) {
   const command = buildDepartmentCodeDeleteCommand(code, userId);
   if (!command.ok) return { success: false as const, status: command.issue.status, error: command.issue.message };
   code = command.data.code;
-  return prisma.$transaction(async (tx) => {
-    const department = await tx.department.findFirst({ where: { code } });
-    if (!department) {
-      return { success: false as const, status: 404, error: "部门不存在" };
-    }
-
-    const epCount = await tx.eDP.count({ where: { departmentId: department.id } });
-    if (epCount > 0) {
-      return { success: false as const, status: 400, error: `该部门下有 ${epCount} 名员工，无法删除` };
-    }
-
-    await ensureEditHistoryBaseline("Department", department.id, userId, tx);
-    await snapshotHistory("Department", department.id, userId, tx);
-    await tx.department.delete({ where: { id: department.id } });
-    return { success: true as const };
+  const department = await prisma.department.findFirst({ where: { code }, select: { id: true } });
+  if (!department) return { success: false as const, status: 404, error: "部门不存在" };
+  const result = await guardedDelete({
+    entityType: "Department",
+    modelKey: "department",
+    id: department.id,
+    userId,
+    actionLabel: "删除部门",
+    deleteMode: "hard",
+    onBeforeDelete: async (id) => {
+      const validation = await validateDepartmentDelete(id, "删除部门");
+      return validation.ok ? { ok: true as const } : { error: validation.issue.message, status: validation.issue.status };
+    },
   });
+  return result.ok
+    ? { success: true as const }
+    : { success: false as const, status: result.status || 400, error: result.error };
 }

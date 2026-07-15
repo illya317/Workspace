@@ -4,10 +4,11 @@ import { ContractsClient } from "@workspace/administration/ui";
 
 export default async function AdministrationContractsPage() {
   const user = await requireRouteAccess("/administration/contracts");
-  const [canCreate, canUpdate, canDelete] = await Promise.all([
+  const [canCreate, canUpdate, canDelete, canExport] = await Promise.all([
     evaluatePermissionAction(user.id, "administration.contracts", "create"),
     evaluatePermissionAction(user.id, "administration.contracts", "update"),
     evaluatePermissionAction(user.id, "administration.contracts", "delete"),
+    evaluatePermissionAction(user.id, "administration.contracts", "export"),
   ]);
 
   return renderAppShellPage({
@@ -20,6 +21,7 @@ export default async function AdministrationContractsPage() {
       canCreate={canCreate}
       canUpdate={canUpdate}
       canDelete={canDelete}
+      canExport={canExport}
     />,
   });
 }

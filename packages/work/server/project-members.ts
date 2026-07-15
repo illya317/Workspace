@@ -1,4 +1,5 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
@@ -223,10 +224,15 @@ export async function deleteProjectMemberAction(input: {
   if (!Number.isInteger(input.recordId)) return serviceError("ID 无效");
   const command = await validateProjectMemberDeleteCommand(input.userId, input.recordId);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
-  await prisma.$transaction(async (tx) => {
-    await ensureEditHistoryBaseline("EmployeeProject", command.data.recordId, input.userId, tx);
-    await snapshotHistory("EmployeeProject", command.data.recordId, input.userId, tx);
-    await tx.employeeProject.delete({ where: { id: command.data.recordId } });
+  const result = await guardedDelete({
+    entityType: "EmployeeProject",
+    modelKey: "employeeProject",
+    id: command.data.recordId,
+    userId: input.userId,
+    actionLabel: "删除项目成员",
+    deleteMode: "hard",
+    referencePolicy: "none",
   });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ success: true });
 }

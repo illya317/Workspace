@@ -638,7 +638,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     }
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(plan.targetType, plan.targetId)));
   }
-  function resetTaskView() { setActiveTab("tasks"); setWorkTasksChildView(WORK_TASKS_OWNED_VIEW_KEY); setStatusFilter("active"); setCreateChoiceOpen(false); setPendingRoutineTaskCreatePlanId(null); setPlanCreating(false); worksState.setCreating(false); setDrawerOpen(false); }
+  function resetTaskView(nextStatus?: WorkStatusFilter) { setActiveTab("tasks"); setWorkTasksChildView(WORK_TASKS_OWNED_VIEW_KEY); if (nextStatus) setStatusFilter(nextStatus); setCreateChoiceOpen(false); setPendingRoutineTaskCreatePlanId(null); setPlanCreating(false); worksState.setCreating(false); setDrawerOpen(false); }
   function selectSpace(space: WorkTaskSpace) { changeActiveSpace(space, true); }
   function selectNavigationSpace(space: WorkTaskSpace) { changeActiveSpace(space, false); }
   function changeActiveSpace(space: WorkTaskSpace, resetView: boolean) {
@@ -646,7 +646,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     setActiveTarget(nextTarget);
     setActivePlanId(null);
     setExpandedSpaceKeys((current) => new Set(current).add(workSpaceKey(space)));
-    if (resetView) resetTaskView();
+    if (resetView) resetTaskView("active");
     else {
       setCreateChoiceOpen(false);
       setPendingRoutineTaskCreatePlanId(null);

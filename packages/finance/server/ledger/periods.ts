@@ -1,4 +1,5 @@
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import {
   buildFinanceIdCommand,
   buildFinancePeriodCreateCommand,
@@ -161,11 +162,32 @@ export async function updateFinancePeriod(id: number, input: UpdateFinancePeriod
   return { success: true, period };
 }
 
-export async function deleteFinancePeriod(id: number) {
+export async function deleteFinancePeriod(id: number, userId: number) {
   const command = buildFinanceIdCommand(id);
   if (!command.ok) throw new Error(command.issue.message);
-  await prisma.financePeriod.delete({ where: { id: command.data.id } });
-  return { success: true };
+  const result = await guardedDelete({
+    entityType: "FinancePeriod",
+    modelKey: "financePeriod",
+    id: command.data.id,
+    userId,
+    actionLabel: "删除会计期间",
+    deleteMode: "hard",
+    references: [
+      { label: "科目余额", count: (tx) => tx.financeAccountBalance.count({ where: { periodId: command.data.id } }) },
+      { label: "会计凭证", count: (tx) => tx.financeVoucher.count({ where: { periodId: command.data.id } }) },
+      { label: "重分类结果", count: (tx) => tx.reclassResult.count({ where: { periodId: command.data.id } }) },
+      { label: "来源余额", count: (tx) => tx.financeSourceAccountBalance.count({ where: { periodId: command.data.id } }) },
+      { label: "辅助余额", count: (tx) => tx.financeAuxiliaryBalance.count({ where: { periodId: command.data.id } }) },
+      { label: "现金流分配", count: (tx) => tx.financeCashFlowAllocation.count({ where: { periodId: command.data.id } }) },
+      { label: "往来项目", count: (tx) => tx.financeOpenItem.count({ where: { periodId: command.data.id } }) },
+      { label: "资产期间分录", count: (tx) => tx.financeAssetPeriodEntry.count({ where: { periodId: command.data.id } }) },
+      { label: "资产调整", count: (tx) => tx.financeAssetAdjustment.count({ where: { periodId: command.data.id } }) },
+    ],
+    referencePolicy: "checked",
+  });
+  return result.ok
+    ? { success: true as const }
+    : { success: false as const, error: result.error, status: result.status || 400 };
 }
 
 export async function lookupFinancePeriodId(input: LookupFinancePeriodInput) {

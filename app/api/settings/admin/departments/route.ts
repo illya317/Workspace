@@ -37,7 +37,7 @@ export async function DELETE(request: Request) {
     return jsonErrorResponse("缺少 departmentId", 400);
   }
 
-  const result = await deleteAdminDepartment(parsed.data.departmentId);
+  const result = await deleteAdminDepartment(parsed.data.departmentId, payload.userId);
   if (!result.success) return jsonErrorResponse(result.error, result.status);
   return NextResponse.json(result);
 }

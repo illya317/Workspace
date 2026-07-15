@@ -2,6 +2,7 @@ import { randomUUID } from "node:crypto";
 import { access, mkdir, rename, rm } from "node:fs/promises";
 import path from "node:path";
 
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma } from "@workspace/platform/server/prisma";
 
 import { getDefaultRoot, safeResolve } from "./config";
@@ -84,13 +85,6 @@ export async function deleteLibraryDocument(rawCommand: DeleteLibraryDocumentCom
   });
   if (!document) throw new LibraryDeletionError("资料不存在", 404);
 
-  const evidenceCount = await prisma.libraryEvaluationEvidence.count({
-    where: { version: { documentId: document.id } },
-  });
-  if (evidenceCount > 0) {
-    throw new LibraryDeletionError("该资料已被评测证据引用，不能删除", 409);
-  }
-
   const runtimeRoot = getDefaultRoot();
   if (!runtimeRoot) throw new LibraryDeletionError("资料库存储未配置", 500);
   const trashRoot = safeResolve(path.posix.join(".trash", "library-delete", randomUUID()), runtimeRoot);
@@ -98,12 +92,29 @@ export async function deleteLibraryDocument(rawCommand: DeleteLibraryDocumentCom
   const staged = await stageOwnedPaths(ownedRuntimePaths({ runtimeRoot, ...document }), trashRoot);
 
   try {
-    await prisma.$transaction(async (tx) => {
-      await tx.libraryDocument.update({ where: { id: document.id }, data: { currentVersionId: null } });
-      await tx.libraryDocument.delete({ where: { id: document.id } });
+    const result = await guardedDelete({
+      entityType: "LibraryDocument",
+      modelKey: "libraryDocument",
+      id: document.id,
+      userId: command.userId,
+      actionLabel: "删除资料",
+      deleteMode: "hard",
+      references: [
+        {
+          label: "评测证据",
+          count: (tx) => tx.libraryEvaluationEvidence.count({ where: { version: { documentId: document.id } } }),
+        },
+      ],
+      referencePolicy: "checked",
+      onBeforeDelete: async (_id, { tx }) => {
+        await tx.libraryDocument.update({ where: { id: document.id }, data: { currentVersionId: null } });
+        return { ok: true };
+      },
     });
+    if (!result.ok) throw new LibraryDeletionError(result.error, result.status || 400);
   } catch (error) {
     await restoreStagedPaths(staged);
+    if (error instanceof LibraryDeletionError) throw error;
     const code = error && typeof error === "object" && "code" in error ? String(error.code) : "";
     if (code === "P2003") throw new LibraryDeletionError("该资料仍被其他记录引用，不能删除", 409);
     throw error;

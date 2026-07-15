@@ -1,4 +1,5 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
   buildVisibleMeetingWhere,
@@ -131,7 +132,26 @@ export async function deleteMeeting(input: { userId: number; meetingId: number }
   const command = validateMeetingDelete({ meetingId: input.meetingId });
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canDeleteMeeting(input.userId, command.data.meetingId))) return serviceError("无权限", 403);
-  await prisma.meeting.delete({ where: { id: command.data.meetingId } });
+  const result = await guardedDelete({
+    entityType: "Meeting",
+    modelKey: "meeting",
+    id: command.data.meetingId,
+    userId: input.userId,
+    actionLabel: "删除会议",
+    deleteMode: "hard",
+    references: [
+      { label: "参会人", count: (tx) => tx.meetingParticipant.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "议程", count: (tx) => tx.meetingAgendaItem.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "会议纪要", count: (tx) => tx.meetingMinuteEntry.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "会议提案", count: (tx) => tx.meetingProposal.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "会议决议", count: (tx) => tx.meetingDecision.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "会议行动候选", count: (tx) => tx.meetingActionCandidate.count({ where: { meetingId: command.data.meetingId } }) },
+      { label: "来源工作项", count: (tx) => tx.workItem.count({ where: { sourceMeetingId: command.data.meetingId } }) },
+      { label: "来源工作计划", count: (tx) => tx.workPlan.count({ where: { sourceMeetingId: command.data.meetingId } }) },
+    ],
+    referencePolicy: "checked",
+  });
+  if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ success: true });
 }
 

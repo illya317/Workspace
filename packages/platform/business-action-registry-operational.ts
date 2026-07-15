@@ -38,11 +38,13 @@ const WORK_TASKS = {
 } as const;
 
 const route = (method: "POST" | "PUT" | "PATCH" | "DELETE", path: string) => ({ method, path }) as const;
+const readRoute = (path: string) => ({ method: "GET" as const, path });
 
 export const OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.create", label: "创建行政合同", writeKind: "create", targetKind: "Contract", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/administration/contracts")] },
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.update", label: "更新行政合同", writeKind: "update", targetKind: "Contract", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/administration/contracts/:id")] },
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.delete", label: "删除行政合同", writeKind: "delete", targetKind: "Contract", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/administration/contracts/:id")] },
+  { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.export", label: "下载行政合同台账", writeKind: "export", targetKind: "ContractExport", directPermissionAction: "export", apiRoutes: [readRoute("/api/modules/administration/contracts/export")] },
 
   { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.create", label: "创建客户", writeKind: "create", targetKind: "ExternalParty", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/external/customers")] },
   { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.update", label: "更新客户", writeKind: "update", targetKind: "ExternalParty", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/external/customers/:id")] },

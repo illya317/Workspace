@@ -14,6 +14,11 @@ interface ContractFiltersProps {
   columns: SurfaceColumnOptionSpec[];
   visibleColumns: string[];
   onColumnsChange: (value: string[]) => void;
+  pageSize: number;
+  onPageSizeChange: (value: number) => void;
+  canDownload?: boolean;
+  downloading?: boolean;
+  onDownload?: () => void;
   onReset: () => void;
 }
 
@@ -23,6 +28,8 @@ export default function getContractFilterToolbarItems({
   statusFilter, onStatusChange,
   categories, statuses,
   columns, visibleColumns, onColumnsChange,
+  pageSize, onPageSizeChange,
+  canDownload = false, downloading = false, onDownload,
   onReset,
 }: ContractFiltersProps): SurfaceToolbarItems {
   return [
@@ -63,5 +70,23 @@ export default function getContractFilterToolbarItems({
       visible: visibleColumns,
       onChange: onColumnsChange,
     },
+    {
+      kind: "page-size",
+      key: "page-size",
+      value: String(pageSize),
+      options: [20, 50, 100].map((value) => ({ value: String(value), label: `${value}条/页` })),
+      onChange: (value) => onPageSizeChange(Number(value)),
+    },
+    ...(canDownload && onDownload ? [{
+      kind: "action-group" as const,
+      key: "export",
+      actions: [{
+        key: "download",
+        kind: "download" as const,
+        label: "下载全部",
+        disabled: downloading,
+        onClick: onDownload,
+      }],
+    }] : []),
   ];
 }

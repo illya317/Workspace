@@ -1,4 +1,5 @@
 import {
+  buildFinanceActorRouteIdCommand,
   buildFinanceRouteIdCommand,
   executeDeleteCostImportCommand,
   executeGetCostImportCommand,
@@ -14,6 +15,6 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";export
 export const DELETE = createCommandRoute({
   paramsSchema: costImportIdSchema,
   paramsError: "无效ID",
-  buildCommand: ({ params }) => buildFinanceRouteIdCommand(params.id),
+  buildCommand: ({ params, user }) => buildFinanceActorRouteIdCommand(params.id, user.userId),
   action: executeDeleteCostImportCommand,
 });

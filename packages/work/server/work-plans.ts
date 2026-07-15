@@ -1,6 +1,5 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { isCompletedStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
 import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 import { normalizeSourceType } from "./domain/work-item-source-validation";
@@ -22,47 +21,14 @@ import { validateWorkPlanPeriodRelations } from "./work-period-relations";
 import { validateWorkOwnerAssignment } from "./work-owner-eligibility";
 import { validateWorkCollaborationReference } from "./work-collaboration-references";
 import { toWorkPlanDto, workPlanInclude, type WorkPlanRow } from "./work-plan-dto";
+import {
+  applyWorkPlanItemLifecycle,
+  listWorkPlanItemStatusCounts,
+} from "./domain/work-plan-item-state";
+import type { WorkPlanCommandInput } from "./domain/work-plan-command-input";
 const PLAN_STATUSES = new Set(["active", "done"]);
 const PLAN_KINDS = new Set(["okr", "routine"]);
 const PLAN_PERIOD_TYPES = new Set(["yearly", "half_year", "quarterly", "monthly"]);
-type WorkPlanCommandInput = {
-  isSystemGenerated?: boolean;
-  actorUserId?: number | null;
-  ownerEligibilityUserId?: number | null;
-  updateGuard?: "direct" | "workflow-approved";
-  targetType: string;
-  targetId: number;
-  kind?: string;
-  title?: string;
-  description?: string;
-  status?: string;
-  krReviewOpensAt?: Date | string | null;
-  ownerEmployeeId?: number | null;
-  collaborationId?: number | null;
-  okrCycleId?: number | null;
-  sourcePlanId?: number | null;
-  parentPeriodPlanId?: number | null;
-  previousPeriodPlanId?: number | null;
-  alignmentSourceType?: string | null;
-  alignmentSourcePlanId?: number | null;
-  alignmentSourceWorkItemId?: number | null;
-  periodType?: string | null;
-  actualStartDate?: Date | string | null;
-  actualEndDate?: Date | string | null;
-  plannedStartDate?: Date | string | null;
-  plannedEndDate?: Date | string | null;
-  isMilestone?: boolean;
-  milestoneDate?: Date | string | null;
-  sourceType?: string;
-  sourceKind?: string | null;
-  sourceMeetingId?: number | null;
-  sourceMeetingDecisionId?: number | null;
-  sourceMeetingActionCandidateId?: number | null;
-  sourceDepartmentId?: number | null;
-  linkedProjectId?: number | null;
-  linkedProjectPhaseId?: number | null;
-  sortOrder?: number;
-};
 function toDateOrNull(value: Date | string | null | undefined) {
   if (!value) return null;
   const date = value instanceof Date ? value : new Date(value);
@@ -170,9 +136,13 @@ export async function listWorkPlans(opts: {
     }),
     getWorkOkrControlSettings(),
   ]);
-  return normalizeRoutinePlanRows(rows)
-    .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds))
-    .map((row) => toWorkPlanDto(row, { timeControlEnabled }));
+  const visibleRows = normalizeRoutinePlanRows(rows)
+    .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds));
+  const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, visibleRows.map((row) => row.id));
+  return visibleRows.map((row) => toWorkPlanDto(row, {
+    timeControlEnabled,
+    itemStatusCounts: itemStatusCounts.get(row.id),
+  }));
 }
 
 async function ensureRoutineWorkPlan(targetType: string, targetId: number) {
@@ -352,16 +322,19 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
   const updateData = reopeningCompletedPlan && existing.kind === "okr" ? { ...command.data, okrStage: "executing" } : command.data;
+  const enforceCompletedPlan = existing.kind === "okr" && command.data.status === "done";
   const row = await prisma.$transaction(async (tx) => {
     await tx.workPlan.update({
       where: { id },
       data: updateData,
     });
+    if (enforceCompletedPlan) await applyWorkPlanItemLifecycle(tx, id, "done");
     await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
     return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
   });
   const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
-  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
+  const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, [id]);
+  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled, itemStatusCounts: itemStatusCounts.get(id) }) };
 }
 
 export async function adjustWorkPlanKrReviewOpensAt(planId: number, opensAt: Date | string | null): Promise<DomainServiceResult<unknown>> {
@@ -375,44 +348,6 @@ export async function adjustWorkPlanKrReviewOpensAt(planId: number, opensAt: Dat
   if (!row) return { ok: false, error: "工作计划不存在", status: 404 };
   const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
   return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
-}
-
-export async function archiveWorkPlan(planId: number, actorUserId: number): Promise<DomainServiceResult<{ success: true }>> {
-  const guard = validateWorkPlanCommand("archiveWorkPlan");
-  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
-  const id = normalizePositiveId(planId);
-  if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
-  const plan = await prisma.workPlan.findUnique({ where: { id }, select: { kind: true, isArchived: true } });
-  if (!plan) return { ok: false, error: "工作计划不存在", status: 404 };
-  if (plan?.kind === "routine") return { ok: false, error: "日常工作是空间预留入口，不能归档", status: 400 };
-  if (plan.isArchived) {
-    await prisma.workPlan.update({ where: { id }, data: { isArchived: false } });
-    return { ok: true, data: { success: true } };
-  }
-  const archiveResult = await guardedDelete({
-    entityType: "WorkPlan",
-    modelKey: "workPlan",
-    id,
-    userId: actorUserId,
-    actionLabel: "归档工作计划",
-    deleteMode: "archive",
-    archiveField: { field: "isArchived", value: true },
-    referencePolicy: "retained",
-  });
-  if (!archiveResult.ok) return archiveResult;
-  return { ok: true, data: { success: true } };
-}
-
-export async function deleteWorkPlan(planId: number): Promise<DomainServiceResult<{ success: true }>> {
-  const guard = validateWorkPlanCommand("deleteWorkPlan");
-  if (!guard.ok) return { ok: false, error: guard.issue.message, status: guard.issue.status };
-  const id = normalizePositiveId(planId);
-  if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
-  const plan = await prisma.workPlan.findUnique({ where: { id }, select: { kind: true, isSystemGenerated: true } });
-  if (plan?.kind === "routine") return { ok: false, error: "日常工作是空间预留入口，不能删除", status: 400 };
-  if (plan?.kind === "okr" && plan.isSystemGenerated) return { ok: false, error: "固定周期计划由系统维护，不能删除", status: 400 };
-  await prisma.workPlan.delete({ where: { id } });
-  return { ok: true, data: { success: true } };
 }
 
 async function normalizeWorkPlanInput(input: WorkPlanCommandInput): Promise<{

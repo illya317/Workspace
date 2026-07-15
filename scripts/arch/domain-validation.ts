@@ -16,7 +16,7 @@ const VIOLATION_KINDS: ViolationKind[] = [
   "serviceUsesLowLevelRule",
   "routeImportsDomainValidator",
   "serverRootReexportsDomainValidator",
-  "archiveEntryBypassesGuard",
+  "lifecycleEntryBypassesGuard",
 ];
 
 type DomainValidationBaseline = Record<ViolationKind, string[]>;
@@ -27,7 +27,7 @@ function emptyBaseline(): DomainValidationBaseline {
     serviceUsesLowLevelRule: [],
     routeImportsDomainValidator: [],
     serverRootReexportsDomainValidator: [],
-    archiveEntryBypassesGuard: [],
+    lifecycleEntryBypassesGuard: [],
   };
 }
 
@@ -39,7 +39,7 @@ function readBaseline(): DomainValidationBaseline {
     serviceUsesLowLevelRule: parsed.serviceUsesLowLevelRule ?? [],
     routeImportsDomainValidator: parsed.routeImportsDomainValidator ?? [],
     serverRootReexportsDomainValidator: parsed.serverRootReexportsDomainValidator ?? [],
-    archiveEntryBypassesGuard: parsed.archiveEntryBypassesGuard ?? [],
+    lifecycleEntryBypassesGuard: parsed.lifecycleEntryBypassesGuard ?? [],
   };
 }
 
@@ -60,7 +60,7 @@ function violationsByKind(violations: Violation[]): DomainValidationBaseline {
     serviceUsesLowLevelRule: uniqueSorted(grouped.serviceUsesLowLevelRule),
     routeImportsDomainValidator: uniqueSorted(grouped.routeImportsDomainValidator),
     serverRootReexportsDomainValidator: uniqueSorted(grouped.serverRootReexportsDomainValidator),
-    archiveEntryBypassesGuard: uniqueSorted(grouped.archiveEntryBypassesGuard),
+    lifecycleEntryBypassesGuard: uniqueSorted(grouped.lifecycleEntryBypassesGuard),
   };
 }
 

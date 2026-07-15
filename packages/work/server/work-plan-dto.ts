@@ -1,6 +1,7 @@
 import { Prisma } from "@workspace/platform/server/prisma";
 import { resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
 import { effectiveWorkOkrStage } from "./work-okr-stage";
+import type { WorkPlanItemStatusCounts } from "./domain/work-plan-item-state";
 
 export const workPlanInclude = {
   owner: { select: { id: true, employeeId: true, name: true } },
@@ -31,7 +32,10 @@ export const workPlanInclude = {
 
 export type WorkPlanRow = Prisma.WorkPlanGetPayload<{ include: typeof workPlanInclude }>;
 
-export function toWorkPlanDto(row: WorkPlanRow, input: { timeControlEnabled: boolean }) {
+export function toWorkPlanDto(row: WorkPlanRow, input: {
+  timeControlEnabled: boolean;
+  itemStatusCounts?: WorkPlanItemStatusCounts;
+}) {
   const alignment = row.planAlignments[0] ?? null;
   const okrStage = effectiveWorkOkrStage(row);
   return {
@@ -122,6 +126,7 @@ export function toWorkPlanDto(row: WorkPlanRow, input: { timeControlEnabled: boo
     linkedProjectPhaseId: row.linkedProjectPhaseId,
     linkedProjectPhaseName: row.linkedProjectPhase?.name ?? null,
     itemCount: row._count.items,
+    itemStatusCounts: input.itemStatusCounts ?? { active: 0, done: 0, archived: 0 },
     sortOrder: row.sortOrder,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),

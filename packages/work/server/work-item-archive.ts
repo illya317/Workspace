@@ -12,7 +12,7 @@ export async function archiveWorkItem(workId: number, actorUserId: number): Prom
     userId: actorUserId,
     actionLabel: "归档工作项",
     deleteMode: "archive",
-    references: workItemArchiveReferences(command.data.workId),
+    references: workItemHierarchyReferences(command.data.workId),
     referencePolicy: "checked",
   });
 }
@@ -29,7 +29,7 @@ export async function restoreArchivedWorkItem(workId: number): Promise<DeleteGua
     : { ok: false, error: "待恢复工作项不存在或尚未归档", status: 404 };
 }
 
-function workItemArchiveReferences(workId: number): DeleteReferenceGuard[] {
+export function workItemHierarchyReferences(workId: number): DeleteReferenceGuard[] {
   return [
     {
       label: "子工作项",

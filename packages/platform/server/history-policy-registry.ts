@@ -88,6 +88,14 @@ const RESTORE_UPDATE_OR_CREATE_WITHOUT_AUDIT_METADATA = {
   auditMetadata: "none",
 } as const satisfies HistoryRestorePolicy;
 
+function nonRestorableHistoryPolicy(
+  entityType: string,
+  modelKey: PrismaModelKey,
+  displayName: HistoryDisplayPolicy,
+) {
+  return { entityType, modelKey, trackHistory: true, baseline: "before-first-update", displayName, ignoredFields: AUDIT_FIELDS, restore: false } as const satisfies HistoryPolicy;
+}
+
 function getDelegate(client: HistoryClient, modelKey: PrismaModelKey): HistoryModelDelegate {
   return (client as unknown as Record<string, HistoryModelDelegate>)[modelKey];
 }
@@ -373,6 +381,9 @@ export const historyPolicyRegistry = {
     ignoredFields: AUDIT_FIELDS,
     restore: RESTORE_UPDATE_OR_CREATE,
   },
+  ProjectPlanPhase: nonRestorableHistoryPolicy("ProjectPlanPhase", "projectPlanPhase", { field: "name", fallback: "未知项目阶段" }),
+  Meeting: nonRestorableHistoryPolicy("Meeting", "meeting", { field: "title", fallback: "未知会议" }),
+  WorkflowPolicy: nonRestorableHistoryPolicy("WorkflowPolicy", "workflowPolicy", { field: "businessActionKey", fallback: "未知流程策略" }),
   PositionDescription: {
     entityType: "PositionDescription",
     modelKey: "positionDescription",
@@ -392,6 +403,9 @@ export const historyPolicyRegistry = {
     ignoredFields: AUDIT_FIELDS,
     restore: false,
   },
+  FinanceDataImport: nonRestorableHistoryPolicy("FinanceDataImport", "financeDataImport", { field: "sourceFile", fallback: "未知成本导入批次" }),
+  FinancePeriod: nonRestorableHistoryPolicy("FinancePeriod", "financePeriod", { fallback: "未知会计期间" }),
+  FinanceVoucher: nonRestorableHistoryPolicy("FinanceVoucher", "financeVoucher", { field: "voucherNo", fallback: "未知会计凭证" }),
   LibraryDocument: {
     entityType: "LibraryDocument",
     modelKey: "libraryDocument",
@@ -401,6 +415,7 @@ export const historyPolicyRegistry = {
     ignoredFields: AUDIT_FIELDS,
     restore: false,
   },
+  LibraryDirectory: nonRestorableHistoryPolicy("LibraryDirectory", "libraryDirectory", { field: "name", fallback: "未知资料文件夹" }),
   DocumentTemplate: {
     entityType: "DocumentTemplate",
     modelKey: "documentTemplate",

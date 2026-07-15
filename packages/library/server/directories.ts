@@ -1,3 +1,4 @@
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma } from "@workspace/platform/server/prisma";
 
 import {
@@ -256,25 +257,34 @@ export async function deleteLibraryDirectory(command: DeleteLibraryDirectoryComm
   if (!validated.ok) throw new Error(validated.issue.message);
   command = validated.data;
 
-  return prisma.$transaction(async (tx) => {
-    const directory = await tx.libraryDirectory.findUnique({
-      where: { rootKey_relativePath: { rootKey: command.rootKey, relativePath: command.path } },
-      select: { id: true, name: true, status: true },
-    });
-    if (!directory || directory.status !== "active") throw new Error("文件夹不存在");
-
-    const childCount = await tx.libraryDirectory.count({
-      where: {
-        rootKey: command.rootKey,
-        status: "active",
-        relativePath: { startsWith: `${command.path}/` },
-      },
-    });
-    if (childCount > 0) throw new Error("文件夹包含子文件夹，请先删除子文件夹");
-    const documentCount = await tx.libraryDocument.count({ where: { currentDirectoryId: directory.id } });
-    if (documentCount > 0) throw new Error("文件夹内仍有资料，请先移动或删除资料");
-
-    await tx.libraryDirectory.delete({ where: { id: directory.id } });
-    return { path: command.path, name: directory.name };
+  const directory = await prisma.libraryDirectory.findUnique({
+    where: { rootKey_relativePath: { rootKey: command.rootKey, relativePath: command.path } },
+    select: { id: true, name: true, status: true },
   });
+  if (!directory || directory.status !== "active") throw new Error("文件夹不存在");
+  const result = await guardedDelete({
+    entityType: "LibraryDirectory",
+    modelKey: "libraryDirectory",
+    id: directory.id,
+    userId: command.userId,
+    actionLabel: "删除资料文件夹",
+    deleteMode: "hard",
+    scopeGuard: ({ record }) => (
+      record.rootKey === command.rootKey && record.relativePath === command.path && record.status === "active"
+        ? { ok: true }
+        : { error: "文件夹不存在", status: 404 }
+    ),
+    references: [
+      {
+        label: "子文件夹",
+        count: (tx) => tx.libraryDirectory.count({
+          where: { rootKey: command.rootKey, status: "active", relativePath: { startsWith: `${command.path}/` } },
+        }),
+      },
+      { label: "文件夹内资料", count: (tx) => tx.libraryDocument.count({ where: { currentDirectoryId: directory.id } }) },
+    ],
+    referencePolicy: "checked",
+  });
+  if (!result.ok) throw new Error(result.error);
+  return { path: command.path, name: directory.name };
 }

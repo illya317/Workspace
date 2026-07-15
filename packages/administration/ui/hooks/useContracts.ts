@@ -3,8 +3,6 @@ import { useEffect, useMemo, useState, useCallback } from "react";
 import { useAsyncResource } from "@workspace/core/hooks";
 import type { Contract } from "@workspace/administration/types";
 
-const pageSize = 50;
-
 interface ContractsResource {
   contracts: Contract[];
   total: number;
@@ -23,6 +21,7 @@ const EMPTY_CONTRACTS_RESOURCE: ContractsResource = {
 
 export function useContracts() {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
   const [q, setQ] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("");
@@ -46,7 +45,7 @@ export function useContracts() {
       categories: data.categories || [],
       statuses: data.statuses || [],
     } as ContractsResource;
-  }, [q, locationFilter, categoryFilter, statusFilter, page]);
+  }, [categoryFilter, locationFilter, page, pageSize, q, statusFilter]);
 
   const { data, refresh } = useAsyncResource(loadContracts, {
     initialData: EMPTY_CONTRACTS_RESOURCE,
@@ -58,13 +57,18 @@ export function useContracts() {
     setPage(1);
   }, [q, locationFilter, categoryFilter, statusFilter]);
 
-  const totalPages = useMemo(() => Math.ceil(data.total / pageSize), [data.total]);
+  const totalPages = useMemo(() => Math.ceil(data.total / pageSize), [data.total, pageSize]);
 
   return {
     contracts: data.contracts,
     total: data.total,
     page,
     setPage,
+    pageSize,
+    setPageSize: (value: number) => {
+      setPageSize(value);
+      setPage(1);
+    },
     totalPages,
     q, setQ,
     locationFilter, setLocationFilter,

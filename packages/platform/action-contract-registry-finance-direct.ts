@@ -29,7 +29,7 @@ export const FINANCE_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetad
   registeredImport({ key: "finance.budget.import", activeEntity: "FinanceBudget", transport: "file", domain: d(financeValidation("buildBudgetImportCommand"), "packages/finance/server/budget/service.importBudgetWorkbook") }),
   registeredWrite({ key: "finance.budget.version.create", activeEntity: "BudgetVersion", domain: d(financeValidation("buildBudgetVersionCreateCommand"), "packages/finance/server/budget/budget-version.createBudgetVersion"), shape: "full_record", target: "new_record", commitMode: "activate" }),
   registeredLifecycle({ key: "finance.budget.version.activate", activeEntity: "BudgetVersion", operation: "activate", domain: d(financeValidation("buildFinanceIdCommand"), "packages/finance/server/budget/budget-version.activateBudgetVersion"), auditPolicy: "event" }),
-  registeredLifecycle({ key: "finance.cost.import.delete", activeEntity: "FinanceCostImport", operation: "delete", domain: d(routeCommand("buildFinanceRouteIdCommand"), routeCommand("executeDeleteCostImportCommand")), referencePolicy: "domain" }),
+  registeredLifecycle({ key: "finance.cost.import.delete", activeEntity: "FinanceCostImport", operation: "delete", domain: d(routeCommand("buildFinanceActorRouteIdCommand"), routeCommand("executeDeleteCostImportCommand")), referencePolicy: "domain" }),
   registeredImport({ key: "finance.import.confirm", activeEntity: "FinanceImport", transport: "json", result: "batch", domain: d("packages/finance/server/import/route-commands.buildFinanceImportConfirmCommand", "packages/finance/server/import/route-commands.executeFinanceImportConfirmCommand") }),
 
 ]);

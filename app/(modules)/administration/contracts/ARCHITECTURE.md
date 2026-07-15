@@ -41,6 +41,7 @@ page.tsx
 | 端点 | 说明 |
 |------|------|
 | `GET /api/modules/administration/contracts` | 合同列表（支持筛选、分页） |
+| `GET /api/modules/administration/contracts/export` | 下载全部匹配合同 CSV（忽略分页） |
 | `POST /api/modules/administration/contracts` | 创建合同 |
 | `PATCH /api/modules/administration/contracts/[id]` | 更新合同 |
 | `DELETE /api/modules/administration/contracts/[id]` | 删除合同；必须通过 `If-Match` 提交当前版本 |
@@ -53,6 +54,7 @@ page.tsx
 - POST：`administration.contracts.create`
 - PATCH：`administration.contracts.update`
 - DELETE：`administration.contracts.delete`
+- 导出：`administration.contracts.export`
 
 API route 的资源和动作统一由 API contract 的 `resourceKey + requiredActions` 推导并在 gateway 执行，不再维护重复的 route-local guard。
 

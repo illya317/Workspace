@@ -1,10 +1,12 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { getCodePoolCode } from "@workspace/platform/server/company-directory";
 import {
   buildPositionCodeDeleteCommand,
   buildPositionCodeSaveCommand,
 } from "./domain/code-governance-validation";
+import { validatePositionDelete } from "./domain/position-validation";
 
 async function buildFullCode(code: string, company: string): Promise<string> {
   const normalized = await getCodePoolCode(company);
@@ -118,16 +120,20 @@ export async function deletePositionCode(code: string, userId: number) {
   const command = buildPositionCodeDeleteCommand(code, userId);
   if (!command.ok) throw new Error(command.issue.message);
   code = command.data.code;
-  return prisma.$transaction(async (tx) => {
-    const position = await tx.position.findFirst({ where: { code } });
-    if (!position) throw new Error("岗位不存在");
-    const epCount = await tx.eDP.count({ where: { positionId: position.id } });
-    if (epCount > 0) {
-      throw new Error(`该岗位下有 ${epCount} 名员工，无法删除`);
-    }
-    await ensureEditHistoryBaseline("Position", position.id, userId, tx);
-    await snapshotHistory("Position", position.id, userId, tx);
-    await tx.position.delete({ where: { id: position.id } });
-    return { success: true };
+  const position = await prisma.position.findFirst({ where: { code }, select: { id: true } });
+  if (!position) throw new Error("岗位不存在");
+  const result = await guardedDelete({
+    entityType: "Position",
+    modelKey: "position",
+    id: position.id,
+    userId,
+    actionLabel: "删除岗位",
+    deleteMode: "hard",
+    onBeforeDelete: async (id) => {
+      const validation = await validatePositionDelete(id, "删除岗位");
+      return validation.ok ? { ok: true as const } : { error: validation.issue.message, status: validation.issue.status };
+    },
   });
+  if (!result.ok) throw new Error(result.error);
+  return { success: true };
 }

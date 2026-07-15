@@ -219,20 +219,3 @@ export async function setActiveBaseline(snapshotId: number) {
 
   return updated;
 }
-
-/**
- * 删除一个 snapshot（级联删除 rows）。
- * reconcile snapshot 可直接删；active baseline 必须阻止。
- */
-export async function deleteSnapshot(snapshotId: number) {
-  const command = buildFinanceIdCommand(snapshotId, "snapshotId");
-  if (!command.ok) throw new Error(command.issue.message);
-  const snapshot = await prisma.financeBalanceSnapshot.findUnique({ where: { id: command.data.id } });
-  if (!snapshot) throw new Error("Snapshot 不存在");
-  if (snapshot.isActive) {
-    throw new Error("不能删除 active baseline snapshot。请先选择新的 baseline，再删除旧基准。");
-  }
-
-  await prisma.financeBalanceSnapshot.delete({ where: { id: command.data.id } });
-  return snapshot;
-}

@@ -1,5 +1,6 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { buildWorkItemCreateCommand, buildWorkItemUpdateCommand, validateWorkItemDeleteCommand } from "./domain/work-item-validation";
 import { validateWorkItemRelations } from "./domain/work-item-relation-validation";
 import {
@@ -22,8 +23,9 @@ import {
   validateWorkItemResponsibility,
 } from "./work-item-service-helpers";
 import { validateWorkItemPeriodRelations } from "./work-period-relations";
-import { archiveWorkItem, restoreArchivedWorkItem } from "./work-item-archive";
+import { archiveWorkItem, restoreArchivedWorkItem, workItemHierarchyReferences } from "./work-item-archive";
 import { assertWorkItemMutationCommitAllowed, type WorkItemMutationAuthorization } from "./work-item-mutation-guard";
+import { closeOkrPlanIfAllItemsComplete } from "./domain/work-plan-item-state";
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
@@ -508,7 +510,7 @@ export async function updateWorkItem(
 function isArchiveLifecycleOnlyWorkItemPatch(patch: Record<string, unknown>) {
   return typeof patch.isArchived === "boolean" && Object.keys(patch).every((key) => key === "isArchived");
 }
-export async function deleteWorkItem(workId: number): Promise<DomainServiceResult<{ success: true }>> {
+export async function deleteWorkItem(workId: number, actorUserId: number): Promise<DomainServiceResult<{ success: true }>> {
   const command = validateWorkItemDeleteCommand(workId);
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const existing = await prisma.workItem.findUnique({
@@ -522,29 +524,21 @@ export async function deleteWorkItem(workId: number): Promise<DomainServiceResul
     itemType: existing.itemType,
   });
   if (!stageGuard.ok) return stageGuard;
-  await prisma.workItem.delete({ where: { id: command.data.workId } });
+  const deleteResult = await guardedDelete({
+    entityType: "WorkItem",
+    modelKey: "workItem",
+    id: command.data.workId,
+    userId: actorUserId,
+    actionLabel: "删除工作项",
+    deleteMode: "hard",
+    references: workItemHierarchyReferences(command.data.workId),
+    referencePolicy: "checked",
+  });
+  if (!deleteResult.ok) return deleteResult;
   await closeOkrPlanIfComplete(existing.planId);
   return { ok: true, data: { success: true } };
 }
 async function closeOkrPlanIfComplete(planId: number | null | undefined) {
   if (!planId) return;
-  const plan = await prisma.workPlan.findUnique({
-    where: { id: planId },
-    select: { id: true, kind: true, status: true, isArchived: true },
-  });
-  if (!plan || plan.kind !== "okr" || plan.status === "done" || plan.isArchived) return;
-  const activeNodes = await prisma.workItem.count({
-    where: {
-      planId,
-      itemType: { in: ["objective", "key_result"] },
-      isArchived: false,
-      OR: [{ status: null }, { status: { not: "done" } }],
-    },
-  });
-  const totalNodes = await prisma.workItem.count({
-    where: { planId, itemType: { in: ["objective", "key_result"] }, isArchived: false },
-  });
-  if (totalNodes > 0 && activeNodes === 0) {
-    await prisma.workPlan.update({ where: { id: planId }, data: { status: "done", okrStage: "closed" } });
-  }
+  await prisma.$transaction((tx) => closeOkrPlanIfAllItemsComplete(tx, planId));
 }

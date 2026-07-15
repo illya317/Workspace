@@ -16,16 +16,18 @@ export default function ContractsClient({
   canCreate,
   canUpdate,
   canDelete,
+  canExport,
 }: {
   user: SessionUser;
   hideShell?: boolean;
   canCreate?: boolean;
   canUpdate?: boolean;
   canDelete?: boolean;
+  canExport?: boolean;
 }) {
   const {
-    contracts, total, page, setPage, totalPages,
-    q, setQ, setLocationFilter,
+    contracts, total, page, setPage, totalPages, pageSize, setPageSize,
+    q, setQ, locationFilter, setLocationFilter,
     categoryFilter, setCategoryFilter, statusFilter, setStatusFilter,
     locations, categories, statuses, refresh,
   } = useContracts();
@@ -34,6 +36,7 @@ export default function ContractsClient({
   const [modalMode, setModalMode] = useState<ModalMode>(null);
   const [editing, setEditing] = useState<Partial<Contract>>({});
   const [saving, setSaving] = useState(false);
+  const [downloading, setDownloading] = useState(false);
   const [visibleColumns, setVisibleColumns] = useState<string[]>(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
 
   const openCreate = () => {
@@ -61,6 +64,11 @@ export default function ContractsClient({
     columns: toolbarColumns,
     visibleColumns,
     onColumnsChange: setVisibleColumns,
+    pageSize,
+    onPageSizeChange: setPageSize,
+    canDownload: canExport,
+    downloading,
+    onDownload: () => void downloadContracts(),
     onReset: () => {
       setQ("");
       setLocationFilter("");
@@ -69,6 +77,31 @@ export default function ContractsClient({
       setVisibleColumns(CONTRACT_DEFAULT_VISIBLE_COLUMNS);
     },
   });
+
+  async function downloadContracts() {
+    if (!canExport) return;
+    setDownloading(true);
+    try {
+      const params = new URLSearchParams();
+      if (q) params.set("q", q);
+      if (locationFilter) params.set("location", locationFilter);
+      if (categoryFilter) params.set("category", categoryFilter);
+      if (statusFilter) params.set("status", statusFilter);
+      const response = await fetch(workspacePath(`/api/modules/administration/contracts/export?${params.toString()}`));
+      if (!response.ok) throw new Error("合同下载失败");
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `合同台账_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "合同下载失败");
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   const closeModal = () => {
     setModalMode(null);

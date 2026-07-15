@@ -19,7 +19,6 @@ export type WorkPlanKind = "okr" | "routine";
 export type WorkPlanAlignmentSourceType = "plan" | "objective" | "key_result";
 export type WorkAlignmentRelationKind = "upper" | "external";
 export type WorkItemParentPeriodRelationKind = "upper" | "external";
-
 export interface WorkResponsibilityFields {
   responsibilityReferenceId: number | null;
   responsibilityNodeId: number | null;
@@ -120,6 +119,7 @@ export interface WorkPlan extends WorkTarget {
   linkedProjectPhaseId: number | null;
   linkedProjectPhaseName: string | null;
   itemCount: number;
+  itemStatusCounts: { active: number; done: number; archived: number };
   sortOrder: number;
   createdAt: string;
   updatedAt: string;
