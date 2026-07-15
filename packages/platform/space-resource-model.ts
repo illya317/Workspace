@@ -6,29 +6,32 @@ import {
   type WorkspacePackageRegistration,
 } from "@workspace/core/module-contract";
 
-export type SpaceParentScopeType = "department" | "committee" | "company";
+export type SpaceParentScopeType = "department" | "committee" | "company" | "project";
 export type SpaceResourceKind = SpaceRegistration["spaceResourceKind"];
 
 export const SPACE_PARENT_RESOURCE_KEY_BY_SCOPE_TYPE = {
   department: "space.department",
   committee: "space.committee",
   company: "space.company",
+  project: "space.project",
 } as const satisfies Record<SpaceParentScopeType, string>;
 
 const SPACE_PARENT_LABEL_BY_SCOPE_TYPE = {
   department: "部门空间",
   committee: "运营委员会空间",
   company: "公司空间",
+  project: "项目空间",
 } as const satisfies Record<SpaceParentScopeType, string>;
 
 const SPACE_PARENT_SORT_ORDER_BY_SCOPE_TYPE = {
   department: 1000,
   committee: 1001,
   company: 1002,
+  project: 1003,
 } as const satisfies Record<SpaceParentScopeType, number>;
 
 function isSpaceParentScopeType(value: SpacePermissionTargetType | string): value is SpaceParentScopeType {
-  return value === "department" || value === "committee" || value === "company";
+  return value === "department" || value === "committee" || value === "company" || value === "project";
 }
 
 function unique<T>(items: T[]) {

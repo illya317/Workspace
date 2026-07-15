@@ -123,12 +123,12 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 | `work.tasks` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `archive`, `revise`, `submit`, `reverse`, `approve`, `reject`, `grant` | root 只直接授予 `entry`；工作项、OKR 计划、目标考核表和审批动作由空间派生资源承载 |
 | `work.meetings` | business | `entry`, `read`, `create`, `update`, `delete`, `submit`, `approve`, `grant` | 会议事实来源，当前仍按对象服务继续收窄 |
 
-- 项目管理权限同时受资源权限和项目成员/角色约束影响；服务端必须再次校验项目可见、可编辑、可管理、可删除。
-- 工作计划空间权限按个人、部门和项目空间分别判定；运营委员会按部门 ID 进入部门空间，公司不作为 Work 页面空间。项目来源工作项通过 `linkedProjectId` 关联项目对象，空间切换不代表权限继承。
+- 项目管理权限同时受资源权限和项目成员/角色约束影响；项目工作台额外支持 `project:{projectId}` 的任务空间授权，服务端必须再次校验项目可见、可编辑、可管理、可删除。
+- 工作计划空间权限按个人、部门和项目空间分别判定；项目空间的任务权限使用 `space.project.tasks` 作用域，可与项目成员/负责人权限叠加；运营委员会按部门 ID 进入部门空间，公司不作为 Work 页面空间。项目来源工作项通过 `linkedProjectId` 关联项目对象，空间切换不代表权限继承。
 - 会议管理使用 `work.meetings.create` 控制会议创建，`work.meetings.update/delete` 控制会议编辑和删除，`work.meetings.submit` 控制参会投票提交，`work.meetings.approve` 控制关闭表决；会议对象可见、可编辑、可管理仍由会议参与角色继续收窄。
 - 项目管理 L2 `work.projects` 承载入口和普通 L2 权限；组织空间内的项目、项目成员和甘特兼容动作由目标标准业务空间的派生 resource/scoped action grant 控制。
 - 工作计划 L2 `work.tasks` 承载入口和普通 L2 权限；组织空间内的工作项和工作计划创建/编辑/删除由目标任务空间的派生 resource/scoped action grant 控制。空间授权配置由目标空间 scoped `grant` 或 root identity 控制，业务 `manager` 不代表授权管理。
-- Work UI 当前只枚举 personal、department 和 project 空间；运营委员会由 `Department` 实例进入 `space.department.*`。`space.committee.*` / `space.company.*` 派生资源仅保留给存量授权、审批快照和非 Work 页面能力兼容，不再作为 Work 标准空间入口。空间授权只派生对应 L2 的 `entry`，不反向派生 L2 root 的 `update/delete/approve`。
+- Work UI 当前只枚举 personal、department 和 project 空间；运营委员会由 `Department` 实例进入 `space.department.*`。`space.committee.*` / `space.company.*` 派生资源仅保留给存量授权、审批快照和非 Work 页面能力兼容，不再作为 Work 标准空间入口。项目空间使用 `space.project.*` 派生资源，空间授权只派生对应 L2 的 `entry`，不反向派生 L2 root 的 `update/delete/approve`。
 - UI 上新增项目、计划或工作项放在对应列表/空间工具栏；单条编辑、删除、归档和审批动作必须贴近具体项目、阶段、任务、工作项或审批单。
 
 ### 工作计划审批与 OKR 绩效

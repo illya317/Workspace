@@ -35,7 +35,7 @@ page.tsx
 
 1. **AdminClient** 进入员工/岗位/部门权限时加载权限资源树 `/api/settings/admin/permissions`
 2. **PermissionsTab** 按 `subjectType`（user/position/department）切换，加载对应授权数据
-3. **SpacePermissionsTab** 按空间主体（个人/部门/委员会/公司）选择任务、项目、模板入口；全局授权管理者可通过工具栏切换全部空间、部门空间和项目空间，已接入的入口调用对应模块 API
+3. **SpacePermissionsTab** 按空间主体（个人/部门/委员会/公司/项目）选择已接入的任务、项目、模板入口；全局授权管理者可通过工具栏切换全部空间、部门空间和项目空间，项目空间直接使用 `project:{projectId}` 作用域授权
 4. **API 路由** 在 `app/api/settings/admin/` 下，分功能子目录（permissions、permission-grants、users 等）；空间权限保存由各业务空间 API 自己验权
 
 ## API 规范

@@ -164,6 +164,24 @@ export async function getProjectPermissionsById(userId: number, projectId: numbe
   return getProjectPermissions(userId, project);
 }
 
+export async function getAccessibleProjectWorkspaceEntry(input: { userId: number; projectId: number }) {
+  if (!Number.isInteger(input.projectId) || input.projectId <= 0) {
+    return { ok: false as const, reason: "项目无效" };
+  }
+  const [permissions, taskPermissions, project] = await Promise.all([
+    getProjectPermissionsById(input.userId, input.projectId),
+    getEffectiveWorkTaskActionPermissions(input.userId, "project", input.projectId),
+    prisma.project.findUnique({
+      where: { id: input.projectId },
+      select: { id: true, isArchived: true, workspaceEnabled: true },
+    }),
+  ]);
+  if (!permissions?.canView && !taskPermissions.canRead) return { ok: false as const, reason: "无权限访问该项目空间" };
+  if (!project || project.isArchived) return { ok: false as const, reason: "项目不存在或已归档" };
+  if (!project.workspaceEnabled) return { ok: false as const, reason: "该项目尚未开启项目空间" };
+  return { ok: true as const, projectId: project.id };
+}
+
 export async function getWorkProjectScopedActionPermissions(userId: number, projectId: number) {
   const permissions = await getProjectPermissionsById(userId, projectId);
   return {
@@ -207,6 +225,7 @@ export function normalizeWorkTargetType(targetType: string): WorkSpaceTargetType
 
 export function getWorkTaskPermissionResourceKey(targetType: string) {
   const normalized = normalizeWorkTargetType(targetType);
+  if (normalized === "project") return getSpaceChildResourceKeyForTargetType(normalized, "tasks") ?? "work.tasks";
   if (normalized !== "company" && normalized !== "committee" && normalized !== "department") return "work.tasks";
   return getSpaceChildResourceKeyForTargetType(normalized, "tasks") ?? "work.tasks";
 }
@@ -241,7 +260,6 @@ async function scopedWorkTaskActions(
   targetType: WorkSpaceTargetType,
   targetId: number,
 ) {
-  if (targetType === "project") return emptyWorkTaskActions();
   const scopeId = workTaskScopeId(targetType, targetId);
   const resourceKey = getWorkTaskPermissionResourceKey(targetType);
   const projection = getWorkTaskPermissionProjection(targetType);

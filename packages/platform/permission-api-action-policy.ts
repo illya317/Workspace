@@ -81,7 +81,7 @@ function standardBusinessSpaceScopeFromPath({ groups }: PermissionApiPathMatchCo
   const { targetType, targetId } = groups;
   if (!targetType || !targetId) return null;
   if (targetType.startsWith(":") || targetId.startsWith(":")) return null;
-  if (!["personal", "user", "department", "committee", "company"].includes(targetType)) return null;
+  if (!["personal", "user", "department", "committee", "company", "project"].includes(targetType)) return null;
   return {
     scopeId: standardBusinessSpaceScopeId(targetType, targetId),
     projection: targetType === "personal" || targetType === "user" ? "default" : "space",

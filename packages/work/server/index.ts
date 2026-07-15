@@ -1,5 +1,6 @@
 export {
   canUseProject,
+  getAccessibleProjectWorkspaceEntry,
   normalizeWorkTargetType,
 } from "./access";
 

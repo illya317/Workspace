@@ -15,7 +15,7 @@ import { isSuperAdmin } from "./auth";
 import { canManageScopedPermissionGrant, listNaturalSpacePermissions } from "./business-space-permissions";
 import { setPermissionGrantFromRequest } from "./rbac/action-grant-request";
 
-export type StandardSpacePermissionTargetType = "personal" | "company" | "committee" | "department";
+export type StandardSpacePermissionTargetType = "personal" | "company" | "committee" | "department" | "project";
 
 type NaturalSpaceActionGrant = {
   userId: number;

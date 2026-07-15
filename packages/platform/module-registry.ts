@@ -102,12 +102,14 @@ export const registeredModuleDefinitions = [
         app: { moduleKey: "work", childKey: "tasks", defaultLevel: "L3" },
         api: { permissionsPathTemplate: "/api/modules/work/tasks/spaces/:targetType/:targetId/permissions" },
         scopeMode: "standardBusinessSpace",
+        targetTypes: ["personal", "department", "committee", "company", "project"],
+        permissionTargetTypes: ["department", "committee", "company", "project"],
         naturalManagerSources: {
           department: ["Department.managerPositionId 对应岗位的在职人员"],
           committee: ["执行总裁"],
           company: ["IT 负责人岗位的在职人员（仅授权管理）"],
         },
-        notes: "Personal space is natural-only; organization spaces default to natural read access and can be refined by scoped action grants.",
+        notes: "Personal space is natural-only; organization and project spaces use scoped action grants, with project membership remaining an additional access source.",
       },
       {
         key: "work.projects",

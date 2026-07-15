@@ -24,7 +24,7 @@ import {
   type RegisteredSpaceDefinition,
 } from "../space-registry";
 
-export type UnifiedSpaceType = "personal" | "department" | "committee" | "company";
+export type UnifiedSpaceType = "personal" | "department" | "committee" | "company" | "project";
 export type UnifiedSpaceResourceKind = string;
 
 export interface UnifiedSpaceResourceDto {
@@ -65,7 +65,7 @@ type SpaceSeed = {
 };
 
 export interface UnifiedSpaceListOptions {
-  includeAllManagedDepartments?: boolean;
+  includeAllSpaces?: boolean;
 }
 
 export async function listUnifiedSpacesForUser(
@@ -78,9 +78,9 @@ export async function listUnifiedSpacesForUser(
 }
 
 async function listUnifiedSpaceSeeds(userId: number, options: UnifiedSpaceListOptions): Promise<SpaceSeed[]> {
-  const includeAllManagedDepartments = options.includeAllManagedDepartments === true
+  const includeAllSpaces = options.includeAllSpaces === true
     && await hasGlobalGrantManagementAccess(userId);
-  const [user, departments, committee, company] = await Promise.all([
+  const [user, departments, projects, committee, company] = await Promise.all([
     prisma.user.findUnique({
       where: { id: userId },
       select: {
@@ -88,7 +88,8 @@ async function listUnifiedSpaceSeeds(userId: number, options: UnifiedSpaceListOp
         employees: { select: { name: true }, take: 1 },
       },
     }),
-    includeAllManagedDepartments ? listAllDepartments() : listSelectedDepartments(userId),
+    includeAllSpaces ? listAllDepartments() : listSelectedDepartments(userId),
+    includeAllSpaces ? listAllProjects() : Promise.resolve([]),
     getOperatingCommitteeDepartmentContext(),
     getGroupCompanyContext(),
   ]);
@@ -104,6 +105,12 @@ async function listUnifiedSpaceSeeds(userId: number, options: UnifiedSpaceListOp
       targetId: department.id,
       name: department.name,
       subtitle: department.code,
+    })),
+    ...projects.map((project) => ({
+      spaceType: "project" as const,
+      targetId: project.id,
+      name: project.name,
+      subtitle: [project.code, project.projectLevel].filter(Boolean).join(" · ") || "项目空间",
     })),
     ...(committee ? [{
       spaceType: "committee" as const,
@@ -141,6 +148,14 @@ async function listSelectedDepartments(userId: number) {
   });
   const byId = new Map(departments.map((department) => [department.id, department]));
   return preferredDepartmentIds.map((id) => byId.get(id)).filter((department): department is { id: number; name: string; code: string } => Boolean(department));
+}
+
+async function listAllProjects() {
+  return prisma.project.findMany({
+    where: { isArchived: false, workspaceEnabled: true },
+    select: { id: true, code: true, name: true, projectLevel: true },
+    orderBy: [{ code: "asc" }, { id: "asc" }],
+  });
 }
 
 async function toUnifiedSpaceDto(userId: number, seed: SpaceSeed): Promise<UnifiedSpaceDto | null> {

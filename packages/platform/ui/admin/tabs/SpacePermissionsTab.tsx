@@ -13,7 +13,7 @@ import { createAdminSelectorSplitBody } from "../components/AdminSelectorSplit";
 import type { ResourceTreeNode } from "../components/ResourceTree";
 
 type SpaceEntryKind = string;
-type SpaceType = "personal" | "department" | "committee" | "company";
+type SpaceType = "personal" | "department" | "committee" | "company" | "project";
 export type SpaceFilter = "all" | "department" | "project";
 
 interface UnifiedSpaceResourceDto {
@@ -104,22 +104,13 @@ function flattenEntries(entries: SpaceEntry[]): SpaceEntry[] {
 
 function filterSpaceEntries(entries: SpaceEntry[], filter: SpaceFilter) {
   if (filter === "all") return entries;
-  if (filter === "department") {
-    return entries
-      .filter((entry) => entry.target?.targetType === "department")
-      .map((entry) => ({ ...entry, children: [], selectableWithChildren: false }));
-  }
-  return entries.flatMap((entry) =>
-    (entry.children as SpaceEntry[] ?? [])
-      .filter((child) => child.entryKind === "work-project")
-      .map((child) => ({
-        ...child,
-        name: `${entry.name} · ${child.name}`,
-        statusLabel: "项目",
-        selectableWithChildren: false,
-        children: [],
-      })),
-  );
+  return entries
+    .filter((entry) => filter === "department"
+      ? entry.target?.targetType === "department" || entry.target?.targetType === "committee"
+      : entry.target?.targetType === filter)
+    .map((entry) => filter === "department"
+      ? { ...entry, children: [], selectableWithChildren: false }
+      : entry);
 }
 
 async function loadUnifiedSpaces() {

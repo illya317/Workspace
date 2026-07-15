@@ -13,7 +13,7 @@ import {
 } from "@workspace/platform/server/standard-space-permission-route";
 import { canManageWorkTaskPermissionResource, normalizeWorkTargetType, workTaskScopeId } from "@workspace/work/server";
 
-const paramsSchema = z.object({ targetType: z.enum(["personal", "company", "committee", "department"]), targetId: z.coerce.number().int().positive() });
+const paramsSchema = z.object({ targetType: z.enum(["personal", "company", "committee", "department", "project"]), targetId: z.coerce.number().int().positive() });
 
 const workTaskSpacePermissionConfig = {
   registrationKey: "work.tasks",

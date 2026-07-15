@@ -11,7 +11,7 @@ import {
 } from "@workspace/platform/permission-resource-policy";
 
 const paramsSchema = z.object({
-  targetType: z.enum(["company", "committee", "department"]),
+  targetType: z.enum(["company", "committee", "department", "project"]),
   targetId: z.coerce.number().int().positive(),
 });
 
