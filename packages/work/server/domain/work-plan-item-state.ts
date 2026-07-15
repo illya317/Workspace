@@ -6,6 +6,13 @@ export type WorkPlanItemStatusCounts = {
   archived: number;
 };
 
+export function shouldRecalculateOkrPlanCompletion(
+  previousStatus: string | null | undefined,
+  nextStatus: string | null | undefined,
+) {
+  return previousStatus !== "done" && nextStatus === "done";
+}
+
 type WorkPlanItemStateStore = Pick<Prisma.TransactionClient, "workItem" | "workPlan">;
 
 export async function listWorkPlanItemStatusCounts(

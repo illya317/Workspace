@@ -27,6 +27,10 @@ export type ApprovalRequestRow = {
   requestCanResubmit: boolean;
   requestCanCancel: boolean;
   requestCanRevise: boolean;
+  sourceWorkflowPolicyId: number | null;
+  sourceWorkflowPolicyVersion: number | null;
+  sourceActionContractVersion: number | null;
+  sourceOkrControlVersion: number | null;
   subjectType: string;
   subjectId: string | null;
   operation: string;
@@ -99,6 +103,10 @@ export function toDto<TPayload = unknown>(row: ApprovalRequestRowWithEvents): Ap
     requestCanResubmit: booleanWithDefault(row.requestCanResubmit),
     requestCanCancel: booleanWithDefault(row.requestCanCancel),
     requestCanRevise: booleanWithDefault(row.requestCanRevise),
+    sourceWorkflowPolicyId: row.sourceWorkflowPolicyId,
+    sourceWorkflowPolicyVersion: row.sourceWorkflowPolicyVersion,
+    sourceActionContractVersion: row.sourceActionContractVersion,
+    sourceOkrControlVersion: row.sourceOkrControlVersion,
     subjectType: row.subjectType,
     subjectId: row.subjectId,
     operation: normalizeOperation(row.operation),
@@ -149,6 +157,10 @@ export function toRecord<TPayload>(row: ApprovalRequestRow, payload: TPayload): 
     requestCanResubmit: booleanWithDefault(row.requestCanResubmit),
     requestCanCancel: booleanWithDefault(row.requestCanCancel),
     requestCanRevise: booleanWithDefault(row.requestCanRevise),
+    sourceWorkflowPolicyId: row.sourceWorkflowPolicyId,
+    sourceWorkflowPolicyVersion: row.sourceWorkflowPolicyVersion,
+    sourceActionContractVersion: row.sourceActionContractVersion,
+    sourceOkrControlVersion: row.sourceOkrControlVersion,
     subjectType: row.subjectType,
     subjectId: row.subjectId,
     operation: normalizeOperation(row.operation),

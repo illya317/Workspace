@@ -31,8 +31,6 @@ type DepartmentCreatePanelProps = {
   departmentById: Map<number, Department>;
   onCancel: () => void;
   onCreated: () => void | Promise<void>;
-  canEdit: boolean;
-  canSubmitWorkflow: boolean;
   actionRuntime: ActionRuntime | null;
 };
 
@@ -41,8 +39,6 @@ export function useDepartmentCreateSurface({
   departmentById,
   onCancel,
   onCreated,
-  canEdit,
-  canSubmitWorkflow,
   actionRuntime,
   open,
   onOpenChange,
@@ -128,9 +124,7 @@ export function useDepartmentCreateSurface({
   const submitDisabled = !name.trim() || !code.trim() || submitting;
   const submission = actionRuntimeCreateSubmission(actionRuntime, { disabled: submitDisabled, execute: handleSubmit })
     ?? { action: "save" as const, disabled: true, execute: handleSubmit };
-  const canEditDraft = actionRuntime
-    ? actionRuntime.editability === "editable"
-    : canEdit || canSubmitWorkflow;
+  const canEditDraft = actionRuntime?.editability === "editable";
   const descriptionSections = useDepartmentDescriptionCreateSections({
     drafts: [descriptionDraft],
     dirty: false,

@@ -10,6 +10,8 @@ import {
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import { postJson, putJson, requestJson } from "@workspace/platform/ui/api-client";
+import { actionRuntimeCommands, actionRuntimeCreateSubmission, workflowActionSurfaceActions } from "@workspace/platform/ui";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import {
   collaborationDraftCanSubmit,
   departmentCollaborationFormBody,
@@ -73,11 +75,11 @@ export interface DepartmentCollaborationController {
 export function useDepartmentCollaborationController(input: {
   enabled: boolean;
   space: WorkTaskSpace | null;
-  canSubmit: boolean;
+  actionRuntime: ActionRuntime | null | undefined;
   canRespond: boolean;
   onToast: (message: string, type: "success" | "error") => void;
 }): DepartmentCollaborationController {
-  const { enabled, space, canSubmit, canRespond, onToast } = input;
+  const { enabled, space, actionRuntime, canRespond, onToast } = input;
   const [data, setData] = useState<DepartmentCollaborationResponse | null>(null);
   const [selectedId, setSelectedId] = useState<number | null>(null);
   const [roleFilter, setRoleFilter] = useState<CollaborationRoleFilter>("responsible");
@@ -144,7 +146,7 @@ export function useDepartmentCollaborationController(input: {
       setDraft(emptyCollaborationDraft());
       setCreating(false);
       return {
-        outcome: "submitted" as const,
+        outcome: result.executionMode === "direct" ? "saved" as const : "submitted" as const,
         message: result.executionMode === "direct"
           ? "协作已创建，等待赋能部门确认"
           : result.request?.status === "submitted" ? "部门协作已提交，等待流程处理" : "部门协作已提交",
@@ -204,6 +206,16 @@ export function useDepartmentCollaborationController(input: {
   const resetSelectedDraft = () => {
     if (selected) setDraft(collaborationDraftFrom(selected));
   };
+  const mutationDisabled = saving || !collaborationDraftCanSubmit(draft);
+  const collaborationCreateSubmission = actionRuntimeCreateSubmission(actionRuntime, {
+    disabled: mutationDisabled,
+    execute: submit,
+  });
+  const collaborationEditActions = workflowActionSurfaceActions(actionRuntimeCommands(actionRuntime, {
+    "record.save": { label: "保存修改", disabled: mutationDisabled, onClick: () => void save() },
+    "workflow.request.submit": { label: "提交", disabled: mutationDisabled, onClick: () => void save() },
+  }));
+  const canMutate = actionRuntime?.editability === "editable";
   const leftNavigationBody = collaborationNavigationBody({
     collaborations: filteredCollaborations,
     roleFilter,
@@ -223,14 +235,14 @@ export function useDepartmentCollaborationController(input: {
       positions: data?.positionOptions ?? [],
       responsibleDepartmentId: space?.targetId ?? 0,
       responsibleDepartmentName: space?.name || "当前部门",
-      disabled: !canSubmit || saving,
+      disabled: !canMutate || saving,
       saving,
       onSubmit: submit,
       onCancel: cancelCreate,
     } as const;
   const selectedBody = selected
       ? departmentCollaborationFormBody({
-        mode: selected.role === "responsible" && canSubmit ? "edit" : "readonly",
+        mode: selected.role === "responsible" && canMutate ? "edit" : "readonly",
         title: selected.title,
         draft,
         setDraft,
@@ -238,11 +250,13 @@ export function useDepartmentCollaborationController(input: {
         positions: data?.positionOptions ?? [],
         responsibleDepartmentId: selected.responsibleDepartment.id,
         responsibleDepartmentName: selected.responsibleDepartment.name,
-        disabled: selected.role !== "responsible" || !canSubmit || saving,
+        disabled: selected.role !== "responsible" || !canMutate || saving,
         saving,
-        actions: collaborationResponseActions(selected, canRespond && !saving, respond),
-        onSubmit: selected.role === "responsible" && canSubmit ? save : undefined,
-        onCancel: selected.role === "responsible" && canSubmit ? resetSelectedDraft : undefined,
+        actions: selected.role === "responsible"
+          ? collaborationEditActions
+          : collaborationResponseActions(selected, canRespond && !saving, respond),
+        onSubmit: selected.role === "responsible" && canMutate ? save : undefined,
+        onCancel: selected.role === "responsible" && canMutate ? resetSelectedDraft : undefined,
       })
       : createPageBody([createMessageSection("department-collaboration-empty", {
         content: loading ? "加载协作详情中..." : "请选择左侧协作事项",
@@ -260,10 +274,10 @@ export function useDepartmentCollaborationController(input: {
           presentation: "block",
           title: "新建协作事项",
           open: creating,
-          canCreate: canSubmit,
+          canCreate: Boolean(collaborationCreateSubmission),
           disabled: saving,
           content: { kind: "form", form: { items: departmentCollaborationFormItems(createFormInput), layout: { columns: 1, density: "compact" } } },
-          submission: { action: "submit", disabled: saving || !collaborationDraftCanSubmit(draft), execute: submit },
+          submission: collaborationCreateSubmission ?? { action: "save", disabled: true, execute: () => undefined },
           onOpenChange: (open) => { if (open) startCreate(); else cancelCreate(); },
         },
       },

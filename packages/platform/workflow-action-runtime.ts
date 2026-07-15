@@ -1,11 +1,13 @@
 import type {
   ActionFormPersistenceMode,
   ActionFormWorkflowRole,
+  ActionWorkflowDisabledBehavior,
 } from "./action-contract";
 import type { ApprovalStatus } from "./server/approvals/types";
 import type { WorkflowPolicyMode } from "./server/workflow-types";
 
-export type ActionRuntimeExecutionMode = "direct" | "workflow";
+export type ActionRuntimeAvailability = "available" | "unavailable";
+export type ActionRuntimeExecutionMode = "direct" | "workflow" | null;
 export type ActionRuntimeEditability = "editable" | "readonly";
 export type ActionRuntimeBlockReason =
   | "permission_required"
@@ -46,6 +48,7 @@ export interface ActionRuntimeRequestSnapshot {
 export interface ResolveActionRuntimeInput {
   businessActionKey: string;
   workflowPolicyMode: WorkflowPolicyMode;
+  workflowWhenDisabled: ActionWorkflowDisabledBehavior;
   actor: {
     userId: number;
     canDirectWrite?: boolean;
@@ -76,7 +79,9 @@ export interface ActionRuntimeCapabilities {
 
 export interface ActionRuntime {
   businessActionKey: string;
+  availability: ActionRuntimeAvailability;
   executionMode: ActionRuntimeExecutionMode;
+  unavailableReason: ActionRuntimeBlockReason | null;
   persistenceMode: ActionFormPersistenceMode;
   workflowRole: ActionFormWorkflowRole;
   editability: ActionRuntimeEditability;
@@ -90,7 +95,11 @@ const ALLOWED: ActionRuntimeDecision = { allowed: true, reason: null };
 
 export function resolveActionRuntime(input: ResolveActionRuntimeInput): ActionRuntime {
   if (input.request) return resolveRequestRuntime(input, input.request);
-  if (!workflowModeEnabled(input.workflowPolicyMode)) return resolveDirectRuntime(input);
+  if (!workflowModeEnabled(input.workflowPolicyMode)) {
+    return input.workflowWhenDisabled === "direct_write"
+      ? resolveDirectRuntime(input)
+      : resolveUnavailableRuntime(input);
+  }
   return resolveWorkflowEntryRuntime(input);
 }
 
@@ -105,7 +114,9 @@ function resolveDirectRuntime(input: ResolveActionRuntimeInput): ActionRuntime {
   capabilities.form.cancel = canWrite ? ALLOWED : blocked("status_not_actionable");
   return {
     businessActionKey: input.businessActionKey,
+    availability: "available",
     executionMode: "direct",
+    unavailableReason: null,
     persistenceMode: "active",
     workflowRole: "none",
     editability: canWrite ? "editable" : "readonly",
@@ -113,6 +124,22 @@ function resolveDirectRuntime(input: ResolveActionRuntimeInput): ActionRuntime {
     status: null,
     capabilities,
     actions: canWrite ? ["record.save", "form.cancel"] : [],
+  };
+}
+
+function resolveUnavailableRuntime(input: ResolveActionRuntimeInput): ActionRuntime {
+  return {
+    businessActionKey: input.businessActionKey,
+    availability: "unavailable",
+    executionMode: null,
+    unavailableReason: "workflow_disabled",
+    persistenceMode: "workflowDraft",
+    workflowRole: "none",
+    editability: "readonly",
+    requestId: null,
+    status: null,
+    capabilities: emptyCapabilities("workflow_disabled"),
+    actions: [],
   };
 }
 
@@ -124,7 +151,9 @@ function resolveWorkflowEntryRuntime(input: ResolveActionRuntimeInput): ActionRu
   capabilities.form.cancel = canStart ? ALLOWED : blocked("status_not_actionable");
   return {
     businessActionKey: input.businessActionKey,
+    availability: "available",
     executionMode: "workflow",
+    unavailableReason: null,
     persistenceMode: "workflowDraft",
     workflowRole: canStart ? "submitter" : "observer",
     editability: canStart ? "editable" : "readonly",
@@ -153,7 +182,9 @@ function resolveRequestRuntime(
       : blocked("status_not_actionable");
   return {
     businessActionKey: input.businessActionKey,
+    availability: "available",
     executionMode: "workflow",
+    unavailableReason: null,
     persistenceMode: "workflowDraft",
     workflowRole: isSubmitter ? "submitter" : isProcessor ? "processor" : "observer",
     editability,

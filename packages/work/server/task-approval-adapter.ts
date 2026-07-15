@@ -43,7 +43,7 @@ import { validateWorkCollaborationReference } from "./work-collaboration-referen
 import { validateWorkSourceDepartmentSelection } from "./work-source-departments";
 import { canProcessWorkTaskRequest, resolveWorkTaskHandlerUserIds } from "./task-approval-handlers";
 import { normalizeApprovalPayload } from "./task-approval-normalize";
-import { commitWorkReportApproval, validateReportApprovalPayload } from "./task-approval-reports";
+import { commitWorkReportApproval, resolveWorkReportWorkflowActionKind, validateReportApprovalPayload } from "./task-approval-reports";
 import { validateWorkItemPeriodRelations, validateWorkPlanPeriodRelations } from "./work-period-relations";
 import {
   commitWorkPeriodScheduleApproval,
@@ -51,6 +51,7 @@ import {
   validateWorkPeriodScheduleApprovalPayload,
 } from "./work-period-schedule-approval";
 import { normalizeApprovalParticipants, validateReferencedProjectVisibility } from "./task-approval-reference-validation";
+import { workPlanGovernanceSelect, workPlanPreparedWorkflowBinding } from "./work-plan-governance";
 
 export {
   getWorkTaskApprovalResourceKey,
@@ -63,7 +64,6 @@ export type {
   WorkTaskApprovalPayload,
   WorkTaskApprovalTargetType,
 } from "./task-approval-helpers";
-
 export { WORK_TASK_APPROVAL_SUBJECT } from "./task-approval-helpers";
 
 export const workTaskApprovalAdapter: ApprovalAdapter<WorkTaskApprovalPayload> = {
@@ -407,7 +407,7 @@ async function validateUpdatePlanApprovalPayload(
   if (!Number.isInteger(planId) || planId <= 0) return serviceError("OKR 计划 ID 无效", 400);
   const existing = await prisma.workPlan.findUnique({
     where: { id: planId },
-    select: { targetType: true, targetId: true, kind: true, okrCycleId: true, parentPeriodPlanId: true, previousPeriodPlanId: true, sourceType: true, sourceDepartmentId: true, collaborationId: true },
+    select: { ...workPlanGovernanceSelect, parentPeriodPlanId: true, previousPeriodPlanId: true, sourceType: true, sourceDepartmentId: true, collaborationId: true },
   });
   if (!existing?.targetId) return serviceError("OKR 计划不存在", 404);
   const targetType = normalizeApprovalWorkspaceTargetType(existing.targetType);
@@ -424,11 +424,12 @@ async function validateUpdatePlanApprovalPayload(
   if (collaborationError) return serviceError(collaborationError, 400);
   const periodRelationError = await validateWorkPlanPeriodRelations(planPeriodRelationInput(data, { ...existing, currentPlanId: planId }));
   if (periodRelationError) return serviceError(periodRelationError, 400);
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "objective_revise");
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(targetType),
     scopeId: workTaskScopeId(targetType, existing.targetId),
     subjectId: String(planId),
-    businessActionKey: workOkrWorkflowBusinessActionKey({ kind: "objective_revise", workspaceTargetType: targetType }),
+    ...workflowBinding,
     workflowScopeType: targetType,
     flowType: "approval" as const,
     separationPolicy: "auto_pass_if_authorized" as const,
@@ -456,14 +457,14 @@ export async function validateRevisionApprovalPayload(actorUserId: number, paylo
       reportStage: payload.reportStage,
       data: payload.data,
     };
-    const prepared = await validateReportApprovalPayload(reportPayload);
+    const actionKind = resolveWorkReportWorkflowActionKind(
+      payload.reportStage ?? payload.data.reportStage,
+      "correct",
+    );
+    const prepared = await validateReportApprovalPayload(reportPayload, { actionKind });
     if (!prepared.ok) return prepared;
     return serviceOk({
       ...prepared.data,
-      businessActionKey: workOkrWorkflowBusinessActionKey({
-        kind: (payload.reportStage ?? payload.data.reportStage) === "kr" ? "objective_revise" : "report_correct",
-        workspaceTargetType: targetType,
-      }),
       subjectId: `revision:report:${targetType}:${payload.targetId}:${payload.periodType || payload.data.periodType}:${payload.periodStart || payload.data.periodStart}:${payload.reportStage || payload.data.reportStage || "final"}`,
       payload: {
         ...payload,
@@ -484,7 +485,7 @@ export async function validateRevisionApprovalPayload(actorUserId: number, paylo
   if (!planId || !Number.isInteger(planId) || planId <= 0) return serviceError("工作计划 ID 无效", 400);
   const existing = await prisma.workPlan.findUnique({
     where: { id: planId },
-    select: { targetType: true, targetId: true, kind: true, okrCycleId: true, parentPeriodPlanId: true, previousPeriodPlanId: true, sourceType: true, sourceDepartmentId: true, collaborationId: true },
+    select: { ...workPlanGovernanceSelect, parentPeriodPlanId: true, previousPeriodPlanId: true, sourceType: true, sourceDepartmentId: true, collaborationId: true },
   });
   if (!existing?.targetId) return serviceError("工作计划不存在", 404);
   const targetType = normalizeApprovalWorkspaceTargetType(existing.targetType);
@@ -501,11 +502,12 @@ export async function validateRevisionApprovalPayload(actorUserId: number, paylo
   if (collaborationError) return serviceError(collaborationError, 400);
   const periodRelationError = await validateWorkPlanPeriodRelations(planPeriodRelationInput(data, { ...existing, currentPlanId: planId }));
   if (periodRelationError) return serviceError(periodRelationError, 400);
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "objective_revise");
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(targetType),
     scopeId: workTaskScopeId(targetType, existing.targetId),
     subjectId: `revision:plan:${planId}`,
-    businessActionKey: workOkrWorkflowBusinessActionKey({ kind: "objective_revise", workspaceTargetType: targetType }),
+    ...workflowBinding,
     workflowScopeType: targetType,
     flowType: "approval" as const,
     separationPolicy: "auto_pass_if_authorized" as const,

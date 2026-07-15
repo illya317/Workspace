@@ -8,6 +8,8 @@ export type ActionContractKind =
 export type ActionExecutionMode = "direct" | "workflow" | "native";
 export type ActionWorkflowReadiness = "ready" | "native" | "partial" | "not_ready" | "not_applicable";
 export type ActionWorkflowExecutionPath = "approval_request" | "native_business_state";
+export type ActionWorkflowDisabledBehavior = "direct_write" | "unavailable";
+export type ActionWorkflowEntrySemantics = "form_finalization" | "explicit_submission" | "domain_transition";
 export type ActionWorkflowHandlerSource = "permission" | "direct_manager" | "department_owner";
 export type ActionWorkflowSeparationPolicy = "independent_required" | "auto_pass_if_authorized";
 export type ActionWorkflowApprovalMode = "any_one" | "all";
@@ -279,7 +281,9 @@ export interface ActionWorkflowNotApplicableContract {
 }
 
 interface ActionWorkflowCapableContract<TNormalized = unknown, TResult = unknown, TContext = unknown> {
-  allowDirectOverride: boolean;
+  canDisable: boolean;
+  whenDisabled: ActionWorkflowDisabledBehavior;
+  entrySemantics: ActionWorkflowEntrySemantics;
   statuses: readonly ActionWorkflowStatus[];
   transitions: readonly ActionWorkflowTransition[];
   mutationPolicy: ActionWorkflowMutationPolicy;

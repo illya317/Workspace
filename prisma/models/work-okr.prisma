@@ -31,6 +31,7 @@ model WorkOkrControlPolicy {
   objectiveSubmitDeadline DateTime?
   krReviewOpensAt         DateTime?
   krSubmitDeadline        DateTime?
+  version                 Int          @default(1)
   createdByUserId         Int?
   updatedByUserId         Int?
   createdAt               DateTime     @default(now())
@@ -40,4 +41,49 @@ model WorkOkrControlPolicy {
   @@unique([cycleId, scopeType, scopeId])
   @@index([scopeType, scopeId])
   @@index([krReviewOpensAt])
+}
+
+/// OKR 全局时间管控配置版本（append-only 事实表，来源于管理员保存）
+model WorkOkrControlRevision {
+  id           Int      @id @default(autoincrement())
+  version      Int      @unique
+  settingsJson String
+  actorUserId  Int?
+  createdAt    DateTime @default(now())
+
+  @@index([createdAt])
+}
+
+/// OKR 周期例外策略版本（append-only 事实表，来源于管理员保存或开放时间调整）
+model WorkOkrControlPolicyRevision {
+  id           Int      @id @default(autoincrement())
+  policyId     Int?
+  cycleId      Int
+  scopeType    String
+  scopeId      String   @default("")
+  version      Int
+  changeKind   String   @default("upsert")
+  snapshotJson String
+  actorUserId  Int?
+  createdAt    DateTime @default(now())
+
+  @@index([cycleId, scopeType, scopeId, version])
+  @@index([policyId, version])
+}
+
+/// 工作计划治理模式迁移事件（append-only 事实表，记录显式 workflow/direct 切换）
+model WorkPlanGovernanceEvent {
+  id               Int      @id @default(autoincrement())
+  workPlanId       Int
+  fromMode         String
+  toMode           String
+  fromSnapshotJson String   @default("{}")
+  toSnapshotJson   String   @default("{}")
+  reason           String
+  actorUserId      Int?
+  createdAt        DateTime @default(now())
+  workPlan         WorkPlan @relation(fields: [workPlanId], references: [id], onDelete: Cascade)
+
+  @@index([workPlanId, createdAt])
+  @@index([actorUserId, createdAt])
 }

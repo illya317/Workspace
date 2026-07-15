@@ -39,6 +39,7 @@ export type {
   ApprovalSeparationPolicy,
   ApprovalStatus,
   ApprovalWorkflowPolicyMode,
+  ApprovalWorkflowPolicySnapshot,
 } from "./approvals/types";
 import type {
   ApprovalAdapter,
@@ -53,10 +54,10 @@ import {
   assertWorkflowProcessAllowed,
   resolveExecutableWorkflowPolicy,
   resolveApprovalWorkflowPolicy,
+  workflowCreationData,
   workflowUpdateData,
 } from "./approvals/workflow";
 import { prisma } from "./prisma";
-
 export async function createDraft<TPayload>(input: {
   adapter: ApprovalAdapter<TPayload>;
   actorUserId: number;
@@ -122,7 +123,7 @@ export async function createPreparedApprovalDraft<TPayload>(input: {
       data: {
         resourceKey: input.prepared.resourceKey,
         scopeId: input.prepared.scopeId ?? null,
-        ...workflowUpdateData(workflowPolicy),
+        ...workflowCreationData(workflowPolicy, input.prepared),
         subjectType: input.adapter.subjectType,
         subjectId: input.prepared.subjectId ?? input.subjectId ?? null,
         operation: input.operation,

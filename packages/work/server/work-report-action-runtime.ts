@@ -13,6 +13,12 @@ import {
 } from "./task-approval-helpers";
 import { workTaskScopeId } from "./task-spaces";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
+import {
+  resolveWorkPlanActionRuntime,
+  workPlanGovernanceSelect,
+  type WorkPlanGovernanceRow,
+} from "./work-plan-governance";
+import { prisma } from "@workspace/platform/server/prisma";
 
 type WorkReportStage = "kr" | "final";
 
@@ -37,6 +43,7 @@ export async function resolveWorkReportActionRuntime(input: {
   targetType: WorkSpaceTargetType;
   targetId: number;
   periodType: string | null | undefined;
+  periodStart?: string | Date | null;
   reportStage: WorkReportStage;
 }) {
   const businessActionKey = workReportBusinessActionKey(input.targetType, input.reportStage, input.periodType);
@@ -55,6 +62,19 @@ export async function resolveWorkReportActionRuntime(input: {
         canProcessWorkflow: permissions.canApprove,
       },
       workflowApplicable: false,
+    }));
+  }
+  const boundPlan = await findWorkReportGovernancePlan(input);
+  if (boundPlan) {
+    return serviceOk(await resolveWorkPlanActionRuntime({
+      plan: boundPlan,
+      kind: input.reportStage === "kr" ? "objective_submit" : "report_submit",
+      actor: {
+        userId: input.actorUserId,
+        canDirectWrite: permissions.canUpdate,
+        canStartWorkflow: permissions.canSubmit,
+        canProcessWorkflow: permissions.canApprove,
+      },
     }));
   }
   const context = await resolveWorkReportWorkflowContext(input.targetType, input.targetId);
@@ -79,10 +99,26 @@ export async function assertWorkReportDirectCommitAllowed(input: {
   targetType: WorkSpaceTargetType;
   targetId: number;
   periodType: string | null | undefined;
+  periodStart?: string | Date | null;
   reportStage: WorkReportStage;
 }) {
   if (!workReportWorkflowApplicable(input.periodType)) {
     return serviceOk({ allowed: true as const });
+  }
+  const boundPlan = await findWorkReportGovernancePlan(input);
+  if (boundPlan) {
+    const runtime = await resolveWorkPlanActionRuntime({
+      plan: boundPlan,
+      kind: input.reportStage === "kr" ? "objective_submit" : "report_submit",
+      actor: { userId: input.actorUserId, canDirectWrite: true },
+    });
+    if (runtime.executionMode === "direct" && runtime.capabilities.record.save.allowed) {
+      return serviceOk({ allowed: true as const });
+    }
+    return serviceError(
+      runtime.availability === "unavailable" ? "当前计划的提交流程已关闭" : "当前计划需要提交审批，不能直接保存",
+      409,
+    );
   }
   const context = await resolveWorkReportWorkflowContext(input.targetType, input.targetId);
   if (!context.ok) return context;
@@ -95,6 +131,35 @@ export async function assertWorkReportDirectCommitAllowed(input: {
     scopeId: context.data.scopeId,
     defaults: workflowDefaults(businessActionKey),
   });
+}
+
+export async function findWorkReportGovernancePlan(input: {
+  targetType: WorkSpaceTargetType;
+  targetId: number;
+  periodType: string | null | undefined;
+  periodStart?: string | Date | null;
+}) {
+  const periodStart = normalizePeriodStart(input.periodStart);
+  if (!periodStart) return null;
+  return prisma.workPlan.findFirst({
+    where: {
+      targetType: input.targetType,
+      targetId: input.targetId,
+      kind: "okr",
+      isArchived: false,
+      ...(input.periodType ? { periodType: input.periodType } : {}),
+      plannedStartDate: { lte: periodStart },
+      plannedEndDate: { gte: periodStart },
+    },
+    select: workPlanGovernanceSelect,
+    orderBy: [{ isSystemGenerated: "desc" }, { id: "asc" }],
+  }) as Promise<WorkPlanGovernanceRow | null>;
+}
+
+function normalizePeriodStart(value: string | Date | null | undefined) {
+  if (!value) return null;
+  const date = value instanceof Date ? value : new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
 }
 
 async function resolveWorkReportWorkflowContext(targetType: WorkSpaceTargetType, targetId: number) {

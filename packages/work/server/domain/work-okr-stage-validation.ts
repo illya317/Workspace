@@ -6,7 +6,6 @@ const WORK_OKR_STAGE_ACTIONS = [
   "submitObjectiveReview",
   "approveObjectiveReview",
   "rejectObjectiveReview",
-  "openKrReview",
   "submitKrReview",
   "approveKrReview",
   "rejectKrReview",

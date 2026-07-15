@@ -8,6 +8,7 @@ import {
   type DataSurfaceCellSpec,
   type DataSurfaceStructuredCellSpec,
   type DataSurfaceStructuredRowInteractionSpec,
+  type FormSurfaceActionSpec,
   type FormSurfaceItemSpec,
   type PageSurfaceTabBarSpec,
   type SurfaceToolbarItems,
@@ -20,10 +21,12 @@ import type {
   PerformanceAudience,
   ProjectContributionRow,
   ReviewDraft,
+  ReviewEditorStage,
   ReviewRow,
   SubmissionAction,
   SubmissionRow,
 } from "./performance-types";
+import { performanceSubmissionRowActions } from "./performance-review-editor-model";
 
 const statusLabel: Record<string, string> = {
   draft: "草稿",
@@ -35,17 +38,6 @@ const statusLabel: Record<string, string> = {
   committing: "归档中",
 };
 
-export const EMPTY_REVIEW_DRAFT: ReviewDraft = {
-  selfScore: "",
-  selfComment: "",
-  managerScore: "",
-  managerComment: "",
-  finalScore: "",
-  finalGrade: "",
-  hrComment: "",
-  comment: "",
-};
-
 export function HrPerformanceView(input: {
   navigation: PageSurfaceTabBarSpec;
   activeTab: PerfTab;
@@ -55,11 +47,15 @@ export function HrPerformanceView(input: {
   loading: boolean;
   saving: boolean;
   canCreateSelfReview: boolean;
+  showCreateSelfReview: boolean;
+  editorActions: FormSurfaceActionSpec[];
+  editorFieldsDisabled: boolean;
+  editorOpen: boolean;
+  editorStage: ReviewEditorStage;
   selectedSubmissionId: number | null;
   draft: ReviewDraft;
   onDraftChange: (draft: ReviewDraft) => void;
   onCreateReview: () => void;
-  onSaveReview: () => void;
   onSelectSubmission: (id: number) => void;
   onOpenContribution: (type: PerformanceAudience, id: number) => void;
   onSubmissionAction: (row: SubmissionRow, action: SubmissionAction) => void;
@@ -83,12 +79,13 @@ export function HrPerformanceView(input: {
         : input.activeTab === "works"
           ? [contributionDirectorySection(input.audience, input.data, input.onOpenContribution)]
           : [
-            createFieldsSection("review-form", reviewFormItems(input.draft, input.onDraftChange), {
+            createFieldsSection("review-form", reviewFormItems(input.draft, input.onDraftChange, input.editorFieldsDisabled, input.editorStage), {
               layout: { columns: 4 },
-              actions: [
-                { key: "create-review", action: "create", label: "新建自评", disabled: input.saving || !input.canCreateSelfReview, onClick: input.onCreateReview },
-                { key: "save-stage", action: "save", label: "保存评分", disabled: input.saving || !input.selectedSubmissionId, onClick: input.onSaveReview },
-              ],
+              actions: input.editorOpen
+                ? input.editorActions
+                : input.showCreateSelfReview
+                  ? [{ key: "create-review", action: "create", label: "新建自评", disabled: input.saving || !input.canCreateSelfReview, onClick: input.onCreateReview }]
+                  : [],
             }),
             structuredTableSection(
               "submissions-table",
@@ -109,12 +106,6 @@ export function HrPerformanceView(input: {
       body={body}
     />
   );
-}
-
-export function scoreValue(value: string) {
-  if (!value.trim()) return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
 }
 
 const attendanceHeaders = ["工号", "姓名", "公司", "部门", "岗位", "考勤类型", "人员类型", "状态"];
@@ -206,28 +197,35 @@ function submissionCells(
     textCell(row.finalGrade),
     workflowNodeCell(row.activeWorkflowNodeKey),
     textCell(formatDate(row.updatedAt)),
-    actionsCell([
-      { key: "select", label: input.selectedSubmissionId === row.id ? "已选" : "选择", icon: "edit", disabled: input.saving, onClick: () => input.onSelectSubmission(row.id) },
-      { key: "submit", label: "提交", icon: "send", disabled: input.saving || !["draft", "withdrawn", "rejected"].includes(row.status), onClick: () => input.onSubmissionAction(row, "submit") },
-      { key: "withdraw", label: "撤回", icon: "withdraw", disabled: input.saving || row.status !== "submitted", onClick: () => input.onSubmissionAction(row, "withdraw") },
-      { key: "approve", label: "通过", icon: "approve", disabled: input.saving || row.status !== "submitted" || !row.canProcess, onClick: () => input.onSubmissionAction(row, "approve") },
-      { key: "reject", label: "驳回", icon: "reject", disabled: input.saving || row.status !== "submitted" || !row.canProcess, onClick: () => input.onSubmissionAction(row, "reject") },
-      { key: "cancel", label: "取消", icon: "cancel", disabled: input.saving || !["draft", "withdrawn"].includes(row.status), onClick: () => input.onSubmissionAction(row, "cancel") },
-    ]),
+    actionsCell(performanceSubmissionRowActions({
+      row,
+      selectedId: input.selectedSubmissionId,
+      saving: input.saving,
+      onEdit: input.onSelectSubmission,
+      onAction: input.onSubmissionAction,
+    })),
   ];
 }
 
-function reviewFormItems(draft: ReviewDraft, onChange: (next: ReviewDraft) => void): FormSurfaceItemSpec[] {
+function reviewFormItems(
+  draft: ReviewDraft,
+  onChange: (next: ReviewDraft) => void,
+  disabled: boolean,
+  stage: ReviewEditorStage,
+): FormSurfaceItemSpec[] {
   const update = (key: keyof ReviewDraft, value: unknown) => onChange({ ...draft, [key]: String(value || "") });
+  const selfDisabled = disabled || stage !== "self";
+  const managerDisabled = disabled || stage !== "manager";
+  const hrDisabled = disabled || stage !== "hr";
   return [
-    { key: "selfScore", label: "自评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.selfScore, onChange: (value: unknown) => update("selfScore", value) },
-    { key: "managerScore", label: "上级评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.managerScore, onChange: (value: unknown) => update("managerScore", value) },
-    { key: "finalScore", label: "HR 最终分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.finalScore, onChange: (value: unknown) => update("finalScore", value) },
-    { key: "finalGrade", label: "最终等级", spec: { control: "choice", valueType: "string", options: { source: "static", items: ["S", "A", "B", "C", "D"].map((grade) => ({ value: grade, label: grade })) } }, value: draft.finalGrade, onChange: (value: unknown) => update("finalGrade", value) },
-    { key: "selfComment", label: "自评", spec: { control: "text", valueType: "string", multiline: true }, value: draft.selfComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("selfComment", value), span: 2 },
-    { key: "managerComment", label: "上级评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.managerComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("managerComment", value), span: 2 },
-    { key: "hrComment", label: "HR 评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.hrComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("hrComment", value), span: 2 },
-    { key: "comment", label: "流程备注", spec: { control: "text", valueType: "string", multiline: true }, value: draft.comment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("comment", value), span: 2 },
+    { key: "selfScore", label: "自评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.selfScore, disabled: selfDisabled, onChange: (value: unknown) => update("selfScore", value) },
+    { key: "managerScore", label: "上级评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.managerScore, disabled: managerDisabled, onChange: (value: unknown) => update("managerScore", value) },
+    { key: "finalScore", label: "HR 最终分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.finalScore, disabled: hrDisabled, onChange: (value: unknown) => update("finalScore", value) },
+    { key: "finalGrade", label: "最终等级", spec: { control: "choice", valueType: "string", options: { source: "static", items: ["S", "A", "B", "C", "D"].map((grade) => ({ value: grade, label: grade })) } }, value: draft.finalGrade, disabled: hrDisabled, onChange: (value: unknown) => update("finalGrade", value) },
+    { key: "selfComment", label: "自评", spec: { control: "text", valueType: "string", multiline: true }, value: draft.selfComment, disabled: selfDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("selfComment", value), span: 2 },
+    { key: "managerComment", label: "上级评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.managerComment, disabled: managerDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("managerComment", value), span: 2 },
+    { key: "hrComment", label: "HR 评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.hrComment, disabled: hrDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("hrComment", value), span: 2 },
+    { key: "comment", label: "流程备注", spec: { control: "text", valueType: "string", multiline: true }, value: draft.comment, disabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("comment", value), span: 2 },
   ];
 }
 

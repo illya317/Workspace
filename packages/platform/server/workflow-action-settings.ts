@@ -3,7 +3,14 @@ import {
   type BusinessActionRegistration,
 } from "../business-action-registry";
 import { getActionContractMetadata } from "../action-contract-registry";
-import type { ActionContractMetadata, ActionFormContract, ActionFormPersistenceMode, ActionWorkflowMutationPolicy } from "../action-contract";
+import type {
+  ActionContractMetadata,
+  ActionFormContract,
+  ActionFormPersistenceMode,
+  ActionWorkflowDisabledBehavior,
+  ActionWorkflowEntrySemantics,
+  ActionWorkflowMutationPolicy,
+} from "../action-contract";
 import {
   canEnableWorkflowForReadiness,
   type WorkflowIntent,
@@ -43,7 +50,9 @@ export type WorkflowActionContractSettingsDto = {
   } | {
     kind: "configurable" | "native";
     defaultExecutionMode: string;
-    allowDirectOverride: boolean;
+    canDisable: boolean;
+    whenDisabled: ActionWorkflowDisabledBehavior;
+    entrySemantics: ActionWorkflowEntrySemantics;
     nodeKinds: readonly string[];
     assigneeKinds: readonly string[];
     approvalModes: readonly string[];
@@ -189,7 +198,9 @@ function serializeActionContract(contract: ActionContractMetadata | null): Workf
       : {
           kind: contract.workflow.kind,
           defaultExecutionMode: contract.workflow.defaultExecutionMode,
-          allowDirectOverride: contract.workflow.allowDirectOverride,
+          canDisable: contract.workflow.canDisable,
+          whenDisabled: contract.workflow.whenDisabled,
+          entrySemantics: contract.workflow.entrySemantics,
           nodeKinds: contract.workflow.configuration.nodeKinds,
           assigneeKinds: contract.workflow.configuration.assigneeKinds,
           approvalModes: contract.workflow.configuration.approvalModes,

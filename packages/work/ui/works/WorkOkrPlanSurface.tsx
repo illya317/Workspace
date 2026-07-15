@@ -12,14 +12,13 @@ export type WorkOkrPlanEditability = "editable" | "readonly";
 
 type WorkOkrPlanTableInput = Omit<
   WorkTaskTableProps,
-  "works" | "sectionKey" | "sectionTitle" | "tableLabel" | "emptyText" | "canEdit" | "canSubmit" | "canDelete"
+  "works" | "sectionKey" | "sectionTitle" | "tableLabel" | "emptyText" | "canEdit" | "canDelete"
 > & {
   sectionKey?: string;
   sectionTitle?: string;
   tableLabel?: string;
   emptyText?: string;
   canEdit: boolean;
-  canSubmit?: boolean;
   canDelete: boolean;
   statusFilter: WorkStatusFilter;
   canEditWork?: (work: WorkItem) => boolean;
@@ -36,7 +35,6 @@ export function useWorkOkrPlanSurface({
   works,
   target,
   persistenceMode,
-  workflowRole,
   editability,
   formDisabled = false,
   autoFocusPlanTitle = false,
@@ -65,7 +63,6 @@ export function useWorkOkrPlanSurface({
     onChange: readonly ? noopPlanDraftChange : onPlanDraftChange,
   });
   const canEditRows = !readonly && table.canEdit;
-  const canSubmitRows = workflowRole === "submitter" && !readonly && Boolean(table.canSubmit);
   const canDeleteRows = !readonly && table.canDelete;
   const tableSection = useWorkTaskTableSection({
     ...table,
@@ -75,7 +72,6 @@ export function useWorkOkrPlanSurface({
     tableLabel: table.tableLabel ?? "目标 / 执行任务 / 考核结果",
     emptyText: table.emptyText ?? "暂无目标/KR/任务",
     canEdit: canEditRows,
-    canSubmit: canSubmitRows,
     canDelete: canDeleteRows,
     canEditWork: readonly ? neverEditable : table.canEditWork,
     canDeleteWork: readonly ? neverEditable : table.canDeleteWork,

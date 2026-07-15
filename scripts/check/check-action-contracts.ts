@@ -8,6 +8,8 @@ import path from "node:path";
 import { listBusinessActionRegistrations } from "../../packages/platform/business-action-registry";
 import { listActionContractMetadata } from "../../packages/platform/action-contract-registry";
 import { listActionContractRouteBindingIssues } from "../../packages/platform/action-contract-route-binding";
+import { enforceWorkflowPolicyModeForRegistration } from "../../packages/platform/server/workflow-contract-defaults";
+import { listWorkflowBusinessActions } from "../../packages/platform/server/workflow-action-settings";
 import {
   resolveActionRuntime,
   type ActionRuntimeAction,
@@ -121,6 +123,48 @@ function assertNoDuplicateContractKeys(usages: readonly ContractUsage[]) {
     `  - ${key}: ${entries.map((entry) => entry.file).join(", ")}`
   ));
   fail(`Action contract keys must be unique.\n${details.join("\n")}`);
+}
+
+function assertWorkflowDisabledBehaviorMatchesPersistence() {
+  const issues: string[] = [];
+  for (const contract of listActionContractMetadata()) {
+    const workflow = contract.workflow;
+    if (workflow.kind !== "configurable" || workflow.whenDisabled !== "direct_write") continue;
+    const persistenceModes = new Set(contract.persistence?.supportedPersistenceModes ?? []);
+    const formModes = new Set(contract.form?.supportedModes ?? []);
+    if (!persistenceModes.has("active")) {
+      issues.push(`  - ${contract.key}: direct-write fallback requires active persistence`);
+    }
+    if (formModes.size > 0 && !formModes.has("direct")) {
+      issues.push(`  - ${contract.key}: direct-write fallback requires direct form mode`);
+    }
+    if (workflow.entrySemantics === "explicit_submission") {
+      issues.push(`  - ${contract.key}: explicit submissions must be unavailable when workflow is disabled`);
+    }
+  }
+  if (issues.length > 0) {
+    fail(`ActionContract disabled behavior is inconsistent with its persistence/entry semantics:\n${issues.join("\n")}`);
+  }
+}
+
+function assertWorkflowDisablePolicyModeEnforcement() {
+  const actions = listWorkflowBusinessActions();
+  const cannotDisable = actions.find((action) => {
+    const workflow = action.actionContract?.workflow;
+    return workflow?.kind !== "not_applicable" && workflow?.canDisable === false;
+  });
+  const canDisable = actions.find((action) => {
+    const workflow = action.actionContract?.workflow;
+    return workflow?.kind !== "not_applicable" && workflow?.canDisable === true;
+  });
+  if (!cannotDisable || !canDisable) fail("ActionContract policy-mode fixture requires disableable and non-disableable actions.");
+  if (enforceWorkflowPolicyModeForRegistration(cannotDisable, "permission_only", "required") !== "required"
+    || enforceWorkflowPolicyModeForRegistration(cannotDisable, "direct", "required") !== "required") {
+    fail("Non-disableable ActionContract must ignore stale disabled policy modes.");
+  }
+  if (enforceWorkflowPolicyModeForRegistration(canDisable, "permission_only", "required") !== "permission_only") {
+    fail("Disableable ActionContract must preserve disabled policy mode regardless of fallback behavior.");
+  }
 }
 
 function actionDomainReferenceKeys() {
@@ -281,6 +325,7 @@ function assertWorkflowActionRuntimeMatrix() {
   });
   const runtime = (input: {
     mode?: "permission_only" | "required";
+    whenDisabled?: "direct_write" | "unavailable";
     actorUserId?: number;
     canDirectWrite?: boolean;
     canStartWorkflow?: boolean;
@@ -289,6 +334,7 @@ function assertWorkflowActionRuntimeMatrix() {
   }) => resolveActionRuntime({
     businessActionKey: "test.record.save",
     workflowPolicyMode: input.mode ?? "required",
+    workflowWhenDisabled: input.whenDisabled ?? "direct_write",
     actor: {
       userId: input.actorUserId ?? 10,
       canDirectWrite: input.canDirectWrite,
@@ -301,7 +347,8 @@ function assertWorkflowActionRuntimeMatrix() {
     label: string;
     actual: ReturnType<typeof runtime>;
     expected: {
-      executionMode: "direct" | "workflow";
+      availability: "available" | "unavailable";
+      executionMode: "direct" | "workflow" | null;
       persistenceMode: "active" | "workflowDraft";
       role: "none" | "submitter" | "processor" | "observer";
       editability: "editable" | "readonly";
@@ -312,6 +359,7 @@ function assertWorkflowActionRuntimeMatrix() {
       label: "direct record write",
       actual: runtime({ mode: "permission_only", canDirectWrite: true }),
       expected: {
+        availability: "available",
         executionMode: "direct",
         persistenceMode: "active",
         role: "none",
@@ -323,6 +371,7 @@ function assertWorkflowActionRuntimeMatrix() {
       label: "workflow entry",
       actual: runtime({ canStartWorkflow: true }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "submitter",
@@ -331,9 +380,22 @@ function assertWorkflowActionRuntimeMatrix() {
       },
     },
     {
+      label: "disabled explicit workflow entry",
+      actual: runtime({ mode: "permission_only", whenDisabled: "unavailable", canDirectWrite: true, canStartWorkflow: true }),
+      expected: {
+        availability: "unavailable",
+        executionMode: null,
+        persistenceMode: "workflowDraft",
+        role: "none",
+        editability: "readonly",
+        actions: [],
+      },
+    },
+    {
       label: "submitted owner can withdraw without record permission",
       actual: runtime({ mode: "permission_only", request: request({ status: "submitted", requestCanWithdraw: true }) }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "submitter",
@@ -345,6 +407,7 @@ function assertWorkflowActionRuntimeMatrix() {
       label: "withdraw and revise are independent",
       actual: runtime({ request: request({ status: "withdrawn", requestCanWithdraw: false, requestCanRevise: true }) }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "submitter",
@@ -356,6 +419,7 @@ function assertWorkflowActionRuntimeMatrix() {
       label: "revise does not imply resubmit",
       actual: runtime({ request: request({ status: "rejected", requestCanRevise: true, requestCanResubmit: false }) }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "submitter",
@@ -371,6 +435,7 @@ function assertWorkflowActionRuntimeMatrix() {
         request: request({ status: "submitted", handlerCanRevise: false }),
       }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "processor",
@@ -382,6 +447,7 @@ function assertWorkflowActionRuntimeMatrix() {
       label: "unrelated observer",
       actual: runtime({ actorUserId: 30, request: request({ status: "submitted" }) }),
       expected: {
+        availability: "available",
         executionMode: "workflow",
         persistenceMode: "workflowDraft",
         role: "observer",
@@ -394,13 +460,15 @@ function assertWorkflowActionRuntimeMatrix() {
   for (const item of cases) {
     const actual = item.actual;
     const expected = item.expected;
-    const mismatch = actual.executionMode !== expected.executionMode
+    const mismatch = actual.availability !== expected.availability
+      || actual.executionMode !== expected.executionMode
       || actual.persistenceMode !== expected.persistenceMode
       || actual.workflowRole !== expected.role
       || actual.editability !== expected.editability
       || actual.actions.join("|") !== expected.actions.join("|");
     if (mismatch) {
       fail(`Workflow action runtime matrix mismatch (${item.label}).\nExpected: ${JSON.stringify(expected)}\nActual: ${JSON.stringify({
+        availability: actual.availability,
         executionMode: actual.executionMode,
         persistenceMode: actual.persistenceMode,
         role: actual.workflowRole,
@@ -444,16 +512,19 @@ function assertActionRuntimeCommandMapping() {
   const direct = commandsFor(resolveActionRuntime({
     businessActionKey: "test.record.save",
     workflowPolicyMode: "permission_only",
+    workflowWhenDisabled: "direct_write",
     actor: { userId: 1, canDirectWrite: true },
   }));
   const workflow = commandsFor(resolveActionRuntime({
     businessActionKey: "test.record.save",
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "direct_write",
     actor: { userId: 1, canStartWorkflow: true },
   }));
   const processor = commandsFor(resolveActionRuntime({
     businessActionKey: "test.record.save",
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "unavailable",
     actor: { userId: 2, canProcessWorkflow: true },
     request: {
       id: 1,
@@ -482,16 +553,19 @@ function assertActionRuntimeCreateSubmissionMapping() {
   const direct = actionRuntimeCreateSubmission(resolveActionRuntime({
     businessActionKey: "test.record.create",
     workflowPolicyMode: "permission_only",
+    workflowWhenDisabled: "direct_write",
     actor: { userId: 1, canDirectWrite: true },
   }), { execute });
   const workflow = actionRuntimeCreateSubmission(resolveActionRuntime({
     businessActionKey: "test.record.create",
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "direct_write",
     actor: { userId: 1, canStartWorkflow: true },
   }), { execute });
   const unavailable = actionRuntimeCreateSubmission(resolveActionRuntime({
     businessActionKey: "test.record.create",
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "direct_write",
     actor: { userId: 1 },
   }), { execute });
   if (direct?.action !== "save" || workflow?.action !== "submit" || unavailable !== null) {
@@ -509,6 +583,8 @@ function main() {
   assertActionRuntimeCommandMapping();
   assertActionRuntimeCreateSubmissionMapping();
   assertNoDuplicateContractKeys(contracts);
+  assertWorkflowDisabledBehaviorMatchesPersistence();
+  assertWorkflowDisablePolicyModeEnforcement();
   assertDomainReferencesResolve();
   assertApiReferencesResolve();
   const routeBindingIssues = listActionContractRouteBindingIssues(actions, listActionContractMetadata());
@@ -535,6 +611,8 @@ function main() {
   process.stdout.write("- workflow action runtime matrix: passed.\n");
   process.stdout.write("- action runtime semantic command mapping: passed.\n");
   process.stdout.write("- CreateSurface runtime submission mapping: passed.\n");
+  process.stdout.write("- workflow disabled behavior persistence/entry alignment: passed.\n");
+  process.stdout.write("- workflow disable policy-mode enforcement: passed.\n");
 
   if (missing.length > 0) {
     fail(`Every BusinessAction must have ActionContract metadata:\n${missing.map((action) => `  - ${action.key}: ${action.label}`).join("\n")}`);

@@ -48,14 +48,27 @@ import {
   workflowAccessMode,
   workflowModeFromAccess,
   workflowSeparationMode,
-  type WorkflowActionTreeNode, type WorkflowAccessMode, type WorkflowPoliciesResponse, type WorkflowPolicyDraft, type WorkflowPolicyRow,
+  type BusinessActionDto, type WorkflowActionTreeNode, type WorkflowAccessMode, type WorkflowPoliciesResponse, type WorkflowPolicyDraft, type WorkflowPolicyRow,
   type UseWorkflowPoliciesTabInput,
 } from "./WorkflowPoliciesTabModel";
 
-const FLOW_ACCESS_HELP = "权限直写：仍按原权限直接写入。\n接入流程：生成流程单并按处理规则完成后写入正式数据。";
-const FLOW_ACCESS_HELP_ARIA = "权限直写：仍按原权限直接写入。 接入流程：生成流程单并按处理规则完成后写入正式数据。";
+const FLOW_ACCESS_HELP = "接入流程：生成流程单并按处理规则完成后写入正式数据。\n关闭后：普通表单回到权限直写；仅流程动作会同时关闭新入口。";
+const FLOW_ACCESS_HELP_ARIA = "接入流程：生成流程单并按处理规则完成后写入正式数据。关闭后：普通表单回到权限直写；仅流程动作会同时关闭新入口。";
 const SEPARATION_HELP = "是：必须两个人，提交人不能处理自己的请求。\n否：提交人有处理权限时，提交后自动通过。";
 const SEPARATION_HELP_ARIA = "是：必须两个人，提交人不能处理自己的请求。 否：提交人有处理权限时，提交后自动通过。";
+
+function actionCanDisableWorkflow(action: BusinessActionDto) {
+  const workflow = action.actionContract?.workflow;
+  return workflow?.kind !== "not_applicable"
+    && workflow?.canDisable === true;
+}
+
+function disabledAccessLabel(action: BusinessActionDto) {
+  const workflow = action.actionContract?.workflow;
+  return workflow?.kind !== "not_applicable" && workflow?.whenDisabled === "unavailable"
+    ? "关闭动作"
+    : ACCESS_LABEL.permission_only;
+}
 
 export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPoliciesTabInput) {
   const [data, setData] = useState<WorkflowPoliciesResponse | null>(null);
@@ -175,7 +188,9 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
     if (!draft) return;
     const canConfigureWorkflow = selectedAction ? canConfigureWorkflowAction(selectedAction) : false;
     if (!canConfigureWorkflow) return;
-    const accessMode = canConfigureWorkflow ? workflowAccessMode(draft.mode) : "permission_only";
+    const accessMode = selectedAction && actionCanDisableWorkflow(selectedAction)
+      ? workflowAccessMode(draft.mode)
+      : "workflow";
     const workflowNodes = workflowNodesFromGraphElements(workflowElements);
     setSaving(true);
     try {
@@ -194,7 +209,7 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
           requestCanResubmit: draft.requestCanResubmit,
           requestCanCancel: draft.requestCanCancel,
           requestCanRevise: draft.requestCanRevise,
-          workflowNodes: accessMode === "workflow" ? workflowNodes : [],
+          workflowNodes,
         }),
         fallbackMessage: "保存流程策略失败",
       });
@@ -300,7 +315,10 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
     }
     const accessMode = workflowAccessMode(draft.mode);
     const canConfigureWorkflow = canConfigureWorkflowAction(selectedAction);
-    const effectiveAccessMode = canConfigureWorkflow ? accessMode : "permission_only";
+    const canDisableWorkflow = actionCanDisableWorkflow(selectedAction);
+    const effectiveAccessMode = canConfigureWorkflow
+      ? canDisableWorkflow ? accessMode : "workflow"
+      : "permission_only";
     const handlerSourceOptions = contractHandlerSourceOptions(selectedAction, data.enums.handlerSources);
     const supportsDirectWrite = selectedAction.actionContract?.form?.supportedModes?.includes("direct") === true;
     const workflowPolicyFields: FormSurfaceItemSpec[] = [
@@ -317,12 +335,14 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
           control: "choice",
           options: {
             source: "static",
-            items: canConfigureWorkflow
+            items: canConfigureWorkflow && canDisableWorkflow
               ? [
                   { value: "workflow", label: ACCESS_LABEL.workflow },
-                  { value: "permission_only", label: supportsDirectWrite ? ACCESS_LABEL.permission_only : "关闭流程" },
+                  { value: "permission_only", label: disabledAccessLabel(selectedAction) },
                 ]
-              : [{ value: "permission_only", label: supportsDirectWrite ? ACCESS_LABEL.permission_only : "关闭流程" }],
+              : canConfigureWorkflow
+                ? [{ value: "workflow", label: ACCESS_LABEL.workflow }]
+                : [{ value: "permission_only", label: supportsDirectWrite ? ACCESS_LABEL.permission_only : "关闭流程" }],
           },
         },
         value: effectiveAccessMode,

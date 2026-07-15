@@ -1,3 +1,5 @@
+import type { ActionRuntime } from "@workspace/platform";
+
 export type PerfTab = "attendance" | "works" | "performance";
 export type PerformanceAudience = "personal" | "department" | "project";
 export type PerformancePeriodType = "yearly" | "half_year" | "quarterly" | "monthly" | "weekly";
@@ -86,17 +88,21 @@ export type SubmissionRow = {
   okrCycleId: number;
   selfScore: number | null;
   managerScore: number | null;
+  managerComment: string;
   finalScore: number | null;
   finalGrade: string;
+  hrComment: string;
+  selfComment: string;
   activeWorkflowNodeKey: string | null;
   submitterName: string;
   canProcess: boolean;
+  actionRuntime: ActionRuntime;
   version: number;
   updatedAt: string;
 };
 
 export type DashboardData = {
-  workflowEnabled: boolean;
+  createRuntime: ActionRuntime;
   currentEmployee: { id: number; employeeId: string; name: string } | null;
   cycleOptions: CycleOption[];
   activeCycleId: number | null;
@@ -130,4 +136,5 @@ export type ReviewDraft = {
   comment: string;
 };
 
-export type SubmissionAction = "submit" | "withdraw" | "cancel" | "approve" | "reject";
+export type ReviewEditorStage = "none" | "self" | "manager" | "hr";
+export type SubmissionAction = "submit" | "resubmit" | "withdraw" | "cancel" | "approve" | "reject";

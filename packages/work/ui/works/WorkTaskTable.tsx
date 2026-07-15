@@ -27,7 +27,6 @@ export type WorkTaskTableProps = {
   formWorks?: WorkItem[];
   loading: boolean;
   canEdit: boolean;
-  canSubmit: boolean;
   canDelete: boolean;
   canArchive?: boolean;
   saving: boolean;
@@ -60,7 +59,6 @@ export type WorkTaskTableProps = {
   onDetail: (work: WorkItem) => void;
   onEdit: (work: WorkItem) => void;
   onSave: () => void;
-  onSubmitEdit: () => void;
   onCancelEdit: () => void;
   onEditDraftChange: (draft: WorkItemDraft) => void;
   onDelete: (work: WorkItem) => void;
@@ -81,7 +79,6 @@ export function useWorkTaskTableSection({
   emptyText = "暂无节点",
   loading,
   canEdit,
-  canSubmit,
   canDelete,
   canArchive = false,
   saving,
@@ -113,7 +110,6 @@ export function useWorkTaskTableSection({
   onDetail,
   onEdit,
   onSave,
-  onSubmitEdit,
   onCancelEdit,
   onEditDraftChange,
   onDelete,
@@ -172,7 +168,7 @@ export function useWorkTaskTableSection({
     };
   }
 
-  const canOpenEditor = canEdit || canSubmit;
+  const canOpenEditor = canEdit;
   const ownerVisible = showOwnerColumn ?? shouldShowWorkOwner(target);
   const matrixColumnWidths = providedColumnWidths ?? (groupByObjective ? [
     WORK_ITEM_OUTLINE_COLUMN_WIDTH,
@@ -232,7 +228,7 @@ export function useWorkTaskTableSection({
         const editable = !canEditWork || canEditWork(work);
         const deletable = !canDeleteWork || canDeleteWork(work);
         const archivable = !canArchiveWork || canArchiveWork(work);
-        if ((!canEdit && !canSubmit && !canDelete && !canArchive) || (!editable && !deletable && !archivable)) return [];
+        if ((!canEdit && !canDelete && !canArchive) || (!editable && !deletable && !archivable)) return [];
         const dirty = isWorkDraftDirty(work, editDraft);
         if (editingId === work.id) {
           if (editFormActions) return [];
@@ -242,13 +238,6 @@ export function useWorkTaskTableSection({
             kind: "save",
             label: "保存节点",
             onClick: onSave,
-            disabled: saving || !editDraft?.content.trim() || !dirty,
-          });
-          if (canSubmit && editable) actions.push({
-            key: "submit",
-            kind: "add",
-            label: "提交审核",
-            onClick: onSubmitEdit,
             disabled: saving || !editDraft?.content.trim() || !dirty,
           });
           return actions;

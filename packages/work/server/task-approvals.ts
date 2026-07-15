@@ -39,6 +39,7 @@ import {
 import { canProcessWorkTaskRequest } from "./task-approval-handlers";
 import { workTaskScopeId } from "./task-spaces";
 import { canUpdateWorkTaskAction, canViewWorkTaskTarget } from "./access";
+import { assertBusinessActionWorkflowDisabledFallbackAllowed } from "@workspace/platform/server/business-action-executor";
 
 const workTaskApprovalLifecycle = bindApprovalLifecycle(workTaskApprovalAdapter);
 
@@ -206,6 +207,10 @@ export async function executeCreateWorkTaskSubmissionRouteCommand(command: {
       ? serviceOk({ executionMode: "workflow" as const, request: created.data.request })
       : created;
   }
+  const disabledFallback = assertBusinessActionWorkflowDisabledFallbackAllowed({
+    businessActionKey: prepared.data.prepared.businessActionKey ?? workflowPolicy.businessActionKey,
+  });
+  if (!disabledFallback.ok) return disabledFallback;
   const payload = prepared.data.prepared.payload;
   if (!(await canUpdateWorkTaskAction(command.actorUserId, payload.targetType, payload.targetId))) {
     return serviceError("无权限直接保存该工作内容", 403);

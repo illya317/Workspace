@@ -145,7 +145,9 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
-      allowDirectOverride: true,
+      canDisable: true,
+      whenDisabled: "direct_write",
+      entrySemantics: "form_finalization",
       statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "failed"],
       transitions: ["submit", "withdraw", "resubmit", "approve", "reject"],
       mutationPolicy: HR_CREATE_WORKFLOW_MUTATION,
@@ -314,7 +316,9 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
-      allowDirectOverride: true,
+      canDisable: true,
+      whenDisabled: "direct_write",
+      entrySemantics: "form_finalization",
       statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: DOCS_TEMPLATE_WORKFLOW_MUTATION,
@@ -391,7 +395,9 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
-      allowDirectOverride: true,
+      canDisable: true,
+      whenDisabled: "direct_write",
+      entrySemantics: "domain_transition",
       statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: DOCS_TEMPLATE_WORKFLOW_MUTATION,
@@ -467,7 +473,9 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "workflow",
-      allowDirectOverride: false,
+      canDisable: true,
+      whenDisabled: "unavailable",
+      entrySemantics: "explicit_submission",
       statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: WORK_TASKS_REVIEW_WORKFLOW_MUTATION,

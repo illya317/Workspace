@@ -50,7 +50,7 @@ export interface WorkTaskSpace extends WorkTarget {
   subtitle: string | null;
   lifecycleStatus?: "active" | "archived" | "inactive";
   actionPermissions: WorkTaskActionPermissions;
-  actionRuntimes: { itemCreate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; itemUpdate: import("@workspace/platform/workflow-action-runtime").ActionRuntime };
+  actionRuntimes: { itemCreate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; itemUpdate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planCreate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planSave: import("@workspace/platform/workflow-action-runtime").ActionRuntime; objectiveSubmit: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planRevision: import("@workspace/platform/workflow-action-runtime").ActionRuntime; collaboration: import("@workspace/platform/workflow-action-runtime").ActionRuntime };
   counts: {
     objective: number;
     keyResult: number;
@@ -82,6 +82,19 @@ export interface WorkPlan extends WorkTarget {
   collaborationResponsibleDepartmentName: string | null;
   okrCycleId: number | null; okrCycleCode: string | null; okrCycleLabel: string | null;
   okrControlScopeType: string | null; okrControlScopeId: string | null;
+  governanceMode: "workflow" | "direct" | "unavailable" | "legacy_inferred";
+  governanceRevision: number;
+  governanceActionKey: string | null;
+  governanceWorkflowPolicyId: number | null;
+  governanceWorkflowVersion: number | null;
+  governanceActionContractVersion: number | null;
+  governanceOkrControlVersion: number | null;
+  governanceBindingSource: "created" | "system_generated" | "explicit_migration" | "legacy_inferred";
+  governanceBoundAt: string | null;
+  actionRuntimes?: {
+    objectiveSubmit: import("@workspace/platform/workflow-action-runtime").ActionRuntime;
+    planRevision: import("@workspace/platform/workflow-action-runtime").ActionRuntime;
+  } | null;
   sourcePlanId: number | null; sourcePlanTitle: string | null; sourcePlanCycleLabel: string | null;
   parentPeriodPlanId: number | null; parentPeriodPlanTitle: string | null; parentPeriodPlanCycleLabel: string | null;
   alignmentSourceType: WorkPlanAlignmentSourceType | null;
@@ -430,61 +443,19 @@ export interface WorkReportCollectionResponse {
   spaces: WorkReportCollectionSpace[];
 }
 
-export interface WorkOkrControlCycleOption {
-  id: number;
-  name: string;
-  periodType: WorkOkrPeriodType;
-  startDate: string;
-  endDate: string;
-  subtitle?: string;
-  lifecycleStatus: "active";
-}
-
-export interface WorkOkrControlPolicy {
-  id: number;
-  cycleId: number;
-  scopeType: "global" | "company" | "committee" | "department";
-  scopeId: string;
-  isLocked: boolean;
-  objectiveSubmitDeadline: string | null;
-  krReviewOpensAt: string | null;
-  krSubmitDeadline: string | null;
-  updatedAt: string;
-}
-
-export type WorkOkrControlRuleAnchor = "periodStart" | "periodEnd";
-export type WorkOkrControlAutoLock = "off" | "afterObjectiveDeadline" | "afterKrDeadline";
-export type WorkOkrPeriodType = "yearly" | "half_year" | "quarterly" | "monthly" | "weekly";
-export type WorkOkrPeriodTypeRuleMode = "inherit" | "custom" | "disabled" | "report_only";
-
-export interface WorkOkrControlRule {
-  anchor: WorkOkrControlRuleAnchor;
-  offsetDays: number;
-}
-
-export interface WorkOkrPeriodTypeRule {
-  mode: WorkOkrPeriodTypeRuleMode;
-  objectiveOpensAt?: WorkOkrControlRule;
-  objectiveSubmitDeadline?: WorkOkrControlRule;
-  krReviewOpensAt?: WorkOkrControlRule;
-  krSubmitDeadline?: WorkOkrControlRule;
-}
-
-export interface WorkOkrControlSettings {
-  enabled: boolean;
-  objectiveOpensAt: WorkOkrControlRule;
-  objectiveSubmitDeadline: WorkOkrControlRule;
-  krReviewOpensAt: WorkOkrControlRule;
-  krSubmitDeadline: WorkOkrControlRule;
-  autoLock: WorkOkrControlAutoLock;
-  periodTypes: Record<WorkOkrPeriodType, WorkOkrPeriodTypeRule>;
-}
-
-export interface WorkOkrControlResponse {
-  settings: WorkOkrControlSettings;
-  cycles: WorkOkrControlCycleOption[];
-  policies: WorkOkrControlPolicy[];
-}
+export type {
+  WorkOkrControlAutoLock,
+  WorkOkrControlCycleOption,
+  WorkOkrControlPolicy,
+  WorkOkrControlResponse,
+  WorkOkrControlRule,
+  WorkOkrControlRuleAnchor,
+  WorkOkrControlSettings,
+  WorkOkrPeriodType,
+  WorkOkrPeriodTypeRule,
+  WorkOkrPeriodTypeRuleMode,
+  WorkOkrWorkflowActionState,
+} from "./work-okr-settings-types";
 
 export type WorkTaskApprovalStatus = "draft" | "submitted" | "committing" | "withdrawn" | "rejected" | "approved" | "cancelled";
 export type WorkTaskApprovalOperation = "create" | "update";

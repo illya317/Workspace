@@ -28,6 +28,10 @@ export type AggregateApprovalRequest = {
 
 export type ApprovalRequestAvgAggregateOutputType = {
   id: number | null
+  sourceWorkflowPolicyId: number | null
+  sourceWorkflowPolicyVersion: number | null
+  sourceActionContractVersion: number | null
+  sourceOkrControlVersion: number | null
   submitterUserId: number | null
   resolvedByUserId: number | null
   version: number | null
@@ -35,6 +39,10 @@ export type ApprovalRequestAvgAggregateOutputType = {
 
 export type ApprovalRequestSumAggregateOutputType = {
   id: number | null
+  sourceWorkflowPolicyId: number | null
+  sourceWorkflowPolicyVersion: number | null
+  sourceActionContractVersion: number | null
+  sourceOkrControlVersion: number | null
   submitterUserId: number | null
   resolvedByUserId: number | null
   version: number | null
@@ -57,6 +65,10 @@ export type ApprovalRequestMinAggregateOutputType = {
   requestCanResubmit: boolean | null
   requestCanCancel: boolean | null
   requestCanRevise: boolean | null
+  sourceWorkflowPolicyId: number | null
+  sourceWorkflowPolicyVersion: number | null
+  sourceActionContractVersion: number | null
+  sourceOkrControlVersion: number | null
   subjectType: string | null
   subjectId: string | null
   operation: string | null
@@ -91,6 +103,10 @@ export type ApprovalRequestMaxAggregateOutputType = {
   requestCanResubmit: boolean | null
   requestCanCancel: boolean | null
   requestCanRevise: boolean | null
+  sourceWorkflowPolicyId: number | null
+  sourceWorkflowPolicyVersion: number | null
+  sourceActionContractVersion: number | null
+  sourceOkrControlVersion: number | null
   subjectType: string | null
   subjectId: string | null
   operation: string | null
@@ -125,6 +141,10 @@ export type ApprovalRequestCountAggregateOutputType = {
   requestCanResubmit: number
   requestCanCancel: number
   requestCanRevise: number
+  sourceWorkflowPolicyId: number
+  sourceWorkflowPolicyVersion: number
+  sourceActionContractVersion: number
+  sourceOkrControlVersion: number
   subjectType: number
   subjectId: number
   operation: number
@@ -146,6 +166,10 @@ export type ApprovalRequestCountAggregateOutputType = {
 
 export type ApprovalRequestAvgAggregateInputType = {
   id?: true
+  sourceWorkflowPolicyId?: true
+  sourceWorkflowPolicyVersion?: true
+  sourceActionContractVersion?: true
+  sourceOkrControlVersion?: true
   submitterUserId?: true
   resolvedByUserId?: true
   version?: true
@@ -153,6 +177,10 @@ export type ApprovalRequestAvgAggregateInputType = {
 
 export type ApprovalRequestSumAggregateInputType = {
   id?: true
+  sourceWorkflowPolicyId?: true
+  sourceWorkflowPolicyVersion?: true
+  sourceActionContractVersion?: true
+  sourceOkrControlVersion?: true
   submitterUserId?: true
   resolvedByUserId?: true
   version?: true
@@ -175,6 +203,10 @@ export type ApprovalRequestMinAggregateInputType = {
   requestCanResubmit?: true
   requestCanCancel?: true
   requestCanRevise?: true
+  sourceWorkflowPolicyId?: true
+  sourceWorkflowPolicyVersion?: true
+  sourceActionContractVersion?: true
+  sourceOkrControlVersion?: true
   subjectType?: true
   subjectId?: true
   operation?: true
@@ -209,6 +241,10 @@ export type ApprovalRequestMaxAggregateInputType = {
   requestCanResubmit?: true
   requestCanCancel?: true
   requestCanRevise?: true
+  sourceWorkflowPolicyId?: true
+  sourceWorkflowPolicyVersion?: true
+  sourceActionContractVersion?: true
+  sourceOkrControlVersion?: true
   subjectType?: true
   subjectId?: true
   operation?: true
@@ -243,6 +279,10 @@ export type ApprovalRequestCountAggregateInputType = {
   requestCanResubmit?: true
   requestCanCancel?: true
   requestCanRevise?: true
+  sourceWorkflowPolicyId?: true
+  sourceWorkflowPolicyVersion?: true
+  sourceActionContractVersion?: true
+  sourceOkrControlVersion?: true
   subjectType?: true
   subjectId?: true
   operation?: true
@@ -364,6 +404,10 @@ export type ApprovalRequestGroupByOutputType = {
   requestCanResubmit: boolean
   requestCanCancel: boolean
   requestCanRevise: boolean
+  sourceWorkflowPolicyId: number | null
+  sourceWorkflowPolicyVersion: number | null
+  sourceActionContractVersion: number | null
+  sourceOkrControlVersion: number | null
   subjectType: string
   subjectId: string | null
   operation: string
@@ -421,6 +465,10 @@ export type ApprovalRequestWhereInput = {
   requestCanResubmit?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanCancel?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanRevise?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
+  sourceWorkflowPolicyId?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceWorkflowPolicyVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceActionContractVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceOkrControlVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
   subjectType?: Prisma.StringFilter<"ApprovalRequest"> | string
   subjectId?: Prisma.StringNullableFilter<"ApprovalRequest"> | string | null
   operation?: Prisma.StringFilter<"ApprovalRequest"> | string
@@ -458,6 +506,10 @@ export type ApprovalRequestOrderByWithRelationInput = {
   requestCanResubmit?: Prisma.SortOrder
   requestCanCancel?: Prisma.SortOrder
   requestCanRevise?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -498,6 +550,10 @@ export type ApprovalRequestWhereUniqueInput = Prisma.AtLeast<{
   requestCanResubmit?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanCancel?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanRevise?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
+  sourceWorkflowPolicyId?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceWorkflowPolicyVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceActionContractVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceOkrControlVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
   subjectType?: Prisma.StringFilter<"ApprovalRequest"> | string
   subjectId?: Prisma.StringNullableFilter<"ApprovalRequest"> | string | null
   operation?: Prisma.StringFilter<"ApprovalRequest"> | string
@@ -535,6 +591,10 @@ export type ApprovalRequestOrderByWithAggregationInput = {
   requestCanResubmit?: Prisma.SortOrder
   requestCanCancel?: Prisma.SortOrder
   requestCanRevise?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrderInput | Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrderInput | Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -577,6 +637,10 @@ export type ApprovalRequestScalarWhereWithAggregatesInput = {
   requestCanResubmit?: Prisma.BoolWithAggregatesFilter<"ApprovalRequest"> | boolean
   requestCanCancel?: Prisma.BoolWithAggregatesFilter<"ApprovalRequest"> | boolean
   requestCanRevise?: Prisma.BoolWithAggregatesFilter<"ApprovalRequest"> | boolean
+  sourceWorkflowPolicyId?: Prisma.IntNullableWithAggregatesFilter<"ApprovalRequest"> | number | null
+  sourceWorkflowPolicyVersion?: Prisma.IntNullableWithAggregatesFilter<"ApprovalRequest"> | number | null
+  sourceActionContractVersion?: Prisma.IntNullableWithAggregatesFilter<"ApprovalRequest"> | number | null
+  sourceOkrControlVersion?: Prisma.IntNullableWithAggregatesFilter<"ApprovalRequest"> | number | null
   subjectType?: Prisma.StringWithAggregatesFilter<"ApprovalRequest"> | string
   subjectId?: Prisma.StringNullableWithAggregatesFilter<"ApprovalRequest"> | string | null
   operation?: Prisma.StringWithAggregatesFilter<"ApprovalRequest"> | string
@@ -610,6 +674,10 @@ export type ApprovalRequestCreateInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -645,6 +713,10 @@ export type ApprovalRequestUncheckedCreateInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -679,6 +751,10 @@ export type ApprovalRequestUpdateInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -714,6 +790,10 @@ export type ApprovalRequestUncheckedUpdateInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -749,6 +829,10 @@ export type ApprovalRequestCreateManyInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -782,6 +866,10 @@ export type ApprovalRequestUpdateManyMutationInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -814,6 +902,10 @@ export type ApprovalRequestUncheckedUpdateManyInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -848,6 +940,10 @@ export type ApprovalRequestCountOrderByAggregateInput = {
   requestCanResubmit?: Prisma.SortOrder
   requestCanCancel?: Prisma.SortOrder
   requestCanRevise?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -867,6 +963,10 @@ export type ApprovalRequestCountOrderByAggregateInput = {
 
 export type ApprovalRequestAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrder
   submitterUserId?: Prisma.SortOrder
   resolvedByUserId?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -889,6 +989,10 @@ export type ApprovalRequestMaxOrderByAggregateInput = {
   requestCanResubmit?: Prisma.SortOrder
   requestCanCancel?: Prisma.SortOrder
   requestCanRevise?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -923,6 +1027,10 @@ export type ApprovalRequestMinOrderByAggregateInput = {
   requestCanResubmit?: Prisma.SortOrder
   requestCanCancel?: Prisma.SortOrder
   requestCanRevise?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrder
   subjectType?: Prisma.SortOrder
   subjectId?: Prisma.SortOrder
   operation?: Prisma.SortOrder
@@ -942,6 +1050,10 @@ export type ApprovalRequestMinOrderByAggregateInput = {
 
 export type ApprovalRequestSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
+  sourceWorkflowPolicyId?: Prisma.SortOrder
+  sourceWorkflowPolicyVersion?: Prisma.SortOrder
+  sourceActionContractVersion?: Prisma.SortOrder
+  sourceOkrControlVersion?: Prisma.SortOrder
   submitterUserId?: Prisma.SortOrder
   resolvedByUserId?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -1088,6 +1200,10 @@ export type ApprovalRequestCreateWithoutEventsInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1122,6 +1238,10 @@ export type ApprovalRequestUncheckedCreateWithoutEventsInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1171,6 +1291,10 @@ export type ApprovalRequestUpdateWithoutEventsInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1205,6 +1329,10 @@ export type ApprovalRequestUncheckedUpdateWithoutEventsInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1238,6 +1366,10 @@ export type ApprovalRequestCreateWithoutSubmitterInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1272,6 +1404,10 @@ export type ApprovalRequestUncheckedCreateWithoutSubmitterInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1315,6 +1451,10 @@ export type ApprovalRequestCreateWithoutResolverInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1349,6 +1489,10 @@ export type ApprovalRequestUncheckedCreateWithoutResolverInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1412,6 +1556,10 @@ export type ApprovalRequestScalarWhereInput = {
   requestCanResubmit?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanCancel?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
   requestCanRevise?: Prisma.BoolFilter<"ApprovalRequest"> | boolean
+  sourceWorkflowPolicyId?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceWorkflowPolicyVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceActionContractVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
+  sourceOkrControlVersion?: Prisma.IntNullableFilter<"ApprovalRequest"> | number | null
   subjectType?: Prisma.StringFilter<"ApprovalRequest"> | string
   subjectId?: Prisma.StringNullableFilter<"ApprovalRequest"> | string | null
   operation?: Prisma.StringFilter<"ApprovalRequest"> | string
@@ -1462,6 +1610,10 @@ export type ApprovalRequestCreateManySubmitterInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1495,6 +1647,10 @@ export type ApprovalRequestCreateManyResolverInput = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: number | null
+  sourceWorkflowPolicyVersion?: number | null
+  sourceActionContractVersion?: number | null
+  sourceOkrControlVersion?: number | null
   subjectType: string
   subjectId?: string | null
   operation: string
@@ -1527,6 +1683,10 @@ export type ApprovalRequestUpdateWithoutSubmitterInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1561,6 +1721,10 @@ export type ApprovalRequestUncheckedUpdateWithoutSubmitterInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1595,6 +1759,10 @@ export type ApprovalRequestUncheckedUpdateManyWithoutSubmitterInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1627,6 +1795,10 @@ export type ApprovalRequestUpdateWithoutResolverInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1661,6 +1833,10 @@ export type ApprovalRequestUncheckedUpdateWithoutResolverInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1695,6 +1871,10 @@ export type ApprovalRequestUncheckedUpdateManyWithoutResolverInput = {
   requestCanResubmit?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanCancel?: Prisma.BoolFieldUpdateOperationsInput | boolean
   requestCanRevise?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceWorkflowPolicyVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   subjectType?: Prisma.StringFieldUpdateOperationsInput | string
   subjectId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   operation?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1759,6 +1939,10 @@ export type ApprovalRequestSelect<ExtArgs extends runtime.Types.Extensions.Inter
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: boolean
+  sourceWorkflowPolicyVersion?: boolean
+  sourceActionContractVersion?: boolean
+  sourceOkrControlVersion?: boolean
   subjectType?: boolean
   subjectId?: boolean
   operation?: boolean
@@ -1797,6 +1981,10 @@ export type ApprovalRequestSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: boolean
+  sourceWorkflowPolicyVersion?: boolean
+  sourceActionContractVersion?: boolean
+  sourceOkrControlVersion?: boolean
   subjectType?: boolean
   subjectId?: boolean
   operation?: boolean
@@ -1833,6 +2021,10 @@ export type ApprovalRequestSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: boolean
+  sourceWorkflowPolicyVersion?: boolean
+  sourceActionContractVersion?: boolean
+  sourceOkrControlVersion?: boolean
   subjectType?: boolean
   subjectId?: boolean
   operation?: boolean
@@ -1869,6 +2061,10 @@ export type ApprovalRequestSelectScalar = {
   requestCanResubmit?: boolean
   requestCanCancel?: boolean
   requestCanRevise?: boolean
+  sourceWorkflowPolicyId?: boolean
+  sourceWorkflowPolicyVersion?: boolean
+  sourceActionContractVersion?: boolean
+  sourceOkrControlVersion?: boolean
   subjectType?: boolean
   subjectId?: boolean
   operation?: boolean
@@ -1886,7 +2082,7 @@ export type ApprovalRequestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ApprovalRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resourceKey" | "scopeId" | "businessActionKey" | "flowType" | "separationPolicy" | "handlerSource" | "workflowNodesJson" | "activeWorkflowNodeKey" | "activeWorkflowNodeKeysJson" | "workflowJoinStateJson" | "handlerCanRevise" | "requestCanWithdraw" | "requestCanResubmit" | "requestCanCancel" | "requestCanRevise" | "subjectType" | "subjectId" | "operation" | "status" | "latestPayloadJson" | "submitterUserId" | "submittedAt" | "resolvedByUserId" | "resolvedAt" | "committedEntityType" | "committedEntityId" | "committedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["approvalRequest"]>
+export type ApprovalRequestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "resourceKey" | "scopeId" | "businessActionKey" | "flowType" | "separationPolicy" | "handlerSource" | "workflowNodesJson" | "activeWorkflowNodeKey" | "activeWorkflowNodeKeysJson" | "workflowJoinStateJson" | "handlerCanRevise" | "requestCanWithdraw" | "requestCanResubmit" | "requestCanCancel" | "requestCanRevise" | "sourceWorkflowPolicyId" | "sourceWorkflowPolicyVersion" | "sourceActionContractVersion" | "sourceOkrControlVersion" | "subjectType" | "subjectId" | "operation" | "status" | "latestPayloadJson" | "submitterUserId" | "submittedAt" | "resolvedByUserId" | "resolvedAt" | "committedEntityType" | "committedEntityId" | "committedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["approvalRequest"]>
 export type ApprovalRequestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submitter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   resolver?: boolean | Prisma.ApprovalRequest$resolverArgs<ExtArgs>
@@ -1926,6 +2122,10 @@ export type $ApprovalRequestPayload<ExtArgs extends runtime.Types.Extensions.Int
     requestCanResubmit: boolean
     requestCanCancel: boolean
     requestCanRevise: boolean
+    sourceWorkflowPolicyId: number | null
+    sourceWorkflowPolicyVersion: number | null
+    sourceActionContractVersion: number | null
+    sourceOkrControlVersion: number | null
     subjectType: string
     subjectId: string | null
     operation: string
@@ -2383,6 +2583,10 @@ export interface ApprovalRequestFieldRefs {
   readonly requestCanResubmit: Prisma.FieldRef<"ApprovalRequest", 'Boolean'>
   readonly requestCanCancel: Prisma.FieldRef<"ApprovalRequest", 'Boolean'>
   readonly requestCanRevise: Prisma.FieldRef<"ApprovalRequest", 'Boolean'>
+  readonly sourceWorkflowPolicyId: Prisma.FieldRef<"ApprovalRequest", 'Int'>
+  readonly sourceWorkflowPolicyVersion: Prisma.FieldRef<"ApprovalRequest", 'Int'>
+  readonly sourceActionContractVersion: Prisma.FieldRef<"ApprovalRequest", 'Int'>
+  readonly sourceOkrControlVersion: Prisma.FieldRef<"ApprovalRequest", 'Int'>
   readonly subjectType: Prisma.FieldRef<"ApprovalRequest", 'String'>
   readonly subjectId: Prisma.FieldRef<"ApprovalRequest", 'String'>
   readonly operation: Prisma.FieldRef<"ApprovalRequest", 'String'>

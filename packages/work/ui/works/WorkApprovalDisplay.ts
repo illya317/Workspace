@@ -377,6 +377,7 @@ function approvalRuntime(request: WorkTaskApprovalRequest, currentUserId: number
   return resolveActionRuntime({
     businessActionKey: workBusinessActionKey(request),
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "unavailable",
     actor: {
       userId: currentUserId,
       canProcessWorkflow: request.canProcess === true,

@@ -28,7 +28,6 @@ const workPlanSchema = z.object({
   plannedEndDate: z.string().nullable().optional(),
   isMilestone: z.boolean().optional(),
   milestoneDate: z.string().nullable().optional(),
-  krReviewOpensAt: z.string().nullable().optional(),
   sourceType: z.string().optional(),
   sourceKind: z.string().nullable().optional(),
   sourceMeetingId: z.coerce.number().nullable().optional(),

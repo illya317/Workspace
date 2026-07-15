@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { setSelectorTreeNodeExpanded, useFeedback, type SurfaceAutocompleteOptionSpec } from "@workspace/core/ui";
-import { type HRUser, hrCanEdit, hrCanSubmit } from "@workspace/hr/types";
+import { type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { Department, DepartmentPositionMode, Position, Selection } from "./department-position/types";
 import { DepartmentPositionMainContent } from "./department-position/department-position-main-content";
 import { useDepartmentPositionDerivedState } from "./department-position/derived-state";
@@ -117,9 +117,6 @@ export default function DepartmentPositionTab({
   } = usePositionDescriptionTemplates({ confirmDelete: feedback.confirmDelete, enabled: !isOrganizationMode, setToast });
 
   const canEdit = hrCanEdit(user);
-  const canSubmitWorkflow = hrCanSubmit(user);
-  const canEditDepartment = canEdit && !isOrganizationMode && !showArchived;
-  const canSubmitDepartmentWorkflow = canSubmitWorkflow && !isOrganizationMode && !showArchived;
   const canEditPosition = canEdit && !isOrganizationMode && !showArchived;
   const canArchiveDepartmentPosition = canArchive && !isOrganizationMode;
   const { departments, departmentActionRuntimes, error, loadData, loading, positions } = useDepartmentPositionData({
@@ -299,8 +296,6 @@ export default function DepartmentPositionTab({
     archivedPositions,
     archivedTab,
     canArchive: canArchiveDepartmentPosition,
-    canEditDepartment,
-    canSubmitDepartmentWorkflow,
     departmentActionRuntime: departmentUpdateRuntime,
     canEditPosition,
     createPanel,
@@ -377,8 +372,6 @@ export default function DepartmentPositionTab({
   if (isOrganizationMode) {
     return (
       <OrganizationModePanel
-        canEdit={canEdit}
-        canSubmitWorkflow={canSubmitWorkflow}
         createPanel={createPanel}
         departments={departments}
         departmentById={departmentById}
@@ -423,8 +416,6 @@ export default function DepartmentPositionTab({
 	      departments={departments}
       departmentById={departmentById}
       departmentCreateRuntime={departmentCreateRuntime}
-	      canEdit={canEdit}
-	      canSubmitWorkflow={canSubmitWorkflow}
       isOrganizationMode={isOrganizationMode}
       showArchived={showArchived}
 	      search={search}

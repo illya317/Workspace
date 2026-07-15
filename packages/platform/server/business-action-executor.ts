@@ -118,6 +118,12 @@ export async function executeBusinessActionCommand<TInput, TNormalized, TResult,
     : false;
 
   if (binding.data.workflow.kind === "not_applicable" || !workflowApplicable || !workflow) {
+    if (binding.data.workflow.kind !== "not_applicable" && (!workflowApplicable || !workflow)) {
+      const fallback = assertBusinessActionWorkflowDisabledFallbackAllowed({
+        businessActionKey: input.command.businessActionKey,
+      });
+      if (!fallback.ok) return fallback;
+    }
     if (binding.data.workflow.kind !== "not_applicable" && !workflow) {
       const direct = await assertBusinessActionDirectExecutionAllowed({
         businessActionKey: input.command.businessActionKey,
@@ -143,6 +149,10 @@ export async function executeBusinessActionCommand<TInput, TNormalized, TResult,
     return serviceError("流程适配器返回了不匹配的业务行为", 500);
   }
   if (!workflowModeEnabled(workflowPolicy.mode)) {
+    const fallback = assertBusinessActionWorkflowDisabledFallbackAllowed({
+      businessActionKey: input.command.businessActionKey,
+    });
+    if (!fallback.ok) return fallback;
     return executeBoundDirectCommand(input.command, normalized.data, input.context, input.authorize, input.forbiddenMessage);
   }
 
@@ -248,9 +258,14 @@ export async function resolveBusinessActionRuntime(input: {
           actorUserId: input.actor.userId,
           defaults: input.defaults,
         })).mode;
+  const contract = getActionContractMetadata(input.businessActionKey);
+  const workflowWhenDisabled = contract && contract.workflow.kind !== "not_applicable"
+    ? contract.workflow.whenDisabled
+    : "direct_write";
   return resolveActionRuntime({
     businessActionKey: input.businessActionKey,
     workflowPolicyMode,
+    workflowWhenDisabled,
     actor: input.actor,
     request: input.request,
   });
@@ -266,7 +281,14 @@ export async function assertBusinessActionDirectExecutionAllowed(input: {
   defaults?: WorkflowPolicyDefaults | null;
   blockedMessage?: string;
 }) {
-  if (input.workflowApplicable === false) return serviceOk({ allowed: true as const });
+  const contract = getActionContractMetadata(input.businessActionKey);
+  if (!contract) return serviceError(`业务行为 ${input.businessActionKey} 缺少 ActionContract`, 500);
+  if (input.workflowApplicable === false) {
+    return assertBusinessActionWorkflowDisabledFallbackAllowed({
+      businessActionKey: input.businessActionKey,
+      blockedMessage: input.blockedMessage,
+    });
+  }
   const policy = await resolveWorkflowPolicy({
     businessActionKey: input.businessActionKey,
     resourceKey: input.resourceKey,
@@ -278,7 +300,26 @@ export async function assertBusinessActionDirectExecutionAllowed(input: {
   if (workflowModeEnabled(policy.mode)) {
     return serviceError(input.blockedMessage ?? "该行为已启用流程，请提交审核", 409);
   }
-  return serviceOk({ allowed: true as const });
+  return assertBusinessActionWorkflowDisabledFallbackAllowed({
+    businessActionKey: input.businessActionKey,
+    blockedMessage: input.blockedMessage,
+  });
+}
+
+export function assertBusinessActionWorkflowDisabledFallbackAllowed(input: {
+  businessActionKey: string;
+  blockedMessage?: string;
+}) {
+  const contract = getActionContractMetadata(input.businessActionKey);
+  if (!contract) return serviceError(`业务行为 ${input.businessActionKey} 缺少 ActionContract`, 500);
+  if (contract.workflow.kind === "not_applicable" || contract.workflow.whenDisabled === "direct_write") {
+    return serviceOk({ allowed: true as const });
+  }
+  return workflowUnavailableError(input.businessActionKey, input.blockedMessage);
+}
+
+function workflowUnavailableError(businessActionKey: string, message?: string) {
+  return serviceError(message ?? `业务行为 ${businessActionKey} 的流程已关闭，当前不可提交`, 409);
 }
 
 async function executeDirectMutation<TResult>(

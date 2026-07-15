@@ -47,7 +47,9 @@ export interface WorkflowActionContractDto {
   } | {
     kind: "configurable" | "native";
     defaultExecutionMode: string;
-    allowDirectOverride: boolean;
+    canDisable: boolean;
+    whenDisabled: "direct_write" | "unavailable";
+    entrySemantics: "form_finalization" | "explicit_submission" | "domain_transition";
     nodeKinds: readonly string[];
     assigneeKinds: readonly string[];
     approvalModes: readonly string[];

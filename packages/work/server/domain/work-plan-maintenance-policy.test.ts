@@ -1,29 +1,31 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./work-plan-maintenance-policy";
+import {
+  canMaintainWorkItem,
+  resolveWorkPlanMaintenance,
+  validateWorkPlanReopenTransition,
+} from "./work-plan-maintenance-policy";
 
-test("time control disabled unlocks every active OKR maintenance surface", () => {
+test("submitted objectives remain locked independently of time-control settings", () => {
   assert.deepEqual(resolveWorkPlanMaintenance({
     kind: "okr",
     stage: "objective_submitted",
     status: "active",
     isArchived: false,
-    timeControlEnabled: false,
   }), {
-    plan: true,
-    objective: true,
-    task: true,
-    keyResult: true,
+    plan: false,
+    objective: false,
+    task: false,
+    keyResult: false,
   });
 });
 
-test("time control enabled applies stage-specific OKR maintenance", () => {
+test("OKR maintenance follows lifecycle stage", () => {
   assert.deepEqual(resolveWorkPlanMaintenance({
     kind: "okr",
     stage: "objective_draft",
     status: "active",
     isArchived: false,
-    timeControlEnabled: true,
   }), {
     plan: true,
     objective: true,
@@ -35,7 +37,6 @@ test("time control enabled applies stage-specific OKR maintenance", () => {
     stage: "executing",
     status: "active",
     isArchived: false,
-    timeControlEnabled: true,
   }), {
     plan: false,
     objective: false,
@@ -44,7 +45,7 @@ test("time control enabled applies stage-specific OKR maintenance", () => {
   });
 });
 
-test("closed lifecycle remains immutable when time control is disabled", () => {
+test("closed lifecycle remains immutable", () => {
   for (const input of [
     { stage: "closed", status: "active", isArchived: false },
     { stage: "executing", status: "done", isArchived: false },
@@ -52,7 +53,6 @@ test("closed lifecycle remains immutable when time control is disabled", () => {
   ]) {
     assert.deepEqual(resolveWorkPlanMaintenance({
       kind: "okr",
-      timeControlEnabled: false,
       ...input,
     }), {
       plan: false,
@@ -69,9 +69,31 @@ test("routine plans only allow task maintenance", () => {
     stage: "closed",
     status: "active",
     isArchived: false,
-    timeControlEnabled: true,
   });
   assert.equal(canMaintainWorkItem(maintenance, "task"), true);
   assert.equal(canMaintainWorkItem(maintenance, "objective"), false);
   assert.equal(canMaintainWorkItem(maintenance, "key_result"), false);
+});
+
+test("completed OKR plans can reopen only through the canonical revision adapter", () => {
+  const bypass = validateWorkPlanReopenTransition({
+    kind: "okr",
+    currentStatus: "done",
+    requestedStatus: "active",
+    updateGuard: undefined,
+  });
+  assert.equal(bypass.ok, false);
+  if (!bypass.ok) assert.equal(bypass.issue.status, 409);
+  assert.deepEqual(validateWorkPlanReopenTransition({
+    kind: "okr",
+    currentStatus: "done",
+    requestedStatus: "active",
+    updateGuard: "workflow-approved",
+  }), { ok: true, data: { reopening: true } });
+  assert.deepEqual(validateWorkPlanReopenTransition({
+    kind: "okr",
+    currentStatus: "active",
+    requestedStatus: "active",
+    updateGuard: undefined,
+  }), { ok: true, data: { reopening: false } });
 });

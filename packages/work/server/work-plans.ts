@@ -5,11 +5,10 @@ import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 import { normalizeSourceType } from "./domain/work-item-source-validation";
 import {
   assertWorkPlanHeaderStageAllowed,
-  openKrReview,
   syncDueKrReviewForPlan,
   syncDueKrReviewsForTarget,
 } from "./work-okr-stage";
-import { getWorkOkrControlSettings, resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
+import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureSystemOkrPeriodPlans, isWorkPlanVisibleInCurrentWindow, resolveDefaultPlanOwnerEmployeeId, standardOkrPlanTitle } from "./work-plan-system-periods";
 import {
   normalizeWorkPlanAlignmentInput,
@@ -25,7 +24,14 @@ import {
   applyWorkPlanItemLifecycle,
   listWorkPlanItemStatusCounts,
 } from "./domain/work-plan-item-state";
+import { validateWorkPlanReopenTransition } from "./domain/work-plan-maintenance-policy";
 import type { WorkPlanCommandInput } from "./domain/work-plan-command-input";
+import { getEffectiveWorkTaskActionPermissions } from "./access";
+import {
+  buildWorkPlanGovernanceBinding,
+  resolveWorkPlanActionRuntime,
+  type WorkPlanGovernanceRow,
+} from "./work-plan-governance";
 const PLAN_STATUSES = new Set(["active", "done"]);
 const PLAN_KINDS = new Set(["okr", "routine"]);
 const PLAN_PERIOD_TYPES = new Set(["yearly", "half_year", "quarterly", "monthly"]);
@@ -110,6 +116,7 @@ function normalizeSource(input: {
 }
 
 export async function listWorkPlans(opts: {
+  actorUserId: number;
   targetType: string;
   targetId: number;
   kind?: string;
@@ -128,21 +135,42 @@ export async function listWorkPlans(opts: {
   };
   if (opts.kind) where.kind = opts.kind;
   if (!opts.includeArchived) where.isArchived = false;
-  const [rows, { enabled: timeControlEnabled }] = await Promise.all([
-    prisma.workPlan.findMany({
-      where,
-      orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
-      include: workPlanInclude,
-    }),
-    getWorkOkrControlSettings(),
-  ]);
+  const rows = await prisma.workPlan.findMany({
+    where,
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    include: workPlanInclude,
+  });
   const visibleRows = normalizeRoutinePlanRows(rows)
     .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds));
-  const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, visibleRows.map((row) => row.id));
-  return visibleRows.map((row) => toWorkPlanDto(row, {
-    timeControlEnabled,
-    itemStatusCounts: itemStatusCounts.get(row.id),
-  }));
+  const [itemStatusCounts, permissions] = await Promise.all([
+    listWorkPlanItemStatusCounts(prisma, visibleRows.map((row) => row.id)),
+    getEffectiveWorkTaskActionPermissions(opts.actorUserId, opts.targetType, opts.targetId),
+  ]);
+  return Promise.all(visibleRows.map(async (row) => ({
+    ...toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(row.id) }),
+    actionRuntimes: row.kind === "okr" ? {
+      objectiveSubmit: await resolveWorkPlanActionRuntime({
+        plan: row as WorkPlanGovernanceRow,
+        kind: "objective_submit",
+        actor: {
+          userId: opts.actorUserId,
+          canDirectWrite: permissions.canUpdate,
+          canStartWorkflow: permissions.canSubmit,
+          canProcessWorkflow: permissions.canApprove,
+        },
+      }),
+      planRevision: await resolveWorkPlanActionRuntime({
+        plan: row as WorkPlanGovernanceRow,
+        kind: "objective_revise",
+        actor: {
+          userId: opts.actorUserId,
+          canDirectWrite: permissions.canUpdate,
+          canStartWorkflow: permissions.canSubmit,
+          canProcessWorkflow: permissions.canApprove,
+        },
+      }),
+    } : null,
+  })));
 }
 
 async function ensureRoutineWorkPlan(targetType: string, targetId: number) {
@@ -223,16 +251,24 @@ export async function createWorkPlan(opts: WorkPlanCommandInput & { title?: stri
     alignment: command.alignment ?? null,
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
+  const governance = await buildWorkPlanGovernanceBinding({
+    targetType: String(command.data.targetType ?? opts.targetType),
+    targetId: Number(command.data.targetId ?? opts.targetId),
+    okrCycleId: normalizeNullablePositiveId(command.data.okrCycleId),
+    okrControlScopeType: typeof command.data.okrControlScopeType === "string" ? command.data.okrControlScopeType : null,
+    okrControlScopeId: typeof command.data.okrControlScopeId === "string" ? command.data.okrControlScopeId : null,
+    actorUserId: opts.actorUserId,
+    source: "created",
+  });
   const row = await prisma.$transaction(async (tx) => {
     const created = await tx.workPlan.create({
-      data: command.data,
+      data: { ...command.data, ...governance },
       select: { id: true },
     });
     await replaceWorkPlanDecomposeAlignment(tx, created.id, command.alignment ?? null);
     return tx.workPlan.findUniqueOrThrow({ where: { id: created.id }, include: workPlanInclude });
   });
-  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
-  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
+  return { ok: true, data: toWorkPlanDto(row) };
 }
 
 export async function updateWorkPlan(planId: number, opts: Partial<Parameters<typeof createWorkPlan>[0]>): Promise<DomainServiceResult<unknown>> {
@@ -287,7 +323,16 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (opts.status !== undefined && !isCompletedStatus(opts.status) && opts.actualEndDate) {
     return { ok: false, error: "请先选择已完成，再填写实际结束", status: 400 };
   }
-  const reopeningCompletedPlan = existing.status === "done" && opts.status === "active";
+  const reopenTransition = validateWorkPlanReopenTransition({
+    kind: existing.kind,
+    currentStatus: existing.status,
+    requestedStatus: opts.status,
+    updateGuard: opts.updateGuard,
+  });
+  if (!reopenTransition.ok) {
+    return { ok: false, error: reopenTransition.issue.message, status: reopenTransition.issue.status };
+  }
+  const reopeningCompletedPlan = reopenTransition.data.reopening;
   const command = await normalizeWorkPlanInput({
     ...existing,
     ...opts,
@@ -332,22 +377,8 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
     await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
     return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
   });
-  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
   const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, [id]);
-  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled, itemStatusCounts: itemStatusCounts.get(id) }) };
-}
-
-export async function adjustWorkPlanKrReviewOpensAt(planId: number, opensAt: Date | string | null): Promise<DomainServiceResult<unknown>> {
-  const id = normalizePositiveId(planId);
-  if (!id) return { ok: false, error: "工作计划 ID 无效", status: 400 };
-  const date = toDateOrNull(opensAt);
-  if (!date) return { ok: false, error: "KR 开放日期无效", status: 400 };
-  const result = await openKrReview(id, date);
-  if (!result.ok) return result;
-  const row = await prisma.workPlan.findUnique({ where: { id }, include: workPlanInclude });
-  if (!row) return { ok: false, error: "工作计划不存在", status: 404 };
-  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
-  return { ok: true, data: toWorkPlanDto(row, { timeControlEnabled }) };
+  return { ok: true, data: toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(id) }) };
 }
 
 async function normalizeWorkPlanInput(input: WorkPlanCommandInput): Promise<{

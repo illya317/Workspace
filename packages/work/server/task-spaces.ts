@@ -16,7 +16,7 @@ import {
 } from "./access";
 import { getWorkDepartmentSpacePermissionMap } from "./department-space-access";
 import { listStandardOrganizationSpaceSeeds } from "./standard-space-seeds";
-import { resolveWorkItemActionRuntimes } from "./work-task-action-runtime";
+import { resolveWorkTaskActionRuntimes } from "./work-task-action-runtime";
 
 export type WorkTaskSpace = {
   targetType: WorkSpaceTargetType;
@@ -25,7 +25,7 @@ export type WorkTaskSpace = {
   subtitle: string | null;
   lifecycleStatus: "active" | "archived" | "inactive";
   actionPermissions: WorkTaskScopedActionPermissions;
-  actionRuntimes: Awaited<ReturnType<typeof resolveWorkItemActionRuntimes>>;
+  actionRuntimes: Awaited<ReturnType<typeof resolveWorkTaskActionRuntimes>>;
   counts: { objective: number; keyResult: number; task: number; archived: number };
 };
 
@@ -94,7 +94,7 @@ export async function listWorkTaskSpaces(userId: number): Promise<{ spaces: Work
       ? organizationPermissionMap.get(seed.targetId) ?? emptyScopedActionPermissions()
       : await getEffectiveWorkTaskActionPermissions(userId, seed.targetType, seed.targetId);
     if (!actionPermissions.canRead) return null;
-    const actionRuntimes = await resolveWorkItemActionRuntimes(userId, seed, actionPermissions);
+    const actionRuntimes = await resolveWorkTaskActionRuntimes(userId, seed, actionPermissions);
     return {
       ...seed,
       actionPermissions,

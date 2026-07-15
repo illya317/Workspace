@@ -103,7 +103,9 @@ function workGoalContract(input: {
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "workflow",
-      allowDirectOverride: true,
+      canDisable: true,
+      whenDisabled: input.key.endsWith(".submit") ? "unavailable" : "direct_write",
+      entrySemantics: input.key.endsWith(".submit") ? "explicit_submission" : "form_finalization",
       statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
       transitions: ["submit", "withdraw", "cancel", "resubmit", "approve", "reject"],
       mutationPolicy: WORK_TASKS_WORKFLOW_MUTATION,

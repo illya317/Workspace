@@ -38,6 +38,24 @@ export type ApprovalAccessAction =
   | "approve"
   | "reject";
 
+export type ApprovalWorkflowPolicySnapshot = {
+  businessActionKey: string;
+  scopeType: string;
+  scopeId: string;
+  mode: ApprovalWorkflowPolicyMode;
+  flowType: ApprovalFlowType;
+  separationPolicy: ApprovalSeparationPolicy;
+  handlerSource: ApprovalHandlerSource;
+  workflowNodes: WorkflowPolicyNodeDefinition[];
+  handlerCanRevise: boolean;
+  requestCanWithdraw: boolean;
+  requestCanResubmit: boolean;
+  requestCanCancel: boolean;
+  requestCanRevise: boolean;
+  policyId: number | null;
+  policyVersion: number | null;
+};
+
 export type ApprovalPreparedPayload<TPayload> = {
   resourceKey: string;
   scopeId?: string | null;
@@ -54,6 +72,9 @@ export type ApprovalPreparedPayload<TPayload> = {
   workflowRequestCanResubmit?: boolean | null;
   workflowRequestCanCancel?: boolean | null;
   workflowRequestCanRevise?: boolean | null;
+  workflowPolicySnapshot?: ApprovalWorkflowPolicySnapshot | null;
+  sourceActionContractVersion?: number | null;
+  sourceOkrControlVersion?: number | null;
 };
 
 export type ApprovalRequestRecord<TPayload> = {
@@ -73,6 +94,10 @@ export type ApprovalRequestRecord<TPayload> = {
   requestCanResubmit: boolean;
   requestCanCancel: boolean;
   requestCanRevise: boolean;
+  sourceWorkflowPolicyId: number | null;
+  sourceWorkflowPolicyVersion: number | null;
+  sourceActionContractVersion: number | null;
+  sourceOkrControlVersion: number | null;
   subjectType: string;
   subjectId: string | null;
   operation: ApprovalOperation;
@@ -121,6 +146,10 @@ export type ApprovalRequestDto<TPayload = unknown> = {
   requestCanResubmit: boolean;
   requestCanCancel: boolean;
   requestCanRevise: boolean;
+  sourceWorkflowPolicyId: number | null;
+  sourceWorkflowPolicyVersion: number | null;
+  sourceActionContractVersion: number | null;
+  sourceOkrControlVersion: number | null;
   subjectType: string;
   subjectId: string | null;
   operation: ApprovalOperation;

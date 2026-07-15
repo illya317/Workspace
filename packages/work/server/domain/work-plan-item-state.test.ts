@@ -4,7 +4,17 @@ import {
   applyWorkPlanItemLifecycle,
   closeOkrPlanIfAllItemsComplete,
   listWorkPlanItemStatusCounts,
+  shouldRecalculateOkrPlanCompletion,
 } from "./work-plan-item-state";
+
+test("only a transition into done requests OKR completion recalculation", () => {
+  assert.equal(shouldRecalculateOkrPlanCompletion("active", "done"), true);
+  assert.equal(shouldRecalculateOkrPlanCompletion("paused", "done"), true);
+  assert.equal(shouldRecalculateOkrPlanCompletion(null, "done"), true);
+  assert.equal(shouldRecalculateOkrPlanCompletion("done", "done"), false);
+  assert.equal(shouldRecalculateOkrPlanCompletion("done", "active"), false);
+  assert.equal(shouldRecalculateOkrPlanCompletion("active", "active"), false);
+});
 
 test("summarizes active, completed, and archived plan items", async () => {
   const store = {

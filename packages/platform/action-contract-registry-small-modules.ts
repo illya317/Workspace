@@ -67,7 +67,9 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     workflow: {
       kind: "configurable",
       defaultExecutionMode: "direct",
-      allowDirectOverride: true,
+      canDisable: true,
+      whenDisabled: "direct_write",
+      entrySemantics: "form_finalization",
       statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "failed"],
       transitions: ["submit", "withdraw", "resubmit", "approve", "reject"],
       mutationPolicy: { handlerCanRevise: false, requestCanWithdraw: true, requestCanRevise: true, requestCanCancel: true, requestCanResubmit: true },
@@ -86,7 +88,9 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     workflow: {
       kind: "native",
       defaultExecutionMode: "native",
-      allowDirectOverride: false,
+      canDisable: false,
+      whenDisabled: "unavailable",
+      entrySemantics: "domain_transition",
       statuses: ["draft", "submitted", "approved"],
       transitions: ["submit", "approve"],
       mutationPolicy: { handlerCanRevise: false, requestCanWithdraw: false, requestCanRevise: false, requestCanCancel: false, requestCanResubmit: false },

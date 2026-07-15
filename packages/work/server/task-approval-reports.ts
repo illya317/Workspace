@@ -1,5 +1,10 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import {
+  resolveWorkReportWorkflowActionKind,
+  type WorkReportWorkflowActionKind,
+} from "./domain/work-report-workflow-action";
+export { resolveWorkReportWorkflowActionKind } from "./domain/work-report-workflow-action";
+import {
   getWorkTaskApprovalResourceKey,
   nullableString,
   workOkrWorkflowBusinessActionKey,
@@ -8,6 +13,8 @@ import {
 import { saveWorkReport, type WorkReportItemInput } from "./task-reports";
 import { workTaskScopeId } from "./task-spaces";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
+import { findWorkReportGovernancePlan } from "./work-report-action-runtime";
+import { workPlanPreparedWorkflowBinding } from "./work-plan-governance";
 
 export async function commitWorkReportApproval(input: {
   actorUserId: number;
@@ -32,21 +39,35 @@ export async function commitWorkReportApproval(input: {
   return serviceOk({ entityType: "work.report", entityId: String(report.id), entity: result.data });
 }
 
-export async function validateReportApprovalPayload(payload: WorkTaskReportApprovalPayload) {
+export async function validateReportApprovalPayload(
+  payload: WorkTaskReportApprovalPayload,
+  options: { actionKind?: WorkReportWorkflowActionKind } = {},
+) {
   if (!payload.periodStart) return serviceError("汇报周期无效", 400);
   const approvalTarget = await resolveReportApprovalTarget(payload);
   if (!approvalTarget.ok) return approvalTarget;
   const periodType = normalizeReportPeriodType(payload.periodType ?? payload.data.periodType);
   const reportStage = normalizeReportStage(payload.reportStage ?? payload.data.reportStage);
+  const actionKind = options.actionKind ?? resolveWorkReportWorkflowActionKind(reportStage, "submit");
   const items = Array.isArray(payload.data.items) ? payload.data.items : [];
+  const boundPlan = await findWorkReportGovernancePlan({
+    targetType: payload.targetType,
+    targetId: payload.targetId,
+    periodType,
+    periodStart: payload.periodStart,
+  });
+  const workflowBinding = boundPlan
+    ? await workPlanPreparedWorkflowBinding(boundPlan, actionKind)
+    : null;
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(approvalTarget.data.targetType),
     scopeId: workTaskScopeId(approvalTarget.data.targetType, approvalTarget.data.targetId),
     subjectId: `report:${payload.targetType}:${payload.targetId}:${periodType}:${payload.periodStart}:${reportStage}`,
     businessActionKey: workOkrWorkflowBusinessActionKey({
-      kind: reportStage === "kr" ? "objective_submit" : "report_submit",
+      kind: actionKind,
       workspaceTargetType: payload.targetType,
     }),
+    ...(workflowBinding ?? {}),
     workflowScopeType: approvalTarget.data.targetType,
     flowType: "approval" as const,
     separationPolicy: "auto_pass_if_authorized" as const,

@@ -292,6 +292,7 @@ function requestCommands({
   const runtime = resolveActionRuntime({
     businessActionKey: request.businessActionKey,
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "direct_write",
     actor: {
       userId: currentUserId,
       canProcessWorkflow: request.canProcess === true,

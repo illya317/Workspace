@@ -98,15 +98,6 @@ export async function updateWorkPlan(id: number, draft: WorkPlanDraft) {
   return readJson<{ plan: WorkPlan }>(response, "保存工作计划失败");
 }
 
-export async function updateWorkPlanKrReviewOpenDate(id: number, krReviewOpensAt: string) {
-  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), {
-    method: "PUT",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ krReviewOpensAt }),
-  });
-  return readJson<{ plan: WorkPlan }>(response, "调整 KR 开放日期失败");
-}
-
 export async function archiveWorkPlan(id: number) {
   const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), { method: "DELETE" });
   return readJson<{ success: true }>(response, "归档工作计划失败");
@@ -271,28 +262,6 @@ export async function saveWorkTaskSubmissionDraft(
     }),
   });
   return readJson<WorkSubmissionMutationResult>(response, "创建审批草稿失败");
-}
-
-export async function saveWorkPlanSubmissionDraft(
-  target: WorkTarget,
-  operation: "create" | "update",
-  draft: WorkPlanDraft,
-  planId?: number | null,
-  comment?: string | null,
-) {
-  const response = await fetch(workspacePath("/api/modules/work/tasks/submissions"), {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      entityType: "plan",
-      ...target,
-      operation,
-      planId: planId ?? null,
-      payload: workPlanDraftPayload(draft),
-      comment,
-    }),
-  });
-  return readJson<WorkSubmissionMutationResult>(response, "创建计划审批草稿失败");
 }
 
 export async function saveWorkPlanRevisionSubmissionDraft(

@@ -1,36 +1,40 @@
 /// 通用单步审批单。业务 payload 存 JSON 字符串，正式落库由业务 adapter 提交。
 model ApprovalRequest {
-  id                         Int       @id @default(autoincrement())
-  resourceKey                String
-  scopeId                    String?
-  businessActionKey          String    @default("legacy.approval")
-  flowType                   String    @default("approval")
-  separationPolicy           String    @default("auto_pass_if_authorized")
-  handlerSource              String    @default("permission")
-  workflowNodesJson          String    @default("[]")
-  activeWorkflowNodeKey      String?
-  activeWorkflowNodeKeysJson String    @default("[]")
-  workflowJoinStateJson      String    @default("{}")
-  handlerCanRevise           Boolean   @default(true)
-  requestCanWithdraw         Boolean   @default(true)
-  requestCanResubmit         Boolean   @default(true)
-  requestCanCancel           Boolean   @default(true)
-  requestCanRevise           Boolean   @default(true)
-  subjectType                String
-  subjectId                  String?
-  operation                  String
-  status                     String    @default("draft")
-  latestPayloadJson          String    @default("{}")
-  submitterUserId            Int
-  submittedAt                DateTime?
-  resolvedByUserId           Int?
-  resolvedAt                 DateTime?
-  committedEntityType        String?
-  committedEntityId          String?
-  committedAt                DateTime?
-  version                    Int       @default(1)
-  createdAt                  DateTime  @default(now())
-  updatedAt                  DateTime  @default(now()) @updatedAt
+  id                          Int       @id @default(autoincrement())
+  resourceKey                 String
+  scopeId                     String?
+  businessActionKey           String    @default("legacy.approval")
+  flowType                    String    @default("approval")
+  separationPolicy            String    @default("auto_pass_if_authorized")
+  handlerSource               String    @default("permission")
+  workflowNodesJson           String    @default("[]")
+  activeWorkflowNodeKey       String?
+  activeWorkflowNodeKeysJson  String    @default("[]")
+  workflowJoinStateJson       String    @default("{}")
+  handlerCanRevise            Boolean   @default(true)
+  requestCanWithdraw          Boolean   @default(true)
+  requestCanResubmit          Boolean   @default(true)
+  requestCanCancel            Boolean   @default(true)
+  requestCanRevise            Boolean   @default(true)
+  sourceWorkflowPolicyId      Int?
+  sourceWorkflowPolicyVersion Int?
+  sourceActionContractVersion Int?
+  sourceOkrControlVersion     Int?
+  subjectType                 String
+  subjectId                   String?
+  operation                   String
+  status                      String    @default("draft")
+  latestPayloadJson           String    @default("{}")
+  submitterUserId             Int
+  submittedAt                 DateTime?
+  resolvedByUserId            Int?
+  resolvedAt                  DateTime?
+  committedEntityType         String?
+  committedEntityId           String?
+  committedAt                 DateTime?
+  version                     Int       @default(1)
+  createdAt                   DateTime  @default(now())
+  updatedAt                   DateTime  @default(now()) @updatedAt
 
   submitter User            @relation("ApprovalRequestSubmitter", fields: [submitterUserId], references: [id], onDelete: Cascade)
   resolver  User?           @relation("ApprovalRequestResolver", fields: [resolvedByUserId], references: [id], onDelete: SetNull)

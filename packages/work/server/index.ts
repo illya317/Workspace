@@ -121,7 +121,12 @@ export {
 export {
   listWorkOkrControlPolicies,
   updateWorkOkrControlSettings,
-} from "./work-okr-control";
+} from "./work-okr-control-admin";
+
+export {
+  listWorkOkrSettings,
+  updateWorkOkrSettings,
+} from "./work-okr-settings";
 
 export {
   executeCreateWorkPeriodScheduleItemRouteCommand,

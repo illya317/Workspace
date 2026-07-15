@@ -3,7 +3,6 @@ import type { DomainServiceResult } from "@workspace/platform/server/domain-vali
 import { validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
 import { canCreateWorkTaskAction } from "./access";
 import { validateWorkPeriodScheduleCommand } from "./domain/work-period-schedule-validation";
-import { getWorkOkrControlSettings } from "./work-okr-control";
 import { toWorkItemDto, workItemInclude } from "./work-item-dto";
 import { toWorkPlanDto, workPlanInclude } from "./work-plan-dto";
 import { createWorkPlan } from "./work-plans";
@@ -101,7 +100,6 @@ export async function createWorkPeriodScheduleItem(command: CreateWorkPeriodSche
   if (!sourceItem || sourceItem.planId !== rootPlan.id || sourceItem.itemType !== normalized.data.itemType) {
     return { ok: false, error: "上级节点不存在", status: 404 };
   }
-  const timeControlEnabled = (await getWorkOkrControlSettings()).enabled;
   if (!isTaskScheduleCycle(rootPlan.okrCycle, cycle)) {
     const targetPlanId = await ensureSchedulePlan({
       actorUserId: normalized.data.actorUserId,
@@ -157,7 +155,7 @@ export async function createWorkPeriodScheduleItem(command: CreateWorkPeriodSche
       data: {
         planId: targetPlanId.data,
         workId,
-        plan: toWorkPlanDto(targetPlan, { timeControlEnabled }),
+        plan: toWorkPlanDto(targetPlan),
         item: toWorkItemDto(createdWork),
         planCycleId: cycle.id,
         planCycleLabel: cycle.label,
@@ -216,7 +214,7 @@ export async function createWorkPeriodScheduleItem(command: CreateWorkPeriodSche
     data: {
       planId: rootPlan.id,
       workId,
-      plan: toWorkPlanDto(targetPlan, { timeControlEnabled }),
+      plan: toWorkPlanDto(targetPlan),
       item: toWorkItemDto(createdWork),
       planCycleId: rootPlan.okrCycle?.id ?? cycle.id,
       planCycleLabel: rootPlan.okrCycle?.label ?? cycle.label,

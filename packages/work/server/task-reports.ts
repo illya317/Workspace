@@ -16,7 +16,6 @@ import {
 import type { WorkReportItemInput } from "./work-report-types";
 
 export type { WorkReportItemInput } from "./work-report-types";
-
 export type WorkReportPeriod = {
   periodType: "weekly" | "monthly" | "quarterly" | "half_year" | "yearly";
   periodStart: string;
@@ -56,6 +55,7 @@ export async function getWorkReportDraft(input: {
     targetType: input.targetType,
     targetId: input.targetId,
     periodType: period.type,
+    periodStart: period.startDate,
     reportStage,
   });
   if (!actionRuntime.ok) return actionRuntime;
@@ -95,6 +95,7 @@ export async function saveWorkReport(input: {
       targetType: input.targetType,
       targetId: input.targetId,
       periodType: period.type,
+      periodStart: period.startDate,
       reportStage,
     });
     if (!workflowGuard.ok) return workflowGuard;

@@ -71,8 +71,6 @@ export function OrganizationModePanel({
   positionsByDepartment,
   selector,
   sideOpen,
-  canEdit,
-  canSubmitWorkflow,
   departmentCreateRuntime,
   onDrawerOpenChange,
   onCreatePanelChange,
@@ -96,8 +94,6 @@ export function OrganizationModePanel({
   positionsByDepartment: Map<number, Position[]>;
   selector: SelectorSurfaceProps<Department>;
   sideOpen: boolean;
-  canEdit: boolean;
-  canSubmitWorkflow: boolean;
   departmentCreateRuntime: ActionRuntime | null;
   onDrawerOpenChange: (open: boolean) => void;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
@@ -112,8 +108,6 @@ export function OrganizationModePanel({
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
     departmentById,
-    canEdit,
-    canSubmitWorkflow,
     actionRuntime: departmentCreateRuntime,
     open: createPanel === "department",
     onOpenChange: (open) => onCreatePanelChange(open ? "department" : null),

@@ -4,6 +4,7 @@ import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 import { getWorkOkrCyclePlanningWindow, resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureWorkOkrCyclesForYears } from "./work-okr-cycles";
 import type { WorkPlanRow } from "./work-plan-dto";
+import { buildWorkPlanGovernanceBinding } from "./work-plan-governance";
 
 const SYSTEM_OKR_PLAN_START = new Date(Date.UTC(2026, 0, 1));
 const PROJECT_LEADER_ROLES = ["负责人", "项目负责人"];
@@ -27,7 +28,7 @@ export async function ensureSystemOkrPeriodPlans(targetType: string, targetId: n
   if (targetType === "personal" && !await resolvePersonalOwnerEmployeeId(normalizedTargetId)) return new Set<number>();
   const now = startOfUtcDay(new Date());
   await ensureWorkOkrCyclesForYears(planningCycleYears(now));
-  const cycles = await listVisibleSystemOkrCycles(now);
+  const cycles = await listVisibleSystemOkrCycles(now, targetType);
   if (!cycles.length) return new Set<number>();
   const cycleIds = cycles.map((cycle) => cycle.id);
   const existingRows = await prisma.workPlan.findMany({
@@ -72,6 +73,14 @@ export async function ensureSystemOkrPeriodPlans(targetType: string, targetId: n
     }
     const controlScope = await resolveWorkOkrControlScopeForPlan({ targetType, targetId: normalizedTargetId, okrCycleId: cycle.id });
     const scoped = controlScope.ok && controlScope.data.type !== "global" ? controlScope.data : null;
+    const governance = await buildWorkPlanGovernanceBinding({
+      targetType,
+      targetId: normalizedTargetId,
+      okrCycleId: cycle.id,
+      okrControlScopeType: scoped?.type ?? null,
+      okrControlScopeId: scoped?.id ?? null,
+      source: "system_generated",
+    });
     await prisma.workPlan.create({
       data: {
         targetType,
@@ -93,6 +102,7 @@ export async function ensureSystemOkrPeriodPlans(targetType: string, targetId: n
         plannedStartDate: cycle.startDate,
         plannedEndDate: cycle.endDate,
         sortOrder: systemOkrPlanSortOrder(cycle),
+        ...governance,
       },
     });
   }
@@ -156,7 +166,7 @@ export function isWorkPlanVisibleInCurrentWindow(row: WorkPlanRow, visibleOkrCyc
   return startDate >= SYSTEM_OKR_PLAN_START && startDate <= startOfUtcDay(new Date());
 }
 
-async function listVisibleSystemOkrCycles(now: Date) {
+async function listVisibleSystemOkrCycles(now: Date, targetType: string) {
   const rows = await prisma.workOkrCycle.findMany({
     where: { startDate: { gte: SYSTEM_OKR_PLAN_START }, periodType: { not: "weekly" } },
     select: { id: true, periodType: true, code: true, label: true, year: true, sequence: true, startDate: true, endDate: true },
@@ -165,7 +175,7 @@ async function listVisibleSystemOkrCycles(now: Date) {
   const currentOrPast: SystemOkrCycle[] = [];
   const futureByType = new Map<string, SystemOkrCycle>();
   for (const row of rows) {
-    const planningWindow = await getWorkOkrCyclePlanningWindow(row);
+    const planningWindow = await getWorkOkrCyclePlanningWindow(row, targetType);
     if (!planningWindow.enabled) continue;
     if (startOfUtcDay(row.startDate) <= now) {
       currentOrPast.push(row);

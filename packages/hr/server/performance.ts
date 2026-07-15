@@ -18,6 +18,8 @@ import { resolveWorkflowNodeHandlerUserIds } from "@workspace/platform/server/ap
 import { prisma, Prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { resolveWorkflowPolicy, type WorkflowPolicyNodeDefinition } from "@workspace/platform/server/workflows";
+import { resolveActionRuntime } from "@workspace/platform/workflow-action-runtime";
+import { assertBusinessActionWorkflowDisabledFallbackAllowed } from "@workspace/platform/server/business-action-executor";
 import { buildHrPerformanceReviewArchiveCommand } from "./domain/performance-validation";
 import { buildEmployeeContributionSnapshot, listEmployeeContributionRows } from "./performance-contributions";
 import {
@@ -242,7 +244,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
     ? cycleCandidates.find((cycle) => cycle.id === activeCycleOption.id) ?? null
     : null;
   const cycleId = activeCycle?.id ?? null;
-  const [currentEmployee, audienceCatalog, reviews, submissions, workPlans, workflowPolicy] = await Promise.all([
+  const [currentEmployee, audienceCatalog, reviews, submissions, workPlans, workflowPolicy, canStartWorkflow] = await Promise.all([
     prisma.employee.findFirst({
       where: { userId: command.userId },
       select: { id: true, employeeId: true, name: true, userId: true },
@@ -275,6 +277,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       orderBy: [{ targetType: "asc" }, { id: "asc" }],
     }) : Promise.resolve([]),
     resolveHrPerformanceWorkflowPolicy(command.userId),
+    canSubmitHrPerformance(command.userId),
   ]);
   const { employees, departments, projects } = audienceCatalog;
   const audienceSelection = selectHrPerformanceAudience({
@@ -308,7 +311,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
     .filter((row) => visibleEmployeeIds.has(row.employeeId))
     .filter((row) => matchAnyField(row as unknown as Record<string, unknown>, keyword));
   const submissionRows = submissions
-    .map((request) => toSubmissionRow(request))
+    .map((request) => toSubmissionRow(request, command.userId))
     .filter((row) => !cycleId || row.okrCycleId === cycleId)
     .filter((row) => visibleEmployeeIds.has(row.employeeId))
     .filter((row) => !command.status || command.status.split(",").includes(row.status))
@@ -335,7 +338,12 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       status: "开启",
     }));
   return serviceOk({
-    workflowEnabled: workflowPolicy.mode === "required" || workflowPolicy.mode === "optional",
+    createRuntime: resolveActionRuntime({
+      businessActionKey: HR_PERFORMANCE_BUSINESS_ACTION_KEY,
+      workflowPolicyMode: workflowPolicy.mode,
+      workflowWhenDisabled: "unavailable",
+      actor: { userId: command.userId, canStartWorkflow },
+    }),
     currentEmployee,
     cycleOptions,
     activeCycleId: cycleId,
@@ -446,7 +454,10 @@ export async function executeCreateHrPerformanceSubmissionRouteCommand(command: 
 }) {
   const workflowPolicy = await resolveHrPerformanceWorkflowPolicy(command.actorUserId);
   if (workflowPolicy.mode === "direct" || workflowPolicy.mode === "permission_only") {
-    return serviceError("绩效评审流程已关闭", 409);
+    return assertBusinessActionWorkflowDisabledFallbackAllowed({
+      businessActionKey: HR_PERFORMANCE_BUSINESS_ACTION_KEY,
+      blockedMessage: "绩效评审流程已关闭",
+    });
   }
   return hrPerformanceApprovalLifecycle.createDraft(command);
 }
@@ -850,19 +861,32 @@ function toReviewDetail(review: Prisma.HrPerformanceReviewGetPayload<{ include: 
   };
 }
 
-function toSubmissionRow(request: ApprovalRequestDto<HrPerformanceReviewPayload>) {
+function toSubmissionRow(request: ApprovalRequestDto<HrPerformanceReviewPayload>, actorUserId: number) {
   return {
     id: request.id,
     status: request.status,
     employeeId: request.latestPayload.employeeId,
     okrCycleId: request.latestPayload.okrCycleId,
     selfScore: request.latestPayload.data.selfScore,
+    selfComment: request.latestPayload.data.selfComment,
     managerScore: request.latestPayload.data.managerScore,
+    managerComment: request.latestPayload.data.managerComment,
     finalScore: request.latestPayload.data.finalScore,
     finalGrade: request.latestPayload.data.finalGrade,
+    hrComment: request.latestPayload.data.hrComment,
     activeWorkflowNodeKey: request.activeWorkflowNodeKey,
     submitterName: request.submitterName,
     canProcess: Boolean(request.canProcess),
+    actionRuntime: resolveActionRuntime({
+      businessActionKey: HR_PERFORMANCE_BUSINESS_ACTION_KEY,
+      workflowPolicyMode: "required",
+      workflowWhenDisabled: "unavailable",
+      actor: {
+        userId: actorUserId,
+        canProcessWorkflow: Boolean(request.canProcess),
+      },
+      request,
+    }),
     version: request.version,
     updatedAt: request.updatedAt,
   };

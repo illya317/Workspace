@@ -85,7 +85,9 @@ export const PRODUCTION_QC_ACTION_CONTRACT_METADATA = defineActionContractMetada
     workflow: {
       kind: "native",
       defaultExecutionMode: "native",
-      allowDirectOverride: false,
+      canDisable: false,
+      whenDisabled: "unavailable",
+      entrySemantics: "domain_transition",
       statuses: ["draft", "submitted", "approved"],
       transitions: ["submit", "approve"],
       mutationPolicy: QC_NATIVE_MUTATION,
@@ -146,7 +148,9 @@ export const PRODUCTION_QC_ACTION_CONTRACT_METADATA = defineActionContractMetada
     workflow: {
       kind: "native",
       defaultExecutionMode: "native",
-      allowDirectOverride: false,
+      canDisable: false,
+      whenDisabled: "unavailable",
+      entrySemantics: "domain_transition",
       statuses: ["draft", "submitted", "approved"],
       transitions: ["submit", "approve"],
       mutationPolicy: QC_NATIVE_MUTATION,

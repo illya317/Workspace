@@ -17,8 +17,6 @@ export function DepartmentPositionMainContent({
   departments,
   departmentById,
   departmentCreateRuntime,
-  canEdit,
-  canSubmitWorkflow,
   isOrganizationMode,
   showArchived,
   search,
@@ -40,8 +38,6 @@ export function DepartmentPositionMainContent({
   departments: Department[];
   departmentById: Map<number, Department>;
   departmentCreateRuntime: ActionRuntime | null;
-  canEdit: boolean;
-  canSubmitWorkflow: boolean;
   isOrganizationMode: boolean;
   showArchived: boolean;
   search: string;
@@ -82,8 +78,6 @@ export function DepartmentPositionMainContent({
     departmentById,
     actionRuntime: departmentCreateRuntime,
     onCreatePanelChange,
-    canEdit,
-    canSubmitWorkflow,
     onCancel: () => onCreatePanelChange(null),
     onCreated: async () => {
       onCreatePanelChange(null);

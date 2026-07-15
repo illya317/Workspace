@@ -113,6 +113,9 @@ Approval engine 仍只在通过路径上读取 workflow tree。`reject`、`withd
 | `requestCanResubmit` | 被驳回后，发起人是否可在同一流程记录中重新提交。 |
 | `requestCanCancel` | 处理前，发起人是否可删除请求；不要求业务删除权限。 |
 | `requestCanRevise` | 在 `draft`、`withdrawn`、`rejected` 状态，发起人是否可修订请求；不要求业务修订权限。 |
+| `sourceWorkflowPolicyId` / `sourceWorkflowPolicyVersion` | 创建请求时采用的流程策略来源；后续策略变化不覆盖。 |
+| `sourceActionContractVersion` | 创建请求时采用的 ActionContract 版本。 |
+| `sourceOkrControlVersion` | OKR 请求创建时采用的时间管控版本；非 OKR 请求为空。 |
 
 `WorkflowPolicy` V1 按 `businessActionKey` 生效。表里仍保留 `scopeType/scopeId` 兼容旧 schema，但流程设置 API 固定写入 `global + ""`，不会让管理员配置具体部门/公司/委员会范围。resolver 调用形态为：
 
@@ -125,11 +128,27 @@ resolveWorkflowPolicy({
 });
 ```
 
-resolver 只合并数据库策略和调用方默认值；它不读取 RBAC grant。首次创建流程草稿和处理人身份仍由业务 adapter 提供上下文；审批单一旦创建，发起人的 `submit/withdraw/revise/cancel` 则只按请求快照、当前状态和发起人身份判定，不再叠加正式资料的写入、修订或撤回权限。业务页面当前选择的部门/公司/委员会属于业务上下文，只能在 adapter、收件人解析和业务 guard 中使用，不能参与流程策略匹配。
+resolver 只合并数据库策略和调用方默认值；它不读取 RBAC grant。首次创建流程草稿和处理人身份仍由业务 adapter 提供上下文；审批单一旦创建，发起人的 `submit/withdraw/revise/cancel` 则只按请求快照、当前状态和发起人身份判定，不再叠加正式资料的写入、修订或撤回权限。业务页面当前选择的部门/公司/委员会属于业务上下文，只能在 adapter、收件人解析和业务 guard 中使用，不能参与流程策略匹配。`WorkflowPolicy` 每次 upsert 都递增版本并写 EditHistory 快照；关闭流程只改变模式，必须保留已有 `workflowNodesJson` 和请求自助策略，重新开启时不得丢失原拓扑。
+
+ActionContract 把过去混在一个开关里的三件事显式拆开：
+
+| 字段 | 含义 |
+|---|---|
+| `canDisable` | 管理员是否允许关闭该流程；为 `false` 时旧的关闭策略也会被 resolver 收敛回启用。 |
+| `whenDisabled` | 关闭后的运行结果：`direct_write` 继续按权限保存，`unavailable` 则没有新入口且 API 拒绝执行。 |
+| `entrySemantics` | `form_finalization` 是同一编辑表单的最终动作，`explicit_submission` 是独立业务提交，`domain_transition` 是原生状态机动作。 |
+
+运行矩阵固定如下：
+
+| 入口语义 | 流程启用 | 流程关闭 |
+|---|---|---|
+| `form_finalization` | 同一表单只显示“提交”，取代“保存” | `direct_write` 时同一表单只显示“保存”；`unavailable` 时不显示入口 |
+| `explicit_submission` | 显示“提交”并创建真实流程单 | 不显示入口；合同 gate 禁止配置成 direct write |
+| `domain_transition` | 使用 ActionContract 定义的业务动词和原生状态机 | 按合同决定是否允许关闭；不得伪装成普通表单保存 |
 
 ### 统一 mutation executor 与表单动作
 
-保存类写入使用 `@workspace/platform/server/business-action-executor` 作为统一切换缝：调用方只提供业务行为 key、direct 授权/commit 回调和可选 Approval adapter。executor 先按 adapter 的领域校验解析同一个策略；不接流程时才执行 direct 授权和正式表写入，接入流程时只创建并提交 `ApprovalRequest`，正式资料只能由 `commitApprovedPayload()` 写入。业务 domain service 还要在实际 Prisma mutation 前执行同一 direct guard，并只接受显式的 `workflow-approved` 内部授权绕过；因此遗漏 route executor 不能变成数据库旁路。归档、删除等 `permission_only` 行为不复用保存流程，也不能和保存字段混在同一次 mutation 中。
+保存类写入使用 `@workspace/platform/server/business-action-executor` 作为统一切换缝：调用方只提供业务行为 key、direct 授权/commit 回调和可选 Approval adapter。executor 先按 adapter 的领域校验解析同一个策略；流程启用时只创建并提交 `ApprovalRequest`，正式资料只能由 `commitApprovedPayload()` 写入；流程关闭时仅 `whenDisabled=direct_write` 才执行 direct 授权和正式表写入，`whenDisabled=unavailable` 必须返回 409，不能偷偷降级。业务 domain service 还要在实际 Prisma mutation 前执行同一 direct guard，并只接受显式的 `workflow-approved` 内部授权绕过；因此遗漏 route executor 不能变成数据库旁路。归档、删除等 `permission_only` 行为不复用保存流程，也不能和保存字段混在同一次 mutation 中。
 
 历史 direct route 尚未迁到 executor 时，必须调用同文件导出的 `assertBusinessActionDirectExecutionAllowed()`；Work、HR department、Docs editor 不再各自复制策略判断。新 route 不应继续采用“先直写，发现启用流程后返回 409”或“前端自行改打 submissions API”的双路径。
 
@@ -137,16 +156,19 @@ resolver 只合并数据库策略和调用方默认值；它不读取 RBAC grant
 
 - direct + 正式写权限：表单声明 `record.save` 和 `form.cancel`；
 - workflow + 发起权限：同一表单声明 `workflow.request.submit` 和 `form.cancel`；
+- unavailable：不返回保存或提交 action，UI 不渲染入口，写 API 同样拒绝；
 - 已提交的发起人按请求快照得到 withdraw/revise/resubmit/cancel；
 - 处理人得到 approve/reject，以及策略允许时的 reviewUpdate。
 
-Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 command，不声明 icon、variant 或顺序；表单再交给 `workflowActionSurfaceActions()` 生成 `FormSurface.actions`。图标、样式和固定排序始终由 Core Action registry / FormSurface 渲染层决定。Work 工作节点新建/编辑是首个 executor + runtime + FormSurface 贯通样板；个人空间显式标记为 workflow 不适用，继续 direct，组织空间自动随流程策略切换。
+Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 command，不声明 icon、variant 或顺序；表单再交给 `workflowActionSurfaceActions()` 生成 `FormSurface.actions`。图标、样式和固定排序始终由 Core Action registry / FormSurface 渲染层决定。Work 工作节点、HR 组织单元、HR 绩效和 Docs 模板是 runtime + FormSurface 的贯通样板；不适用流程的动作继续 direct，workflow eligible 动作自动随有效策略切换。HR 绩效属于 workflow-only 多阶段写入：新建/编辑仍只进入本地写入态，最终由 request runtime 映射提交、再次提交、通过或驳回，撤回/取消申请才是列表上的显式生命周期动作。
 
 标准新建流统一声明 `CreateSurface`，不另设 workflow-inline 版本。Platform UI 的 `actionRuntimeCreateSubmission()` 将 direct runtime 映射为 `save`，将 workflow runtime 映射为 `submit`。`trigger` 只决定 `+` 位于 Toolbar 或所属 Surface，`presentation` 只决定 inline/block/modal；流程语义与二者无关。
 
 创建类型需要预选时使用 `CreateSurface flow.kind="two-stage"`。第一段只有选择字段，第二段仍按最终业务 action runtime 决定保存或提交；第一段不得另设保存动作或独立布局。
 
 多 section 与 anchor 不改变流程语义或表单格式：`sections` 只替换单 form 内容树，`anchor` 只决定 block 内容 target。最终保存或提交仍由同一个 CreateSurface submission 和 ActionRuntime adapter 决定。
+
+`npm run arch:action-runtime-ui` 对全部业务 UI 和 app shell 执行阻断：页面不得用 `workflowEnabled` / `canSubmitWorkflow` 等权限布尔值或条件表达式选择保存/提交，不得在 CreateSurface 硬编码提交，也不得在同一动作区并列两个持久化出口。`npm run action-contract:check` 同时校验上述三态 runtime 矩阵，并阻止“声明关闭后 direct write、却没有 active persistence/direct form”或“显式提交关闭后仍 direct write”的伪合同。审批处理、发布、结案等显式业务状态流转继续按各自 ActionContract 呈现，不与同一表单的保存/提交替换关系混为一谈。
 
 策略匹配优先级：
 
@@ -169,7 +191,7 @@ Platform UI 的 `actionRuntimeCommands()` 只把 runtime action 映射为语义 
 | `optional` | 接入流程 | 旧值兼容，按接入流程处理；保存策略时统一写回 `required`。 |
 | `required` | 接入流程 | 禁止直接写入正式数据，必须提交流程后处理。 |
 
-无数据库策略时，`workflow_optional` 注册项默认解析为不接流程。也就是说，“可接流程”只是说明这个行为具备流程适配能力，不代表默认启用流程。只有 `workflow_required` 注册项才默认接入流程。
+无数据库策略时，以 ActionContract 的 `defaultExecutionMode` 为唯一运行事实：`direct` 解析为不接流程，`workflow` 解析为接入流程；BusinessAction 的 eligibility 只是管理投影，不再独立决定执行模式。
 
 管理入口位于 `/settings/admin` 的“流程设置”主 tab。产品界面只提供一个统一流程入口，左侧按“流程分类 -> 流程”组织 workflow-eligible base business action；源业务模块只保留为工具栏筛选。部门、公司、委员会等空间不再派生流程行为或独立策略入口。
 
@@ -253,7 +275,9 @@ Approval engine 的职责分离规则只保留两种：
 | 部门考核结果修订 | `work.tasks.goal.department.report.correct` | `changeTarget=work_report` |
 | 个人考核结果修订 | `work.tasks.goal.personal.report.correct` | `changeTarget=work_report` |
 
-personal 工作空间不进入 submission adapter；组织空间仍由业务 guard 判断能否首次发起以及谁是处理人，已有请求的发起人生命周期动作由 Platform engine 按状态和策略快照执行。
+OKR 的日期控制不是第二套流程开关。目标截止只约束 `objective.submit`，结果截止只约束 `report.submit`，并且仅在对应 ActionRuntime 为 workflow 时生效；关闭流程或停用时间管控只让规则失效，不删除设置或范围例外。每个 OKR `WorkPlan` 创建时固化上述四类动作的完整 policy、ActionContract 版本、关闭行为和 OKR 设置/范围策略版本；后续全局配置不得反向改变存量计划。管理员迁移存量计划必须显式选择计划并填写原因，未结束流程、已完成、已关闭或已归档计划拒绝迁移，前后快照写入 `WorkPlanGovernanceEvent`。新 `ApprovalRequest` 同时保存 policy/contract/OKR 来源版本，已经存在的请求继续使用请求自身快照。
+
+普通工作项的 personal 空间不进入旧通用 submission adapter；上表四个 personal OKR 动作使用各自显式 adapter。组织空间仍由业务 guard 判断能否首次发起以及谁是处理人，已有请求的发起人生命周期动作由 Platform engine 按状态和策略快照执行。
 
 ## Notification 分层
 

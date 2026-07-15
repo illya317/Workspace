@@ -1,4 +1,5 @@
 import { serviceError, serviceOk, type ServiceResult } from "../api";
+import { getActionContractMetadata } from "../../action-contract-registry";
 import {
   resolveWorkflowPolicy,
   type WorkflowExecutionState,
@@ -28,6 +29,9 @@ export async function resolveApprovalWorkflowPolicy<TPayload>(
   },
 ): Promise<ResolvedWorkflowPolicy> {
   if (input.request) return workflowPolicyFromRequest(input.request, input.prepared);
+  if (input.prepared?.workflowPolicySnapshot) {
+    return workflowPolicyFromPreparedSnapshot(input.prepared);
+  }
   const defaults = await resolveAdapterDefaults(adapter, input);
   const resourceKey = input.prepared?.resourceKey ?? null;
   const scopeId = input.prepared?.scopeId ?? null;
@@ -64,8 +68,36 @@ function workflowPolicyFromRequest<TPayload>(
     requestCanCancel: request.requestCanCancel,
     requestCanRevise: request.requestCanRevise,
     source: "policy",
-    policyId: null,
-    version: null,
+    policyId: request.sourceWorkflowPolicyId,
+    version: request.sourceWorkflowPolicyVersion,
+  };
+}
+
+function workflowPolicyFromPreparedSnapshot<TPayload>(
+  prepared: ApprovalPreparedPayload<TPayload>,
+): ResolvedWorkflowPolicy {
+  const snapshot = prepared.workflowPolicySnapshot!;
+  return {
+    businessActionKey: snapshot.businessActionKey,
+    resourceKey: prepared.resourceKey,
+    scopeType: snapshot.scopeType,
+    scopeId: snapshot.scopeId,
+    mode: snapshot.mode,
+    flowType: snapshot.flowType,
+    separationPolicy: snapshot.separationPolicy,
+    handlerSource: snapshot.handlerSource,
+    workflowNodes: snapshot.workflowNodes,
+    activeWorkflowNodeKey: null,
+    activeWorkflowNodeKeys: [],
+    workflowJoinState: {},
+    handlerCanRevise: snapshot.handlerCanRevise,
+    requestCanWithdraw: snapshot.requestCanWithdraw,
+    requestCanResubmit: snapshot.requestCanResubmit,
+    requestCanCancel: snapshot.requestCanCancel,
+    requestCanRevise: snapshot.requestCanRevise,
+    source: snapshot.policyId ? "policy" : "defaults",
+    policyId: snapshot.policyId,
+    version: snapshot.policyVersion,
   };
 }
 
@@ -84,6 +116,21 @@ export function workflowUpdateData(policy: ResolvedWorkflowPolicy) {
     requestCanResubmit: policy.requestCanResubmit,
     requestCanCancel: policy.requestCanCancel,
     requestCanRevise: policy.requestCanRevise,
+  };
+}
+
+export function workflowCreationData<TPayload>(
+  policy: ResolvedWorkflowPolicy,
+  prepared: ApprovalPreparedPayload<TPayload>,
+) {
+  return {
+    ...workflowUpdateData(policy),
+    sourceWorkflowPolicyId: policy.policyId,
+    sourceWorkflowPolicyVersion: policy.version,
+    sourceActionContractVersion: prepared.sourceActionContractVersion
+      ?? getActionContractMetadata(policy.businessActionKey)?.version
+      ?? null,
+    sourceOkrControlVersion: prepared.sourceOkrControlVersion ?? null,
   };
 }
 

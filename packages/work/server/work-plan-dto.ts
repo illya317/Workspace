@@ -33,9 +33,8 @@ export const workPlanInclude = {
 export type WorkPlanRow = Prisma.WorkPlanGetPayload<{ include: typeof workPlanInclude }>;
 
 export function toWorkPlanDto(row: WorkPlanRow, input: {
-  timeControlEnabled: boolean;
   itemStatusCounts?: WorkPlanItemStatusCounts;
-}) {
+} = {}) {
   const alignment = row.planAlignments[0] ?? null;
   const okrStage = effectiveWorkOkrStage(row);
   return {
@@ -53,7 +52,6 @@ export function toWorkPlanDto(row: WorkPlanRow, input: {
       stage: okrStage,
       status: row.status,
       isArchived: row.isArchived,
-      timeControlEnabled: input.timeControlEnabled,
     }),
     objectiveSubmittedAt: row.objectiveSubmittedAt?.toISOString() ?? null,
     objectiveApprovedAt: row.objectiveApprovedAt?.toISOString() ?? null,
@@ -75,6 +73,15 @@ export function toWorkPlanDto(row: WorkPlanRow, input: {
     okrCycleLabel: row.okrCycle?.label ?? null,
     okrControlScopeType: row.okrControlScopeType,
     okrControlScopeId: row.okrControlScopeId,
+    governanceMode: row.governanceMode,
+    governanceRevision: row.governanceRevision,
+    governanceActionKey: row.governanceActionKey,
+    governanceWorkflowPolicyId: row.governanceWorkflowPolicyId,
+    governanceWorkflowVersion: row.governanceWorkflowVersion,
+    governanceActionContractVersion: row.governanceActionContractVersion,
+    governanceOkrControlVersion: row.governanceOkrControlVersion,
+    governanceBindingSource: row.governanceBindingSource,
+    governanceBoundAt: row.governanceBoundAt?.toISOString() ?? null,
     sourcePlanId: row.sourcePlanId,
     sourcePlanTitle: row.sourcePlan?.title ?? null,
     sourcePlanCycleLabel: row.sourcePlan?.okrCycle?.label ?? getWorkPeriodLabelFromParts(row.sourcePlan?.periodType, row.sourcePlan?.actualStartDate, row.sourcePlan?.actualEndDate),

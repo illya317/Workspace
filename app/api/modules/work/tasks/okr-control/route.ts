@@ -1,11 +1,17 @@
 import { z } from "zod";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
-import { listWorkOkrControlPolicies, updateWorkOkrControlSettings } from "@workspace/work/server";
+import { listWorkOkrSettings, updateWorkOkrSettings } from "@workspace/work/server";
+
+const governanceMigrationSchema = z.object({
+  planIds: z.array(z.coerce.number()),
+  reason: z.string(),
+}).strict();
 
 const okrControlPolicySchema = z.object({
   settings: z.unknown().optional(),
   exception: z.unknown().optional(),
+  governanceMigration: governanceMigrationSchema.optional(),
   cycleId: z.coerce.number(),
   scopeType: z.string().nullable().optional(),
   scopeId: z.union([z.string(), z.number()]).nullable().optional(),
@@ -17,7 +23,7 @@ const okrControlPolicySchema = z.object({
 
 export const GET = createCommandRoute({
   buildCommand: () => okCommand({}),
-  action: listWorkOkrControlPolicies,
+  action: listWorkOkrSettings,
 });
 
 export const PUT = createCommandRoute({
@@ -27,5 +33,5 @@ export const PUT = createCommandRoute({
     ...body,
     actorUserId: user.userId,
   }),
-  action: updateWorkOkrControlSettings,
+  action: updateWorkOkrSettings,
 });

@@ -184,6 +184,9 @@ export const ModelName = {
   WorkPlanAlignment: 'WorkPlanAlignment',
   WorkOkrCycle: 'WorkOkrCycle',
   WorkOkrControlPolicy: 'WorkOkrControlPolicy',
+  WorkOkrControlRevision: 'WorkOkrControlRevision',
+  WorkOkrControlPolicyRevision: 'WorkOkrControlPolicyRevision',
+  WorkPlanGovernanceEvent: 'WorkPlanGovernanceEvent',
   Project: 'Project',
   ProjectEnablingDepartment: 'ProjectEnablingDepartment',
   EmployeeProject: 'EmployeeProject',
@@ -276,6 +279,10 @@ export const ApprovalRequestScalarFieldEnum = {
   requestCanResubmit: 'requestCanResubmit',
   requestCanCancel: 'requestCanCancel',
   requestCanRevise: 'requestCanRevise',
+  sourceWorkflowPolicyId: 'sourceWorkflowPolicyId',
+  sourceWorkflowPolicyVersion: 'sourceWorkflowPolicyVersion',
+  sourceActionContractVersion: 'sourceActionContractVersion',
+  sourceOkrControlVersion: 'sourceOkrControlVersion',
   subjectType: 'subjectType',
   subjectId: 'subjectId',
   operation: 'operation',
@@ -2757,6 +2764,7 @@ export const WorkOkrControlPolicyScalarFieldEnum = {
   objectiveSubmitDeadline: 'objectiveSubmitDeadline',
   krReviewOpensAt: 'krReviewOpensAt',
   krSubmitDeadline: 'krSubmitDeadline',
+  version: 'version',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId',
   createdAt: 'createdAt',
@@ -2764,6 +2772,48 @@ export const WorkOkrControlPolicyScalarFieldEnum = {
 } as const
 
 export type WorkOkrControlPolicyScalarFieldEnum = (typeof WorkOkrControlPolicyScalarFieldEnum)[keyof typeof WorkOkrControlPolicyScalarFieldEnum]
+
+
+export const WorkOkrControlRevisionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  settingsJson: 'settingsJson',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkOkrControlRevisionScalarFieldEnum = (typeof WorkOkrControlRevisionScalarFieldEnum)[keyof typeof WorkOkrControlRevisionScalarFieldEnum]
+
+
+export const WorkOkrControlPolicyRevisionScalarFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  cycleId: 'cycleId',
+  scopeType: 'scopeType',
+  scopeId: 'scopeId',
+  version: 'version',
+  changeKind: 'changeKind',
+  snapshotJson: 'snapshotJson',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkOkrControlPolicyRevisionScalarFieldEnum = (typeof WorkOkrControlPolicyRevisionScalarFieldEnum)[keyof typeof WorkOkrControlPolicyRevisionScalarFieldEnum]
+
+
+export const WorkPlanGovernanceEventScalarFieldEnum = {
+  id: 'id',
+  workPlanId: 'workPlanId',
+  fromMode: 'fromMode',
+  toMode: 'toMode',
+  fromSnapshotJson: 'fromSnapshotJson',
+  toSnapshotJson: 'toSnapshotJson',
+  reason: 'reason',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkPlanGovernanceEventScalarFieldEnum = (typeof WorkPlanGovernanceEventScalarFieldEnum)[keyof typeof WorkPlanGovernanceEventScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {
@@ -3025,6 +3075,17 @@ export const WorkPlanScalarFieldEnum = {
   previousPeriodPlanId: 'previousPeriodPlanId',
   okrControlScopeType: 'okrControlScopeType',
   okrControlScopeId: 'okrControlScopeId',
+  governanceMode: 'governanceMode',
+  governanceRevision: 'governanceRevision',
+  governanceActionKey: 'governanceActionKey',
+  governanceWorkflowPolicyId: 'governanceWorkflowPolicyId',
+  governanceWorkflowVersion: 'governanceWorkflowVersion',
+  governanceActionContractVersion: 'governanceActionContractVersion',
+  governanceOkrControlVersion: 'governanceOkrControlVersion',
+  governanceSnapshotJson: 'governanceSnapshotJson',
+  governanceBoundAt: 'governanceBoundAt',
+  governanceBoundByUserId: 'governanceBoundByUserId',
+  governanceBindingSource: 'governanceBindingSource',
   objectiveApprovalSnapshotJson: 'objectiveApprovalSnapshotJson',
   krApprovalSnapshotJson: 'krApprovalSnapshotJson',
   periodType: 'periodType',

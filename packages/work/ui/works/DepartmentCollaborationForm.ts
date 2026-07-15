@@ -103,13 +103,7 @@ export function departmentCollaborationFormItems(input: DepartmentCollaborationF
 
 function collaborationFormActions(input: DepartmentCollaborationFormInput): FormSurfaceActionSpec[] {
   if (input.mode === "readonly") return input.actions ?? [];
-  const ready = collaborationDraftCanSubmit(input.draft);
-  return [{
-    key: input.mode === "create" ? "submit-department-collaboration" : "save-department-collaboration",
-    action: input.mode === "create" ? "submit" : "save",
-    label: input.saving ? (input.mode === "create" ? "提交中" : "保存中") : (input.mode === "create" ? "提交" : "保存修改"),
-    disabled: input.disabled || !ready,
-  }, ...(input.onCancel ? [{
+  return [...(input.actions ?? []), ...(input.onCancel ? [{
     key: "cancel-department-collaboration",
     action: "cancel" as const,
     label: "取消",

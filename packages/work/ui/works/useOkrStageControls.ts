@@ -5,18 +5,21 @@ export function useOkrStageControls({
   activePlan,
   works,
   canCreate,
-  canEdit,
-  canSubmit,
+  canEditPlan,
+  canEditWork,
+  canSubmitObjective,
 }: {
   activePlan: WorkPlan | null;
   works: WorkItem[];
   canCreate: boolean;
-  canEdit: boolean;
-  canSubmit: boolean;
+  canEditPlan: boolean;
+  canEditWork: boolean;
+  canSubmitObjective: boolean;
 }) {
   const activeOkrStage = activePlan?.okrStage ?? "objective_draft";
   const planKind = activePlan?.kind ?? "okr";
   const isRoutinePlan = planKind === "routine";
+  const revisionOpen = !isRoutinePlan && Boolean(activePlan?.objectiveApprovedAt || activePlan?.status === "done");
   const maintenance = activePlan?.maintenance ?? { plan: false, objective: false, task: false, keyResult: false };
   const rootObjectives = useMemo(
     () => works.filter((work) => work.itemType === "objective" && !work.parentWorkItemId),
@@ -36,13 +39,12 @@ export function useOkrStageControls({
     rootObjectives,
     createAllowedItemTypes,
     defaultCreateItemType,
-    canEditPlan: canEdit && maintenance.plan,
-    canEditObjectives: canEdit && maintenance.objective,
-    canEditTasks: canEdit && maintenance.task,
-    canEditKrs: canEdit && maintenance.keyResult,
-    canSubmitObjectiveReview: canSubmit && !isRoutinePlan && activeOkrStage === "objective_draft",
+    canEditPlan: canEditPlan && (maintenance.plan || revisionOpen),
+    canEditObjectives: canEditWork && maintenance.objective,
+    canEditTasks: canEditWork && maintenance.task,
+    canEditKrs: canEditWork && maintenance.keyResult,
+    canSubmitObjectiveReview: canSubmitObjective && !isRoutinePlan && activeOkrStage === "objective_draft",
     canSubmitKrReview: false,
-    canAdjustKrReview: false,
     canCreateNode: canCreate && createAllowedItemTypes.length > 0,
     createNodeLabel: isRoutinePlan ? "新增细项" : defaultCreateItemType === "objective" ? "新增目标" : defaultCreateItemType === "key_result" ? "新增考核结果" : "新增任务",
     nodeSaveLabel: defaultCreateItemType === "objective" ? "保存目标" : defaultCreateItemType === "key_result" ? "保存考核结果" : "新增任务",
