@@ -20,7 +20,6 @@ import {
   type SaveReclassRuleChangeSetInput,
 } from "./domain/finance-validation";
 import { listFinanceBalances, recomputeFinanceBalances } from "./ledger/balance-api";
-import { reconcileBalanceSheet } from "./ledger/balance-reconcile";
 import { lookupFinancePeriodId, initializeFinanceDefaults } from "./ledger/periods";
 import { buildReclassResults } from "./ledger/reclassify";
 import { listReclassResults } from "./ledger/reclass-results/list";
@@ -189,23 +188,6 @@ export function executeListFinanceBalancesCommand(command: Parameters<typeof lis
 
 export function executeRecomputeFinanceBalancesCommand(command: Parameters<typeof recomputeFinanceBalances>[0]) {
   return recomputeFinanceBalances(command);
-}
-
-export function buildReconcileBalanceSheetCommand(input: { file?: FormDataEntryValue; companyCode?: FormDataEntryValue }) {
-  if (!(input.file instanceof File)) return failCommand("请上传余额表文件");
-  if (typeof input.companyCode !== "string" || !input.companyCode) return failCommand("请选择公司");
-  return okCommand({ file: input.file, companyCode: input.companyCode });
-}
-
-export async function executeReconcileBalanceSheetCommand(command: { file: File; companyCode: string }) {
-  try {
-    const buffer = Buffer.from(await command.file.arrayBuffer());
-    const fileExt = command.file.name.slice(command.file.name.lastIndexOf(".")).toLowerCase();
-    const result = await reconcileBalanceSheet(buffer, command.companyCode, fileExt);
-    return { success: true, result };
-  } catch (error) {
-    return serviceError(error instanceof Error ? error.message : "核对失败", 500);
-  }
 }
 
 export function buildInitializeFinanceDefaultsCommand(input: Parameters<typeof initializeFinanceDefaults>[0], userId: number) {

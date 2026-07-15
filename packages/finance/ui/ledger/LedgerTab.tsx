@@ -2,18 +2,11 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useState, useCallback } from "react";
-import { PageSurface, createPageBody, useFeedback, type DataSurfaceColumnSpec } from "@workspace/core/ui";
+import { PageSurface, createPageBody, type DataSurfaceColumnSpec } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec } from "@workspace/core/ui";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
-import { useFinanceBalanceReconcileSection } from "../components/FinanceBalanceReconcile";
 import { formatFinanceAmount } from "../formatters";
-
-interface Period {
-  id: number;
-  year: number;
-  month: number;
-  isClosed: boolean;
-}
+import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 interface Balance {
   id: number;
@@ -27,47 +20,28 @@ interface Balance {
 }
 
 export default function LedgerTab({
-  canImport,
+  defaultScope,
   navigation,
   lifecycleBlocks = [],
 }: {
-  canImport: boolean;
+  defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
-  const [_periods, setPeriods] = useState<Period[]>([]);
-  const [_selectedPeriodId, setSelectedPeriodId] = useState<number | null>(null);
   const [balances, setBalances] = useState<Balance[]>([]);
   const [loading, setLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [total, setTotal] = useState(0);
   const [totalPages, setTotalPages] = useState(1);
-  const feedback = useFeedback();
-
   // 筛选
-  const [companyFilter, setCompanyFilter] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
-  const [monthFilter, setMonthFilter] = useState("");
-
-  useEffect(() => {
-    fetch(workspacePath("/api/modules/finance/ledger/periods")).then((r) => r.json()).then((d) => {
-      const list = d.periods || [];
-      setPeriods(list);
-      // 默认选中第一个期间
-      if (list.length) {
-        const first = list[0];
-        if (first.companyCode) setCompanyFilter((current) => current || first.companyCode);
-        setYearFilter((current) => current || String(first.year));
-        setMonthFilter((current) => current || String(first.month));
-      }
-    });
-  }, []);
+  const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
+  const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
+  const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
 
   const loadBalances = useCallback(async () => {
     if (!companyFilter || !yearFilter || !monthFilter) {
       setBalances([]);
-      setSelectedPeriodId(null);
       setTotal(0);
       setTotalPages(1);
       return;
@@ -85,7 +59,6 @@ export default function LedgerTab({
       setBalances(data.data || data.balances || []);
       setTotal(data.total || 0);
       setTotalPages(data.totalPages || 1);
-      setSelectedPeriodId(data.periodId || null);
     }
     setLoading(false);
   }, [companyFilter, yearFilter, monthFilter, page, pageSize]);
@@ -179,11 +152,6 @@ export default function LedgerTab({
       content: `共 ${total} 条`,
     }],
   });
-  const reconcileSection = useFinanceBalanceReconcileSection({
-    enabled: canImport,
-    showToast: feedback.notify,
-  });
-
   return (
     <PageSurface kind="standard"
       tabbar={navigation}
@@ -204,7 +172,6 @@ export default function LedgerTab({
               rowKey: (balance: Balance) => balance.id,
             } },
           },
-          ...(reconcileSection ? [reconcileSection] : []),
         ], { layout: "stack" })}
       footer={{ pagination: { page, totalPages, total, onPageChange: setPage } }}
     />

@@ -23,6 +23,7 @@ import {
   type ReclassWorkbenchFilter,
 } from "./reclassWorkbench";
 import { useCSV, usePageDraft } from "@workspace/core/hooks";
+import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 const EMPTY_SUMMARY: ReclassWorkbenchSummary = {
   total: 0,
@@ -36,17 +37,19 @@ const EMPTY_SUMMARY: ReclassWorkbenchSummary = {
 export default function ReclassTab({
   canRevise,
   canExport,
+  defaultScope,
   navigation,
   lifecycleBlocks = [],
 }: {
   canRevise: boolean;
   canExport: boolean;
+  defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
-  const [companyFilter, setCompanyFilter] = useState("02");
-  const [yearFilter, setYearFilter] = useState("2025");
-  const [monthFilter, setMonthFilter] = useState("12");
+  const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
+  const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
+  const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<ReclassWorkbenchFilter>("attention");
   const [page, setPage] = useState(1);

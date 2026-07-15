@@ -7,21 +7,24 @@ import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems
 import { getAccountColumns, type Account } from "../components/AccountTable";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { useCompanyOptions } from "@workspace/platform/hooks";
+import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 // Account type and column definitions from shared AccountTable
 
 export default function AccountTab({
+  defaultScope,
   navigation,
   lifecycleBlocks = [],
 }: {
+  defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [accounts, setAccounts] = useState<Account[]>([]);
   const [loading, setLoading] = useState(true);
-  const [companyFilter, setCompanyFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
   const [levelFilter, setLevelFilter] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
   const [scope, setScope] = useState("");
   const [extraField, setExtraField] = useState<"level" | "scope">("scope");
   const [extraValue, setExtraValue] = useState("");

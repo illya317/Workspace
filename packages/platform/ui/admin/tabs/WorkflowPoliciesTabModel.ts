@@ -237,7 +237,6 @@ const TARGET_KIND_LABEL: Record<string, string> = {
   FinancePeriod: "会计期间",
   FinanceLedgerDefaultBook: "默认账套",
   FinanceAccountBalance: "科目余额",
-  FinanceBalanceReconcile: "余额校准",
   FinanceReclassRule: "重分类规则",
   ReclassResult: "重分类结果",
   FinanceBudgetImport: "预算导入",

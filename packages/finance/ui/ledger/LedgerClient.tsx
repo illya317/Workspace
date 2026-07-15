@@ -9,16 +9,17 @@ import AccountTab from "./AccountTab";
 import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import ReclassTab from "./ReclassTab";
+import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 export default function LedgerClient({
   canRevise,
-  canImport,
   canExport,
+  defaultScope,
   user,
 }: {
   canRevise: boolean;
-  canImport: boolean;
   canExport: boolean;
+  defaultScope: FinanceLedgerDefaultScope | null;
   user: SessionUser;
 }) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("ledger", user), [user]);
@@ -37,10 +38,10 @@ export default function LedgerClient({
 
   return (
     <>
-      {activeTab === "accounts" && <AccountTab {...pageChrome} />}
-      {activeTab === "vouchers" && <VoucherTab {...pageChrome} />}
-      {activeTab === "ledger" && <LedgerTab canImport={canImport} {...pageChrome} />}
-      {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} {...pageChrome} />}
+      {activeTab === "accounts" && <AccountTab defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "vouchers" && <VoucherTab defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "ledger" && <LedgerTab defaultScope={defaultScope} {...pageChrome} />}
+      {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "depreciation" && <DepreciationPlaceholder {...pageChrome} />}
     </>
   );

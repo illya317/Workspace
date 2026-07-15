@@ -150,7 +150,6 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "POST", pathPrefix: "/api/modules/hr/roster/departments", requiredActions: ["archive"], pathPattern: /^\/api\/modules\/hr\/roster\/departments\/[^/]+\/archive$/ },
   { method: "POST", pathPrefix: "/api/modules/hr/roster/positions", requiredActions: ["archive"], pathPattern: /^\/api\/modules\/hr\/roster\/positions\/[^/]+\/archive$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/budget", requiredActions: ["import"], pathPattern: /^\/api\/modules\/finance\/budget$/ },
-  { method: "POST", pathPrefix: "/api/modules/finance/ledger/balances/reconcile", requiredActions: ["import"] },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/accounts", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/ledger\/accounts$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/vouchers", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/ledger\/vouchers$/ },
   { method: "POST", pathPrefix: "/api/modules/finance/ledger/periods", requiredActions: ["create"], pathPattern: /^\/api\/modules\/finance\/ledger\/periods$/ },

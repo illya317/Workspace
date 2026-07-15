@@ -45,7 +45,7 @@
 |-----|------|------|
 | 科目设置 | AccountTab | 会计科目 CRUD |
 | 凭证明细 | VoucherTab | 凭证录入/查询 |
-| 余额表 | LedgerTab | 科目余额表查询、年度余额基准滚动计算、外部余额表校准 |
+| 余额表 | LedgerTab | 科目余额表查询、年度余额基准滚动计算 |
 | 重分类 | ReclassTab | 期末反向余额、辅助余额调整、长期规则和历史调整的统一工作台 |
 | 资产折旧 | — | 资产折旧表（开发中） |
 
@@ -54,9 +54,9 @@
 - `finance.ledger.create` — 新增科目、凭证、期间和初始化默认账套。
 - `finance.ledger.update` — 编辑已有科目、凭证和期间。
 - `finance.ledger.revise` — 重算余额、配置重分类规则、生成/调整重分类结果。
-- `finance.ledger.import` — 上传外部余额表进行校准比对。
+当前总账前端只暴露 `revise`、`export` 相关入口：重分类工作台中的长期规则配置使用 `revise`，工作台导出使用 `export`。年度余额资料统一从财务导入入口处理，不再在余额表 Tab 提供单独的会计软件余额核对区块。科目设置和凭证明细不再提供重分类模式切换；重分类判断和规则统一进入独立 Tab。`create/update/delete` 保留为 API contract 和后端 guard，未出现前端新增/编辑/删除按钮时不要提前读取或传递对应 UI 权限。
 
-当前总账前端只暴露 `revise`、`import`、`export` 相关入口：重分类工作台中的长期规则配置使用 `revise`，余额核对使用 `import`，工作台导出使用 `export`。科目设置和凭证明细不再提供重分类模式切换；重分类判断和规则统一进入独立 Tab。`create/update/delete` 保留为 API contract 和后端 guard，未出现前端新增/编辑/删除按钮时不要提前读取或传递对应 UI 权限。
+科目设置、凭证明细、余额表和重分类共用同一默认账套范围：默认公司由 `SystemConfig` 的 `finance.ledger.defaultCompanyCode` 配置，默认年月优先取该公司最近一次成功总账导入的截止月份；没有可用导入批次时，依次回退到最近有凭证的期间和最近已建期间。科目设置只使用其中的公司与年度。
 
 重分类规则编辑遵循页面草稿协议：点击顶部编辑后，目标科目列整体进入编辑态，跨行修改只保存在客户端草稿中；顶部保存一次提交公司+年度的 change set，空目标表示清除已有规则。服务端在一个事务中完成 upsert/clear，再统一同步重分类结果；不保留逐行保存、逐行删除或单独重分类 icon。
 
@@ -147,7 +147,7 @@ budget/page.tsx
 2. 财务数据以 `Period`（会计期间）为核心维度
 3. 年度余额表作为本地导入资料，导入后存为 `FinanceBalanceSnapshot`（批次）+ `FinanceBalanceSnapshotRow`（明细）
 4. 月度余额 `FinanceAccountBalance` 由系统从 active baseline snapshot + 已过账序时账凭证逐月滚动计算
-5. 上传后续年度余额表做校准时，系统比较"基准+序时账滚动结果"和后续导入余额表，只做校准对比，不覆盖月度余额
+5. 后续年度余额表仍可通过财务导入入口保存为 `reconcile` 快照，供基准切换和历史追溯；不再提供独立的即时上传核对入口。
 
 ### ERP readable 归档导入
 
@@ -327,7 +327,6 @@ npm run budget:sync-accounts
 | `GET/POST/PUT/DELETE /api/modules/finance/ledger/accounts` | 会计科目 |
 | `GET/POST/PUT/DELETE /api/modules/finance/ledger/vouchers` | 凭证管理 |
 | `GET/POST /api/modules/finance/ledger/balances` | 月度余额查询/按年度基准重新计算 |
-| `POST /api/modules/finance/ledger/balances/reconcile` | 上传会计软件年度余额表进行校准核对 |
 | `GET/PUT/DELETE /api/modules/finance/ledger/periods` | 会计期间 |
 | `GET /api/modules/finance/statements/reports` | 财务报表 |
 | `GET /api/modules/finance/statements/reports/detail` | 财务报表取数明细 |
@@ -386,7 +385,6 @@ npm run budget:sync-accounts
 | `/api/modules/finance/ledger/accounts*` | `finance.ledger.read/create/update/delete` | 科目管理 |
 | `/api/modules/finance/ledger/vouchers*` | `finance.ledger.read/create/update/delete` | 凭证管理 |
 | `/api/modules/finance/ledger/balances` | `finance.ledger.read/revise` | 余额查询/按年度基准重新计算 |
-| `/api/modules/finance/ledger/balances/reconcile` | `finance.ledger.import` | 上传会计软件年度余额表进行校准核对 |
 | `/api/modules/finance/ledger/periods*` | `finance.ledger.read/create/update/delete` | 会计期间 |
 | `/api/modules/finance/ledger/init` | `finance.ledger.create` | 财务初始化 |
 | `/api/modules/finance/statements/reports*` | `finance.statements.read` | 报表生成/取数明细 |

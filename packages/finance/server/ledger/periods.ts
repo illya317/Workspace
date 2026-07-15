@@ -34,6 +34,14 @@ export type LookupFinancePeriodInput = {
   month: number;
 };
 
+export type FinanceLedgerDefaultScope = {
+  companyCode: string;
+  year: number;
+  month: number;
+};
+
+const FINANCE_LEDGER_DEFAULT_COMPANY_CONFIG_KEY = "finance.ledger.defaultCompanyCode";
+
 const defaultAccounts = [
   { code: "1001", name: "库存现金", category: "asset", balanceDirection: "debit", sortOrder: 1 },
   { code: "1002", name: "银行存款", category: "asset", balanceDirection: "debit", sortOrder: 2 },
@@ -61,6 +69,54 @@ function periodDate(year: number, month: number, day: string) {
 
 function normalizeCompanyCode(companyCode: string | undefined) {
   return companyCode || "";
+}
+
+export function financeLedgerScopeFromCutoffDate(
+  companyCode: string,
+  cutoffDate: string | null,
+): FinanceLedgerDefaultScope | null {
+  const match = cutoffDate?.match(/^(\d{4})-(\d{2})-\d{2}$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]);
+  if (!Number.isInteger(year) || month < 1 || month > 12) return null;
+  return { companyCode, year, month };
+}
+
+export async function getDefaultFinanceLedgerScope(): Promise<FinanceLedgerDefaultScope | null> {
+  const config = await prisma.systemConfig.findUnique({
+    where: { key: FINANCE_LEDGER_DEFAULT_COMPANY_CONFIG_KEY },
+    select: { value: true },
+  });
+  const companyCode = config?.value.trim();
+  if (!companyCode) return null;
+
+  const latestImport = await prisma.financeLedgerImport.findFirst({
+    where: { companyCode, status: "completed", cutoffDate: { not: null } },
+    orderBy: [{ cutoffDate: "desc" }, { importedAt: "desc" }],
+    select: { cutoffDate: true },
+  });
+  const importedScope = financeLedgerScopeFromCutoffDate(companyCode, latestImport?.cutoffDate ?? null);
+  if (importedScope) {
+    const importedPeriod = await prisma.financePeriod.findFirst({
+      where: importedScope,
+      select: { companyCode: true, year: true, month: true },
+    });
+    if (importedPeriod) return importedPeriod;
+  }
+
+  const latestPeriodWithVouchers = await prisma.financePeriod.findFirst({
+    where: { companyCode, vouchers: { some: {} } },
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+    select: { companyCode: true, year: true, month: true },
+  });
+  if (latestPeriodWithVouchers) return latestPeriodWithVouchers;
+
+  return prisma.financePeriod.findFirst({
+    where: { companyCode },
+    orderBy: [{ year: "desc" }, { month: "desc" }],
+    select: { companyCode: true, year: true, month: true },
+  });
 }
 
 export async function listFinancePeriods(input: ListFinancePeriodsInput) {

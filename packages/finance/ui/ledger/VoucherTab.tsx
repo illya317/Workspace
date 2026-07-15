@@ -9,21 +9,24 @@ import { getBaseItemColumns, type VoucherItemRow } from "../components/VoucherIt
 import { getVoucherColumns } from "./VoucherColumns";
 import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 import { useCompanyOptions } from "@workspace/platform/hooks";
+import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 // ─── Component ───────────────────────────────────────────
 
 export default function VoucherTab({
+  defaultScope,
   navigation,
   lifecycleBlocks = [],
 }: {
+  defaultScope: FinanceLedgerDefaultScope | null;
   navigation?: PageSurfaceTabBarSpec;
   lifecycleBlocks?: BodySurfaceSectionSpec[];
 }) {
   const [vouchers, setVouchers] = useState<Voucher[]>([]);
   const [loading, setLoading] = useState(true);
-  const [companyFilter, setCompanyFilter] = useState("");
-  const [yearFilter, setYearFilter] = useState("");
-  const [monthFilter, setMonthFilter] = useState("");
+  const [companyFilter, setCompanyFilter] = useState(defaultScope?.companyCode ?? "");
+  const [yearFilter, setYearFilter] = useState(defaultScope ? String(defaultScope.year) : "");
+  const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
   const [expandedVoucherId, setExpandedVoucherId] = useState<number | null>(null);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
