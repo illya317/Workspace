@@ -10,6 +10,7 @@ import { getVoucherColumns } from "./VoucherColumns";
 import type { Voucher, VoucherResponse } from "@workspace/finance/types";
 import { useCompanyOptions } from "@workspace/platform/hooks";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
+import { cashFlowAllocationsForItem } from "./voucherCashFlow";
 
 // ─── Component ───────────────────────────────────────────
 
@@ -135,7 +136,11 @@ function voucherItemsPreview(voucher: Voucher, columns: DataSurfaceColumnSpec<Vo
     kind: "data",
     data: {
       kind: "table",
-      rows: voucher.items.map((item: VoucherItemRow, index: number) => ({ ...item, _idx: index, _voucherNo: voucher.voucherNo })),
+      rows: voucher.items.map((item: VoucherItemRow, index: number) => ({
+        ...item,
+        _idx: index,
+        cashFlowAllocations: cashFlowAllocationsForItem(item.id, voucher.cashFlowAllocations ?? []),
+      })),
       columns,
       visibleColumns: columns.map((column) => column.key),
       rowKey: (row: VoucherItemRow) => `item-${row.id}`,

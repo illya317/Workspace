@@ -1,7 +1,9 @@
 "use client";
 
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
+import type { VoucherCashFlowAllocation } from "@workspace/finance/types";
 import { formatFinanceAmount } from "../formatters";
+import { formatVoucherCashFlowDetail } from "../ledger/voucherCashFlow";
 
 interface VoucherItem {
   id: number;
@@ -10,6 +12,7 @@ interface VoucherItem {
   credit: number;
   description: string | null;
   relatedEntity?: string | null;
+  cashFlowAllocations?: VoucherCashFlowAllocation[];
 }
 
 export interface VoucherItemRow extends VoucherItem {
@@ -43,6 +46,18 @@ export function getBaseItemColumns(): DataSurfaceColumnSpec<VoucherItemRow>[] {
       label: "摘要",
 
       cell: (row) => row.description || "-",
+    },
+    {
+      key: "cashFlowDetail",
+      label: "现金流明细",
+      required: true,
+      wrap: "wrap",
+      cell: (row) => ({
+        kind: "text",
+        value: formatVoucherCashFlowDetail(row.cashFlowAllocations ?? []),
+        tone: row.cashFlowAllocations?.length ? "default" : "muted",
+        wrap: "wrap",
+      }),
     },
     {
       key: "debit",

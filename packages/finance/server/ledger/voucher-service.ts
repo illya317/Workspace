@@ -24,6 +24,34 @@ export interface ListVouchersInput {
   pageSize: number;
 }
 
+const voucherListInclude = {
+  items: { include: { account: true }, orderBy: { sortOrder: "asc" as const } },
+  period: true,
+  cashFlowAllocations: {
+    orderBy: { id: "asc" as const },
+    select: {
+      id: true,
+      ownerVoucherItemId: true,
+      counterpartItemId: true,
+      direction: true,
+      amount: true,
+      cashFlowItem: { select: { sourceCode: true, sourceName: true } },
+    },
+  },
+} satisfies Prisma.FinanceVoucherInclude;
+
+type VoucherListRow = Prisma.FinanceVoucherGetPayload<{ include: typeof voucherListInclude }>;
+
+function toVoucherListDto(voucher: VoucherListRow) {
+  return {
+    ...voucher,
+    cashFlowAllocations: voucher.cashFlowAllocations.map((allocation) => ({
+      ...allocation,
+      amount: Number(allocation.amount),
+    })),
+  };
+}
+
 function calculateVoucherTotals(items: VoucherItemInput[]) {
   return {
     totalDebit: items.reduce((s: number, i) => s + (parseFloat(String(i.debit)) || 0), 0),
@@ -61,23 +89,18 @@ export async function listVouchers(input: ListVouchersInput) {
   }
 
   const skip = (input.page - 1) * input.pageSize;
-  const include = {
-    items: { include: { account: true }, orderBy: { sortOrder: "asc" as const } },
-    period: true,
-  };
-
   if (input.keyword) {
     const all = await prisma.financeVoucher.findMany({
       where,
       orderBy: { date: "desc" },
-      include,
+      include: voucherListInclude,
     });
     const filtered = all.filter(
       (voucher) =>
         matchText(voucher.voucherNo, input.keyword || "") ||
         matchText(voucher.description || "", input.keyword || ""),
     );
-    const vouchers = filtered.slice(skip, skip + input.pageSize);
+    const vouchers = filtered.slice(skip, skip + input.pageSize).map(toVoucherListDto);
     const total = filtered.length;
     return {
       data: vouchers,
@@ -89,16 +112,17 @@ export async function listVouchers(input: ListVouchersInput) {
     };
   }
 
-  const [vouchers, total] = await Promise.all([
+  const [rows, total] = await Promise.all([
     prisma.financeVoucher.findMany({
       where,
       orderBy: { date: "desc" },
       skip,
       take: input.pageSize,
-      include,
+      include: voucherListInclude,
     }),
     prisma.financeVoucher.count({ where }),
   ]);
+  const vouchers = rows.map(toVoucherListDto);
 
   return {
     data: vouchers,

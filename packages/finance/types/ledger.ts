@@ -15,6 +15,18 @@ export interface VoucherItem {
   relatedEntity?: string | null;
 }
 
+export interface VoucherCashFlowAllocation {
+  id: number;
+  ownerVoucherItemId: number | null;
+  counterpartItemId: number | null;
+  direction: string;
+  amount: number;
+  cashFlowItem: {
+    sourceCode: string;
+    sourceName: string;
+  };
+}
+
 export interface Period {
   id: number;
   year: number;
@@ -33,6 +45,7 @@ export interface Voucher {
   status: string;
   companyCode: string | null;
   items: VoucherItem[];
+  cashFlowAllocations?: VoucherCashFlowAllocation[];
 }
 
 export interface VoucherResponse {
