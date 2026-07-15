@@ -30,6 +30,8 @@
       "@workspace/library/*": ["./packages/library/*"],
       "@workspace/hr": ["./packages/hr/index.ts"],
       "@workspace/hr/*": ["./packages/hr/*"],
+      "@workspace/inventory": ["./packages/inventory/index.ts"],
+      "@workspace/inventory/*": ["./packages/inventory/*"],
       "@workspace/production": ["./packages/production/index.ts"],
       "@workspace/production/*": ["./packages/production/*"],
       "@workspace/finance": ["./packages/finance/index.ts"],

@@ -295,6 +295,8 @@ export type FinancePeriodWhereInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceListRelationFilter
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   openItems?: Prisma.FinanceOpenItemListRelationFilter
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
 }
 
 export type FinancePeriodOrderByWithRelationInput = {
@@ -318,6 +320,8 @@ export type FinancePeriodOrderByWithRelationInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceOrderByRelationAggregateInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationOrderByRelationAggregateInput
   openItems?: Prisma.FinanceOpenItemOrderByRelationAggregateInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryOrderByRelationAggregateInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentOrderByRelationAggregateInput
 }
 
 export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
@@ -345,6 +349,8 @@ export type FinancePeriodWhereUniqueInput = Prisma.AtLeast<{
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceListRelationFilter
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   openItems?: Prisma.FinanceOpenItemListRelationFilter
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryListRelationFilter
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentListRelationFilter
 }, "id" | "companyCode_year_month">
 
 export type FinancePeriodOrderByWithAggregationInput = {
@@ -407,6 +413,8 @@ export type FinancePeriodCreateInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateInput = {
@@ -430,6 +438,8 @@ export type FinancePeriodUncheckedCreateInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUpdateInput = {
@@ -452,6 +462,8 @@ export type FinancePeriodUpdateInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateInput = {
@@ -475,6 +487,8 @@ export type FinancePeriodUncheckedUpdateInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateManyInput = {
@@ -600,6 +614,34 @@ export type FinancePeriodSumOrderByAggregateInput = {
   month?: Prisma.SortOrder
 }
 
+export type FinancePeriodCreateNestedOneWithoutAssetPeriodEntriesInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetPeriodEntriesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAssetPeriodEntriesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneRequiredWithoutAssetPeriodEntriesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetPeriodEntriesInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAssetPeriodEntriesInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutAssetPeriodEntriesInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUpdateWithoutAssetPeriodEntriesInput>, Prisma.FinancePeriodUncheckedUpdateWithoutAssetPeriodEntriesInput>
+}
+
+export type FinancePeriodCreateNestedOneWithoutAssetAdjustmentsInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetAdjustmentsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAssetAdjustmentsInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+}
+
+export type FinancePeriodUpdateOneRequiredWithoutAssetAdjustmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetAdjustmentsInput>
+  connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutAssetAdjustmentsInput
+  upsert?: Prisma.FinancePeriodUpsertWithoutAssetAdjustmentsInput
+  connect?: Prisma.FinancePeriodWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUpdateWithoutAssetAdjustmentsInput>, Prisma.FinancePeriodUncheckedUpdateWithoutAssetAdjustmentsInput>
+}
+
 export type FinancePeriodCreateNestedOneWithoutCashFlowAllocationsInput = {
   create?: Prisma.XOR<Prisma.FinancePeriodCreateWithoutCashFlowAllocationsInput, Prisma.FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput>
   connectOrCreate?: Prisma.FinancePeriodCreateOrConnectWithoutCashFlowAllocationsInput
@@ -704,6 +746,226 @@ export type FinancePeriodUpdateOneRequiredWithoutReclassResultsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinancePeriodUpdateToOneWithWhereWithoutReclassResultsInput, Prisma.FinancePeriodUpdateWithoutReclassResultsInput>, Prisma.FinancePeriodUncheckedUpdateWithoutReclassResultsInput>
 }
 
+export type FinancePeriodCreateWithoutAssetPeriodEntriesInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutAssetPeriodEntriesInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutAssetPeriodEntriesInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetPeriodEntriesInput>
+}
+
+export type FinancePeriodUpsertWithoutAssetPeriodEntriesInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedUpdateWithoutAssetPeriodEntriesInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetPeriodEntriesInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutAssetPeriodEntriesInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAssetPeriodEntriesInput, Prisma.FinancePeriodUncheckedUpdateWithoutAssetPeriodEntriesInput>
+}
+
+export type FinancePeriodUpdateWithoutAssetPeriodEntriesInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutAssetPeriodEntriesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodCreateWithoutAssetAdjustmentsInput = {
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodUncheckedCreateWithoutAssetAdjustmentsInput = {
+  id?: number
+  year: number
+  month: number
+  startDate: string
+  endDate: string
+  isClosed?: boolean
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  sourceClosed?: boolean | null
+  companyCode: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutPeriodInput
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutPeriodInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+}
+
+export type FinancePeriodCreateOrConnectWithoutAssetAdjustmentsInput = {
+  where: Prisma.FinancePeriodWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetAdjustmentsInput>
+}
+
+export type FinancePeriodUpsertWithoutAssetAdjustmentsInput = {
+  update: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedUpdateWithoutAssetAdjustmentsInput>
+  create: Prisma.XOR<Prisma.FinancePeriodCreateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedCreateWithoutAssetAdjustmentsInput>
+  where?: Prisma.FinancePeriodWhereInput
+}
+
+export type FinancePeriodUpdateToOneWithWhereWithoutAssetAdjustmentsInput = {
+  where?: Prisma.FinancePeriodWhereInput
+  data: Prisma.XOR<Prisma.FinancePeriodUpdateWithoutAssetAdjustmentsInput, Prisma.FinancePeriodUncheckedUpdateWithoutAssetAdjustmentsInput>
+}
+
+export type FinancePeriodUpdateWithoutAssetAdjustmentsInput = {
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+}
+
+export type FinancePeriodUncheckedUpdateWithoutAssetAdjustmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  startDate?: Prisma.StringFieldUpdateOperationsInput | string
+  endDate?: Prisma.StringFieldUpdateOperationsInput | string
+  isClosed?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceClosed?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  balances?: Prisma.FinanceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutPeriodNestedInput
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutPeriodNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+}
+
 export type FinancePeriodCreateWithoutCashFlowAllocationsInput = {
   year: number
   month: number
@@ -723,6 +985,8 @@ export type FinancePeriodCreateWithoutCashFlowAllocationsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput = {
@@ -745,6 +1009,8 @@ export type FinancePeriodUncheckedCreateWithoutCashFlowAllocationsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutCashFlowAllocationsInput = {
@@ -782,6 +1048,8 @@ export type FinancePeriodUpdateWithoutCashFlowAllocationsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput = {
@@ -804,6 +1072,8 @@ export type FinancePeriodUncheckedUpdateWithoutCashFlowAllocationsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutAuxiliaryBalancesInput = {
@@ -825,6 +1095,8 @@ export type FinancePeriodCreateWithoutAuxiliaryBalancesInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput = {
@@ -847,6 +1119,8 @@ export type FinancePeriodUncheckedCreateWithoutAuxiliaryBalancesInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutAuxiliaryBalancesInput = {
@@ -884,6 +1158,8 @@ export type FinancePeriodUpdateWithoutAuxiliaryBalancesInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput = {
@@ -906,6 +1182,8 @@ export type FinancePeriodUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutOpenItemsInput = {
@@ -927,6 +1205,8 @@ export type FinancePeriodCreateWithoutOpenItemsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutPeriodInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutOpenItemsInput = {
@@ -949,6 +1229,8 @@ export type FinancePeriodUncheckedCreateWithoutOpenItemsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutPeriodInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutOpenItemsInput = {
@@ -986,6 +1268,8 @@ export type FinancePeriodUpdateWithoutOpenItemsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutPeriodNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutOpenItemsInput = {
@@ -1008,6 +1292,8 @@ export type FinancePeriodUncheckedUpdateWithoutOpenItemsInput = {
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutSourceBalancesInput = {
@@ -1029,6 +1315,8 @@ export type FinancePeriodCreateWithoutSourceBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutSourceBalancesInput = {
@@ -1051,6 +1339,8 @@ export type FinancePeriodUncheckedCreateWithoutSourceBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutSourceBalancesInput = {
@@ -1088,6 +1378,8 @@ export type FinancePeriodUpdateWithoutSourceBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutSourceBalancesInput = {
@@ -1110,6 +1402,8 @@ export type FinancePeriodUncheckedUpdateWithoutSourceBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutVouchersInput = {
@@ -1131,6 +1425,8 @@ export type FinancePeriodCreateWithoutVouchersInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutVouchersInput = {
@@ -1153,6 +1449,8 @@ export type FinancePeriodUncheckedCreateWithoutVouchersInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutVouchersInput = {
@@ -1190,6 +1488,8 @@ export type FinancePeriodUpdateWithoutVouchersInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutVouchersInput = {
@@ -1212,6 +1512,8 @@ export type FinancePeriodUncheckedUpdateWithoutVouchersInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutBalancesInput = {
@@ -1233,6 +1535,8 @@ export type FinancePeriodCreateWithoutBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutBalancesInput = {
@@ -1255,6 +1559,8 @@ export type FinancePeriodUncheckedCreateWithoutBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutBalancesInput = {
@@ -1292,6 +1598,8 @@ export type FinancePeriodUpdateWithoutBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutBalancesInput = {
@@ -1314,6 +1622,8 @@ export type FinancePeriodUncheckedUpdateWithoutBalancesInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodCreateWithoutReclassResultsInput = {
@@ -1335,6 +1645,8 @@ export type FinancePeriodCreateWithoutReclassResultsInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodUncheckedCreateWithoutReclassResultsInput = {
@@ -1357,6 +1669,8 @@ export type FinancePeriodUncheckedCreateWithoutReclassResultsInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutPeriodInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutPeriodInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutPeriodInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedCreateNestedManyWithoutPeriodInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedCreateNestedManyWithoutPeriodInput
 }
 
 export type FinancePeriodCreateOrConnectWithoutReclassResultsInput = {
@@ -1394,6 +1708,8 @@ export type FinancePeriodUpdateWithoutReclassResultsInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUpdateManyWithoutPeriodNestedInput
 }
 
 export type FinancePeriodUncheckedUpdateWithoutReclassResultsInput = {
@@ -1416,6 +1732,8 @@ export type FinancePeriodUncheckedUpdateWithoutReclassResultsInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutPeriodNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutPeriodNestedInput
+  assetPeriodEntries?: Prisma.FinanceAssetPeriodEntryUncheckedUpdateManyWithoutPeriodNestedInput
+  assetAdjustments?: Prisma.FinanceAssetAdjustmentUncheckedUpdateManyWithoutPeriodNestedInput
 }
 
 
@@ -1431,6 +1749,8 @@ export type FinancePeriodCountOutputType = {
   auxiliaryBalances: number
   cashFlowAllocations: number
   openItems: number
+  assetPeriodEntries: number
+  assetAdjustments: number
 }
 
 export type FinancePeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1441,6 +1761,8 @@ export type FinancePeriodCountOutputTypeSelect<ExtArgs extends runtime.Types.Ext
   auxiliaryBalances?: boolean | FinancePeriodCountOutputTypeCountAuxiliaryBalancesArgs
   cashFlowAllocations?: boolean | FinancePeriodCountOutputTypeCountCashFlowAllocationsArgs
   openItems?: boolean | FinancePeriodCountOutputTypeCountOpenItemsArgs
+  assetPeriodEntries?: boolean | FinancePeriodCountOutputTypeCountAssetPeriodEntriesArgs
+  assetAdjustments?: boolean | FinancePeriodCountOutputTypeCountAssetAdjustmentsArgs
 }
 
 /**
@@ -1502,6 +1824,20 @@ export type FinancePeriodCountOutputTypeCountOpenItemsArgs<ExtArgs extends runti
   where?: Prisma.FinanceOpenItemWhereInput
 }
 
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountAssetPeriodEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetPeriodEntryWhereInput
+}
+
+/**
+ * FinancePeriodCountOutputType without action
+ */
+export type FinancePeriodCountOutputTypeCountAssetAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAssetAdjustmentWhereInput
+}
+
 
 export type FinancePeriodSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1524,6 +1860,8 @@ export type FinancePeriodSelect<ExtArgs extends runtime.Types.Extensions.Interna
   auxiliaryBalances?: boolean | Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>
   cashFlowAllocations?: boolean | Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>
   openItems?: boolean | Prisma.FinancePeriod$openItemsArgs<ExtArgs>
+  assetPeriodEntries?: boolean | Prisma.FinancePeriod$assetPeriodEntriesArgs<ExtArgs>
+  assetAdjustments?: boolean | Prisma.FinancePeriod$assetAdjustmentsArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financePeriod"]>
 
@@ -1584,6 +1922,8 @@ export type FinancePeriodInclude<ExtArgs extends runtime.Types.Extensions.Intern
   auxiliaryBalances?: boolean | Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>
   cashFlowAllocations?: boolean | Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>
   openItems?: boolean | Prisma.FinancePeriod$openItemsArgs<ExtArgs>
+  assetPeriodEntries?: boolean | Prisma.FinancePeriod$assetPeriodEntriesArgs<ExtArgs>
+  assetAdjustments?: boolean | Prisma.FinancePeriod$assetAdjustmentsArgs<ExtArgs>
   _count?: boolean | Prisma.FinancePeriodCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinancePeriodIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1599,6 +1939,8 @@ export type $FinancePeriodPayload<ExtArgs extends runtime.Types.Extensions.Inter
     auxiliaryBalances: Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs>[]
     cashFlowAllocations: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>[]
     openItems: Prisma.$FinanceOpenItemPayload<ExtArgs>[]
+    assetPeriodEntries: Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>[]
+    assetAdjustments: Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2015,6 +2357,8 @@ export interface Prisma__FinancePeriodClient<T, Null = never, ExtArgs extends ru
   auxiliaryBalances<T extends Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$auxiliaryBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cashFlowAllocations<T extends Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$cashFlowAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   openItems<T extends Prisma.FinancePeriod$openItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$openItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetPeriodEntries<T extends Prisma.FinancePeriod$assetPeriodEntriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$assetPeriodEntriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetPeriodEntryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  assetAdjustments<T extends Prisma.FinancePeriod$assetAdjustmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancePeriod$assetAdjustmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAssetAdjustmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2615,6 +2959,54 @@ export type FinancePeriod$openItemsArgs<ExtArgs extends runtime.Types.Extensions
   take?: number
   skip?: number
   distinct?: Prisma.FinanceOpenItemScalarFieldEnum | Prisma.FinanceOpenItemScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.assetPeriodEntries
+ */
+export type FinancePeriod$assetPeriodEntriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetPeriodEntry
+   */
+  select?: Prisma.FinanceAssetPeriodEntrySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetPeriodEntry
+   */
+  omit?: Prisma.FinanceAssetPeriodEntryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetPeriodEntryInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetPeriodEntryWhereInput
+  orderBy?: Prisma.FinanceAssetPeriodEntryOrderByWithRelationInput | Prisma.FinanceAssetPeriodEntryOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetPeriodEntryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetPeriodEntryScalarFieldEnum | Prisma.FinanceAssetPeriodEntryScalarFieldEnum[]
+}
+
+/**
+ * FinancePeriod.assetAdjustments
+ */
+export type FinancePeriod$assetAdjustmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAssetAdjustment
+   */
+  select?: Prisma.FinanceAssetAdjustmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAssetAdjustment
+   */
+  omit?: Prisma.FinanceAssetAdjustmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAssetAdjustmentInclude<ExtArgs> | null
+  where?: Prisma.FinanceAssetAdjustmentWhereInput
+  orderBy?: Prisma.FinanceAssetAdjustmentOrderByWithRelationInput | Prisma.FinanceAssetAdjustmentOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAssetAdjustmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAssetAdjustmentScalarFieldEnum | Prisma.FinanceAssetAdjustmentScalarFieldEnum[]
 }
 
 /**

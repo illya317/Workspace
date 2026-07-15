@@ -12,6 +12,7 @@
     "./server/agent-tools": "./server/agent-tools.ts",
     "./server/route-commands": "./server/route-commands.ts",
     "./server/analysis/*": "./server/analysis/*.ts",
+    "./server/assets/*": "./server/assets/*.ts",
     "./server/budget/*": "./server/budget/*.ts",
     "./server/cost": "./server/cost/index.ts",
     "./server/cost/*": "./server/cost/*.ts",

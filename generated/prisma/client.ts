@@ -134,6 +134,36 @@ export type ExternalParty = Prisma.ExternalPartyModel
  */
 export type ExternalPartyRole = Prisma.ExternalPartyRoleModel
 /**
+ * Model FinanceAssetCard
+ * 可折旧/摊销资产卡片（事实表，来源于手工新建或独立资产底稿导入）
+ */
+export type FinanceAssetCard = Prisma.FinanceAssetCardModel
+/**
+ * Model FinanceAssetCostLine
+ * 资产成本组成行（事实表，保留发票、免除和其他纳入/扣减依据）
+ */
+export type FinanceAssetCostLine = Prisma.FinanceAssetCostLineModel
+/**
+ * Model FinanceAssetExpenseAllocation
+ * 资产费用分摊规则（事实表，来源于凭证映射或人工配置）
+ */
+export type FinanceAssetExpenseAllocation = Prisma.FinanceAssetExpenseAllocationModel
+/**
+ * Model FinanceAssetImportBatch
+ * 资产导入批次（审计事实，一份源文件的一次确认导入）
+ */
+export type FinanceAssetImportBatch = Prisma.FinanceAssetImportBatchModel
+/**
+ * Model FinanceAssetPeriodEntry
+ * 月度折旧/摊销确认结果（会计期间快照事实，可由相同规则重新计算校验）
+ */
+export type FinanceAssetPeriodEntry = Prisma.FinanceAssetPeriodEntryModel
+/**
+ * Model FinanceAssetAdjustment
+ * 月度折旧/摊销调整（不可变审计事实，确认后仅允许冲销）
+ */
+export type FinanceAssetAdjustment = Prisma.FinanceAssetAdjustmentModel
+/**
  * Model FinanceBudgetVersion
  * 预算版本头表。每年可存在多个版本（draft/active/archived），同 (year, companyCode) 下只有一个 active。
  */
@@ -265,9 +295,8 @@ export type FinanceBalanceSnapshot = Prisma.FinanceBalanceSnapshotModel
 export type FinanceBalanceSnapshotRow = Prisma.FinanceBalanceSnapshotRowModel
 /**
  * Model FinanceReclassRule
- * 重分类规则 — 作用域：公司 + 年度
- * 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
- * 新年度首次使用时从上一年度复制初始化
+ * 集团重分类规则 — 按集团科目并集统一生效，不区分公司和年度
+ * 一条规则 = 人工确认的 (源科目, 异常借贷方向) 处理结论
  */
 export type FinanceReclassRule = Prisma.FinanceReclassRuleModel
 /**
@@ -376,6 +405,61 @@ export type PositionReportOverride = Prisma.PositionReportOverrideModel
  * 实体编辑历史（版本快照）
  */
 export type EditHistory = Prisma.EditHistoryModel
+/**
+ * Model InventoryItem
+ * 存货物料主数据（事实表，来源于手工新建或业务底稿导入）
+ */
+export type InventoryItem = Prisma.InventoryItemModel
+/**
+ * Model InventoryUnitConversion
+ * 存货单位换算（事实表，记录业务单位到基础单位的固定换算）
+ */
+export type InventoryUnitConversion = Prisma.InventoryUnitConversionModel
+/**
+ * Model InventoryWarehouse
+ * 仓库主数据（事实表，来源于手工配置）
+ */
+export type InventoryWarehouse = Prisma.InventoryWarehouseModel
+/**
+ * Model InventoryBatch
+ * 存货批次（事实表，记录生产批号、生产日期与有效期）
+ */
+export type InventoryBatch = Prisma.InventoryBatchModel
+/**
+ * Model InventoryDocument
+ * 存货业务单据（事实表，草稿过账后只能冲销）
+ */
+export type InventoryDocument = Prisma.InventoryDocumentModel
+/**
+ * Model InventoryDocumentLine
+ * 存货业务单据行（事实表，保留数量、单位、价格和外部业务引用）
+ */
+export type InventoryDocumentLine = Prisma.InventoryDocumentLineModel
+/**
+ * Model InventoryLedgerEntry
+ * 不可变存货流水（事实表，过账单据每行生成一条带方向的基础单位数量）
+ */
+export type InventoryLedgerEntry = Prisma.InventoryLedgerEntryModel
+/**
+ * Model InventoryStocktake
+ * 存货盘点单（事实表，保存盘点时点与生命周期）
+ */
+export type InventoryStocktake = Prisma.InventoryStocktakeModel
+/**
+ * Model InventoryStocktakeLine
+ * 存货盘点明细（事实表，冻结账面数量并记录实盘数量）
+ */
+export type InventoryStocktakeLine = Prisma.InventoryStocktakeLineModel
+/**
+ * Model InventoryPeriodClose
+ * 存货期间结账（事实表，记录关闭/重开和关联财务凭证）
+ */
+export type InventoryPeriodClose = Prisma.InventoryPeriodCloseModel
+/**
+ * Model InventoryImportBatch
+ * 存货导入批次（审计事实，一份源表的一次幂等确认导入）
+ */
+export type InventoryImportBatch = Prisma.InventoryImportBatchModel
 /**
  * Model StockRawMaterial
  * 原料库存

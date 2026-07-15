@@ -1,22 +1,24 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, PageSurface, createStatusSection, createPageTabBar } from "@workspace/core/ui";
-import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec } from "@workspace/core/ui";
+import { createPageTabBar } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getFinanceLifecycleBlocks, getFinancePageViewTabs } from "../components/finance-page-spec";
 import AccountTab from "./AccountTab";
 import VoucherTab from "./VoucherTab";
 import LedgerTab from "./LedgerTab";
 import ReclassTab from "./ReclassTab";
+import AssetScheduleTab from "./AssetScheduleTab";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 
 export default function LedgerClient({
+  canCreate,
   canRevise,
   canExport,
   defaultScope,
   user,
 }: {
+  canCreate: boolean;
   canRevise: boolean;
   canExport: boolean;
   defaultScope: FinanceLedgerDefaultScope | null;
@@ -52,25 +54,7 @@ export default function LedgerClient({
       {activeTab === "vouchers" && <VoucherTab defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "ledger" && <LedgerTab defaultScope={defaultScope} {...pageChrome} />}
       {activeTab === "reclass" && <ReclassTab canRevise={canRevise} canExport={canExport} defaultScope={defaultScope} {...pageChrome} />}
-      {activeTab === "depreciation" && <DepreciationPlaceholder {...pageChrome} />}
+      {activeTab === "depreciation" && <AssetScheduleTab canCreate={canCreate} canRevise={canRevise} defaultScope={defaultScope} {...pageChrome} />}
     </>
-  );
-}
-
-function DepreciationPlaceholder({
-  navigation,
-  lifecycleBlocks = [],
-}: {
-  navigation?: PageSurfaceTabBarSpec;
-  lifecycleBlocks?: BodySurfaceSectionSpec[];
-}) {
-  return (
-    <PageSurface kind="standard"
-      tabbar={navigation}
-      body={createPageBody([
-        ...lifecycleBlocks,
-        createStatusSection("depreciation-placeholder", { kind: "empty", content: "资产折旧表开发中" }),
-      ])}
-    />
   );
 }

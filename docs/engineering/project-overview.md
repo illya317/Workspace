@@ -76,7 +76,7 @@ packages/core
   generic UI, fields, surfaces, tables, filters, search, dates, confirmation, routing/search helpers
 
 packages/<domain>
-  HR, Finance, Work, Production, Administration, Library, External business UI/server/types/import
+  HR, Finance, Work, Inventory, Production, Administration, Library, External business UI/server/types/import
 
 prisma/
   Prisma models, migrations, seed data
@@ -120,6 +120,7 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 | HR `hr` | `@workspace/hr` domain | `hr.roster`, `hr.performance`, `hr.analytics` | roster has module API; performance/analytics currently reuse roster data or page-only behavior |
 | Administration `administration` | `@workspace/administration` domain | `administration.contracts` | contracts module API |
 | Finance `finance` | `@workspace/finance` domain | ledger, statement config/review/statements, analysis, budget, cost, import, tax, treasury | most have module API; tax/treasury are planned page entries |
+| Inventory `inventory` | `@workspace/inventory` domain | `inventory.operations` | material cards, batches, documents, stocktakes, valuation and voucher-link APIs |
 | Production `production` | `@workspace/production` domain | `production.qc` | QC batches module APIs; QC template editing is handled by Docs `docs.editor` |
 | External `external` | `@workspace/external` domain | customers, suppliers | shared ExternalParty CRUD; each role supports organization and individual subject types |
 | Capital Securities `capitalSecurities` | `@workspace/capital-securities` domain | `capitalSecurities.investors`, `capitalSecurities.governance` | governance organization API uses Platform organization-unit service |

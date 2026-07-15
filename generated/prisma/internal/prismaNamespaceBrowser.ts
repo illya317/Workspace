@@ -69,6 +69,12 @@ export const ModelName = {
   DocumentTemplate: 'DocumentTemplate',
   ExternalParty: 'ExternalParty',
   ExternalPartyRole: 'ExternalPartyRole',
+  FinanceAssetCard: 'FinanceAssetCard',
+  FinanceAssetCostLine: 'FinanceAssetCostLine',
+  FinanceAssetExpenseAllocation: 'FinanceAssetExpenseAllocation',
+  FinanceAssetImportBatch: 'FinanceAssetImportBatch',
+  FinanceAssetPeriodEntry: 'FinanceAssetPeriodEntry',
+  FinanceAssetAdjustment: 'FinanceAssetAdjustment',
   FinanceBudgetVersion: 'FinanceBudgetVersion',
   FinanceBudgetDept: 'FinanceBudgetDept',
   FinanceBudgetRd: 'FinanceBudgetRd',
@@ -116,6 +122,17 @@ export const ModelName = {
   EDP: 'EDP',
   PositionReportOverride: 'PositionReportOverride',
   EditHistory: 'EditHistory',
+  InventoryItem: 'InventoryItem',
+  InventoryUnitConversion: 'InventoryUnitConversion',
+  InventoryWarehouse: 'InventoryWarehouse',
+  InventoryBatch: 'InventoryBatch',
+  InventoryDocument: 'InventoryDocument',
+  InventoryDocumentLine: 'InventoryDocumentLine',
+  InventoryLedgerEntry: 'InventoryLedgerEntry',
+  InventoryStocktake: 'InventoryStocktake',
+  InventoryStocktakeLine: 'InventoryStocktakeLine',
+  InventoryPeriodClose: 'InventoryPeriodClose',
+  InventoryImportBatch: 'InventoryImportBatch',
   StockRawMaterial: 'StockRawMaterial',
   StockPackaging: 'StockPackaging',
   StockFinishedGoods: 'StockFinishedGoods',
@@ -555,6 +572,128 @@ export const ExternalPartyRoleScalarFieldEnum = {
 } as const
 
 export type ExternalPartyRoleScalarFieldEnum = (typeof ExternalPartyRoleScalarFieldEnum)[keyof typeof ExternalPartyRoleScalarFieldEnum]
+
+
+export const FinanceAssetCardScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  assetCode: 'assetCode',
+  name: 'name',
+  assetKind: 'assetKind',
+  category: 'category',
+  assetAccountCode: 'assetAccountCode',
+  accumulatedAccountCode: 'accumulatedAccountCode',
+  acquisitionDate: 'acquisitionDate',
+  depreciationStartDate: 'depreciationStartDate',
+  originalCost: 'originalCost',
+  residualRate: 'residualRate',
+  usefulLifeMonths: 'usefulLifeMonths',
+  method: 'method',
+  openingAccumulatedAmount: 'openingAccumulatedAmount',
+  openingAsOfDate: 'openingAsOfDate',
+  status: 'status',
+  nonAmortizationReason: 'nonAmortizationReason',
+  note: 'note',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  sourceKey: 'sourceKey',
+  editedBy: 'editedBy',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAssetCardScalarFieldEnum = (typeof FinanceAssetCardScalarFieldEnum)[keyof typeof FinanceAssetCardScalarFieldEnum]
+
+
+export const FinanceAssetCostLineScalarFieldEnum = {
+  id: 'id',
+  assetId: 'assetId',
+  lineType: 'lineType',
+  treatment: 'treatment',
+  referenceNo: 'referenceNo',
+  referenceDate: 'referenceDate',
+  amount: 'amount',
+  reason: 'reason',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  sourceKey: 'sourceKey',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceAssetCostLineScalarFieldEnum = (typeof FinanceAssetCostLineScalarFieldEnum)[keyof typeof FinanceAssetCostLineScalarFieldEnum]
+
+
+export const FinanceAssetExpenseAllocationScalarFieldEnum = {
+  id: 'id',
+  assetId: 'assetId',
+  expenseAccountCode: 'expenseAccountCode',
+  allocationRate: 'allocationRate',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAssetExpenseAllocationScalarFieldEnum = (typeof FinanceAssetExpenseAllocationScalarFieldEnum)[keyof typeof FinanceAssetExpenseAllocationScalarFieldEnum]
+
+
+export const FinanceAssetImportBatchScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  sourceFile: 'sourceFile',
+  checksum: 'checksum',
+  status: 'status',
+  cardCount: 'cardCount',
+  costLineCount: 'costLineCount',
+  warningCount: 'warningCount',
+  importedBy: 'importedBy',
+  importedAt: 'importedAt',
+  note: 'note'
+} as const
+
+export type FinanceAssetImportBatchScalarFieldEnum = (typeof FinanceAssetImportBatchScalarFieldEnum)[keyof typeof FinanceAssetImportBatchScalarFieldEnum]
+
+
+export const FinanceAssetPeriodEntryScalarFieldEnum = {
+  id: 'id',
+  assetId: 'assetId',
+  periodId: 'periodId',
+  normalAmount: 'normalAmount',
+  status: 'status',
+  calculationVersion: 'calculationVersion',
+  voucherId: 'voucherId',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceAssetPeriodEntryScalarFieldEnum = (typeof FinanceAssetPeriodEntryScalarFieldEnum)[keyof typeof FinanceAssetPeriodEntryScalarFieldEnum]
+
+
+export const FinanceAssetAdjustmentScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  periodId: 'periodId',
+  assetId: 'assetId',
+  accountCode: 'accountCode',
+  amount: 'amount',
+  reason: 'reason',
+  status: 'status',
+  reversedById: 'reversedById',
+  voucherId: 'voucherId',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceRow: 'sourceRow',
+  sourceKey: 'sourceKey',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceAssetAdjustmentScalarFieldEnum = (typeof FinanceAssetAdjustmentScalarFieldEnum)[keyof typeof FinanceAssetAdjustmentScalarFieldEnum]
 
 
 export const FinanceBudgetVersionScalarFieldEnum = {
@@ -1122,10 +1261,9 @@ export type FinanceBalanceSnapshotRowScalarFieldEnum = (typeof FinanceBalanceSna
 
 export const FinanceReclassRuleScalarFieldEnum = {
   id: 'id',
-  companyCode: 'companyCode',
-  year: 'year',
   sourceAccountCode: 'sourceAccountCode',
   abnormalSide: 'abnormalSide',
+  decision: 'decision',
   targetAccountCode: 'targetAccountCode',
   enabled: 'enabled',
   source: 'source',
@@ -1519,6 +1657,200 @@ export const EditHistoryScalarFieldEnum = {
 } as const
 
 export type EditHistoryScalarFieldEnum = (typeof EditHistoryScalarFieldEnum)[keyof typeof EditHistoryScalarFieldEnum]
+
+
+export const InventoryItemScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  code: 'code',
+  name: 'name',
+  itemType: 'itemType',
+  specification: 'specification',
+  baseUnit: 'baseUnit',
+  status: 'status',
+  note: 'note',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceKey: 'sourceKey',
+  editedBy: 'editedBy',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryItemScalarFieldEnum = (typeof InventoryItemScalarFieldEnum)[keyof typeof InventoryItemScalarFieldEnum]
+
+
+export const InventoryUnitConversionScalarFieldEnum = {
+  id: 'id',
+  itemId: 'itemId',
+  unit: 'unit',
+  factor: 'factor',
+  createdAt: 'createdAt'
+} as const
+
+export type InventoryUnitConversionScalarFieldEnum = (typeof InventoryUnitConversionScalarFieldEnum)[keyof typeof InventoryUnitConversionScalarFieldEnum]
+
+
+export const InventoryWarehouseScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  code: 'code',
+  name: 'name',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryWarehouseScalarFieldEnum = (typeof InventoryWarehouseScalarFieldEnum)[keyof typeof InventoryWarehouseScalarFieldEnum]
+
+
+export const InventoryBatchScalarFieldEnum = {
+  id: 'id',
+  itemId: 'itemId',
+  warehouseId: 'warehouseId',
+  batchNo: 'batchNo',
+  productionDate: 'productionDate',
+  expiryDate: 'expiryDate',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryBatchScalarFieldEnum = (typeof InventoryBatchScalarFieldEnum)[keyof typeof InventoryBatchScalarFieldEnum]
+
+
+export const InventoryDocumentScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  documentNo: 'documentNo',
+  documentType: 'documentType',
+  documentDate: 'documentDate',
+  status: 'status',
+  counterparty: 'counterparty',
+  referenceNo: 'referenceNo',
+  note: 'note',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceKey: 'sourceKey',
+  createdBy: 'createdBy',
+  postedBy: 'postedBy',
+  postedAt: 'postedAt',
+  reversedById: 'reversedById',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryDocumentScalarFieldEnum = (typeof InventoryDocumentScalarFieldEnum)[keyof typeof InventoryDocumentScalarFieldEnum]
+
+
+export const InventoryDocumentLineScalarFieldEnum = {
+  id: 'id',
+  documentId: 'documentId',
+  itemId: 'itemId',
+  warehouseId: 'warehouseId',
+  batchId: 'batchId',
+  quantity: 'quantity',
+  unit: 'unit',
+  unitFactor: 'unitFactor',
+  unitPrice: 'unitPrice',
+  paymentStatus: 'paymentStatus',
+  invoiceStatus: 'invoiceStatus',
+  sourceRow: 'sourceRow',
+  sourceKey: 'sourceKey'
+} as const
+
+export type InventoryDocumentLineScalarFieldEnum = (typeof InventoryDocumentLineScalarFieldEnum)[keyof typeof InventoryDocumentLineScalarFieldEnum]
+
+
+export const InventoryLedgerEntryScalarFieldEnum = {
+  id: 'id',
+  documentLineId: 'documentLineId',
+  companyCode: 'companyCode',
+  itemId: 'itemId',
+  warehouseId: 'warehouseId',
+  batchId: 'batchId',
+  movementDate: 'movementDate',
+  signedQuantity: 'signedQuantity',
+  unitCost: 'unitCost',
+  createdAt: 'createdAt'
+} as const
+
+export type InventoryLedgerEntryScalarFieldEnum = (typeof InventoryLedgerEntryScalarFieldEnum)[keyof typeof InventoryLedgerEntryScalarFieldEnum]
+
+
+export const InventoryStocktakeScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  stocktakeNo: 'stocktakeNo',
+  warehouseId: 'warehouseId',
+  stocktakeDate: 'stocktakeDate',
+  status: 'status',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  sourceKey: 'sourceKey',
+  createdBy: 'createdBy',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryStocktakeScalarFieldEnum = (typeof InventoryStocktakeScalarFieldEnum)[keyof typeof InventoryStocktakeScalarFieldEnum]
+
+
+export const InventoryStocktakeLineScalarFieldEnum = {
+  id: 'id',
+  stocktakeId: 'stocktakeId',
+  itemId: 'itemId',
+  warehouseId: 'warehouseId',
+  batchId: 'batchId',
+  bookQuantity: 'bookQuantity',
+  actualQuantity: 'actualQuantity',
+  note: 'note',
+  sourceRow: 'sourceRow'
+} as const
+
+export type InventoryStocktakeLineScalarFieldEnum = (typeof InventoryStocktakeLineScalarFieldEnum)[keyof typeof InventoryStocktakeLineScalarFieldEnum]
+
+
+export const InventoryPeriodCloseScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  year: 'year',
+  month: 'month',
+  status: 'status',
+  voucherId: 'voucherId',
+  lockedBy: 'lockedBy',
+  lockedAt: 'lockedAt',
+  unlockedBy: 'unlockedBy',
+  unlockedAt: 'unlockedAt',
+  note: 'note',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type InventoryPeriodCloseScalarFieldEnum = (typeof InventoryPeriodCloseScalarFieldEnum)[keyof typeof InventoryPeriodCloseScalarFieldEnum]
+
+
+export const InventoryImportBatchScalarFieldEnum = {
+  id: 'id',
+  companyCode: 'companyCode',
+  sourceFile: 'sourceFile',
+  sourceSheet: 'sourceSheet',
+  checksum: 'checksum',
+  status: 'status',
+  itemCount: 'itemCount',
+  documentCount: 'documentCount',
+  rowCount: 'rowCount',
+  warningCount: 'warningCount',
+  importedBy: 'importedBy',
+  importedAt: 'importedAt',
+  note: 'note'
+} as const
+
+export type InventoryImportBatchScalarFieldEnum = (typeof InventoryImportBatchScalarFieldEnum)[keyof typeof InventoryImportBatchScalarFieldEnum]
 
 
 export const StockRawMaterialScalarFieldEnum = {

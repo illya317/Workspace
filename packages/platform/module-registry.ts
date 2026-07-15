@@ -258,6 +258,26 @@ export const registeredModuleDefinitions = [
     ],
   },
   {
+    packageName: "@workspace/inventory",
+    layer: "domain",
+    moduleDef: {
+      key: "inventory",
+      label: "存货管理",
+      desc: "物料、批次、出入库、盘点和财务计价",
+      href: "/inventory",
+      iconKey: "production",
+      color: "cyan",
+      resourceKey: "inventory",
+      resourceSortOrder: 4.5,
+      children: [
+        { key: "operations", label: "库存运营", desc: "物料卡片、批次流水、盘点、导入与成本结转", href: "/inventory/operations", iconKey: "ledger", color: "cyan", resourceKey: "inventory.operations", apiPrefixes: ["/api/modules/inventory/operations"] },
+      ],
+    },
+    apiGuards: [
+      ...apiResourceGuards("/api/modules/inventory/operations", ["GET", "POST"]),
+    ],
+  },
+  {
     packageName: "@workspace/external",
     layer: "domain",
     moduleDef: {

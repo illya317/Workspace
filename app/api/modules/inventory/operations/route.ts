@@ -1,0 +1,10 @@
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { okCommand } from "@workspace/platform/server/domain-validation";
+import { executeListInventoryWorkspaceCommand } from "@workspace/inventory/server/route-commands";
+import { inventoryScopeSchema } from "@workspace/inventory/server/schemas";
+
+export const GET = createCommandRoute({
+  querySchema: inventoryScopeSchema,
+  buildCommand: ({ query }) => okCommand(query),
+  action: executeListInventoryWorkspaceCommand,
+});

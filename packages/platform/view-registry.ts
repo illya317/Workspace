@@ -85,7 +85,16 @@ const basePageViewDefinitions: PageViewDefinition[] = [
           { key: "adjustments", label: "凭证重分类调整" },
         ],
       },
-      { key: "depreciation", label: "资产折旧" },
+      {
+        key: "depreciation",
+        label: "折旧摊销",
+        children: [
+          { key: "cards", label: "资产卡片" },
+          { key: "period", label: "月度折旧摊销" },
+          { key: "adjustments", label: "调整事项" },
+          { key: "reconciliation", label: "总账勾稽" },
+        ],
+      },
     ],
   },
   {
@@ -99,6 +108,20 @@ const basePageViewDefinitions: PageViewDefinition[] = [
       { key: "cost-structure", label: "成本构成" },
       { key: "workshop", label: "车间工分" },
       { key: "salary", label: "业务员工资" },
+      { key: "imports", label: "导入记录" },
+    ],
+  },
+  {
+    route: "/inventory/operations",
+    moduleKey: "inventory",
+    label: "库存运营",
+    views: [
+      { key: "overview", label: "库存总览" },
+      { key: "items", label: "物料卡片" },
+      { key: "movements", label: "出入库" },
+      { key: "batches", label: "批次" },
+      { key: "stocktakes", label: "盘点" },
+      { key: "closing", label: "财务计价" },
       { key: "imports", label: "导入记录" },
     ],
   },

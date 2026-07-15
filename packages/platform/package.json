@@ -14,6 +14,7 @@
     "./workflow-category-registry": "./workflow-category-registry.ts",
     "./workflow-action-runtime": "./workflow-action-runtime.ts",
     "./completion-date-policy": "./completion-date-policy.ts",
+    "./contracts/*": "./contracts/*.ts",
     "./calendar": "./calendar/index.ts",
     "./hooks": "./hooks/index.ts",
     "./module-lifecycle": "./module-lifecycle.ts",

@@ -1,0 +1,1 @@
+export { moduleDefinition } from "./module";

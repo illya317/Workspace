@@ -222,6 +222,11 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     referencePolicy: "none",
     domain: d("packages/production/server/qc/route-commands.buildQcBatchIdCommand", "packages/production/server/qc/route-commands.executeDeleteQcBatchCommand"),
   }),
+  registeredWrite({ key: "inventory.operations.item.create", activeEntity: "InventoryItem", domain: d("packages/inventory/server/route-commands.buildCreateInventoryItemRouteCommand", "packages/inventory/server/route-commands.executeCreateInventoryItemRouteCommand"), shape: "full_record", target: "new_record", commitMode: "activate" }),
+  registeredWrite({ key: "inventory.operations.document.create", activeEntity: "InventoryDocument", domain: d("packages/inventory/server/route-commands.buildCreateInventoryDocumentRouteCommand", "packages/inventory/server/route-commands.executeCreateInventoryDocumentRouteCommand"), shape: "full_record", target: "new_record", commitMode: "activate" }),
+  registeredLifecycle({ key: "inventory.operations.document.post", activeEntity: "InventoryDocument", operation: "custom", domain: d("packages/inventory/server/route-commands.buildInventoryDocumentLifecycleRouteCommand", "packages/inventory/server/route-commands.executeInventoryDocumentLifecycleRouteCommand") }),
+  registeredLifecycle({ key: "inventory.operations.document.reverse", activeEntity: "InventoryDocument", operation: "custom", domain: d("packages/inventory/server/route-commands.buildInventoryDocumentLifecycleRouteCommand", "packages/inventory/server/route-commands.executeInventoryDocumentLifecycleRouteCommand") }),
+  registeredLifecycle({ key: "inventory.operations.closing.linkVoucher", activeEntity: "InventoryPeriodClose", operation: "close", domain: d("packages/inventory/server/route-commands.buildLinkInventoryVoucherRouteCommand", "packages/inventory/server/route-commands.executeLinkInventoryVoucherRouteCommand") }),
   registeredGovernance({
     key: "capitalSecurities.governance.organization.create",
     activeEntity: "Department",

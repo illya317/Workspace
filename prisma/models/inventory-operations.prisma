@@ -1,0 +1,233 @@
+/// 存货物料主数据（事实表，来源于手工新建或业务底稿导入）
+model InventoryItem {
+  id          Int                       @id @default(autoincrement())
+  companyCode String
+  code        String
+  name        String
+  itemType    String                    @default("finished_goods")
+  specification String?
+  baseUnit    String
+  status      String                    @default("active")
+  note        String?
+  sourceFile  String?
+  sourceSheet String?
+  sourceKey   String?
+  editedBy    Int?
+  version     Int                       @default(1)
+  createdAt   DateTime                  @default(now())
+  updatedAt   DateTime                  @default(now()) @updatedAt
+  conversions InventoryUnitConversion[]
+  batches     InventoryBatch[]
+  documentLines InventoryDocumentLine[]
+  ledgerEntries InventoryLedgerEntry[]
+  stocktakeLines InventoryStocktakeLine[]
+
+  @@unique([companyCode, code])
+  @@unique([companyCode, sourceKey])
+  @@index([companyCode, status, itemType])
+}
+
+/// 存货单位换算（事实表，记录业务单位到基础单位的固定换算）
+model InventoryUnitConversion {
+  id        Int           @id @default(autoincrement())
+  itemId    Int
+  unit      String
+  factor    Decimal       @db.Decimal(20, 6)
+  createdAt DateTime      @default(now())
+  item      InventoryItem @relation(fields: [itemId], references: [id], onDelete: Cascade)
+
+  @@unique([itemId, unit])
+}
+
+/// 仓库主数据（事实表，来源于手工配置）
+model InventoryWarehouse {
+  id          Int                     @id @default(autoincrement())
+  companyCode String
+  code        String
+  name        String
+  status      String                  @default("active")
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @default(now()) @updatedAt
+  batches     InventoryBatch[]
+  documentLines InventoryDocumentLine[]
+  ledgerEntries InventoryLedgerEntry[]
+  stocktakes  InventoryStocktake[]
+  stocktakeLines InventoryStocktakeLine[]
+
+  @@unique([companyCode, code])
+}
+
+/// 存货批次（事实表，记录生产批号、生产日期与有效期）
+model InventoryBatch {
+  id             Int                     @id @default(autoincrement())
+  itemId         Int
+  warehouseId    Int
+  batchNo        String
+  productionDate String?
+  expiryDate     String?
+  status         String                  @default("normal")
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @default(now()) @updatedAt
+  item           InventoryItem           @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  warehouse      InventoryWarehouse      @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  documentLines  InventoryDocumentLine[]
+  ledgerEntries  InventoryLedgerEntry[]
+  stocktakeLines InventoryStocktakeLine[]
+
+  @@unique([itemId, warehouseId, batchNo])
+  @@index([expiryDate, status])
+}
+
+/// 存货业务单据（事实表，草稿过账后只能冲销）
+model InventoryDocument {
+  id            Int                     @id @default(autoincrement())
+  companyCode   String
+  documentNo    String
+  documentType  String
+  documentDate  String
+  status        String                  @default("draft")
+  counterparty  String?
+  referenceNo   String?
+  note          String?
+  sourceFile    String?
+  sourceSheet   String?
+  sourceKey     String?
+  createdBy     Int?
+  postedBy      Int?
+  postedAt      DateTime?
+  reversedById  Int?
+  version       Int                     @default(1)
+  createdAt     DateTime                @default(now())
+  updatedAt     DateTime                @default(now()) @updatedAt
+  lines         InventoryDocumentLine[]
+
+  @@unique([companyCode, documentNo])
+  @@unique([companyCode, sourceKey])
+  @@index([companyCode, documentDate, documentType, status])
+}
+
+/// 存货业务单据行（事实表，保留数量、单位、价格和外部业务引用）
+model InventoryDocumentLine {
+  id              Int                    @id @default(autoincrement())
+  documentId      Int
+  itemId          Int
+  warehouseId     Int
+  batchId         Int?
+  quantity        Decimal                @db.Decimal(20, 6)
+  unit            String
+  unitFactor      Decimal                @default(1) @db.Decimal(20, 6)
+  unitPrice       Decimal?               @db.Decimal(20, 6)
+  paymentStatus   String?
+  invoiceStatus   String?
+  sourceRow       Int?
+  sourceKey       String?
+  document        InventoryDocument      @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  item            InventoryItem          @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  warehouse       InventoryWarehouse     @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  batch           InventoryBatch?        @relation(fields: [batchId], references: [id], onDelete: SetNull)
+  ledgerEntry     InventoryLedgerEntry?
+
+  @@unique([documentId, sourceKey])
+  @@index([itemId, warehouseId, batchId])
+}
+
+/// 不可变存货流水（事实表，过账单据每行生成一条带方向的基础单位数量）
+model InventoryLedgerEntry {
+  id             Int                   @id @default(autoincrement())
+  documentLineId Int                   @unique
+  companyCode    String
+  itemId         Int
+  warehouseId    Int
+  batchId        Int?
+  movementDate   String
+  signedQuantity Decimal               @db.Decimal(20, 6)
+  unitCost       Decimal?              @db.Decimal(20, 6)
+  createdAt      DateTime              @default(now())
+  documentLine   InventoryDocumentLine @relation(fields: [documentLineId], references: [id], onDelete: Restrict)
+  item           InventoryItem         @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  warehouse      InventoryWarehouse    @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  batch          InventoryBatch?       @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@index([companyCode, movementDate])
+  @@index([itemId, warehouseId, batchId])
+}
+
+/// 存货盘点单（事实表，保存盘点时点与生命周期）
+model InventoryStocktake {
+  id           Int                     @id @default(autoincrement())
+  companyCode  String
+  stocktakeNo  String
+  warehouseId  Int
+  stocktakeDate String
+  status       String                  @default("draft")
+  sourceFile   String?
+  sourceSheet  String?
+  sourceKey    String?
+  createdBy    Int?
+  approvedBy   Int?
+  approvedAt   DateTime?
+  createdAt    DateTime                @default(now())
+  updatedAt    DateTime                @default(now()) @updatedAt
+  warehouse    InventoryWarehouse      @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  lines        InventoryStocktakeLine[]
+
+  @@unique([companyCode, stocktakeNo])
+  @@unique([companyCode, sourceKey])
+}
+
+/// 存货盘点明细（事实表，冻结账面数量并记录实盘数量）
+model InventoryStocktakeLine {
+  id             Int                @id @default(autoincrement())
+  stocktakeId    Int
+  itemId         Int
+  warehouseId    Int
+  batchId        Int?
+  bookQuantity   Decimal            @db.Decimal(20, 6)
+  actualQuantity Decimal            @db.Decimal(20, 6)
+  note           String?
+  sourceRow      Int?
+  stocktake      InventoryStocktake @relation(fields: [stocktakeId], references: [id], onDelete: Cascade)
+  item           InventoryItem      @relation(fields: [itemId], references: [id], onDelete: Restrict)
+  warehouse      InventoryWarehouse @relation(fields: [warehouseId], references: [id], onDelete: Restrict)
+  batch          InventoryBatch?    @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+  @@unique([stocktakeId, itemId, warehouseId, batchId])
+}
+
+/// 存货期间结账（事实表，记录关闭/重开和关联财务凭证）
+model InventoryPeriodClose {
+  id          Int      @id @default(autoincrement())
+  companyCode String
+  year        Int
+  month       Int
+  status      String   @default("open")
+  voucherId   Int?
+  lockedBy    Int?
+  lockedAt    DateTime?
+  unlockedBy  Int?
+  unlockedAt  DateTime?
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @default(now()) @updatedAt
+
+  @@unique([companyCode, year, month])
+}
+
+/// 存货导入批次（审计事实，一份源表的一次幂等确认导入）
+model InventoryImportBatch {
+  id            Int      @id @default(autoincrement())
+  companyCode   String
+  sourceFile    String
+  sourceSheet   String?
+  checksum      String
+  status        String   @default("confirmed")
+  itemCount     Int      @default(0)
+  documentCount Int      @default(0)
+  rowCount      Int      @default(0)
+  warningCount  Int      @default(0)
+  importedBy    Int?
+  importedAt    DateTime @default(now())
+  note          String?
+
+  @@unique([companyCode, checksum, sourceSheet])
+}

@@ -42,6 +42,12 @@ const FINANCE_IMPORT = {
   originHrefPattern: "/finance/import",
 } as const;
 
+const INVENTORY_OPERATIONS = {
+  moduleKey: "inventory",
+  resourceKey: "inventory.operations",
+  originHrefPattern: "/inventory/operations",
+} as const;
+
 const HR_PERFORMANCE = {
   moduleKey: "hr",
   resourceKey: "hr.performance",
@@ -446,11 +452,19 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassAdjustment.save", label: "保存重分类调整", writeKind: "save", targetKind: "FinanceBalanceReclassAdjustment", directPermissionAction: "revise", apiRoutes: [route("PUT", "/api/modules/finance/ledger/reclass-adjustments")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.generate", label: "生成重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/reclass-results")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.reclassResult.adjust", label: "调整重分类结果", writeKind: "update", targetKind: "ReclassResult", directPermissionAction: "revise", apiRoutes: [route("PATCH", "/api/modules/finance/ledger/reclass-results/:id")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.asset.create", label: "创建资产卡片", writeKind: "create", targetKind: "FinanceAssetCard", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/ledger/assets")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetAdjustment.create", label: "补录折旧摊销调整", writeKind: "revise", targetKind: "FinanceAssetAdjustment", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-adjustments")] },
+  { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetPeriod.recalculate", label: "重算折旧摊销期间", writeKind: "revise", targetKind: "FinanceAssetPeriodEntry", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-periods/recalculate")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.import", label: "导入预算数据", writeKind: "import", targetKind: "FinanceBudgetImport", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/finance/budget")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.create", label: "创建预算版本", writeKind: "create", targetKind: "BudgetVersion", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/budget/versions")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.activate", label: "启用预算版本", writeKind: "approve", targetKind: "BudgetVersion", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/budget/versions/:id/activate")] },
   { ...FINANCE_COST, ...PERMISSION_ONLY, key: "finance.cost.import.delete", label: "删除成本导入批次", writeKind: "delete", targetKind: "FinanceCostImport", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/finance/cost/imports/:id")] },
   { ...FINANCE_IMPORT, ...PERMISSION_ONLY, key: "finance.import.confirm", label: "确认财务导入", writeKind: "import", targetKind: "FinanceImport", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/finance/import/confirm")] },
+  { ...INVENTORY_OPERATIONS, ...PERMISSION_ONLY, key: "inventory.operations.item.create", label: "创建物料卡片", writeKind: "create", targetKind: "InventoryItem", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/inventory/operations/items")] },
+  { ...INVENTORY_OPERATIONS, ...PERMISSION_ONLY, key: "inventory.operations.document.create", label: "创建存货单据", writeKind: "create", targetKind: "InventoryDocument", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/inventory/operations/documents")] },
+  { ...INVENTORY_OPERATIONS, ...PERMISSION_ONLY, key: "inventory.operations.document.post", label: "过账存货单据", writeKind: "update", targetKind: "InventoryDocument", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/inventory/operations/documents/:id/post")] },
+  { ...INVENTORY_OPERATIONS, ...PERMISSION_ONLY, key: "inventory.operations.document.reverse", label: "冲销存货单据", writeKind: "reverse", targetKind: "InventoryDocument", directPermissionAction: "reverse", apiRoutes: [route("POST", "/api/modules/inventory/operations/documents/:id/reverse")] },
+  { ...INVENTORY_OPERATIONS, ...PERMISSION_ONLY, key: "inventory.operations.closing.linkVoucher", label: "关联存货结转凭证", writeKind: "update", targetKind: "InventoryPeriodClose", directPermissionAction: "lock", apiRoutes: [route("POST", "/api/modules/inventory/operations/closing/link-voucher")] },
   {
     ...CAPITAL_SECURITIES_GOVERNANCE,
     ...PERMISSION_ONLY,
