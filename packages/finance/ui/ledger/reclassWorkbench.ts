@@ -2,14 +2,105 @@ import { matchText } from "@workspace/core/search";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 
 import type { ReclassEntry } from "../../server/schedules/reclassify";
+import type { RuleCandidate } from "../../server/ledger/reclass-rules";
 import { formatFinanceAmount } from "../formatters";
 
 export type ReclassWorkbenchFilter = "attention" | "processed" | "exempt" | "all";
+export type GroupRuleStatusFilter = "all" | "reclassified" | "no_reclass" | "unconfirmed";
 
 export interface ReclassTargetOption {
   value: string;
   label: string;
   searchText?: string;
+}
+
+export function groupRuleKey(row: RuleCandidate) {
+  return `${row.accountCode}::${row.abnormalSide}`;
+}
+
+export function filterGroupRuleCandidates(rows: readonly RuleCandidate[], keyword: string, status: GroupRuleStatusFilter) {
+  return rows.filter((row) => {
+    const inStatus = status === "all"
+      || (status === "reclassified" && row.existingDecision === "reclassify")
+      || (status === "no_reclass" && row.existingDecision === "no_reclass")
+      || (status === "unconfirmed" && row.existingDecision === null);
+    if (!inStatus) return false;
+    if (!keyword) return true;
+    return [row.accountCode, row.accountName, row.existingTarget]
+      .some((value) => value && matchText(value, keyword));
+  });
+}
+
+export function createGroupReclassRuleColumns(input: {
+  canRevise: boolean;
+  editMode: boolean;
+  targetOptions: ReclassTargetOption[];
+  targetValue: (row: RuleCandidate) => string;
+  onTargetChange: (row: RuleCandidate, value: string) => void;
+}): DataSurfaceColumnSpec<RuleCandidate>[] {
+  const targetLabels = new Map(input.targetOptions.map((option) => [option.value, option.label]));
+  return [
+    {
+      key: "account",
+      label: "集团科目",
+      required: true,
+      width: "lg",
+      cell: (row) => ({ kind: "stack", gap: "xs", items: [
+        { kind: "text", value: row.accountCode, font: "mono", emphasis: "medium" },
+        { kind: "text", value: row.accountName },
+      ] }),
+    },
+    {
+      key: "naturalSide",
+      label: "正常方向",
+      required: true,
+      align: "center",
+      cell: (row) => ({ kind: "badge", label: row.balanceDirection === "credit" ? "贷" : "借", tone: "gray" }),
+    },
+    {
+      key: "abnormalSide",
+      label: "异常方向",
+      required: true,
+      align: "center",
+      cell: (row) => ({ kind: "badge", label: row.abnormalSide === "both" ? "双向" : row.abnormalSide === "credit" ? "贷" : "借", tone: "red" }),
+    },
+    {
+      key: "target",
+      label: "重分类目标科目",
+      required: true,
+      width: "lg",
+      cell: (row) => {
+        if (input.editMode && input.canRevise) {
+          return {
+            kind: "input",
+            spec: {
+              valueType: "string",
+              control: "choice",
+              options: { source: "static", items: input.targetOptions, visibleCount: 8 },
+            },
+            value: input.targetValue(row),
+            onChange: (value) => input.onTargetChange(row, String(value ?? "")),
+            placeholder: "选择目标科目或无需重分类",
+            emptyText: "无匹配科目",
+            density: "compact",
+          };
+        }
+        const target = row.existingDecision === "reclassify" ? row.existingTarget : null;
+        return target ? targetLabels.get(target) ?? target : { kind: "empty" };
+      },
+    },
+    {
+      key: "ruleState",
+      label: "规则状态",
+      required: true,
+      align: "center",
+      cell: (row) => row.existingDecision === "reclassify"
+        ? { kind: "badge", label: "已重分类", tone: "green" }
+        : row.existingDecision === "no_reclass"
+          ? { kind: "badge", label: "无需重分类", tone: "gray" }
+          : { kind: "badge", label: "未确认", tone: "orange" },
+    },
+  ];
 }
 
 export function filterReclassEntries(entries: readonly ReclassEntry[], filter: ReclassWorkbenchFilter, keyword: string) {
@@ -132,8 +223,8 @@ export function createReclassWorkbenchColumns(input: {
 function isRuleEditable(row: ReclassEntry, canRevise: boolean) {
   return canRevise
     && row.sourceType !== "legacy_voucher"
-    && (row.status === "pending" || row.status === "configured")
-    && (row.classification === "reclass_candidate" || row.classification === "pending_review");
+    && (row.classification === "reclass_candidate" || row.classification === "pending_review")
+    && row.status !== "exempt";
 }
 
 function classificationBadge(row: ReclassEntry) {
@@ -169,7 +260,7 @@ function sourceLabel(row: ReclassEntry) {
   if (row.sourceType === "auxiliary_balance") return `辅助余额表${row.detailCount ? ` · ${row.detailCount} 个对象` : ""}`;
   if (row.sourceType === "reference_workpaper") return "法定报表底稿勾稽";
   if (row.sourceType === "legacy_voucher") return "历史凭证明细";
-  if (row.sourceType === "rule") return "公司年度规则";
+  if (row.sourceType === "rule") return "集团规则";
   if (row.sourceType === "manual") return "人工调整";
   return "期末余额检测";
 }

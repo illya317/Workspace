@@ -10,6 +10,8 @@ import { prisma } from "@workspace/platform/server/prisma";
 
 import { buildBalanceComputeCommand, buildReclassRuleScopeCommand } from "../../domain/finance-validation";
 
+export { saveBalanceReclassAdjustmentChangeSet } from "./adjustments";
+
 export async function syncBalanceReclassForPeriod(periodId: number): Promise<{ written: number; deleted: number }> {
   const command = buildBalanceComputeCommand(periodId);
   if (!command.ok) throw new Error(command.issue.message);

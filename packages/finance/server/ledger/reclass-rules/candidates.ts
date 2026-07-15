@@ -1,54 +1,85 @@
 /**
- * Reclassification pair inventory.
+ * Group-wide reclassification rule inventory.
  *
- * Voucher movements are intentionally not scanned: they cannot establish a
- * counterparty closing balance. This endpoint now exposes only supported
- * settlement-account pairs and any legacy rule metadata for the configuration
- * surface.
+ * Source accounts are the union of active accounts across all group companies
+ * and years. Voucher movements are intentionally not scanned: they cannot
+ * establish a counterparty closing balance.
  */
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { resolveAuxiliaryReclassPair } from "../../../types/auxiliary-reclass";
-import type { RuleCandidate, ScanCandidatesParams, ScanCandidatesResult } from "./types";
+import type { RuleCandidate, ScanCandidatesResult } from "./types";
 
-export async function scanCandidates(params: ScanCandidatesParams): Promise<ScanCandidatesResult> {
-  const { companyCode, year } = params;
-  const accounts = (await prisma.financeAccount.findMany({
-    where: { companyCode, year },
-    select: { code: true, name: true, balanceDirection: true },
-    orderBy: { code: "asc" },
-  })).filter((account) => resolveAuxiliaryReclassPair(account.code));
-  const supportedCodes = accounts.map((account) => account.code);
-  const rules = await prisma.financeReclassRule.findMany({
-    where: { companyCode, year, sourceAccountCode: { in: supportedCodes } },
-    select: { id: true, sourceAccountCode: true, abnormalSide: true, targetAccountCode: true, source: true, enabled: true },
-  });
-  const ruleMap = new Map(rules.map((rule) => [`${rule.sourceAccountCode}::${rule.abnormalSide}`, rule]));
-  const candidates: RuleCandidate[] = accounts.map((account) => {
-    const pair = resolveAuxiliaryReclassPair(account.code)!;
-    const rule = ruleMap.get(`${account.code}::${pair.abnormalSide}`);
-    return {
-      accountCode: account.code,
-      accountName: account.name,
-      balanceDirection: account.balanceDirection,
-      abnormalSide: pair.abnormalSide,
+export async function scanCandidates(): Promise<ScanCandidatesResult> {
+  const [accounts, rules] = await Promise.all([
+    prisma.financeAccount.findMany({
+      where: { isActive: true },
+      select: { code: true, name: true, balanceDirection: true, companyCode: true, year: true },
+      orderBy: [{ year: "desc" }, { companyCode: "asc" }, { code: "asc" }],
+    }),
+    prisma.financeReclassRule.findMany({
+      orderBy: [{ sourceAccountCode: "asc" }, { abnormalSide: "asc" }],
+      where: { source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
+      select: { id: true, sourceAccountCode: true, abnormalSide: true, decision: true, targetAccountCode: true, source: true, enabled: true },
+    }),
+  ]);
+  const accountUnion = new Map<string, { code: string; name: string; balanceDirection: string }>();
+  for (const account of accounts) {
+    if (!accountUnion.has(account.code)) accountUnion.set(account.code, account);
+  }
+  const rulesBySource = new Map<string, typeof rules>();
+  for (const rule of rules) {
+    const list = rulesBySource.get(rule.sourceAccountCode) ?? [];
+    list.push(rule);
+    rulesBySource.set(rule.sourceAccountCode, list);
+  }
+
+  const candidates: RuleCandidate[] = [];
+  for (const account of accountUnion.values()) {
+    const existingRules = rulesBySource.get(account.code) ?? [];
+    const rowRules = existingRules.length > 0 ? existingRules : [null];
+    for (const rule of rowRules) {
+      candidates.push({
+        accountCode: account.code,
+        accountName: account.name,
+        balanceDirection: account.balanceDirection,
+        abnormalSide: (rule?.abnormalSide ?? oppositeSide(account.balanceDirection)) as RuleCandidate["abnormalSide"],
+        abnormalAmount: 0,
+        existingRuleId: rule?.id ?? null,
+        existingTarget: rule?.targetAccountCode ?? null,
+        existingDecision: rule?.decision as RuleCandidate["existingDecision"] ?? null,
+        existingSource: rule?.source ?? null,
+        existingEnabled: rule?.enabled ?? null,
+      });
+    }
+  }
+  for (const rule of rules) {
+    if (accountUnion.has(rule.sourceAccountCode)) continue;
+    candidates.push({
+      accountCode: rule.sourceAccountCode,
+      accountName: rule.sourceAccountCode,
+      balanceDirection: rule.abnormalSide === "debit" ? "credit" : "debit",
+      abnormalSide: rule.abnormalSide as RuleCandidate["abnormalSide"],
       abnormalAmount: 0,
-      suggestedTarget: pair.target,
-      existingRuleId: rule?.id ?? null,
-      existingTarget: rule?.targetAccountCode ?? null,
-      existingSource: rule?.source ?? null,
-      existingEnabled: rule?.enabled ?? null,
-    };
-  });
+      existingRuleId: rule.id,
+      existingTarget: rule.targetAccountCode,
+      existingDecision: rule.decision as RuleCandidate["existingDecision"],
+      existingSource: rule.source,
+      existingEnabled: rule.enabled,
+    });
+  }
+  candidates.sort((left, right) => left.accountCode.localeCompare(right.accountCode, "zh-CN", { numeric: true }) || left.abnormalSide.localeCompare(right.abnormalSide));
   return {
-    companyCode,
-    year,
+    accountOptions: [...accountUnion.values()].map(({ code, name }) => ({ code, name })),
     candidates,
     stats: {
-      totalAccountsScanned: candidates.length,
-      abnormalCount: 0,
-      withExistingRule: candidates.filter((candidate) => candidate.existingRuleId !== null).length,
-      withoutRule: candidates.filter((candidate) => candidate.existingRuleId === null).length,
+      totalGroupAccounts: accountUnion.size,
+      reclassified: candidates.filter((candidate) => candidate.existingDecision === "reclassify").length,
+      noReclass: candidates.filter((candidate) => candidate.existingDecision === "no_reclass").length,
+      unconfirmed: candidates.filter((candidate) => candidate.existingDecision === null).length,
     },
   };
+}
+
+function oppositeSide(balanceDirection: string): "debit" | "credit" {
+  return balanceDirection === "credit" ? "debit" : "credit";
 }

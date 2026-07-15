@@ -20,7 +20,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 
 - Toolbar 规则另见 `docs/engineering/core-toolbar.md`；该文档是所有页面级工具栏的专门规范。
 - 业务只 value import 明确允许的公共 runtime 入口和 helper；二级声明组件通过 `PageSurface` / `InputSurface` 等 spec 表达，不作为业务直接 renderer。
-- `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；section grid 可声明 `gridColumns: 2 | 3`。页面级 tabs、toolbar、分页必须通过 `PageSurface.tabbar`、`PageSurface.toolbar`、`PageSurface.footer` 表达；弹窗分页只能使用 `BodySurfaceModalSpec.pagination`。
+- `PageSurface.body` 只接收 `BodySurfaceProps`。`FormSurface`、`DataSurface`、`DocumentSurface`、`VisualizationSurface`、`SelectorSurface` 都通过 `BodySurface` 声明；数据表格、结构化数据、摘要指标和可展开记录归 `DataSurface`。正文 section tree、grid/split、局部 commands/message/status/empty/modals 归 `BodySurface kind="section"`；section grid 可声明 `gridColumns: 2 | 3`。section 可通过结构化 `disclosure.expanded / onExpandedChange` 声明折叠面板，同层共用一个 active key 时形成互斥折叠组；这与 `PageSurface.tabbar` 的 parent/children accordion Tab 是两种能力。页面级 tabs、toolbar、分页必须通过 `PageSurface.tabbar`、`PageSurface.toolbar`、`PageSurface.footer` 表达；弹窗分页只能使用 `BodySurfaceModalSpec.pagination`。
 - `BodySurface` 列表的 `presentation: "cards"` 只允许声明 `title / description / badges / actions` 等结构化内容，card item 禁止 `label` 和 `meta` 独立行。状态使用 badge，事实型补充信息并入 description；禁止用第三行静态说明文案制造隐式 label。
 - 新增页面代码必须使用 `PageSurface.body` 和 `PageSurface.tabbar`。旧顶层 `blocks`、`empty`、`actions`、`tabs`、`activeTab`、`activeChild`、`onTabChange`、`onChildChange` 已从协议删除，不得恢复。
 - `@workspace/core/ui` 的 type-only import 只允许 Surface contract 类型、helper 类型和业务别名：`DataSurface*`、`FormSurface*`、`PageSurface*`、`SelectorSurface*`、`ReferenceOption`、`SurfaceToolbarItem`、`SurfaceToolbarItems`。业务不得再 type-only 直引底层 `DataTableColumn`、`ToolbarItem`、`FkFieldOption`；分别使用 Surface contract、`SurfaceToolbarItem(s)`、`ReferenceOption`。已有 selector 节点的轻量重命名使用 `SelectorSurface card.inlineEdit`，不得另开业务弹窗或直接渲染输入框。
@@ -137,13 +137,13 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 | 分类 | 说明 |
 |---|---|
 | 页面布局 | `PageSurface` 及页面级 layout/navigation/toolbar/footer 声明。 |
-| 页面内容 | `BodySurface`、`CreateSurface`、`DataSurface`、`DocumentSurface`、`FormSurface`、`PaperInputSurface`、`SelectorSurface`、`VisualizationSurface`。 |
+| 页面内容 | `BodySurface`、`CreateSurface`、`DataSurface`、`DocumentSurface`、`FormSurface`、`PaperInputSurface`、`SelectorSurface`、`VisualizationSurface`。`BodySurface` section 的 `disclosure` 提供折叠面板结构。 |
 | 通用 | `NavigationSurface`、`InputSurface` 两个跨正文复用的声明。 |
 
 页面布局协议固定为五段：
 
 1. `header`：页眉，默认页面必须有；登录页等特殊页面可显式 `hidden`。
-2. `tabbar`：页面级声明式 Tab 段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。
+2. `tabbar`：页面级声明式 Tab 段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。父项声明 `children` 时由 Core 以 accordion 方式在选中父 Tab 后同栏展开子 Tab，并通过 `activeChild / onChildChange` 控制。
 3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、新建、生成等都必须表达为标准 toolbar item。
 4. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `create/data/form/document/visualization/selector/section` 分类；标准新建流归 `CreateSurface`，数据摘要指标和可展开记录归 `DataSurface`，正文 empty/loading/error 归 `BodySurface kind="section"` 的 `status`。split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。
 5. `footer`：页脚；表格/数据分页只能在 `PageSurface.footer.pagination`。

@@ -2,30 +2,40 @@ import { prisma } from "@workspace/platform/server/prisma";
 
 import type { PreviewAuxiliaryBalance } from "../../import/shared";
 import { buildFinancePeriodScopeCommand } from "../../domain/finance-validation";
-import { resolveAuxiliaryReclassPair } from "../../../types/auxiliary-reclass";
 
 export interface AuxiliaryReclassEntry {
   sourceAccount: string;
   targetAccount: string;
   amount: number;
+  ruleId: number | null;
   details: Array<{ dimensionType: string; dimensionCode: string; dimensionName: string; amount: number }>;
 }
 
-export function buildAuxiliaryReclassEntries(rows: readonly PreviewAuxiliaryBalance[]): {
+export interface AuxiliaryReclassRule {
+  id: number;
+  sourceAccountCode: string;
+  abnormalSide: string;
+  decision: string;
+  targetAccountCode: string | null;
+  enabled: boolean;
+}
+
+export function buildAuxiliaryReclassEntries(rows: readonly PreviewAuxiliaryBalance[], rules: readonly AuxiliaryReclassRule[] = []): {
   entries: AuxiliaryReclassEntry[];
   coveredAccountCodes: string[];
 } {
-  const coveredAccountCodes = [...new Set(rows.map((row) => row.accountCode).filter((code) => Boolean(resolveAuxiliaryReclassPair(code))))];
+  const coveredAccountCodes = [...new Set(rows.map((row) => row.accountCode).filter((code) => hasRule(code, rules)))];
   const grouped = new Map<string, AuxiliaryReclassEntry>();
   for (const row of rows) {
-    const pair = resolveAuxiliaryReclassPair(row.accountCode);
-    if (!pair) continue;
     const net = roundMoney(row.closingDebit - row.closingCredit);
     const side = net > 0.005 ? "debit" : net < -0.005 ? "credit" : null;
-    if (!side || side !== pair.abnormalSide) continue;
+    if (!side) continue;
+    const rule = resolveRule(row.accountCode, side, rules);
+    const target = rule?.decision === "reclassify" ? rule.targetAccountCode : null;
+    if (!target) continue;
     const amount = roundMoney(Math.abs(net));
-    const key = `${row.accountCode}::${pair.target}`;
-    const entry = grouped.get(key) ?? { sourceAccount: row.accountCode, targetAccount: pair.target, amount: 0, details: [] };
+    const key = `${row.accountCode}::${target}`;
+    const entry = grouped.get(key) ?? { sourceAccount: row.accountCode, targetAccount: target, amount: 0, ruleId: rule?.id ?? null, details: [] };
     entry.amount = roundMoney(entry.amount + amount);
     entry.details.push({
       dimensionType: row.dimensionType,
@@ -48,7 +58,10 @@ export async function importAuxiliaryReclassAdjustments(input: {
   if (!command.ok || command.data.month === undefined) throw new Error(command.ok ? "month is required" : command.issue.message);
   const { companyCode, year, month } = command.data;
   const period = await getOrCreatePeriod(companyCode, year, month);
-  const { entries, coveredAccountCodes } = buildAuxiliaryReclassEntries(input.rows);
+  const rules = await prisma.financeReclassRule.findMany({
+    where: { enabled: true, source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
+  });
+  const { entries, coveredAccountCodes } = buildAuxiliaryReclassEntries(input.rows, rules);
   const targetCodes = [...new Set(entries.map((entry) => entry.targetAccount))];
   const existingTargets = await prisma.financeAccount.findMany({
     where: { companyCode, year, code: { in: targetCodes } },
@@ -83,6 +96,7 @@ export async function importAuxiliaryReclassAdjustments(input: {
         sourceAccountCode: entry.sourceAccount,
         targetAccountCode: entry.targetAccount,
         amount: entry.amount,
+        ruleId: entry.ruleId,
         sourceType: "auxiliary_balance",
         status: "approved",
         note: JSON.stringify({ basis: "auxiliary_closing_balance", details: entry.details }),
@@ -90,6 +104,7 @@ export async function importAuxiliaryReclassAdjustments(input: {
       update: {
         targetAccountCode: entry.targetAccount,
         amount: entry.amount,
+        ruleId: entry.ruleId,
         sourceType: "auxiliary_balance",
         status: "approved",
         note: JSON.stringify({ basis: "auxiliary_closing_balance", details: entry.details }),
@@ -104,6 +119,16 @@ export async function importAuxiliaryReclassAdjustments(input: {
     skippedProtected: protectedAccounts.size,
     entries: validEntries,
   };
+}
+
+function hasRule(accountCode: string, rules: readonly AuxiliaryReclassRule[]) {
+  return rules.some((rule) => rule.enabled && accountCode.startsWith(rule.sourceAccountCode));
+}
+
+function resolveRule(accountCode: string, side: "debit" | "credit", rules: readonly AuxiliaryReclassRule[]) {
+  return rules
+    .filter((rule) => rule.enabled && accountCode.startsWith(rule.sourceAccountCode) && (rule.abnormalSide === side || rule.abnormalSide === "both"))
+    .sort((left, right) => right.sourceAccountCode.length - left.sourceAccountCode.length)[0];
 }
 
 async function getOrCreatePeriod(companyCode: string, year: number, month: number) {

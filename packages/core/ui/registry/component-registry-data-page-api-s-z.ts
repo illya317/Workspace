@@ -67,7 +67,12 @@ export const page_api_registry_entries = [
   },
   {
     name: "TabBar",
-    description: "Tab 切换栏",
+    description: "Tab 切换栏；accordion 模式在选中父 Tab 后于同栏展开其 children 子 Tab",
+    declares: [
+      { name: "tabs.children", description: "父 Tab 的子视图项。" },
+      { name: "accordion", description: "启用同栏父子 Tab 展开结构。" },
+      { name: "activeChild", description: "当前选中的子 Tab。" },
+    ],
     composes: ["ActionButton"],
   },
   {

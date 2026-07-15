@@ -4,7 +4,7 @@ import test from "node:test";
 import type { PreviewAuxiliaryBalance } from "../../import/shared";
 import { buildAuxiliaryReclassEntries } from "./auxiliary";
 
-test("reclassifies only opposite-side auxiliary closing balances in supported pairs", () => {
+test("does not reclassify auxiliary balances before a manual decision is stored", () => {
   const rows = [
     row("2202", "supplier", "0048", "供应商A", 2060, 0),
     row("2202", "supplier", "0080", "供应商B", 5460, 0),
@@ -17,41 +17,46 @@ test("reclassifies only opposite-side auxiliary closing balances in supported pa
   ];
 
   const result = buildAuxiliaryReclassEntries(rows);
-  assert.deepEqual(result.coveredAccountCodes.sort(), ["1123", "122101", "2202", "2221", "224101"]);
-  assert.deepEqual(
-    result.entries.map((entry) => ({
-      sourceAccount: entry.sourceAccount,
-      targetAccount: entry.targetAccount,
-      amount: entry.amount,
-      count: entry.details.length,
-    })),
-    [
-      { sourceAccount: "2202", targetAccount: "1123", amount: 12520, count: 3 },
-      { sourceAccount: "224101", targetAccount: "122101", amount: 51081.2, count: 2 },
-      { sourceAccount: "122101", targetAccount: "224101", amount: 58913072.19, count: 1 },
-      { sourceAccount: "2221", targetAccount: "1463", amount: 192617.25, count: 1 },
-    ],
-  );
+  assert.deepEqual(result.coveredAccountCodes, []);
+  assert.deepEqual(result.entries, []);
 });
 
-test("inherits defaults for child accounts while preserving specific auxiliary pairs", () => {
+test("applies a manually confirmed rule to child accounts", () => {
   const result = buildAuxiliaryReclassEntries([
     row("220299", "supplier", "1", "供应商", 100, 0),
     row("22410199", "supplier", "2", "单位", 80, 0),
-  ]);
-  assert.deepEqual(result.entries.map((entry) => [entry.sourceAccount, entry.targetAccount]), [
-    ["220299", "1123"],
-    ["22410199", "122101"],
-  ]);
+  ], [rule(1, "2202", "debit", "1123")]);
+  assert.deepEqual(result.entries.map((entry) => [entry.sourceAccount, entry.targetAccount]), [["220299", "1123"]]);
 });
 
 test("nets debit and credit before deciding the closing side", () => {
   const result = buildAuxiliaryReclassEntries([
     { ...row("2202", "supplier", "1", "供应商", 120, 20) },
     { ...row("122101", "customer", "2", "客户", 30, 80) },
-  ]);
+  ], [rule(1, "2202", "debit", "1123"), rule(2, "122101", "credit", "224101")]);
   assert.deepEqual(result.entries.map((entry) => entry.amount), [100, 50]);
 });
+
+test("manual rules use closing net balance rather than current movements", () => {
+  const result = buildAuxiliaryReclassEntries([
+    { ...row("2202", "supplier", "1", "供应商", 120, 20), currentDebit: 9999 },
+  ], [rule(7, "2202", "debit", "1463")]);
+  assert.deepEqual(result.entries.map((entry) => ({ target: entry.targetAccount, amount: entry.amount, ruleId: entry.ruleId })), [
+    { target: "1463", amount: 100, ruleId: 7 },
+  ]);
+});
+
+test("a manual no-reclassification decision covers the account without creating an adjustment", () => {
+  const result = buildAuxiliaryReclassEntries([
+    row("2202", "supplier", "1", "供应商", 100, 0),
+  ], [{ id: 8, sourceAccountCode: "2202", abnormalSide: "debit", decision: "no_reclass", targetAccountCode: null, enabled: true }]);
+  assert.deepEqual(result.coveredAccountCodes, ["2202"]);
+  assert.deepEqual(result.entries, []);
+});
+
+function rule(id: number, sourceAccountCode: string, abnormalSide: string, targetAccountCode: string) {
+  return { id, sourceAccountCode, abnormalSide, decision: "reclassify", targetAccountCode, enabled: true };
+}
 
 function row(
   accountCode: string,

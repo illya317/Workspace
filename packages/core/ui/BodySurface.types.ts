@@ -127,6 +127,11 @@ export interface BodySurfaceSectionHeaderSpec {
   create?: CreateSurfaceSurfaceProps;
 }
 
+export interface BodySurfaceSectionDisclosureSpec {
+  expanded: boolean;
+  onExpandedChange: (expanded: boolean) => void;
+}
+
 interface BodySurfaceSectionCommonProps {
   kind: "section";
   title?: ReactNode;
@@ -165,6 +170,7 @@ export interface BodySurfaceSectionSpec {
   key: string;
   label?: ReactNode;
   header?: BodySurfaceSectionHeaderSpec;
+  disclosure?: BodySurfaceSectionDisclosureSpec;
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;

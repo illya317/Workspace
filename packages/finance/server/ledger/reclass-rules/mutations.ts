@@ -1,7 +1,6 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
-import { syncReclassRuleResults } from "./sync";
 import {
   buildSaveReclassRuleChangeSetCommand,
   type SaveReclassRuleChangeSetInput,
@@ -10,7 +9,7 @@ import {
 export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetInput) {
   const command = buildSaveReclassRuleChangeSetCommand(input);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  const { companyCode, year, userId, changes } = command.data.input;
+  const { userId, changes } = command.data.input;
   const direct = await assertBusinessActionDirectExecutionAllowed({
     businessActionKey: "finance.ledger.reclassRule.save",
     actorUserId: userId,
@@ -26,7 +25,7 @@ export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetIn
       : [change.sourceAccountCode]
   ))));
   const accounts = await prisma.financeAccount.findMany({
-    where: { companyCode, year, code: { in: accountCodes }, isActive: true },
+    where: { code: { in: accountCodes }, isActive: true },
     select: { code: true },
   });
   const existingCodes = new Set(accounts.map((account) => account.code));
@@ -37,34 +36,51 @@ export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetIn
 
   const now = new Date();
   let saved = 0;
-  let cleared = 0;
+  let noReclass = 0;
+  let adjustmentsUpdated = 0;
   await prisma.$transaction(async (tx) => {
     for (const change of changes) {
       const key = {
-        companyCode_year_sourceAccountCode_abnormalSide: {
-          companyCode,
-          year,
+        sourceAccountCode_abnormalSide: {
           sourceAccountCode: change.sourceAccountCode,
           abnormalSide: change.abnormalSide,
         },
       };
       if (change.targetAccountCode === null) {
-        const existing = await tx.financeReclassRule.findUnique({ where: key, select: { id: true } });
-        if (!existing) continue;
-        await tx.reclassResult.deleteMany({
-          where: { ruleId: existing.id, status: { in: ["approved", "pending"] } },
+        await tx.financeReclassRule.upsert({
+          where: key,
+          create: {
+            sourceAccountCode: change.sourceAccountCode,
+            abnormalSide: change.abnormalSide,
+            decision: "no_reclass",
+            targetAccountCode: null,
+            enabled: true,
+            source: "manual",
+            confirmedBy: userId,
+            confirmedAt: now,
+          },
+          update: {
+            decision: "no_reclass",
+            targetAccountCode: null,
+            enabled: true,
+            source: "manual",
+            confirmedBy: userId,
+            confirmedAt: now,
+          },
         });
-        await tx.financeReclassRule.delete({ where: { id: existing.id } });
-        cleared += 1;
+        const adjustmentResult = await tx.financeBalanceReclassAdjustment.deleteMany({
+          where: { sourceAccountCode: change.sourceAccountCode, sourceType: "auxiliary_balance", status: "approved" },
+        });
+        adjustmentsUpdated += adjustmentResult.count;
+        noReclass += 1;
         continue;
       }
-      await tx.financeReclassRule.upsert({
+      const savedRule = await tx.financeReclassRule.upsert({
         where: key,
         create: {
-          companyCode,
-          year,
           sourceAccountCode: change.sourceAccountCode,
           abnormalSide: change.abnormalSide,
+          decision: "reclassify",
           targetAccountCode: change.targetAccountCode,
           enabled: true,
           source: "manual",
@@ -72,6 +88,7 @@ export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetIn
           confirmedAt: now,
         },
         update: {
+          decision: "reclassify",
           targetAccountCode: change.targetAccountCode,
           enabled: true,
           source: "manual",
@@ -79,10 +96,14 @@ export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetIn
           confirmedAt: now,
         },
       });
+      const adjustmentResult = await tx.financeBalanceReclassAdjustment.updateMany({
+        where: { sourceAccountCode: change.sourceAccountCode, sourceType: "auxiliary_balance", status: "approved" },
+        data: { targetAccountCode: change.targetAccountCode, ruleId: savedRule.id },
+      });
+      adjustmentsUpdated += adjustmentResult.count;
       saved += 1;
     }
   });
 
-  const sync = await syncReclassRuleResults(companyCode, year);
-  return serviceOk({ success: true, saved, cleared, sync });
+  return serviceOk({ success: true, reclassified: saved, noReclass, adjustmentsUpdated });
 }

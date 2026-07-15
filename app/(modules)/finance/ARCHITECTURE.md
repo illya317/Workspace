@@ -183,18 +183,20 @@ budget/page.tsx
 
 | 表 | 文件 | 说明 |
 |---|---|---|
-| `FinanceReclassRule` | `prisma/models/finance-ledger.prisma` | 科目规则：`(companyCode, year, sourceAccountCode, abnormalSide)` → `targetAccountCode` |
+| `FinanceReclassRule` | `prisma/models/finance-reclass.prisma` | 集团科目人工结论：`(sourceAccountCode, abnormalSide)` → `reclassify / no_reclass`，不区分公司和年度 |
 | `FinanceReclassItemRule` | `prisma/models/finance-ledger.prisma` | 明细例外规则：`(companyCode, year, sourceAccountCode, matchType, matchValue)` → `targetAccountCode` |
 | `ReclassResult` | `prisma/models/finance-ledger.prisma` | 明细级结果：每条凭证明细的生成/审核结果，`ruleId` 可空 |
 | `FinanceBalanceReclassAdjustment` | `prisma/models/finance-reclass.prisma` | 余额层调整；来自辅助余额或经严格勾稽的法定底稿，人工调整受保护 |
 
 ### 规则表 (`FinanceReclassRule`)
 
-- `companyCode` **非空**，规则总是公司作用域
-- `@@unique([companyCode, year, sourceAccountCode, abnormalSide])` 公司+年度唯一
-- `year`: 规则所属年度，新年度首次使用时从上年度复制初始化
+- 规则以集团全部有效科目的编码并集作为可选范围，不带公司、年度字段
+- `@@unique([sourceAccountCode, abnormalSide])` 集团全局唯一
 - `abnormalSide`: `debit` = 异常借方、`credit` = 异常贷方、`both` = 全部重分类
-- `source`: `"manual"` 手动配置、`"auto"` 系统自动确认、`"suggested"` 系统候选
+- `decision`: `"reclassify"` 必须同时保存 `targetAccountCode`；`"no_reclass"` 必须保持目标为空
+- `source` 只使用 `"manual"`；没有数据库记录表示未确认，不存在系统默认或静态配对回退
+- 保存目标、明确选择“无需重分类”都会记录确认人和确认时间
+- 缺少确认人或确认时间的历史 `manual` 标记不作为规则消费，迁移时退回未确认
 
 ### 结果表 (`ReclassResult`)
 
@@ -207,26 +209,28 @@ budget/page.tsx
 
 ```
 ┌─ 配置规则 ──────────────────────────────────────────────┐
-│ 重分类工作台 → 公司+年度长期规则                         │
-│   GET /api/modules/finance/ledger/reclass-rules?companyCode=&year=       │
-│   GET 读取公司+年度的支持规则与候选                         │
-│   PUT change set → 事务写入/清除 FinanceReclassRule         │
+│ 重分类工作台 → 集团全局长期规则                           │
+│   GET /api/modules/finance/ledger/reclass-rules             │
+│   GET 读取集团科目并集与人工确认状态                       │
+│   PUT change set → 事务写入 reclassify / no_reclass 结论    │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 生成结果 ──────────────────────────────────────────────┐
 │ 导入辅助余额表 → 按辅助对象期末净余额判断                 │
 │   importAuxiliaryReclassAdjustments()                     │
-│   应收/预收、预付/应付、应交税费借方等支持配对 → FinanceBalanceReclassAdjustment │
+│   仅人工确认 reclassify 的规则可生成 FinanceBalanceReclassAdjustment │
 │   sourceType="auxiliary_balance"，note 保存辅助对象明细  │
 │   adjusted/rejected 受保护，不被后续自动导入覆盖           │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 工作台 ────────────────────────────────────────────────┐
 │ /finance/ledger → 重分类                                  │
+│   “重分类”父 Tab 以 accordion 子 Tab 切换规则设置/期间调整 │
 │   schedules/reclassify 汇总期末反向余额、现有规则、余额调整 │
 │   未有确认结果 → pending/configured，不进入报表重分类       │
 │   approved/adjusted → 已重分类；rejected/exempt → 不消费    │
-│   历史 ReclassResult 以“历史凭证调整”只读暴露，等待迁移     │
+│   PUT reclass-adjustments → 新增或修改期间人工调整          │
+│   历史源凭证已删除的 ReclassResult 只读暴露，等待迁移       │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 报表消费 (只读) ───────────────────────────────────────┐
@@ -335,6 +339,7 @@ npm run budget:sync-accounts
 | `GET /api/modules/finance/analysis/management` | 三表、成本、预算/基线、绩效与风险统一管理分析 |
 | `POST /api/modules/finance/ledger/init` | 财务初始化 |
 | `GET/PUT /api/modules/finance/ledger/reclass-rules` | 重分类规则读取与 change-set 保存 |
+| `PUT /api/modules/finance/ledger/reclass-adjustments` | 期间重分类调整 change-set 保存 |
 | `GET/POST/PATCH /api/modules/finance/ledger/reclass-results` | 重分类结果列表/生成/审核 |
 | `GET/POST/DELETE /api/modules/finance/cost/*` | 成本管理子模块 |
 
@@ -395,5 +400,6 @@ npm run budget:sync-accounts
 | `/api/modules/finance/import/preview` | `finance.import.read` | 导入预览（非变更操作，用 read） |
 | `/api/modules/finance/import/confirm` | `finance.import.import` | 导入确认（写入数据库，用 import） |
 | `/api/modules/finance/ledger/reclass-rules` | `finance.ledger.read/revise` | 重分类规则查询/change-set 保存 |
+| `/api/modules/finance/ledger/reclass-adjustments` | `finance.ledger.revise` | 期间重分类调整 change-set 保存 |
 | `/api/modules/finance/ledger/reclass-results` | `finance.ledger.read/revise` | 重分类结果列表/生成/审核 |
 | `/api/modules/finance/cost/*` | `finance.cost.read/import/delete` | 成本子模块 |

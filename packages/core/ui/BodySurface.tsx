@@ -43,26 +43,40 @@ const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrom
 
 function renderSectionHeader(section: BodySurfaceSectionSpec, chrome: BodySurfaceSectionChrome = sectionChrome(section)) {
   const header = section.header;
-  if (!header?.title && !header?.badges?.length && !header?.actions?.length && !header?.create) return null;
+  const disclosure = section.disclosure;
+  const title = header?.title ?? section.label;
+  if (!title && !header?.badges?.length && !header?.actions?.length && !header?.create) return null;
   const actions = (
     <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-      {renderCommands(header.actions)}
+      {renderCommands(header?.actions)}
     </div>
   );
   return (
     <div className={joinClassNames("flex items-start justify-between gap-3", chrome === "divider" ? "border-b border-slate-200 pb-3" : "")}>
       <div className="min-w-0 space-y-1.5">
-        {(header.title || header.badges?.length) && (
+        {(title || header?.badges?.length) && (
           <div className="flex min-w-0 flex-wrap items-center gap-3">
-            {header.title ? <h3 className="truncate text-base font-semibold text-slate-900">{header.title}</h3> : null}
-            {renderSectionBadges(header.badges)}
+            {disclosure ? (
+              <button
+                type="button"
+                className="flex min-w-0 items-center gap-2 text-left"
+                aria-expanded={disclosure.expanded}
+                onClick={() => disclosure.onExpandedChange(!disclosure.expanded)}
+              >
+                <span aria-hidden="true" className="shrink-0 text-xs text-slate-400">
+                  {disclosure.expanded ? "▼" : "▶"}
+                </span>
+                <h3 className="truncate text-base font-semibold text-slate-900">{title}</h3>
+              </button>
+            ) : title ? <h3 className="truncate text-base font-semibold text-slate-900">{title}</h3> : null}
+            {renderSectionBadges(header?.badges)}
           </div>
         )}
       </div>
-      {header.actions?.length || header.create ? (
+      {header?.actions?.length || header?.create ? (
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {header.create ? <CreateSurface {...header.create} /> : null}
-          {header.actions?.length ? actions : null}
+          {header?.create ? <CreateSurface {...header.create} /> : null}
+          {header?.actions?.length ? actions : null}
         </div>
       ) : null}
     </div>
@@ -101,7 +115,10 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   );
   return (
     <BodySurfaceSectionFrame key={section.key} revealKey={section.key} itemRef={section.itemRef} className={stretchClassName}>
-      <section className={sectionClassName}>{renderSectionHeader(section, chrome)}<BodySurface {...section.body} /></section>
+      <section className={sectionClassName}>
+        {renderSectionHeader(section, chrome)}
+        {!section.disclosure || section.disclosure.expanded ? <BodySurface {...section.body} /> : null}
+      </section>
     </BodySurfaceSectionFrame>
   );
 }

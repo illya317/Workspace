@@ -27,14 +27,14 @@
 | 新建正文 | `BodySurface kind="create"` / `CreateSurface` | Agent 分别选择 `trigger: toolbar/surface`、`presentation: inline/block/modal`、可选 block anchor 和 typed form/sections；这些维度不改变非 inline 表单格式 | 业务直接 import 内部 create renderer，传 className/宽度/按钮顺序，或自行拼新建动作区 |
 | 数据正文 | `BodySurface kind="data"` | table、structured、records、metrics 数据正文，由 row/column/display spec 驱动 | 业务页直接 import internal data renderer、直接拼表格外壳、记录卡、指标卡和 raw 展示组合，或把页面级 toolbar/pagination 放进 DataSurface |
 | 可视化正文 | `BodySurface kind="visualization"` | chart、gantt、timeline、tree 等可视化和复杂图形正文 | 把图表塞进 `DataSurface.kind="visual"`，或用 `FormSurface.note` / `moduleView` 承载甘特图 |
-| 通用正文编排 | `BodySurface kind="section"` | section tree、grid/split、局部 commands/empty/modals、通用正文容器 | 用正文 tabs 形成第二套 tabbar、用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
+| 通用正文编排 | `BodySurface kind="section"` | section tree、grid/split/disclosure、局部 commands/empty/modals、通用正文容器；同层 disclosure 共用 active key 可组合互斥折叠组 | 用正文 tabs 形成第二套 tabbar、在业务层手写 `<details>`/折叠按钮、用旧 page block 展开业务协议，或用 `moduleView` 包普通容器 |
 | 导航细节 | `PageSurface.tabbar` / `PageSurface.footer.pagination` / `BodySurfaceModalSpec.pagination` / `SelectorSurface` | 页面 tabs、页面分页、弹窗分页和输入型实体 selector；底层 `NavigationSurface` 只由 Core 调度；L1/L2 模块入口由 route/module 层或模块入口卡片承载 | 业务页新增二级导航组件、直接 import `NavigationSurface` / `TabBar` / `Pagination`，把同级 L2 模块塞进 `TabBar`，或临时拼流程链接 |
 | 页面反馈 | `@workspace/core/ui` 的 `useFeedback` | 保存成功、失败、校验提示、删除/覆盖确认、未保存离开提示 | 页面直接用 `Toast`、`ConfirmModal`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt` |
 | 字段/选择/日期能力 | `InputSurface` 或 `BodySurface` form section 的 field/filter spec | 状态、阶段、固定枚举、FK、日期、tag、只读字段等；日期上下限通过 `validation.minDate/maxDate` 声明；普通选项自动 autocomplete，分组选项自动二段式 autocomplete | 业务直接 import `SearchableOptionInput`、`SearchInput`、`FkFieldInput`、`CalendarDateInput` 等 internal renderer |
 | 工具栏/动作能力 | `PageSurface.toolbar` / `CreateSurface` / 正文 Surface action spec | 页面级搜索、筛选、列显隐、新建入口、批量与数据动作进入 Toolbar；局部标准新建走 CreateSurface；普通表单的保存/提交/取消/归档/批准/拒绝进入根 `FormSurface.actions` | 业务直接 import `Toolbar` / `ActionButton`、自绘 SVG、自排按钮顺序，让页面新建入口拼接表单动作，或一页出现多个 toolbar |
 | 表格/记录/指标能力 | `BodySurface` data/metrics/record spec | 标准列表、批量表格、记录卡、指标卡；长表默认锁定表头，Core 统一约束文字和动作组不得越出单元格，动作较多时自动换行 | 业务直接 import `DataSurface`、`DataTable`、`StructuredTable`、`MetricCard`、`NumberCell`、`AmountCell` 或手搓表格 DOM |
 | 导航/选择区能力 | `PageSurface.tabbar` / `PageSurface.footer.pagination` / `BodySurfaceModalSpec.pagination` / `SelectorSurface` | 页面 Tab、页面/弹窗分页，以及实体 list/tree selector；AppShell header 上下文切换由 Platform 声明 | 业务直接 import `NavigationSurface`、`TabBar`、`Pagination`、`PanelCard + SelectorCard`，或手搓流程 nav |
-| 页面内容/分栏能力 | `BodySurface kind="section"` 的 section/split spec | 页面内容留白、卡片、章节、空态、左右分栏 | 业务直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage` |
+| 页面内容/分栏能力 | `BodySurface kind="section"` 的 section/split/disclosure spec | 页面内容留白、卡片、章节、空态、折叠面板、左右分栏 | 业务直接 import `PageShell`、`PageContent`、`PanelCard`、`SectionCard`、`WorkspaceSplitPage`，或在业务层手写折叠容器 |
 | 纸面/报告能力 | `BodySurface kind="document"` / Core `DocumentSurface` | A4 文档、检验记录纸面、报告预览、多页纸面容器 | 用 `moduleView` 或普通卡片承载纸面文档、重复手写纸面宿主宽度和字体 |
 | 纸面输入能力 | Core `PaperInputSurface` | 文档纸面内的 line/date/select/choice 填写；与普通表单 `InputSurface` 分开声明 | 在 Production/QC 自绘单字段 renderer，或给 `InputSurface` 增加纸面定位、下划线和表格单元格特例 |
 

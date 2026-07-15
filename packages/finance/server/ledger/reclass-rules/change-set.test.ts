@@ -1,12 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildSaveReclassRuleChangeSetCommand } from "../../domain/finance-validation";
+import {
+  buildSaveBalanceReclassAdjustmentChangeSetCommand,
+  buildSaveReclassRuleChangeSetCommand,
+} from "../../domain/finance-validation";
 
 test("reclass rule change set supports save and clear in one command", () => {
   const result = buildSaveReclassRuleChangeSetCommand({
-    companyCode: "02",
-    year: 2025,
     userId: 1,
     changes: [
       { sourceAccountCode: "1122", abnormalSide: "credit", targetAccountCode: "2203" },
@@ -21,8 +22,6 @@ test("reclass rule change set supports save and clear in one command", () => {
 
 test("reclass rule change set rejects duplicate source and side", () => {
   const result = buildSaveReclassRuleChangeSetCommand({
-    companyCode: "02",
-    year: 2025,
     userId: 1,
     changes: [
       { sourceAccountCode: "1122", abnormalSide: "credit", targetAccountCode: "2203" },
@@ -30,4 +29,18 @@ test("reclass rule change set rejects duplicate source and side", () => {
     ],
   });
   assert.equal(result.ok, false);
+});
+
+test("period adjustment change set requires a target distinct from the source", () => {
+  const accepted = buildSaveBalanceReclassAdjustmentChangeSetCommand({
+    userId: 1,
+    changes: [{ periodId: 12, sourceAccountCode: "2202", targetAccountCode: "1123" }],
+  });
+  assert.equal(accepted.ok, true);
+
+  const rejected = buildSaveBalanceReclassAdjustmentChangeSetCommand({
+    userId: 1,
+    changes: [{ periodId: 12, sourceAccountCode: "2202", targetAccountCode: "2202" }],
+  });
+  assert.equal(rejected.ok, false);
 });

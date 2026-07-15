@@ -25,6 +25,7 @@ export const page_api_registry_entries = [
             description: "正文通用编排容器。",
             children: [
               { name: "sections", description: "递归 section tree。" },
+              { name: "section.disclosure", description: "可控折叠面板：声明 expanded / onExpandedChange；同层可共享 active key 组成互斥折叠组，不等同于 TabBar accordion。" },
               { name: "layout", description: "正文布局：stack / grid / split。" },
               { name: "gridColumns", description: "grid 布局列数：2 / 3。" },
               { name: "commands", description: "正文局部命令。" },
@@ -41,6 +42,7 @@ export const page_api_registry_entries = [
       { name: "layout", description: "section 布局声明：stack / grid / split。" },
       { name: "gridColumns", description: "section grid 列数声明：2 / 3。" },
       { name: "sections", description: "section tree；每个 section 的 body 继续使用 BodySurface。" },
+      { name: "section.disclosure", description: "section 可控折叠面板能力；展开状态和切换回调由调用方声明，交互与外观由 Core 渲染。" },
       { name: "commands", description: "正文内部短命令；页面级工具放 PageSurface.toolbar。" },
       { name: "split", description: "split 专属：left/right/drawerLeft/sideOpen/drawerOpen/sideLabel/splitRatio/showSideControls；侧栏控制由 PageSurface 合并进唯一 toolbar，BodySurface 不渲染 page chrome。" },
     ],

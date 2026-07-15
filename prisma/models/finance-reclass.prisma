@@ -1,15 +1,13 @@
-/// 重分类规则 — 作用域：公司 + 年度
-/// 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
-/// 新年度首次使用时从上一年度复制初始化
+/// 集团重分类规则 — 按集团科目并集统一生效，不区分公司和年度
+/// 一条规则 = 人工确认的 (源科目, 异常借贷方向) 处理结论
 model FinanceReclassRule {
   id                Int       @id @default(autoincrement())
-  companyCode       String
-  year              Int
   sourceAccountCode String
   abnormalSide      String // debit | credit | both
-  targetAccountCode String
+  decision          String    @default("reclassify") // reclassify | no_reclass
+  targetAccountCode String?
   enabled           Boolean   @default(true)
-  source            String    @default("manual") // suggested | manual | auto | copied
+  source            String    @default("manual") // 仅保留 manual；字段用于历史追溯
   confirmedBy       Int?
   confirmedAt       DateTime?
   note              String?
@@ -19,8 +17,7 @@ model FinanceReclassRule {
   confirmer User?           @relation("FinanceReclassRuleConfirmer", fields: [confirmedBy], references: [id])
   results   ReclassResult[]
 
-  @@unique([companyCode, year, sourceAccountCode, abnormalSide])
-  @@index([companyCode, year])
+  @@unique([sourceAccountCode, abnormalSide])
   @@index([sourceAccountCode])
 }
 

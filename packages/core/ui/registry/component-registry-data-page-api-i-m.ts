@@ -176,7 +176,7 @@ export const page_api_registry_entries = [
   },
   {
     name: "createPageTabBar",
-    description: "页面 tabs 导航声明助手",
+    description: "页面 tabs 导航声明助手；items.children + activeChild / onChildChange 声明 accordion 子 Tab",
     composes: ["PageSurface"],
   },
   {

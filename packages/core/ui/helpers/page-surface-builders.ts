@@ -21,6 +21,7 @@ import type {
   BodySurfaceListSpec,
   BodySurfaceModuleGridSpec,
   BodySurfaceSectionChrome,
+  BodySurfaceSectionDisclosureSpec,
   BodySurfaceStatusSpec,
   BodySurfaceSectionSpec,
   BodySurfaceProps,
@@ -39,6 +40,7 @@ type NestedPageSections = {
 type PageSectionPanelOptions = NestedPageSections & {
   title?: ReactNode;
   actions?: BodySurfaceCommandSpec[];
+  disclosure?: BodySurfaceSectionDisclosureSpec;
   chrome?: BodySurfaceSectionChrome;
   framed?: boolean;
   itemRef?: Ref<HTMLDivElement>;
@@ -293,11 +295,12 @@ export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, framed, gridColumns, itemRef, layout = "stack", sections, title } = panel;
+  const { actions, chrome, disclosure, framed, gridColumns, itemRef, layout = "stack", sections, title } = panel;
   return {
     key,
     label: title,
     chrome,
+    disclosure,
     framed,
     itemRef,
     header: { title, actions },

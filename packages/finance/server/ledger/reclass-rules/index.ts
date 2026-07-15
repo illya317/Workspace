@@ -2,13 +2,13 @@
  * 重分类规则候选 service
  *
  * 公开 API：
- * - scanCandidates(params) — 扫描凭证明细，返回异常方向候选科目列表
+ * - scanCandidates() — 返回集团科目并集中的重分类规则候选
  */
 
 export { scanCandidates } from "./candidates";
 export { saveReclassRuleChangeSet } from "./mutations";
 export type {
-  ScanCandidatesParams,
+  GroupAccountOption,
   RuleCandidate,
   ScanCandidatesResult,
 } from "./types";

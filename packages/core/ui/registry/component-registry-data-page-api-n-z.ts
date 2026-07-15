@@ -47,8 +47,10 @@ export const page_api_registry_entries = [
         description: "标准业务页内部 tab 导航；不承载 login、L1/L2、card 或 level 语义。",
         children: [
           { name: "kind", description: "固定为 tabs。" },
-          { name: "items", description: "页面内 tab 项。" },
+          { name: "items", description: "页面内 tab 项；items.children 声明选中父 Tab 后在同栏展开的 accordion 子 Tab。" },
           { name: "active", description: "当前激活项。" },
+          { name: "activeChild", description: "accordion 父 Tab 当前激活的子 Tab。" },
+          { name: "onChildChange", description: "accordion 子 Tab 切换回调。" },
         ],
       },
       {

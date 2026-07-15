@@ -16,7 +16,9 @@ import { getReportDetail } from "./statements/report-detail";
 import {
   buildFinanceIdCommand,
   buildFinancePeriodScopeCommand,
+  buildSaveBalanceReclassAdjustmentChangeSetCommand,
   buildSaveReclassRuleChangeSetCommand,
+  type SaveBalanceReclassAdjustmentChangeSetInput,
   type SaveReclassRuleChangeSetInput,
 } from "./domain/finance-validation";
 import { listFinanceBalances, recomputeFinanceBalances } from "./ledger/balance-api";
@@ -33,7 +35,7 @@ import {
   reviewReclassPayloadSchema,
 } from "./ledger/reclass-results/schemas";
 import { saveReclassRuleChangeSet, scanCandidates } from "./ledger/reclass-rules";
-import { ensureReclassRulesForYear } from "./ledger/reclass-rules/ensure";
+import { saveBalanceReclassAdjustmentChangeSet } from "./ledger/balance-reclass";
 import { createVoucher, deleteVoucher, listVouchers, updateVoucher } from "./ledger/voucher-service";
 import { generateFinanceReport, type GenerateFinanceReportInput } from "./statements/report-generator";
 
@@ -335,13 +337,12 @@ export async function executeReclassResultPatchCommand(command: ReclassResultPat
   }
 }
 
-export async function buildScanReclassRulesCommand(input: { companyCode: string; year: number }) {
-  await ensureReclassRulesForYear(input.companyCode, input.year);
-  return okCommand(input);
+export function buildScanReclassRulesCommand() {
+  return okCommand({});
 }
 
-export function executeScanReclassRulesCommand(command: Parameters<typeof scanCandidates>[0]) {
-  return scanCandidates(command);
+export function executeScanReclassRulesCommand() {
+  return scanCandidates();
 }
 
 export function buildSaveReclassRuleChangeSetRouteCommand(input: SaveReclassRuleChangeSetInput) {
@@ -350,6 +351,14 @@ export function buildSaveReclassRuleChangeSetRouteCommand(input: SaveReclassRule
 
 export function executeSaveReclassRuleChangeSetRouteCommand(command: { input: SaveReclassRuleChangeSetInput }) {
   return saveReclassRuleChangeSet(command.input);
+}
+
+export function buildSaveBalanceReclassAdjustmentChangeSetRouteCommand(input: SaveBalanceReclassAdjustmentChangeSetInput) {
+  return buildSaveBalanceReclassAdjustmentChangeSetCommand(input);
+}
+
+export function executeSaveBalanceReclassAdjustmentChangeSetRouteCommand(command: { input: SaveBalanceReclassAdjustmentChangeSetInput }) {
+  return saveBalanceReclassAdjustmentChangeSet(command.input);
 }
 
 export function executeListVouchersCommand(command: Parameters<typeof listVouchers>[0]) {

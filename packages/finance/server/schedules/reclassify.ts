@@ -1,7 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
-import { resolveAuxiliaryReclassPair } from "../../types/auxiliary-reclass";
-
 export type ReclassClassification =
   | "reclass_candidate"
   | "pending_review"
@@ -20,6 +18,7 @@ export type ReclassWorkbenchStatus =
 
 export interface ReclassEntry {
   id: string;
+  periodId: number;
   accountCode: string;
   accountName: string;
   balanceSide: "debit" | "credit";
@@ -35,6 +34,7 @@ export interface ReclassEntry {
   detailCount: number;
   abnormalSide: "debit" | "credit";
   ruleId: number | null;
+  adjustmentId: number | null;
   reason: string;
 }
 
@@ -54,6 +54,8 @@ interface BalanceInput {
 }
 
 interface AdjustmentInput {
+  id: number;
+  periodId: number;
   sourceAccountCode: string;
   targetAccountCode: string;
   amount: number;
@@ -66,7 +68,8 @@ interface RuleInput {
   id: number;
   sourceAccountCode: string;
   abnormalSide: string;
-  targetAccountCode: string;
+  decision: string;
+  targetAccountCode: string | null;
 }
 
 interface LegacyInput {
@@ -83,7 +86,9 @@ export async function computeReclassification(companyCode: string, year: number,
   const [balances, adjustments, rules, accounts, legacyRows] = await Promise.all([
     prisma.financeAccountBalance.findMany({ where: { periodId: period.id }, include: { account: true } }),
     prisma.financeBalanceReclassAdjustment.findMany({ where: { periodId: period.id } }),
-    prisma.financeReclassRule.findMany({ where: { companyCode, year, enabled: true } }),
+    prisma.financeReclassRule.findMany({
+      where: { enabled: true, source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
+    }),
     prisma.financeAccount.findMany({ where: { companyCode, year }, select: { code: true, name: true } }),
     prisma.reclassResult.findMany({
       where: { periodId: period.id, status: { in: ["approved", "adjusted", "rejected"] } },
@@ -91,7 +96,7 @@ export async function computeReclassification(companyCode: string, year: number,
     }),
   ]);
   const accountNames = new Map(accounts.map((account) => [account.code, account.name]));
-  const entries = buildReclassificationWorkbench(balances, adjustments, rules, legacyRows, accountNames);
+  const entries = buildReclassificationWorkbench(balances, adjustments, rules, legacyRows, accountNames, period.id);
   return { entries, summary: summarize(entries) };
 }
 
@@ -101,6 +106,7 @@ export function buildReclassificationWorkbench(
   rules: readonly RuleInput[],
   legacyRows: readonly LegacyInput[] = [],
   accountNames: ReadonlyMap<string, string> = new Map(),
+  periodId = 0,
 ): ReclassEntry[] {
   const parentIds = new Set(balances.map((row) => row.account.parentId).filter((id): id is number => id !== null));
   const parentCodes = new Set<string>();
@@ -121,8 +127,8 @@ export function buildReclassificationWorkbench(
     const balanceSide = net > 0 ? "debit" : "credit";
     if (balanceSide === naturalSide) return [];
     const adjustment = adjustmentMap.get(balance.account.code);
-    const rule = ruleMap.get(`${balance.account.code}::${balanceSide}`);
-    return [buildBalanceEntry(balance, balanceSide, naturalSide, Math.abs(net), adjustment, rule, accountNames)];
+    const rule = ruleMap.get(`${balance.account.code}::${balanceSide}`) ?? ruleMap.get(`${balance.account.code}::both`);
+    return [buildBalanceEntry(balance, balanceSide, naturalSide, Math.abs(net), adjustment, rule, accountNames, periodId)];
   });
 
   const legacyGroups = new Map<string, LegacyInput>();
@@ -134,6 +140,7 @@ export function buildReclassificationWorkbench(
   for (const row of legacyGroups.values()) {
     entries.push({
       id: `legacy:${row.sourceAccount}:${row.targetAccount}:${row.status}`,
+      periodId,
       accountCode: row.sourceAccount,
       accountName: accountNames.get(row.sourceAccount) ?? row.sourceAccount,
       balanceSide: "debit",
@@ -149,6 +156,7 @@ export function buildReclassificationWorkbench(
       detailCount: 0,
       abnormalSide: "debit",
       ruleId: null,
+      adjustmentId: null,
       reason: "历史凭证明细调整；当前继续参与报表，后续应迁移到期末余额口径。",
     });
   }
@@ -163,14 +171,22 @@ function buildBalanceEntry(
   adjustment: AdjustmentInput | undefined,
   rule: RuleInput | undefined,
   accountNames: ReadonlyMap<string, string>,
+  periodId: number,
 ): ReclassEntry {
-  const classification = classify(balance.account.code, balance.account.name, adjustment);
-  const pair = resolveAuxiliaryReclassPair(balance.account.code);
-  const suggestedTarget = pair?.abnormalSide === balanceSide ? pair.target : null;
-  const targetAccountCode = adjustment?.targetAccountCode ?? rule?.targetAccountCode ?? suggestedTarget;
-  const status = adjustment ? normalizeStatus(adjustment.status) : classification === "reclass_candidate" && rule ? "configured" : isExempt(classification) ? "exempt" : "pending";
+  const classification = classify(balance.account.code, balance.account.name, adjustment, rule);
+  const targetAccountCode = adjustment?.targetAccountCode ?? (rule?.decision === "reclassify" ? rule.targetAccountCode : null);
+  const status = adjustment
+    ? normalizeStatus(adjustment.status)
+    : rule?.decision === "no_reclass"
+      ? "exempt"
+      : rule?.decision === "reclassify"
+        ? "configured"
+        : isExempt(classification)
+          ? "exempt"
+          : "pending";
   return {
     id: `balance:${balance.account.code}`,
+    periodId,
     accountCode: balance.account.code,
     accountName: balance.account.name,
     balanceSide,
@@ -186,26 +202,28 @@ function buildBalanceEntry(
     detailCount: readDetailCount(adjustment?.note),
     abnormalSide: balanceSide,
     ruleId: rule?.id ?? null,
-    reason: reasonFor(classification, status, adjustment?.sourceType),
+    adjustmentId: adjustment?.id ?? null,
+    reason: reasonFor(classification, status, adjustment?.sourceType, rule?.decision),
   };
 }
 
-function classify(code: string, name: string, adjustment?: AdjustmentInput): ReclassClassification {
-  if (adjustment) return "reclass_candidate";
+function classify(code: string, name: string, adjustment?: AdjustmentInput, rule?: RuleInput): ReclassClassification {
+  if (adjustment || rule?.decision === "reclassify") return "reclass_candidate";
   if (/坏账准备|累计折旧|累计摊销|跌价准备|减值准备/.test(name)) return "contra_account";
   if (/固定资产清理|未分配利润/.test(name)) return "allowed_negative";
   if (/^[56]/.test(code)) return "non_balance_sheet_negative";
-  return resolveAuxiliaryReclassPair(code) ? "reclass_candidate" : "pending_review";
+  return "pending_review";
 }
 
-function reasonFor(classification: ReclassClassification, status: ReclassWorkbenchStatus, sourceType?: string) {
+function reasonFor(classification: ReclassClassification, status: ReclassWorkbenchStatus, sourceType?: string, decision?: string) {
   if (status === "adjusted") return "已由财务人工调整，报表按调整后的目标科目和金额列示。";
   if (status === "approved" && sourceType === "auxiliary_balance") return "已按客户、供应商或个人的期末辅助余额自动重分类。";
   if (status === "rejected") return "已有审核结论：不采用该重分类调整。";
+  if (decision === "no_reclass") return "已由财务人工确认无需重分类。";
   if (classification === "contra_account") return "资产抵减科目按净额列示，不作为普通负数重分类。";
   if (classification === "allowed_negative") return "该项目允许负数列示，不自动转列其他报表项目。";
   if (classification === "non_balance_sheet_negative") return "损益或成本类余额，不属于资产负债表普通重分类对象。";
-  if (classification === "reclass_candidate") return "存在往来配对规则；需结合辅助对象期末余额确认最终金额。";
+  if (classification === "reclass_candidate") return "已人工设置重分类目标；需结合辅助对象期末余额确认最终金额。";
   return "非白名单反向余额，等待财务根据经济实质确认。";
 }
 

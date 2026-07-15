@@ -14,9 +14,8 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceReclassRule
- * 重分类规则 — 作用域：公司 + 年度
- * 一条规则 = (公司, 年度, 源科目, 借贷方向) → 目标科目
- * 新年度首次使用时从上一年度复制初始化
+ * 集团重分类规则 — 按集团科目并集统一生效，不区分公司和年度
+ * 一条规则 = 人工确认的 (源科目, 异常借贷方向) 处理结论
  */
 export type FinanceReclassRuleModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceReclassRulePayload>
 
@@ -30,22 +29,19 @@ export type AggregateFinanceReclassRule = {
 
 export type FinanceReclassRuleAvgAggregateOutputType = {
   id: number | null
-  year: number | null
   confirmedBy: number | null
 }
 
 export type FinanceReclassRuleSumAggregateOutputType = {
   id: number | null
-  year: number | null
   confirmedBy: number | null
 }
 
 export type FinanceReclassRuleMinAggregateOutputType = {
   id: number | null
-  companyCode: string | null
-  year: number | null
   sourceAccountCode: string | null
   abnormalSide: string | null
+  decision: string | null
   targetAccountCode: string | null
   enabled: boolean | null
   source: string | null
@@ -58,10 +54,9 @@ export type FinanceReclassRuleMinAggregateOutputType = {
 
 export type FinanceReclassRuleMaxAggregateOutputType = {
   id: number | null
-  companyCode: string | null
-  year: number | null
   sourceAccountCode: string | null
   abnormalSide: string | null
+  decision: string | null
   targetAccountCode: string | null
   enabled: boolean | null
   source: string | null
@@ -74,10 +69,9 @@ export type FinanceReclassRuleMaxAggregateOutputType = {
 
 export type FinanceReclassRuleCountAggregateOutputType = {
   id: number
-  companyCode: number
-  year: number
   sourceAccountCode: number
   abnormalSide: number
+  decision: number
   targetAccountCode: number
   enabled: number
   source: number
@@ -92,22 +86,19 @@ export type FinanceReclassRuleCountAggregateOutputType = {
 
 export type FinanceReclassRuleAvgAggregateInputType = {
   id?: true
-  year?: true
   confirmedBy?: true
 }
 
 export type FinanceReclassRuleSumAggregateInputType = {
   id?: true
-  year?: true
   confirmedBy?: true
 }
 
 export type FinanceReclassRuleMinAggregateInputType = {
   id?: true
-  companyCode?: true
-  year?: true
   sourceAccountCode?: true
   abnormalSide?: true
+  decision?: true
   targetAccountCode?: true
   enabled?: true
   source?: true
@@ -120,10 +111,9 @@ export type FinanceReclassRuleMinAggregateInputType = {
 
 export type FinanceReclassRuleMaxAggregateInputType = {
   id?: true
-  companyCode?: true
-  year?: true
   sourceAccountCode?: true
   abnormalSide?: true
+  decision?: true
   targetAccountCode?: true
   enabled?: true
   source?: true
@@ -136,10 +126,9 @@ export type FinanceReclassRuleMaxAggregateInputType = {
 
 export type FinanceReclassRuleCountAggregateInputType = {
   id?: true
-  companyCode?: true
-  year?: true
   sourceAccountCode?: true
   abnormalSide?: true
+  decision?: true
   targetAccountCode?: true
   enabled?: true
   source?: true
@@ -239,11 +228,10 @@ export type FinanceReclassRuleGroupByArgs<ExtArgs extends runtime.Types.Extensio
 
 export type FinanceReclassRuleGroupByOutputType = {
   id: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision: string
+  targetAccountCode: string | null
   enabled: boolean
   source: string
   confirmedBy: number | null
@@ -278,11 +266,10 @@ export type FinanceReclassRuleWhereInput = {
   OR?: Prisma.FinanceReclassRuleWhereInput[]
   NOT?: Prisma.FinanceReclassRuleWhereInput | Prisma.FinanceReclassRuleWhereInput[]
   id?: Prisma.IntFilter<"FinanceReclassRule"> | number
-  companyCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  year?: Prisma.IntFilter<"FinanceReclassRule"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
   abnormalSide?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  targetAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  decision?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  targetAccountCode?: Prisma.StringNullableFilter<"FinanceReclassRule"> | string | null
   enabled?: Prisma.BoolFilter<"FinanceReclassRule"> | boolean
   source?: Prisma.StringFilter<"FinanceReclassRule"> | string
   confirmedBy?: Prisma.IntNullableFilter<"FinanceReclassRule"> | number | null
@@ -296,11 +283,10 @@ export type FinanceReclassRuleWhereInput = {
 
 export type FinanceReclassRuleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
   abnormalSide?: Prisma.SortOrder
-  targetAccountCode?: Prisma.SortOrder
+  decision?: Prisma.SortOrder
+  targetAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confirmedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -314,15 +300,14 @@ export type FinanceReclassRuleOrderByWithRelationInput = {
 
 export type FinanceReclassRuleWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  companyCode_year_sourceAccountCode_abnormalSide?: Prisma.FinanceReclassRuleCompanyCodeYearSourceAccountCodeAbnormalSideCompoundUniqueInput
+  sourceAccountCode_abnormalSide?: Prisma.FinanceReclassRuleSourceAccountCodeAbnormalSideCompoundUniqueInput
   AND?: Prisma.FinanceReclassRuleWhereInput | Prisma.FinanceReclassRuleWhereInput[]
   OR?: Prisma.FinanceReclassRuleWhereInput[]
   NOT?: Prisma.FinanceReclassRuleWhereInput | Prisma.FinanceReclassRuleWhereInput[]
-  companyCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  year?: Prisma.IntFilter<"FinanceReclassRule"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
   abnormalSide?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  targetAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  decision?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  targetAccountCode?: Prisma.StringNullableFilter<"FinanceReclassRule"> | string | null
   enabled?: Prisma.BoolFilter<"FinanceReclassRule"> | boolean
   source?: Prisma.StringFilter<"FinanceReclassRule"> | string
   confirmedBy?: Prisma.IntNullableFilter<"FinanceReclassRule"> | number | null
@@ -332,15 +317,14 @@ export type FinanceReclassRuleWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"FinanceReclassRule"> | Date | string
   confirmer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   results?: Prisma.ReclassResultListRelationFilter
-}, "id" | "companyCode_year_sourceAccountCode_abnormalSide">
+}, "id" | "sourceAccountCode_abnormalSide">
 
 export type FinanceReclassRuleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
   abnormalSide?: Prisma.SortOrder
-  targetAccountCode?: Prisma.SortOrder
+  decision?: Prisma.SortOrder
+  targetAccountCode?: Prisma.SortOrderInput | Prisma.SortOrder
   enabled?: Prisma.SortOrder
   source?: Prisma.SortOrder
   confirmedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -360,11 +344,10 @@ export type FinanceReclassRuleScalarWhereWithAggregatesInput = {
   OR?: Prisma.FinanceReclassRuleScalarWhereWithAggregatesInput[]
   NOT?: Prisma.FinanceReclassRuleScalarWhereWithAggregatesInput | Prisma.FinanceReclassRuleScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"FinanceReclassRule"> | number
-  companyCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
-  year?: Prisma.IntWithAggregatesFilter<"FinanceReclassRule"> | number
   sourceAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
   abnormalSide?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
-  targetAccountCode?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
+  decision?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
+  targetAccountCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceReclassRule"> | string | null
   enabled?: Prisma.BoolWithAggregatesFilter<"FinanceReclassRule"> | boolean
   source?: Prisma.StringWithAggregatesFilter<"FinanceReclassRule"> | string
   confirmedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceReclassRule"> | number | null
@@ -375,11 +358,10 @@ export type FinanceReclassRuleScalarWhereWithAggregatesInput = {
 }
 
 export type FinanceReclassRuleCreateInput = {
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedAt?: Date | string | null
@@ -392,11 +374,10 @@ export type FinanceReclassRuleCreateInput = {
 
 export type FinanceReclassRuleUncheckedCreateInput = {
   id?: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedBy?: number | null
@@ -408,11 +389,10 @@ export type FinanceReclassRuleUncheckedCreateInput = {
 }
 
 export type FinanceReclassRuleUpdateInput = {
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -425,11 +405,10 @@ export type FinanceReclassRuleUpdateInput = {
 
 export type FinanceReclassRuleUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -442,11 +421,10 @@ export type FinanceReclassRuleUncheckedUpdateInput = {
 
 export type FinanceReclassRuleCreateManyInput = {
   id?: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedBy?: number | null
@@ -457,11 +435,10 @@ export type FinanceReclassRuleCreateManyInput = {
 }
 
 export type FinanceReclassRuleUpdateManyMutationInput = {
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -472,11 +449,10 @@ export type FinanceReclassRuleUpdateManyMutationInput = {
 
 export type FinanceReclassRuleUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -496,19 +472,16 @@ export type FinanceReclassRuleOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type FinanceReclassRuleCompanyCodeYearSourceAccountCodeAbnormalSideCompoundUniqueInput = {
-  companyCode: string
-  year: number
+export type FinanceReclassRuleSourceAccountCodeAbnormalSideCompoundUniqueInput = {
   sourceAccountCode: string
   abnormalSide: string
 }
 
 export type FinanceReclassRuleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
   abnormalSide?: Prisma.SortOrder
+  decision?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -521,16 +494,14 @@ export type FinanceReclassRuleCountOrderByAggregateInput = {
 
 export type FinanceReclassRuleAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   confirmedBy?: Prisma.SortOrder
 }
 
 export type FinanceReclassRuleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
   abnormalSide?: Prisma.SortOrder
+  decision?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -543,10 +514,9 @@ export type FinanceReclassRuleMaxOrderByAggregateInput = {
 
 export type FinanceReclassRuleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  companyCode?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   sourceAccountCode?: Prisma.SortOrder
   abnormalSide?: Prisma.SortOrder
+  decision?: Prisma.SortOrder
   targetAccountCode?: Prisma.SortOrder
   enabled?: Prisma.SortOrder
   source?: Prisma.SortOrder
@@ -559,7 +529,6 @@ export type FinanceReclassRuleMinOrderByAggregateInput = {
 
 export type FinanceReclassRuleSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  year?: Prisma.SortOrder
   confirmedBy?: Prisma.SortOrder
 }
 
@@ -627,11 +596,10 @@ export type FinanceReclassRuleUpdateOneWithoutResultsNestedInput = {
 }
 
 export type FinanceReclassRuleCreateWithoutConfirmerInput = {
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedAt?: Date | string | null
@@ -643,11 +611,10 @@ export type FinanceReclassRuleCreateWithoutConfirmerInput = {
 
 export type FinanceReclassRuleUncheckedCreateWithoutConfirmerInput = {
   id?: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedAt?: Date | string | null
@@ -688,11 +655,10 @@ export type FinanceReclassRuleScalarWhereInput = {
   OR?: Prisma.FinanceReclassRuleScalarWhereInput[]
   NOT?: Prisma.FinanceReclassRuleScalarWhereInput | Prisma.FinanceReclassRuleScalarWhereInput[]
   id?: Prisma.IntFilter<"FinanceReclassRule"> | number
-  companyCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  year?: Prisma.IntFilter<"FinanceReclassRule"> | number
   sourceAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
   abnormalSide?: Prisma.StringFilter<"FinanceReclassRule"> | string
-  targetAccountCode?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  decision?: Prisma.StringFilter<"FinanceReclassRule"> | string
+  targetAccountCode?: Prisma.StringNullableFilter<"FinanceReclassRule"> | string | null
   enabled?: Prisma.BoolFilter<"FinanceReclassRule"> | boolean
   source?: Prisma.StringFilter<"FinanceReclassRule"> | string
   confirmedBy?: Prisma.IntNullableFilter<"FinanceReclassRule"> | number | null
@@ -703,11 +669,10 @@ export type FinanceReclassRuleScalarWhereInput = {
 }
 
 export type FinanceReclassRuleCreateWithoutResultsInput = {
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedAt?: Date | string | null
@@ -719,11 +684,10 @@ export type FinanceReclassRuleCreateWithoutResultsInput = {
 
 export type FinanceReclassRuleUncheckedCreateWithoutResultsInput = {
   id?: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedBy?: number | null
@@ -750,11 +714,10 @@ export type FinanceReclassRuleUpdateToOneWithWhereWithoutResultsInput = {
 }
 
 export type FinanceReclassRuleUpdateWithoutResultsInput = {
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -766,11 +729,10 @@ export type FinanceReclassRuleUpdateWithoutResultsInput = {
 
 export type FinanceReclassRuleUncheckedUpdateWithoutResultsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -782,11 +744,10 @@ export type FinanceReclassRuleUncheckedUpdateWithoutResultsInput = {
 
 export type FinanceReclassRuleCreateManyConfirmerInput = {
   id?: number
-  companyCode: string
-  year: number
   sourceAccountCode: string
   abnormalSide: string
-  targetAccountCode: string
+  decision?: string
+  targetAccountCode?: string | null
   enabled?: boolean
   source?: string
   confirmedAt?: Date | string | null
@@ -796,11 +757,10 @@ export type FinanceReclassRuleCreateManyConfirmerInput = {
 }
 
 export type FinanceReclassRuleUpdateWithoutConfirmerInput = {
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -812,11 +772,10 @@ export type FinanceReclassRuleUpdateWithoutConfirmerInput = {
 
 export type FinanceReclassRuleUncheckedUpdateWithoutConfirmerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -828,11 +787,10 @@ export type FinanceReclassRuleUncheckedUpdateWithoutConfirmerInput = {
 
 export type FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
-  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.IntFieldUpdateOperationsInput | number
   sourceAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
   abnormalSide?: Prisma.StringFieldUpdateOperationsInput | string
-  targetAccountCode?: Prisma.StringFieldUpdateOperationsInput | string
+  decision?: Prisma.StringFieldUpdateOperationsInput | string
+  targetAccountCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   enabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   source?: Prisma.StringFieldUpdateOperationsInput | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -874,10 +832,9 @@ export type FinanceReclassRuleCountOutputTypeCountResultsArgs<ExtArgs extends ru
 
 export type FinanceReclassRuleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  companyCode?: boolean
-  year?: boolean
   sourceAccountCode?: boolean
   abnormalSide?: boolean
+  decision?: boolean
   targetAccountCode?: boolean
   enabled?: boolean
   source?: boolean
@@ -893,10 +850,9 @@ export type FinanceReclassRuleSelect<ExtArgs extends runtime.Types.Extensions.In
 
 export type FinanceReclassRuleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  companyCode?: boolean
-  year?: boolean
   sourceAccountCode?: boolean
   abnormalSide?: boolean
+  decision?: boolean
   targetAccountCode?: boolean
   enabled?: boolean
   source?: boolean
@@ -910,10 +866,9 @@ export type FinanceReclassRuleSelectCreateManyAndReturn<ExtArgs extends runtime.
 
 export type FinanceReclassRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  companyCode?: boolean
-  year?: boolean
   sourceAccountCode?: boolean
   abnormalSide?: boolean
+  decision?: boolean
   targetAccountCode?: boolean
   enabled?: boolean
   source?: boolean
@@ -927,10 +882,9 @@ export type FinanceReclassRuleSelectUpdateManyAndReturn<ExtArgs extends runtime.
 
 export type FinanceReclassRuleSelectScalar = {
   id?: boolean
-  companyCode?: boolean
-  year?: boolean
   sourceAccountCode?: boolean
   abnormalSide?: boolean
+  decision?: boolean
   targetAccountCode?: boolean
   enabled?: boolean
   source?: boolean
@@ -941,7 +895,7 @@ export type FinanceReclassRuleSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceReclassRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "year" | "sourceAccountCode" | "abnormalSide" | "targetAccountCode" | "enabled" | "source" | "confirmedBy" | "confirmedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeReclassRule"]>
+export type FinanceReclassRuleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "sourceAccountCode" | "abnormalSide" | "decision" | "targetAccountCode" | "enabled" | "source" | "confirmedBy" | "confirmedAt" | "note" | "createdAt" | "updatedAt", ExtArgs["result"]["financeReclassRule"]>
 export type FinanceReclassRuleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   confirmer?: boolean | Prisma.FinanceReclassRule$confirmerArgs<ExtArgs>
   results?: boolean | Prisma.FinanceReclassRule$resultsArgs<ExtArgs>
@@ -962,11 +916,10 @@ export type $FinanceReclassRulePayload<ExtArgs extends runtime.Types.Extensions.
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
-    companyCode: string
-    year: number
     sourceAccountCode: string
     abnormalSide: string
-    targetAccountCode: string
+    decision: string
+    targetAccountCode: string | null
     enabled: boolean
     source: string
     confirmedBy: number | null
@@ -1400,10 +1353,9 @@ export interface Prisma__FinanceReclassRuleClient<T, Null = never, ExtArgs exten
  */
 export interface FinanceReclassRuleFieldRefs {
   readonly id: Prisma.FieldRef<"FinanceReclassRule", 'Int'>
-  readonly companyCode: Prisma.FieldRef<"FinanceReclassRule", 'String'>
-  readonly year: Prisma.FieldRef<"FinanceReclassRule", 'Int'>
   readonly sourceAccountCode: Prisma.FieldRef<"FinanceReclassRule", 'String'>
   readonly abnormalSide: Prisma.FieldRef<"FinanceReclassRule", 'String'>
+  readonly decision: Prisma.FieldRef<"FinanceReclassRule", 'String'>
   readonly targetAccountCode: Prisma.FieldRef<"FinanceReclassRule", 'String'>
   readonly enabled: Prisma.FieldRef<"FinanceReclassRule", 'Boolean'>
   readonly source: Prisma.FieldRef<"FinanceReclassRule", 'String'>

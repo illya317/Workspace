@@ -24,14 +24,24 @@ export default function LedgerClient({
 }) {
   const activeChildTabs = useMemo(() => getFinancePageViewTabs("ledger", user), [user]);
   const [activeChild, setActiveChild] = useState(activeChildTabs[0]?.key ?? "accounts");
+  const [activeNestedChild, setActiveNestedChild] = useState("rules");
   useEffect(() => {
     setActiveChild(activeChildTabs[0]?.key ?? "accounts");
   }, [activeChildTabs]);
   const activeTab = activeChild;
+  const activeTabDefinition = activeChildTabs.find((tab) => tab.key === activeTab);
   const navigation = activeChildTabs.length > 1 ? createPageTabBar({
     items: activeChildTabs,
     active: activeChild,
-    onChange: setActiveChild,
+    activeChild: activeTabDefinition?.children?.length ? activeNestedChild : undefined,
+    onChange: (key) => {
+      setActiveChild(key);
+      const children = activeChildTabs.find((tab) => tab.key === key)?.children ?? [];
+      if (children.length > 0 && !children.some((child) => child.key === activeNestedChild)) {
+        setActiveNestedChild(children[0]?.key ?? "");
+      }
+    },
+    onChildChange: setActiveNestedChild,
   }) : undefined;
   const lifecycleBlocks = getFinanceLifecycleBlocks("ledger");
   const pageChrome = { navigation, lifecycleBlocks };
