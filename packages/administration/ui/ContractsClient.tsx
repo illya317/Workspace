@@ -38,7 +38,7 @@ export default function ContractsClient({
 
   const openCreate = () => {
     if (!canCreate) return;
-    setEditing({ location: "北京办公区", status: "执行中" });
+    setEditing({ location: "上海办公区", status: "执行中" });
     setModalMode("create");
   };
 
