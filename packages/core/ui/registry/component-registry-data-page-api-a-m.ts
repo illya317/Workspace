@@ -56,10 +56,11 @@ export const page_api_registry_entries = [
         children: [
           {
             name: "table",
-            description: "行列数据表。",
+            description: "行列数据表；长表默认在 Core 滚动区内锁定表头。",
             children: [
               { name: "rows", description: "表格数据行。" },
               { name: "columns", description: "表格列和单元格声明。" },
+              { name: "scroll", description: "长表滚动区域；普通表默认由 Core 提供纵向滚动和锁定表头，业务可声明覆盖滚动边界。" },
               { name: "disclosure", description: "可展开行的结构化标题、展开状态和层级缩进；箭头与间距由 DataSurface 统一渲染。" },
               { name: "link", description: "表格内语义链接；声明 label、href 与是否外部打开，不允许业务手写 anchor 样式。" },
               { name: "expandedRow", description: "结构化展开行；返回 DataSurface cell/data/form 声明，不接收 JSX。" },

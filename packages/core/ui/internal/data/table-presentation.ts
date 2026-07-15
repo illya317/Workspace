@@ -7,6 +7,7 @@ import type {
   DataSurfaceFrame,
   DataSurfaceRowState,
   DataSurfaceScrollSpec,
+  DataSurfaceTableFormatSpec,
   DataSurfaceTone,
   DataSurfaceWidth,
   DataSurfaceWrap,
@@ -121,9 +122,18 @@ export function resolveSurfaceFrameClass(frame: DataSurfaceFrame = "plain", scro
     scroll?.x === false ? "overflow-x-hidden" : "overflow-x-auto",
     scroll?.y === "hidden" ? "overflow-y-hidden" : scroll?.maxHeight ? "overflow-y-auto" : "",
     maxHeight,
-    frame === "clipped" ? "overflow-hidden rounded-md" : "",
-    frame === "bordered" ? "overflow-hidden rounded-md border border-slate-200 bg-white" : "",
+    frame === "clipped" ? "rounded-md" : "",
+    frame === "bordered" ? "rounded-md border border-slate-200 bg-white" : "",
   );
+}
+
+export function resolveDataTableScroll(
+  format?: DataSurfaceTableFormatSpec,
+  scroll?: DataSurfaceScrollSpec,
+): DataSurfaceScrollSpec {
+  if (format?.kind === "matrix") return { x: true, y: "hidden", ...scroll };
+  if (scroll?.y === "hidden") return { x: true, ...scroll };
+  return { x: true, y: "auto", maxHeight: "lg", ...scroll };
 }
 
 export function resolveStructuredCellClass(cell: {
@@ -168,7 +178,7 @@ export function resolveTablePresentation(
   const headerClassName = header === "strong"
     ? "bg-slate-100 text-slate-800"
     : header === "plain"
-      ? "text-slate-500"
+      ? "bg-white text-slate-500"
       : "bg-slate-50 text-slate-500";
   const hoverClassName = rowHover === "interactive"
     ? "cursor-pointer transition hover:bg-emerald-50/60"
@@ -179,7 +189,7 @@ export function resolveTablePresentation(
   return {
     density,
     table: joinClassNames("min-w-full text-left text-sm", grid === "cells" ? "border-collapse" : ""),
-    head: joinClassNames(headGridClassName, headerClassName),
+    head: joinClassNames("sticky top-0 z-10", headGridClassName, headerClassName),
     body: joinClassNames(bodyGridClassName, "text-slate-800"),
     row: hoverClassName,
     headerCell: joinClassNames(wrapClassName, headerPadding, "min-w-0 max-w-full overflow-hidden text-ellipsis font-medium", cellGridClassName),

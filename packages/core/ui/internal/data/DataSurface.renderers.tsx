@@ -19,7 +19,7 @@ import FormSurface from "../../FormSurface";
 import CreateSurface from "../../CreateSurface";
 import { CreateSurfaceAnchorTarget } from "../create/CreateSurfaceAnchorContext";
 import { joinClassNames } from "../common/card-utils";
-import { resolveTableToneClass } from "./table-presentation";
+import { resolveDataTableScroll, resolveTableToneClass } from "./table-presentation";
 import type {
   DataSurfaceCellActionSpec,
   DataSurfaceCellSpec,
@@ -344,7 +344,7 @@ function normalizeColumns<T>(columns: Array<DataSurfaceColumnSpec<T>>): DataTabl
 
 function renderTable<T>(props: DataSurfaceTableProps<T>) {
   const frame = props.frame ?? (props.format?.kind === "matrix" ? "bordered" : undefined);
-  const scroll = props.scroll ?? (props.format?.kind === "matrix" ? { x: true, y: "hidden" as const } : undefined);
+  const scroll = resolveDataTableScroll(props.format, props.scroll);
   return (
     <>
       <TableScrollFrame frame={frame} scroll={scroll}>
