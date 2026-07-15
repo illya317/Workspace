@@ -120,11 +120,15 @@ export interface BodySurfaceBadgeSpec {
   tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
 }
 
+export type BodySurfaceSectionCreateSpec<T = FormSurfaceLooseItem> =
+  | (Omit<Extract<CreateSurfaceSurfaceProps<T>, { presentation: "block" }>, "anchor"> & { anchor?: never })
+  | Extract<CreateSurfaceSurfaceProps<T>, { presentation: "modal" }>;
+
 export interface BodySurfaceSectionHeaderSpec {
   title?: ReactNode;
   badges?: BodySurfaceBadgeSpec[];
   actions?: BodySurfaceCommandSpec[];
-  create?: CreateSurfaceSurfaceProps;
+  create?: BodySurfaceSectionCreateSpec;
 }
 
 export interface BodySurfaceSectionDisclosureSpec {

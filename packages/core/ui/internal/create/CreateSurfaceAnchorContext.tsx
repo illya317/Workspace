@@ -33,7 +33,7 @@ export function CreateSurfaceAnchorTarget({ anchor }: { anchor: string }) {
   const context = useContext(CreateSurfaceAnchorContext);
   const register = context?.register;
   const setTarget = useCallback((node: HTMLDivElement | null) => register?.(anchor, node), [anchor, register]);
-  return <div ref={setTarget} />;
+  return <div ref={setTarget} className="contents" />;
 }
 
 export function useCreateSurfaceAnchorTarget(anchor?: string) {

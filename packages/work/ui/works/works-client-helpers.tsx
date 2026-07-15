@@ -2,7 +2,7 @@ import { createMetricsSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, FormSurfaceActionSpec, FormSurfaceProps } from "@workspace/core/ui";
 import { listWorkPlans } from "./api";
 import { createEmptyWorkDraft } from "./model";
-import type { RoutineTaskType, WorkItem, WorkItemDraft, WorkItemType, WorkPlan, WorkTarget, WorkTaskSpace } from "./types";
+import type { RoutineTaskType, WorkItem, WorkItemType, WorkPlan, WorkTarget, WorkTaskSpace } from "./types";
 
 export function sameTarget(a: WorkTarget | null | undefined, b: WorkTarget | null | undefined) {
   return Boolean(a && b && a.targetType === b.targetType && a.targetId === b.targetId);
@@ -34,13 +34,6 @@ export function approvalIdFromCurrentUrl() {
   if (typeof window === "undefined") return null;
   const id = Number(new URLSearchParams(window.location.search).get("approvalId"));
   return Number.isInteger(id) && id > 0 ? id : null;
-}
-
-export function createInlineNodeAnchorId(draft: WorkItemDraft, works: WorkItem[]) {
-  if (draft.itemType === "objective") return null;
-  const parentId = draft.parentWorkItemId;
-  if (parentId && works.some((work) => work.id === parentId)) return parentId;
-  return null;
 }
 
 export function withFormActions(surface: FormSurfaceProps, actions: FormSurfaceActionSpec[]): FormSurfaceProps {

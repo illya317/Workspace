@@ -25,6 +25,7 @@ export const page_api_registry_entries = [
             description: "正文通用编排容器。",
             children: [
               { name: "sections", description: "递归 section tree。" },
+              { name: "section.header.create", description: "局部 Surface +；block 由 Core 自动紧贴 header 并置于 section body 之前，调用方不声明 anchor。" },
               { name: "section.disclosure", description: "可控折叠面板：声明 expanded / onExpandedChange；同层可共享 active key 组成互斥折叠组，不等同于 TabBar accordion。" },
               { name: "layout", description: "正文布局：stack / grid / split。" },
               { name: "gridColumns", description: "grid 布局列数：2 / 3。" },

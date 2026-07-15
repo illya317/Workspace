@@ -152,11 +152,9 @@ export function createWorkPlanContentSection({
   canSubmitKrReview,
   canArchivePlan,
   nodeCreating,
-  nodeCreateInline,
   planSubmitDisabled,
   krSubmitDisabled,
   planFormSurface,
-  createSurfaceAnchor,
   workSections,
   plansLoading,
   hasCurrentSpacePlans,
@@ -180,11 +178,9 @@ export function createWorkPlanContentSection({
   canSubmitKrReview: boolean;
   canArchivePlan: boolean;
   nodeCreating: boolean;
-  nodeCreateInline: boolean;
   planSubmitDisabled: boolean;
   krSubmitDisabled: boolean;
   planFormSurface: FormSurfaceProps;
-  createSurfaceAnchor?: string;
   workSections: BodySurfaceSectionSpec[];
   plansLoading: boolean;
   hasCurrentSpacePlans: boolean;
@@ -246,13 +242,6 @@ export function createWorkPlanContentSection({
             onEditPlan,
           })),
         ]),
-        ...(nodeCreating && !nodeCreateInline && !hideWorkSections ? [
-          {
-            key: "create-task",
-            chrome: "plain" as const,
-            body: { kind: "create-anchor" as const, anchor: createSurfaceAnchor ?? "work-node-create" },
-          },
-        ] : []),
         ...(hideWorkSections ? [] : workSections),
       ] : !planCreating ? [createMessageSection("no-plan", {
         content: plansLoading ? "加载工作计划中..." : hasCurrentSpacePlans ? "展开左侧工作空间，选择一个工作计划。" : "请先新建工作计划。",

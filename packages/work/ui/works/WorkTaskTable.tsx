@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { createPageBody, type BodySurfaceCommandSpec, type CreateSurfaceProps, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceRowActionSpec, type FormSurfaceActionSpec, type FormSurfaceProps, BodySurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
+import { createPageBody, type BodySurfaceCommandSpec, type BodySurfaceSectionCreateSpec, type DataSurfaceCellSpec, type DataSurfaceColumnSpec, type DataSurfaceRowActionSpec, type FormSurfaceActionSpec, BodySurface, type BodySurfaceSectionSpec } from "@workspace/core/ui";
 import { createEmptyWorkDraft, isWorkDraftDirty } from "./model";
 import { createWorkTaskDetailForm } from "./WorkTaskDetail";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
@@ -20,7 +20,7 @@ export type WorkTaskTableProps = {
   sectionKey?: string;
   sectionTitle?: string;
   sectionActions?: BodySurfaceCommandSpec[];
-  sectionCreate?: Extract<CreateSurfaceProps, { trigger: "surface" }>;
+  sectionCreate?: BodySurfaceSectionCreateSpec;
   tableLabel?: string;
   emptyText?: string;
   works: WorkItem[];
@@ -34,10 +34,6 @@ export type WorkTaskTableProps = {
   editingId: number | null;
   editDraft: WorkItemDraft | null;
   editFormActions?: FormSurfaceActionSpec[];
-  creating?: boolean;
-  createAnchorId?: number | null;
-  createFormSurface?: FormSurfaceProps | null;
-  createSurfaceAnchor?: string;
   target?: WorkTarget | null;
   showOwnerColumn?: boolean;
   workflowRequests: WorkTaskApprovalRequest[];
@@ -86,10 +82,6 @@ export function useWorkTaskTableSection({
   editingId,
   editDraft,
   editFormActions,
-  creating = false,
-  createAnchorId = null,
-  createFormSurface = null,
-  createSurfaceAnchor,
   target = null,
   showOwnerColumn,
   statusFilter,
@@ -211,14 +203,8 @@ export function useWorkTaskTableSection({
         }
         onEdit(work);
       },
-      expandedRowKeys: expandedRowKeys({ editingId, detailId, creating, createAnchorId }),
+      expandedRowKeys: expandedRowKeys({ editingId, detailId }),
       expandedRow: (work) => {
-        if (creating && createAnchorId === work.id && createSurfaceAnchor) {
-          return { kind: "create-anchor", anchor: createSurfaceAnchor };
-        }
-        if (creating && createAnchorId === work.id && createFormSurface) {
-          return { kind: "form", form: createFormSurface };
-        }
         if (editDraft && editingId === work.id) {
           return { kind: "form", form: { ...editFormSurface, actions: editFormActions } };
         }
@@ -275,18 +261,13 @@ export function useWorkTaskTableSection({
 function expandedRowKeys({
   editingId,
   detailId,
-  creating,
-  createAnchorId,
 }: {
   editingId: number | null;
   detailId: number | null;
-  creating: boolean;
-  createAnchorId: number | null;
 }) {
   const keys = new Set<number>();
   if (editingId != null) keys.add(editingId);
   else if (detailId != null) keys.add(detailId);
-  if (creating && createAnchorId != null) keys.add(createAnchorId);
   return keys;
 }
 

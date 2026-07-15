@@ -174,7 +174,7 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 当前批准的新 Surface section helper：
 
-- `BodySurface kind="create"`：标准新建流，payload 为 `CreateSurface`。Agent 分别声明 `trigger: toolbar | surface`、`presentation: inline | block | modal`、可选 block `anchor` 与 `content: form | sections`。inline 在类型层固定为 toolbar + 单 form + 无 anchor；所有非 inline 组合复用同一 FormSurface grid renderer，modal、anchor、sections 均不得改变字段格式。每个 section 只声明 `key/title/items/layout`，不得反向传入 Body tree。
+- `BodySurface kind="create"`：标准新建流，payload 为 `CreateSurface`。Agent 分别声明 `trigger: toolbar | surface`、`presentation: inline | block | modal`、普通 block 可选的跨区 `anchor` 与 `content: form | sections`。inline 在类型层固定为 Page toolbar + 单 form + 无 anchor；`BodySurfaceSectionHeaderSpec.create` 的局部 block 在类型层禁止 anchor，由 Core 自动紧贴 section header 并置于 body 前，因此表格新增固定出现在列头上方。所有非 inline 组合复用同一 FormSurface grid renderer，modal、anchor、sections 均不得改变字段格式。每个 section 只声明 `key/title/items/layout`，不得反向传入 Body tree。
 - 需要先选择创建类型时，只能增加 `flow.kind="two-stage"`：第一段只声明选择字段并自动进入第二段，不声明自己的 layout；Core 强制两段复用第二段 `form.layout` 和同一个 shell，第一段不显示保存/提交。
 - `createFormSection(key, surface)`：生成 `BodySurface kind="form"` section。低层 form wrapper。
 - `createFieldsSection(key, fields, options)`：生成 `BodySurface kind="form"` + `FormSurface kind="fields/detail"` section。迁移普通表单正文；表单标题写 `options.header`，保存、提交、取消、归档/取消归档、批准、拒绝等根动作写 `options.actions`。
@@ -225,7 +225,7 @@ Surface 使用红线：
 - 如果现有语义 spec 不够表达业务需要，必须扩展对应 Surface/helper 或 Core 能力，并写入 special-to-be-reviewed 说明等待 Core UI 评审；不得用 `custom` 临时绕过。
 - Core 内部或明确 UI-system 任务也不得恢复 `ToolbarCustomItem`；临时验证应扩展标准 item 或使用非 Toolbar 的普通容器。
 - Surface 内部 toolbar 的 `option-group` 默认是 micro accordion；普通 agent 不要把长分段筛选常驻铺开。
-- 标准新建只声明 `CreateSurface`。`trigger="toolbar"` 由 PageSurface 派生唯一 Toolbar `+`，`trigger="surface"` 跟随所属 section/cell；`presentation` 与 trigger 正交，block 可选 anchor。调用方不得通过 modal、anchor 或 sections 改变非 inline 表单格式，也不得声明动作样式、图标、标签或顺序。
+- 标准新建只声明 `CreateSurface`。`trigger="toolbar"` 由 PageSurface 派生唯一 Toolbar `+`，`trigger="surface"` 跟随所属 section/cell；`presentation` 与 trigger 正交，普通 block 可选跨区 anchor。section header 的 block create 不接受 anchor，Core 自动放在 header 后、body 前。调用方不得通过 modal、anchor 或 sections 改变非 inline 表单格式，也不得声明动作样式、图标、标签或顺序。
 - PageSurface 的 toolbar slot 全页唯一；BodySurface split 侧栏控制与 CreateSurface toolbar trigger 都只能派生 toolbar item，并由 PageSurface 一次性合并渲染。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
 - `FormSurfaceActionSpec` 只声明动作语义和行为，不开放 `icon / variant / size / presentation / section / order / commandPlacement`。Core 根据 `ACTION_GLYPH_ACTIONS` 和 `ACTION_GLYPH_ORDER` 固定图标、样式、位置与顺序；`unarchive` 统一使用 restore glyph。
 - `FormSurface.commands` 与 `commandPlacement` 仅允许 `kind: "filters"` 使用。普通字段、详情和登录表单不得用 command 表达根生命周期动作。

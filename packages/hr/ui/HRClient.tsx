@@ -51,11 +51,13 @@ export default function HRClient({
   user,
   canArchiveRoster = false,
   canExportGeneratedRoster = false,
+  canCreateEmployee = false,
 }: {
   user: SessionUser;
   hideShell?: boolean;
   canArchiveRoster?: boolean;
   canExportGeneratedRoster?: boolean;
+  canCreateEmployee?: boolean;
 }) {
   const rosterViews = useMemo(
     () => getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
@@ -139,7 +141,7 @@ export default function HRClient({
   } satisfies RosterSurfaceTabBarProps;
 
   if (renderedView === "employee") {
-    return <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} surface={surface} />;
+    return <EmployeeDirectory user={hrUser} employmentStatus={employeeStatus} surface={surface} canCreate={canCreateEmployee} />;
   }
 
   if (renderedView === "organization") {
