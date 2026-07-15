@@ -116,6 +116,8 @@ export const INCOME_STATEMENT_LINES: IncomeLineConfig[] = [
     lineCode: "netProfit", label: "四、净利润（净亏损以\"－\"号填列）",
     direction: "debit", isGrandTotal: true,
   },
+  { lineCode: "netProfitAttributableToParent", label: "归属于母公司所有者的净利润", direction: "credit" },
+  { lineCode: "netProfitAttributableToNci", label: "少数股东损益", direction: "credit" },
   { lineCode: "epsHeader", label: "五、每股收益：", direction: "debit", isHeader: true },
   { lineCode: "basicEps", label: "（一）基本每股收益", direction: "debit" },
   { lineCode: "dilutedEps", label: "（二）稀释每股收益", direction: "debit" },

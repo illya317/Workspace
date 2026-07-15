@@ -1,4 +1,5 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import { hasSubmittedStatementWorkpaper } from "./workpaper-source";
 
 export interface DetailParams {
   companyCode: string;
@@ -138,16 +139,11 @@ function loadBalances(periodId: number) {
 }
 
 function loadBalanceWorkpaper(companyCode: string, year: number, month: number) {
-  return prisma.financeStatementWorkpaper.findUnique({
-    where: {
-      companyCode_year_month_reportType: {
-        companyCode,
-        year,
-        month,
-        reportType: "balanceSheet",
-      },
-    },
-    select: { id: true },
+  return hasSubmittedStatementWorkpaper({
+    companyCode,
+    year,
+    month,
+    reportType: "balanceSheet",
   });
 }
 

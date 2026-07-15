@@ -31,6 +31,8 @@ export type CompanyRelationAvgAggregateOutputType = {
   parentId: number | null
   childId: number | null
   shareRatio: number | null
+  editedBy: number | null
+  version: number | null
 }
 
 export type CompanyRelationSumAggregateOutputType = {
@@ -38,6 +40,8 @@ export type CompanyRelationSumAggregateOutputType = {
   parentId: number | null
   childId: number | null
   shareRatio: number | null
+  editedBy: number | null
+  version: number | null
 }
 
 export type CompanyRelationMinAggregateOutputType = {
@@ -46,6 +50,11 @@ export type CompanyRelationMinAggregateOutputType = {
   childId: number | null
   shareRatio: number | null
   isConsolidated: boolean | null
+  effectiveFrom: Date | null
+  effectiveTo: Date | null
+  editedBy: number | null
+  editedAt: Date | null
+  version: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -56,6 +65,11 @@ export type CompanyRelationMaxAggregateOutputType = {
   childId: number | null
   shareRatio: number | null
   isConsolidated: boolean | null
+  effectiveFrom: Date | null
+  effectiveTo: Date | null
+  editedBy: number | null
+  editedAt: Date | null
+  version: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -66,6 +80,11 @@ export type CompanyRelationCountAggregateOutputType = {
   childId: number
   shareRatio: number
   isConsolidated: number
+  effectiveFrom: number
+  effectiveTo: number
+  editedBy: number
+  editedAt: number
+  version: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -77,6 +96,8 @@ export type CompanyRelationAvgAggregateInputType = {
   parentId?: true
   childId?: true
   shareRatio?: true
+  editedBy?: true
+  version?: true
 }
 
 export type CompanyRelationSumAggregateInputType = {
@@ -84,6 +105,8 @@ export type CompanyRelationSumAggregateInputType = {
   parentId?: true
   childId?: true
   shareRatio?: true
+  editedBy?: true
+  version?: true
 }
 
 export type CompanyRelationMinAggregateInputType = {
@@ -92,6 +115,11 @@ export type CompanyRelationMinAggregateInputType = {
   childId?: true
   shareRatio?: true
   isConsolidated?: true
+  effectiveFrom?: true
+  effectiveTo?: true
+  editedBy?: true
+  editedAt?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -102,6 +130,11 @@ export type CompanyRelationMaxAggregateInputType = {
   childId?: true
   shareRatio?: true
   isConsolidated?: true
+  effectiveFrom?: true
+  effectiveTo?: true
+  editedBy?: true
+  editedAt?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -112,6 +145,11 @@ export type CompanyRelationCountAggregateInputType = {
   childId?: true
   shareRatio?: true
   isConsolidated?: true
+  effectiveFrom?: true
+  effectiveTo?: true
+  editedBy?: true
+  editedAt?: true
+  version?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -209,6 +247,11 @@ export type CompanyRelationGroupByOutputType = {
   childId: number
   shareRatio: number | null
   isConsolidated: boolean
+  effectiveFrom: Date | null
+  effectiveTo: Date | null
+  editedBy: number | null
+  editedAt: Date | null
+  version: number
   createdAt: Date
   updatedAt: Date
   _count: CompanyRelationCountAggregateOutputType | null
@@ -242,6 +285,11 @@ export type CompanyRelationWhereInput = {
   childId?: Prisma.IntFilter<"CompanyRelation"> | number
   shareRatio?: Prisma.FloatNullableFilter<"CompanyRelation"> | number | null
   isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
+  effectiveFrom?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  effectiveTo?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  editedBy?: Prisma.IntNullableFilter<"CompanyRelation"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  version?: Prisma.IntFilter<"CompanyRelation"> | number
   createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   child?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
@@ -254,6 +302,11 @@ export type CompanyRelationOrderByWithRelationInput = {
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrderInput | Prisma.SortOrder
   isConsolidated?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  effectiveTo?: Prisma.SortOrderInput | Prisma.SortOrder
+  editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   child?: Prisma.CompanyOrderByWithRelationInput
@@ -262,7 +315,6 @@ export type CompanyRelationOrderByWithRelationInput = {
 
 export type CompanyRelationWhereUniqueInput = Prisma.AtLeast<{
   id?: number
-  parentId_childId?: Prisma.CompanyRelationParentIdChildIdCompoundUniqueInput
   AND?: Prisma.CompanyRelationWhereInput | Prisma.CompanyRelationWhereInput[]
   OR?: Prisma.CompanyRelationWhereInput[]
   NOT?: Prisma.CompanyRelationWhereInput | Prisma.CompanyRelationWhereInput[]
@@ -270,11 +322,16 @@ export type CompanyRelationWhereUniqueInput = Prisma.AtLeast<{
   childId?: Prisma.IntFilter<"CompanyRelation"> | number
   shareRatio?: Prisma.FloatNullableFilter<"CompanyRelation"> | number | null
   isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
+  effectiveFrom?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  effectiveTo?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  editedBy?: Prisma.IntNullableFilter<"CompanyRelation"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  version?: Prisma.IntFilter<"CompanyRelation"> | number
   createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   child?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   parent?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
-}, "id" | "parentId_childId">
+}, "id">
 
 export type CompanyRelationOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -282,6 +339,11 @@ export type CompanyRelationOrderByWithAggregationInput = {
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrderInput | Prisma.SortOrder
   isConsolidated?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrderInput | Prisma.SortOrder
+  effectiveTo?: Prisma.SortOrderInput | Prisma.SortOrder
+  editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.CompanyRelationCountOrderByAggregateInput
@@ -300,6 +362,11 @@ export type CompanyRelationScalarWhereWithAggregatesInput = {
   childId?: Prisma.IntWithAggregatesFilter<"CompanyRelation"> | number
   shareRatio?: Prisma.FloatNullableWithAggregatesFilter<"CompanyRelation"> | number | null
   isConsolidated?: Prisma.BoolWithAggregatesFilter<"CompanyRelation"> | boolean
+  effectiveFrom?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanyRelation"> | Date | string | null
+  effectiveTo?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanyRelation"> | Date | string | null
+  editedBy?: Prisma.IntNullableWithAggregatesFilter<"CompanyRelation"> | number | null
+  editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"CompanyRelation"> | Date | string | null
+  version?: Prisma.IntWithAggregatesFilter<"CompanyRelation"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"CompanyRelation"> | Date | string
 }
@@ -307,6 +374,11 @@ export type CompanyRelationScalarWhereWithAggregatesInput = {
 export type CompanyRelationCreateInput = {
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   child: Prisma.CompanyCreateNestedOneWithoutChildOfRelationsInput
@@ -319,6 +391,11 @@ export type CompanyRelationUncheckedCreateInput = {
   childId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -326,6 +403,11 @@ export type CompanyRelationUncheckedCreateInput = {
 export type CompanyRelationUpdateInput = {
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   child?: Prisma.CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput
@@ -338,6 +420,11 @@ export type CompanyRelationUncheckedUpdateInput = {
   childId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -348,6 +435,11 @@ export type CompanyRelationCreateManyInput = {
   childId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -355,6 +447,11 @@ export type CompanyRelationCreateManyInput = {
 export type CompanyRelationUpdateManyMutationInput = {
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -365,6 +462,11 @@ export type CompanyRelationUncheckedUpdateManyInput = {
   childId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -379,17 +481,17 @@ export type CompanyRelationOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type CompanyRelationParentIdChildIdCompoundUniqueInput = {
-  parentId: number
-  childId: number
-}
-
 export type CompanyRelationCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   parentId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
   isConsolidated?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrder
+  effectiveTo?: Prisma.SortOrder
+  editedBy?: Prisma.SortOrder
+  editedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -399,6 +501,8 @@ export type CompanyRelationAvgOrderByAggregateInput = {
   parentId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
+  editedBy?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type CompanyRelationMaxOrderByAggregateInput = {
@@ -407,6 +511,11 @@ export type CompanyRelationMaxOrderByAggregateInput = {
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
   isConsolidated?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrder
+  effectiveTo?: Prisma.SortOrder
+  editedBy?: Prisma.SortOrder
+  editedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -417,6 +526,11 @@ export type CompanyRelationMinOrderByAggregateInput = {
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
   isConsolidated?: Prisma.SortOrder
+  effectiveFrom?: Prisma.SortOrder
+  effectiveTo?: Prisma.SortOrder
+  editedBy?: Prisma.SortOrder
+  editedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -426,6 +540,8 @@ export type CompanyRelationSumOrderByAggregateInput = {
   parentId?: Prisma.SortOrder
   childId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
+  editedBy?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type CompanyRelationCreateNestedManyWithoutChildInput = {
@@ -515,6 +631,11 @@ export type CompanyRelationUncheckedUpdateManyWithoutParentNestedInput = {
 export type CompanyRelationCreateWithoutChildInput = {
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   parent: Prisma.CompanyCreateNestedOneWithoutParentOfRelationsInput
@@ -525,6 +646,11 @@ export type CompanyRelationUncheckedCreateWithoutChildInput = {
   parentId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -542,6 +668,11 @@ export type CompanyRelationCreateManyChildInputEnvelope = {
 export type CompanyRelationCreateWithoutParentInput = {
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   child: Prisma.CompanyCreateNestedOneWithoutChildOfRelationsInput
@@ -552,6 +683,11 @@ export type CompanyRelationUncheckedCreateWithoutParentInput = {
   childId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -591,6 +727,11 @@ export type CompanyRelationScalarWhereInput = {
   childId?: Prisma.IntFilter<"CompanyRelation"> | number
   shareRatio?: Prisma.FloatNullableFilter<"CompanyRelation"> | number | null
   isConsolidated?: Prisma.BoolFilter<"CompanyRelation"> | boolean
+  effectiveFrom?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  effectiveTo?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  editedBy?: Prisma.IntNullableFilter<"CompanyRelation"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"CompanyRelation"> | Date | string | null
+  version?: Prisma.IntFilter<"CompanyRelation"> | number
   createdAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"CompanyRelation"> | Date | string
 }
@@ -616,6 +757,11 @@ export type CompanyRelationCreateManyChildInput = {
   parentId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -625,6 +771,11 @@ export type CompanyRelationCreateManyParentInput = {
   childId: number
   shareRatio?: number | null
   isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -632,6 +783,11 @@ export type CompanyRelationCreateManyParentInput = {
 export type CompanyRelationUpdateWithoutChildInput = {
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   parent?: Prisma.CompanyUpdateOneRequiredWithoutParentOfRelationsNestedInput
@@ -642,6 +798,11 @@ export type CompanyRelationUncheckedUpdateWithoutChildInput = {
   parentId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -651,6 +812,11 @@ export type CompanyRelationUncheckedUpdateManyWithoutChildInput = {
   parentId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -658,6 +824,11 @@ export type CompanyRelationUncheckedUpdateManyWithoutChildInput = {
 export type CompanyRelationUpdateWithoutParentInput = {
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   child?: Prisma.CompanyUpdateOneRequiredWithoutChildOfRelationsNestedInput
@@ -668,6 +839,11 @@ export type CompanyRelationUncheckedUpdateWithoutParentInput = {
   childId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -677,6 +853,11 @@ export type CompanyRelationUncheckedUpdateManyWithoutParentInput = {
   childId?: Prisma.IntFieldUpdateOperationsInput | number
   shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -689,6 +870,11 @@ export type CompanyRelationSelect<ExtArgs extends runtime.Types.Extensions.Inter
   childId?: boolean
   shareRatio?: boolean
   isConsolidated?: boolean
+  effectiveFrom?: boolean
+  effectiveTo?: boolean
+  editedBy?: boolean
+  editedAt?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
@@ -701,6 +887,11 @@ export type CompanyRelationSelectCreateManyAndReturn<ExtArgs extends runtime.Typ
   childId?: boolean
   shareRatio?: boolean
   isConsolidated?: boolean
+  effectiveFrom?: boolean
+  effectiveTo?: boolean
+  editedBy?: boolean
+  editedAt?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
@@ -713,6 +904,11 @@ export type CompanyRelationSelectUpdateManyAndReturn<ExtArgs extends runtime.Typ
   childId?: boolean
   shareRatio?: boolean
   isConsolidated?: boolean
+  effectiveFrom?: boolean
+  effectiveTo?: boolean
+  editedBy?: boolean
+  editedAt?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
@@ -725,11 +921,16 @@ export type CompanyRelationSelectScalar = {
   childId?: boolean
   shareRatio?: boolean
   isConsolidated?: boolean
+  effectiveFrom?: boolean
+  effectiveTo?: boolean
+  editedBy?: boolean
+  editedAt?: boolean
+  version?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type CompanyRelationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentId" | "childId" | "shareRatio" | "isConsolidated" | "createdAt" | "updatedAt", ExtArgs["result"]["companyRelation"]>
+export type CompanyRelationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "parentId" | "childId" | "shareRatio" | "isConsolidated" | "effectiveFrom" | "effectiveTo" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["companyRelation"]>
 export type CompanyRelationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   child?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   parent?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
@@ -755,6 +956,11 @@ export type $CompanyRelationPayload<ExtArgs extends runtime.Types.Extensions.Int
     childId: number
     shareRatio: number | null
     isConsolidated: boolean
+    effectiveFrom: Date | null
+    effectiveTo: Date | null
+    editedBy: number | null
+    editedAt: Date | null
+    version: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["companyRelation"]>
@@ -1187,6 +1393,11 @@ export interface CompanyRelationFieldRefs {
   readonly childId: Prisma.FieldRef<"CompanyRelation", 'Int'>
   readonly shareRatio: Prisma.FieldRef<"CompanyRelation", 'Float'>
   readonly isConsolidated: Prisma.FieldRef<"CompanyRelation", 'Boolean'>
+  readonly effectiveFrom: Prisma.FieldRef<"CompanyRelation", 'DateTime'>
+  readonly effectiveTo: Prisma.FieldRef<"CompanyRelation", 'DateTime'>
+  readonly editedBy: Prisma.FieldRef<"CompanyRelation", 'Int'>
+  readonly editedAt: Prisma.FieldRef<"CompanyRelation", 'DateTime'>
+  readonly version: Prisma.FieldRef<"CompanyRelation", 'Int'>
   readonly createdAt: Prisma.FieldRef<"CompanyRelation", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"CompanyRelation", 'DateTime'>
 }

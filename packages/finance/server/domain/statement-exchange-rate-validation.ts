@@ -25,12 +25,15 @@ export function buildSaveStatementExchangeRateCommand(
   if (raw.baseCurrency !== "CAD" || raw.quoteCurrency !== "CNY") {
     return failCommand("当前合并底稿仅接受 CAD/CNY 汇率", 400, "baseCurrency");
   }
-  if (!["closing", "historicalInvestment", "average"].includes(raw.rateKind)) {
+  if (!["closing", "historicalInvestment"].includes(raw.rateKind)) {
     return failCommand("汇率口径无效", 400, "rateKind");
   }
   if (!validDate(raw.rateDate)) return failCommand("牌价日期无效", 400, "rateDate");
   if (!Number.isFinite(raw.rate) || raw.rate <= 0 || raw.rate > 100000) {
     return failCommand("中行折算价必须为正数", 400, "rate");
+  }
+  if (raw.status !== "draft") {
+    return failCommand("汇率录入只能保存草稿，复核必须由另一名人员执行", 409, "status");
   }
   let sourceUrl: URL;
   try {
@@ -45,12 +48,6 @@ export function buildSaveStatementExchangeRateCommand(
   const publishedAt = publishedText ? new Date(publishedText) : null;
   if (publishedText && Number.isNaN(publishedAt?.getTime())) {
     return failCommand("牌价发布时间无效", 400, "publishedAt");
-  }
-  if (raw.status === "verified" && !publishedAt) {
-    return failCommand("复核汇率前必须填写牌价发布时间", 400, "publishedAt");
-  }
-  if (!["draft", "verified"].includes(raw.status)) {
-    return failCommand("汇率状态无效", 400, "status");
   }
   return okCommand<SaveStatementExchangeRateCommand>({
     userId,

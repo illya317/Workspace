@@ -189,6 +189,56 @@ export type FinanceCashFlowItem = Prisma.FinanceCashFlowItemModel
  */
 export type FinanceCashFlowAllocation = Prisma.FinanceCashFlowAllocationModel
 /**
+ * Model FinanceConsolidationOutputSnapshot
+ * 合并报表正式输出快照。批次锁定成功时事务内生成，发布和查询只读取该不可变事实。
+ */
+export type FinanceConsolidationOutputSnapshot = Prisma.FinanceConsolidationOutputSnapshotModel
+/**
+ * Model FinanceConsolidationBatch
+ * 合并报表批次（事实头，来源于人工创建/复核生命周期）。每个版本冻结范围、来源、汇率和抵销事实。
+ */
+export type FinanceConsolidationBatch = Prisma.FinanceConsolidationBatchModel
+/**
+ * Model FinanceConsolidationBatchEvent
+ * 合并批次追加式事件流。生命周期迁移和物理删除审计只允许新增，不允许覆盖。
+ */
+export type FinanceConsolidationBatchEvent = Prisma.FinanceConsolidationBatchEventModel
+/**
+ * Model FinanceConsolidationControlDecision
+ * 合并控制点人工结论（事实表，来源于编制人对无事项或已完成事项的明确判断及证据）。
+ */
+export type FinanceConsolidationControlDecision = Prisma.FinanceConsolidationControlDecisionModel
+/**
+ * Model FinanceConsolidationEntitySnapshot
+ * 合并范围冻结快照（事实表，来源于创建批次时的 CompanyRelation 与 Company 主数据）。
+ */
+export type FinanceConsolidationEntitySnapshot = Prisma.FinanceConsolidationEntitySnapshotModel
+/**
+ * Model FinanceConsolidationSourceSnapshot
+ * 个别报表来源冻结快照（事实表，来源于底稿版本或当期系统账；批次提交后不可修改）。
+ */
+export type FinanceConsolidationSourceSnapshot = Prisma.FinanceConsolidationSourceSnapshotModel
+/**
+ * Model FinanceConsolidationRateSnapshot
+ * 合并批次汇率冻结快照（事实表，来源于已复核 FinanceStatementExchangeRate 版本）。
+ */
+export type FinanceConsolidationRateSnapshot = Prisma.FinanceConsolidationRateSnapshotModel
+/**
+ * Model FinanceConsolidationEntry
+ * 合并抵销分录头（事实表，来源于人工编制与批次复核）。批准后通过新版本或冲销分录修订。
+ */
+export type FinanceConsolidationEntry = Prisma.FinanceConsolidationEntryModel
+/**
+ * Model FinanceConsolidationEntryLine
+ * 合并抵销分录借贷行（事实表，来源于人工编制；同一分录必须借贷平衡）。
+ */
+export type FinanceConsolidationEntryLine = Prisma.FinanceConsolidationEntryLineModel
+/**
+ * Model FinanceConsolidationTaxEffect
+ * 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
+ */
+export type FinanceConsolidationTaxEffect = Prisma.FinanceConsolidationTaxEffectModel
+/**
  * Model FinanceDataImport
  * 财务成本数据导入批次。每次从 Excel/JSON 导入时生成一条记录，作为该批次所有明细行的事实来源追溯。
  */
@@ -316,6 +366,22 @@ export type FinanceBalanceReclassAdjustment = Prisma.FinanceBalanceReclassAdjust
  * engine upsert 时幂等，不会重复
  */
 export type ReclassResult = Prisma.ReclassResultModel
+/**
+ * Model FinanceStatementSourcePackage
+ * 个别财务报表来源包（不可变证据事实，来源于人工上传的法定三表 Excel）。
+ * 文件、解析结果和校验摘要按 revision 保留；提交只推进状态，不覆盖既有来源包。
+ */
+export type FinanceStatementSourcePackage = Prisma.FinanceStatementSourcePackageModel
+/**
+ * Model FinanceStatementSourceSheet
+ * 个别财务报表来源包中的报表页（解析事实，来源于上传文件的固定三表 sheet）。
+ */
+export type FinanceStatementSourceSheet = Prisma.FinanceStatementSourceSheetModel
+/**
+ * Model FinanceStatementSourceLine
+ * 个别财务报表来源行（解析事实，保存上传文件中当期/上期金额和原始项目名称）。
+ */
+export type FinanceStatementSourceLine = Prisma.FinanceStatementSourceLineModel
 /**
  * Model FinanceStatementWorkpaper
  * 报表底稿头（资产负债表/利润表/现金流量表导入或手工底稿）

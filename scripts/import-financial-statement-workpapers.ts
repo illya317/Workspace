@@ -11,7 +11,10 @@ import path from "node:path";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../generated/prisma/client";
 import { requireDatabaseUrl } from "./lib/database-url.js";
-import { readFinancialStatementWorkbook, type ImportedStatementSheet } from "./lib/financial-statement-workbook";
+import {
+  readFinancialStatementWorkbook,
+  type ImportedStatementSheet,
+} from "@workspace/finance/server/statements/source-workbook";
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({ connectionString: requireDatabaseUrl(), application_name: "workspace-financial-statement-import" }),

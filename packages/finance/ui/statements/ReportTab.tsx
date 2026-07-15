@@ -163,6 +163,11 @@ export default function ReportTab({ navigation, companyCodes }: { navigation?: P
     },
   ];
   const reportBlocks = ([
+    ...(reportType === "balance" ? [createMessageSection("statement-reclass-entry", {
+      tone: "muted" as const,
+      content: "资产负债表只消费持久化的重分类调整；规则建议不会直接改报表。余额已变化或期间已结账的事项会在重分类工作台保留并标记待复核。",
+      link: { label: "处理重分类", href: workspacePath("/finance/ledger") },
+    })] : []),
     ...(loading ? [createMessageSection("loading", {
       tone: "muted" as const,
       content: "加载中...",

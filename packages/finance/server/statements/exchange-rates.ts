@@ -60,8 +60,6 @@ export async function saveStatementExchangeRate(command: SaveStatementExchangeRa
     blockedMessage: "汇率证据保存已配置为必须走流程，请从统一保存入口提交",
   });
   if (!direct.ok) return direct;
-  const now = new Date();
-  const verified = input.status === "verified";
   const row = await prisma.$transaction(async (tx) => {
     const latest = await tx.financeStatementExchangeRate.findFirst({
       where: {
@@ -76,11 +74,12 @@ export async function saveStatementExchangeRate(command: SaveStatementExchangeRa
     return tx.financeStatementExchangeRate.create({
       data: {
         ...input,
+        status: "draft",
         version: (latest?.version ?? 0) + 1,
         publishedAt: input.publishedAt ? new Date(input.publishedAt) : null,
         updatedBy: userId,
-        verifiedBy: verified ? userId : null,
-        verifiedAt: verified ? now : null,
+        verifiedBy: null,
+        verifiedAt: null,
       },
     });
   });

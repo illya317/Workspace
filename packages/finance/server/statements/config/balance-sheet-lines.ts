@@ -132,6 +132,7 @@ const EQUITY: BalanceSheetLineConfig[] = [
   { lineCode: "otherComprehensiveIncome", label: "其他综合收益",   displayCode: "4003/4005", side: "credit", section: "equity", prefixes: ["4003", "4005"] },
   { lineCode: "surplusReserve",     label: "盈余公积",             displayCode: "4101",      side: "credit", section: "equity", prefixes: ["4101"] },
   { lineCode: "undistributedProfit", label: "未分配利润",          displayCode: "4104/310415", side: "credit", section: "equity", prefixes: ["4104", "410401", "310415"] },
+  { lineCode: "nonControllingInterests", label: "少数股东权益",    displayCode: "合并调整", side: "credit", section: "equity", prefixes: [] },
   { lineCode: "totalEquity",        label: "所有者权益合计",       displayCode: "",          side: "credit", section: "equity", isTotal: true },
 ];
 

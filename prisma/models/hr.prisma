@@ -90,17 +90,23 @@ model Company {
 
 /// 公司间持股关系
 model CompanyRelation {
-  id             Int      @id @default(autoincrement())
+  id             Int       @id @default(autoincrement())
   parentId       Int
   childId        Int
   shareRatio     Float?
-  isConsolidated Boolean  @default(false)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @default(now()) @updatedAt
-  child          Company  @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade)
-  parent         Company  @relation("ParentCompany", fields: [parentId], references: [id], onDelete: Cascade)
+  isConsolidated Boolean   @default(false)
+  effectiveFrom  DateTime?
+  effectiveTo    DateTime?
+  editedBy       Int?
+  editedAt       DateTime?
+  version        Int       @default(1)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @default(now()) @updatedAt
+  child          Company   @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade)
+  parent         Company   @relation("ParentCompany", fields: [parentId], references: [id], onDelete: Cascade)
 
-  @@unique([parentId, childId])
+  @@index([parentId, childId, effectiveFrom, effectiveTo], map: "CompanyRelation_parent_child_period_idx")
+  @@index([childId, isConsolidated, effectiveFrom, effectiveTo], map: "CompanyRelation_child_consolidation_period_idx")
 }
 
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）

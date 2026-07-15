@@ -25,6 +25,11 @@ export interface ImportedStatementWorkbook {
   sheets: ImportedStatementSheet[];
 }
 
+interface ParsedWorkbookInput {
+  workbook: XLSX.WorkBook;
+  fallbackYear: number;
+}
+
 type Row = unknown[];
 
 function amount(value: unknown): number {
@@ -161,13 +166,11 @@ function parseCashFlow(rows: Row[], currentYear: number): ImportedStatementSheet
   return { reportType: "cashFlow", previousYear: currentYear - 1, currentYear, lines: uniqueLines(lines) };
 }
 
-export function readFinancialStatementWorkbook(filePath: string): ImportedStatementWorkbook {
-  const workbook = XLSX.readFile(filePath, { cellDates: true });
+function parseWorkbook({ workbook, fallbackYear }: ParsedWorkbookInput): ImportedStatementWorkbook {
   const balanceRows = XLSX.utils.sheet_to_json<Row>(workbook.Sheets["资产负债表"], { header: 1, raw: true, defval: null });
   const incomeRows = XLSX.utils.sheet_to_json<Row>(workbook.Sheets["利润表"], { header: 1, raw: true, defval: null });
   const cashFlowRows = XLSX.utils.sheet_to_json<Row>(workbook.Sheets["现金流量表"], { header: 1, raw: true, defval: null });
-  const filenameYear = Number(filePath.match(/20\d{2}/)?.[0] ?? new Date().getFullYear());
-  const currentYear = yearFromWorkbook(incomeRows, filenameYear);
+  const currentYear = yearFromWorkbook(incomeRows, fallbackYear);
   return {
     companyText: findCompanyText(balanceRows) || findCompanyText(incomeRows),
     sheets: [
@@ -176,4 +179,21 @@ export function readFinancialStatementWorkbook(filePath: string): ImportedStatem
       parseCashFlow(cashFlowRows, currentYear),
     ],
   };
+}
+
+export function parseFinancialStatementWorkbook(
+  buffer: ArrayBuffer | Uint8Array,
+  fallbackYear = new Date().getFullYear(),
+): ImportedStatementWorkbook {
+  const workbook = XLSX.read(buffer, {
+    type: buffer instanceof ArrayBuffer ? "array" : "buffer",
+    cellDates: true,
+  });
+  return parseWorkbook({ workbook, fallbackYear });
+}
+
+export function readFinancialStatementWorkbook(filePath: string): ImportedStatementWorkbook {
+  const workbook = XLSX.readFile(filePath, { cellDates: true });
+  const fallbackYear = Number(filePath.match(/20\d{2}/)?.[0] ?? new Date().getFullYear());
+  return parseWorkbook({ workbook, fallbackYear });
 }

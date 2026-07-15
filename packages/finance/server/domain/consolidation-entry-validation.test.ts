@@ -1,0 +1,136 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+
+import {
+  buildDeleteConsolidationEntryCommand,
+  buildSaveConsolidationEntryCommand,
+  buildSaveConsolidationTaxEffectCommand,
+  isExactConsolidationReversal,
+  validateConsolidationEntryWriteMode,
+  validateConsolidationVersionTarget,
+} from "./consolidation-entry-validation";
+
+const balancedEntry = {
+  expectedRevision: 1,
+  entryNo: "E-001",
+  entryType: "intercompanyBalance" as const,
+  title: "抵销内部往来",
+  description: "双方余额逐项匹配",
+  evidence: "双方对账单 2026-06",
+  lines: [
+    { companyId: 1, statementType: "balanceSheet" as const, lineCode: "accountsPayable", debit: 100, credit: 0, matchSide: "left" as const, sourceKind: "auxiliaryBalance" as const, sourceId: "AB-1", sourceFingerprint: "sha256:left", sourceAmount: 100, sourceCurrency: "CNY", counterpartyCompanyId: 2 },
+    { companyId: 2, statementType: "balanceSheet" as const, lineCode: "accountsReceivable", debit: 0, credit: 100, matchSide: "right" as const, sourceKind: "auxiliaryBalance" as const, sourceId: "AB-2", sourceFingerprint: "sha256:right", sourceAmount: 100, sourceCurrency: "CNY", counterpartyCompanyId: 1 },
+  ],
+};
+
+test("accepts balanced typed elimination lines", () => {
+  const result = buildSaveConsolidationEntryCommand(7, balancedEntry, 9);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.input.lines.length, 2);
+});
+
+test("rejects an unbalanced elimination entry", () => {
+  const result = buildSaveConsolidationEntryCommand(7, {
+    ...balancedEntry,
+    lines: [balancedEntry.lines[0]!, { ...balancedEntry.lines[1]!, credit: 99 }],
+  }, 9);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "lines");
+});
+
+test("approved entries cannot be edited in place", () => {
+  const result = validateConsolidationEntryWriteMode("draft", "approved");
+  assert.equal(result.ok, false);
+});
+
+test("validates tax rate and preserves the accounting conclusion", () => {
+  const result = buildSaveConsolidationTaxEffectCommand(7, 12, {
+    expectedRevision: 2,
+    entitySnapshotId: 4,
+    effectKey: "inventory-profit",
+    taxEffectType: "deductible",
+    differenceAmount: 100,
+    taxRate: 0.25,
+    recognition: "asset",
+    jurisdiction: "中国大陆",
+    recognitionLocation: "profitOrLoss",
+    balanceSheetLineCode: "deferredTaxAssets",
+    counterpartLineCode: "incomeTax",
+    recoverabilityConclusion: "预计次年销售转回且有足够应纳税所得额",
+    evidence: "内部销售及存货去向表",
+  }, 9);
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  assert.equal(result.data.input.taxRate, 0.25);
+});
+
+test("requires structured bilateral source facts for internal matching", () => {
+  const result = buildSaveConsolidationEntryCommand(7, {
+    ...balancedEntry,
+    lines: balancedEntry.lines.map(({ matchSide: _matchSide, ...line }) => line),
+  }, 9);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "matching");
+});
+
+test("requires a difference resolution when bilateral source totals differ", () => {
+  const result = buildSaveConsolidationEntryCommand(7, {
+    ...balancedEntry,
+    lines: [balancedEntry.lines[0]!, { ...balancedEntry.lines[1]!, sourceAmount: 95 }],
+  }, 9);
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.field, "differenceResolution");
+});
+
+test("exact reversal compares a currency-aware one-to-one multiset", () => {
+  const original = [
+    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
+    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
+  ];
+  const exact = [
+    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
+    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
+  ];
+  assert.equal(isExactConsolidationReversal(original, exact), true);
+  assert.equal(isExactConsolidationReversal(original, [
+    exact[0]!,
+    { ...exact[1]!, currencyCode: "CNY" },
+  ]), false);
+  assert.equal(isExactConsolidationReversal([
+    original[0]!,
+    { ...original[1]!, debit: 200 },
+  ], exact), false);
+});
+
+test("revision and reversal targets must be the direct base current head", () => {
+  assert.equal(validateConsolidationVersionTarget(
+    { baseBatchId: 5 },
+    { batchId: 5, status: "approved", hasSuccessor: false },
+  ).ok, true);
+  assert.equal(validateConsolidationVersionTarget(
+    { baseBatchId: 5 },
+    { batchId: 4, status: "approved", hasSuccessor: false },
+  ).ok, false);
+  assert.equal(validateConsolidationVersionTarget(
+    { baseBatchId: 5 },
+    { batchId: 5, status: "approved", hasSuccessor: true },
+  ).ok, false);
+});
+
+test("delete commands require the client revision and an audit reason", () => {
+  const missingReason = buildDeleteConsolidationEntryCommand(7, 12, {
+    expectedRevision: 3,
+    note: " ",
+  }, 9);
+  assert.equal(missingReason.ok, false);
+
+  const command = buildDeleteConsolidationEntryCommand(7, 12, {
+    expectedRevision: 3,
+    note: "重复录入",
+  }, 9);
+  assert.deepEqual(command, {
+    ok: true,
+    data: { batchId: 7, entryId: 12, expectedRevision: 3, note: "重复录入", userId: 9 },
+  });
+});

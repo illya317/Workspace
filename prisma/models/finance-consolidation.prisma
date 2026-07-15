@@ -1,0 +1,281 @@
+/// 合并报表批次（事实头，来源于人工创建/复核生命周期）。每个版本冻结范围、来源、汇率和抵销事实。
+model FinanceConsolidationBatch {
+  id                 Int       @id @default(autoincrement())
+  parentCompanyId    Int
+  parentCompanyCode  String
+  parentCompanyName  String
+  year               Int
+  month              Int
+  version            Int
+  revision           Int       @default(1)
+  status             String    @default("draft") // draft | submitted | reviewed | locked | published
+  baseBatchId        Int?
+  scopeFingerprint   String
+  sourceFingerprint  String
+  rateFingerprint    String
+  createdBy          Int
+  submittedBy        Int?
+  submittedAt        DateTime?
+  reviewedBy         Int?
+  reviewedAt         DateTime?
+  reviewNote         String?
+  lockedBy           Int?
+  lockedAt           DateTime?
+  publishedBy        Int?
+  publishedAt        DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  baseBatch       FinanceConsolidationBatch?          @relation("FinanceConsolidationBatchVersionChain", fields: [baseBatchId], references: [id], onDelete: Restrict)
+  derivedBatches  FinanceConsolidationBatch[]         @relation("FinanceConsolidationBatchVersionChain")
+  entities        FinanceConsolidationEntitySnapshot[]
+  sources         FinanceConsolidationSourceSnapshot[]
+  exchangeRates   FinanceConsolidationRateSnapshot[]
+  entries         FinanceConsolidationEntry[]
+  controlDecisions FinanceConsolidationControlDecision[]
+  events          FinanceConsolidationBatchEvent[]
+  outputSnapshot  FinanceConsolidationOutputSnapshot?
+
+  @@unique([parentCompanyId, year, month, version])
+  @@index([parentCompanyId, year, month, status])
+  @@index([baseBatchId])
+}
+
+/// 合并批次追加式事件流。生命周期迁移和物理删除审计只允许新增，不允许覆盖。
+model FinanceConsolidationBatchEvent {
+  id            Int      @id @default(autoincrement())
+  batchId       Int
+  eventType     String // lifecycle | mutation
+  action        String // create | submit | return | review | lock | publish | entry.delete | taxEffect.delete
+  fromStatus    String
+  toStatus      String
+  note          String?
+  actorUserId   Int
+  actorName     String
+  batchRevision Int
+  targetType    String?
+  targetId      Int?
+  snapshot      Json?
+  createdAt     DateTime @default(now())
+
+  batch FinanceConsolidationBatch @relation(fields: [batchId], references: [id], onDelete: Restrict)
+
+  @@unique([batchId, batchRevision])
+  @@index([batchId, createdAt])
+  @@index([batchId, action])
+}
+
+/// 合并控制点人工结论（事实表，来源于编制人对无事项或已完成事项的明确判断及证据）。
+model FinanceConsolidationControlDecision {
+  id         Int      @id @default(autoincrement())
+  batchId    Int
+  controlKey String // scope | ownership | sources | fx | eliminations | tax
+  decision   String // completed | notApplicable
+  conclusion String
+  evidence   String
+  decidedBy  Int
+  decidedAt  DateTime @default(now())
+  updatedAt  DateTime @default(now()) @updatedAt
+
+  batch FinanceConsolidationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, controlKey])
+  @@index([batchId, decision])
+}
+
+/// 合并范围冻结快照（事实表，来源于创建批次时的 CompanyRelation 与 Company 主数据）。
+model FinanceConsolidationEntitySnapshot {
+  id                    Int      @id @default(autoincrement())
+  batchId               Int
+  companyId             Int
+  companyCode           String
+  companyName           String
+  role                  String // parent | subsidiary
+  directParentCompanyId Int?
+  directParentCode      String?
+  relationId            Int?
+  relationUpdatedAt     DateTime?
+  relationEffectiveFrom DateTime?
+  relationEffectiveTo   DateTime?
+  relationVersion       Int?
+  shareRatio            Decimal? @db.Decimal(12, 8)
+  isConsolidated        Boolean  @default(true)
+  functionalCurrency    String?
+  currencyEvidence      String?
+  currencyDecidedBy     Int?
+  createdAt             DateTime @default(now())
+
+  batch   FinanceConsolidationBatch           @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  sources FinanceConsolidationSourceSnapshot[]
+  taxEffects FinanceConsolidationTaxEffect[]
+
+  @@unique([batchId, companyId])
+  @@index([batchId, role])
+}
+
+/// 个别报表来源冻结快照（事实表，来源于底稿版本或当期系统账；批次提交后不可修改）。
+model FinanceConsolidationSourceSnapshot {
+  id                Int      @id @default(autoincrement())
+  batchId           Int
+  entitySnapshotId  Int
+  reportType        String // balanceSheet | incomeStatement | cashFlow
+  sourceKind        String // workpaper | system | missing
+  sourceStatus      String // submitted | draft | available | missing
+  workpaperId       Int?
+  workpaperVersion  Int?
+  sourceChecksum    String?
+  workpaperUpdatedBy Int?
+  sourcePackageId   Int?
+  sourcePackageRevision Int?
+  sourcePackageStatus String?
+  sourcePackageChecksum String?
+  sourcePackageUploadedBy Int?
+  sourcePackageSubmittedBy Int?
+  lineCount         Int      @default(0)
+  sourcedLineCount  Int      @default(0)
+  importedLineCount Int      @default(0)
+  manualLineCount   Int      @default(0)
+  formulaLineCount  Int      @default(0)
+  reportPayload     Json
+  fingerprint       String
+  evidence          String?
+  selectedBy        Int
+  selectedAt        DateTime @default(now())
+  createdAt         DateTime @default(now())
+
+  batch  FinanceConsolidationBatch          @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  entity FinanceConsolidationEntitySnapshot @relation(fields: [entitySnapshotId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, entitySnapshotId, reportType])
+  @@index([workpaperId, workpaperVersion])
+}
+
+/// 合并批次汇率冻结快照（事实表，来源于已复核 FinanceStatementExchangeRate 版本）。
+model FinanceConsolidationRateSnapshot {
+  id                  Int      @id @default(autoincrement())
+  batchId             Int
+  exchangeRateId      Int
+  exchangeRateVersion Int
+  baseCurrency        String
+  quoteCurrency       String
+  rateKind            String
+  rateDate            String
+  rate                Decimal  @db.Decimal(20, 8)
+  sourceUrl           String
+  publishedAt         DateTime?
+  verifiedBy          Int?
+  verifiedAt          DateTime?
+  applications        Json      @default("[]")
+  createdAt           DateTime @default(now())
+
+  batch FinanceConsolidationBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, exchangeRateId])
+  @@index([batchId, rateKind, rateDate])
+}
+
+/// 合并抵销分录头（事实表，来源于人工编制与批次复核）。批准后通过新版本或冲销分录修订。
+model FinanceConsolidationEntry {
+  id                 Int       @id @default(autoincrement())
+  batchId            Int
+  entryNo            String
+  entryType          String // investmentEquity | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow
+  title              String
+  description        String?
+  evidence           String
+  matchDifference    Decimal?  @db.Decimal(20, 2)
+  differenceResolution String?
+  status             String    @default("draft") // draft | submitted | approved | reversed
+  version            Int       @default(1)
+  supersedesEntryId  Int?
+  reversalOfEntryId  Int?
+  predecessorEntryId Int?      @unique
+  preparedBy         Int
+  submittedBy        Int?
+  submittedAt        DateTime?
+  approvedBy         Int?
+  approvedAt         DateTime?
+  approvalNote       String?
+  reversedBy         Int?
+  reversedAt         DateTime?
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @default(now()) @updatedAt
+
+  batch              FinanceConsolidationBatch   @relation(fields: [batchId], references: [id], onDelete: Cascade)
+  supersedes         FinanceConsolidationEntry?  @relation("FinanceConsolidationEntryRevision", fields: [supersedesEntryId], references: [id], onDelete: Restrict)
+  revisions          FinanceConsolidationEntry[] @relation("FinanceConsolidationEntryRevision")
+  reversalOf         FinanceConsolidationEntry?  @relation("FinanceConsolidationEntryReversal", fields: [reversalOfEntryId], references: [id], onDelete: Restrict)
+  reversalEntries    FinanceConsolidationEntry[] @relation("FinanceConsolidationEntryReversal")
+  predecessor        FinanceConsolidationEntry?  @relation("FinanceConsolidationEntryLineage", fields: [predecessorEntryId], references: [id], onDelete: Restrict)
+  successor          FinanceConsolidationEntry?  @relation("FinanceConsolidationEntryLineage")
+  lines              FinanceConsolidationEntryLine[]
+  taxEffects         FinanceConsolidationTaxEffect[]
+
+  @@unique([batchId, entryNo])
+  @@unique([supersedesEntryId])
+  @@unique([reversalOfEntryId])
+  @@index([batchId, status, entryType])
+  @@index([supersedesEntryId])
+  @@index([reversalOfEntryId])
+  @@index([predecessorEntryId])
+}
+
+/// 合并抵销分录借贷行（事实表，来源于人工编制；同一分录必须借贷平衡）。
+model FinanceConsolidationEntryLine {
+  id            Int      @id @default(autoincrement())
+  entryId       Int
+  lineNo        Int
+  companyId     Int
+  companyCode   String
+  statementType String // balanceSheet | incomeStatement | cashFlow
+  lineCode      String
+  accountCode   String?
+  debit         Decimal  @default(0) @db.Decimal(20, 2)
+  credit        Decimal  @default(0) @db.Decimal(20, 2)
+  currencyCode  String   @default("CNY")
+  periodBasis   String   @default("current") // current | comparative
+  note          String?
+  matchSide     String? // left | right
+  sourceKind    String? // auxiliaryBalance | openItem | cashFlowAllocation | workpaper | voucher | other
+  sourceId      String?
+  sourceFingerprint String?
+  sourceAmount  Decimal? @db.Decimal(20, 2)
+  sourceCurrency String?
+  counterpartyCompanyId Int?
+  createdAt     DateTime @default(now())
+
+  entry FinanceConsolidationEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
+
+  @@unique([entryId, lineNo])
+  @@index([companyId, statementType, lineCode])
+}
+
+/// 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
+model FinanceConsolidationTaxEffect {
+  id                       Int      @id @default(autoincrement())
+  entryId                  Int
+  entitySnapshotId         Int?
+  effectKey                String
+  taxEffectType            String // deductible | taxable
+  differenceAmount         Decimal  @db.Decimal(20, 2)
+  taxRate                  Decimal  @db.Decimal(12, 8)
+  recognition              String // asset | liability | unrecognized
+  periodBasis               String @default("current") // current | comparative
+  jurisdiction             String?
+  recognitionLocation      String? // profitOrLoss | otherComprehensiveIncome | equity
+  balanceSheetLineCode     String?
+  counterpartLineCode      String?
+  reversalPeriod           String?
+  recoverabilityConclusion String
+  evidence                 String
+  preparedBy               Int
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @default(now()) @updatedAt
+
+  entry  FinanceConsolidationEntry          @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  entity FinanceConsolidationEntitySnapshot? @relation(fields: [entitySnapshotId], references: [id], onDelete: Restrict)
+
+  @@unique([entryId, effectKey])
+  @@index([entryId, taxEffectType])
+  @@index([entitySnapshotId, recognitionLocation])
+}

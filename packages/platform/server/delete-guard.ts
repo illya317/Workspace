@@ -45,6 +45,7 @@ export interface GuardedDeleteInput {
   deleteMode?: DeleteMode;
   expectedVersion?: number;
   skipVersionCheck?: boolean;
+  auditPolicy?: "history" | "event";
   references?: DeleteReferenceGuard[];
   referencePolicy?: "checked" | "none" | "retained";
   archiveField?: { field: string; value?: unknown };
@@ -138,6 +139,9 @@ function assertDeleteContract(input: GuardedDeleteInput, mode: DeleteMode, actio
   }
   if (mode === "archive" && input.referencePolicy === "retained" && input.references?.length) {
     return { ok: false, error: `不能${actionLabel}，归档不能同时声明保留引用和引用清理策略`, status: 500 };
+  }
+  if (input.auditPolicy === "event" && !input.onBeforeDelete) {
+    return { ok: false, error: `不能${actionLabel}，事件审计必须在删除事务钩子中写入`, status: 500 };
   }
   return null;
 }
@@ -268,8 +272,10 @@ export async function guardedDelete(input: GuardedDeleteInput): Promise<DeleteGu
       const referenceBlock = await guardReferences(input.references, tx, actionLabel);
       if (referenceBlock) return referenceBlock;
 
-      await ensureEditHistoryBaseline(input.entityType, input.id, input.userId, tx);
-      await snapshotHistory(input.entityType, input.id, input.userId, tx);
+      if ((input.auditPolicy ?? "history") === "history") {
+        await ensureEditHistoryBaseline(input.entityType, input.id, input.userId, tx);
+        await snapshotHistory(input.entityType, input.id, input.userId, tx);
+      }
       await cleanupReferences(input.references, tx);
       await applyDelete(model, input, record);
 

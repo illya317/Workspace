@@ -1,4 +1,3 @@
-import { prisma } from "@workspace/platform/server/prisma";
 import {
   loadCashFlowConfig,
   loadIncomeStatementConfig,
@@ -7,12 +6,18 @@ import {
 } from "../config/load-config-reports";
 import { computeIncomeSystemAmounts } from "./income-system-amounts";
 import { computeCashFlowSystemAmounts } from "./cash-flow-system-amounts";
+import { loadSubmittedStatementWorkpaper } from "../workpaper-source";
 
 export interface DirectReportLine {
+  lineCode: string;
   code?: string;
   label: string;
   amount: number;
   previousAmount?: number;
+  section: string;
+  side: "debit" | "credit";
+  direction?: "in" | "out" | "net";
+  subtract?: boolean;
   isHeader?: boolean;
   isTotal?: boolean;
   isGrandTotal?: boolean;
@@ -60,10 +65,14 @@ function buildIncomeLines(
       previousAccumulated += row.subtract ? -previousAmount : previousAmount;
     }
     return {
+      lineCode: row.lineCode,
       code: accountCode(row),
       label: row.label,
       amount,
       previousAmount,
+      section: row.section,
+      side: row.side,
+      ...(row.subtract ? { subtract: true as const } : {}),
       ...incomeFlags(row),
     };
   });
@@ -84,10 +93,17 @@ function workpaperLines(
   previous: Map<string, number>,
 ): DirectReportLine[] {
   return config.map((row) => ({
+    lineCode: row.lineCode,
     code: accountCode(row),
     label: row.label,
     amount: current.get(row.lineCode) ?? 0,
     previousAmount: previous.get(row.lineCode) ?? 0,
+    section: row.section,
+    side: row.side,
+    ...(row.direction === "in" || row.direction === "out" || row.direction === "net"
+      ? { direction: row.direction }
+      : {}),
+    ...("subtract" in row && row.subtract ? { subtract: true as const } : {}),
     ...("isHeader" in row && row.isHeader ? { isHeader: true as const } : {}),
     ...(("isTotal" in row && row.isTotal) || ("isSubtotal" in row && row.isSubtotal) ? { isTotal: true as const } : {}),
     ...(row.isGrandTotal ? { isGrandTotal: true as const } : {}),
@@ -111,14 +127,8 @@ export async function generateDirectStatementReport(
     const [config, previousConfig, workpaper, previousWorkpaper] = await Promise.all([
       loadIncomeStatementConfig(companyCode, year),
       loadIncomeStatementConfig(companyCode, year - 1),
-      prisma.financeStatementWorkpaper.findUnique({
-        where: { companyCode_year_month_reportType: { companyCode, year, month, reportType } },
-        include: { lines: true },
-      }),
-      prisma.financeStatementWorkpaper.findUnique({
-        where: { companyCode_year_month_reportType: { companyCode, year: year - 1, month, reportType } },
-        include: { lines: true },
-      }),
+      loadSubmittedStatementWorkpaper({ companyCode, year, month, reportType }),
+      loadSubmittedStatementWorkpaper({ companyCode, year: year - 1, month, reportType }),
     ]);
     if (workpaper) {
       return {
@@ -145,28 +155,8 @@ export async function generateDirectStatementReport(
 
   const [config, workpaper, previousWorkpaper] = await Promise.all([
     loadCashFlowConfig(companyCode, year),
-    prisma.financeStatementWorkpaper.findUnique({
-      where: {
-        companyCode_year_month_reportType: {
-          companyCode,
-          year,
-          month,
-          reportType,
-        },
-      },
-      include: { lines: true },
-    }),
-    prisma.financeStatementWorkpaper.findUnique({
-      where: {
-        companyCode_year_month_reportType: {
-          companyCode,
-          year: year - 1,
-          month,
-          reportType,
-        },
-      },
-      include: { lines: true },
-    }),
+    loadSubmittedStatementWorkpaper({ companyCode, year, month, reportType }),
+    loadSubmittedStatementWorkpaper({ companyCode, year: year - 1, month, reportType }),
   ]);
   const system = workpaper ? null : await computeCashFlowSystemAmounts(companyCode, year, month, config);
   const amounts = workpaper ? workpaperAmountMap(workpaper) : system!.amounts;
@@ -185,10 +175,14 @@ export async function generateDirectStatementReport(
           message,
         })),
     lines: config.map((row) => ({
+      lineCode: row.lineCode,
       code: accountCode(row),
       label: row.label,
       amount: amounts.get(row.lineCode) ?? 0,
       previousAmount: previousAmounts.get(row.lineCode) ?? 0,
+      section: row.section,
+      side: row.side,
+      direction: row.direction,
       ...cashFlowFlags(row),
     })),
   };

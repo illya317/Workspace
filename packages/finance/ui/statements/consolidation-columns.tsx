@@ -62,7 +62,6 @@ export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEnti
 const RATE_KIND_LABELS: Record<StatementExchangeRateSnapshot["rateKind"], string> = {
   closing: "期末折算价",
   historicalInvestment: "投资日历史汇率",
-  average: "期间平均汇率",
 };
 
 export const exchangeRateColumns: DataSurfaceColumnSpec<StatementExchangeRateSnapshot>[] = [

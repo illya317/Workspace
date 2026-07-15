@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { prisma } from "@workspace/platform/server/prisma";
 import type { BalanceItem, ReportPeriod, ReclassEntry } from "../report-helpers";
 import { loadBalanceSheetConfig } from "../config/load-config";
 import { computeBalanceSheet } from "../compute-balance-sheet";
@@ -8,15 +7,18 @@ import { aggregateMappingBasedBalances } from "../mapping-based-balances";
 import { resolveReclassEntriesToLines } from "../mapping/reclass-routing";
 import type { ReclassLineRouting } from "../mapping/reclass-routing";
 import type { BalanceSheetLineConfig } from "../config/balance-sheet-lines";
+import { loadSubmittedStatementWorkpaper } from "../workpaper-source";
 
 interface ReportLineItem {
-  label: string; code: string; amount: number;
+  lineCode: string; label: string; code: string; amount: number;
+  section: string; side: "debit" | "credit";
   previousAmount?: number;
   isHeader?: boolean; isTotal?: boolean; isGrandTotal?: boolean;
 }
 
-function toReportLine(cl: ComputedLine & { _section: string; previousAmount?: number }): ReportLineItem {
-  return { label: cl.label, code: cl.displayCode, amount: cl.amount, previousAmount: cl.previousAmount,
+function toReportLine(cl: ComputedLine & { _section: string; _side: "debit" | "credit"; previousAmount?: number }): ReportLineItem {
+  return { lineCode: cl.lineCode, label: cl.label, code: cl.displayCode, amount: cl.amount,
+    previousAmount: cl.previousAmount, section: cl._section, side: cl._side,
     ...(cl.isHeader ? { isHeader: true as const } : {}),
     ...(cl.isTotal ? { isTotal: true as const } : {}),
     ...(cl.isGrandTotal ? { isGrandTotal: true as const } : {}),
@@ -27,7 +29,10 @@ const ASSET_SECTIONS = ["currentAssets", "nonCurrentAssets"];
 const LIABILITY_SECTIONS = ["currentLiabilities", "nonCurrentLiabilities"];
 const EQUITY_SECTIONS = ["equity"];
 
-function filterBySections(lines: (ComputedLine & { _section: string })[], sections: string[]): ReportLineItem[] {
+function filterBySections(
+  lines: (ComputedLine & { _section: string; _side: "debit" | "credit" })[],
+  sections: string[],
+): ReportLineItem[] {
   return lines.filter((l) => sections.includes(l._section)).map(toReportLine);
 }
 
@@ -43,7 +48,7 @@ function workpaperLines(
   config: BalanceSheetLineConfig[],
   current: Map<string, number>,
   previous: Map<string, number>,
-): (ComputedLine & { _section: string; previousAmount?: number })[] {
+): (ComputedLine & { _section: string; _side: "debit" | "credit"; previousAmount?: number })[] {
   return config.map((line) => ({
     lineCode: line.lineCode,
     label: line.label,
@@ -56,6 +61,7 @@ function workpaperLines(
     _debit: 0,
     _credit: 0,
     _section: line.section,
+    _side: line.side,
   }));
 }
 
@@ -73,17 +79,11 @@ export async function generateBalanceSheet(
   if (!period.companyCode) throw new Error("资产负债表期间缺少公司编号");
   const [config, currentWorkpaper, previousWorkpaper] = await Promise.all([
     loadBalanceSheetConfig(period.companyCode, period.year),
-    prisma.financeStatementWorkpaper.findUnique({
-      where: { companyCode_year_month_reportType: {
-        companyCode: period.companyCode, year: period.year, month: period.month, reportType: "balanceSheet",
-      } },
-      include: { lines: true },
+    loadSubmittedStatementWorkpaper({
+      companyCode: period.companyCode, year: period.year, month: period.month, reportType: "balanceSheet",
     }),
-    prisma.financeStatementWorkpaper.findUnique({
-      where: { companyCode_year_month_reportType: {
-        companyCode: period.companyCode, year: period.year - 1, month: period.month, reportType: "balanceSheet",
-      } },
-      include: { lines: true },
+    loadSubmittedStatementWorkpaper({
+      companyCode: period.companyCode, year: period.year - 1, month: period.month, reportType: "balanceSheet",
     }),
   ]);
   const warnings: string[] = [];
@@ -142,10 +142,12 @@ export async function generateBalanceSheet(
   const allDiagnostics = [...warnings, ...diagnostics];
 
   const sectionMap = new Map(config.map((c) => [c.lineCode, c.section]));
+  const sideMap = new Map(config.map((c) => [c.lineCode, c.side]));
   const linesWithSection = lines.map((l) => ({
     ...l,
     previousAmount: previousByCode.get(l.lineCode) ?? 0,
     _section: sectionMap.get(l.lineCode) || "",
+    _side: sideMap.get(l.lineCode) ?? "debit",
   }));
 
   const assets = filterBySections(linesWithSection, ASSET_SECTIONS);
