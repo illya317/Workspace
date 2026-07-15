@@ -1,0 +1,67 @@
+/// 个别财务报表来源包（不可变证据事实，来源于人工上传的法定三表 Excel）。
+/// 文件、解析结果和校验摘要按 revision 保留；提交只推进状态，不覆盖既有来源包。
+model FinanceStatementSourcePackage {
+  id                Int      @id @default(autoincrement())
+  companyId         Int
+  companyCode       String
+  companyName       String
+  year              Int
+  month             Int
+  revision          Int
+  version           Int      @default(1)
+  status            String   @default("draft") // draft | submitted | rejected
+  fileName          String
+  mimeType          String
+  fileSize          Int
+  fileChecksum      String
+  fileContent       Bytes
+  parsedCompanyName String
+  note              String?
+  uploadedBy        Int
+  uploadedAt        DateTime @default(now())
+  submittedBy       Int?
+  submittedAt       DateTime?
+  rejectedBy        Int?
+  rejectedAt        DateTime?
+  rejectionReason   String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+  sheets            FinanceStatementSourceSheet[]
+  workpapers         FinanceStatementWorkpaper[]
+
+  @@unique([companyId, year, month, revision])
+  @@index([companyId, year, month, status])
+  @@index([fileChecksum])
+}
+
+/// 个别财务报表来源包中的报表页（解析事实，来源于上传文件的固定三表 sheet）。
+model FinanceStatementSourceSheet {
+  id           Int      @id @default(autoincrement())
+  packageId    Int
+  reportType   String // balanceSheet | incomeStatement | cashFlow
+  previousYear Int
+  currentYear  Int
+  lineCount    Int
+  createdAt    DateTime @default(now())
+  sourcePackage FinanceStatementSourcePackage @relation(fields: [packageId], references: [id], onDelete: Cascade)
+  lines         FinanceStatementSourceLine[]
+
+  @@unique([packageId, reportType])
+  @@index([packageId])
+}
+
+/// 个别财务报表来源行（解析事实，保存上传文件中当期/上期金额和原始项目名称）。
+model FinanceStatementSourceLine {
+  id             Int      @id @default(autoincrement())
+  sheetId        Int
+  lineCode       String
+  previousAmount Decimal  @db.Decimal(20, 2)
+  currentAmount  Decimal  @db.Decimal(20, 2)
+  sourceLabel    String
+  sortOrder      Int
+  createdAt      DateTime @default(now())
+  sheet          FinanceStatementSourceSheet @relation(fields: [sheetId], references: [id], onDelete: Cascade)
+
+  @@unique([sheetId, lineCode])
+  @@index([sheetId, sortOrder])
+}

@@ -14,6 +14,10 @@ import {
   COMPANY_RELATION_ALLOWED_FIELDS,
   validateCompanyRelationDeleteCommand,
 } from "./domain/company-relation-validation";
+import {
+  validateCompanyRelationBusinessRules,
+  type CompanyRelationRuleState,
+} from "./domain/company-relation-rules";
 
 const COMPANY_RELATION_CONFIG = {
   entityType: "CompanyRelation",
@@ -25,9 +29,18 @@ const COMPANY_RELATION_CONFIG = {
   onBeforeDelete: normalizeCompanyRelationDelete,
 };
 
-async function normalizeCompanyRelationFieldUpdate(field: string, value: unknown) {
+async function normalizeCompanyRelationFieldUpdate(field: string, value: unknown, id?: number) {
   const command = await buildCompanyRelationFieldUpdateCommand(field, value);
-  return command.ok ? command.data : { error: command.issue.message, status: command.issue.status };
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  if (!id) return { error: "公司关系ID无效", status: 400 };
+  const existing = await prisma.companyRelation.findUnique({
+    where: { id },
+    select: companyRelationRuleSelection,
+  });
+  if (!existing) return { error: "公司关系不存在", status: 404 };
+  const candidate = { ...existing, [command.data.field]: command.data.value } as CompanyRelationRuleState;
+  const issue = await validateProspectiveCompanyRelation(candidate);
+  return issue ? { error: issue, status: 400 } : command.data;
 }
 
 async function normalizeCompanyRelationDelete(id: number) {
@@ -49,6 +62,9 @@ export async function listCompanyRelations(input: { keyword: string; page: numbe
     childName: relation.child?.name || "",
     shareRatio: relation.shareRatio,
     isConsolidated: relation.isConsolidated,
+    effectiveFrom: formatDate(relation.effectiveFrom),
+    effectiveTo: formatDate(relation.effectiveTo),
+    version: relation.version,
   }));
 
   let result = mapped;
@@ -62,8 +78,11 @@ export async function listCompanyRelations(input: { keyword: string; page: numbe
 }
 
 export async function createCompanyRelation(command: CrudCreateCommand) {
-  return executeCreate(command, { entityType: "CompanyRelation", modelKey: "companyRelation" as const }, (body) => {
-    return buildCompanyRelationCreateCommand(body).then((command) => (command.ok ? command.data : null));
+  return executeCreate(command, { entityType: "CompanyRelation", modelKey: "companyRelation" as const }, async (body) => {
+    const createCommand = await buildCompanyRelationCreateCommand(body);
+    if (!createCommand.ok) return { error: createCommand.issue.message, status: createCommand.issue.status };
+    const issue = await validateProspectiveCompanyRelation(createCommand.data);
+    return issue ? { error: issue, status: 400 } : createCommand.data;
   });
 }
 
@@ -73,4 +92,22 @@ export async function updateCompanyRelationField(command: CrudUpdateFieldCommand
 
 export async function deleteCompanyRelation(command: CrudDeleteCommand) {
   return executeDelete(command, COMPANY_RELATION_CONFIG);
+}
+
+const companyRelationRuleSelection = {
+  id: true,
+  parentId: true,
+  childId: true,
+  isConsolidated: true,
+  effectiveFrom: true,
+  effectiveTo: true,
+} as const;
+
+async function validateProspectiveCompanyRelation(candidate: CompanyRelationRuleState) {
+  const relations = await prisma.companyRelation.findMany({ select: companyRelationRuleSelection });
+  return validateCompanyRelationBusinessRules(candidate, relations);
+}
+
+function formatDate(value: Date | null) {
+  return value ? value.toISOString().slice(0, 10) : null;
 }

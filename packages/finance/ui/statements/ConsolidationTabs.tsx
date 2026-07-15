@@ -1,5 +1,4 @@
 "use client";
-
 import {
   PageSurface,
   createAnalysisSection,
@@ -23,15 +22,17 @@ import type {
   StatementExchangeRateInput,
 } from "@workspace/finance/types";
 import { useEffect, useMemo, useState } from "react";
-import type { ConsolidationWorkpaperView } from "./StatementsClient";
+import type { ConsolidationCapabilities, ConsolidationWorkpaperView } from "./statement-ui-types";
 import {
   consolidationCheckColumns,
   consolidationEntityColumns,
   exchangeRateColumns,
   investmentEvidenceColumns,
 } from "./consolidation-columns";
-
-interface ConsolidationTabProps {
+import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
+import { useStatementSourcePackages } from "./useStatementSourcePackages";
+export interface ConsolidationTabProps {
+  capabilities: ConsolidationCapabilities;
   data: ConsolidationOverview | null;
   error: string | null;
   loading: boolean;
@@ -42,15 +43,12 @@ interface ConsolidationTabProps {
   onRefresh: () => void;
   navigation: PageSurfaceTabBarSpec;
 }
-
 interface ConsolidationWorkpaperTabProps extends ConsolidationTabProps {
   activeView: ConsolidationWorkpaperView;
 }
-
 const RATE_KIND_OPTIONS = [
   { value: "closing", label: "期末折算价" },
   { value: "historicalInvestment", label: "投资日历史汇率" },
-  { value: "average", label: "期间平均汇率" },
 ];
 
 function defaultRateDraft(periodEndDate = ""): StatementExchangeRateInput {
@@ -67,7 +65,7 @@ function defaultRateDraft(periodEndDate = ""): StatementExchangeRateInput {
   };
 }
 
-function usePeriodToolbar(props: ConsolidationTabProps): SurfaceToolbarItems {
+export function usePeriodToolbar(props: ConsolidationTabProps): SurfaceToolbarItems {
   const { data, loading, month, onMonthChange, onYearChange, year } = props;
   return useMemo(() => {
     const periods = data?.scope.availablePeriods ?? [];
@@ -142,7 +140,8 @@ function ownershipSections(data: ConsolidationOverview): BodySurfaceSectionSpec[
       tone: missing > 0 ? "warning" : "muted",
       content: missing > 0
         ? `以下关系直接读取现有 CompanyRelation 公司关系表，不另建股权台账。当前 ${missing} 条并表关系未填持股比例；尤其境外主体的当前直接持股链路应先与法律资料确认，再维护比例和少数股东口径。`
-        : "以下关系直接读取现有 CompanyRelation 公司关系表，持股比例将用于少数股东权益、损益和综合收益拆分。",
+        : "以下关系直接读取现有 CompanyRelation 公司关系表。存在非全资子公司时，系统据此要求人工提交并复核少数股东权益和损益分配底稿，不自动猜测分配结果。",
+      link: { label: "维护股权关系", href: workspacePath("/hr/roster") },
     }),
     createPageTableSection("ownership-relations", {
       rows: data.entities,
@@ -155,7 +154,7 @@ function ownershipSections(data: ConsolidationOverview): BodySurfaceSectionSpec[
     createListSection("ownership-review-list", {
       density: "compact",
       items: [
-        { key: "direct-chain", title: "直接持股链路", description: "CompanyRelation 应表达法律直接持股；间接控制比例由服务层沿链路计算，不能把有效比例回填成直接持股。", tone: "info" },
+        { key: "direct-chain", title: "直接持股链路", description: "CompanyRelation 表达法律直接持股关系；合并批次冻结当期关系快照，不能把推导出的有效比例回填成直接持股。", tone: "info" },
         { key: "control-date", title: "控制取得与丧失日期", description: "新增、处置或控制变化时按控制期间纳入，不按年末静态比例倒推全年。", tone: "warning" },
         { key: "nci-policy", title: "少数股东口径", description: "分别滚动期初权益、本期损益、其他综合收益、分红和资本变动。", tone: "warning" },
       ],
@@ -206,7 +205,7 @@ function eliminationSections(data: ConsolidationOverview): BodySurfaceSectionSpe
   return [
     createMessageSection("elimination-boundary", {
       tone: "warning",
-      content: "抵销分录必须是独立合并底稿，保留借贷行、公司两侧、报表项目、证据、编制人和版本；不能回写单体账，也不能用资产负债差额自动配平。",
+      content: "抵销分录必须是独立合并底稿，保留借贷行、公司两侧、来源记录及指纹、报表项目、差异处理、证据、编制人和版本；不能回写单体账，也不能用资产负债差额自动配平。",
     }),
     createAnalysisSection("investment-equity-workpapers", {
       title: "投资、权益与少数股东",
@@ -227,7 +226,7 @@ function taxSections(data: ConsolidationOverview): BodySurfaceSectionSpec[] {
   const taxPackages = data.eliminations.filter((item) => item.workpaper === "tax");
   return [
     createMessageSection("tax-workpaper-rule", {
-      content: "税务影响跟随每一笔抵销分录计算，不单独用报表差额倒挤。底稿需记录暂时性差异类别、适用税率、预计转回期间、可抵扣性结论和对应递延所得税科目。",
+      content: "税务影响跟随每一笔抵销分录计算，不单独用报表差额倒挤。底稿需选择本期或比较期，并记录主体、税收管辖地、暂时性差异类别、适用税率、预计转回期间、可抵扣性结论、确认位置和对应递延所得税科目。",
     }),
     eliminationCards(taxPackages),
     createListSection("tax-review-list", {
@@ -235,7 +234,7 @@ function taxSections(data: ConsolidationOverview): BodySurfaceSectionSpec[] {
       items: [
         { key: "unrealized-profit", title: "内部未实现损益", description: "存货及长期资产未实现利润通常形成可抵扣暂时性差异，按购买方适用税率复核。", tone: "warning" },
         { key: "impairment", title: "内部往来减值", description: "抵销内部债权债务时同步处理内部信用减值及其递延所得税影响。", tone: "warning" },
-        { key: "foreign-tax", title: "境外主体税率与可转回性", description: "加拿大税率、亏损结转和利润汇回影响需由税务证据支持，不能沿用境内默认税率。", tone: "warning" },
+        { key: "foreign-tax", title: "境外主体税率与可转回性", description: "境外主体适用税率、亏损结转和利润汇回影响需由税务证据支持，不能沿用境内默认税率。", tone: "warning" },
         { key: "tie-out", title: "税项勾稽", description: "递延所得税资产负债变动、所得税费用和权益中确认的税项需三向勾稽。", tone: "warning" },
       ],
     }),
@@ -268,10 +267,17 @@ function reviewSections(data: ConsolidationOverview): BodySurfaceSectionSpec[] {
 
 export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps) {
   const toolbarItems = usePeriodToolbar(props);
-  const { activeView, data, error, loading, navigation, onRefresh } = props;
+  const { activeView, capabilities, data, error, loading, navigation, onRefresh } = props;
   const feedback = useFeedback();
   const [rateDraft, setRateDraft] = useState<StatementExchangeRateInput>(() => defaultRateDraft());
   const [savingRate, setSavingRate] = useState(false);
+  const sourcePackages = useStatementSourcePackages({
+    active: activeView === "sources",
+    capabilities,
+    data,
+    onConsolidationRefresh: onRefresh,
+  });
+  const decisionWorkspace = useConsolidationDecisionWorkspace({ data, capabilities, onRefresh });
 
   useEffect(() => {
     if (!data?.fxPolicy.periodEndDate) return;
@@ -286,11 +292,11 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
       const response = await fetch(workspacePath("/api/modules/finance/statements/consolidation/exchange-rates"), {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(rateDraft),
+        body: JSON.stringify({ ...rateDraft, status: "draft" }),
       });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "汇率证据保存失败");
-      feedback.success(rateDraft.status === "verified" ? "汇率证据已保存并复核" : "汇率证据草稿已保存");
+      feedback.success("汇率证据草稿已保存，需由另一名复核人确认");
       setRateDraft(defaultRateDraft(data?.fxPolicy.periodEndDate));
       onRefresh();
     } catch (cause) {
@@ -304,15 +310,28 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
   if (!data) {
     sections = fallbackSections(error, loading);
   } else if (activeView === "ownership") {
-    sections = ownershipSections(data);
+    sections = [...ownershipSections(data), ...decisionWorkspace.controlDecisionSections("ownership")];
   } else if (activeView === "sources") {
-    sections = sourceSections(data);
+    sections = [
+      ...sourceSections(data),
+      ...decisionWorkspace.createBatchSections(),
+      ...sourcePackages.sections,
+      ...decisionWorkspace.sourceDecisionSections(),
+    ];
   } else if (activeView === "eliminations") {
-    sections = eliminationSections(data);
+    sections = [
+      ...eliminationSections(data),
+      ...decisionWorkspace.entrySections(),
+      ...decisionWorkspace.controlDecisionSections(),
+    ];
   } else if (activeView === "tax") {
-    sections = taxSections(data);
+    sections = [
+      ...taxSections(data),
+      ...decisionWorkspace.taxSections(),
+      ...decisionWorkspace.controlDecisionSections("tax"),
+    ];
   } else if (activeView === "review") {
-    sections = reviewSections(data);
+    sections = [...reviewSections(data), ...decisionWorkspace.lifecycleSections()];
   } else if (activeView === "fx") {
     const rateFields: FormSurfaceFieldSpec[] = [
       {
@@ -347,19 +366,10 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
       {
         key: "publishedAt",
         label: "牌价发布时间",
-        required: rateDraft.status === "verified",
         spec: { valueType: "string", control: "text" },
         value: rateDraft.publishedAt ?? "",
         placeholder: "例如 2026-06-30T10:30:00+08:00",
         onChange: (value) => setRateDraft((current) => ({ ...current, publishedAt: String(value ?? "") || null })),
-      },
-      {
-        key: "status",
-        label: "处理状态",
-        required: true,
-        spec: { valueType: "string", control: "choice", options: { source: "static", items: [{ value: "draft", label: "保存草稿" }, { value: "verified", label: "保存并复核" }] } },
-        value: rateDraft.status,
-        onChange: (value) => setRateDraft((current) => ({ ...current, status: String(value) as StatementExchangeRateInput["status"] })),
       },
       {
         key: "sourceUrl",
@@ -384,11 +394,12 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
     sections = [
       createMessageSection("fx-processing-rule", {
         tone: data.fxPolicy.status === "ready" ? "muted" : "warning",
-        content: `${data.fxPolicy.pair} 采用中国银行“中行折算价”，单位为人民币/100外币。系统不依赖无公开契约的网页抓取：保存牌价日期、发布时间、来源页、数值和复核人形成快照。${data.fxPolicy.note}`,
+        content: `${data.fxPolicy.pair} 采用中国银行“中行折算价”，单位为人民币/100外币。投资付款及对应实收资本使用投资日历史汇率，其余报表项目统一使用对应期期末折算价；本期截止 ${data.fxPolicy.periodEndDate}，比较期截止 ${data.fxPolicy.comparativePeriodEndDate}。系统保存牌价日期、发布时间、来源页、数值、适用期间和复核人形成快照。${data.fxPolicy.note}`,
       }),
       createMetricsSection("fx-readiness", {
         metrics: [
           { key: "closing", label: "期末折算价", value: data.fxPolicy.closingRate ? `${data.fxPolicy.closingRate.rate.toFixed(4)} · 已复核` : "待复核" },
+          { key: "comparative-closing", label: "比较期期末折算价", value: data.fxPolicy.comparativeClosingRate ? `${data.fxPolicy.comparativeClosingRate.rate.toFixed(4)} · 已复核` : "无上期数/待复核" },
           { key: "historical", label: "投资日历史汇率", value: String(data.fxPolicy.historicalRateCount) },
           { key: "investment", label: "投资付款证据", value: String(data.fxPolicy.investmentEvidence.length) },
           { key: "missing", label: "缺原币/汇率", value: String(data.fxPolicy.missingInvestmentRateCount) },
@@ -396,21 +407,24 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
       }),
       createFormSection("fx-rate-editor", {
         kind: "filters",
-        header: { title: "录入并复核中国银行牌价", description: "期末资产负债使用期末/此前最近营业日牌价；投资历史成本使用每笔投资发生日牌价；平均汇率需有批准依据。" },
+        header: { title: "录入中国银行牌价", description: "录入人只保存草稿；另一名具备复核权限的人员确认后，批次才能冻结该汇率版本。" },
         content: { items: rateFields, layout: { flow: "grid", columns: 3, density: "compact", commandPlacement: "below" } },
-        commands: [{ key: "save-rate", label: savingRate ? "正在保存…" : "保存汇率证据", type: "submit", variant: "primary", disabled: savingRate }],
+        actions: [{ key: "save-rate", action: "save", label: savingRate ? "正在保存…" : "保存汇率草稿", disabled: savingRate || !capabilities.canCreate }],
         submit: { onSubmit: () => void saveRate() },
       }),
+      ...decisionWorkspace.rateReviewSections(),
       createPageTableSection("fx-rate-snapshots", {
         rows: data.fxPolicy.rates,
         columns: exchangeRateColumns,
         visibleColumns: exchangeRateColumns.map((column) => column.key),
         rowKey: (row) => row.id,
         presentation: { density: "compact", cellWrap: "wrap" },
+        rowActions: decisionWorkspace.rateRowActions,
+        actionsColumn: { label: "处理" },
         emptyText: "尚未保存 CAD/CNY 汇率证据",
       }),
       createAnalysisSection("investment-payment-evidence", {
-        title: "北美研究院投资付款与历史汇率",
+        title: "境外 / CAD 被投资主体付款与历史汇率",
         sections: [
           createMessageSection("investment-payment-help", {
             tone: data.fxPolicy.missingInvestmentRateCount > 0 ? "warning" : "muted",
@@ -423,59 +437,27 @@ export function ConsolidationWorkpaperTab(props: ConsolidationWorkpaperTabProps)
             rowKey: (row) => row.id,
             presentation: { density: "compact", cellWrap: "wrap" },
             scroll: { x: true },
-            emptyText: "当前账内未识别到北美研究院投资付款",
+            emptyText: "当前账内未识别到境外 / CAD 被投资主体投资付款",
           }),
         ],
       }),
       createListSection("fx-policy-list", {
         density: "compact",
         items: [
-          { key: "assets-liabilities", title: "资产和负债", description: "按资产负债表日即期汇率；非营业日使用经复核的最近可用牌价并说明。", tone: "info" },
-          { key: "historical-equity", title: "实收资本及历史成本权益事项", description: "按出资或交易发生日历史汇率；每笔投资付款独立留证。", tone: "info" },
-          { key: "income-expense", title: "收入和费用", description: "按交易日汇率，或采用有依据且能够合理近似的期间平均汇率。", tone: "info" },
-          { key: "retained-earnings", title: "未分配利润", description: "按期初余额和本期利润分配滚动，不直接套期末汇率。", tone: "info" },
-          { key: "translation-difference", title: "外币报表折算差额", description: "在原币三表完整后由上述口径派生，并在所有者权益中单独列示。", tone: "warning" },
+          { key: "historical-investment", title: "投资款与对应实收资本", description: "本期按截至本期期末全部投资付款的历史汇率加权；比较期只纳入比较期期末前已发生的投资。付款原币、人民币金额、凭证和牌价快照逐笔留证。", tone: "info" },
+          { key: "closing-other", title: "其他全部报表项目", description: "资产、负债、收入、费用、未分配利润及现金流均按对应期期末中行折算价；只有冻结来源存在非零上期数的 CAD 主体才要求比较期牌价，不接受期间平均汇率。", tone: "info" },
+          { key: "translation-difference", title: "外币报表折算差额", description: "系统按历史投资汇率与期末汇率的差异派生，并在其他综合收益中单独列示。", tone: "warning" },
         ],
       }),
+      ...decisionWorkspace.controlDecisionSections("fx"),
     ];
-  } else {
-    sections = overviewSections(data);
-  }
-  if (data && error) sections = [createMessageSection("consolidation-refresh-error", { tone: "danger", content: error }), ...sections];
-  return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
-}
-
-export function ConsolidatedReportTab(props: ConsolidationTabProps) {
-  const toolbarItems = usePeriodToolbar(props);
-  const { data, error, loading, navigation } = props;
-  let sections: BodySurfaceSectionSpec[];
-  if (!data) {
-    sections = fallbackSections(error, loading);
   } else {
     sections = [
-      createMessageSection("consolidated-output-status", { tone: "warning", content: data.outputMessage }),
-      ...(error ? [createMessageSection("consolidated-refresh-error", { tone: "danger", content: error })] : []),
-      createMetricsSection("consolidated-output-metrics", {
-        metrics: [
-          { key: "status", label: "发布状态", value: "未发布" },
-          { key: "period", label: "报表期间", value: data.scope.periodLabel },
-          { key: "entities", label: "合并实体", value: String(data.metrics.entityCount) },
-          { key: "blockers", label: "未闭环控制", value: String(data.metrics.blockerCount) },
-        ],
-      }),
-      createAnalysisSection("consolidated-report-list", { title: "母公司合并报表", sections: [reviewSections(data)[2]!] }),
-      createAnalysisSection("consolidated-blockers", {
-        title: "发布前检查",
-        sections: [createPageTableSection("consolidated-blocker-table", {
-          rows: data.checks,
-          columns: consolidationCheckColumns,
-          visibleColumns: consolidationCheckColumns.map((column) => column.key),
-          rowKey: (row) => row.key,
-          presentation: { density: "compact" },
-          rowState: (row) => row.status === "blocked" ? "danger" : row.status === "attention" ? "warning" : "normal",
-        })],
-      }),
+      ...overviewSections(data),
+      ...decisionWorkspace.createBatchSections(),
+      ...decisionWorkspace.controlDecisionSections(),
     ];
   }
+  if (data && error) sections = [createMessageSection("consolidation-refresh-error", { tone: "danger", content: error }), ...sections];
   return <PageSurface kind="standard" tabbar={navigation} toolbar={{ items: toolbarItems }} body={createPageBody(sections)} />;
 }

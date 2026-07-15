@@ -12,10 +12,16 @@ const optionalMonth = z.preprocess(
   (value) => value === null || value === undefined || value === "" ? undefined : Number(value),
   z.number().int().min(1).max(12).optional(),
 );
+const optionalPositiveId = z.preprocess(
+  (value) => value === null || value === undefined || value === "" ? undefined : Number(value),
+  z.number().int().positive().optional(),
+);
 
 const consolidationQuerySchema = z.object({
   year: optionalYear,
   month: optionalMonth,
+  parentCompanyId: optionalPositiveId,
+  batchId: optionalPositiveId,
 });
 
 export const GET = createCommandRoute({

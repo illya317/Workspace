@@ -62,9 +62,11 @@
 
 ### 财务报表 (`/finance/statements`)
 
-`StatementsClient` 位于 `packages/finance/ui/statements`，由 route 薄壳挂载。页面只展示资产负债表、利润表、现金流量表及取数明细；资产负债表按资产与负债/权益两列独立展开，明细统一显示“科目名称 · 科目编码、期初余额、期末余额”。
+`StatementsClient` 位于 `packages/finance/ui/statements`，由 route 薄壳挂载。页面分为“合并报表底稿 / 财务报表 / 合并报表”三个顶层 Tab：底稿处理合并范围、来源、汇率、抵销、税务和复核发布；财务报表展示各公司的个别三表；合并报表只展示已锁定或已发布批次的母公司合并输出。个别资产负债表按资产与负债/权益两列独立展开，明细统一显示“科目名称 · 科目编码、期初余额、期末余额”。
 
-三张表优先读取已导入的 `FinanceStatementWorkpaper` 事实数据，从而保留法定报表中的重分类后金额；没有底稿时，资产负债表回退到固定报表映射和余额重分类调整，利润表回退到期间凭证明细。报表行及科目映射由 `packages/finance/server/statements/config/*-lines.ts` 定义，`fixed-balance-definition.ts` 是资产负债表聚合与重分类路由的统一入口，不按公司/年度写入配置表。
+三张表只优先读取状态为 `submitted` 的 `FinanceStatementWorkpaper` 事实数据，从而保留经人工提交的法定报表金额；草稿底稿不能进入正式报表。没有已提交底稿时，资产负债表回退到固定报表映射和余额重分类调整，利润表回退到期间凭证明细。报表行及科目映射由 `packages/finance/server/statements/config/*-lines.ts` 定义，`fixed-balance-definition.ts` 是资产负债表聚合与重分类路由的统一入口，不按公司/年度写入配置表。
+
+页面上传的 Excel 先落入不可变 `FinanceStatementSourcePackage/Sheet/Line` 来源包：保存原文件、SHA-256、解析单位、工作表和逐行事实。上传只产生 draft；提交时服务端重新消费已存解析事实并生成 submitted workpaper，同时记录来源包 revision/checksum，不接受客户端传入的预览金额。CLI 导入和页面上传共用 `packages/finance/server/statements/source-workbook.ts` 的解析口径。
 
 法定资产负债表与系统口径的差异必须用成对的源/目标科目重分类解释，禁止把差额塞入权益；`npm run finance:statements-reconcile-balance -- --company=<公司> --years=<年度> --execute` 会先校验资产、负债和权益勾稽，再写入 `sourceType="reference_workpaper"` 的余额调整。原“报表项目配置、遗漏科目、余额校对”仅服务于建立映射，现已连同写 API、业务动作和配置表删除。
 
@@ -124,7 +126,9 @@ ledger/page.tsx
 statements/page.tsx
   └─ FinanceShell
        └─ @workspace/finance/ui StatementsClient
-            └─ packages/finance/ui/statements/ReportTab.tsx
+            ├─ ConsolidationWorkpaperTab（范围、来源、汇率、抵销、税务、复核发布）
+            ├─ ReportTab（个别三表）
+            └─ ConsolidatedReportTab（锁定/发布批次的合并三表）
 
 analysis/page.tsx
   └─ FinanceShell
@@ -299,11 +303,17 @@ budget/page.tsx
 
 合并报表不等于多公司简单相加，也不复用单体报表的负数重分类。`/finance/statements` 的“合并报表底稿”父 Tab 以顶部 accordion 子 Tab 按“编制总览 → 范围与股权 → 个别三表 → 外币折算 → 抵销底稿 → 税务影响 → 复核发布”组织；“财务报表”继续展示子公司个别三表，“合并报表”只展示已完成控制链的母公司合并输出。
 
-合并范围和持股比例只读取 HR 主数据 `CompanyRelation`：`isConsolidated` 决定纳入范围，`parentId/childId/shareRatio` 表达直接法律持股关系。Finance 不建立第二份股权表；间接持股、少数股东权益和损益由服务层沿已确认链路计算。股权比例为空或当前链路与法律资料不一致时，底稿显示具体关系事实并要求复核，不自动猜测比例。
+合并范围和持股比例只读取 HR 主数据 `CompanyRelation`：`isConsolidated` 决定纳入范围，`parentId/childId/shareRatio` 表达直接法律持股关系，`effectiveFrom/effectiveTo` 表达控制期间。HR 写链校验比例区间、期间重叠、环路和同一期间多父链，并记录编辑人、编辑时间和版本。Finance 不建立第二份股权表，而是在批次中冻结整条直接持股链及各关系版本；存在 `shareRatio < 1` 的非全资子公司时，提交必须同时具备已批准的少数股东权益和少数股东损益分配分录，不能以“不适用”跳过。比例缺失或链路与法律资料不一致时，底稿显示具体关系事实并跳转 canonical HR 入口，不自动猜测比例或金额。
 
-加拿大外币折算的牌价证据存放在 `FinanceStatementExchangeRate`。该表只保存 CAD/CNY 的牌价口径、日期、数值、单位、来源页、牌价发布时间、录入人和复核事实；期末资产负债、历史投资、期间损益、留存收益滚动和外币报表折算差额仍由 service 按口径派生，不能把一个期末汇率套到整张报表。中国银行历史牌价查询没有稳定公开 JSON 契约，页面通过人工核验后保存来源快照，不在客户端抓取网页。加拿大原币三表、投资付款原币金额或相应汇率证据不完整时，只展示待补事实，不生成折算结果。
+外币牌价证据存放在 `FinanceStatementExchangeRate`。该表只保存 CAD/CNY 的牌价口径、日期、数值、单位、来源页、牌价发布时间、录入人和独立复核事实；录入人只能保存 draft，另一名具备复核权限的人员确认后才能进入合并批次。每个实体的本位币和判断依据、该实体的 CAD 期末汇率，以及每笔投资凭证对应的投资日历史汇率，都在来源冻结时形成应用关系并进入 rate fingerprint。按当前集团确认口径，投资/权益资本使用对应投资付款的历史汇率，其余三表项目使用该实体绑定的期末中行折算价，差额单列 `otherComprehensiveIncome`；不能取批次第一条汇率套给全部加拿大主体。中国银行公开查询页目前按来源快照人工核验，不在客户端抓取网页；原币三表、投资付款原币金额、实体应用关系或比较期汇率证据不完整时，锁定被阻断。
 
-抵销至少覆盖母公司投资与子公司权益、内部往来与借款、内部销售及未实现存货利润、内部固定/无形资产交易及折旧摊销、股利与投资收益、内部现金流，以及相关减值和递延所得税。抵销分录需独立版本、证据和审计轨迹，不能写回单体账或用报表差额自动配平。
+抵销至少覆盖母公司投资与子公司权益、内部往来与借款、内部销售及未实现存货利润、内部固定/无形资产交易及折旧摊销、股利与投资收益、内部现金流，以及相关减值和递延所得税。抵销分录需独立版本、证据和审计轨迹，借贷必须平衡且落到批次冻结来源中的规范 `lineCode`，并用 `periodBasis=current|comparative` 区分本期与比较期。内部往来、内部交易和现金流还必须逐侧保存来源类型、来源 ID、来源指纹、原币金额、币种、对方主体和匹配侧；系统计算左右差额，非零差额必须保存处置结论。不能写回单体账或用报表差额自动配平。确无事项时也必须保存逐类“不适用”结论、事实和证据，不能通过空底稿跳过。
+
+抵销税务影响不是备注：每项税效绑定纳税实体快照、税辖区、暂时性差异、税率、确认结论、作用期间及 `profitOrLoss / otherComprehensiveIncome / equity` 计入位置。锁定输出按确认结论自动落到递延所得税资产/负债及对应所得税费用或权益行；选择不确认时只保留判断与证据，不入表。
+
+`FinanceConsolidationBatch` 是合并事实根，按母公司、期间和版本冻结 `CompanyRelation` 范围、个别三表 payload、汇率及应用、控制结论、抵销分录和税务影响；`revision` 是每次草稿写入和生命周期操作的 CAS 令牌。生命周期为 `draft → submitted → reviewed → locked → published`，复核阶段也可带原因退回 `draft`。编制人提交后不得原地修改，复核人必须与所有编制/来源贡献人独立；草稿删除需原因并把完整快照追加到批次事件，事件同时冻结操作人的员工姓名，不能用账号昵称或用户 ID 充当业务签名。锁定、发布后只能新建版本。锁定、发布前都会重放快照并校验来源指纹、控制结论、抵销落表和资产负债表当期/上期平衡。
+
+合并输出只消费 `locked/published` 批次。`consolidated-output` 先按冻结实体本位币和批次汇率汇总单体三表，再叠加已批准抵销及已确认税效，重新计算合计行和归母/少数股东损益；页面逐行并列本期与比较期的“单体 / 抵销 / 合并数”。锁定成功时，状态迁移、批次事件和唯一 `FinanceConsolidationOutputSnapshot` 在同一事务写入；快照保存输入/输出 SHA-256、计算版本、完整三表正文和生成时间，数据库禁止更新或删除。发布和 GET 只校验并返回这份冻结快照，不随代码升级动态重算；任何范围、来源、汇率或分录变化都必须进入新批次版本。
 
 ## 预算管理
 

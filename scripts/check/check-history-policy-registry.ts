@@ -47,6 +47,8 @@ function collectCrudConfigEntities(files: string[]) {
   for (const file of files) {
     const text = read(file);
     for (const match of text.matchAll(CRUD_CONFIG_RE)) {
+      const configWindow = text.slice(match.index, match.index + 800);
+      if (/\bauditPolicy\s*:\s*["']event["']/.test(configWindow)) continue;
       const entityType = match[1];
       const existing = configs.get(entityType) ?? [];
       existing.push({ file });

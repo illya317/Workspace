@@ -9,16 +9,21 @@ model FinanceStatementWorkpaper {
   reportType  String // balanceSheet | incomeStatement | cashFlow
   status      String                          @default("draft") // draft | submitted
   note        String?
+  sourcePackageId       Int?
+  sourcePackageRevision Int?
+  sourceChecksum        String?
   updatedBy   Int?
   editedAt    DateTime?
   version     Int                             @default(1)
   createdAt   DateTime                        @default(now())
   updatedAt   DateTime                        @default(now()) @updatedAt
   editor      User?                           @relation("WorkpaperEditor", fields: [updatedBy], references: [id])
+  sourcePackage FinanceStatementSourcePackage? @relation(fields: [sourcePackageId], references: [id], onDelete: SetNull)
   lines       FinanceStatementWorkpaperLine[]
 
   @@unique([companyCode, year, month, reportType])
   @@index([companyCode, year, reportType])
+  @@index([sourcePackageId])
 }
 
 /// 报表底稿行（底稿每行的手工/导入输入）

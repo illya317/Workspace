@@ -642,6 +642,266 @@
 | ownerVoucherItem | FinanceVoucherItem? | @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id]) |  |
 | counterpartItem | FinanceVoucherItem? | @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id]) |  |
 
+### FinanceConsolidationOutputSnapshot
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | @unique |  |
+| version | Int | - |  |
+| inputFingerprint | String | - |  |
+| outputFingerprint | String | - |  |
+| reportPayload | Json | - |  |
+| generatedAt | DateTime | @default(now()) |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Restrict) |  |
+
+### FinanceConsolidationBatch
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| parentCompanyId | Int | - |  |
+| parentCompanyCode | String | - |  |
+| parentCompanyName | String | - |  |
+| year | Int | - |  |
+| month | Int | - |  |
+| version | Int | - |  |
+| revision | Int | @default(1) |  |
+| status | String | @default("draft") | draft | submitted | reviewed | locked | published |
+| baseBatchId | Int? | - |  |
+| scopeFingerprint | String | - |  |
+| sourceFingerprint | String | - |  |
+| rateFingerprint | String | - |  |
+| createdBy | Int | - |  |
+| submittedBy | Int? | - |  |
+| submittedAt | DateTime? | - |  |
+| reviewedBy | Int? | - |  |
+| reviewedAt | DateTime? | - |  |
+| reviewNote | String? | - |  |
+| lockedBy | Int? | - |  |
+| lockedAt | DateTime? | - |  |
+| publishedBy | Int? | - |  |
+| publishedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| baseBatch | FinanceConsolidationBatch? | @relation("FinanceConsolidationBatchVersionChain", fields: [baseBatchId], references: [id], onDelete: Restrict) |  |
+| derivedBatches | FinanceConsolidationBatch[] | @relation("FinanceConsolidationBatchVersionChain") |  |
+| entities | FinanceConsolidationEntitySnapshot[] | - |  |
+| sources | FinanceConsolidationSourceSnapshot[] | - |  |
+| exchangeRates | FinanceConsolidationRateSnapshot[] | - |  |
+| entries | FinanceConsolidationEntry[] | - |  |
+| controlDecisions | FinanceConsolidationControlDecision[] | - |  |
+| events | FinanceConsolidationBatchEvent[] | - |  |
+| outputSnapshot | FinanceConsolidationOutputSnapshot? | - |  |
+
+### FinanceConsolidationBatchEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| eventType | String | - | lifecycle | mutation |
+| action | String | - | create | submit | return | review | lock | publish | entry.delete | taxEffect.delete |
+| fromStatus | String | - |  |
+| toStatus | String | - |  |
+| note | String? | - |  |
+| actorUserId | Int | - |  |
+| actorName | String | - |  |
+| batchRevision | Int | - |  |
+| targetType | String? | - |  |
+| targetId | Int? | - |  |
+| snapshot | Json? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Restrict) |  |
+
+### FinanceConsolidationControlDecision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| controlKey | String | - | scope | ownership | sources | fx | eliminations | tax |
+| decision | String | - | completed | notApplicable |
+| conclusion | String | - |  |
+| evidence | String | - |  |
+| decidedBy | Int | - |  |
+| decidedAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+
+### FinanceConsolidationEntitySnapshot
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| companyId | Int | - |  |
+| companyCode | String | - |  |
+| companyName | String | - |  |
+| role | String | - | parent | subsidiary |
+| directParentCompanyId | Int? | - |  |
+| directParentCode | String? | - |  |
+| relationId | Int? | - |  |
+| relationUpdatedAt | DateTime? | - |  |
+| relationEffectiveFrom | DateTime? | - |  |
+| relationEffectiveTo | DateTime? | - |  |
+| relationVersion | Int? | - |  |
+| shareRatio | Decimal? | @db.Decimal(12, 8) |  |
+| isConsolidated | Boolean | @default(true) |  |
+| functionalCurrency | String? | - |  |
+| currencyEvidence | String? | - |  |
+| currencyDecidedBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+| sources | FinanceConsolidationSourceSnapshot[] | - |  |
+| taxEffects | FinanceConsolidationTaxEffect[] | - |  |
+
+### FinanceConsolidationSourceSnapshot
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| entitySnapshotId | Int | - |  |
+| reportType | String | - | balanceSheet | incomeStatement | cashFlow |
+| sourceKind | String | - | workpaper | system | missing |
+| sourceStatus | String | - | submitted | draft | available | missing |
+| workpaperId | Int? | - |  |
+| workpaperVersion | Int? | - |  |
+| sourceChecksum | String? | - |  |
+| workpaperUpdatedBy | Int? | - |  |
+| sourcePackageId | Int? | - |  |
+| sourcePackageRevision | Int? | - |  |
+| sourcePackageStatus | String? | - |  |
+| sourcePackageChecksum | String? | - |  |
+| sourcePackageUploadedBy | Int? | - |  |
+| sourcePackageSubmittedBy | Int? | - |  |
+| lineCount | Int | @default(0) |  |
+| sourcedLineCount | Int | @default(0) |  |
+| importedLineCount | Int | @default(0) |  |
+| manualLineCount | Int | @default(0) |  |
+| formulaLineCount | Int | @default(0) |  |
+| reportPayload | Json | - |  |
+| fingerprint | String | - |  |
+| evidence | String? | - |  |
+| selectedBy | Int | - |  |
+| selectedAt | DateTime | @default(now()) |  |
+| createdAt | DateTime | @default(now()) |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+| entity | FinanceConsolidationEntitySnapshot | @relation(fields: [entitySnapshotId], references: [id], onDelete: Cascade) |  |
+
+### FinanceConsolidationRateSnapshot
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| exchangeRateId | Int | - |  |
+| exchangeRateVersion | Int | - |  |
+| baseCurrency | String | - |  |
+| quoteCurrency | String | - |  |
+| rateKind | String | - |  |
+| rateDate | String | - |  |
+| rate | Decimal | @db.Decimal(20, 8) |  |
+| sourceUrl | String | - |  |
+| publishedAt | DateTime? | - |  |
+| verifiedBy | Int? | - |  |
+| verifiedAt | DateTime? | - |  |
+| applications | Json | @default("[]") |  |
+| createdAt | DateTime | @default(now()) |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+
+### FinanceConsolidationEntry
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | Int | - |  |
+| entryNo | String | - |  |
+| entryType | String | - | investmentEquity | nonControllingInterest | intercompanyBalance | internalTrading | internalLongTermAsset | incomeDividend | cashFlow |
+| title | String | - |  |
+| description | String? | - |  |
+| evidence | String | - |  |
+| matchDifference | Decimal? | @db.Decimal(20, 2) |  |
+| differenceResolution | String? | - |  |
+| status | String | @default("draft") | draft | submitted | approved | reversed |
+| version | Int | @default(1) |  |
+| supersedesEntryId | Int? | - |  |
+| reversalOfEntryId | Int? | - |  |
+| predecessorEntryId | Int? | @unique |  |
+| preparedBy | Int | - |  |
+| submittedBy | Int? | - |  |
+| submittedAt | DateTime? | - |  |
+| approvedBy | Int? | - |  |
+| approvedAt | DateTime? | - |  |
+| approvalNote | String? | - |  |
+| reversedBy | Int? | - |  |
+| reversedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| batch | FinanceConsolidationBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+| supersedes | FinanceConsolidationEntry? | @relation("FinanceConsolidationEntryRevision", fields: [supersedesEntryId], references: [id], onDelete: Restrict) |  |
+| revisions | FinanceConsolidationEntry[] | @relation("FinanceConsolidationEntryRevision") |  |
+| reversalOf | FinanceConsolidationEntry? | @relation("FinanceConsolidationEntryReversal", fields: [reversalOfEntryId], references: [id], onDelete: Restrict) |  |
+| reversalEntries | FinanceConsolidationEntry[] | @relation("FinanceConsolidationEntryReversal") |  |
+| predecessor | FinanceConsolidationEntry? | @relation("FinanceConsolidationEntryLineage", fields: [predecessorEntryId], references: [id], onDelete: Restrict) |  |
+| successor | FinanceConsolidationEntry? | @relation("FinanceConsolidationEntryLineage") |  |
+| lines | FinanceConsolidationEntryLine[] | - |  |
+| taxEffects | FinanceConsolidationTaxEffect[] | - |  |
+
+### FinanceConsolidationEntryLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| entryId | Int | - |  |
+| lineNo | Int | - |  |
+| companyId | Int | - |  |
+| companyCode | String | - |  |
+| statementType | String | - | balanceSheet | incomeStatement | cashFlow |
+| lineCode | String | - |  |
+| accountCode | String? | - |  |
+| debit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| credit | Decimal | @default(0) @db.Decimal(20, 2) |  |
+| currencyCode | String | @default("CNY") |  |
+| periodBasis | String | @default("current") | current | comparative |
+| note | String? | - |  |
+| matchSide | String? | - | left | right |
+| sourceKind | String? | - | auxiliaryBalance | openItem | cashFlowAllocation | workpaper | voucher | other |
+| sourceId | String? | - |  |
+| sourceFingerprint | String? | - |  |
+| sourceAmount | Decimal? | @db.Decimal(20, 2) |  |
+| sourceCurrency | String? | - |  |
+| counterpartyCompanyId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| entry | FinanceConsolidationEntry | @relation(fields: [entryId], references: [id], onDelete: Cascade) |  |
+
+### FinanceConsolidationTaxEffect
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| entryId | Int | - |  |
+| entitySnapshotId | Int? | - |  |
+| effectKey | String | - |  |
+| taxEffectType | String | - | deductible | taxable |
+| differenceAmount | Decimal | @db.Decimal(20, 2) |  |
+| taxRate | Decimal | @db.Decimal(12, 8) |  |
+| recognition | String | - | asset | liability | unrecognized |
+| periodBasis | String | @default("current") | current | comparative |
+| jurisdiction | String? | - |  |
+| recognitionLocation | String? | - | profitOrLoss | otherComprehensiveIncome | equity |
+| balanceSheetLineCode | String? | - |  |
+| counterpartLineCode | String? | - |  |
+| reversalPeriod | String? | - |  |
+| recoverabilityConclusion | String | - |  |
+| evidence | String | - |  |
+| preparedBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| entry | FinanceConsolidationEntry | @relation(fields: [entryId], references: [id], onDelete: Cascade) |  |
+| entity | FinanceConsolidationEntitySnapshot? | @relation(fields: [entitySnapshotId], references: [id], onDelete: Restrict) |  |
+
 ### FinanceDataImport
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1236,6 +1496,66 @@
 | rule | FinanceReclassRule? | @relation(fields: [ruleId], references: [id], onDelete: SetNull) |  |
 | reviewer | User? | @relation("ReclassResultReviewer", fields: [adjustedBy], references: [id]) |  |
 
+### FinanceStatementSourcePackage
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| companyId | Int | - |  |
+| companyCode | String | - |  |
+| companyName | String | - |  |
+| year | Int | - |  |
+| month | Int | - |  |
+| revision | Int | - |  |
+| version | Int | @default(1) |  |
+| status | String | @default("draft") | draft | submitted | rejected |
+| fileName | String | - |  |
+| mimeType | String | - |  |
+| fileSize | Int | - |  |
+| fileChecksum | String | - |  |
+| fileContent | Bytes | - |  |
+| parsedCompanyName | String | - |  |
+| note | String? | - |  |
+| uploadedBy | Int | - |  |
+| uploadedAt | DateTime | @default(now()) |  |
+| submittedBy | Int? | - |  |
+| submittedAt | DateTime? | - |  |
+| rejectedBy | Int? | - |  |
+| rejectedAt | DateTime? | - |  |
+| rejectionReason | String? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| sheets | FinanceStatementSourceSheet[] | - |  |
+| workpapers | FinanceStatementWorkpaper[] | - |  |
+
+### FinanceStatementSourceSheet
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| packageId | Int | - |  |
+| reportType | String | - | balanceSheet | incomeStatement | cashFlow |
+| previousYear | Int | - |  |
+| currentYear | Int | - |  |
+| lineCount | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| sourcePackage | FinanceStatementSourcePackage | @relation(fields: [packageId], references: [id], onDelete: Cascade) |  |
+| lines | FinanceStatementSourceLine[] | - |  |
+
+### FinanceStatementSourceLine
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| sheetId | Int | - |  |
+| lineCode | String | - |  |
+| previousAmount | Decimal | @db.Decimal(20, 2) |  |
+| currentAmount | Decimal | @db.Decimal(20, 2) |  |
+| sourceLabel | String | - |  |
+| sortOrder | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| sheet | FinanceStatementSourceSheet | @relation(fields: [sheetId], references: [id], onDelete: Cascade) |  |
+
 ### FinanceStatementWorkpaper
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -1247,12 +1567,16 @@
 | reportType | String | - | balanceSheet | incomeStatement | cashFlow |
 | status | String | @default("draft") | draft | submitted |
 | note | String? | - |  |
+| sourcePackageId | Int? | - |  |
+| sourcePackageRevision | Int? | - |  |
+| sourceChecksum | String? | - |  |
 | updatedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | editor | User? | @relation("WorkpaperEditor", fields: [updatedBy], references: [id]) |  |
+| sourcePackage | FinanceStatementSourcePackage? | @relation(fields: [sourcePackageId], references: [id], onDelete: SetNull) |  |
 | lines | FinanceStatementWorkpaperLine[] | - |  |
 
 ### FinanceStatementWorkpaperLine
@@ -1486,6 +1810,11 @@
 | childId | Int | - |  |
 | shareRatio | Float? | - |  |
 | isConsolidated | Boolean | @default(false) |  |
+| effectiveFrom | DateTime? | - |  |
+| effectiveTo | DateTime? | - |  |
+| editedBy | Int? | - |  |
+| editedAt | DateTime? | - |  |
+| version | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | child | Company | @relation("ChildCompany", fields: [childId], references: [id], onDelete: Cascade) |  |
@@ -2814,11 +3143,47 @@
 | objectiveSubmitDeadline | DateTime? | - |  |
 | krReviewOpensAt | DateTime? | - |  |
 | krSubmitDeadline | DateTime? | - |  |
+| version | Int | @default(1) |  |
 | createdByUserId | Int? | - |  |
 | updatedByUserId | Int? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | cycle | WorkOkrCycle | @relation(fields: [cycleId], references: [id], onDelete: Cascade) |  |
+
+### WorkOkrControlRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| version | Int | @unique |  |
+| settingsJson | String | - |  |
+| actorUserId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+
+### WorkOkrControlPolicyRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| policyId | Int? | - |  |
+| cycleId | Int | - |  |
+| scopeType | String | - |  |
+| scopeId | String | @default("") |  |
+| version | Int | - |  |
+| changeKind | String | @default("upsert") |  |
+| snapshotJson | String | - |  |
+| actorUserId | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+
+### WorkPlanGovernanceEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| workPlanId | Int | - |  |
+| fromMode | String | - |  |
+| toMode | String | - |  |
+| fromSnapshotJson | String | @default("{ |  |
 
 ### Project
 
@@ -3099,7 +3464,14 @@
 | previousPeriodPlanId | Int? | - |  |
 | okrControlScopeType | String? | - |  |
 | okrControlScopeId | String? | - |  |
-| objectiveApprovalSnapshotJson | String | @default("{ |  |
+| governanceMode | String | @default("legacy_inferred") |  |
+| governanceRevision | Int | @default(1) |  |
+| governanceActionKey | String? | - |  |
+| governanceWorkflowPolicyId | Int? | - |  |
+| governanceWorkflowVersion | Int? | - |  |
+| governanceActionContractVersion | Int? | - |  |
+| governanceOkrControlVersion | Int? | - |  |
+| governanceSnapshotJson | String | @default("{ |  |
 
 ### WorkItem
 

@@ -2,12 +2,13 @@
 
 import { createPageTabBar, type PageSurfaceTabBarItemSpec } from "@workspace/core/ui";
 import { Suspense, useMemo, useState } from "react";
-import { ConsolidatedReportTab, ConsolidationWorkpaperTab } from "./ConsolidationTabs";
+import { ConsolidatedReportTab } from "./ConsolidatedReportTab";
+import { ConsolidationWorkpaperTab } from "./ConsolidationTabs";
 import ReportTab from "./ReportTab";
+import type { ConsolidationCapabilities, ConsolidationWorkpaperView } from "./statement-ui-types";
 import { useConsolidationOverview } from "./useConsolidationOverview";
 
 type StatementsView = "workpaper" | "statements" | "consolidated";
-export type ConsolidationWorkpaperView = "overview" | "ownership" | "sources" | "fx" | "eliminations" | "tax" | "review";
 
 const WORKPAPER_TABS = [
   { key: "overview", label: "编制总览" },
@@ -25,7 +26,7 @@ const STATEMENT_TABS: PageSurfaceTabBarItemSpec[] = [
   { key: "consolidated", label: "合并报表" },
 ];
 
-export default function StatementsClient() {
+export default function StatementsClient({ capabilities }: { capabilities: ConsolidationCapabilities }) {
   const [view, setView] = useState<StatementsView>("workpaper");
   const [workpaperView, setWorkpaperView] = useState<ConsolidationWorkpaperView>("overview");
   const consolidation = useConsolidationOverview();
@@ -43,6 +44,7 @@ export default function StatementsClient() {
   );
   const consolidationProps = {
     ...consolidation,
+    capabilities,
     onYearChange: consolidation.setYear,
     onMonthChange: consolidation.setMonth,
     onRefresh: consolidation.refresh,

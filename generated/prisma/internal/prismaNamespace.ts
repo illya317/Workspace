@@ -413,6 +413,16 @@ export const ModelName = {
   FinanceBudgetRd: 'FinanceBudgetRd',
   FinanceCashFlowItem: 'FinanceCashFlowItem',
   FinanceCashFlowAllocation: 'FinanceCashFlowAllocation',
+  FinanceConsolidationOutputSnapshot: 'FinanceConsolidationOutputSnapshot',
+  FinanceConsolidationBatch: 'FinanceConsolidationBatch',
+  FinanceConsolidationBatchEvent: 'FinanceConsolidationBatchEvent',
+  FinanceConsolidationControlDecision: 'FinanceConsolidationControlDecision',
+  FinanceConsolidationEntitySnapshot: 'FinanceConsolidationEntitySnapshot',
+  FinanceConsolidationSourceSnapshot: 'FinanceConsolidationSourceSnapshot',
+  FinanceConsolidationRateSnapshot: 'FinanceConsolidationRateSnapshot',
+  FinanceConsolidationEntry: 'FinanceConsolidationEntry',
+  FinanceConsolidationEntryLine: 'FinanceConsolidationEntryLine',
+  FinanceConsolidationTaxEffect: 'FinanceConsolidationTaxEffect',
   FinanceDataImport: 'FinanceDataImport',
   FinanceShipment: 'FinanceShipment',
   FinanceSalesSalary: 'FinanceSalesSalary',
@@ -438,6 +448,9 @@ export const ModelName = {
   FinanceReclassItemRule: 'FinanceReclassItemRule',
   FinanceBalanceReclassAdjustment: 'FinanceBalanceReclassAdjustment',
   ReclassResult: 'ReclassResult',
+  FinanceStatementSourcePackage: 'FinanceStatementSourcePackage',
+  FinanceStatementSourceSheet: 'FinanceStatementSourceSheet',
+  FinanceStatementSourceLine: 'FinanceStatementSourceLine',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
   FinanceStatementExchangeRate: 'FinanceStatementExchangeRate',
@@ -552,7 +565,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationEntryLine" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2702,6 +2715,746 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    FinanceConsolidationOutputSnapshot: {
+      payload: Prisma.$FinanceConsolidationOutputSnapshotPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationOutputSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationOutputSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationOutputSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationOutputSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationOutputSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationOutputSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationOutputSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationOutputSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationOutputSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationOutputSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationOutputSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationOutputSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationOutputSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationOutputSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationOutputSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationOutputSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationOutputSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationOutputSnapshot>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationOutputSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationOutputSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationOutputSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationOutputSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationBatch: {
+      payload: Prisma.$FinanceConsolidationBatchPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationBatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationBatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationBatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationBatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationBatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationBatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationBatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationBatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationBatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationBatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationBatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationBatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationBatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationBatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationBatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationBatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationBatch>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationBatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationBatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationBatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationBatchCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationBatchEvent: {
+      payload: Prisma.$FinanceConsolidationBatchEventPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationBatchEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationBatchEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationBatchEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationBatchEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationBatchEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationBatchEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationBatchEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationBatchEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationBatchEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationBatchEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationBatchEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationBatchEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationBatchEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationBatchEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationBatchEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationBatchEventPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationBatchEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationBatchEvent>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationBatchEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationBatchEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationBatchEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationBatchEventCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationControlDecision: {
+      payload: Prisma.$FinanceConsolidationControlDecisionPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationControlDecisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationControlDecisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationControlDecisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationControlDecisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationControlDecisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationControlDecisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationControlDecisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationControlDecisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationControlDecisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationControlDecisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationControlDecisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationControlDecisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationControlDecisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationControlDecisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationControlDecisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationControlDecisionPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationControlDecisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationControlDecision>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationControlDecisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationControlDecisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationControlDecisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationControlDecisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationEntitySnapshot: {
+      payload: Prisma.$FinanceConsolidationEntitySnapshotPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationEntitySnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationEntitySnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationEntitySnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationEntitySnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationEntitySnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationEntitySnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationEntitySnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationEntitySnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntitySnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationEntitySnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationEntitySnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationEntitySnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationEntitySnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntitySnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationEntitySnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntitySnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationEntitySnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationEntitySnapshot>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationEntitySnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntitySnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationEntitySnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntitySnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationSourceSnapshot: {
+      payload: Prisma.$FinanceConsolidationSourceSnapshotPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationSourceSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationSourceSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationSourceSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationSourceSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationSourceSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationSourceSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationSourceSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationSourceSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationSourceSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationSourceSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationSourceSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationSourceSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationSourceSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationSourceSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationSourceSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationSourceSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationSourceSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationSourceSnapshot>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationSourceSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationSourceSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationSourceSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationSourceSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationRateSnapshot: {
+      payload: Prisma.$FinanceConsolidationRateSnapshotPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationRateSnapshotFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationRateSnapshotFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationRateSnapshotFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationRateSnapshotFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationRateSnapshotFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationRateSnapshotFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationRateSnapshotCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationRateSnapshotCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationRateSnapshotCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationRateSnapshotDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationRateSnapshotUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationRateSnapshotDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationRateSnapshotUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationRateSnapshotUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationRateSnapshotUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationRateSnapshotPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationRateSnapshotAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationRateSnapshot>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationRateSnapshotGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationRateSnapshotGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationRateSnapshotCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationRateSnapshotCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationEntry: {
+      payload: Prisma.$FinanceConsolidationEntryPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationEntryFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationEntryFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationEntryFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationEntryFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationEntryFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationEntryFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationEntryCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationEntryCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntryCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationEntryDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationEntryUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationEntryDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationEntryUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntryUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationEntryUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationEntryAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationEntry>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationEntryGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntryGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationEntryCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntryCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationEntryLine: {
+      payload: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationEntryLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationEntryLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationEntryLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationEntryLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationEntryLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationEntryLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationEntryLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationEntryLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntryLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationEntryLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationEntryLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationEntryLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationEntryLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationEntryLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationEntryLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationEntryLinePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationEntryLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationEntryLine>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationEntryLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntryLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationEntryLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationEntryLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceConsolidationTaxEffect: {
+      payload: Prisma.$FinanceConsolidationTaxEffectPayload<ExtArgs>
+      fields: Prisma.FinanceConsolidationTaxEffectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceConsolidationTaxEffectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceConsolidationTaxEffectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceConsolidationTaxEffectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceConsolidationTaxEffectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceConsolidationTaxEffectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceConsolidationTaxEffectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceConsolidationTaxEffectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceConsolidationTaxEffectCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceConsolidationTaxEffectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        update: {
+          args: Prisma.FinanceConsolidationTaxEffectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceConsolidationTaxEffectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceConsolidationTaxEffectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceConsolidationTaxEffectUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceConsolidationTaxEffectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceConsolidationTaxEffectPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceConsolidationTaxEffectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceConsolidationTaxEffect>
+        }
+        groupBy: {
+          args: Prisma.FinanceConsolidationTaxEffectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationTaxEffectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceConsolidationTaxEffectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceConsolidationTaxEffectCountAggregateOutputType> | number
+        }
+      }
+    }
     FinanceDataImport: {
       payload: Prisma.$FinanceDataImportPayload<ExtArgs>
       fields: Prisma.FinanceDataImportFieldRefs
@@ -4549,6 +5302,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.ReclassResultCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.ReclassResultCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementSourcePackage: {
+      payload: Prisma.$FinanceStatementSourcePackagePayload<ExtArgs>
+      fields: Prisma.FinanceStatementSourcePackageFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementSourcePackageFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementSourcePackageFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementSourcePackageFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementSourcePackageFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementSourcePackageFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementSourcePackageCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementSourcePackageCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementSourcePackageCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementSourcePackageDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementSourcePackageUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementSourcePackageDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementSourcePackageUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementSourcePackageUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementSourcePackageUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourcePackagePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementSourcePackageAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementSourcePackage>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementSourcePackageGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourcePackageGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementSourcePackageCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourcePackageCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementSourceSheet: {
+      payload: Prisma.$FinanceStatementSourceSheetPayload<ExtArgs>
+      fields: Prisma.FinanceStatementSourceSheetFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementSourceSheetFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementSourceSheetFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementSourceSheetFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementSourceSheetFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementSourceSheetFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementSourceSheetCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementSourceSheetCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementSourceSheetCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementSourceSheetDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementSourceSheetUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementSourceSheetDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementSourceSheetUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementSourceSheetUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementSourceSheetUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceSheetPayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementSourceSheetAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementSourceSheet>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementSourceSheetGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourceSheetGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementSourceSheetCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourceSheetCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementSourceLine: {
+      payload: Prisma.$FinanceStatementSourceLinePayload<ExtArgs>
+      fields: Prisma.FinanceStatementSourceLineFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementSourceLineFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementSourceLineFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementSourceLineFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementSourceLineFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementSourceLineFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementSourceLineCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementSourceLineCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementSourceLineCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementSourceLineDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementSourceLineUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementSourceLineDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementSourceLineUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementSourceLineUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementSourceLineUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementSourceLinePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementSourceLineAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementSourceLine>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementSourceLineGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourceLineGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementSourceLineCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementSourceLineCountAggregateOutputType> | number
         }
       }
     }
@@ -12516,6 +13491,246 @@ export const FinanceCashFlowAllocationScalarFieldEnum = {
 export type FinanceCashFlowAllocationScalarFieldEnum = (typeof FinanceCashFlowAllocationScalarFieldEnum)[keyof typeof FinanceCashFlowAllocationScalarFieldEnum]
 
 
+export const FinanceConsolidationOutputSnapshotScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  version: 'version',
+  inputFingerprint: 'inputFingerprint',
+  outputFingerprint: 'outputFingerprint',
+  reportPayload: 'reportPayload',
+  generatedAt: 'generatedAt'
+} as const
+
+export type FinanceConsolidationOutputSnapshotScalarFieldEnum = (typeof FinanceConsolidationOutputSnapshotScalarFieldEnum)[keyof typeof FinanceConsolidationOutputSnapshotScalarFieldEnum]
+
+
+export const FinanceConsolidationBatchScalarFieldEnum = {
+  id: 'id',
+  parentCompanyId: 'parentCompanyId',
+  parentCompanyCode: 'parentCompanyCode',
+  parentCompanyName: 'parentCompanyName',
+  year: 'year',
+  month: 'month',
+  version: 'version',
+  revision: 'revision',
+  status: 'status',
+  baseBatchId: 'baseBatchId',
+  scopeFingerprint: 'scopeFingerprint',
+  sourceFingerprint: 'sourceFingerprint',
+  rateFingerprint: 'rateFingerprint',
+  createdBy: 'createdBy',
+  submittedBy: 'submittedBy',
+  submittedAt: 'submittedAt',
+  reviewedBy: 'reviewedBy',
+  reviewedAt: 'reviewedAt',
+  reviewNote: 'reviewNote',
+  lockedBy: 'lockedBy',
+  lockedAt: 'lockedAt',
+  publishedBy: 'publishedBy',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationBatchScalarFieldEnum = (typeof FinanceConsolidationBatchScalarFieldEnum)[keyof typeof FinanceConsolidationBatchScalarFieldEnum]
+
+
+export const FinanceConsolidationBatchEventScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  eventType: 'eventType',
+  action: 'action',
+  fromStatus: 'fromStatus',
+  toStatus: 'toStatus',
+  note: 'note',
+  actorUserId: 'actorUserId',
+  actorName: 'actorName',
+  batchRevision: 'batchRevision',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  snapshot: 'snapshot',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationBatchEventScalarFieldEnum = (typeof FinanceConsolidationBatchEventScalarFieldEnum)[keyof typeof FinanceConsolidationBatchEventScalarFieldEnum]
+
+
+export const FinanceConsolidationControlDecisionScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  controlKey: 'controlKey',
+  decision: 'decision',
+  conclusion: 'conclusion',
+  evidence: 'evidence',
+  decidedBy: 'decidedBy',
+  decidedAt: 'decidedAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationControlDecisionScalarFieldEnum = (typeof FinanceConsolidationControlDecisionScalarFieldEnum)[keyof typeof FinanceConsolidationControlDecisionScalarFieldEnum]
+
+
+export const FinanceConsolidationEntitySnapshotScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  companyId: 'companyId',
+  companyCode: 'companyCode',
+  companyName: 'companyName',
+  role: 'role',
+  directParentCompanyId: 'directParentCompanyId',
+  directParentCode: 'directParentCode',
+  relationId: 'relationId',
+  relationUpdatedAt: 'relationUpdatedAt',
+  relationEffectiveFrom: 'relationEffectiveFrom',
+  relationEffectiveTo: 'relationEffectiveTo',
+  relationVersion: 'relationVersion',
+  shareRatio: 'shareRatio',
+  isConsolidated: 'isConsolidated',
+  functionalCurrency: 'functionalCurrency',
+  currencyEvidence: 'currencyEvidence',
+  currencyDecidedBy: 'currencyDecidedBy',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationEntitySnapshotScalarFieldEnum = (typeof FinanceConsolidationEntitySnapshotScalarFieldEnum)[keyof typeof FinanceConsolidationEntitySnapshotScalarFieldEnum]
+
+
+export const FinanceConsolidationSourceSnapshotScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  entitySnapshotId: 'entitySnapshotId',
+  reportType: 'reportType',
+  sourceKind: 'sourceKind',
+  sourceStatus: 'sourceStatus',
+  workpaperId: 'workpaperId',
+  workpaperVersion: 'workpaperVersion',
+  sourceChecksum: 'sourceChecksum',
+  workpaperUpdatedBy: 'workpaperUpdatedBy',
+  sourcePackageId: 'sourcePackageId',
+  sourcePackageRevision: 'sourcePackageRevision',
+  sourcePackageStatus: 'sourcePackageStatus',
+  sourcePackageChecksum: 'sourcePackageChecksum',
+  sourcePackageUploadedBy: 'sourcePackageUploadedBy',
+  sourcePackageSubmittedBy: 'sourcePackageSubmittedBy',
+  lineCount: 'lineCount',
+  sourcedLineCount: 'sourcedLineCount',
+  importedLineCount: 'importedLineCount',
+  manualLineCount: 'manualLineCount',
+  formulaLineCount: 'formulaLineCount',
+  reportPayload: 'reportPayload',
+  fingerprint: 'fingerprint',
+  evidence: 'evidence',
+  selectedBy: 'selectedBy',
+  selectedAt: 'selectedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationSourceSnapshotScalarFieldEnum = (typeof FinanceConsolidationSourceSnapshotScalarFieldEnum)[keyof typeof FinanceConsolidationSourceSnapshotScalarFieldEnum]
+
+
+export const FinanceConsolidationRateSnapshotScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  exchangeRateId: 'exchangeRateId',
+  exchangeRateVersion: 'exchangeRateVersion',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency',
+  rateKind: 'rateKind',
+  rateDate: 'rateDate',
+  rate: 'rate',
+  sourceUrl: 'sourceUrl',
+  publishedAt: 'publishedAt',
+  verifiedBy: 'verifiedBy',
+  verifiedAt: 'verifiedAt',
+  applications: 'applications',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationRateSnapshotScalarFieldEnum = (typeof FinanceConsolidationRateSnapshotScalarFieldEnum)[keyof typeof FinanceConsolidationRateSnapshotScalarFieldEnum]
+
+
+export const FinanceConsolidationEntryScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  entryNo: 'entryNo',
+  entryType: 'entryType',
+  title: 'title',
+  description: 'description',
+  evidence: 'evidence',
+  matchDifference: 'matchDifference',
+  differenceResolution: 'differenceResolution',
+  status: 'status',
+  version: 'version',
+  supersedesEntryId: 'supersedesEntryId',
+  reversalOfEntryId: 'reversalOfEntryId',
+  predecessorEntryId: 'predecessorEntryId',
+  preparedBy: 'preparedBy',
+  submittedBy: 'submittedBy',
+  submittedAt: 'submittedAt',
+  approvedBy: 'approvedBy',
+  approvedAt: 'approvedAt',
+  approvalNote: 'approvalNote',
+  reversedBy: 'reversedBy',
+  reversedAt: 'reversedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationEntryScalarFieldEnum = (typeof FinanceConsolidationEntryScalarFieldEnum)[keyof typeof FinanceConsolidationEntryScalarFieldEnum]
+
+
+export const FinanceConsolidationEntryLineScalarFieldEnum = {
+  id: 'id',
+  entryId: 'entryId',
+  lineNo: 'lineNo',
+  companyId: 'companyId',
+  companyCode: 'companyCode',
+  statementType: 'statementType',
+  lineCode: 'lineCode',
+  accountCode: 'accountCode',
+  debit: 'debit',
+  credit: 'credit',
+  currencyCode: 'currencyCode',
+  periodBasis: 'periodBasis',
+  note: 'note',
+  matchSide: 'matchSide',
+  sourceKind: 'sourceKind',
+  sourceId: 'sourceId',
+  sourceFingerprint: 'sourceFingerprint',
+  sourceAmount: 'sourceAmount',
+  sourceCurrency: 'sourceCurrency',
+  counterpartyCompanyId: 'counterpartyCompanyId',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceConsolidationEntryLineScalarFieldEnum = (typeof FinanceConsolidationEntryLineScalarFieldEnum)[keyof typeof FinanceConsolidationEntryLineScalarFieldEnum]
+
+
+export const FinanceConsolidationTaxEffectScalarFieldEnum = {
+  id: 'id',
+  entryId: 'entryId',
+  entitySnapshotId: 'entitySnapshotId',
+  effectKey: 'effectKey',
+  taxEffectType: 'taxEffectType',
+  differenceAmount: 'differenceAmount',
+  taxRate: 'taxRate',
+  recognition: 'recognition',
+  periodBasis: 'periodBasis',
+  jurisdiction: 'jurisdiction',
+  recognitionLocation: 'recognitionLocation',
+  balanceSheetLineCode: 'balanceSheetLineCode',
+  counterpartLineCode: 'counterpartLineCode',
+  reversalPeriod: 'reversalPeriod',
+  recoverabilityConclusion: 'recoverabilityConclusion',
+  evidence: 'evidence',
+  preparedBy: 'preparedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceConsolidationTaxEffectScalarFieldEnum = (typeof FinanceConsolidationTaxEffectScalarFieldEnum)[keyof typeof FinanceConsolidationTaxEffectScalarFieldEnum]
+
+
 export const FinanceDataImportScalarFieldEnum = {
   id: 'id',
   profile: 'profile',
@@ -13039,6 +14254,64 @@ export const ReclassResultScalarFieldEnum = {
 export type ReclassResultScalarFieldEnum = (typeof ReclassResultScalarFieldEnum)[keyof typeof ReclassResultScalarFieldEnum]
 
 
+export const FinanceStatementSourcePackageScalarFieldEnum = {
+  id: 'id',
+  companyId: 'companyId',
+  companyCode: 'companyCode',
+  companyName: 'companyName',
+  year: 'year',
+  month: 'month',
+  revision: 'revision',
+  version: 'version',
+  status: 'status',
+  fileName: 'fileName',
+  mimeType: 'mimeType',
+  fileSize: 'fileSize',
+  fileChecksum: 'fileChecksum',
+  fileContent: 'fileContent',
+  parsedCompanyName: 'parsedCompanyName',
+  note: 'note',
+  uploadedBy: 'uploadedBy',
+  uploadedAt: 'uploadedAt',
+  submittedBy: 'submittedBy',
+  submittedAt: 'submittedAt',
+  rejectedBy: 'rejectedBy',
+  rejectedAt: 'rejectedAt',
+  rejectionReason: 'rejectionReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceStatementSourcePackageScalarFieldEnum = (typeof FinanceStatementSourcePackageScalarFieldEnum)[keyof typeof FinanceStatementSourcePackageScalarFieldEnum]
+
+
+export const FinanceStatementSourceSheetScalarFieldEnum = {
+  id: 'id',
+  packageId: 'packageId',
+  reportType: 'reportType',
+  previousYear: 'previousYear',
+  currentYear: 'currentYear',
+  lineCount: 'lineCount',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceStatementSourceSheetScalarFieldEnum = (typeof FinanceStatementSourceSheetScalarFieldEnum)[keyof typeof FinanceStatementSourceSheetScalarFieldEnum]
+
+
+export const FinanceStatementSourceLineScalarFieldEnum = {
+  id: 'id',
+  sheetId: 'sheetId',
+  lineCode: 'lineCode',
+  previousAmount: 'previousAmount',
+  currentAmount: 'currentAmount',
+  sourceLabel: 'sourceLabel',
+  sortOrder: 'sortOrder',
+  createdAt: 'createdAt'
+} as const
+
+export type FinanceStatementSourceLineScalarFieldEnum = (typeof FinanceStatementSourceLineScalarFieldEnum)[keyof typeof FinanceStatementSourceLineScalarFieldEnum]
+
+
 export const FinanceStatementWorkpaperScalarFieldEnum = {
   id: 'id',
   companyCode: 'companyCode',
@@ -13047,6 +14320,9 @@ export const FinanceStatementWorkpaperScalarFieldEnum = {
   reportType: 'reportType',
   status: 'status',
   note: 'note',
+  sourcePackageId: 'sourcePackageId',
+  sourcePackageRevision: 'sourcePackageRevision',
+  sourceChecksum: 'sourceChecksum',
   updatedBy: 'updatedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -13279,6 +14555,11 @@ export const CompanyRelationScalarFieldEnum = {
   childId: 'childId',
   shareRatio: 'shareRatio',
   isConsolidated: 'isConsolidated',
+  effectiveFrom: 'effectiveFrom',
+  effectiveTo: 'effectiveTo',
+  editedBy: 'editedBy',
+  editedAt: 'editedAt',
+  version: 'version',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -14914,6 +16195,13 @@ export const SortOrder = {
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
+
+
 export const NullableJsonNullValueInput = {
   DbNull: DbNull,
   JsonNull: JsonNull
@@ -15041,6 +16329,20 @@ export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'J
  * Reference to a field of type 'QueryMode'
  */
 export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
+
+
+
+/**
+ * Reference to a field of type 'Bytes'
+ */
+export type BytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes'>
+
+
+
+/**
+ * Reference to a field of type 'Bytes[]'
+ */
+export type ListBytesFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Bytes[]'>
 
 
 /**
@@ -15182,6 +16484,16 @@ export type GlobalOmitConfig = {
   financeBudgetRd?: Prisma.FinanceBudgetRdOmit
   financeCashFlowItem?: Prisma.FinanceCashFlowItemOmit
   financeCashFlowAllocation?: Prisma.FinanceCashFlowAllocationOmit
+  financeConsolidationOutputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotOmit
+  financeConsolidationBatch?: Prisma.FinanceConsolidationBatchOmit
+  financeConsolidationBatchEvent?: Prisma.FinanceConsolidationBatchEventOmit
+  financeConsolidationControlDecision?: Prisma.FinanceConsolidationControlDecisionOmit
+  financeConsolidationEntitySnapshot?: Prisma.FinanceConsolidationEntitySnapshotOmit
+  financeConsolidationSourceSnapshot?: Prisma.FinanceConsolidationSourceSnapshotOmit
+  financeConsolidationRateSnapshot?: Prisma.FinanceConsolidationRateSnapshotOmit
+  financeConsolidationEntry?: Prisma.FinanceConsolidationEntryOmit
+  financeConsolidationEntryLine?: Prisma.FinanceConsolidationEntryLineOmit
+  financeConsolidationTaxEffect?: Prisma.FinanceConsolidationTaxEffectOmit
   financeDataImport?: Prisma.FinanceDataImportOmit
   financeShipment?: Prisma.FinanceShipmentOmit
   financeSalesSalary?: Prisma.FinanceSalesSalaryOmit
@@ -15207,6 +16519,9 @@ export type GlobalOmitConfig = {
   financeReclassItemRule?: Prisma.FinanceReclassItemRuleOmit
   financeBalanceReclassAdjustment?: Prisma.FinanceBalanceReclassAdjustmentOmit
   reclassResult?: Prisma.ReclassResultOmit
+  financeStatementSourcePackage?: Prisma.FinanceStatementSourcePackageOmit
+  financeStatementSourceSheet?: Prisma.FinanceStatementSourceSheetOmit
+  financeStatementSourceLine?: Prisma.FinanceStatementSourceLineOmit
   financeStatementWorkpaper?: Prisma.FinanceStatementWorkpaperOmit
   financeStatementWorkpaperLine?: Prisma.FinanceStatementWorkpaperLineOmit
   financeStatementExchangeRate?: Prisma.FinanceStatementExchangeRateOmit
