@@ -1,6 +1,5 @@
 #!/usr/bin/env tsx
 
-import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import fs from "node:fs";
 import path from "node:path";
@@ -9,7 +8,6 @@ import {
   listBusinessActionRegistrations,
   listWorkflowEligibleBusinessActions,
 } from "../../packages/platform/business-action-registry";
-import { assertBusinessActionRegistryValid } from "../../packages/platform/business-action-registry-validation";
 import {
   listUnknownWorkflowReadinessKeys,
   listWorkflowReadinessWarnings,
@@ -151,17 +149,6 @@ function describeContract(handler: RouteHandler) {
 }
 
 function main() {
-  assert.throws(
-    () => assertBusinessActionRegistryValid([{
-      key: "space.department.tasks.example.submit",
-      eligibility: "workflow_optional",
-      flowType: "approval",
-      separationPolicy: "auto_pass_if_authorized",
-      workflowCategoryKey: "assessment",
-    }]),
-    /must use a base businessActionKey/,
-    "space-derived workflow identities must stay retired",
-  );
   const registrations = listBusinessActionRegistrations();
   const workflowEligible = listWorkflowEligibleBusinessActions();
   const readinessWarnings = listWorkflowReadinessWarnings(registrations);

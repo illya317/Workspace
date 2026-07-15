@@ -7,6 +7,9 @@ import {
   type LibraryDocumentCandidateRow,
 } from "@workspace/library/server/search-candidate-query";
 import { extractLibrarySearchTerms } from "@workspace/library/server/search-relevance";
+import { requirePostgresqlCiDatabase } from "./testing/e2e-database";
+
+requirePostgresqlCiDatabase();
 
 function assert(condition: unknown, message: string): asserts condition {
   if (!condition) throw new Error(message);
