@@ -37,6 +37,12 @@ export type WorkPlanAvgAggregateOutputType = {
   sourcePlanId: number | null
   parentPeriodPlanId: number | null
   previousPeriodPlanId: number | null
+  governanceRevision: number | null
+  governanceWorkflowPolicyId: number | null
+  governanceWorkflowVersion: number | null
+  governanceActionContractVersion: number | null
+  governanceOkrControlVersion: number | null
+  governanceBoundByUserId: number | null
   sourceMeetingId: number | null
   sourceMeetingDecisionId: number | null
   sourceMeetingActionCandidateId: number | null
@@ -57,6 +63,12 @@ export type WorkPlanSumAggregateOutputType = {
   sourcePlanId: number | null
   parentPeriodPlanId: number | null
   previousPeriodPlanId: number | null
+  governanceRevision: number | null
+  governanceWorkflowPolicyId: number | null
+  governanceWorkflowVersion: number | null
+  governanceActionContractVersion: number | null
+  governanceOkrControlVersion: number | null
+  governanceBoundByUserId: number | null
   sourceMeetingId: number | null
   sourceMeetingDecisionId: number | null
   sourceMeetingActionCandidateId: number | null
@@ -91,6 +103,17 @@ export type WorkPlanMinAggregateOutputType = {
   previousPeriodPlanId: number | null
   okrControlScopeType: string | null
   okrControlScopeId: string | null
+  governanceMode: string | null
+  governanceRevision: number | null
+  governanceActionKey: string | null
+  governanceWorkflowPolicyId: number | null
+  governanceWorkflowVersion: number | null
+  governanceActionContractVersion: number | null
+  governanceOkrControlVersion: number | null
+  governanceSnapshotJson: string | null
+  governanceBoundAt: Date | null
+  governanceBoundByUserId: number | null
+  governanceBindingSource: string | null
   objectiveApprovalSnapshotJson: string | null
   krApprovalSnapshotJson: string | null
   periodType: string | null
@@ -139,6 +162,17 @@ export type WorkPlanMaxAggregateOutputType = {
   previousPeriodPlanId: number | null
   okrControlScopeType: string | null
   okrControlScopeId: string | null
+  governanceMode: string | null
+  governanceRevision: number | null
+  governanceActionKey: string | null
+  governanceWorkflowPolicyId: number | null
+  governanceWorkflowVersion: number | null
+  governanceActionContractVersion: number | null
+  governanceOkrControlVersion: number | null
+  governanceSnapshotJson: string | null
+  governanceBoundAt: Date | null
+  governanceBoundByUserId: number | null
+  governanceBindingSource: string | null
   objectiveApprovalSnapshotJson: string | null
   krApprovalSnapshotJson: string | null
   periodType: string | null
@@ -187,6 +221,17 @@ export type WorkPlanCountAggregateOutputType = {
   previousPeriodPlanId: number
   okrControlScopeType: number
   okrControlScopeId: number
+  governanceMode: number
+  governanceRevision: number
+  governanceActionKey: number
+  governanceWorkflowPolicyId: number
+  governanceWorkflowVersion: number
+  governanceActionContractVersion: number
+  governanceOkrControlVersion: number
+  governanceSnapshotJson: number
+  governanceBoundAt: number
+  governanceBoundByUserId: number
+  governanceBindingSource: number
   objectiveApprovalSnapshotJson: number
   krApprovalSnapshotJson: number
   periodType: number
@@ -223,6 +268,12 @@ export type WorkPlanAvgAggregateInputType = {
   sourcePlanId?: true
   parentPeriodPlanId?: true
   previousPeriodPlanId?: true
+  governanceRevision?: true
+  governanceWorkflowPolicyId?: true
+  governanceWorkflowVersion?: true
+  governanceActionContractVersion?: true
+  governanceOkrControlVersion?: true
+  governanceBoundByUserId?: true
   sourceMeetingId?: true
   sourceMeetingDecisionId?: true
   sourceMeetingActionCandidateId?: true
@@ -243,6 +294,12 @@ export type WorkPlanSumAggregateInputType = {
   sourcePlanId?: true
   parentPeriodPlanId?: true
   previousPeriodPlanId?: true
+  governanceRevision?: true
+  governanceWorkflowPolicyId?: true
+  governanceWorkflowVersion?: true
+  governanceActionContractVersion?: true
+  governanceOkrControlVersion?: true
+  governanceBoundByUserId?: true
   sourceMeetingId?: true
   sourceMeetingDecisionId?: true
   sourceMeetingActionCandidateId?: true
@@ -277,6 +334,17 @@ export type WorkPlanMinAggregateInputType = {
   previousPeriodPlanId?: true
   okrControlScopeType?: true
   okrControlScopeId?: true
+  governanceMode?: true
+  governanceRevision?: true
+  governanceActionKey?: true
+  governanceWorkflowPolicyId?: true
+  governanceWorkflowVersion?: true
+  governanceActionContractVersion?: true
+  governanceOkrControlVersion?: true
+  governanceSnapshotJson?: true
+  governanceBoundAt?: true
+  governanceBoundByUserId?: true
+  governanceBindingSource?: true
   objectiveApprovalSnapshotJson?: true
   krApprovalSnapshotJson?: true
   periodType?: true
@@ -325,6 +393,17 @@ export type WorkPlanMaxAggregateInputType = {
   previousPeriodPlanId?: true
   okrControlScopeType?: true
   okrControlScopeId?: true
+  governanceMode?: true
+  governanceRevision?: true
+  governanceActionKey?: true
+  governanceWorkflowPolicyId?: true
+  governanceWorkflowVersion?: true
+  governanceActionContractVersion?: true
+  governanceOkrControlVersion?: true
+  governanceSnapshotJson?: true
+  governanceBoundAt?: true
+  governanceBoundByUserId?: true
+  governanceBindingSource?: true
   objectiveApprovalSnapshotJson?: true
   krApprovalSnapshotJson?: true
   periodType?: true
@@ -373,6 +452,17 @@ export type WorkPlanCountAggregateInputType = {
   previousPeriodPlanId?: true
   okrControlScopeType?: true
   okrControlScopeId?: true
+  governanceMode?: true
+  governanceRevision?: true
+  governanceActionKey?: true
+  governanceWorkflowPolicyId?: true
+  governanceWorkflowVersion?: true
+  governanceActionContractVersion?: true
+  governanceOkrControlVersion?: true
+  governanceSnapshotJson?: true
+  governanceBoundAt?: true
+  governanceBoundByUserId?: true
+  governanceBindingSource?: true
   objectiveApprovalSnapshotJson?: true
   krApprovalSnapshotJson?: true
   periodType?: true
@@ -508,6 +598,17 @@ export type WorkPlanGroupByOutputType = {
   previousPeriodPlanId: number | null
   okrControlScopeType: string | null
   okrControlScopeId: string | null
+  governanceMode: string
+  governanceRevision: number
+  governanceActionKey: string | null
+  governanceWorkflowPolicyId: number | null
+  governanceWorkflowVersion: number | null
+  governanceActionContractVersion: number | null
+  governanceOkrControlVersion: number | null
+  governanceSnapshotJson: string
+  governanceBoundAt: Date | null
+  governanceBoundByUserId: number | null
+  governanceBindingSource: string
   objectiveApprovalSnapshotJson: string
   krApprovalSnapshotJson: string
   periodType: string | null
@@ -579,6 +680,17 @@ export type WorkPlanWhereInput = {
   previousPeriodPlanId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
   okrControlScopeType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
   okrControlScopeId?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceMode?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceRevision?: Prisma.IntFilter<"WorkPlan"> | number
+  governanceActionKey?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceWorkflowPolicyId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceWorkflowVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceActionContractVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceOkrControlVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceBoundAt?: Prisma.DateTimeNullableFilter<"WorkPlan"> | Date | string | null
+  governanceBoundByUserId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceBindingSource?: Prisma.StringFilter<"WorkPlan"> | string
   objectiveApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   krApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   periodType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
@@ -620,6 +732,7 @@ export type WorkPlanWhereInput = {
   items?: Prisma.WorkItemListRelationFilter
   meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
   reportItems?: Prisma.WorkReportItemListRelationFilter
+  governanceEvents?: Prisma.WorkPlanGovernanceEventListRelationFilter
 }
 
 export type WorkPlanOrderByWithRelationInput = {
@@ -647,6 +760,17 @@ export type WorkPlanOrderByWithRelationInput = {
   previousPeriodPlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   okrControlScopeType?: Prisma.SortOrderInput | Prisma.SortOrder
   okrControlScopeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceMode?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceActionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceSnapshotJson?: Prisma.SortOrder
+  governanceBoundAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceBindingSource?: Prisma.SortOrder
   objectiveApprovalSnapshotJson?: Prisma.SortOrder
   krApprovalSnapshotJson?: Prisma.SortOrder
   periodType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -688,6 +812,7 @@ export type WorkPlanOrderByWithRelationInput = {
   items?: Prisma.WorkItemOrderByRelationAggregateInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateOrderByRelationAggregateInput
   reportItems?: Prisma.WorkReportItemOrderByRelationAggregateInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventOrderByRelationAggregateInput
 }
 
 export type WorkPlanWhereUniqueInput = Prisma.AtLeast<{
@@ -718,6 +843,17 @@ export type WorkPlanWhereUniqueInput = Prisma.AtLeast<{
   previousPeriodPlanId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
   okrControlScopeType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
   okrControlScopeId?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceMode?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceRevision?: Prisma.IntFilter<"WorkPlan"> | number
+  governanceActionKey?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceWorkflowPolicyId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceWorkflowVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceActionContractVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceOkrControlVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceBoundAt?: Prisma.DateTimeNullableFilter<"WorkPlan"> | Date | string | null
+  governanceBoundByUserId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceBindingSource?: Prisma.StringFilter<"WorkPlan"> | string
   objectiveApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   krApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   periodType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
@@ -759,6 +895,7 @@ export type WorkPlanWhereUniqueInput = Prisma.AtLeast<{
   items?: Prisma.WorkItemListRelationFilter
   meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
   reportItems?: Prisma.WorkReportItemListRelationFilter
+  governanceEvents?: Prisma.WorkPlanGovernanceEventListRelationFilter
 }, "id">
 
 export type WorkPlanOrderByWithAggregationInput = {
@@ -786,6 +923,17 @@ export type WorkPlanOrderByWithAggregationInput = {
   previousPeriodPlanId?: Prisma.SortOrderInput | Prisma.SortOrder
   okrControlScopeType?: Prisma.SortOrderInput | Prisma.SortOrder
   okrControlScopeId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceMode?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceActionKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceSnapshotJson?: Prisma.SortOrder
+  governanceBoundAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  governanceBindingSource?: Prisma.SortOrder
   objectiveApprovalSnapshotJson?: Prisma.SortOrder
   krApprovalSnapshotJson?: Prisma.SortOrder
   periodType?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -842,6 +990,17 @@ export type WorkPlanScalarWhereWithAggregatesInput = {
   previousPeriodPlanId?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
   okrControlScopeType?: Prisma.StringNullableWithAggregatesFilter<"WorkPlan"> | string | null
   okrControlScopeId?: Prisma.StringNullableWithAggregatesFilter<"WorkPlan"> | string | null
+  governanceMode?: Prisma.StringWithAggregatesFilter<"WorkPlan"> | string
+  governanceRevision?: Prisma.IntWithAggregatesFilter<"WorkPlan"> | number
+  governanceActionKey?: Prisma.StringNullableWithAggregatesFilter<"WorkPlan"> | string | null
+  governanceWorkflowPolicyId?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
+  governanceWorkflowVersion?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
+  governanceActionContractVersion?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
+  governanceOkrControlVersion?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
+  governanceSnapshotJson?: Prisma.StringWithAggregatesFilter<"WorkPlan"> | string
+  governanceBoundAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkPlan"> | Date | string | null
+  governanceBoundByUserId?: Prisma.IntNullableWithAggregatesFilter<"WorkPlan"> | number | null
+  governanceBindingSource?: Prisma.StringWithAggregatesFilter<"WorkPlan"> | string
   objectiveApprovalSnapshotJson?: Prisma.StringWithAggregatesFilter<"WorkPlan"> | string
   krApprovalSnapshotJson?: Prisma.StringWithAggregatesFilter<"WorkPlan"> | string
   periodType?: Prisma.StringNullableWithAggregatesFilter<"WorkPlan"> | string | null
@@ -883,6 +1042,17 @@ export type WorkPlanCreateInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -918,6 +1088,7 @@ export type WorkPlanCreateInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateInput = {
@@ -945,6 +1116,17 @@ export type WorkPlanUncheckedCreateInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -974,6 +1156,7 @@ export type WorkPlanUncheckedCreateInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUpdateInput = {
@@ -994,6 +1177,17 @@ export type WorkPlanUpdateInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1029,6 +1223,7 @@ export type WorkPlanUpdateInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateInput = {
@@ -1056,6 +1251,17 @@ export type WorkPlanUncheckedUpdateInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1085,6 +1291,7 @@ export type WorkPlanUncheckedUpdateInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateManyInput = {
@@ -1112,6 +1319,17 @@ export type WorkPlanCreateManyInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -1153,6 +1371,17 @@ export type WorkPlanUpdateManyMutationInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1195,6 +1424,17 @@ export type WorkPlanUncheckedUpdateManyInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1263,6 +1503,17 @@ export type WorkPlanCountOrderByAggregateInput = {
   previousPeriodPlanId?: Prisma.SortOrder
   okrControlScopeType?: Prisma.SortOrder
   okrControlScopeId?: Prisma.SortOrder
+  governanceMode?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceActionKey?: Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrder
+  governanceSnapshotJson?: Prisma.SortOrder
+  governanceBoundAt?: Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrder
+  governanceBindingSource?: Prisma.SortOrder
   objectiveApprovalSnapshotJson?: Prisma.SortOrder
   krApprovalSnapshotJson?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
@@ -1297,6 +1548,12 @@ export type WorkPlanAvgOrderByAggregateInput = {
   sourcePlanId?: Prisma.SortOrder
   parentPeriodPlanId?: Prisma.SortOrder
   previousPeriodPlanId?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrder
   sourceMeetingId?: Prisma.SortOrder
   sourceMeetingDecisionId?: Prisma.SortOrder
   sourceMeetingActionCandidateId?: Prisma.SortOrder
@@ -1331,6 +1588,17 @@ export type WorkPlanMaxOrderByAggregateInput = {
   previousPeriodPlanId?: Prisma.SortOrder
   okrControlScopeType?: Prisma.SortOrder
   okrControlScopeId?: Prisma.SortOrder
+  governanceMode?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceActionKey?: Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrder
+  governanceSnapshotJson?: Prisma.SortOrder
+  governanceBoundAt?: Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrder
+  governanceBindingSource?: Prisma.SortOrder
   objectiveApprovalSnapshotJson?: Prisma.SortOrder
   krApprovalSnapshotJson?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
@@ -1379,6 +1647,17 @@ export type WorkPlanMinOrderByAggregateInput = {
   previousPeriodPlanId?: Prisma.SortOrder
   okrControlScopeType?: Prisma.SortOrder
   okrControlScopeId?: Prisma.SortOrder
+  governanceMode?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceActionKey?: Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrder
+  governanceSnapshotJson?: Prisma.SortOrder
+  governanceBoundAt?: Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrder
+  governanceBindingSource?: Prisma.SortOrder
   objectiveApprovalSnapshotJson?: Prisma.SortOrder
   krApprovalSnapshotJson?: Prisma.SortOrder
   periodType?: Prisma.SortOrder
@@ -1413,6 +1692,12 @@ export type WorkPlanSumOrderByAggregateInput = {
   sourcePlanId?: Prisma.SortOrder
   parentPeriodPlanId?: Prisma.SortOrder
   previousPeriodPlanId?: Prisma.SortOrder
+  governanceRevision?: Prisma.SortOrder
+  governanceWorkflowPolicyId?: Prisma.SortOrder
+  governanceWorkflowVersion?: Prisma.SortOrder
+  governanceActionContractVersion?: Prisma.SortOrder
+  governanceOkrControlVersion?: Prisma.SortOrder
+  governanceBoundByUserId?: Prisma.SortOrder
   sourceMeetingId?: Prisma.SortOrder
   sourceMeetingDecisionId?: Prisma.SortOrder
   sourceMeetingActionCandidateId?: Prisma.SortOrder
@@ -1762,6 +2047,20 @@ export type WorkPlanUncheckedUpdateManyWithoutOkrCycleNestedInput = {
   deleteMany?: Prisma.WorkPlanScalarWhereInput | Prisma.WorkPlanScalarWhereInput[]
 }
 
+export type WorkPlanCreateNestedOneWithoutGovernanceEventsInput = {
+  create?: Prisma.XOR<Prisma.WorkPlanCreateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedCreateWithoutGovernanceEventsInput>
+  connectOrCreate?: Prisma.WorkPlanCreateOrConnectWithoutGovernanceEventsInput
+  connect?: Prisma.WorkPlanWhereUniqueInput
+}
+
+export type WorkPlanUpdateOneRequiredWithoutGovernanceEventsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkPlanCreateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedCreateWithoutGovernanceEventsInput>
+  connectOrCreate?: Prisma.WorkPlanCreateOrConnectWithoutGovernanceEventsInput
+  upsert?: Prisma.WorkPlanUpsertWithoutGovernanceEventsInput
+  connect?: Prisma.WorkPlanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkPlanUpdateToOneWithWhereWithoutGovernanceEventsInput, Prisma.WorkPlanUpdateWithoutGovernanceEventsInput>, Prisma.WorkPlanUncheckedUpdateWithoutGovernanceEventsInput>
+}
+
 export type WorkPlanCreateNestedManyWithoutLinkedProjectInput = {
   create?: Prisma.XOR<Prisma.WorkPlanCreateWithoutLinkedProjectInput, Prisma.WorkPlanUncheckedCreateWithoutLinkedProjectInput> | Prisma.WorkPlanCreateWithoutLinkedProjectInput[] | Prisma.WorkPlanUncheckedCreateWithoutLinkedProjectInput[]
   connectOrCreate?: Prisma.WorkPlanCreateOrConnectWithoutLinkedProjectInput | Prisma.WorkPlanCreateOrConnectWithoutLinkedProjectInput[]
@@ -2070,6 +2369,17 @@ export type WorkPlanCreateWithoutOwnerInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2104,6 +2414,7 @@ export type WorkPlanCreateWithoutOwnerInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutOwnerInput = {
@@ -2130,6 +2441,17 @@ export type WorkPlanUncheckedCreateWithoutOwnerInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2159,6 +2481,7 @@ export type WorkPlanUncheckedCreateWithoutOwnerInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutOwnerInput = {
@@ -2215,6 +2538,17 @@ export type WorkPlanScalarWhereInput = {
   previousPeriodPlanId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
   okrControlScopeType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
   okrControlScopeId?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceMode?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceRevision?: Prisma.IntFilter<"WorkPlan"> | number
+  governanceActionKey?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
+  governanceWorkflowPolicyId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceWorkflowVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceActionContractVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceOkrControlVersion?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
+  governanceBoundAt?: Prisma.DateTimeNullableFilter<"WorkPlan"> | Date | string | null
+  governanceBoundByUserId?: Prisma.IntNullableFilter<"WorkPlan"> | number | null
+  governanceBindingSource?: Prisma.StringFilter<"WorkPlan"> | string
   objectiveApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   krApprovalSnapshotJson?: Prisma.StringFilter<"WorkPlan"> | string
   periodType?: Prisma.StringNullableFilter<"WorkPlan"> | string | null
@@ -2256,6 +2590,17 @@ export type WorkPlanCreateWithoutSourceDepartmentInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2290,6 +2635,7 @@ export type WorkPlanCreateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourceDepartmentInput = {
@@ -2317,6 +2663,17 @@ export type WorkPlanUncheckedCreateWithoutSourceDepartmentInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2345,6 +2702,7 @@ export type WorkPlanUncheckedCreateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourceDepartmentInput = {
@@ -2391,6 +2749,17 @@ export type WorkPlanCreateWithoutCollaborationInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2425,6 +2794,7 @@ export type WorkPlanCreateWithoutCollaborationInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutCollaborationInput = {
@@ -2451,6 +2821,17 @@ export type WorkPlanUncheckedCreateWithoutCollaborationInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2480,6 +2861,7 @@ export type WorkPlanUncheckedCreateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutCollaborationInput = {
@@ -2526,6 +2908,17 @@ export type WorkPlanCreateWithoutSourceMeetingInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2560,6 +2953,7 @@ export type WorkPlanCreateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourceMeetingInput = {
@@ -2587,6 +2981,17 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2615,6 +3020,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourceMeetingInput = {
@@ -2661,6 +3067,17 @@ export type WorkPlanCreateWithoutSourceMeetingDecisionInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2695,6 +3112,7 @@ export type WorkPlanCreateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourceMeetingDecisionInput = {
@@ -2722,6 +3140,17 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingDecisionInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2750,6 +3179,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourceMeetingDecisionInput = {
@@ -2796,6 +3226,17 @@ export type WorkPlanCreateWithoutMeetingActionCandidatesInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2830,6 +3271,7 @@ export type WorkPlanCreateWithoutMeetingActionCandidatesInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutMeetingActionCandidatesInput = {
@@ -2857,6 +3299,17 @@ export type WorkPlanUncheckedCreateWithoutMeetingActionCandidatesInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2885,6 +3338,7 @@ export type WorkPlanUncheckedCreateWithoutMeetingActionCandidatesInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutMeetingActionCandidatesInput = {
@@ -2910,6 +3364,17 @@ export type WorkPlanCreateWithoutSourceMeetingActionCandidateInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2944,6 +3409,7 @@ export type WorkPlanCreateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
@@ -2971,6 +3437,17 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -2999,6 +3476,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourceMeetingActionCandidateInput = {
@@ -3040,6 +3518,17 @@ export type WorkPlanUpdateWithoutMeetingActionCandidatesInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3074,6 +3563,7 @@ export type WorkPlanUpdateWithoutMeetingActionCandidatesInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutMeetingActionCandidatesInput = {
@@ -3101,6 +3591,17 @@ export type WorkPlanUncheckedUpdateWithoutMeetingActionCandidatesInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3129,6 +3630,7 @@ export type WorkPlanUncheckedUpdateWithoutMeetingActionCandidatesInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutSourceMeetingActionCandidateInput = {
@@ -3165,6 +3667,17 @@ export type WorkPlanCreateWithoutPlanAlignmentsInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3199,6 +3712,7 @@ export type WorkPlanCreateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutPlanAlignmentsInput = {
@@ -3226,6 +3740,17 @@ export type WorkPlanUncheckedCreateWithoutPlanAlignmentsInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3254,6 +3779,7 @@ export type WorkPlanUncheckedCreateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutPlanAlignmentsInput = {
@@ -3279,6 +3805,17 @@ export type WorkPlanCreateWithoutSourcePlanAlignmentsInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3313,6 +3850,7 @@ export type WorkPlanCreateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourcePlanAlignmentsInput = {
@@ -3340,6 +3878,17 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanAlignmentsInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3368,6 +3917,7 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourcePlanAlignmentsInput = {
@@ -3404,6 +3954,17 @@ export type WorkPlanUpdateWithoutPlanAlignmentsInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3438,6 +3999,7 @@ export type WorkPlanUpdateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutPlanAlignmentsInput = {
@@ -3465,6 +4027,17 @@ export type WorkPlanUncheckedUpdateWithoutPlanAlignmentsInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3493,6 +4066,7 @@ export type WorkPlanUncheckedUpdateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUpsertWithoutSourcePlanAlignmentsInput = {
@@ -3524,6 +4098,17 @@ export type WorkPlanUpdateWithoutSourcePlanAlignmentsInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3558,6 +4143,7 @@ export type WorkPlanUpdateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourcePlanAlignmentsInput = {
@@ -3585,6 +4171,17 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanAlignmentsInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3613,6 +4210,7 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateWithoutOkrCycleInput = {
@@ -3633,6 +4231,17 @@ export type WorkPlanCreateWithoutOkrCycleInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3667,6 +4276,7 @@ export type WorkPlanCreateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutOkrCycleInput = {
@@ -3693,6 +4303,177 @@ export type WorkPlanUncheckedCreateWithoutOkrCycleInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
+  objectiveApprovalSnapshotJson?: string
+  krApprovalSnapshotJson?: string
+  periodType?: string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  sourceMeetingId?: number | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
+  sourceDepartmentId?: number | null
+  linkedProjectId?: number | null
+  linkedProjectPhaseId?: number | null
+  isSystemGenerated?: boolean
+  isMilestone?: boolean
+  milestoneDate?: Date | string | null
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  derivedPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourcePlanInput
+  childPeriodPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutParentPeriodPlanInput
+  nextPeriodPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutPreviousPeriodPlanInput
+  planAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutChildPlanInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
+  items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
+  reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
+}
+
+export type WorkPlanCreateOrConnectWithoutOkrCycleInput = {
+  where: Prisma.WorkPlanWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedCreateWithoutOkrCycleInput>
+}
+
+export type WorkPlanCreateManyOkrCycleInputEnvelope = {
+  data: Prisma.WorkPlanCreateManyOkrCycleInput | Prisma.WorkPlanCreateManyOkrCycleInput[]
+  skipDuplicates?: boolean
+}
+
+export type WorkPlanUpsertWithWhereUniqueWithoutOkrCycleInput = {
+  where: Prisma.WorkPlanWhereUniqueInput
+  update: Prisma.XOR<Prisma.WorkPlanUpdateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedUpdateWithoutOkrCycleInput>
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedCreateWithoutOkrCycleInput>
+}
+
+export type WorkPlanUpdateWithWhereUniqueWithoutOkrCycleInput = {
+  where: Prisma.WorkPlanWhereUniqueInput
+  data: Prisma.XOR<Prisma.WorkPlanUpdateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedUpdateWithoutOkrCycleInput>
+}
+
+export type WorkPlanUpdateManyWithWhereWithoutOkrCycleInput = {
+  where: Prisma.WorkPlanScalarWhereInput
+  data: Prisma.XOR<Prisma.WorkPlanUpdateManyMutationInput, Prisma.WorkPlanUncheckedUpdateManyWithoutOkrCycleInput>
+}
+
+export type WorkPlanCreateWithoutGovernanceEventsInput = {
+  targetType?: string
+  targetId: number
+  kind?: string
+  title: string
+  description?: string
+  status?: string
+  isArchived?: boolean
+  okrStage?: string
+  objectiveSubmittedAt?: Date | string | null
+  objectiveApprovedAt?: Date | string | null
+  objectiveApprovedByUserId?: number | null
+  krReviewOpensAt?: Date | string | null
+  krSubmittedAt?: Date | string | null
+  krApprovedAt?: Date | string | null
+  krApprovedByUserId?: number | null
+  okrControlScopeType?: string | null
+  okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
+  objectiveApprovalSnapshotJson?: string
+  krApprovalSnapshotJson?: string
+  periodType?: string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  isSystemGenerated?: boolean
+  isMilestone?: boolean
+  milestoneDate?: Date | string | null
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkPlansInput
+  collaboration?: Prisma.DepartmentCollaborationCreateNestedOneWithoutWorkPlansInput
+  okrCycle?: Prisma.WorkOkrCycleCreateNestedOneWithoutPlansInput
+  sourcePlan?: Prisma.WorkPlanCreateNestedOneWithoutDerivedPlansInput
+  derivedPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourcePlanInput
+  parentPeriodPlan?: Prisma.WorkPlanCreateNestedOneWithoutChildPeriodPlansInput
+  childPeriodPlans?: Prisma.WorkPlanCreateNestedManyWithoutParentPeriodPlanInput
+  previousPeriodPlan?: Prisma.WorkPlanCreateNestedOneWithoutNextPeriodPlansInput
+  nextPeriodPlans?: Prisma.WorkPlanCreateNestedManyWithoutPreviousPeriodPlanInput
+  planAlignments?: Prisma.WorkPlanAlignmentCreateNestedManyWithoutChildPlanInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentCreateNestedManyWithoutSourcePlanInput
+  linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkPlansInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkPlansInput
+  sourceMeeting?: Prisma.MeetingCreateNestedOneWithoutSourceWorkPlansInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceWorkPlansInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceWorkPlansInput
+  sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
+  items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
+  reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+}
+
+export type WorkPlanUncheckedCreateWithoutGovernanceEventsInput = {
+  id?: number
+  targetType?: string
+  targetId: number
+  kind?: string
+  title: string
+  description?: string
+  status?: string
+  isArchived?: boolean
+  okrStage?: string
+  objectiveSubmittedAt?: Date | string | null
+  objectiveApprovedAt?: Date | string | null
+  objectiveApprovedByUserId?: number | null
+  krReviewOpensAt?: Date | string | null
+  krSubmittedAt?: Date | string | null
+  krApprovedAt?: Date | string | null
+  krApprovedByUserId?: number | null
+  ownerEmployeeId?: number | null
+  collaborationId?: number | null
+  okrCycleId?: number | null
+  sourcePlanId?: number | null
+  parentPeriodPlanId?: number | null
+  previousPeriodPlanId?: number | null
+  okrControlScopeType?: string | null
+  okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3724,30 +4505,153 @@ export type WorkPlanUncheckedCreateWithoutOkrCycleInput = {
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
-export type WorkPlanCreateOrConnectWithoutOkrCycleInput = {
+export type WorkPlanCreateOrConnectWithoutGovernanceEventsInput = {
   where: Prisma.WorkPlanWhereUniqueInput
-  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedCreateWithoutOkrCycleInput>
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedCreateWithoutGovernanceEventsInput>
 }
 
-export type WorkPlanCreateManyOkrCycleInputEnvelope = {
-  data: Prisma.WorkPlanCreateManyOkrCycleInput | Prisma.WorkPlanCreateManyOkrCycleInput[]
-  skipDuplicates?: boolean
+export type WorkPlanUpsertWithoutGovernanceEventsInput = {
+  update: Prisma.XOR<Prisma.WorkPlanUpdateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedUpdateWithoutGovernanceEventsInput>
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedCreateWithoutGovernanceEventsInput>
+  where?: Prisma.WorkPlanWhereInput
 }
 
-export type WorkPlanUpsertWithWhereUniqueWithoutOkrCycleInput = {
-  where: Prisma.WorkPlanWhereUniqueInput
-  update: Prisma.XOR<Prisma.WorkPlanUpdateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedUpdateWithoutOkrCycleInput>
-  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedCreateWithoutOkrCycleInput>
+export type WorkPlanUpdateToOneWithWhereWithoutGovernanceEventsInput = {
+  where?: Prisma.WorkPlanWhereInput
+  data: Prisma.XOR<Prisma.WorkPlanUpdateWithoutGovernanceEventsInput, Prisma.WorkPlanUncheckedUpdateWithoutGovernanceEventsInput>
 }
 
-export type WorkPlanUpdateWithWhereUniqueWithoutOkrCycleInput = {
-  where: Prisma.WorkPlanWhereUniqueInput
-  data: Prisma.XOR<Prisma.WorkPlanUpdateWithoutOkrCycleInput, Prisma.WorkPlanUncheckedUpdateWithoutOkrCycleInput>
+export type WorkPlanUpdateWithoutGovernanceEventsInput = {
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  okrStage?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isSystemGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  milestoneDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkPlansNestedInput
+  collaboration?: Prisma.DepartmentCollaborationUpdateOneWithoutWorkPlansNestedInput
+  okrCycle?: Prisma.WorkOkrCycleUpdateOneWithoutPlansNestedInput
+  sourcePlan?: Prisma.WorkPlanUpdateOneWithoutDerivedPlansNestedInput
+  derivedPlans?: Prisma.WorkPlanUpdateManyWithoutSourcePlanNestedInput
+  parentPeriodPlan?: Prisma.WorkPlanUpdateOneWithoutChildPeriodPlansNestedInput
+  childPeriodPlans?: Prisma.WorkPlanUpdateManyWithoutParentPeriodPlanNestedInput
+  previousPeriodPlan?: Prisma.WorkPlanUpdateOneWithoutNextPeriodPlansNestedInput
+  nextPeriodPlans?: Prisma.WorkPlanUpdateManyWithoutPreviousPeriodPlanNestedInput
+  planAlignments?: Prisma.WorkPlanAlignmentUpdateManyWithoutChildPlanNestedInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUpdateManyWithoutSourcePlanNestedInput
+  linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkPlansNestedInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkPlansNestedInput
+  sourceMeeting?: Prisma.MeetingUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
+  items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
+  reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
 }
 
-export type WorkPlanUpdateManyWithWhereWithoutOkrCycleInput = {
-  where: Prisma.WorkPlanScalarWhereInput
-  data: Prisma.XOR<Prisma.WorkPlanUpdateManyMutationInput, Prisma.WorkPlanUncheckedUpdateManyWithoutOkrCycleInput>
+export type WorkPlanUncheckedUpdateWithoutGovernanceEventsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  okrStage?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  collaborationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrCycleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourcePlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMeetingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSystemGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  milestoneDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  derivedPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourcePlanNestedInput
+  childPeriodPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutParentPeriodPlanNestedInput
+  nextPeriodPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutPreviousPeriodPlanNestedInput
+  planAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutChildPlanNestedInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
+  items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
+  reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateWithoutLinkedProjectInput = {
@@ -3768,6 +4672,17 @@ export type WorkPlanCreateWithoutLinkedProjectInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3802,6 +4717,7 @@ export type WorkPlanCreateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutLinkedProjectInput = {
@@ -3829,6 +4745,17 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3857,6 +4784,7 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutLinkedProjectInput = {
@@ -3903,6 +4831,17 @@ export type WorkPlanCreateWithoutLinkedProjectPhaseInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3937,6 +4876,7 @@ export type WorkPlanCreateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutLinkedProjectPhaseInput = {
@@ -3964,6 +4904,17 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectPhaseInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -3992,6 +4943,7 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutLinkedProjectPhaseInput = {
@@ -4038,6 +4990,17 @@ export type WorkPlanCreateWithoutReportItemsInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4072,6 +5035,7 @@ export type WorkPlanCreateWithoutReportItemsInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutReportItemsInput = {
@@ -4099,6 +5063,17 @@ export type WorkPlanUncheckedCreateWithoutReportItemsInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4127,6 +5102,7 @@ export type WorkPlanUncheckedCreateWithoutReportItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutReportItemsInput = {
@@ -4163,6 +5139,17 @@ export type WorkPlanUpdateWithoutReportItemsInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4197,6 +5184,7 @@ export type WorkPlanUpdateWithoutReportItemsInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutReportItemsInput = {
@@ -4224,6 +5212,17 @@ export type WorkPlanUncheckedUpdateWithoutReportItemsInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -4252,6 +5251,7 @@ export type WorkPlanUncheckedUpdateWithoutReportItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateWithoutDerivedPlansInput = {
@@ -4272,6 +5272,17 @@ export type WorkPlanCreateWithoutDerivedPlansInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4306,6 +5317,7 @@ export type WorkPlanCreateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutDerivedPlansInput = {
@@ -4333,6 +5345,17 @@ export type WorkPlanUncheckedCreateWithoutDerivedPlansInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4361,6 +5384,7 @@ export type WorkPlanUncheckedCreateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutDerivedPlansInput = {
@@ -4386,6 +5410,17 @@ export type WorkPlanCreateWithoutSourcePlanInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4420,6 +5455,7 @@ export type WorkPlanCreateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutSourcePlanInput = {
@@ -4446,6 +5482,17 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4475,6 +5522,7 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutSourcePlanInput = {
@@ -4505,6 +5553,17 @@ export type WorkPlanCreateWithoutChildPeriodPlansInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4539,6 +5598,7 @@ export type WorkPlanCreateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutChildPeriodPlansInput = {
@@ -4566,6 +5626,17 @@ export type WorkPlanUncheckedCreateWithoutChildPeriodPlansInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4594,6 +5665,7 @@ export type WorkPlanUncheckedCreateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutChildPeriodPlansInput = {
@@ -4619,6 +5691,17 @@ export type WorkPlanCreateWithoutParentPeriodPlanInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4653,6 +5736,7 @@ export type WorkPlanCreateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutParentPeriodPlanInput = {
@@ -4679,6 +5763,17 @@ export type WorkPlanUncheckedCreateWithoutParentPeriodPlanInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4708,6 +5803,7 @@ export type WorkPlanUncheckedCreateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutParentPeriodPlanInput = {
@@ -4738,6 +5834,17 @@ export type WorkPlanCreateWithoutNextPeriodPlansInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4772,6 +5879,7 @@ export type WorkPlanCreateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutNextPeriodPlansInput = {
@@ -4799,6 +5907,17 @@ export type WorkPlanUncheckedCreateWithoutNextPeriodPlansInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4827,6 +5946,7 @@ export type WorkPlanUncheckedCreateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutNextPeriodPlansInput = {
@@ -4852,6 +5972,17 @@ export type WorkPlanCreateWithoutPreviousPeriodPlanInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4886,6 +6017,7 @@ export type WorkPlanCreateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutPreviousPeriodPlanInput = {
@@ -4912,6 +6044,17 @@ export type WorkPlanUncheckedCreateWithoutPreviousPeriodPlanInput = {
   parentPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -4941,6 +6084,7 @@ export type WorkPlanUncheckedCreateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutPreviousPeriodPlanInput = {
@@ -4982,6 +6126,17 @@ export type WorkPlanUpdateWithoutDerivedPlansInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5016,6 +6171,7 @@ export type WorkPlanUpdateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutDerivedPlansInput = {
@@ -5043,6 +6199,17 @@ export type WorkPlanUncheckedUpdateWithoutDerivedPlansInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5071,6 +6238,7 @@ export type WorkPlanUncheckedUpdateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutSourcePlanInput = {
@@ -5118,6 +6286,17 @@ export type WorkPlanUpdateWithoutChildPeriodPlansInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5152,6 +6331,7 @@ export type WorkPlanUpdateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutChildPeriodPlansInput = {
@@ -5179,6 +6359,17 @@ export type WorkPlanUncheckedUpdateWithoutChildPeriodPlansInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5207,6 +6398,7 @@ export type WorkPlanUncheckedUpdateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutParentPeriodPlanInput = {
@@ -5254,6 +6446,17 @@ export type WorkPlanUpdateWithoutNextPeriodPlansInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5288,6 +6491,7 @@ export type WorkPlanUpdateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutNextPeriodPlansInput = {
@@ -5315,6 +6519,17 @@ export type WorkPlanUncheckedUpdateWithoutNextPeriodPlansInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5343,6 +6558,7 @@ export type WorkPlanUncheckedUpdateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUpsertWithWhereUniqueWithoutPreviousPeriodPlanInput = {
@@ -5379,6 +6595,17 @@ export type WorkPlanCreateWithoutItemsInput = {
   krApprovedByUserId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -5413,6 +6640,7 @@ export type WorkPlanCreateWithoutItemsInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutItemsInput = {
@@ -5440,6 +6668,17 @@ export type WorkPlanUncheckedCreateWithoutItemsInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -5468,6 +6707,7 @@ export type WorkPlanUncheckedCreateWithoutItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutItemsInput = {
@@ -5504,6 +6744,17 @@ export type WorkPlanUpdateWithoutItemsInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5538,6 +6789,7 @@ export type WorkPlanUpdateWithoutItemsInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutItemsInput = {
@@ -5565,6 +6817,17 @@ export type WorkPlanUncheckedUpdateWithoutItemsInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5593,6 +6856,7 @@ export type WorkPlanUncheckedUpdateWithoutItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateManyOwnerInput = {
@@ -5619,6 +6883,17 @@ export type WorkPlanCreateManyOwnerInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -5660,6 +6935,17 @@ export type WorkPlanUpdateWithoutOwnerInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5694,6 +6980,7 @@ export type WorkPlanUpdateWithoutOwnerInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutOwnerInput = {
@@ -5720,6 +7007,17 @@ export type WorkPlanUncheckedUpdateWithoutOwnerInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5749,6 +7047,7 @@ export type WorkPlanUncheckedUpdateWithoutOwnerInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutOwnerInput = {
@@ -5775,6 +7074,17 @@ export type WorkPlanUncheckedUpdateManyWithoutOwnerInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5823,6 +7133,17 @@ export type WorkPlanCreateManySourceDepartmentInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -5863,6 +7184,17 @@ export type WorkPlanUpdateWithoutSourceDepartmentInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5897,6 +7229,7 @@ export type WorkPlanUpdateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourceDepartmentInput = {
@@ -5924,6 +7257,17 @@ export type WorkPlanUncheckedUpdateWithoutSourceDepartmentInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -5952,6 +7296,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutSourceDepartmentInput = {
@@ -5979,6 +7324,17 @@ export type WorkPlanUncheckedUpdateManyWithoutSourceDepartmentInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6025,6 +7381,17 @@ export type WorkPlanCreateManyCollaborationInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -6066,6 +7433,17 @@ export type WorkPlanUpdateWithoutCollaborationInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6100,6 +7478,7 @@ export type WorkPlanUpdateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutCollaborationInput = {
@@ -6126,6 +7505,17 @@ export type WorkPlanUncheckedUpdateWithoutCollaborationInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6155,6 +7545,7 @@ export type WorkPlanUncheckedUpdateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutCollaborationInput = {
@@ -6181,6 +7572,17 @@ export type WorkPlanUncheckedUpdateManyWithoutCollaborationInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6229,6 +7631,17 @@ export type WorkPlanCreateManySourceMeetingInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -6269,6 +7682,17 @@ export type WorkPlanUpdateWithoutSourceMeetingInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6303,6 +7727,7 @@ export type WorkPlanUpdateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourceMeetingInput = {
@@ -6330,6 +7755,17 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6358,6 +7794,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingInput = {
@@ -6385,6 +7822,17 @@ export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6432,6 +7880,17 @@ export type WorkPlanCreateManySourceMeetingDecisionInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -6472,6 +7931,17 @@ export type WorkPlanUpdateWithoutSourceMeetingDecisionInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6506,6 +7976,7 @@ export type WorkPlanUpdateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourceMeetingDecisionInput = {
@@ -6533,6 +8004,17 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6561,6 +8043,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
@@ -6588,6 +8071,17 @@ export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6635,6 +8129,17 @@ export type WorkPlanCreateManySourceMeetingActionCandidateInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -6675,6 +8180,17 @@ export type WorkPlanUpdateWithoutSourceMeetingActionCandidateInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6709,6 +8225,7 @@ export type WorkPlanUpdateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
@@ -6736,6 +8253,17 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6764,6 +8292,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput = {
@@ -6791,6 +8320,17 @@ export type WorkPlanUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput 
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6837,6 +8377,17 @@ export type WorkPlanCreateManyOkrCycleInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -6878,6 +8429,17 @@ export type WorkPlanUpdateWithoutOkrCycleInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6912,6 +8474,7 @@ export type WorkPlanUpdateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutOkrCycleInput = {
@@ -6938,6 +8501,17 @@ export type WorkPlanUncheckedUpdateWithoutOkrCycleInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -6967,6 +8541,7 @@ export type WorkPlanUncheckedUpdateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutOkrCycleInput = {
@@ -6993,6 +8568,17 @@ export type WorkPlanUncheckedUpdateManyWithoutOkrCycleInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7041,6 +8627,17 @@ export type WorkPlanCreateManyLinkedProjectInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -7081,6 +8678,17 @@ export type WorkPlanUpdateWithoutLinkedProjectInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7115,6 +8723,7 @@ export type WorkPlanUpdateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutLinkedProjectInput = {
@@ -7142,6 +8751,17 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7170,6 +8790,7 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutLinkedProjectInput = {
@@ -7197,6 +8818,17 @@ export type WorkPlanUncheckedUpdateManyWithoutLinkedProjectInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7244,6 +8876,17 @@ export type WorkPlanCreateManyLinkedProjectPhaseInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -7284,6 +8927,17 @@ export type WorkPlanUpdateWithoutLinkedProjectPhaseInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7318,6 +8972,7 @@ export type WorkPlanUpdateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutLinkedProjectPhaseInput = {
@@ -7345,6 +9000,17 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectPhaseInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7373,6 +9039,7 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutLinkedProjectPhaseInput = {
@@ -7400,6 +9067,17 @@ export type WorkPlanUncheckedUpdateManyWithoutLinkedProjectPhaseInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7446,6 +9124,17 @@ export type WorkPlanCreateManySourcePlanInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -7493,6 +9182,17 @@ export type WorkPlanCreateManyParentPeriodPlanInput = {
   previousPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -7540,6 +9240,17 @@ export type WorkPlanCreateManyPreviousPeriodPlanInput = {
   parentPeriodPlanId?: number | null
   okrControlScopeType?: string | null
   okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
   objectiveApprovalSnapshotJson?: string
   krApprovalSnapshotJson?: string
   periodType?: string | null
@@ -7581,6 +9292,17 @@ export type WorkPlanUpdateWithoutSourcePlanInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7615,6 +9337,7 @@ export type WorkPlanUpdateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutSourcePlanInput = {
@@ -7641,6 +9364,17 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7670,6 +9404,7 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutSourcePlanInput = {
@@ -7696,6 +9431,17 @@ export type WorkPlanUncheckedUpdateManyWithoutSourcePlanInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7737,6 +9483,17 @@ export type WorkPlanUpdateWithoutParentPeriodPlanInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7771,6 +9528,7 @@ export type WorkPlanUpdateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutParentPeriodPlanInput = {
@@ -7797,6 +9555,17 @@ export type WorkPlanUncheckedUpdateWithoutParentPeriodPlanInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7826,6 +9595,7 @@ export type WorkPlanUncheckedUpdateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutParentPeriodPlanInput = {
@@ -7852,6 +9622,17 @@ export type WorkPlanUncheckedUpdateManyWithoutParentPeriodPlanInput = {
   previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7893,6 +9674,17 @@ export type WorkPlanUpdateWithoutPreviousPeriodPlanInput = {
   krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7927,6 +9719,7 @@ export type WorkPlanUpdateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutPreviousPeriodPlanInput = {
@@ -7953,6 +9746,17 @@ export type WorkPlanUncheckedUpdateWithoutPreviousPeriodPlanInput = {
   parentPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -7982,6 +9786,7 @@ export type WorkPlanUncheckedUpdateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateManyWithoutPreviousPeriodPlanInput = {
@@ -8008,6 +9813,17 @@ export type WorkPlanUncheckedUpdateManyWithoutPreviousPeriodPlanInput = {
   parentPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
   objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -8045,6 +9861,7 @@ export type WorkPlanCountOutputType = {
   items: number
   meetingActionCandidates: number
   reportItems: number
+  governanceEvents: number
 }
 
 export type WorkPlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8056,6 +9873,7 @@ export type WorkPlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   items?: boolean | WorkPlanCountOutputTypeCountItemsArgs
   meetingActionCandidates?: boolean | WorkPlanCountOutputTypeCountMeetingActionCandidatesArgs
   reportItems?: boolean | WorkPlanCountOutputTypeCountReportItemsArgs
+  governanceEvents?: boolean | WorkPlanCountOutputTypeCountGovernanceEventsArgs
 }
 
 /**
@@ -8124,6 +9942,13 @@ export type WorkPlanCountOutputTypeCountReportItemsArgs<ExtArgs extends runtime.
   where?: Prisma.WorkReportItemWhereInput
 }
 
+/**
+ * WorkPlanCountOutputType without action
+ */
+export type WorkPlanCountOutputTypeCountGovernanceEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkPlanGovernanceEventWhereInput
+}
+
 
 export type WorkPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -8150,6 +9975,17 @@ export type WorkPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   previousPeriodPlanId?: boolean
   okrControlScopeType?: boolean
   okrControlScopeId?: boolean
+  governanceMode?: boolean
+  governanceRevision?: boolean
+  governanceActionKey?: boolean
+  governanceWorkflowPolicyId?: boolean
+  governanceWorkflowVersion?: boolean
+  governanceActionContractVersion?: boolean
+  governanceOkrControlVersion?: boolean
+  governanceSnapshotJson?: boolean
+  governanceBoundAt?: boolean
+  governanceBoundByUserId?: boolean
+  governanceBindingSource?: boolean
   objectiveApprovalSnapshotJson?: boolean
   krApprovalSnapshotJson?: boolean
   periodType?: boolean
@@ -8191,6 +10027,7 @@ export type WorkPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   items?: boolean | Prisma.WorkPlan$itemsArgs<ExtArgs>
   meetingActionCandidates?: boolean | Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkPlan$reportItemsArgs<ExtArgs>
+  governanceEvents?: boolean | Prisma.WorkPlan$governanceEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkPlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workPlan"]>
 
@@ -8219,6 +10056,17 @@ export type WorkPlanSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   previousPeriodPlanId?: boolean
   okrControlScopeType?: boolean
   okrControlScopeId?: boolean
+  governanceMode?: boolean
+  governanceRevision?: boolean
+  governanceActionKey?: boolean
+  governanceWorkflowPolicyId?: boolean
+  governanceWorkflowVersion?: boolean
+  governanceActionContractVersion?: boolean
+  governanceOkrControlVersion?: boolean
+  governanceSnapshotJson?: boolean
+  governanceBoundAt?: boolean
+  governanceBoundByUserId?: boolean
+  governanceBindingSource?: boolean
   objectiveApprovalSnapshotJson?: boolean
   krApprovalSnapshotJson?: boolean
   periodType?: boolean
@@ -8279,6 +10127,17 @@ export type WorkPlanSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   previousPeriodPlanId?: boolean
   okrControlScopeType?: boolean
   okrControlScopeId?: boolean
+  governanceMode?: boolean
+  governanceRevision?: boolean
+  governanceActionKey?: boolean
+  governanceWorkflowPolicyId?: boolean
+  governanceWorkflowVersion?: boolean
+  governanceActionContractVersion?: boolean
+  governanceOkrControlVersion?: boolean
+  governanceSnapshotJson?: boolean
+  governanceBoundAt?: boolean
+  governanceBoundByUserId?: boolean
+  governanceBindingSource?: boolean
   objectiveApprovalSnapshotJson?: boolean
   krApprovalSnapshotJson?: boolean
   periodType?: boolean
@@ -8339,6 +10198,17 @@ export type WorkPlanSelectScalar = {
   previousPeriodPlanId?: boolean
   okrControlScopeType?: boolean
   okrControlScopeId?: boolean
+  governanceMode?: boolean
+  governanceRevision?: boolean
+  governanceActionKey?: boolean
+  governanceWorkflowPolicyId?: boolean
+  governanceWorkflowVersion?: boolean
+  governanceActionContractVersion?: boolean
+  governanceOkrControlVersion?: boolean
+  governanceSnapshotJson?: boolean
+  governanceBoundAt?: boolean
+  governanceBoundByUserId?: boolean
+  governanceBindingSource?: boolean
   objectiveApprovalSnapshotJson?: boolean
   krApprovalSnapshotJson?: boolean
   periodType?: boolean
@@ -8362,7 +10232,7 @@ export type WorkPlanSelectScalar = {
   updatedAt?: boolean
 }
 
-export type WorkPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "kind" | "title" | "description" | "status" | "isArchived" | "okrStage" | "objectiveSubmittedAt" | "objectiveApprovedAt" | "objectiveApprovedByUserId" | "krReviewOpensAt" | "krSubmittedAt" | "krApprovedAt" | "krApprovedByUserId" | "ownerEmployeeId" | "collaborationId" | "okrCycleId" | "sourcePlanId" | "parentPeriodPlanId" | "previousPeriodPlanId" | "okrControlScopeType" | "okrControlScopeId" | "objectiveApprovalSnapshotJson" | "krApprovalSnapshotJson" | "periodType" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "sourceDepartmentId" | "linkedProjectId" | "linkedProjectPhaseId" | "isSystemGenerated" | "isMilestone" | "milestoneDate" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["workPlan"]>
+export type WorkPlanOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "targetType" | "targetId" | "kind" | "title" | "description" | "status" | "isArchived" | "okrStage" | "objectiveSubmittedAt" | "objectiveApprovedAt" | "objectiveApprovedByUserId" | "krReviewOpensAt" | "krSubmittedAt" | "krApprovedAt" | "krApprovedByUserId" | "ownerEmployeeId" | "collaborationId" | "okrCycleId" | "sourcePlanId" | "parentPeriodPlanId" | "previousPeriodPlanId" | "okrControlScopeType" | "okrControlScopeId" | "governanceMode" | "governanceRevision" | "governanceActionKey" | "governanceWorkflowPolicyId" | "governanceWorkflowVersion" | "governanceActionContractVersion" | "governanceOkrControlVersion" | "governanceSnapshotJson" | "governanceBoundAt" | "governanceBoundByUserId" | "governanceBindingSource" | "objectiveApprovalSnapshotJson" | "krApprovalSnapshotJson" | "periodType" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "sourceDepartmentId" | "linkedProjectId" | "linkedProjectPhaseId" | "isSystemGenerated" | "isMilestone" | "milestoneDate" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["workPlan"]>
 export type WorkPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.WorkPlan$ownerArgs<ExtArgs>
   collaboration?: boolean | Prisma.WorkPlan$collaborationArgs<ExtArgs>
@@ -8384,6 +10254,7 @@ export type WorkPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   items?: boolean | Prisma.WorkPlan$itemsArgs<ExtArgs>
   meetingActionCandidates?: boolean | Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkPlan$reportItemsArgs<ExtArgs>
+  governanceEvents?: boolean | Prisma.WorkPlan$governanceEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkPlanCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkPlanIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -8438,6 +10309,7 @@ export type $WorkPlanPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     items: Prisma.$WorkItemPayload<ExtArgs>[]
     meetingActionCandidates: Prisma.$MeetingActionCandidatePayload<ExtArgs>[]
     reportItems: Prisma.$WorkReportItemPayload<ExtArgs>[]
+    governanceEvents: Prisma.$WorkPlanGovernanceEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -8464,6 +10336,17 @@ export type $WorkPlanPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     previousPeriodPlanId: number | null
     okrControlScopeType: string | null
     okrControlScopeId: string | null
+    governanceMode: string
+    governanceRevision: number
+    governanceActionKey: string | null
+    governanceWorkflowPolicyId: number | null
+    governanceWorkflowVersion: number | null
+    governanceActionContractVersion: number | null
+    governanceOkrControlVersion: number | null
+    governanceSnapshotJson: string
+    governanceBoundAt: Date | null
+    governanceBoundByUserId: number | null
+    governanceBindingSource: string
     objectiveApprovalSnapshotJson: string
     krApprovalSnapshotJson: string
     periodType: string | null
@@ -8899,6 +10782,7 @@ export interface Prisma__WorkPlanClient<T, Null = never, ExtArgs extends runtime
   items<T extends Prisma.WorkPlan$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   meetingActionCandidates<T extends Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingActionCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportItems<T extends Prisma.WorkPlan$reportItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$reportItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkReportItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  governanceEvents<T extends Prisma.WorkPlan$governanceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$governanceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanGovernanceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -8952,6 +10836,17 @@ export interface WorkPlanFieldRefs {
   readonly previousPeriodPlanId: Prisma.FieldRef<"WorkPlan", 'Int'>
   readonly okrControlScopeType: Prisma.FieldRef<"WorkPlan", 'String'>
   readonly okrControlScopeId: Prisma.FieldRef<"WorkPlan", 'String'>
+  readonly governanceMode: Prisma.FieldRef<"WorkPlan", 'String'>
+  readonly governanceRevision: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceActionKey: Prisma.FieldRef<"WorkPlan", 'String'>
+  readonly governanceWorkflowPolicyId: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceWorkflowVersion: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceActionContractVersion: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceOkrControlVersion: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceSnapshotJson: Prisma.FieldRef<"WorkPlan", 'String'>
+  readonly governanceBoundAt: Prisma.FieldRef<"WorkPlan", 'DateTime'>
+  readonly governanceBoundByUserId: Prisma.FieldRef<"WorkPlan", 'Int'>
+  readonly governanceBindingSource: Prisma.FieldRef<"WorkPlan", 'String'>
   readonly objectiveApprovalSnapshotJson: Prisma.FieldRef<"WorkPlan", 'String'>
   readonly krApprovalSnapshotJson: Prisma.FieldRef<"WorkPlan", 'String'>
   readonly periodType: Prisma.FieldRef<"WorkPlan", 'String'>
@@ -9791,6 +11686,30 @@ export type WorkPlan$reportItemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.WorkReportItemScalarFieldEnum | Prisma.WorkReportItemScalarFieldEnum[]
+}
+
+/**
+ * WorkPlan.governanceEvents
+ */
+export type WorkPlan$governanceEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkPlanGovernanceEvent
+   */
+  select?: Prisma.WorkPlanGovernanceEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkPlanGovernanceEvent
+   */
+  omit?: Prisma.WorkPlanGovernanceEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkPlanGovernanceEventInclude<ExtArgs> | null
+  where?: Prisma.WorkPlanGovernanceEventWhereInput
+  orderBy?: Prisma.WorkPlanGovernanceEventOrderByWithRelationInput | Prisma.WorkPlanGovernanceEventOrderByWithRelationInput[]
+  cursor?: Prisma.WorkPlanGovernanceEventWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkPlanGovernanceEventScalarFieldEnum | Prisma.WorkPlanGovernanceEventScalarFieldEnum[]
 }
 
 /**

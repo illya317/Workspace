@@ -10,7 +10,6 @@ import {
 import {
   getWorkTaskApprovalResourceKey,
   normalizeApprovalWorkspaceTargetType,
-  workOkrWorkflowBusinessActionKey,
   type WorkTaskKrReviewApprovalPayload,
   type WorkTaskObjectivePlanApprovalPayload,
 } from "./task-approval-helpers";
@@ -20,6 +19,10 @@ import {
   resolveWorkOkrControlScopeForPlan,
   type WorkOkrControlScope,
 } from "./work-okr-control";
+import {
+  workPlanGovernanceSelect,
+  workPlanPreparedWorkflowBinding,
+} from "./work-plan-governance";
 
 export async function commitObjectivePlanApproval(actorUserId: number, payload: WorkTaskObjectivePlanApprovalPayload) {
   if (payload.data.packageOnly) return serviceOk({ entityType: "work.package", entityId: String(payload.data.packageKey || payload.planId) });
@@ -70,14 +73,12 @@ export async function validateObjectivePlanApprovalPayload(
   }
   const snapshot = await buildPlanApprovalSnapshot(existing, controlScope.data, "objective_plan");
   const packageKey = workPackageKey(existing);
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "objective_submit");
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(approvalTarget.targetType),
     scopeId: workTaskScopeId(approvalTarget.targetType, approvalTarget.targetId),
     subjectId: packageKey,
-    businessActionKey: workOkrWorkflowBusinessActionKey({
-      kind: "objective_submit",
-      workspaceTargetType,
-    }),
+    ...workflowBinding,
     workflowScopeType: approvalTarget.targetType,
     flowType: "approval" as const,
     separationPolicy: "auto_pass_if_authorized" as const,
@@ -123,14 +124,12 @@ export async function validateKrReviewApprovalPayload(
   }
   const snapshot = await buildPlanApprovalSnapshot(existing, controlScope.data, "kr_review");
   const packageKey = workPackageKey(existing);
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "report_submit");
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(approvalTarget.targetType),
     scopeId: workTaskScopeId(approvalTarget.targetType, approvalTarget.targetId),
     subjectId: packageKey,
-    businessActionKey: workOkrWorkflowBusinessActionKey({
-      kind: "report_submit",
-      workspaceTargetType,
-    }),
+    ...workflowBinding,
     workflowScopeType: approvalTarget.targetType,
     flowType: "approval" as const,
     separationPolicy: "auto_pass_if_authorized" as const,
@@ -153,18 +152,10 @@ export async function validateKrReviewApprovalPayload(
 }
 
 const okrPlanApprovalSelect = {
-  id: true,
-  targetType: true,
-  targetId: true,
+  ...workPlanGovernanceSelect,
   title: true,
-  kind: true,
   description: true,
-  status: true,
-  okrStage: true,
   ownerEmployeeId: true,
-  okrCycleId: true,
-  okrControlScopeType: true,
-  okrControlScopeId: true,
   periodType: true,
   plannedStartDate: true,
   plannedEndDate: true,

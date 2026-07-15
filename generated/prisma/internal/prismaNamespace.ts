@@ -517,6 +517,9 @@ export const ModelName = {
   WorkPlanAlignment: 'WorkPlanAlignment',
   WorkOkrCycle: 'WorkOkrCycle',
   WorkOkrControlPolicy: 'WorkOkrControlPolicy',
+  WorkOkrControlRevision: 'WorkOkrControlRevision',
+  WorkOkrControlPolicyRevision: 'WorkOkrControlPolicyRevision',
+  WorkPlanGovernanceEvent: 'WorkPlanGovernanceEvent',
   Project: 'Project',
   ProjectEnablingDepartment: 'ProjectEnablingDepartment',
   EmployeeProject: 'EmployeeProject',
@@ -549,7 +552,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -10395,6 +10398,228 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    WorkOkrControlRevision: {
+      payload: Prisma.$WorkOkrControlRevisionPayload<ExtArgs>
+      fields: Prisma.WorkOkrControlRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkOkrControlRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkOkrControlRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkOkrControlRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkOkrControlRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.WorkOkrControlRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.WorkOkrControlRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.WorkOkrControlRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkOkrControlRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkOkrControlRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        update: {
+          args: Prisma.WorkOkrControlRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkOkrControlRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkOkrControlRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkOkrControlRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkOkrControlRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkOkrControlRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkOkrControlRevision>
+        }
+        groupBy: {
+          args: Prisma.WorkOkrControlRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkOkrControlRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkOkrControlRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkOkrControlRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    WorkOkrControlPolicyRevision: {
+      payload: Prisma.$WorkOkrControlPolicyRevisionPayload<ExtArgs>
+      fields: Prisma.WorkOkrControlPolicyRevisionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkOkrControlPolicyRevisionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkOkrControlPolicyRevisionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkOkrControlPolicyRevisionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkOkrControlPolicyRevisionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        findMany: {
+          args: Prisma.WorkOkrControlPolicyRevisionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>[]
+        }
+        create: {
+          args: Prisma.WorkOkrControlPolicyRevisionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        createMany: {
+          args: Prisma.WorkOkrControlPolicyRevisionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkOkrControlPolicyRevisionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkOkrControlPolicyRevisionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        update: {
+          args: Prisma.WorkOkrControlPolicyRevisionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkOkrControlPolicyRevisionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkOkrControlPolicyRevisionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkOkrControlPolicyRevisionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkOkrControlPolicyRevisionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkOkrControlPolicyRevisionPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkOkrControlPolicyRevisionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkOkrControlPolicyRevision>
+        }
+        groupBy: {
+          args: Prisma.WorkOkrControlPolicyRevisionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkOkrControlPolicyRevisionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkOkrControlPolicyRevisionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkOkrControlPolicyRevisionCountAggregateOutputType> | number
+        }
+      }
+    }
+    WorkPlanGovernanceEvent: {
+      payload: Prisma.$WorkPlanGovernanceEventPayload<ExtArgs>
+      fields: Prisma.WorkPlanGovernanceEventFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.WorkPlanGovernanceEventFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.WorkPlanGovernanceEventFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        findFirst: {
+          args: Prisma.WorkPlanGovernanceEventFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.WorkPlanGovernanceEventFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        findMany: {
+          args: Prisma.WorkPlanGovernanceEventFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>[]
+        }
+        create: {
+          args: Prisma.WorkPlanGovernanceEventCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        createMany: {
+          args: Prisma.WorkPlanGovernanceEventCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.WorkPlanGovernanceEventCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>[]
+        }
+        delete: {
+          args: Prisma.WorkPlanGovernanceEventDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        update: {
+          args: Prisma.WorkPlanGovernanceEventUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        deleteMany: {
+          args: Prisma.WorkPlanGovernanceEventDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.WorkPlanGovernanceEventUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.WorkPlanGovernanceEventUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>[]
+        }
+        upsert: {
+          args: Prisma.WorkPlanGovernanceEventUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$WorkPlanGovernanceEventPayload>
+        }
+        aggregate: {
+          args: Prisma.WorkPlanGovernanceEventAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateWorkPlanGovernanceEvent>
+        }
+        groupBy: {
+          args: Prisma.WorkPlanGovernanceEventGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkPlanGovernanceEventGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.WorkPlanGovernanceEventCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.WorkPlanGovernanceEventCountAggregateOutputType> | number
+        }
+      }
+    }
     Project: {
       payload: Prisma.$ProjectPayload<ExtArgs>
       fields: Prisma.ProjectFieldRefs
@@ -11749,6 +11974,10 @@ export const ApprovalRequestScalarFieldEnum = {
   requestCanResubmit: 'requestCanResubmit',
   requestCanCancel: 'requestCanCancel',
   requestCanRevise: 'requestCanRevise',
+  sourceWorkflowPolicyId: 'sourceWorkflowPolicyId',
+  sourceWorkflowPolicyVersion: 'sourceWorkflowPolicyVersion',
+  sourceActionContractVersion: 'sourceActionContractVersion',
+  sourceOkrControlVersion: 'sourceOkrControlVersion',
   subjectType: 'subjectType',
   subjectId: 'subjectId',
   operation: 'operation',
@@ -14230,6 +14459,7 @@ export const WorkOkrControlPolicyScalarFieldEnum = {
   objectiveSubmitDeadline: 'objectiveSubmitDeadline',
   krReviewOpensAt: 'krReviewOpensAt',
   krSubmitDeadline: 'krSubmitDeadline',
+  version: 'version',
   createdByUserId: 'createdByUserId',
   updatedByUserId: 'updatedByUserId',
   createdAt: 'createdAt',
@@ -14237,6 +14467,48 @@ export const WorkOkrControlPolicyScalarFieldEnum = {
 } as const
 
 export type WorkOkrControlPolicyScalarFieldEnum = (typeof WorkOkrControlPolicyScalarFieldEnum)[keyof typeof WorkOkrControlPolicyScalarFieldEnum]
+
+
+export const WorkOkrControlRevisionScalarFieldEnum = {
+  id: 'id',
+  version: 'version',
+  settingsJson: 'settingsJson',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkOkrControlRevisionScalarFieldEnum = (typeof WorkOkrControlRevisionScalarFieldEnum)[keyof typeof WorkOkrControlRevisionScalarFieldEnum]
+
+
+export const WorkOkrControlPolicyRevisionScalarFieldEnum = {
+  id: 'id',
+  policyId: 'policyId',
+  cycleId: 'cycleId',
+  scopeType: 'scopeType',
+  scopeId: 'scopeId',
+  version: 'version',
+  changeKind: 'changeKind',
+  snapshotJson: 'snapshotJson',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkOkrControlPolicyRevisionScalarFieldEnum = (typeof WorkOkrControlPolicyRevisionScalarFieldEnum)[keyof typeof WorkOkrControlPolicyRevisionScalarFieldEnum]
+
+
+export const WorkPlanGovernanceEventScalarFieldEnum = {
+  id: 'id',
+  workPlanId: 'workPlanId',
+  fromMode: 'fromMode',
+  toMode: 'toMode',
+  fromSnapshotJson: 'fromSnapshotJson',
+  toSnapshotJson: 'toSnapshotJson',
+  reason: 'reason',
+  actorUserId: 'actorUserId',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkPlanGovernanceEventScalarFieldEnum = (typeof WorkPlanGovernanceEventScalarFieldEnum)[keyof typeof WorkPlanGovernanceEventScalarFieldEnum]
 
 
 export const ProjectScalarFieldEnum = {
@@ -14498,6 +14770,17 @@ export const WorkPlanScalarFieldEnum = {
   previousPeriodPlanId: 'previousPeriodPlanId',
   okrControlScopeType: 'okrControlScopeType',
   okrControlScopeId: 'okrControlScopeId',
+  governanceMode: 'governanceMode',
+  governanceRevision: 'governanceRevision',
+  governanceActionKey: 'governanceActionKey',
+  governanceWorkflowPolicyId: 'governanceWorkflowPolicyId',
+  governanceWorkflowVersion: 'governanceWorkflowVersion',
+  governanceActionContractVersion: 'governanceActionContractVersion',
+  governanceOkrControlVersion: 'governanceOkrControlVersion',
+  governanceSnapshotJson: 'governanceSnapshotJson',
+  governanceBoundAt: 'governanceBoundAt',
+  governanceBoundByUserId: 'governanceBoundByUserId',
+  governanceBindingSource: 'governanceBindingSource',
   objectiveApprovalSnapshotJson: 'objectiveApprovalSnapshotJson',
   krApprovalSnapshotJson: 'krApprovalSnapshotJson',
   periodType: 'periodType',
@@ -15003,6 +15286,9 @@ export type GlobalOmitConfig = {
   workPlanAlignment?: Prisma.WorkPlanAlignmentOmit
   workOkrCycle?: Prisma.WorkOkrCycleOmit
   workOkrControlPolicy?: Prisma.WorkOkrControlPolicyOmit
+  workOkrControlRevision?: Prisma.WorkOkrControlRevisionOmit
+  workOkrControlPolicyRevision?: Prisma.WorkOkrControlPolicyRevisionOmit
+  workPlanGovernanceEvent?: Prisma.WorkPlanGovernanceEventOmit
   project?: Prisma.ProjectOmit
   projectEnablingDepartment?: Prisma.ProjectEnablingDepartmentOmit
   employeeProject?: Prisma.EmployeeProjectOmit

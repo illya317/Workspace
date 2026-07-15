@@ -25,8 +25,6 @@ type DepartmentDetailPaneProps = {
   positionsByDepartment: Map<number, Position[]>;
   isOrganizationMode: boolean;
   canArchive: boolean;
-  canEditDepartment: boolean;
-  canSubmitDepartmentWorkflow: boolean;
   actionRuntime: ActionRuntime | null;
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
@@ -61,8 +59,6 @@ export function useDepartmentDetailPaneSection({
   positionsByDepartment,
   isOrganizationMode,
   canArchive,
-  canEditDepartment,
-  canSubmitDepartmentWorkflow,
   actionRuntime,
   canEditPosition,
   createPanel,
@@ -89,9 +85,8 @@ export function useDepartmentDetailPaneSection({
 }: DepartmentDetailPaneProps): BodySurfaceSectionSpec {
   const isGovernanceOrganizationReadonly = selectedDepartment?.hierarchyKind === "G";
   const showDepartmentDescriptions = !isOrganizationMode;
-  const canEditDepartmentDraft = (actionRuntime
-    ? actionRuntime.editability === "editable"
-    : canEditDepartment || canSubmitDepartmentWorkflow) && !isGovernanceOrganizationReadonly;
+  const canEditDepartmentDraft = actionRuntime?.editability === "editable"
+    && !isGovernanceOrganizationReadonly;
   const parentDepartmentOptions = useMemo(() => {
     if (!selectedDepartment) return [];
     const excludedIds = departmentDescendantIds(selectedDepartment, departmentById);

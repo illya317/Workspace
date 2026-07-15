@@ -1,70 +1,82 @@
 /// 工作计划总包（OKR 计划）
 model WorkPlan {
-  id                             Int                      @id @default(autoincrement())
-  targetType                     String                   @default("personal")
-  targetId                       Int
-  kind                           String                   @default("okr")
-  title                          String
-  description                    String                   @default("")
-  status                         String                   @default("active")
-  isArchived                     Boolean                  @default(false)
-  okrStage                       String                   @default("objective_draft")
-  objectiveSubmittedAt           DateTime?
-  objectiveApprovedAt            DateTime?
-  objectiveApprovedByUserId      Int?
-  krReviewOpensAt                DateTime?
-  krSubmittedAt                  DateTime?
-  krApprovedAt                   DateTime?
-  krApprovedByUserId             Int?
-  ownerEmployeeId                Int?
-  collaborationId                Int?
-  okrCycleId                     Int?
-  sourcePlanId                   Int?
-  parentPeriodPlanId             Int?
-  previousPeriodPlanId           Int?
-  okrControlScopeType            String?
-  okrControlScopeId              String?
-  objectiveApprovalSnapshotJson  String                   @default("{}")
-  krApprovalSnapshotJson         String                   @default("{}")
-  periodType                     String?
-  actualStartDate                DateTime?
-  actualEndDate                  DateTime?
-  plannedStartDate               DateTime?
-  plannedEndDate                 DateTime?
-  sourceType                     String                   @default("other")
-  sourceKind                     String?
-  sourceMeetingId                Int?
-  sourceMeetingDecisionId        Int?
-  sourceMeetingActionCandidateId Int?
-  sourceDepartmentId             Int?
-  linkedProjectId                Int?
-  linkedProjectPhaseId           Int?
-  isSystemGenerated              Boolean                  @default(false)
-  isMilestone                    Boolean                  @default(false)
-  milestoneDate                  DateTime?
-  sortOrder                      Int                      @default(0)
-  createdAt                      DateTime                 @default(now())
-  updatedAt                      DateTime                 @default(now()) @updatedAt
-  owner                          Employee?                @relation("WorkPlanOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
-  collaboration                  DepartmentCollaboration? @relation(fields: [collaborationId], references: [id], onDelete: SetNull)
-  okrCycle                       WorkOkrCycle?            @relation(fields: [okrCycleId], references: [id], onDelete: SetNull)
-  sourcePlan                     WorkPlan?                @relation("WorkPlanSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
-  derivedPlans                   WorkPlan[]               @relation("WorkPlanSourcePlan")
-  parentPeriodPlan               WorkPlan?                @relation("WorkPlanParentPeriodPlan", fields: [parentPeriodPlanId], references: [id], onDelete: SetNull)
-  childPeriodPlans               WorkPlan[]               @relation("WorkPlanParentPeriodPlan")
-  previousPeriodPlan             WorkPlan?                @relation("WorkPlanPreviousPeriodPlan", fields: [previousPeriodPlanId], references: [id], onDelete: SetNull)
-  nextPeriodPlans                WorkPlan[]               @relation("WorkPlanPreviousPeriodPlan")
-  planAlignments                 WorkPlanAlignment[]      @relation("WorkPlanAlignmentChildPlan")
-  sourcePlanAlignments           WorkPlanAlignment[]      @relation("WorkPlanAlignmentSourcePlan")
-  linkedProject                  Project?                 @relation("WorkPlanLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
-  linkedProjectPhase             ProjectPlanPhase?        @relation("WorkPlanLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
-  sourceMeeting                  Meeting?                 @relation("WorkPlanSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
-  sourceMeetingDecision          MeetingDecision?         @relation("WorkPlanSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
-  sourceMeetingActionCandidate   MeetingActionCandidate?  @relation("WorkPlanSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
-  sourceDepartment               Department?              @relation("WorkPlanSourceDepartment", fields: [sourceDepartmentId], references: [id], onDelete: SetNull)
-  items                          WorkItem[]
-  meetingActionCandidates        MeetingActionCandidate[] @relation("MeetingActionCandidateWorkPlan")
-  reportItems                    WorkReportItem[]
+  id                              Int                       @id @default(autoincrement())
+  targetType                      String                    @default("personal")
+  targetId                        Int
+  kind                            String                    @default("okr")
+  title                           String
+  description                     String                    @default("")
+  status                          String                    @default("active")
+  isArchived                      Boolean                   @default(false)
+  okrStage                        String                    @default("objective_draft")
+  objectiveSubmittedAt            DateTime?
+  objectiveApprovedAt             DateTime?
+  objectiveApprovedByUserId       Int?
+  krReviewOpensAt                 DateTime?
+  krSubmittedAt                   DateTime?
+  krApprovedAt                    DateTime?
+  krApprovedByUserId              Int?
+  ownerEmployeeId                 Int?
+  collaborationId                 Int?
+  okrCycleId                      Int?
+  sourcePlanId                    Int?
+  parentPeriodPlanId              Int?
+  previousPeriodPlanId            Int?
+  okrControlScopeType             String?
+  okrControlScopeId               String?
+  governanceMode                  String                    @default("legacy_inferred")
+  governanceRevision              Int                       @default(1)
+  governanceActionKey             String?
+  governanceWorkflowPolicyId      Int?
+  governanceWorkflowVersion       Int?
+  governanceActionContractVersion Int?
+  governanceOkrControlVersion     Int?
+  governanceSnapshotJson          String                    @default("{}")
+  governanceBoundAt               DateTime?
+  governanceBoundByUserId         Int?
+  governanceBindingSource         String                    @default("legacy_inferred")
+  objectiveApprovalSnapshotJson   String                    @default("{}")
+  krApprovalSnapshotJson          String                    @default("{}")
+  periodType                      String?
+  actualStartDate                 DateTime?
+  actualEndDate                   DateTime?
+  plannedStartDate                DateTime?
+  plannedEndDate                  DateTime?
+  sourceType                      String                    @default("other")
+  sourceKind                      String?
+  sourceMeetingId                 Int?
+  sourceMeetingDecisionId         Int?
+  sourceMeetingActionCandidateId  Int?
+  sourceDepartmentId              Int?
+  linkedProjectId                 Int?
+  linkedProjectPhaseId            Int?
+  isSystemGenerated               Boolean                   @default(false)
+  isMilestone                     Boolean                   @default(false)
+  milestoneDate                   DateTime?
+  sortOrder                       Int                       @default(0)
+  createdAt                       DateTime                  @default(now())
+  updatedAt                       DateTime                  @default(now()) @updatedAt
+  owner                           Employee?                 @relation("WorkPlanOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull)
+  collaboration                   DepartmentCollaboration?  @relation(fields: [collaborationId], references: [id], onDelete: SetNull)
+  okrCycle                        WorkOkrCycle?             @relation(fields: [okrCycleId], references: [id], onDelete: SetNull)
+  sourcePlan                      WorkPlan?                 @relation("WorkPlanSourcePlan", fields: [sourcePlanId], references: [id], onDelete: SetNull)
+  derivedPlans                    WorkPlan[]                @relation("WorkPlanSourcePlan")
+  parentPeriodPlan                WorkPlan?                 @relation("WorkPlanParentPeriodPlan", fields: [parentPeriodPlanId], references: [id], onDelete: SetNull)
+  childPeriodPlans                WorkPlan[]                @relation("WorkPlanParentPeriodPlan")
+  previousPeriodPlan              WorkPlan?                 @relation("WorkPlanPreviousPeriodPlan", fields: [previousPeriodPlanId], references: [id], onDelete: SetNull)
+  nextPeriodPlans                 WorkPlan[]                @relation("WorkPlanPreviousPeriodPlan")
+  planAlignments                  WorkPlanAlignment[]       @relation("WorkPlanAlignmentChildPlan")
+  sourcePlanAlignments            WorkPlanAlignment[]       @relation("WorkPlanAlignmentSourcePlan")
+  linkedProject                   Project?                  @relation("WorkPlanLinkedProject", fields: [linkedProjectId], references: [id], onDelete: SetNull)
+  linkedProjectPhase              ProjectPlanPhase?         @relation("WorkPlanLinkedProjectPhase", fields: [linkedProjectPhaseId], references: [id], onDelete: SetNull)
+  sourceMeeting                   Meeting?                  @relation("WorkPlanSourceMeeting", fields: [sourceMeetingId], references: [id], onDelete: SetNull)
+  sourceMeetingDecision           MeetingDecision?          @relation("WorkPlanSourceMeetingDecision", fields: [sourceMeetingDecisionId], references: [id], onDelete: SetNull)
+  sourceMeetingActionCandidate    MeetingActionCandidate?   @relation("WorkPlanSourceMeetingActionCandidate", fields: [sourceMeetingActionCandidateId], references: [id], onDelete: SetNull)
+  sourceDepartment                Department?               @relation("WorkPlanSourceDepartment", fields: [sourceDepartmentId], references: [id], onDelete: SetNull)
+  items                           WorkItem[]
+  meetingActionCandidates         MeetingActionCandidate[]  @relation("MeetingActionCandidateWorkPlan")
+  reportItems                     WorkReportItem[]
+  governanceEvents                WorkPlanGovernanceEvent[]
 
   @@index([targetType, targetId, kind, status, isArchived])
   @@index([targetType, targetId, okrStage])
@@ -76,6 +88,7 @@ model WorkPlan {
   @@index([parentPeriodPlanId])
   @@index([previousPeriodPlanId])
   @@index([okrControlScopeType, okrControlScopeId])
+  @@index([governanceMode, governanceBindingSource])
   @@index([sourceType, linkedProjectId, linkedProjectPhaseId])
   @@index([targetType, targetId, isMilestone, milestoneDate])
   @@index([ownerEmployeeId])

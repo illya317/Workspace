@@ -29,6 +29,7 @@ export type AggregateWorkOkrControlPolicy = {
 export type WorkOkrControlPolicyAvgAggregateOutputType = {
   id: number | null
   cycleId: number | null
+  version: number | null
   createdByUserId: number | null
   updatedByUserId: number | null
 }
@@ -36,6 +37,7 @@ export type WorkOkrControlPolicyAvgAggregateOutputType = {
 export type WorkOkrControlPolicySumAggregateOutputType = {
   id: number | null
   cycleId: number | null
+  version: number | null
   createdByUserId: number | null
   updatedByUserId: number | null
 }
@@ -49,6 +51,7 @@ export type WorkOkrControlPolicyMinAggregateOutputType = {
   objectiveSubmitDeadline: Date | null
   krReviewOpensAt: Date | null
   krSubmitDeadline: Date | null
+  version: number | null
   createdByUserId: number | null
   updatedByUserId: number | null
   createdAt: Date | null
@@ -64,6 +67,7 @@ export type WorkOkrControlPolicyMaxAggregateOutputType = {
   objectiveSubmitDeadline: Date | null
   krReviewOpensAt: Date | null
   krSubmitDeadline: Date | null
+  version: number | null
   createdByUserId: number | null
   updatedByUserId: number | null
   createdAt: Date | null
@@ -79,6 +83,7 @@ export type WorkOkrControlPolicyCountAggregateOutputType = {
   objectiveSubmitDeadline: number
   krReviewOpensAt: number
   krSubmitDeadline: number
+  version: number
   createdByUserId: number
   updatedByUserId: number
   createdAt: number
@@ -90,6 +95,7 @@ export type WorkOkrControlPolicyCountAggregateOutputType = {
 export type WorkOkrControlPolicyAvgAggregateInputType = {
   id?: true
   cycleId?: true
+  version?: true
   createdByUserId?: true
   updatedByUserId?: true
 }
@@ -97,6 +103,7 @@ export type WorkOkrControlPolicyAvgAggregateInputType = {
 export type WorkOkrControlPolicySumAggregateInputType = {
   id?: true
   cycleId?: true
+  version?: true
   createdByUserId?: true
   updatedByUserId?: true
 }
@@ -110,6 +117,7 @@ export type WorkOkrControlPolicyMinAggregateInputType = {
   objectiveSubmitDeadline?: true
   krReviewOpensAt?: true
   krSubmitDeadline?: true
+  version?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -125,6 +133,7 @@ export type WorkOkrControlPolicyMaxAggregateInputType = {
   objectiveSubmitDeadline?: true
   krReviewOpensAt?: true
   krSubmitDeadline?: true
+  version?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -140,6 +149,7 @@ export type WorkOkrControlPolicyCountAggregateInputType = {
   objectiveSubmitDeadline?: true
   krReviewOpensAt?: true
   krSubmitDeadline?: true
+  version?: true
   createdByUserId?: true
   updatedByUserId?: true
   createdAt?: true
@@ -242,6 +252,7 @@ export type WorkOkrControlPolicyGroupByOutputType = {
   objectiveSubmitDeadline: Date | null
   krReviewOpensAt: Date | null
   krSubmitDeadline: Date | null
+  version: number
   createdByUserId: number | null
   updatedByUserId: number | null
   createdAt: Date
@@ -280,6 +291,7 @@ export type WorkOkrControlPolicyWhereInput = {
   objectiveSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krReviewOpensAt?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
+  version?: Prisma.IntFilter<"WorkOkrControlPolicy"> | number
   createdByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   updatedByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   createdAt?: Prisma.DateTimeFilter<"WorkOkrControlPolicy"> | Date | string
@@ -296,6 +308,7 @@ export type WorkOkrControlPolicyOrderByWithRelationInput = {
   objectiveSubmitDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
   krReviewOpensAt?: Prisma.SortOrderInput | Prisma.SortOrder
   krSubmitDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -316,6 +329,7 @@ export type WorkOkrControlPolicyWhereUniqueInput = Prisma.AtLeast<{
   objectiveSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krReviewOpensAt?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
+  version?: Prisma.IntFilter<"WorkOkrControlPolicy"> | number
   createdByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   updatedByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   createdAt?: Prisma.DateTimeFilter<"WorkOkrControlPolicy"> | Date | string
@@ -332,6 +346,7 @@ export type WorkOkrControlPolicyOrderByWithAggregationInput = {
   objectiveSubmitDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
   krReviewOpensAt?: Prisma.SortOrderInput | Prisma.SortOrder
   krSubmitDeadline?: Prisma.SortOrderInput | Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -355,6 +370,7 @@ export type WorkOkrControlPolicyScalarWhereWithAggregatesInput = {
   objectiveSubmitDeadline?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOkrControlPolicy"> | Date | string | null
   krReviewOpensAt?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOkrControlPolicy"> | Date | string | null
   krSubmitDeadline?: Prisma.DateTimeNullableWithAggregatesFilter<"WorkOkrControlPolicy"> | Date | string | null
+  version?: Prisma.IntWithAggregatesFilter<"WorkOkrControlPolicy"> | number
   createdByUserId?: Prisma.IntNullableWithAggregatesFilter<"WorkOkrControlPolicy"> | number | null
   updatedByUserId?: Prisma.IntNullableWithAggregatesFilter<"WorkOkrControlPolicy"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkOkrControlPolicy"> | Date | string
@@ -368,6 +384,7 @@ export type WorkOkrControlPolicyCreateInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -384,6 +401,7 @@ export type WorkOkrControlPolicyUncheckedCreateInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -397,6 +415,7 @@ export type WorkOkrControlPolicyUpdateInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,6 +432,7 @@ export type WorkOkrControlPolicyUncheckedUpdateInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -428,6 +448,7 @@ export type WorkOkrControlPolicyCreateManyInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -441,6 +462,7 @@ export type WorkOkrControlPolicyUpdateManyMutationInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -456,6 +478,7 @@ export type WorkOkrControlPolicyUncheckedUpdateManyInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -487,6 +510,7 @@ export type WorkOkrControlPolicyCountOrderByAggregateInput = {
   objectiveSubmitDeadline?: Prisma.SortOrder
   krReviewOpensAt?: Prisma.SortOrder
   krSubmitDeadline?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -496,6 +520,7 @@ export type WorkOkrControlPolicyCountOrderByAggregateInput = {
 export type WorkOkrControlPolicyAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cycleId?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
 }
@@ -509,6 +534,7 @@ export type WorkOkrControlPolicyMaxOrderByAggregateInput = {
   objectiveSubmitDeadline?: Prisma.SortOrder
   krReviewOpensAt?: Prisma.SortOrder
   krSubmitDeadline?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -524,6 +550,7 @@ export type WorkOkrControlPolicyMinOrderByAggregateInput = {
   objectiveSubmitDeadline?: Prisma.SortOrder
   krReviewOpensAt?: Prisma.SortOrder
   krSubmitDeadline?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -533,6 +560,7 @@ export type WorkOkrControlPolicyMinOrderByAggregateInput = {
 export type WorkOkrControlPolicySumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   cycleId?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   createdByUserId?: Prisma.SortOrder
   updatedByUserId?: Prisma.SortOrder
 }
@@ -586,6 +614,7 @@ export type WorkOkrControlPolicyCreateWithoutCycleInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -600,6 +629,7 @@ export type WorkOkrControlPolicyUncheckedCreateWithoutCycleInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -644,6 +674,7 @@ export type WorkOkrControlPolicyScalarWhereInput = {
   objectiveSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krReviewOpensAt?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
   krSubmitDeadline?: Prisma.DateTimeNullableFilter<"WorkOkrControlPolicy"> | Date | string | null
+  version?: Prisma.IntFilter<"WorkOkrControlPolicy"> | number
   createdByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   updatedByUserId?: Prisma.IntNullableFilter<"WorkOkrControlPolicy"> | number | null
   createdAt?: Prisma.DateTimeFilter<"WorkOkrControlPolicy"> | Date | string
@@ -658,6 +689,7 @@ export type WorkOkrControlPolicyCreateManyCycleInput = {
   objectiveSubmitDeadline?: Date | string | null
   krReviewOpensAt?: Date | string | null
   krSubmitDeadline?: Date | string | null
+  version?: number
   createdByUserId?: number | null
   updatedByUserId?: number | null
   createdAt?: Date | string
@@ -671,6 +703,7 @@ export type WorkOkrControlPolicyUpdateWithoutCycleInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -685,6 +718,7 @@ export type WorkOkrControlPolicyUncheckedUpdateWithoutCycleInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -699,6 +733,7 @@ export type WorkOkrControlPolicyUncheckedUpdateManyWithoutCycleInput = {
   objectiveSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   krSubmitDeadline?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   createdByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   updatedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -716,6 +751,7 @@ export type WorkOkrControlPolicySelect<ExtArgs extends runtime.Types.Extensions.
   objectiveSubmitDeadline?: boolean
   krReviewOpensAt?: boolean
   krSubmitDeadline?: boolean
+  version?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
@@ -732,6 +768,7 @@ export type WorkOkrControlPolicySelectCreateManyAndReturn<ExtArgs extends runtim
   objectiveSubmitDeadline?: boolean
   krReviewOpensAt?: boolean
   krSubmitDeadline?: boolean
+  version?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
@@ -748,6 +785,7 @@ export type WorkOkrControlPolicySelectUpdateManyAndReturn<ExtArgs extends runtim
   objectiveSubmitDeadline?: boolean
   krReviewOpensAt?: boolean
   krSubmitDeadline?: boolean
+  version?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
@@ -764,13 +802,14 @@ export type WorkOkrControlPolicySelectScalar = {
   objectiveSubmitDeadline?: boolean
   krReviewOpensAt?: boolean
   krSubmitDeadline?: boolean
+  version?: boolean
   createdByUserId?: boolean
   updatedByUserId?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type WorkOkrControlPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cycleId" | "scopeType" | "scopeId" | "isLocked" | "objectiveSubmitDeadline" | "krReviewOpensAt" | "krSubmitDeadline" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["workOkrControlPolicy"]>
+export type WorkOkrControlPolicyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "cycleId" | "scopeType" | "scopeId" | "isLocked" | "objectiveSubmitDeadline" | "krReviewOpensAt" | "krSubmitDeadline" | "version" | "createdByUserId" | "updatedByUserId" | "createdAt" | "updatedAt", ExtArgs["result"]["workOkrControlPolicy"]>
 export type WorkOkrControlPolicyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   cycle?: boolean | Prisma.WorkOkrCycleDefaultArgs<ExtArgs>
 }
@@ -795,6 +834,7 @@ export type $WorkOkrControlPolicyPayload<ExtArgs extends runtime.Types.Extension
     objectiveSubmitDeadline: Date | null
     krReviewOpensAt: Date | null
     krSubmitDeadline: Date | null
+    version: number
     createdByUserId: number | null
     updatedByUserId: number | null
     createdAt: Date
@@ -1231,6 +1271,7 @@ export interface WorkOkrControlPolicyFieldRefs {
   readonly objectiveSubmitDeadline: Prisma.FieldRef<"WorkOkrControlPolicy", 'DateTime'>
   readonly krReviewOpensAt: Prisma.FieldRef<"WorkOkrControlPolicy", 'DateTime'>
   readonly krSubmitDeadline: Prisma.FieldRef<"WorkOkrControlPolicy", 'DateTime'>
+  readonly version: Prisma.FieldRef<"WorkOkrControlPolicy", 'Int'>
   readonly createdByUserId: Prisma.FieldRef<"WorkOkrControlPolicy", 'Int'>
   readonly updatedByUserId: Prisma.FieldRef<"WorkOkrControlPolicy", 'Int'>
   readonly createdAt: Prisma.FieldRef<"WorkOkrControlPolicy", 'DateTime'>

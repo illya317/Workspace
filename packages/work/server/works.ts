@@ -25,7 +25,10 @@ import {
 import { validateWorkItemPeriodRelations } from "./work-period-relations";
 import { archiveWorkItem, restoreArchivedWorkItem, workItemHierarchyReferences } from "./work-item-archive";
 import { assertWorkItemMutationCommitAllowed, type WorkItemMutationAuthorization } from "./work-item-mutation-guard";
-import { closeOkrPlanIfAllItemsComplete } from "./domain/work-plan-item-state";
+import {
+  closeOkrPlanIfAllItemsComplete,
+  shouldRecalculateOkrPlanCompletion,
+} from "./domain/work-plan-item-state";
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
@@ -231,7 +234,7 @@ export async function createWorkItem(opts: {
         include: workItemInclude,
       });
     });
-    await closeOkrPlanIfComplete(command.data.planId);
+    if (command.data.status === "done") await closeOkrPlanIfComplete(command.data.planId);
     return { ok: true, data: toWorkItemDto(work) };
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
@@ -500,7 +503,10 @@ export async function updateWorkItem(
         include: workItemInclude,
       });
     });
-    await closeOkrPlanIfComplete(effective.planId);
+    const nextStatus = command.data.data.status === undefined ? existing.status : command.data.data.status;
+    if (shouldRecalculateOkrPlanCompletion(existing.status, nextStatus)) {
+      await closeOkrPlanIfComplete(effective.planId);
+    }
     return { ok: true, data: toWorkItemDto(work) };
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
@@ -535,7 +541,6 @@ export async function deleteWorkItem(workId: number, actorUserId: number): Promi
     referencePolicy: "checked",
   });
   if (!deleteResult.ok) return deleteResult;
-  await closeOkrPlanIfComplete(existing.planId);
   return { ok: true, data: { success: true } };
 }
 async function closeOkrPlanIfComplete(planId: number | null | undefined) {

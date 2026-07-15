@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { createPageTabBar, useFeedback, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { PeriodDossierModel } from "@workspace/platform/period-dossier";
@@ -8,19 +8,15 @@ import type { SessionUser } from "@workspace/platform/types";
 import { PeriodDossierPage } from "@workspace/platform/ui";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
 import {
-  EMPTY_REVIEW_DRAFT,
   HrPerformanceView,
-  scoreValue,
 } from "./HrPerformanceView";
 import type {
   DashboardData,
   PerfTab,
   PerformanceAudience,
   PerformancePeriodType,
-  ReviewDraft,
-  SubmissionAction,
-  SubmissionRow,
 } from "./performance-types";
+import { usePerformanceReviewEditor } from "./use-performance-review-editor";
 
 const tabs = getPageViewTabs("/hr/performance") as Array<{
   key: PerfTab;
@@ -62,10 +58,7 @@ export default function HrPerformanceClient({ user: _user }: { user: SessionUser
   const [dossier, setDossier] = useState<PeriodDossierModel | null>(null);
   const [dossierLoading, setDossierLoading] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [selectedSubmissionId, setSelectedSubmissionId] = useState<number | null>(null);
-  const [draft, setDraft] = useState<ReviewDraft>(EMPTY_REVIEW_DRAFT);
-  const { error: showError, success: showSuccess } = useFeedback();
+  const { error: showError } = useFeedback();
 
   const loadData = useCallback(async (filters: DashboardFilters) => {
     setLoading(true);
@@ -115,73 +108,12 @@ export default function HrPerformanceClient({ user: _user }: { user: SessionUser
     return () => { cancelled = true; };
   }, [activeTab, contributionSelection, cycleId, showError]);
 
-  const selectedSubmission = useMemo(
-    () => data?.submissionRows.find((row) => row.id === selectedSubmissionId) ?? null,
-    [data?.submissionRows, selectedSubmissionId],
-  );
   const selectedCycleId = Number(cycleId || data?.activeCycleId || 0);
-  const canCreateSelfReview = Boolean(data?.workflowEnabled && data.currentEmployee && selectedCycleId);
-
-  async function mutateSubmission(path: string, body: Record<string, unknown>, successMessage: string, method = "POST") {
-    setSaving(true);
-    const response = await fetch(workspacePath(path), {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setSaving(false);
-    if (!response.ok) {
-      showError(await readError(response));
-      return;
-    }
-    showSuccess(successMessage);
-    setDraft(EMPTY_REVIEW_DRAFT);
-    await loadData({ cycleId, periodType, audience, audienceId });
-  }
-
-  function createSelfReview() {
-    if (!data?.currentEmployee || !selectedCycleId) return;
-    void mutateSubmission("/api/modules/hr/performance/submissions", {
-      employeeId: data.currentEmployee.id,
-      okrCycleId: selectedCycleId,
-      payload: {
-        selfScore: scoreValue(draft.selfScore),
-        selfComment: draft.selfComment,
-      },
-      comment: draft.comment || null,
-    }, "自评草稿已创建");
-  }
-
-  function updateSelectedSubmission() {
-    if (!selectedSubmission) return;
-    void mutateSubmission(`/api/modules/hr/performance/submissions/${selectedSubmission.id}`, {
-      payload: {
-        selfScore: scoreValue(draft.selfScore),
-        selfComment: draft.selfComment,
-        managerScore: scoreValue(draft.managerScore),
-        managerComment: draft.managerComment,
-        finalScore: scoreValue(draft.finalScore),
-        finalGrade: draft.finalGrade,
-        hrComment: draft.hrComment,
-      },
-      comment: draft.comment || null,
-      version: selectedSubmission.version,
-    }, "流程内容已保存", "PUT");
-  }
-
-  function runAction(row: SubmissionRow, action: SubmissionAction) {
-    const actionText: Record<SubmissionAction, string> = {
-      submit: "已提交",
-      withdraw: "已撤回",
-      cancel: "已取消",
-      approve: "已通过",
-      reject: "已驳回",
-    };
-    void mutateSubmission(`/api/modules/hr/performance/submissions/${row.id}/${action}`, {
-      comment: draft.comment || null,
-      version: row.version,
-    }, actionText[action]);
-  }
+  const reloadPerformance = useCallback(
+    () => loadData({ cycleId, periodType, audience, audienceId }),
+    [audience, audienceId, cycleId, loadData, periodType],
+  );
+  const editor = usePerformanceReviewEditor({ data, selectedCycleId, reload: reloadPerformance });
 
   const cycleOptions = (data?.cycleOptions ?? []).filter((cycle) => cycle.periodType === periodType);
   const periodTypeOptions = PERIOD_TYPE_OPTIONS.filter((option) => (
@@ -303,16 +235,20 @@ export default function HrPerformanceClient({ user: _user }: { user: SessionUser
       toolbarItems={toolbarItems}
       data={data}
       loading={loading}
-      saving={saving}
-      canCreateSelfReview={canCreateSelfReview}
-      selectedSubmissionId={selectedSubmissionId}
-      draft={draft}
-      onDraftChange={setDraft}
-      onCreateReview={createSelfReview}
-      onSaveReview={updateSelectedSubmission}
-      onSelectSubmission={setSelectedSubmissionId}
+      saving={editor.saving}
+      canCreateSelfReview={editor.canCreateSelfReview}
+      showCreateSelfReview={editor.showCreateSelfReview}
+      editorActions={editor.editorActions}
+      editorFieldsDisabled={editor.editorFieldsDisabled}
+      editorOpen={editor.editorOpen}
+      editorStage={editor.editorStage}
+      selectedSubmissionId={editor.selectedSubmissionId}
+      draft={editor.draft}
+      onDraftChange={editor.setDraft}
+      onCreateReview={editor.beginCreate}
+      onSelectSubmission={editor.beginEdit}
       onOpenContribution={(type, id) => setContributionSelection({ type, id })}
-      onSubmissionAction={runAction}
+      onSubmissionAction={editor.runRowAction}
       onToolbarSubmit={() => void loadData({ cycleId, periodType, audience, audienceId })}
     />
   );

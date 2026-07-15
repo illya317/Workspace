@@ -2,6 +2,8 @@
 
 import { createFieldsSection, type CreateSurfaceProps, type FormSurfaceFieldSpec } from "@workspace/core/ui";
 import { actualEndDateForStatus, canEditActualEndDate, todayDateString } from "@workspace/platform/completion-date-policy";
+import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { formatWorkDate, WORK_STATUS_OPTIONS } from "./model";
 import type { WorkItem, WorkItemType, WorkPlan } from "./types";
@@ -60,7 +62,7 @@ export function scheduleCreateSurfaceSpec({
   createDraft,
   rootPlan,
   savingKey,
-  submitAction,
+  createRuntime,
   disabled,
   onCreateDraftChange,
   onConfirmCreate,
@@ -72,7 +74,7 @@ export function scheduleCreateSurfaceSpec({
   createDraft: WorkPeriodScheduleCreateDraft | null;
   rootPlan: WorkPlan | null;
   savingKey?: string | null;
-  submitAction: "save" | "submit";
+  createRuntime: ActionRuntime;
   disabled: boolean;
   onCreateDraftChange: (draft: WorkPeriodScheduleCreateDraft) => void;
   onConfirmCreate: () => void | Promise<void>;
@@ -92,6 +94,11 @@ export function scheduleCreateSurfaceSpec({
     throw new Error("周期排程新建必须声明 fields FormSurface");
   }
   const layout = section.body.form.content.layout;
+  const submission = actionRuntimeCreateSubmission(createRuntime, {
+    disabled: disabled || !draft.content.trim(),
+    execute: onConfirmCreate,
+  });
+  if (!submission) throw new Error("周期排程新建缺少可执行的保存动作");
   return {
     id: modal.key,
     trigger: "surface",
@@ -103,11 +110,7 @@ export function scheduleCreateSurfaceSpec({
       items: section.body.form.content.items,
       layout: { columns: layout?.columns, density: layout?.density },
     } },
-    submission: {
-      action: submitAction,
-      disabled: disabled || !draft.content.trim(),
-      execute: onConfirmCreate,
-    },
+    submission,
     feedback: { saved: "时间安排已新增", submitted: "时间安排已提交审核", error: "新增时间安排失败" },
     onOpenChange: (nextOpen: boolean) => { if (nextOpen) onStartCreate(context); else onCancelCreate(); },
   };

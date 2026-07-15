@@ -1,6 +1,7 @@
 "use client";
 
 import { type BodySurfaceSectionSpec, type DataSurfaceCellSpec, type DataSurfaceStructuredCellSpec } from "@workspace/core/ui";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { formatWorkDate } from "./model";
 import { WorkPeriodScheduleCompactSourceCell } from "./WorkPeriodScheduleCompactSourceCell";
 import { shouldShowWorkOwner } from "./work-target-presentation";
@@ -28,7 +29,7 @@ type MatrixRow = {
 type ScheduleCreateBindings = {
   pendingCreate: WorkPeriodScheduleCreateContext | null;
   createDraft: WorkPeriodScheduleCreateDraft | null;
-  submitAction: "save" | "submit";
+  createRuntime: ActionRuntime;
   onCreateDraftChange: (draft: WorkPeriodScheduleCreateDraft) => void;
   onConfirmCreate: () => void | Promise<void>;
   onCancelCreate: () => void;
@@ -45,7 +46,7 @@ export function periodScheduleMatrixSectionSpec({
   showOwner,
   compact = false,
   savingKey,
-  submitAction = "save",
+  createRuntime,
   pendingCreate,
   createDraft,
   onCreateDraftChange,
@@ -65,7 +66,7 @@ export function periodScheduleMatrixSectionSpec({
   showOwner?: boolean;
   compact?: boolean;
   savingKey?: string | null;
-  submitAction?: "save" | "submit";
+  createRuntime?: ActionRuntime | null;
   pendingCreate?: WorkPeriodScheduleCreateContext | null;
   createDraft?: WorkPeriodScheduleCreateDraft | null;
   onCreateDraftChange?: (draft: WorkPeriodScheduleCreateDraft) => void;
@@ -79,10 +80,10 @@ export function periodScheduleMatrixSectionSpec({
   const rows = matrixRows({ works, collapsedSourceIds });
   const cycles = collection?.cycles ?? [];
   const ownerVisible = showOwner ?? shouldShowWorkOwner(rootPlan);
-  const createBindings = onCreateDraftChange && onConfirmCreate && onCancelCreate && onStartCreate ? {
+  const createBindings = createRuntime && onCreateDraftChange && onConfirmCreate && onCancelCreate && onStartCreate ? {
     pendingCreate: pendingCreate ?? null,
     createDraft: createDraft ?? null,
-    submitAction,
+    createRuntime,
     onCreateDraftChange,
     onConfirmCreate,
     onCancelCreate,
@@ -336,7 +337,7 @@ function scheduleCell({
         createDraft: activeKey === key ? createBindings.createDraft : null,
         rootPlan,
         savingKey,
-        submitAction: createBindings.submitAction,
+        createRuntime: createBindings.createRuntime,
         disabled,
         onCreateDraftChange: createBindings.onCreateDraftChange,
         onConfirmCreate: createBindings.onConfirmCreate,

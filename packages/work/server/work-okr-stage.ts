@@ -2,12 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { validateWorkOkrStageCommand } from "./domain/work-okr-stage-validation";
 import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
-import {
-  getWorkOkrControlSettings,
-  resolveWorkOkrControlScopeForPlan,
-  resolveWorkOkrKrReviewOpensAt,
-  upsertWorkOkrKrReviewOpenPolicy,
-} from "./work-okr-control";
+import { resolveWorkOkrKrReviewOpensAt } from "./work-okr-control";
 
 export const WORK_OKR_STAGES = [
   "objective_draft",
@@ -32,9 +27,12 @@ type PlanStageRow = {
   okrCycleId: number | null;
   okrControlScopeType: string | null;
   okrControlScopeId: string | null;
+  governanceSnapshotJson: string;
   periodType: string | null;
   actualStartDate: Date | null;
   actualEndDate: Date | null;
+  plannedStartDate: Date | null;
+  plannedEndDate: Date | null;
   krReviewOpensAt: Date | null;
   status: string;
   isArchived: boolean;
@@ -55,9 +53,12 @@ const planStageSelect = {
   okrCycleId: true,
   okrControlScopeType: true,
   okrControlScopeId: true,
+  governanceSnapshotJson: true,
   periodType: true,
   actualStartDate: true,
   actualEndDate: true,
+  plannedStartDate: true,
+  plannedEndDate: true,
   krReviewOpensAt: true,
   status: true,
   isArchived: true,
@@ -92,28 +93,6 @@ async function syncPlanKrReviewState(plan: PlanStageRow, now: Date) {
   await prisma.workPlan.update({
     where: { id: plan.id },
     data: { okrStage: nextStage, krReviewOpensAt: opensAt },
-  });
-}
-
-async function updateKrReviewOpenStateForScope(
-  plan: PlanStageRow,
-  scope: { type: string; id: string; targetType?: string; targetId?: number },
-  opensAt: Date,
-) {
-  const now = new Date();
-  const nextStage = opensAt <= now ? "kr_open" : "executing";
-  const scopeWhere = [
-    { okrControlScopeType: scope.type, okrControlScopeId: scope.id },
-    ...(scope.targetType && scope.targetId ? [{ targetType: scope.targetType, targetId: scope.targetId }] : []),
-    { id: plan.id },
-  ];
-  await prisma.workPlan.updateMany({
-    where: {
-      okrCycleId: plan.okrCycleId,
-      OR: scopeWhere,
-      okrStage: { in: ["executing", "kr_open"] },
-    },
-    data: { krReviewOpensAt: opensAt, okrStage: nextStage },
   });
 }
 
@@ -164,7 +143,6 @@ export async function assertWorkPlanHeaderStageAllowed(planId: number): Promise<
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
-    timeControlEnabled: (await getWorkOkrControlSettings()).enabled,
   });
   if (!maintenance.plan) {
     return { ok: false, error: `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，目标审查后计划头已锁定`, status: 409 };
@@ -181,7 +159,6 @@ export async function assertWorkItemStageAllowed(input: WorkItemStageInput): Pro
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
-    timeControlEnabled: (await getWorkOkrControlSettings()).enabled,
   });
   if (!canMaintainWorkItem(maintenance, input.itemType)) {
     return {
@@ -239,32 +216,6 @@ export async function rejectObjectiveReview(planId: number): Promise<DomainServi
     data: { okrStage: "objective_draft", objectiveSubmittedAt: null },
   });
   return { ok: true, data: { okrStage: "objective_draft" } };
-}
-
-export async function openKrReview(planId: number, opensAt: Date = new Date()): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
-  const command = validateWorkOkrStageCommand("openKrReview");
-  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
-  const plan = await getWorkPlanStage(planId);
-  if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.okrStage === "kr_submitted" || plan.okrStage === "closed") {
-    return { ok: false, error: "KR 已提交或周期已关闭，不能调整开放时间", status: 409 };
-  }
-  if (plan.okrStage !== "executing" && plan.okrStage !== "kr_open") {
-    return { ok: false, error: "目标通过后才能开放考核结果", status: 409 };
-  }
-  if (plan.okrCycleId) {
-    const scope = await resolveWorkOkrControlScopeForPlan(plan, { requirePersonalDepartment: true });
-    if (!scope.ok) return { ok: false, error: scope.error, status: scope.status || 400 };
-    await upsertWorkOkrKrReviewOpenPolicy({ cycleId: plan.okrCycleId, scope: scope.data, krReviewOpensAt: opensAt });
-    await updateKrReviewOpenStateForScope(plan, scope.data, opensAt);
-    return { ok: true, data: { okrStage: opensAt <= new Date() ? "kr_open" : "executing" } };
-  }
-  const nextStage = opensAt <= new Date() ? "kr_open" : "executing";
-  await prisma.workPlan.update({
-    where: { id: planId },
-    data: { okrStage: nextStage, krReviewOpensAt: opensAt },
-  });
-  return { ok: true, data: { okrStage: nextStage } };
 }
 
 export async function submitKrReview(planId: number): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {

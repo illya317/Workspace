@@ -22,6 +22,8 @@
 - `员工信息表`：用于集中修正员工、雇佣、合同、部门岗位数据。四个表统一先进入编辑态，跨行、跨字段修改只形成页面草稿，最后由顶部保存一次提交当前 change set；取消会丢弃整页草稿，不提供逐单元格保存。
 - `花名册`：管理版、尽调版、CSV 导出和 Open API 共用同一生成口径，只纳入当前在职且在职雇佣记录中没有“顾问”职务的人员；离职人员和顾问仍保留在员工资料、分析等独立场景中，不进入花名册。
 
+组织单元的新建和修改统一消费服务端返回的 `ActionRuntime`：入口只打开本地表单，最终动作在 direct 模式显示“保存”，接入流程后显示“提交”。页面不得再用 `hrCanSubmit`、`canSubmitWorkflow` 或其他权限布尔值兜底推断编辑态；runtime 尚未加载或不可执行时保持只读。岗位及说明书当前是 permission-only 写入，继续显示“保存”。
+
 组织单元层级分两条线：`Department.hierarchyKind = "G"` 表示治理线，使用 `G1/G2/G3`；`Department.hierarchyKind = "M"` 表示管理线，使用 `M1/M2/M3`。旧 L1/L2/L3 管理部门默认迁为 M1/M2/M3；治理线固定节点包括 `BOD` 董事会、`NOM/STR/EXC/AUD` 四个 G2 委员会，以及 `OPS` 运营委员会、`BSC` 董秘办及资本证券部两个 G3 节点。
 
 组织负责人分两层：`Department.managerPositionId`（FK 到 `Position`）是唯一可编辑事实源；“组织负责人”是该负责人岗位下当前在职员工的派生名单，允许多人。组织架构、部门岗位、模板空间权限等场景只能读取这条链；`Department.managerUserId`、部门说明书 JSON 和岗位说明书汇报字段不得再承载或编辑负责人。组织架构页的岗位层级展示使用当前组织的负责人岗位：负责人岗位作为本组织顶层，其他直属岗位归到负责人岗位下；没有负责人岗位时只提示未设置，不回退岗位说明书。
@@ -101,20 +103,20 @@ roster/page.tsx
 
 - `考勤`：只读展示 HR 在职口径，包括员工、公司、部门、岗位、人员类型和 `Employment.attendanceType`。V1 不新增打卡事实表。
 - `贡献材料`：按二级范围列出工作空间目录。个人范围一人一行；部门范围按 Work 标准组织空间列出 M 体系部门和运营委员会，一空间一行；项目范围一已开启项目空间一行。点击后按 `(targetType, targetId, cycleId)` 读取对应空间材料：周/月展示工作汇报，季度/半年/年度展示期初目标。这里只读，不要求 `work.tasks` 权限。
-- `绩效`：展示正式绩效记录和绩效流程单，支持员工自评草稿、提交、直属上级评分、HR 最终评分/等级、通过归档、驳回、撤回、取消和评论。
+- `绩效`：展示正式绩效记录和绩效流程单。新建和编辑只打开页面草稿，不创建或修改流程单；最终动作由流程单 `ActionRuntime` 唯一决定为提交、再次提交、通过或驳回，撤回和取消申请保留为显式流程状态动作。
 
 绩效周期复用 Work 领域 `WorkOkrCycle`，HR 不维护独立周期表。正式记录写入 HR-owned `HrPerformanceReview`，唯一键为 `(employeeId, okrCycleId)`，同一员工同一周期只能存在一份已归档绩效。`okrCycleId` 是逻辑 FK，service 在创建流程和归档时校验周期存在。
 
 绩效流程使用 Platform ApprovalRequest：
 
-1. 员工使用 `hr.performance.submit` 创建自评草稿并提交。
+1. 员工点击“新建自评”只进入本地编辑态，最终“提交”才在内部创建 ApprovalRequest 草稿并立即提交；已有草稿、撤回单或驳回单点击“编辑”后，最终动作分别由 runtime 映射为提交或再次提交。
 2. 默认第一个审批节点是 `direct_manager`，直属上级来自现有自然上级链 `listDirectManagerUserIds`，该节点可写直属上级评分和评语。
 3. 默认第二个审批节点是有 `hr.performance.approve` 的 HR 处理人，该节点可写最终分、等级和 HR 评语。
 4. HR 最终通过时才创建 `HrPerformanceReview`，并重新抓取所选周期的 OKR/工作来源生成 `okrSnapshotJson`。归档后的快照不随 Work 后续修改变化。
 
 绩效范围事实统一由 HR-private `performance-audience` 模块维护：在职员工、M 体系及运营委员会部门、已开启项目空间、部门后代和项目成员有效期使用同一口径；dashboard、贡献材料 dossier 与归档快照不得各自重建范围规则。
 
-业务动作注册为 `hr.performance.review.evaluate`，默认流程为“员工自评 → 直属上级评分 → HR 审批归档”。`WorkflowPolicy` 可以覆盖节点配置或显式关闭流程；关闭后停止创建新的多阶段自评流程，存量流程和正式记录继续可读。正式记录仍只能通过 `hrPerformanceApprovalAdapter.commitApprovedPayload` 归档，不能用不完整的自评数据直写正式表。
+业务动作注册为 `hr.performance.review.evaluate`，默认流程为“员工自评 → 直属上级评分 → HR 审批归档”。该 ActionContract 只支持 `workflowDraft`；`WorkflowPolicy` 可以覆盖节点配置或关闭新的提交流程，但关闭后动作是 unavailable，不得切到 direct，已有流程单继续按创建时快照处理。正式记录只能通过 `hrPerformanceApprovalAdapter.commitApprovedPayload` 归档，不能用不完整的自评数据直写正式表。Dashboard 必须返回创建 runtime 和每张流程单的 request runtime，两个绩效入口不得再读取 `workflowEnabled` 或按状态自行拼提交/审批按钮。
 
 ## Tab 配置 (tabConfigs.ts)
 

@@ -18,7 +18,19 @@ import {
 } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { getPageViewTabs } from "@workspace/platform/view-registry";
-import type { AttendanceRow, ContributionRow, DashboardData, PerfTab, ReviewDraft, ReviewRow, SubmissionRow } from "./performance-types";
+import type {
+  AttendanceRow,
+  ContributionRow,
+  DashboardData,
+  PerfTab,
+  ReviewDraft,
+  ReviewEditorStage,
+  ReviewRow,
+  SubmissionAction,
+  SubmissionRow,
+} from "./performance-types";
+import { performanceSubmissionRowActions } from "./performance-review-editor-model";
+import { usePerformanceReviewEditor } from "./use-performance-review-editor";
 
 const tabs = getPageViewTabs("/work/performance") as { key: PerfTab; label: string }[];
 const statusLabel: Record<string, string> = {
@@ -31,26 +43,12 @@ const statusLabel: Record<string, string> = {
   committing: "归档中",
 };
 
-const emptyDraft: ReviewDraft = {
-  selfScore: "",
-  selfComment: "",
-  managerScore: "",
-  managerComment: "",
-  finalScore: "",
-  finalGrade: "",
-  hrComment: "",
-  comment: "",
-};
-
 export default function EmployeePerformanceClient({ user: _user }: { user: SessionUser; hideShell?: boolean }) {
   const [activeTab, setActiveTab] = useState<PerfTab>("attendance");
   const [data, setData] = useState<DashboardData | null>(null);
   const [cycleId, setCycleId] = useState<string>("");
   const [keyword, setKeyword] = useState("");
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [selectedSubmissionId, setSelectedSubmissionId] = useState<number | null>(null);
-  const [draft, setDraft] = useState<ReviewDraft>(emptyDraft);
   const feedback = useFeedback();
 
   const loadData = useCallback(async (nextCycleId = cycleId, nextKeyword = keyword) => {
@@ -76,76 +74,11 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
     void loadData();
   }, [loadData]);
 
-  const selectedSubmission = useMemo(
-    () => data?.submissionRows.find((row) => row.id === selectedSubmissionId) ?? null,
-    [data?.submissionRows, selectedSubmissionId],
-  );
-
   const cycleOptions = data?.cycleOptions ?? [];
   const selectedCycleId = Number(cycleId || data?.activeCycleId || 0);
-  const canCreateSelfReview = Boolean(data?.currentEmployee && selectedCycleId);
+  const reloadPerformance = useCallback(() => loadData(cycleId, keyword), [cycleId, keyword, loadData]);
+  const editor = usePerformanceReviewEditor({ data, selectedCycleId, reload: reloadPerformance });
   const contributionCounts = useMemo(() => countContributionRoles(data?.contributionRows ?? []), [data?.contributionRows]);
-
-  async function mutateSubmission(path: string, body: Record<string, unknown>, successMessage: string, method = "POST") {
-    setSaving(true);
-    const response = await fetch(workspacePath(path), {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setSaving(false);
-    if (!response.ok) {
-      feedback.error(await readError(response));
-      return;
-    }
-    feedback.success(successMessage);
-    setDraft(emptyDraft);
-    await loadData();
-  }
-
-  function createSelfReview() {
-    if (!data?.currentEmployee || !selectedCycleId) return;
-    void mutateSubmission("/api/modules/hr/performance/submissions", {
-      employeeId: data.currentEmployee.id,
-      okrCycleId: selectedCycleId,
-      payload: {
-        selfScore: scoreValue(draft.selfScore),
-        selfComment: draft.selfComment,
-      },
-      comment: draft.comment || null,
-    }, "自评草稿已创建");
-  }
-
-  function updateSelectedSubmission() {
-    if (!selectedSubmission) return;
-    void mutateSubmission(`/api/modules/hr/performance/submissions/${selectedSubmission.id}`, {
-      payload: {
-        selfScore: scoreValue(draft.selfScore),
-        selfComment: draft.selfComment,
-        managerScore: scoreValue(draft.managerScore),
-        managerComment: draft.managerComment,
-        finalScore: scoreValue(draft.finalScore),
-        finalGrade: draft.finalGrade,
-        hrComment: draft.hrComment,
-      },
-      comment: draft.comment || null,
-      version: selectedSubmission.version,
-    }, "流程内容已保存", "PUT");
-  }
-
-  function runAction(row: SubmissionRow, action: "submit" | "withdraw" | "cancel" | "approve" | "reject") {
-    const actionText: Record<typeof action, string> = {
-      submit: "已提交",
-      withdraw: "已撤回",
-      cancel: "已取消",
-      approve: "已通过",
-      reject: "已驳回",
-    };
-    void mutateSubmission(`/api/modules/hr/performance/submissions/${row.id}/${action}`, {
-      comment: draft.comment || null,
-      version: row.version,
-    }, actionText[action]);
-  }
 
   const filterSection = createInlineFieldsSection("performance-filters", [
     {
@@ -200,14 +133,15 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
             structuredTableSection("contribution-table", contributionHeaders, data?.contributionRows ?? [], contributionCells, "当前周期暂无贡献材料"),
           ]
           : [
-            createFieldsSection("review-form", reviewFormItems(draft, setDraft), {
+            createFieldsSection("review-form", reviewFormItems(editor.draft, editor.setDraft, editor.editorFieldsDisabled, editor.editorStage), {
               layout: { columns: 4 },
-              actions: [
-                { key: "create-review", action: "create", label: "新建自评", disabled: saving || !canCreateSelfReview, onClick: createSelfReview },
-                { key: "save-stage", action: "save", label: "保存评分", disabled: saving || !selectedSubmission, onClick: updateSelectedSubmission },
-              ],
+              actions: editor.editorOpen
+                ? editor.editorActions
+                : editor.showCreateSelfReview
+                  ? [{ key: "create-review", action: "create", label: "新建自评", disabled: editor.saving || !editor.canCreateSelfReview, onClick: editor.beginCreate }]
+                  : [],
             }),
-            structuredTableSection("submissions-table", submissionHeaders, data?.submissionRows ?? [], (row) => submissionCells(row, setSelectedSubmissionId, runAction, saving, selectedSubmissionId), "暂无绩效流程"),
+            structuredTableSection("submissions-table", submissionHeaders, data?.submissionRows ?? [], (row) => submissionCells(row, editor.beginEdit, editor.runRowAction, editor.saving, editor.selectedSubmissionId), "暂无绩效流程"),
             structuredTableSection("reviews-table", reviewHeaders, data?.reviewRows ?? [], reviewCells, "暂无正式绩效记录"),
           ]),
   ]);
@@ -264,8 +198,8 @@ function reviewCells(row: ReviewRow) {
 
 function submissionCells(
   row: SubmissionRow,
-  onSelect: (id: number) => void,
-  onAction: (row: SubmissionRow, action: "submit" | "withdraw" | "cancel" | "approve" | "reject") => void,
+  onEdit: (id: number) => void,
+  onAction: (row: SubmissionRow, action: SubmissionAction) => void,
   saving: boolean,
   selectedId: number | null,
 ) {
@@ -278,35 +212,30 @@ function submissionCells(
     textCell(row.finalGrade),
     workflowNodeCell(row.activeWorkflowNodeKey),
     textCell(formatDate(row.updatedAt)),
-    actionsCell([
-      { key: "select", label: selectedId === row.id ? "已选" : "选择", icon: "edit", disabled: saving, onClick: () => onSelect(row.id) },
-      { key: "submit", label: "提交", icon: "send", disabled: saving || !["draft", "withdrawn", "rejected"].includes(row.status), onClick: () => onAction(row, "submit") },
-      { key: "withdraw", label: "撤回", icon: "withdraw", disabled: saving || row.status !== "submitted", onClick: () => onAction(row, "withdraw") },
-      { key: "approve", label: "通过", icon: "approve", disabled: saving || row.status !== "submitted" || !row.canProcess, onClick: () => onAction(row, "approve") },
-      { key: "reject", label: "驳回", icon: "reject", disabled: saving || row.status !== "submitted" || !row.canProcess, onClick: () => onAction(row, "reject") },
-      { key: "cancel", label: "取消", icon: "cancel", disabled: saving || !["draft", "withdrawn"].includes(row.status), onClick: () => onAction(row, "cancel") },
-    ]),
+    actionsCell(performanceSubmissionRowActions({ row, selectedId, saving, onEdit, onAction })),
   ];
 }
 
-function reviewFormItems(draft: ReviewDraft, setDraft: (next: ReviewDraft) => void): FormSurfaceItemSpec[] {
+function reviewFormItems(
+  draft: ReviewDraft,
+  setDraft: (next: ReviewDraft) => void,
+  disabled: boolean,
+  stage: ReviewEditorStage,
+): FormSurfaceItemSpec[] {
   const update = (key: keyof ReviewDraft, value: unknown) => setDraft({ ...draft, [key]: String(value || "") });
+  const selfDisabled = disabled || stage !== "self";
+  const managerDisabled = disabled || stage !== "manager";
+  const hrDisabled = disabled || stage !== "hr";
   return [
-    { key: "selfScore", label: "自评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.selfScore, onChange: (value: unknown) => update("selfScore", value) },
-    { key: "managerScore", label: "上级评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.managerScore, onChange: (value: unknown) => update("managerScore", value) },
-    { key: "finalScore", label: "HR 最终分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.finalScore, onChange: (value: unknown) => update("finalScore", value) },
-    { key: "finalGrade", label: "最终等级", spec: { control: "choice", valueType: "string", options: { source: "static", items: ["S", "A", "B", "C", "D"].map((grade) => ({ value: grade, label: grade })) } }, value: draft.finalGrade, onChange: (value: unknown) => update("finalGrade", value) },
-    { key: "selfComment", label: "自评", spec: { control: "text", valueType: "string", multiline: true }, value: draft.selfComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("selfComment", value), span: 2 },
-    { key: "managerComment", label: "上级评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.managerComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("managerComment", value), span: 2 },
-    { key: "hrComment", label: "HR 评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.hrComment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("hrComment", value), span: 2 },
-    { key: "comment", label: "流程备注", spec: { control: "text", valueType: "string", multiline: true }, value: draft.comment, rows: 4, resize: "vertical", onChange: (value: unknown) => update("comment", value), span: 2 },
+    { key: "selfScore", label: "自评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.selfScore, disabled: selfDisabled, onChange: (value: unknown) => update("selfScore", value) },
+    { key: "managerScore", label: "上级评分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.managerScore, disabled: managerDisabled, onChange: (value: unknown) => update("managerScore", value) },
+    { key: "finalScore", label: "HR 最终分", spec: { control: "number", valueType: "number", validation: { min: 0, max: 100 } }, value: draft.finalScore, disabled: hrDisabled, onChange: (value: unknown) => update("finalScore", value) },
+    { key: "finalGrade", label: "最终等级", spec: { control: "choice", valueType: "string", options: { source: "static", items: ["S", "A", "B", "C", "D"].map((grade) => ({ value: grade, label: grade })) } }, value: draft.finalGrade, disabled: hrDisabled, onChange: (value: unknown) => update("finalGrade", value) },
+    { key: "selfComment", label: "自评", spec: { control: "text", valueType: "string", multiline: true }, value: draft.selfComment, disabled: selfDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("selfComment", value), span: 2 },
+    { key: "managerComment", label: "上级评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.managerComment, disabled: managerDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("managerComment", value), span: 2 },
+    { key: "hrComment", label: "HR 评语", spec: { control: "text", valueType: "string", multiline: true }, value: draft.hrComment, disabled: hrDisabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("hrComment", value), span: 2 },
+    { key: "comment", label: "流程备注", spec: { control: "text", valueType: "string", multiline: true }, value: draft.comment, disabled, rows: 4, resize: "vertical", onChange: (value: unknown) => update("comment", value), span: 2 },
   ];
-}
-
-function scoreValue(value: string) {
-  if (!value.trim()) return null;
-  const number = Number(value);
-  return Number.isFinite(number) ? number : null;
 }
 
 function formatDate(value: string) {

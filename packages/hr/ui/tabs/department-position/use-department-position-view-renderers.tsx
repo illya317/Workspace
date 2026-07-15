@@ -27,8 +27,6 @@ export function useDepartmentPositionViewRenderers(props: {
   archivedPositions: Position[];
   archivedTab: ArchivedEntityTab;
   canArchive: boolean;
-  canEditDepartment: boolean;
-  canSubmitDepartmentWorkflow: boolean;
   departmentActionRuntime: ActionRuntime | null;
   canEditPosition: boolean;
   createPanel: "department" | "position" | null;
@@ -150,8 +148,6 @@ export function useDepartmentPositionViewRenderers(props: {
     positionsByDepartment: props.positionsByDepartment,
     isOrganizationMode: props.isOrganizationMode,
     canArchive: props.canArchive,
-    canEditDepartment: props.canEditDepartment,
-    canSubmitDepartmentWorkflow: props.canSubmitDepartmentWorkflow,
     actionRuntime: props.departmentActionRuntime,
     canEditPosition: props.canEditPosition,
     createPanel: props.createPanel,

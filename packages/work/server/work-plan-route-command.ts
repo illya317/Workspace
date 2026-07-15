@@ -18,7 +18,6 @@ import {
   canUpdateWorkTaskAction,
 } from "./access";
 import {
-  adjustWorkPlanKrReviewOpensAt,
   createWorkPlan,
   getWorkPlanTargetMetadata,
   listWorkPlans,
@@ -126,6 +125,7 @@ export async function executeListWorkPlansCommand(
     return serviceError("无权限访问该目标", 403);
   }
   const plans = await listWorkPlans({
+    actorUserId: command.userId,
     targetType: command.targetType,
     targetId: command.targetId,
     kind: command.kind,
@@ -188,25 +188,16 @@ export async function executeUpdateWorkPlanCommand(
   if (!(await canUpdateWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限编辑工作计划", 403);
   }
-  if (!isOnlyKrReviewOpenDatePatch(command.body)) {
-    const directAllowed = await assertWorkTaskDirectUpdateAllowed({
-      actorUserId: command.userId,
-      targetType: existing.targetType,
-      targetId: existing.targetId,
-      businessActionKey: "work.tasks.plan.save",
-    });
-    if (!directAllowed.ok) return directAllowed;
-  }
-  const plan = isOnlyKrReviewOpenDatePatch(command.body)
-    ? await adjustWorkPlanKrReviewOpensAt(command.planId, command.body.krReviewOpensAt ?? null)
-    : await updateWorkPlan(command.planId, { ...command.body, actorUserId: command.userId });
+  const directAllowed = await assertWorkTaskDirectUpdateAllowed({
+    actorUserId: command.userId,
+    targetType: existing.targetType,
+    targetId: existing.targetId,
+    businessActionKey: "work.tasks.plan.save",
+  });
+  if (!directAllowed.ok) return directAllowed;
+  const plan = await updateWorkPlan(command.planId, { ...command.body, actorUserId: command.userId });
   if (plan.ok === false) return serviceError(plan.error, plan.status || 400);
   return serviceOk({ plan: plan.data });
-}
-
-function isOnlyKrReviewOpenDatePatch(body: WorkPlanUpdateBody) {
-  const keys = Object.keys(body);
-  return keys.length === 1 && keys[0] === "krReviewOpensAt";
 }
 
 export function buildArchiveWorkPlanCommand(input: {

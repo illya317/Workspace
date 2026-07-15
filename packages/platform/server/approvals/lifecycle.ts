@@ -15,6 +15,7 @@ export function assertRequestLifecycleAction<TPayload>(
   const runtime = resolveActionRuntime({
     businessActionKey: request.businessActionKey,
     workflowPolicyMode: "required",
+    workflowWhenDisabled: "unavailable",
     actor: { userId: actorUserId },
     request,
   });

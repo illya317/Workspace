@@ -9,8 +9,6 @@ export function useDepartmentPositionDetailSections({
   createPanel,
   departments,
   departmentById,
-  canEdit,
-  canSubmitWorkflow,
   actionRuntime,
   onCreatePanelChange,
   onCancel,
@@ -20,8 +18,6 @@ export function useDepartmentPositionDetailSections({
   createPanel: "department" | "position" | null;
   departments: Department[];
   departmentById: Map<number, Department>;
-  canEdit: boolean;
-  canSubmitWorkflow: boolean;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCancel: () => void;
@@ -31,8 +27,6 @@ export function useDepartmentPositionDetailSections({
   const createDepartmentSurface = useDepartmentCreateSurface({
     departments,
     departmentById,
-    canEdit,
-    canSubmitWorkflow,
     actionRuntime,
     open: createPanel === "department",
     onOpenChange: (open) => onCreatePanelChange(open ? "department" : null),
@@ -49,8 +43,6 @@ export function DepartmentPositionDetailArea(props: {
   createPanel: "department" | "position" | null;
   departments: Department[];
   departmentById: Map<number, Department>;
-  canEdit: boolean;
-  canSubmitWorkflow: boolean;
   actionRuntime: ActionRuntime | null;
   onCreatePanelChange: (panel: "department" | "position" | null) => void;
   onCancel: () => void;

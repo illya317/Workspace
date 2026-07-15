@@ -2,6 +2,7 @@ import { getActionContractMetadata } from "../action-contract-registry";
 import type { ActionWorkflowNodeContract } from "../action-contract";
 import type { WorkflowBusinessActionSettingsDto } from "./workflow-action-settings";
 import type { WorkflowPolicyDefaults } from "./workflow-policy-defaults";
+import type { WorkflowPolicyMode } from "./workflow-types";
 
 export function workflowDefaultsForRegistration(
   registration: WorkflowBusinessActionSettingsDto | null,
@@ -10,10 +11,10 @@ export function workflowDefaultsForRegistration(
   const contract = getActionContractMetadata(registration?.key ?? "");
   const workflow = contract?.workflow;
   if (!workflow || workflow.kind === "not_applicable" || workflow.defaultExecutionMode !== "workflow") return defaults;
-  const canUseDirectDefault = workflow.allowDirectOverride && (defaults.mode === "permission_only" || defaults.mode === "direct");
+  const canUseDisabledDefault = workflow.canDisable && (defaults.mode === "permission_only" || defaults.mode === "direct");
   return {
     ...defaults,
-    mode: canUseDirectDefault ? defaults.mode : "required",
+    mode: canUseDisabledDefault ? defaults.mode : "required",
     flowType: defaults.flowType ?? "approval",
     separationPolicy: defaults.separationPolicy ?? workflow.routing.separationPolicy,
     handlerSource: defaults.handlerSource ?? workflow.routing.handlerSource,
@@ -24,6 +25,17 @@ export function workflowDefaultsForRegistration(
     requestCanResubmit: defaults.requestCanResubmit ?? workflow.mutationPolicy.requestCanResubmit,
     requestCanCancel: defaults.requestCanCancel ?? workflow.mutationPolicy.requestCanCancel,
   };
+}
+
+export function enforceWorkflowPolicyModeForRegistration(
+  registration: WorkflowBusinessActionSettingsDto | null,
+  mode: WorkflowPolicyMode,
+  fallback: WorkflowPolicyMode,
+): WorkflowPolicyMode {
+  const workflow = registration?.actionContract?.workflow;
+  if (!workflow || workflow.kind === "not_applicable" || workflow.canDisable) return mode;
+  if (mode !== "direct" && mode !== "permission_only") return mode;
+  return fallback === "required" || fallback === "optional" ? fallback : "required";
 }
 
 function workflowDefaultNodes(nodes: readonly ActionWorkflowNodeContract[]) {

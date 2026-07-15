@@ -24,11 +24,12 @@ import {
   type WorkflowPolicyNodeDefinition,
 } from "./workflow-policy-nodes";
 import type { WorkflowPolicyDefaults } from "./workflow-policy-defaults";
-import { workflowDefaultsForRegistration } from "./workflow-contract-defaults";
+import { enforceWorkflowPolicyModeForRegistration, workflowDefaultsForRegistration } from "./workflow-contract-defaults";
 import {
   listWorkflowCategoryRegistrations,
   type WorkflowCategoryRegistration,
 } from "../workflow-category-registry";
+import { ensureEditHistoryBaseline, snapshotHistory } from "./history";
 
 export {
   resolveNextWorkflowPolicyForPayload,
@@ -210,55 +211,54 @@ export async function listWorkflowPolicySettings(input: WorkflowPolicySettingsAc
 function namedCodeWorkflowOption<T extends { code: string; name: string }>(option: T) {
   return { ...option, label: option.name, description: option.code };
 }
-
 function employeeWorkflowOption<T extends { employeeId: string; name: string }>(option: T) {
   return { ...option, label: option.name, description: option.employeeId };
 }
-
-export async function upsertWorkflowPolicy(
-  input: UpsertWorkflowPolicyInput,
-): Promise<ServiceResult<WorkflowPolicyRowDto>> {
+export async function upsertWorkflowPolicy(input: UpsertWorkflowPolicyInput): Promise<ServiceResult<WorkflowPolicyRowDto>> {
   const normalized = normalizeWorkflowPolicyInput(input);
   if (!normalized.ok) return normalized;
-  const row = await prisma.workflowPolicy.upsert({
-    where: {
-      businessActionKey_scopeType_scopeId: {
+  const row = await prisma.$transaction(async (tx) => {
+    const key = { businessActionKey: normalized.data.businessActionKey, scopeType: normalized.data.scopeType, scopeId: normalized.data.scopeId };
+    const existing = await tx.workflowPolicy.findUnique({ where: { businessActionKey_scopeType_scopeId: key }, select: { id: true } });
+    if (existing && input.actorUserId) {
+      await ensureEditHistoryBaseline("WorkflowPolicy", existing.id, input.actorUserId, tx);
+    }
+    const saved = await tx.workflowPolicy.upsert({
+      where: { businessActionKey_scopeType_scopeId: key },
+      create: {
         businessActionKey: normalized.data.businessActionKey,
         scopeType: normalized.data.scopeType,
         scopeId: normalized.data.scopeId,
+        mode: normalized.data.mode,
+        flowType: normalized.data.flowType,
+        separationPolicy: normalized.data.separationPolicy,
+        handlerSource: normalized.data.handlerSource,
+        workflowNodesJson: stringifyWorkflowNodes(normalized.data.workflowNodes),
+        handlerCanRevise: normalized.data.handlerCanRevise,
+        requestCanWithdraw: normalized.data.requestCanWithdraw,
+        requestCanResubmit: normalized.data.requestCanResubmit,
+        requestCanCancel: normalized.data.requestCanCancel,
+        requestCanRevise: normalized.data.requestCanRevise,
+        createdByUserId: input.actorUserId ?? null,
+        updatedByUserId: input.actorUserId ?? null,
       },
-    },
-    create: {
-      businessActionKey: normalized.data.businessActionKey,
-      scopeType: normalized.data.scopeType,
-      scopeId: normalized.data.scopeId,
-      mode: normalized.data.mode,
-      flowType: normalized.data.flowType,
-      separationPolicy: normalized.data.separationPolicy,
-      handlerSource: normalized.data.handlerSource,
-      workflowNodesJson: stringifyWorkflowNodes(normalized.data.workflowNodes),
-      handlerCanRevise: normalized.data.handlerCanRevise,
-      requestCanWithdraw: normalized.data.requestCanWithdraw,
-      requestCanResubmit: normalized.data.requestCanResubmit,
-      requestCanCancel: normalized.data.requestCanCancel,
-      requestCanRevise: normalized.data.requestCanRevise,
-      createdByUserId: input.actorUserId ?? null,
-      updatedByUserId: input.actorUserId ?? null,
-    },
-    update: {
-      mode: normalized.data.mode,
-      flowType: normalized.data.flowType,
-      separationPolicy: normalized.data.separationPolicy,
-      handlerSource: normalized.data.handlerSource,
-      workflowNodesJson: stringifyWorkflowNodes(normalized.data.workflowNodes),
-      handlerCanRevise: normalized.data.handlerCanRevise,
-      requestCanWithdraw: normalized.data.requestCanWithdraw,
-      requestCanResubmit: normalized.data.requestCanResubmit,
-      requestCanCancel: normalized.data.requestCanCancel,
-      requestCanRevise: normalized.data.requestCanRevise,
-      updatedByUserId: input.actorUserId ?? null,
-      version: { increment: 1 },
-    },
+      update: {
+        mode: normalized.data.mode,
+        flowType: normalized.data.flowType,
+        separationPolicy: normalized.data.separationPolicy,
+        handlerSource: normalized.data.handlerSource,
+        workflowNodesJson: stringifyWorkflowNodes(normalized.data.workflowNodes),
+        handlerCanRevise: normalized.data.handlerCanRevise,
+        requestCanWithdraw: normalized.data.requestCanWithdraw,
+        requestCanResubmit: normalized.data.requestCanResubmit,
+        requestCanCancel: normalized.data.requestCanCancel,
+        requestCanRevise: normalized.data.requestCanRevise,
+        updatedByUserId: input.actorUserId ?? null,
+        version: { increment: 1 },
+      },
+    });
+    if (input.actorUserId) await snapshotHistory("WorkflowPolicy", saved.id, input.actorUserId, tx);
+    return saved;
   });
   return serviceOk(serializeWorkflowPolicy(row));
 }
@@ -325,7 +325,7 @@ export async function resolveWorkflowPolicy(input: {
   return {
     ...fallback,
     businessActionKey,
-    mode: normalizePolicyMode(policy.mode, fallback.mode),
+    mode: enforceWorkflowPolicyModeForRegistration(registration, normalizePolicyMode(policy.mode, fallback.mode), fallback.mode),
     flowType: normalizeFlowType(policy.flowType, fallback.flowType),
     separationPolicy: normalizeSeparationPolicy(policy.separationPolicy, fallback.separationPolicy),
     handlerSource: normalizeHandlerSource(policy.handlerSource, fallback.handlerSource),
@@ -373,7 +373,7 @@ function normalizeWorkflowPolicyInput(
   const mode = normalizePolicyInputMode(input.mode, registration);
   if (!isWorkflowConfigurable(registration) && mode !== "permission_only") return serviceError("该业务行为缺少可配置 ActionContract，不能启用流程", 400);
   const workflowContract = registration.actionContract?.workflow;
-  if (mode === "permission_only" && workflowContract?.kind !== "not_applicable" && !workflowContract?.allowDirectOverride && isWorkflowConfigurable(registration)) {
+  if (mode === "permission_only" && workflowContract?.kind !== "not_applicable" && !workflowContract?.canDisable && isWorkflowConfigurable(registration)) {
     return serviceError("该业务行为不允许关闭流程", 400);
   }
   const flowType = normalizeFlowType(input.flowType, registration.flowType ?? "approval");

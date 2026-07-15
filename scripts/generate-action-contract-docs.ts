@@ -76,7 +76,9 @@ function workflow(contract: ActionContractMetadata) {
   return [
     contract.workflow.kind,
     `default=${contract.workflow.defaultExecutionMode}`,
-    `directOverride=${contract.workflow.allowDirectOverride}`,
+    `canDisable=${contract.workflow.canDisable}`,
+    `whenDisabled=${contract.workflow.whenDisabled}`,
+    `entry=${contract.workflow.entrySemantics}`,
     `nodes=${contract.workflow.defaultDefinition.nodes.length}`,
   ].join("<br>");
 }
@@ -140,4 +142,3 @@ function main() {
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) main();
-

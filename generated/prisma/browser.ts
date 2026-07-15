@@ -696,6 +696,21 @@ export type WorkOkrCycle = Prisma.WorkOkrCycleModel
  */
 export type WorkOkrControlPolicy = Prisma.WorkOkrControlPolicyModel
 /**
+ * Model WorkOkrControlRevision
+ * OKR 全局时间管控配置版本（append-only 事实表，来源于管理员保存）
+ */
+export type WorkOkrControlRevision = Prisma.WorkOkrControlRevisionModel
+/**
+ * Model WorkOkrControlPolicyRevision
+ * OKR 周期例外策略版本（append-only 事实表，来源于管理员保存或开放时间调整）
+ */
+export type WorkOkrControlPolicyRevision = Prisma.WorkOkrControlPolicyRevisionModel
+/**
+ * Model WorkPlanGovernanceEvent
+ * 工作计划治理模式迁移事件（append-only 事实表，记录显式 workflow/direct 切换）
+ */
+export type WorkPlanGovernanceEvent = Prisma.WorkPlanGovernanceEventModel
+/**
  * Model Project
  * 项目/虚拟团队
  */

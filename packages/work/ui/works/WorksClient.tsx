@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type CreateSurfaceFormSpec, type CreateSurfaceProps, type FormSurfaceProps } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
-import { actionRuntimeCommands, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
+import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import type { SessionUser } from "@workspace/platform/types";
 import { fetchWorkPeriodCollection, listTaskSpaces, listWorkTaskSubmissions, postWorkPeriodScheduleItem, type WorkPeriodScheduleCreateResult } from "./api";
@@ -59,6 +59,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const [activePlanId, setActivePlanId] = useState<number | null>(null);
   const [activeRoutineTaskId, setActiveRoutineTaskId] = useState<number | null>(null);
   const [planCreating, setPlanCreating] = useState(false);
+  const [planEditing, setPlanEditing] = useState(false);
   const [createChoiceOpen, setCreateChoiceOpen] = useState(false);
   const [pendingRoutineTaskCreatePlanId, setPendingRoutineTaskCreatePlanId] = useState<number | null>(null);
   const [planDraft, setPlanDraft] = useState<WorkPlanDraft>(() => createEmptyWorkPlanDraft());
@@ -126,7 +127,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const isDepartmentCollaborationView = activeTab === "tasks"
     && currentSpace?.targetType === "department"
     && scopedWorkTasksChildView === WORK_TASKS_COLLABORATION_VIEW_KEY;
-  const approvalEnabled = currentSpace?.targetType !== "personal";
   const navigationItems = useMemo(
     () => {
       const baseItems = canManageOkrSettings ? [...WORK_TASK_VIEW_NAVIGATION_ITEMS, WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM] : WORK_TASK_VIEW_NAVIGATION_ITEMS;
@@ -137,17 +137,19 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   );
   const currentSpacePlans = useMemo(() => currentSpace ? plans.filter((plan) => sameTarget(plan, currentSpace)) : [], [currentSpace, plans]);
   const currentActionPermissions = currentSpace?.actionPermissions;
-  const canCreate = Boolean(currentActionPermissions?.canCreate);
   const canEdit = Boolean(currentActionPermissions?.canUpdate);
   const canArchive = Boolean(currentActionPermissions?.canArchive);
   const canDelete = Boolean(currentActionPermissions?.canDelete);
-  const canSubmitApproval = approvalEnabled && Boolean(currentActionPermissions?.canSubmit);
   const itemCreateRuntime = currentSpace?.actionRuntimes.itemCreate;
   const itemUpdateRuntime = currentSpace?.actionRuntimes.itemUpdate;
+  const planCreateRuntime = currentSpace?.actionRuntimes.planCreate;
+  const planSaveRuntime = activePlan?.objectiveApprovedAt || activePlan?.status === "done"
+    ? activePlan.actionRuntimes?.planRevision ?? currentSpace?.actionRuntimes.planRevision
+    : currentSpace?.actionRuntimes.planSave;
   const canCreateItem = Boolean(itemCreateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
   const canUpdateItem = Boolean(itemUpdateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
-  const canSubmitPlanRevision = Boolean(canSubmitApproval && activePlan?.kind === "okr" && activePlan.objectiveApprovedAt);
-  const canReviseCompletedPlan = Boolean(activePlan?.status === "done" && !activePlan.isArchived && canEdit && !canSubmitPlanRevision);
+  const canUpdatePlan = Boolean(planSaveRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
+  const canSubmitObjective = (activePlan?.actionRuntimes?.objectiveSubmit ?? currentSpace?.actionRuntimes.objectiveSubmit)?.actions.includes("workflow.request.submit") === true;
   const worksState = useWorks(currentSpace, activePlanId);
   const activeRoutineTask = useMemo(() => activeRoutineTaskId
     ? worksState.works.find((work) => work.id === activeRoutineTaskId && work.routineTaskType === "task") ?? null
@@ -175,11 +177,11 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     activePlan,
     works: worksState.works,
     canCreate: canCreateItem,
-    canEdit: canUpdateItem,
-    canSubmit: canSubmitApproval,
+    canEditPlan: canUpdatePlan,
+    canEditWork: canUpdateItem,
+    canSubmitObjective,
   });
   const {
-    activeOkrStage,
     rootObjectives,
     createAllowedItemTypes,
     defaultCreateItemType,
@@ -189,7 +191,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     canEditKrs,
     canSubmitObjectiveReview,
     canSubmitKrReview,
-    canAdjustKrReview,
     canCreateNode,
     createNodeLabel,
     nodeSaveLabel,
@@ -218,7 +219,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const collaborationState = useDepartmentCollaborationController({
     enabled: isDepartmentCollaborationView,
     space: currentSpace,
-    canSubmit: canSubmitApproval,
+    actionRuntime: currentSpace?.actionRuntimes.collaboration,
     canRespond: canEdit,
     onToast: showToast,
   });
@@ -427,7 +428,11 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     worksState.creating
     && !(activePlan?.kind === "routine" && worksState.createDraft.routineTaskType === "task"),
   );
-  const nodeCreateSurface: Extract<CreateSurfaceProps, { trigger: "surface" }> = {
+  const nodeCreateSubmission = actionRuntimeCreateSubmission(itemCreateRuntime, {
+    disabled: nodeSaveDisabled,
+    execute: () => runCreateNodeMutation({ feedback: false, rethrow: true }),
+  });
+  const nodeCreateSurface: Extract<CreateSurfaceProps, { trigger: "surface" }> | undefined = nodeCreateSubmission ? {
     id: "work-node-create",
     trigger: "surface",
     anchor: "work-node-create",
@@ -439,11 +444,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       || worksState.editingId !== null
       || (activePlan?.kind !== "routine" && defaultCreateItemType !== "objective" && rootObjectives.length === 0),
     content: { kind: "form", form: createSurfaceForm(createTaskSurface, { columns: 2 }) },
-    submission: {
-      action: itemCreateRuntime?.executionMode === "workflow" ? "submit" : "save",
-      disabled: nodeSaveDisabled,
-      execute: () => runCreateNodeMutation({ feedback: false, rethrow: true }),
-    },
+    submission: nodeCreateSubmission,
     feedback: {
       saved: activeNodeSaveLabel.replace(/^保存/, "") + "已新建",
       submitted: activePlan?.kind === "routine" ? "常设职责已提交审核" : "节点已提交审核",
@@ -463,7 +464,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
         activePlan.kind === "routine" ? "standing" : "task",
       ));
     },
-  };
+  } : undefined;
   const openPeriodSchedulePlan = useCallback((planId: number) => {
     const plan = plans.find((item) => item.id === planId) || periodCollection?.plans.find((item) => item.plan.id === planId)?.plan || null;
     if (!plan) {
@@ -491,7 +492,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       canCreate: canCreateNode && !planCreating,
       compact: compactNavigation,
       savingKey: periodScheduleSavingKey,
-      submitAction: itemCreateRuntime?.executionMode === "workflow" ? "submit" : "save",
+      createRuntime: itemCreateRuntime ?? null,
       pendingCreate: periodScheduleCreateContext,
       createDraft: periodScheduleCreateDraft,
       onCreateDraftChange: setPeriodScheduleCreateDraft,
@@ -518,16 +519,16 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     handleConfirmPeriodScheduleCreate,
     handleStartPeriodScheduleCreate,
     handleTogglePeriodScheduleSource,
-    itemCreateRuntime?.executionMode,
+    itemCreateRuntime,
     worksState.works,
   ]);
   const okrPlanSurface = useWorkOkrPlanSurface({
     planDraft,
     works: visibleWorks,
     target: currentSpace,
-    persistenceMode: canSubmitApproval ? "workflowDraft" : "active",
-    workflowRole: canSubmitApproval ? "submitter" : "none",
-    editability: "editable",
+    persistenceMode: (planCreating ? planCreateRuntime : planSaveRuntime)?.persistenceMode ?? "active",
+    workflowRole: (planCreating ? planCreateRuntime : planSaveRuntime)?.workflowRole ?? "none",
+    editability: (planCreating ? planCreateRuntime : planSaveRuntime)?.editability ?? "readonly",
     formDisabled: worksState.saving,
     autoFocusPlanTitle: planCreating,
     onPlanDraftChange: setPlanDraft,
@@ -552,7 +553,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       sectionCreate: canCreateNode && (activePlan?.kind !== "routine" || activeRoutineTaskId === null) ? nodeCreateSurface : undefined,
       tableLabel: activePlan?.kind === "routine" ? activeRoutineTask ? "任务" : "常设职责" : "目标 / 执行任务 / 考核结果",
       canEdit: canEditObjectives || canEditTasks || canEditKrs,
-      canSubmit: canSubmitApproval,
       canDelete,
       canArchive,
       emptyText: activePlan?.kind === "routine" ? activeRoutineTaskId ? "该任务不存在或已删除。" : "暂无常设职责。" : "暂无目标。周期初先添加根级目标。",
@@ -567,7 +567,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       },
       onEdit: worksState.startEdit,
       onSave: runUpdateNodeMutation,
-      onSubmitEdit: runUpdateNodeMutation,
       onCancelEdit: worksState.cancelEdit,
       onArchive: archiveWork,
       onRestore: restoreWork,
@@ -582,6 +581,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     if (!activePlan || planCreating) return;
     setPlanDraft(createWorkPlanDraft(activePlan));
   }, [activePlan, activePlan?.id, planCreating]);
+  useEffect(() => { setPlanEditing(false); }, [activePlanId]);
   useEffect(() => {
     if (pendingRoutineTaskCreatePlanId === null || activePlan?.id !== pendingRoutineTaskCreatePlanId || activePlan.kind !== "routine") return;
     worksState.cancelEdit();
@@ -711,6 +711,11 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     setPlanDraft(activePlan ? createWorkPlanDraft(activePlan) : createEmptyWorkPlanDraft());
   }
 
+  function cancelPlanEdit() {
+    setPlanEditing(false);
+    if (activePlan) setPlanDraft(createWorkPlanDraft(activePlan));
+  }
+
   function startRoutineTaskCreate() {
     const routinePlan = currentSpacePlans.find((plan) => plan.kind === "routine" && !plan.isArchived);
     if (!routinePlan) {
@@ -828,13 +833,18 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     cancelPlanCreate();
     worksState.setCreating(false);
   };
+  const planCreateSubmission = actionRuntimeCreateSubmission(planCreateRuntime, {
+    disabled: planSaving || worksState.saving || !isPlanDraftComplete(planDraft),
+    execute: () => planCommands.handleCreatePlan({ feedback: false, rethrow: true }),
+  });
+  const globalCreateSubmission = planCreating ? planCreateSubmission : nodeCreateSubmission;
   const globalCreate: CreateSurfaceProps = {
     id: "work-create",
     trigger: "toolbar",
     presentation: "block",
     title: planCreating ? "新建计划" : isolatedRoutineTaskCreate ? "新建任务" : "新建",
     open: globalCreateOpen,
-    canCreate: canCreate || canSubmitApproval,
+    canCreate: Boolean(planCreateSubmission || nodeCreateSubmission),
     disabled: worksState.saving || planSaving,
     content: {
       kind: "form",
@@ -845,19 +855,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
         first: { items: createSurfaceForm(createChoiceSurface).items },
       },
     },
-    submission: planCreating
-      ? {
-          action: canSubmitApproval ? "submit" : "save",
-          disabled: planSaving || worksState.saving || !isPlanDraftComplete(planDraft),
-          execute: () => canSubmitApproval
-            ? planCommands.handleSubmitCreatePlan({ feedback: false, rethrow: true })
-            : planCommands.handleCreatePlan({ feedback: false, rethrow: true }),
-        }
-      : {
-          action: itemCreateRuntime?.executionMode === "workflow" ? "submit" : "save",
-          disabled: nodeSaveDisabled,
-          execute: () => runCreateNodeMutation({ feedback: false, rethrow: true }),
-        },
+    submission: globalCreateSubmission ?? { action: "save", disabled: true, execute: () => undefined },
     feedback: {
       saved: planCreating ? "工作计划已新建" : "任务已新建",
       submitted: planCreating ? "目标计划已提交审核" : "任务已提交审核",
@@ -873,6 +871,20 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       setCreateChoiceOpen(true);
     },
   };
+  const planSaveDisabled = planSaving || worksState.saving || !isPlanDraftComplete(planDraft)
+    || (!planCreating && !planDirty && activePlan?.status !== "done");
+  const runPlanSave = () => {
+    const completed = activePlan?.status === "done";
+    void planCommands.handleSavePlan().then((outcome) => {
+      if (!outcome) return;
+      setPlanEditing(false);
+      if (completed && outcome === "committed") setStatusFilter("active");
+    });
+  };
+  const planSaveActions = workflowActionSurfaceActions(actionRuntimeCommands(planSaveRuntime, {
+    "record.save": { label: "保存计划修改", disabled: planSaveDisabled, onClick: runPlanSave },
+    "workflow.request.submit": { label: "提交", disabled: planSaveDisabled, onClick: runPlanSave },
+  }));
   const workPlanSection = createWorkPlanContentSection({
     planCreating,
     globalCreate,
@@ -880,17 +892,14 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     hideWorkSections: isolatedRoutineTaskCreate,
     activePlan,
     canEditPlan,
+    planEditing,
+    planSaveActions,
     canDeletePlan: canDelete && activePlan?.kind !== "routine" && !activePlan?.okrCycleId,
-    canSubmitPlanApproval: canSubmitPlanRevision,
-    canReviseCompletedPlan,
     canSubmitObjectiveReview,
     canSubmitKrReview,
     canArchivePlan: canArchive && activePlan?.kind !== "routine",
-    canAdjustKrReview,
-    krUnlocked: activeOkrStage === "kr_open",
     nodeCreating: worksState.creating,
     nodeCreateInline: createNodeInline,
-    planSaveDisabled: planSaving || worksState.saving || !isPlanDraftComplete(planDraft) || (!planCreating && !planDirty && !canSubmitPlanRevision),
     planSubmitDisabled: planSaving || worksState.saving || !activePlan || (activePlan.kind === "okr" && rootObjectives.length === 0),
     krSubmitDisabled: planSaving || worksState.saving || !activePlan,
     planFormSurface: okrPlanSurface.planFormSurface,
@@ -900,17 +909,14 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     hasCurrentSpacePlans: currentSpacePlans.length > 0,
     onArchivePlan: () => void planCommands.handleArchivePlan(),
     onDeletePlan: () => void planCommands.handleDeletePlan(),
+    onEditPlan: () => {
+      if (!activePlan) return;
+      setPlanDraft(createWorkPlanDraft(activePlan));
+      setPlanEditing(true);
+    },
+    onCancelPlanEdit: cancelPlanEdit,
     onSubmitObjectiveReview: () => void planCommands.handleSubmitObjectiveReview(),
     onSubmitKrReview: () => void planCommands.handleSubmitKrReview(),
-    onReviseCompletedPlan: () => {
-      setStatusFilter("active");
-      void planCommands.handleReviseCompletedPlan();
-    },
-    onToggleKrReviewLock: () => void (activeOkrStage === "kr_open" ? planCommands.handleLockKrReview() : planCommands.handleOpenKrReviewNow()),
-    onSavePlan: () => {
-      if (activePlan?.status === "done") setStatusFilter("active");
-      void (canSubmitPlanRevision ? planCommands.handleSubmitPlanRevision() : planCommands.handleUpdatePlan());
-    },
   });
   const reportsBody = goalReportStage === "kr"
     ? createSpaceWorkbenchBody({ left: initialGoalPreview.leftNavigationBody, right: initialGoalPreview.rightBody, label: "职责与目标", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false })

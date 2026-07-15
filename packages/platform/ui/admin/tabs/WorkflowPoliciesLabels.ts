@@ -46,6 +46,7 @@ export interface WorkflowActionLabelSource {
   actionContract?: {
     workflow?: {
       kind: "not_applicable" | "configurable" | "native";
+      whenDisabled?: "direct_write" | "unavailable";
     } | null;
   } | null;
 }
@@ -144,7 +145,12 @@ export function workflowActionStatus(action: WorkflowActionLabelSource, policies
   const policy = selectGlobalPolicy(policies ?? []);
   const configurable = canConfigureWorkflowAction(action);
   if (policy && !configurable) return ACTION_STATUS_VIEW.config_error;
-  if (policy) return workflowAccessMode(policy.mode) === "workflow" ? ACTION_STATUS_VIEW.enabled : ACTION_STATUS_VIEW.disabled;
+  if (policy) {
+    if (workflowAccessMode(policy.mode) === "workflow") return ACTION_STATUS_VIEW.enabled;
+    return action.actionContract?.workflow?.whenDisabled === "unavailable"
+      ? { ...ACTION_STATUS_VIEW.disabled, detailText: "该动作的流程已关闭，新的提交入口和 API 执行均不可用；历史流程单仍按原快照处理。" }
+      : ACTION_STATUS_VIEW.disabled;
+  }
   return decorateActionStatus(ACTION_STATUS_VIEW[action.workflowProductState] ?? ACTION_STATUS_VIEW.not_ready, action);
 }
 

@@ -145,17 +145,14 @@ export function createWorkPlanContentSection({
   hideWorkSections,
   activePlan,
   canEditPlan,
+  planEditing,
+  planSaveActions,
   canDeletePlan,
-  canSubmitPlanApproval,
   canSubmitObjectiveReview,
   canSubmitKrReview,
-  canReviseCompletedPlan,
   canArchivePlan,
-  canAdjustKrReview,
-  krUnlocked,
   nodeCreating,
   nodeCreateInline,
-  planSaveDisabled,
   planSubmitDisabled,
   krSubmitDisabled,
   planFormSurface,
@@ -165,11 +162,10 @@ export function createWorkPlanContentSection({
   hasCurrentSpacePlans,
   onArchivePlan,
   onDeletePlan,
-  onSavePlan,
+  onEditPlan,
+  onCancelPlanEdit,
   onSubmitObjectiveReview,
   onSubmitKrReview,
-  onReviseCompletedPlan,
-  onToggleKrReviewLock,
 }: {
   planCreating: boolean;
   globalCreate?: CreateSurfaceProps;
@@ -177,17 +173,14 @@ export function createWorkPlanContentSection({
   hideWorkSections: boolean;
   activePlan: WorkPlan | null;
   canEditPlan: boolean;
+  planEditing: boolean;
+  planSaveActions: FormSurfaceActionSpec[];
   canDeletePlan: boolean;
-  canSubmitPlanApproval: boolean;
   canSubmitObjectiveReview: boolean;
   canSubmitKrReview: boolean;
-  canReviseCompletedPlan: boolean;
   canArchivePlan: boolean;
-  canAdjustKrReview: boolean;
-  krUnlocked: boolean;
   nodeCreating: boolean;
   nodeCreateInline: boolean;
-  planSaveDisabled: boolean;
   planSubmitDisabled: boolean;
   krSubmitDisabled: boolean;
   planFormSurface: FormSurfaceProps;
@@ -197,38 +190,27 @@ export function createWorkPlanContentSection({
   hasCurrentSpacePlans: boolean;
   onArchivePlan: () => void;
   onDeletePlan: () => void;
-  onSavePlan: () => void;
+  onEditPlan: () => void;
+  onCancelPlanEdit: () => void;
   onSubmitObjectiveReview: () => void;
   onSubmitKrReview: () => void;
-  onReviseCompletedPlan: () => void;
-  onToggleKrReviewLock: () => void;
 }): BodySurfaceSectionSpec {
-  const canEditPlanDraft = canEditPlan || canSubmitPlanApproval || canSubmitObjectiveReview;
+  const canSavePlan = planSaveActions.length > 0;
   const isRoutinePlan = activePlan?.kind === "routine";
   const planArchived = activePlan?.isArchived === true;
-  const planActions = activePlan && (canEditPlanDraft || canArchivePlan) && !isRoutinePlan
+  const planActions = activePlan && planEditing && !isRoutinePlan
       ? editablePlanCommands({
-        canEditPlan,
+        planSaveActions,
+        planEditing,
         canDeletePlan,
-        canSubmitPlanApproval,
-        canSubmitObjectiveReview,
-        canSubmitKrReview,
         canArchivePlan,
         planArchived,
-        canAdjustKrReview,
-        krUnlocked,
-        planSaveDisabled,
-        planSubmitDisabled,
-        krSubmitDisabled,
         onArchivePlan,
         onDeletePlan,
-        onSavePlan,
-        onSubmitObjectiveReview,
-        onSubmitKrReview,
-        onToggleKrReviewLock,
+        onCancelPlanEdit,
       })
       : undefined;
-  const showPlanForm = Boolean(activePlan && !isRoutinePlan && canEditPlanDraft);
+  const showPlanForm = Boolean(activePlan && !isRoutinePlan && planEditing);
   return createPanelSection("tasks", {
     ...(showPlanForm ? {} : { title: sectionTitle }),
     sections: [
@@ -246,19 +228,22 @@ export function createWorkPlanContentSection({
         ...(isRoutinePlan || showPlanForm ? [] : [
           workPlanHeaderSection(activePlan, workPlanHeaderActions({
             canDeletePlan,
+            canSubmitObjectiveReview,
             canSubmitKrReview,
-            canReviseCompletedPlan,
+            canEditPlan: canSavePlan && !planArchived && Boolean(
+              canEditPlan || activePlan.status === "done" || activePlan.objectiveApprovedAt,
+            ),
+            revisionEntry: Boolean(activePlan.objectiveApprovedAt || activePlan.status === "done"),
             canArchivePlan,
             planArchived,
-            canAdjustKrReview,
-            krUnlocked,
             nodeCreating,
             krSubmitDisabled,
+            planSubmitDisabled,
             onArchivePlan,
             onDeletePlan,
             onSubmitKrReview,
-            onReviseCompletedPlan,
-            onToggleKrReviewLock,
+            onSubmitObjectiveReview,
+            onEditPlan,
           })),
         ]),
         ...(nodeCreating && !nodeCreateInline && !hideWorkSections ? [
@@ -279,44 +264,50 @@ export function createWorkPlanContentSection({
 
 function workPlanHeaderActions({
   canDeletePlan,
+  canSubmitObjectiveReview,
   canSubmitKrReview,
-  canReviseCompletedPlan,
+  canEditPlan,
+  revisionEntry,
   canArchivePlan,
   planArchived,
-  canAdjustKrReview,
-  krUnlocked,
   nodeCreating,
   krSubmitDisabled,
+  planSubmitDisabled,
   onArchivePlan,
   onDeletePlan,
   onSubmitKrReview,
-  onReviseCompletedPlan,
-  onToggleKrReviewLock,
+  onSubmitObjectiveReview,
+  onEditPlan,
 }: {
   canDeletePlan: boolean;
+  canSubmitObjectiveReview: boolean;
   canSubmitKrReview: boolean;
-  canReviseCompletedPlan: boolean;
+  canEditPlan: boolean;
+  revisionEntry: boolean;
   canArchivePlan: boolean;
   planArchived: boolean;
-  canAdjustKrReview: boolean;
-  krUnlocked: boolean;
   nodeCreating: boolean;
   krSubmitDisabled: boolean;
+  planSubmitDisabled: boolean;
   onArchivePlan: () => void;
   onDeletePlan: () => void;
   onSubmitKrReview: () => void;
-  onReviseCompletedPlan: () => void;
-  onToggleKrReviewLock: () => void;
+  onSubmitObjectiveReview: () => void;
+  onEditPlan: () => void;
 }): BodySurfaceCommandSpec[] | undefined {
   if (nodeCreating) return undefined;
   const actions: BodySurfaceCommandSpec[] = [];
-  if (canReviseCompletedPlan) {
-    actions.push({ key: "revise-plan", label: "修订", icon: "edit", variant: "secondary", onClick: onReviseCompletedPlan });
+  if (canEditPlan) {
+    actions.push({
+      key: revisionEntry ? "revise-plan" : "edit-plan",
+      label: revisionEntry ? "修订" : "编辑",
+      icon: revisionEntry ? "revise" : "edit",
+      variant: "secondary",
+      onClick: onEditPlan,
+    });
   }
-  if (canAdjustKrReview) {
-    actions.push(
-      { key: "toggle-kr-lock", label: krUnlocked ? "锁定KR" : "解锁KR", icon: krUnlocked ? "lock" : "unlock", variant: "secondary", onClick: onToggleKrReviewLock },
-    );
+  if (canSubmitObjectiveReview) {
+    actions.push({ key: "submit-objective", label: "提交目标审查", icon: "send", variant: "primary", disabled: planSubmitDisabled, onClick: onSubmitObjectiveReview });
   }
   if (canSubmitKrReview) {
     actions.push(
@@ -337,61 +328,31 @@ function workPlanHeaderActions({
 }
 
 function editablePlanCommands({
-  canEditPlan,
+  planSaveActions,
+  planEditing,
   canDeletePlan,
-  canSubmitPlanApproval,
-  canSubmitObjectiveReview,
-  canSubmitKrReview,
   canArchivePlan,
   planArchived,
-  canAdjustKrReview,
-  krUnlocked,
-  planSaveDisabled,
-  planSubmitDisabled,
-  krSubmitDisabled,
   onArchivePlan,
   onDeletePlan,
-  onSavePlan,
-  onSubmitObjectiveReview,
-  onSubmitKrReview,
-  onToggleKrReviewLock,
+  onCancelPlanEdit,
 }: {
-  canEditPlan: boolean;
+  planSaveActions: FormSurfaceActionSpec[];
+  planEditing: boolean;
   canDeletePlan: boolean;
-  canSubmitPlanApproval: boolean;
-  canSubmitObjectiveReview: boolean;
-  canSubmitKrReview: boolean;
   canArchivePlan: boolean;
   planArchived: boolean;
-  canAdjustKrReview: boolean;
-  krUnlocked: boolean;
-  planSaveDisabled: boolean;
-  planSubmitDisabled: boolean;
-  krSubmitDisabled: boolean;
   onArchivePlan: () => void;
   onDeletePlan: () => void;
-  onSavePlan: () => void;
-  onSubmitObjectiveReview: () => void;
-  onSubmitKrReview: () => void;
-  onToggleKrReviewLock: () => void;
+  onCancelPlanEdit: () => void;
 }): FormSurfaceActionSpec[] {
   return [
-    ...(canEditPlan || canSubmitPlanApproval
-      ? [{ key: "save-plan", action: canSubmitPlanApproval ? "revise" as const : "save" as const, label: canSubmitPlanApproval ? "提交修订" : "保存计划修改", disabled: planSaveDisabled, onClick: onSavePlan }]
+    ...(planEditing
+      ? [{ key: "cancel-plan-edit", action: "cancel" as const, label: "取消", onClick: onCancelPlanEdit }]
       : []),
+    ...planSaveActions,
     ...(canArchivePlan
       ? [{ key: planArchived ? "restore-plan" : "archive-plan", action: planArchived ? "unarchive" as const : "archive" as const, label: planArchived ? "恢复计划" : "归档计划", onClick: onArchivePlan }]
-      : []),
-    ...(canSubmitObjectiveReview
-      ? [{ key: "submit-objective", action: "submit" as const, label: "提交目标审查", disabled: planSubmitDisabled, onClick: onSubmitObjectiveReview }]
-      : []),
-    ...(canAdjustKrReview
-      ? [
-          { key: "toggle-kr-lock", action: krUnlocked ? "lock" as const : "unlock" as const, label: krUnlocked ? "锁定KR" : "解锁KR", onClick: onToggleKrReviewLock },
-        ]
-      : []),
-    ...(canSubmitKrReview
-      ? [{ key: "submit-kr", action: "submit" as const, label: SUBMIT_WORK_REPORT_LABEL, disabled: krSubmitDisabled, onClick: onSubmitKrReview }]
       : []),
     ...(canDeletePlan
       ? [{ key: "delete-plan", action: "delete" as const, label: "删除计划", onClick: onDeletePlan }]
