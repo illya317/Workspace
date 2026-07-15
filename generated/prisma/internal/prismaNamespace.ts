@@ -440,6 +440,7 @@ export const ModelName = {
   ReclassResult: 'ReclassResult',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
+  FinanceStatementExchangeRate: 'FinanceStatementExchangeRate',
   FinanceCurrency: 'FinanceCurrency',
   FinanceBankAccount: 'FinanceBankAccount',
   DepartmentDescription: 'DepartmentDescription',
@@ -548,7 +549,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -4693,6 +4694,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FinanceStatementWorkpaperLineCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FinanceStatementWorkpaperLineCountAggregateOutputType> | number
+        }
+      }
+    }
+    FinanceStatementExchangeRate: {
+      payload: Prisma.$FinanceStatementExchangeRatePayload<ExtArgs>
+      fields: Prisma.FinanceStatementExchangeRateFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.FinanceStatementExchangeRateFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.FinanceStatementExchangeRateFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        findFirst: {
+          args: Prisma.FinanceStatementExchangeRateFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.FinanceStatementExchangeRateFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        findMany: {
+          args: Prisma.FinanceStatementExchangeRateFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>[]
+        }
+        create: {
+          args: Prisma.FinanceStatementExchangeRateCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        createMany: {
+          args: Prisma.FinanceStatementExchangeRateCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.FinanceStatementExchangeRateCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>[]
+        }
+        delete: {
+          args: Prisma.FinanceStatementExchangeRateDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        update: {
+          args: Prisma.FinanceStatementExchangeRateUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        deleteMany: {
+          args: Prisma.FinanceStatementExchangeRateDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.FinanceStatementExchangeRateUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.FinanceStatementExchangeRateUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>[]
+        }
+        upsert: {
+          args: Prisma.FinanceStatementExchangeRateUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$FinanceStatementExchangeRatePayload>
+        }
+        aggregate: {
+          args: Prisma.FinanceStatementExchangeRateAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateFinanceStatementExchangeRate>
+        }
+        groupBy: {
+          args: Prisma.FinanceStatementExchangeRateGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementExchangeRateGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.FinanceStatementExchangeRateCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.FinanceStatementExchangeRateCountAggregateOutputType> | number
         }
       }
     }
@@ -12770,6 +12845,31 @@ export const FinanceStatementWorkpaperLineScalarFieldEnum = {
 export type FinanceStatementWorkpaperLineScalarFieldEnum = (typeof FinanceStatementWorkpaperLineScalarFieldEnum)[keyof typeof FinanceStatementWorkpaperLineScalarFieldEnum]
 
 
+export const FinanceStatementExchangeRateScalarFieldEnum = {
+  id: 'id',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency',
+  rateKind: 'rateKind',
+  rateDate: 'rateDate',
+  rate: 'rate',
+  sourceName: 'sourceName',
+  sourceField: 'sourceField',
+  sourceUrl: 'sourceUrl',
+  publishedAt: 'publishedAt',
+  capturedAt: 'capturedAt',
+  status: 'status',
+  note: 'note',
+  version: 'version',
+  updatedBy: 'updatedBy',
+  verifiedBy: 'verifiedBy',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceStatementExchangeRateScalarFieldEnum = (typeof FinanceStatementExchangeRateScalarFieldEnum)[keyof typeof FinanceStatementExchangeRateScalarFieldEnum]
+
+
 export const FinanceCurrencyScalarFieldEnum = {
   id: 'id',
   companyCode: 'companyCode',
@@ -14826,6 +14926,7 @@ export type GlobalOmitConfig = {
   reclassResult?: Prisma.ReclassResultOmit
   financeStatementWorkpaper?: Prisma.FinanceStatementWorkpaperOmit
   financeStatementWorkpaperLine?: Prisma.FinanceStatementWorkpaperLineOmit
+  financeStatementExchangeRate?: Prisma.FinanceStatementExchangeRateOmit
   financeCurrency?: Prisma.FinanceCurrencyOmit
   financeBankAccount?: Prisma.FinanceBankAccountOmit
   departmentDescription?: Prisma.DepartmentDescriptionOmit

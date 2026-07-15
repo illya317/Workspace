@@ -5,6 +5,7 @@ import type {
   ConsolidationPeriodOption,
   StatementSourceCoverage,
 } from "@workspace/finance/types";
+import { statementExchangeRateSnapshot } from "./exchange-rates";
 
 interface ConsolidationOverviewInput {
   year?: number;
@@ -15,6 +16,16 @@ const REPORT_TYPES = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
 
 function periodKey(year: number, month: number) {
   return `${year}-${String(month).padStart(2, "0")}`;
+}
+
+function periodEndDate(year: number, month: number) {
+  return new Date(Date.UTC(year, month, 0)).toISOString().slice(0, 10);
+}
+
+function isClosingRateNearPeriodEnd(rateDate: string, closingDate: string) {
+  const day = 24 * 60 * 60 * 1000;
+  const difference = (Date.parse(`${closingDate}T00:00:00Z`) - Date.parse(`${rateDate}T00:00:00Z`)) / day;
+  return difference >= 0 && difference <= 7;
 }
 
 function sourceCoverage(
@@ -113,6 +124,9 @@ export async function loadConsolidationOverview(
     return (left[0]?.parent.sortOrder ?? 0) - (right[0]?.parent.sortOrder ?? 0);
   })[0] ?? [];
   const parent = scopeRelations[0]?.parent ?? null;
+  const canadaCompanyCode = scopeRelations.find((relation) =>
+    relation.child.code === "05" || (relation.child.fullName || relation.child.name).includes("加拿大"),
+  )?.child.code ?? null;
   const companyCodes = parent
     ? [parent.code, ...scopeRelations.map((relation) => relation.child.code)]
     : [];
@@ -161,7 +175,8 @@ export async function loadConsolidationOverview(
     label: `${input.year ?? now.getFullYear()}年${input.month ?? 12}月`,
   };
 
-  const [periodFacts, workpapers] = companyCodes.length > 0
+  const selectedPeriodEnd = periodEndDate(selectedPeriod.year, selectedPeriod.month);
+  const [periodFacts, workpapers, exchangeRateRows, investmentRows, canadaCurrencyAccountCount] = companyCodes.length > 0
     ? await Promise.all([
         prisma.financePeriod.findMany({
           where: {
@@ -195,19 +210,82 @@ export async function loadConsolidationOverview(
             },
           },
         }),
+        prisma.financeStatementExchangeRate.findMany({
+          where: {
+            baseCurrency: "CAD",
+            quoteCurrency: "CNY",
+            rateDate: { lte: selectedPeriodEnd },
+          },
+          orderBy: [{ rateDate: "desc" }, { updatedAt: "desc" }],
+          take: 100,
+        }),
+        prisma.financeVoucherItem.findMany({
+          where: {
+            AND: [
+              { voucher: { companyCode: { in: companyCodes }, date: { lte: selectedPeriodEnd } } },
+              { account: { code: { startsWith: "1511" } } },
+              {
+                OR: [
+                  { description: { contains: "北美研究院" } },
+                  { voucher: { description: { contains: "北美研究院" } } },
+                ],
+              },
+            ],
+          },
+          select: {
+            id: true,
+            debit: true,
+            credit: true,
+            description: true,
+            currencyCode: true,
+            exchangeRate: true,
+            originalDebit: true,
+            originalCredit: true,
+            account: { select: { code: true } },
+            voucher: {
+              select: {
+                voucherNo: true,
+                date: true,
+                description: true,
+                companyCode: true,
+              },
+            },
+          },
+          orderBy: [{ voucher: { date: "desc" } }, { id: "desc" }],
+          take: 100,
+        }),
+        canadaCompanyCode
+          ? prisma.financeAccount.count({
+              where: {
+                companyCode: canadaCompanyCode,
+                currency: { in: ["CAD", "加元"] },
+              },
+            })
+          : Promise.resolve(0),
       ])
-    : [[], []];
+    : [[], [], [], [], 0];
   const factsByCompany = new Map(periodFacts.map((period) => [period.companyCode, period._count]));
   const workpapersByCompanyAndType = new Map(
     workpapers.map((workpaper) => [`${workpaper.companyCode}:${workpaper.reportType}`, workpaper]),
   );
   const companyRows = parent
     ? [
-        { code: parent.code, name: parent.fullName || parent.name, role: "母公司" as const, shareRatio: 1 },
+        {
+          relationId: null,
+          code: parent.code,
+          name: parent.fullName || parent.name,
+          role: "母公司" as const,
+          parentCode: null,
+          parentName: null,
+          shareRatio: 1,
+        },
         ...scopeRelations.map((relation) => ({
+          relationId: relation.id,
           code: relation.child.code,
           name: relation.child.fullName || relation.child.name,
           role: "子公司" as const,
+          parentCode: relation.parent.code,
+          parentName: relation.parent.fullName || relation.parent.name,
           shareRatio: relation.shareRatio,
         })),
       ]
@@ -237,6 +315,47 @@ export async function loadConsolidationOverview(
   const missingOwnership = scopeRelations.filter((relation) => relation.shareRatio === null).length;
   const missingSources = sources.filter((source) => source.kind === "missing").length;
   const fallbackSources = sources.filter((source) => source.kind === "system" || source.status === "draft").length;
+  const rates = exchangeRateRows.map(statementExchangeRateSnapshot);
+  const closingRate = rates.find((rate) =>
+    rate.rateKind === "closing"
+      && rate.status === "verified"
+      && isClosingRateNearPeriodEnd(rate.rateDate, selectedPeriodEnd),
+  ) ?? null;
+  const historicalRateCount = new Set(rates
+    .filter((rate) => rate.rateKind === "historicalInvestment" && rate.status === "verified")
+    .map((rate) => rate.rateDate)).size;
+  const investmentEvidence: ConsolidationOverview["fxPolicy"]["investmentEvidence"] = investmentRows.map((item) => {
+    const originalAmount = Number(item.originalDebit ?? item.originalCredit ?? 0) || null;
+    const transactionRate = item.exchangeRate ? Number(item.exchangeRate) : null;
+    return {
+      id: item.id,
+      companyCode: item.voucher.companyCode,
+      voucherNo: item.voucher.voucherNo,
+      voucherDate: item.voucher.date,
+      description: item.description || item.voucher.description,
+      accountCode: item.account.code,
+      bookedAmountCny: Math.max(item.debit, item.credit),
+      currencyCode: item.currencyCode,
+      originalAmount,
+      transactionRate,
+      rateStatus: originalAmount === null
+        ? "missingOriginalCurrency"
+        : transactionRate === null
+          ? "missingRate"
+          : "recorded",
+    };
+  });
+  const missingInvestmentRateCount = investmentEvidence.filter((item) => item.rateStatus !== "recorded").length;
+  const canadaEntity = entities.find((entity) => entity.code === "05" || entity.name.includes("加拿大"));
+  const canadaSourceStatementsReady = canadaEntity
+    ? [canadaEntity.balanceSheet, canadaEntity.incomeStatement, canadaEntity.cashFlow]
+        .every((source) => source.kind !== "missing") && canadaCurrencyAccountCount > 0
+    : true;
+  const fxStatus = closingRate && historicalRateCount > 0 && canadaSourceStatementsReady
+    ? "ready"
+    : rates.length > 0
+      ? "partiallyConfigured"
+      : "notConfigured";
   const checks: ConsolidationOverview["checks"] = [
     {
       key: "scope",
@@ -251,8 +370,8 @@ export async function loadConsolidationOverview(
       label: "股权比例与少数股东口径",
       status: missingOwnership === 0 && scopeRelations.length > 0 ? "ready" : "blocked",
       detail: missingOwnership === 0
-        ? "纳入合并的子公司均已维护持股比例"
-        : `${missingOwnership} 家子公司缺少持股比例，无法计算少数股东权益和损益`,
+        ? `已从 CompanyRelation 公司关系表读取 ${scopeRelations.length} 条持股事实`
+        : `CompanyRelation 已有 ${scopeRelations.length} 条并表关系，其中 ${missingOwnership} 条比例未填；需先确认直接持股链路再计算少数股东权益`,
     },
     {
       key: "sources",
@@ -267,8 +386,18 @@ export async function loadConsolidationOverview(
     {
       key: "fx",
       label: "外币折算与汇率复核",
-      status: "blocked",
-      detail: "尚无外币本位币、历史汇率、期末折算价和折算差额的可追溯主数据",
+      status: !canadaSourceStatementsReady || !closingRate
+        ? "blocked"
+        : missingInvestmentRateCount > 0 || historicalRateCount === 0
+          ? "attention"
+          : "ready",
+      detail: !canadaSourceStatementsReady
+        ? `汇率证据台账已启用，但加拿大 ${selectedPeriod.year}年${selectedPeriod.month}月 个别三表尚不完整，不能计算整表折算`
+        : !closingRate
+          ? `尚缺 ${selectedPeriodEnd} 或此前最近一个营业日经复核的中行折算价`
+          : missingInvestmentRateCount > 0
+            ? `期末折算价已复核；另有 ${missingInvestmentRateCount} 笔北美研究院投资付款缺少原币或投资日汇率证据`
+            : `期末折算价及 ${historicalRateCount} 个投资日历史汇率已复核`,
     },
     {
       key: "eliminations",
@@ -303,12 +432,14 @@ export async function loadConsolidationOverview(
     entities,
     checks,
     eliminations: [
-      { key: "investment-equity", label: "长期股权投资与子公司权益", description: "抵销母公司投资与子公司所有者权益，并拆分少数股东权益。", status: "notStarted" },
-      { key: "intercompany-balances", label: "内部往来与减值", description: "核对并抵销应收应付、借款、资金往来及相关坏账准备。", status: "notStarted" },
-      { key: "internal-trading", label: "内部交易与未实现损益", description: "抵销内部收入成本、存货和长期资产未实现损益及后续折旧摊销。", status: "notStarted" },
-      { key: "income-dividend", label: "投资收益、利息与股利", description: "抵销内部利息、股利和投资收益，保留对外交易结果。", status: "notStarted" },
-      { key: "cash-flow", label: "内部现金流", description: "抵销母子公司及子公司之间的内部现金收付。", status: "notStarted" },
-      { key: "tax", label: "所得税影响", description: "计算抵销分录产生的递延所得税影响。", status: "notStarted" },
+      { key: "investment-equity", label: "长期股权投资与子公司权益", description: "抵销母公司投资与子公司归属于合并前的权益。", workpaper: "investmentEquity", requiredEvidence: "投资协议、出资凭证、子公司权益变动表", reviewCheck: "投资成本、购买日净资产与合并商誉/差额勾稽", status: "notStarted" },
+      { key: "non-controlling-interest", label: "少数股东权益与损益", description: "按直接持股链路和归属期间拆分少数股东权益、损益及综合收益。", workpaper: "investmentEquity", requiredEvidence: "CompanyRelation 持股比例、章程、权益变动", reviewCheck: "期初、本期增减、期末及少数股东损益滚动一致", status: "notStarted" },
+      { key: "intercompany-balances", label: "内部往来、借款与减值", description: "核对并抵销应收应付、借款、资金往来及相关坏账准备。", workpaper: "balancesTransactions", requiredEvidence: "双方科目余额、往来对账单、账龄和减值明细", reviewCheck: "债权债务、利息及减值准备成对相等", status: "notStarted" },
+      { key: "internal-trading", label: "内部交易与存货未实现损益", description: "抵销内部收入成本并计算期末存货中的未实现利润。", workpaper: "balancesTransactions", requiredEvidence: "内部销售明细、毛利率、期末存货去向", reviewCheck: "本期交易抵销与期末/期初未实现损益滚动一致", status: "notStarted" },
+      { key: "internal-long-term-assets", label: "内部长期资产交易", description: "抵销固定/无形资产内部交易损益，并调整后续折旧摊销。", workpaper: "balancesTransactions", requiredEvidence: "资产卡片、内部处置凭证、剩余年限", reviewCheck: "原值、累计折旧摊销及处置损益连续滚动", status: "notStarted" },
+      { key: "income-dividend", label: "投资收益、利息与股利", description: "抵销内部利息、股利和投资收益，保留对外交易结果。", workpaper: "balancesTransactions", requiredEvidence: "利息台账、利润分配决议、收付款凭证", reviewCheck: "收入费用及应收应付两侧同时抵销", status: "notStarted" },
+      { key: "cash-flow", label: "内部现金流", description: "抵销母子公司及子公司之间的内部现金收付。", workpaper: "cashFlow", requiredEvidence: "双方现金流项目、银行流水和对应抵销分录", reviewCheck: "经营/投资/筹资分类两侧匹配且现金净变动勾稽", status: "notStarted" },
+      { key: "tax", label: "抵销产生的所得税影响", description: "按可抵扣/应纳税暂时性差异计算递延所得税。", workpaper: "tax", requiredEvidence: "抵销分录、税率依据、可转回期间和可抵扣性判断", reviewCheck: "暂时性差异乘适用税率，并与递延所得税科目勾稽", status: "notStarted" },
     ],
     fxPolicy: {
       pair: "CAD/CNY",
@@ -316,10 +447,15 @@ export async function loadConsolidationOverview(
       sourceField: "中行折算价",
       unit: "人民币/100外币",
       sourceUrl: "https://www.boc.cn/sourcedb/whpj/",
-      status: "notConfigured",
-      closingRate: null,
-      historicalRateCount: 0,
-      note: "汇率源和取数时点尚未持久化；当前仅展示应执行的折算规则，不自动抓取或入账。",
+      status: fxStatus,
+      periodEndDate: selectedPeriodEnd,
+      closingRate,
+      historicalRateCount,
+      rates,
+      investmentEvidence,
+      missingInvestmentRateCount,
+      canadaSourceStatementsReady,
+      note: "中行历史牌价查询没有稳定公开 JSON API，系统保存人工核验后的来源快照；折算结果只在加拿大原币三表和汇率口径齐备后计算。",
     },
     outputs: [
       { key: "balanceSheet", label: "合并资产负债表", status: "unpublished", description: "完成范围、折算、抵销和复核锁定后生成。" },

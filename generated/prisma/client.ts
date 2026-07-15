@@ -331,6 +331,12 @@ export type FinanceStatementWorkpaper = Prisma.FinanceStatementWorkpaperModel
  */
 export type FinanceStatementWorkpaperLine = Prisma.FinanceStatementWorkpaperLineModel
 /**
+ * Model FinanceStatementExchangeRate
+ * 外币报表汇率证据快照（事实表，来源于中国银行牌价页人工录入并复核）
+ * 只保存牌价日期、牌价值、来源时间和复核事实；折算金额及折算差额由 service 计算
+ */
+export type FinanceStatementExchangeRate = Prisma.FinanceStatementExchangeRateModel
+/**
  * Model FinanceCurrency
  * ERP 币种来源主数据
  */

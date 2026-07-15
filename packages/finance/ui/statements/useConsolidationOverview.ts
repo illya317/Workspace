@@ -10,6 +10,7 @@ export function useConsolidationOverview() {
   const [month, setMonth] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -41,7 +42,7 @@ export function useConsolidationOverview() {
         if (!controller.signal.aborted) setLoading(false);
       });
     return () => controller.abort();
-  }, [month, year]);
+  }, [month, refreshKey, year]);
 
   const selectYear = useCallback((nextYear: number) => {
     const nextMonth = data?.scope.availablePeriods.find((period) => period.year === nextYear)?.month ?? 12;
@@ -57,5 +58,6 @@ export function useConsolidationOverview() {
     month,
     setYear: selectYear,
     setMonth,
+    refresh: () => setRefreshKey((current) => current + 1),
   };
 }

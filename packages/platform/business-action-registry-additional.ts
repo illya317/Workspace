@@ -24,6 +24,12 @@ const FINANCE_LEDGER = {
   originHrefPattern: "/finance/ledger",
 } as const;
 
+const FINANCE_STATEMENTS = {
+  moduleKey: "finance",
+  resourceKey: "finance.statements",
+  originHrefPattern: "/finance/statements",
+} as const;
+
 const FINANCE_BUDGET = {
   moduleKey: "finance",
   resourceKey: "finance.budget",
@@ -456,6 +462,7 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.asset.update", label: "更新资产卡片", writeKind: "update", targetKind: "FinanceAssetCard", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/finance/ledger/assets")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetAdjustment.create", label: "补录折旧摊销调整", writeKind: "revise", targetKind: "FinanceAssetAdjustment", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-adjustments")] },
   { ...FINANCE_LEDGER, ...PERMISSION_ONLY, key: "finance.ledger.assetPeriod.recalculate", label: "重算折旧摊销期间", writeKind: "revise", targetKind: "FinanceAssetPeriodEntry", directPermissionAction: "revise", apiRoutes: [route("POST", "/api/modules/finance/ledger/asset-periods/recalculate")] },
+  { ...FINANCE_STATEMENTS, ...PERMISSION_ONLY, key: "finance.statements.exchangeRate.save", label: "保存报表汇率证据", writeKind: "create", targetKind: "FinanceStatementExchangeRate", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/statements/consolidation/exchange-rates")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.import", label: "导入预算数据", writeKind: "import", targetKind: "FinanceBudgetImport", directPermissionAction: "import", apiRoutes: [route("POST", "/api/modules/finance/budget")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.create", label: "创建预算版本", writeKind: "create", targetKind: "BudgetVersion", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/finance/budget/versions")] },
   { ...FINANCE_BUDGET, ...PERMISSION_ONLY, key: "finance.budget.version.activate", label: "启用预算版本", writeKind: "approve", targetKind: "BudgetVersion", directPermissionAction: "approve", apiRoutes: [route("POST", "/api/modules/finance/budget/versions/:id/activate")] },
