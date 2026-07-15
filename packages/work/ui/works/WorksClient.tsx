@@ -147,6 +147,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const canCreateItem = Boolean(itemCreateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
   const canUpdateItem = Boolean(itemUpdateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
   const canSubmitPlanRevision = Boolean(canSubmitApproval && activePlan?.kind === "okr" && activePlan.objectiveApprovedAt);
+  const canReviseCompletedPlan = Boolean(activePlan?.status === "done" && !activePlan.isArchived && canEdit && !canSubmitPlanRevision);
   const worksState = useWorks(currentSpace, activePlanId);
   const activeRoutineTask = useMemo(() => activeRoutineTaskId
     ? worksState.works.find((work) => work.id === activeRoutineTaskId && work.routineTaskType === "task") ?? null
@@ -881,6 +882,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     canEditPlan,
     canDeletePlan: canDelete && activePlan?.kind !== "routine" && !activePlan?.okrCycleId,
     canSubmitPlanApproval: canSubmitPlanRevision,
+    canReviseCompletedPlan,
     canSubmitObjectiveReview,
     canSubmitKrReview,
     canArchivePlan: canArchive && activePlan?.kind !== "routine",
@@ -900,8 +902,15 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     onDeletePlan: () => void planCommands.handleDeletePlan(),
     onSubmitObjectiveReview: () => void planCommands.handleSubmitObjectiveReview(),
     onSubmitKrReview: () => void planCommands.handleSubmitKrReview(),
+    onReviseCompletedPlan: () => {
+      setStatusFilter("active");
+      void planCommands.handleReviseCompletedPlan();
+    },
     onToggleKrReviewLock: () => void (activeOkrStage === "kr_open" ? planCommands.handleLockKrReview() : planCommands.handleOpenKrReviewNow()),
-    onSavePlan: () => void (canSubmitPlanRevision ? planCommands.handleSubmitPlanRevision() : planCommands.handleUpdatePlan()),
+    onSavePlan: () => {
+      if (activePlan?.status === "done") setStatusFilter("active");
+      void (canSubmitPlanRevision ? planCommands.handleSubmitPlanRevision() : planCommands.handleUpdatePlan());
+    },
   });
   const reportsBody = goalReportStage === "kr"
     ? createSpaceWorkbenchBody({ left: initialGoalPreview.leftNavigationBody, right: initialGoalPreview.rightBody, label: "职责与目标", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false })

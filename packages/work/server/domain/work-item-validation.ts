@@ -207,6 +207,8 @@ export function buildWorkItemCreateCommand(input: {
   parentWorkItemId?: number | null;
   parentPeriodWorkItemId?: number | null;
   previousPeriodWorkItemId?: number | null;
+  responsibilityNodeId?: number | null;
+  responsibilityPositionId?: number | null;
   participants?: string[];
   sortOrder?: number;
 }): DomainValidationResult<WorkItemCreateCommand> {
@@ -266,6 +268,10 @@ export function buildWorkItemCreateCommand(input: {
   if (!parentPeriodWorkItemId.ok) return parentPeriodWorkItemId;
   const previousPeriodWorkItemId = normalizeNullablePositiveId(input.previousPeriodWorkItemId, "前置节点");
   if (!previousPeriodWorkItemId.ok) return previousPeriodWorkItemId;
+  const responsibilityNodeId = normalizeNullablePositiveId(input.responsibilityNodeId, "关联职责");
+  if (!responsibilityNodeId.ok) return responsibilityNodeId;
+  const responsibilityPositionId = normalizeNullablePositiveId(input.responsibilityPositionId, "关联岗位");
+  if (!responsibilityPositionId.ok) return responsibilityPositionId;
   const usesDateWindow = isObjective || (isTask && effectiveRoutineTaskType !== "standing");
   const actualStartDate = usesDateWindow ? normalizeNullableDate(input.actualStartDate, "实际开始") : okCommand(null);
   if (!actualStartDate.ok) return actualStartDate;
@@ -337,6 +343,8 @@ export function buildWorkItemCreateCommand(input: {
     parentWorkItemId: parentWorkItemId.data,
     parentPeriodWorkItemId: parentPeriodWorkItemId.data,
     previousPeriodWorkItemId: previousPeriodWorkItemId.data,
+    responsibilityNodeId: responsibilityNodeId.data,
+    responsibilityPositionId: responsibilityPositionId.data,
     participants: input.participants ?? [],
     sortOrder,
   });
@@ -443,6 +451,12 @@ export function buildWorkItemUpdateCommand(
   for (const field of ["ownerEmployeeId", "collaborationId", "linkedProjectId", "linkedProjectPhaseId", "sourceMeetingId", "sourceMeetingDecisionId", "sourceMeetingActionCandidateId", "sourceDepartmentId", "parentWorkItemId", "parentPeriodWorkItemId", "previousPeriodWorkItemId"] as const) {
     if (data[field] === undefined) continue;
     const id = normalizeNullablePositiveId(data[field], "关联对象");
+    if (!id.ok) return id;
+    data[field] = id.data;
+  }
+  for (const field of ["responsibilityNodeId", "responsibilityPositionId"] as const) {
+    if (data[field] === undefined) continue;
+    const id = normalizeNullablePositiveId(data[field], field === "responsibilityNodeId" ? "关联职责" : "关联岗位");
     if (!id.ok) return id;
     data[field] = id.data;
   }

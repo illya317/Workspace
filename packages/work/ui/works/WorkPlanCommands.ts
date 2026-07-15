@@ -79,6 +79,21 @@ export function useWorkPlanCommands({
     }
   }
 
+  async function handleReviseCompletedPlan() {
+    if (!activePlan || activePlan.status !== "done" || activePlan.isArchived) return;
+    setPlanSaving(true);
+    try {
+      await updateWorkPlan(activePlan.id, { ...planDraft, status: "active", actualEndDate: null });
+      await Promise.all([loadSpaces(), loadPlans()]);
+      setActivePlanId(activePlan.id);
+      showToast("工作计划已进入修订", "success");
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : "修订工作计划失败", "error");
+    } finally {
+      setPlanSaving(false);
+    }
+  }
+
   async function handleSubmitCreatePlan(options?: { feedback?: boolean; rethrow?: boolean }) {
     if (!currentSpace || !planDraft.title.trim()) return;
     setPlanSaving(true);
@@ -135,7 +150,10 @@ export function useWorkPlanCommands({
     if (!activePlan || !planDraft.title.trim()) return;
     setPlanSaving(true);
     try {
-      const created = await saveWorkPlanRevisionSubmissionDraft(activePlan, planDraft, activePlan.id);
+      const revisionDraft = activePlan.status === "done"
+        ? { ...planDraft, status: "active" as const, actualEndDate: null }
+        : planDraft;
+      const created = await saveWorkPlanRevisionSubmissionDraft(activePlan, revisionDraft, activePlan.id);
       if (created.executionMode === "direct") {
         await Promise.all([loadSpaces(), loadPlans()]);
         setActivePlanId(activePlan.id);
@@ -251,6 +269,7 @@ export function useWorkPlanCommands({
     handleAdjustKrReviewOpenDate,
     handleLockKrReview,
     handleOpenKrReviewNow,
+    handleReviseCompletedPlan,
     handleUpdatePlan,
   };
 }

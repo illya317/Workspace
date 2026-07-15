@@ -142,8 +142,8 @@ export async function createWorkItem(opts: {
     category: command.data.category,
     routineTaskType: command.data.routineTaskType,
     ownerEmployeeId: command.data.ownerEmployeeId,
-    responsibilityNodeId: opts.responsibilityNodeId,
-    responsibilityPositionId: opts.responsibilityPositionId,
+    responsibilityNodeId: command.data.responsibilityNodeId,
+    responsibilityPositionId: command.data.responsibilityPositionId,
     responsibilityTouched: true,
   });
   if (responsibilityError) return { ok: false, error: responsibilityError, status: 400 };
@@ -220,9 +220,9 @@ export async function createWorkItem(opts: {
         referenceRole: "execution",
         workItemId: created.id,
       }, {
-        responsibilityNodeId: opts.responsibilityNodeId,
+        responsibilityNodeId: command.data.responsibilityNodeId,
         ownerEmployeeId: command.data.ownerEmployeeId,
-        positionId: opts.responsibilityPositionId,
+        positionId: command.data.responsibilityPositionId,
       });
       return tx.workItem.findUniqueOrThrow({
         where: { id: created.id },
@@ -403,15 +403,15 @@ export async function updateWorkItem(
   if (evidenceTaskIds !== undefined && effective.itemType !== "key_result") {
     return { ok: false, error: "只有 KR 可以关联任务证据", status: 400 };
   }
-  const responsibilityTouched = Object.prototype.hasOwnProperty.call(opts, "responsibilityNodeId");
+  const responsibilityTouched = Object.prototype.hasOwnProperty.call(command.data.data, "responsibilityNodeId");
   const responsibilityError = await validateWorkItemResponsibility({
     planId: effective.planId,
     itemType: effective.itemType,
     category: command.data.data.category ?? existing.category,
     routineTaskType: command.data.data.routineTaskType ?? existing.routineTaskType,
     ownerEmployeeId: command.data.data.ownerEmployeeId === undefined ? existing.ownerEmployeeId : command.data.data.ownerEmployeeId,
-    responsibilityNodeId: opts.responsibilityNodeId,
-    responsibilityPositionId: opts.responsibilityPositionId,
+    responsibilityNodeId: command.data.data.responsibilityNodeId,
+    responsibilityPositionId: command.data.data.responsibilityPositionId,
     responsibilityTouched,
   });
   if (responsibilityError) return { ok: false, error: responsibilityError, status: 400 };
@@ -488,9 +488,9 @@ export async function updateWorkItem(
           referenceRole: "execution",
           workItemId: command.data.workId,
         }, {
-          responsibilityNodeId: opts.responsibilityNodeId,
+          responsibilityNodeId: command.data.data.responsibilityNodeId,
           ownerEmployeeId: command.data.data.ownerEmployeeId === undefined ? existing.ownerEmployeeId : command.data.data.ownerEmployeeId,
-          positionId: opts.responsibilityPositionId,
+          positionId: command.data.data.responsibilityPositionId,
         });
       }
       return tx.workItem.findUniqueOrThrow({

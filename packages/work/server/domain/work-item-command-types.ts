@@ -43,6 +43,8 @@ export interface WorkItemCreateCommand {
   parentWorkItemId: number | null;
   parentPeriodWorkItemId: number | null;
   previousPeriodWorkItemId: number | null;
+  responsibilityNodeId: number | null;
+  responsibilityPositionId: number | null;
   participants: string[];
   sortOrder: number;
 }
@@ -92,6 +94,7 @@ export interface WorkItemUpdateCommand {
     parentWorkItemId?: number | null;
     parentPeriodWorkItemId?: number | null;
     previousPeriodWorkItemId?: number | null;
+    responsibilityNodeId?: number | null;
     responsibilityPositionId?: number | null;
     participants?: string[];
     sortOrder?: number;

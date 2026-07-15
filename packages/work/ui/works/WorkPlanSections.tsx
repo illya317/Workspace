@@ -149,6 +149,7 @@ export function createWorkPlanContentSection({
   canSubmitPlanApproval,
   canSubmitObjectiveReview,
   canSubmitKrReview,
+  canReviseCompletedPlan,
   canArchivePlan,
   canAdjustKrReview,
   krUnlocked,
@@ -167,6 +168,7 @@ export function createWorkPlanContentSection({
   onSavePlan,
   onSubmitObjectiveReview,
   onSubmitKrReview,
+  onReviseCompletedPlan,
   onToggleKrReviewLock,
 }: {
   planCreating: boolean;
@@ -179,6 +181,7 @@ export function createWorkPlanContentSection({
   canSubmitPlanApproval: boolean;
   canSubmitObjectiveReview: boolean;
   canSubmitKrReview: boolean;
+  canReviseCompletedPlan: boolean;
   canArchivePlan: boolean;
   canAdjustKrReview: boolean;
   krUnlocked: boolean;
@@ -197,6 +200,7 @@ export function createWorkPlanContentSection({
   onSavePlan: () => void;
   onSubmitObjectiveReview: () => void;
   onSubmitKrReview: () => void;
+  onReviseCompletedPlan: () => void;
   onToggleKrReviewLock: () => void;
 }): BodySurfaceSectionSpec {
   const canEditPlanDraft = canEditPlan || canSubmitPlanApproval || canSubmitObjectiveReview;
@@ -224,7 +228,7 @@ export function createWorkPlanContentSection({
         onToggleKrReviewLock,
       })
       : undefined;
-  const showPlanForm = Boolean(activePlan && !isRoutinePlan && (canEditPlanDraft || canArchivePlan));
+  const showPlanForm = Boolean(activePlan && !isRoutinePlan && canEditPlanDraft);
   return createPanelSection("tasks", {
     ...(showPlanForm ? {} : { title: sectionTitle }),
     sections: [
@@ -243,6 +247,7 @@ export function createWorkPlanContentSection({
           workPlanHeaderSection(activePlan, workPlanHeaderActions({
             canDeletePlan,
             canSubmitKrReview,
+            canReviseCompletedPlan,
             canArchivePlan,
             planArchived,
             canAdjustKrReview,
@@ -252,6 +257,7 @@ export function createWorkPlanContentSection({
             onArchivePlan,
             onDeletePlan,
             onSubmitKrReview,
+            onReviseCompletedPlan,
             onToggleKrReviewLock,
           })),
         ]),
@@ -274,6 +280,7 @@ export function createWorkPlanContentSection({
 function workPlanHeaderActions({
   canDeletePlan,
   canSubmitKrReview,
+  canReviseCompletedPlan,
   canArchivePlan,
   planArchived,
   canAdjustKrReview,
@@ -283,10 +290,12 @@ function workPlanHeaderActions({
   onArchivePlan,
   onDeletePlan,
   onSubmitKrReview,
+  onReviseCompletedPlan,
   onToggleKrReviewLock,
 }: {
   canDeletePlan: boolean;
   canSubmitKrReview: boolean;
+  canReviseCompletedPlan: boolean;
   canArchivePlan: boolean;
   planArchived: boolean;
   canAdjustKrReview: boolean;
@@ -296,10 +305,14 @@ function workPlanHeaderActions({
   onArchivePlan: () => void;
   onDeletePlan: () => void;
   onSubmitKrReview: () => void;
+  onReviseCompletedPlan: () => void;
   onToggleKrReviewLock: () => void;
 }): BodySurfaceCommandSpec[] | undefined {
   if (nodeCreating) return undefined;
   const actions: BodySurfaceCommandSpec[] = [];
+  if (canReviseCompletedPlan) {
+    actions.push({ key: "revise-plan", label: "修订", icon: "edit", variant: "secondary", onClick: onReviseCompletedPlan });
+  }
   if (canAdjustKrReview) {
     actions.push(
       { key: "toggle-kr-lock", label: krUnlocked ? "锁定KR" : "解锁KR", icon: krUnlocked ? "lock" : "unlock", variant: "secondary", onClick: onToggleKrReviewLock },

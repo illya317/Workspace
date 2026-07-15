@@ -73,7 +73,6 @@ function normalizePositiveId(value: unknown) {
   const id = Number(value);
   return Number.isInteger(id) && id > 0 ? id : null;
 }
-
 function normalizeNullablePositiveId(value: unknown) {
   if (value === null || value === undefined || value === "") return null;
   return normalizePositiveId(value);
@@ -318,6 +317,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (opts.status !== undefined && !isCompletedStatus(opts.status) && opts.actualEndDate) {
     return { ok: false, error: "请先选择已完成，再填写实际结束", status: 400 };
   }
+  const reopeningCompletedPlan = existing.status === "done" && opts.status === "active";
   const command = await normalizeWorkPlanInput({
     ...existing,
     ...opts,
@@ -327,7 +327,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   });
   if (!command.ok) return { ok: false, error: command.error, status: 400 };
   const nextKind = String(command.data.kind ?? existing.kind);
-  if (nextKind === "okr" && opts.updateGuard !== "workflow-approved") {
+  if (nextKind === "okr" && opts.updateGuard !== "workflow-approved" && !reopeningCompletedPlan) {
     const stageGuard = await assertWorkPlanHeaderStageAllowed(id);
     if (!stageGuard.ok) return stageGuard;
   }
@@ -351,10 +351,11 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
     alignment: command.alignment,
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
+  const updateData = reopeningCompletedPlan && existing.kind === "okr" ? { ...command.data, okrStage: "executing" } : command.data;
   const row = await prisma.$transaction(async (tx) => {
     await tx.workPlan.update({
       where: { id },
-      data: command.data,
+      data: updateData,
     });
     await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
     return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });

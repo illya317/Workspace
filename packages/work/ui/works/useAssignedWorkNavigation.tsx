@@ -86,6 +86,7 @@ export function useAssignedWorkNavigation({
       canSubmitPlanApproval: false,
       canSubmitObjectiveReview: false,
       canSubmitKrReview: false,
+      canReviseCompletedPlan: false,
       canArchivePlan: false,
       canAdjustKrReview: false,
       krUnlocked: false,
@@ -103,6 +104,7 @@ export function useAssignedWorkNavigation({
       onSavePlan: noop,
       onSubmitObjectiveReview: noop,
       onSubmitKrReview: noop,
+      onReviseCompletedPlan: noop,
       onToggleKrReviewLock: noop,
     }),
     assignedNavigationBody: activeView === WORK_TASKS_OWNED_VIEW_KEY ? null : assignedPlanNavigationBody({
