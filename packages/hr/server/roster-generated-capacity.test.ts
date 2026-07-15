@@ -64,11 +64,56 @@ test("default HR generated roster reads only the requested database page", async
 
   assert.equal(countCalls.length, 1);
   assert.equal(findManyCalls.length, 1);
-  assert.deepEqual(findManyCalls[0]?.where, { employments: { some: { isActive: true } } });
+  assert.deepEqual(findManyCalls[0]?.where, {
+    employments: {
+      some: { isActive: true },
+      none: { isActive: true, title: "顾问" },
+    },
+  });
   assert.equal(findManyCalls[0]?.skip, 50);
   assert.equal(findManyCalls[0]?.take, 50);
   assert.equal(preview.totalEmployees, 173);
   assert.equal(preview.groups.length, 1);
+});
+
+test("generated roster cannot be widened to former employees by the legacy status input", async () => {
+  countCalls.length = 0;
+  findManyCalls.length = 0;
+
+  const preview = await previewRosterGenerated({
+    variant: "management",
+    status: "inactive",
+    page: 1,
+    pageSize: 50,
+  });
+
+  assert.equal(preview.filters.status, "active");
+  assert.deepEqual(findManyCalls[0]?.where, {
+    employments: {
+      some: { isActive: true },
+      none: { isActive: true, title: "顾问" },
+    },
+  });
+});
+
+test("searched generated roster uses the same active non-consultant scope", async () => {
+  countCalls.length = 0;
+  findManyCalls.length = 0;
+
+  await previewRosterGenerated({
+    variant: "management",
+    keyword: "测试",
+    page: 1,
+    pageSize: 50,
+  });
+
+  assert.equal(countCalls.length, 0);
+  assert.deepEqual(findManyCalls[0]?.where, {
+    employments: {
+      some: { isActive: true },
+      none: { isActive: true, title: "顾问" },
+    },
+  });
 });
 
 test("due-diligence roster exposes exactly the requested default columns", async () => {

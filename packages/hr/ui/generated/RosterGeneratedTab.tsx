@@ -19,15 +19,8 @@ import type {
   RosterGeneratedFilterField,
   RosterGeneratedGroup,
   RosterGeneratedPreview,
-  RosterGeneratedStatus,
   RosterGeneratedVariant,
 } from "@workspace/hr/types";
-
-const statusOptions = [
-  { value: "all", label: "全部" },
-  { value: "active", label: "在职" },
-  { value: "inactive", label: "离职" },
-];
 
 type RosterPreviewQuery = {
   keyword?: string;
@@ -37,7 +30,6 @@ type RosterPreviewQuery = {
 
 export default function RosterGeneratedTab({ variant, canExport, surface }: { variant: RosterGeneratedVariant; canExport: boolean; surface?: RosterSurfaceTabBarProps }) {
   const [keyword, setKeyword] = useState("");
-  const [status, setStatus] = useState<RosterGeneratedStatus>("all");
   const [preview, setPreview] = useState<RosterGeneratedPreview | null>(null);
   const [groups, setGroups] = useState<RosterGeneratedGroup[]>([]);
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
@@ -75,7 +67,6 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
     try {
       const params = new URLSearchParams({
         variant,
-        status,
         pageSize,
       });
       const { keyword: currentKeyword = "", filterField: currentFilterField = "", filterValue: currentFilterValue = "" } = query;
@@ -96,7 +87,7 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
     } finally {
       setLoading(false);
     }
-  }, [pageSize, status, variant]);
+  }, [pageSize, variant]);
 
   useEffect(() => {
     currentQueryRef.current = { keyword, filterField, filterValue };
@@ -143,7 +134,6 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
     try {
       const params = new URLSearchParams({
         variant,
-        status,
         fields: visibleColumns.join(","),
       });
       if (keyword.trim()) params.set("keyword", keyword.trim());
@@ -176,13 +166,6 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
       onChange: setKeyword,
       placeholder: "搜索员工、公司、部门、岗位",
       ariaLabel: "搜索员工、公司、部门、岗位",
-    },
-    filters: {
-      configs: [{ key: "status", label: "人员状态", type: "select", options: statusOptions }],
-      values: { status },
-      onChange: (key, value) => {
-        if (key === "status") setStatus(value as RosterGeneratedStatus);
-      },
     },
     advancedFilter: {
       fields: filterFields,

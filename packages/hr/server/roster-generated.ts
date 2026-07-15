@@ -80,7 +80,7 @@ type RosterEmployeeRecord = Awaited<ReturnType<typeof loadRosterEmployees>>[numb
 
 export async function previewRosterGenerated(input: RosterGeneratedPreviewInput): Promise<RosterGeneratedPreview> {
   const variant = normalizeVariant(input.variant);
-  const status = normalizeStatus(input.status);
+  const status: RosterGeneratedStatus = "active";
   const page = Math.max(1, input.page ?? 1);
   const pageSize = Math.min(10000, Math.max(1, input.pageSize ?? 50));
   const columns = columnsForVariant(variant);
@@ -93,7 +93,7 @@ export async function previewRosterGenerated(input: RosterGeneratedPreviewInput)
   };
   const defaultPage = !filters.keyword && !(filters.filterField && filters.filterValue);
   const { paged, totalEmployees } = defaultPage
-    ? await loadRosterEmployeePage({ status, page, pageSize })
+    ? await loadRosterEmployeePage({ page, pageSize })
     : await loadFilteredRosterEmployeePage(filters, page, pageSize);
   const groups = paged.map((employee) => buildGroup(employee, variant));
 
@@ -149,6 +149,7 @@ function columnsForVariant(variant: RosterGeneratedVariant) {
 
 async function loadRosterEmployees() {
   return prisma.employee.findMany({
+    where: rosterEmployeeWhere(),
     include: {
       employments: {
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
@@ -165,18 +166,20 @@ async function loadRosterEmployees() {
   });
 }
 
-function rosterEmployeeWhere(status: RosterGeneratedStatus): Prisma.EmployeeWhereInput {
-  if (status === "active") return { employments: { some: { isActive: true } } };
-  if (status === "inactive") return { employments: { none: { isActive: true } } };
-  return {};
+function rosterEmployeeWhere(): Prisma.EmployeeWhereInput {
+  return {
+    employments: {
+      some: { isActive: true },
+      none: { isActive: true, title: "顾问" },
+    },
+  };
 }
 
 async function loadRosterEmployeePage(input: {
-  status: RosterGeneratedStatus;
   page: number;
   pageSize: number;
 }) {
-  const where = rosterEmployeeWhere(input.status);
+  const where = rosterEmployeeWhere();
   const [totalEmployees, paged] = await Promise.all([
     prisma.employee.count({ where }),
     prisma.employee.findMany({
@@ -215,16 +218,13 @@ async function loadFilteredRosterEmployeePage(
 
 function filterEmployees(
   employees: RosterEmployeeRecord[],
-  filters: Required<Pick<RosterGeneratedFilters, "variant" | "status">> & {
+  filters: Required<Pick<RosterGeneratedFilters, "variant">> & {
     keyword: string;
     filterField: string;
     filterValue: string;
   },
 ) {
   return employees.filter((employee) => {
-    const active = isEmployeeActive(employee);
-    if (filters.status === "active" && !active) return false;
-    if (filters.status === "inactive" && active) return false;
     const primaryEmployment = primaryEmploymentFor(employee);
     const primaryPosition = employee.positions[0];
     const searchable = {
@@ -322,11 +322,6 @@ function genderLabel(value: boolean | null) {
 
 function normalizeVariant(value: RosterGeneratedVariant): RosterGeneratedVariant {
   return value === "dueDiligence" ? "dueDiligence" : "management";
-}
-
-function normalizeStatus(value?: RosterGeneratedStatus): RosterGeneratedStatus {
-  if (value === "active" || value === "inactive") return value;
-  return "all";
 }
 
 function escapeCsvCell(value: unknown) {
