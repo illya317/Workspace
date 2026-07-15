@@ -268,7 +268,7 @@ export const registeredModuleDefinitions = [
       iconKey: "production",
       color: "cyan",
       resourceKey: "inventory",
-      resourceSortOrder: 4.5,
+      resourceSortOrder: 5,
       children: [
         { key: "operations", label: "库存运营", desc: "物料卡片、批次流水、盘点、导入与成本结转", href: "/inventory/operations", iconKey: "ledger", color: "cyan", resourceKey: "inventory.operations", apiPrefixes: ["/api/modules/inventory/operations"] },
       ],
