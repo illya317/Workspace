@@ -133,11 +133,11 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 
 ### 工作计划审批与 OKR 绩效
 
-组织空间工作项的新建/修改可以走通用审批链，平台规则见 `docs/engineering/approvals.md`。目标审批配置按 8 个流程拆开：部门期初目标提交、个人期初目标提交、部门期初目标修订、个人期初目标修订、部门考核结果提交、个人考核结果提交、部门考核结果修订、个人考核结果修订。项目空间参与目标考核，但不新增独立项目流程族；部门项目按赋能部门解析管控空间，公司项目按运营委员会解析，其他项目按公司空间解析。工作计划草稿直接保存；第一次目标确认通过后，计划 summary、O 结构和目标口径默认锁定，实质修改走 `work.tasks.goal.department.objective.revise` / `work.tasks.goal.personal.objective.revise`。目标考核表按 `targetType + targetId + periodType + periodStart + reportStage` 保存周期快照，内容来自同空间未结束目标计划和日常工作细项。
+组织空间普通工作节点的新建/修改默认按 `create/update` 权限直接写入；管理员可以分别对 `work.tasks.item.create` / `work.tasks.item.update` 显式接入通用审批链，平台规则见 `docs/engineering/approvals.md`。目标审批配置按 8 个流程拆开：部门期初目标提交、个人期初目标提交、部门期初目标修订、个人期初目标修订、部门考核结果提交、个人考核结果提交、部门考核结果修订、个人考核结果修订。项目空间参与目标考核，但不新增独立项目流程族；部门项目按赋能部门解析管控空间，公司项目按运营委员会解析，其他项目按公司空间解析。工作计划草稿直接保存；第一次目标确认通过后，计划 summary、O 结构和目标口径默认锁定，实质修改走 `work.tasks.goal.department.objective.revise` / `work.tasks.goal.personal.objective.revise`。目标考核表按 `targetType + targetId + periodType + periodStart + reportStage` 保存周期快照，内容来自同空间未结束目标计划和日常工作细项。
 
 - personal、department、company、committee 都不形成独立流程配置入口；流程策略统一按 base `businessActionKey` 维护，空间仍可作为权限台账和流程台账的上下文。
 - 新的组织空间审批使用部门空间派生资源 `space.department.tasks`，并通过 `projection: "space"` 计算 `submit` / `approve`；运营委员会按其部门 ID 处理。审批单始终写 base action key，`space.committee.tasks` / `space.company.tasks` 只保留权限与历史 scope 解析语义。
-- 有直接 `create/update` 权限时仍可直接保存正式 `WorkItem`；有 `submit` 权限时可提交审核；两个权限同时存在时 UI 同时展示“保存”和“提交审核”。
+- `work.tasks.item.create/update` 必须出现在流程设置中：关闭或未设置时按空间 `create/update` 权限直接保存，显式接入流程后才展示提交审核并创建 `ApprovalRequest`；UI 和服务端都读取同一有效策略，不允许隐藏运行时默认值绕过管理员配置。
 - `submit` 用户可以创建草稿、提交、撤回、修订、取消自己的审批单，但不能因此直接写正式 `WorkItem`。
 - `approve` 用户可以审核修改、同意、驳回；同意后复用 WorkItem create/update validator 和 service 写入正式数据。
 - 被驳回审批单不新建链条，发起人在同一审批单上 `revise + submit`，事件链持续追加。

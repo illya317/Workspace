@@ -164,9 +164,9 @@ export const BUSINESS_ACTION_REGISTRATIONS = [
     targetKind: "WorkItem",
     directPermissionAction: "create",
     workflowCategoryKey: "collaboration",
-    settingsVisibility: "runtime_only",
+    settingsSortOrder: 601,
     apiRoutes: [route("POST", "/api/modules/work/tasks")],
-    notes: "Legacy generic WorkItem approval runtime key. Work target workflow settings now use the 8 explicit target action keys.",
+    notes: "组织空间工作节点默认按 create 权限直接写入；管理员显式接入流程后复用同一 validator 和 commit 进入审批。",
   },
   {
     ...WORK_TASKS,
@@ -177,9 +177,9 @@ export const BUSINESS_ACTION_REGISTRATIONS = [
     targetKind: "WorkItem",
     directPermissionAction: "update",
     workflowCategoryKey: "collaboration",
-    settingsVisibility: "runtime_only",
+    settingsSortOrder: 602,
     apiRoutes: [route("PUT", "/api/modules/work/tasks/:id")],
-    notes: "Legacy generic WorkItem approval runtime key. Work target workflow settings now use the 8 explicit target action keys.",
+    notes: "组织空间工作节点默认按 update 权限直接写入；管理员显式接入流程后复用同一 validator 和 commit 进入审批。",
   },
   {
     ...WORK_TASKS,
