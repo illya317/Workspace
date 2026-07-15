@@ -107,6 +107,7 @@ export const ModelName = {
   ReclassResult: 'ReclassResult',
   FinanceStatementWorkpaper: 'FinanceStatementWorkpaper',
   FinanceStatementWorkpaperLine: 'FinanceStatementWorkpaperLine',
+  FinanceStatementExchangeRate: 'FinanceStatementExchangeRate',
   FinanceCurrency: 'FinanceCurrency',
   FinanceBankAccount: 'FinanceBankAccount',
   DepartmentDescription: 'DepartmentDescription',
@@ -1369,6 +1370,31 @@ export const FinanceStatementWorkpaperLineScalarFieldEnum = {
 } as const
 
 export type FinanceStatementWorkpaperLineScalarFieldEnum = (typeof FinanceStatementWorkpaperLineScalarFieldEnum)[keyof typeof FinanceStatementWorkpaperLineScalarFieldEnum]
+
+
+export const FinanceStatementExchangeRateScalarFieldEnum = {
+  id: 'id',
+  baseCurrency: 'baseCurrency',
+  quoteCurrency: 'quoteCurrency',
+  rateKind: 'rateKind',
+  rateDate: 'rateDate',
+  rate: 'rate',
+  sourceName: 'sourceName',
+  sourceField: 'sourceField',
+  sourceUrl: 'sourceUrl',
+  publishedAt: 'publishedAt',
+  capturedAt: 'capturedAt',
+  status: 'status',
+  note: 'note',
+  version: 'version',
+  updatedBy: 'updatedBy',
+  verifiedBy: 'verifiedBy',
+  verifiedAt: 'verifiedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinanceStatementExchangeRateScalarFieldEnum = (typeof FinanceStatementExchangeRateScalarFieldEnum)[keyof typeof FinanceStatementExchangeRateScalarFieldEnum]
 
 
 export const FinanceCurrencyScalarFieldEnum = {

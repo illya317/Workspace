@@ -1272,6 +1272,30 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | workpaper | FinanceStatementWorkpaper | @relation(fields: [workpaperId], references: [id], onDelete: Cascade) |  |
 
+### FinanceStatementExchangeRate
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| baseCurrency | String | - |  |
+| quoteCurrency | String | - |  |
+| rateKind | String | - | closing | historicalInvestment | average |
+| rateDate | String | - | YYYY-MM-DD |
+| rate | Decimal | @db.Decimal(20, 8) | 人民币/100外币 |
+| sourceName | String | @default("中国银行外汇牌价") |  |
+| sourceField | String | @default("中行折算价") |  |
+| sourceUrl | String | - |  |
+| publishedAt | DateTime? | - |  |
+| capturedAt | DateTime | @default(now()) |  |
+| status | String | @default("draft") | draft | verified |
+| note | String? | - |  |
+| version | Int | @default(1) |  |
+| updatedBy | Int? | - |  |
+| verifiedBy | Int? | - |  |
+| verifiedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+
 ### FinanceCurrency
 
 | 字段 | 类型 | 属性 | 说明 |
