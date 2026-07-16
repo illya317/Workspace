@@ -1,4 +1,3 @@
-import { randomBytes } from "crypto";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
@@ -18,83 +17,12 @@ import {
 import { primaryContractCompany } from "./employments";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { logEmployeeListDiagnostics, startEmployeeListDiagnostics } from "./employee-list-diagnostics";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
 const EMPLOYEE_DIRECTORY_POSITION_FILTER_FIELDS = new Set(["positionName", "directDepartmentName"]);
 const FAST_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education"]);
-
-interface EmployeeListDiagnostics {
-  requestId: string;
-  startedAt: number;
-  startMemory: NodeJS.MemoryUsage;
-  base: Record<string, unknown>;
-}
-
-function diagnosticsEnabled() {
-  return process.env.NODE_ENV === "production" || process.env.HR_EMPLOYEE_LIST_DIAGNOSTICS === "1";
-}
-
-function toMiB(value: number) {
-  return Math.round(value / 1024 / 1024);
-}
-
-function createEmployeeListDiagnostics(input: {
-  employmentStatus?: "active" | "inactive";
-  isActive?: string | null;
-  company?: string;
-  department?: string;
-  position?: string;
-  keyword: string;
-  filterField?: string;
-  filterValue?: string;
-  page: number;
-  pageSize: number;
-}, branch: "fast" | "slow"): EmployeeListDiagnostics | null {
-  if (!diagnosticsEnabled()) return null;
-  return {
-    requestId: randomBytes(4).toString("hex"),
-    startedAt: Date.now(),
-    startMemory: process.memoryUsage(),
-    base: {
-      branch,
-      page: input.page,
-      pageSize: input.pageSize,
-      employmentStatus: input.employmentStatus ?? null,
-      isActive: input.isActive ?? null,
-      hasKeyword: Boolean(input.keyword),
-      keywordLength: input.keyword.length,
-      hasCompany: Boolean(input.company),
-      hasDepartment: Boolean(input.department),
-      hasPosition: Boolean(input.position),
-      filterField: input.filterField || null,
-      hasFilterValue: Boolean(input.filterValue),
-    },
-  };
-}
-
-function logEmployeeListDiagnostics(
-  diagnostics: EmployeeListDiagnostics | null,
-  step: string,
-  extra: Record<string, unknown> = {},
-) {
-  if (!diagnostics) return;
-  const memory = process.memoryUsage();
-  console.info("[hr.employees.list]", JSON.stringify({
-    requestId: diagnostics.requestId,
-    step,
-    elapsedMs: Date.now() - diagnostics.startedAt,
-    rssMiB: toMiB(memory.rss),
-    heapUsedMiB: toMiB(memory.heapUsed),
-    heapTotalMiB: toMiB(memory.heapTotal),
-    externalMiB: toMiB(memory.external),
-    arrayBuffersMiB: toMiB(memory.arrayBuffers),
-    rssDeltaMiB: toMiB(memory.rss - diagnostics.startMemory.rss),
-    heapUsedDeltaMiB: toMiB(memory.heapUsed - diagnostics.startMemory.heapUsed),
-    ...diagnostics.base,
-    ...extra,
-  }));
-}
 
 async function nextEmployeeId() {
   const [employees, users] = await Promise.all([
@@ -269,7 +197,7 @@ export async function listEmployees(input: {
     && !input.department
     && !input.position
     && (!input.filterField || FAST_DIRECTORY_FILTER_FIELDS.has(input.filterField));
-  const diagnostics = createEmployeeListDiagnostics(input, canUseFastDirectoryQuery ? "fast" : "slow");
+  const diagnostics = startEmployeeListDiagnostics(input, canUseFastDirectoryQuery ? "fast" : "slow");
   logEmployeeListDiagnostics(diagnostics, "start");
 
   if (canUseFastDirectoryQuery) {

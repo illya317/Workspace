@@ -12,6 +12,7 @@ import {
   normalizeCompanyRelationShareRatio,
   validateCompanyRelationDateRange,
 } from "./company-relation-rules";
+import { buildHrPageDraftEnvelopeCommand } from "./page-draft-validation";
 
 export const COMPANY_RELATION_ALLOWED_FIELDS = [
   "parentId",
@@ -21,6 +22,25 @@ export const COMPANY_RELATION_ALLOWED_FIELDS = [
   "effectiveFrom",
   "effectiveTo",
 ];
+
+export interface CompanyRelationPageDraftPatch {
+  parentId?: number;
+  childId?: number;
+  shareRatio?: number | null;
+  isConsolidated?: boolean;
+  effectiveFrom?: Date | null;
+  effectiveTo?: Date | null;
+}
+
+export interface CompanyRelationPageDraftInput {
+  userId: number;
+  changes: Array<{
+    id: number;
+    field: string;
+    value: unknown;
+    expectedVersion: number;
+  }>;
+}
 
 async function validateCompanyId(value: unknown, label: string) {
   if (value === null || value === undefined || value === "") return failCommand(`该字段不能为空，请先选择有效的${label}。`);
@@ -83,6 +103,40 @@ export async function buildCompanyRelationFieldUpdateCommand(
       : okCommand({ field, value: date });
   }
   return okCommand({ field, value });
+}
+
+export async function buildCompanyRelationPageDraftCommand(input: CompanyRelationPageDraftInput) {
+  const envelope = buildHrPageDraftEnvelopeCommand(input);
+  if (!envelope.ok) return envelope;
+  const expectedVersionById = new Map<number, number>();
+  const changes: Array<{
+    id: number;
+    expectedVersion: number;
+    data: CompanyRelationPageDraftPatch;
+  }> = [];
+
+  for (const change of input.changes) {
+    if (!Number.isInteger(change.expectedVersion) || change.expectedVersion < 0) {
+      return failCommand("记录版本无效，请刷新后重试", 400, "expectedVersion");
+    }
+    const previousVersion = expectedVersionById.get(change.id);
+    if (previousVersion !== undefined && previousVersion !== change.expectedVersion) {
+      return failCommand("同一记录的版本必须一致，请刷新后重试", 400, "expectedVersion");
+    }
+    if (!COMPANY_RELATION_ALLOWED_FIELDS.includes(change.field)) {
+      return failCommand("非法字段", 400, "field");
+    }
+    const normalized = await buildCompanyRelationFieldUpdateCommand(change.field, change.value);
+    if (!normalized.ok) return normalized;
+    expectedVersionById.set(change.id, change.expectedVersion);
+    changes.push({
+      id: change.id,
+      expectedVersion: change.expectedVersion,
+      data: { [normalized.data.field]: normalized.data.value } as CompanyRelationPageDraftPatch,
+    });
+  }
+
+  return okCommand({ userId: input.userId, changes });
 }
 
 export async function validateCompanyRelationDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {

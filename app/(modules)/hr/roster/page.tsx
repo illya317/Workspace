@@ -4,10 +4,16 @@ import { HRClient } from "@workspace/hr/ui";
 
 export default async function HrRosterPage() {
   const user = await requireRouteAccess("/hr/roster");
-  const [canArchiveRoster, canExportGeneratedRoster, canCreateEmployee] = await Promise.all([
+  const [
+    canArchiveRoster,
+    canExportGeneratedRoster,
+    canCreateRoster,
+    canDeleteCompanyRelation,
+  ] = await Promise.all([
     evaluatePermissionAction(user.id, "hr.roster", "archive"),
     evaluatePermissionAction(user.id, "hr.roster.generated", "export"),
     evaluatePermissionAction(user.id, "hr.roster", "create"),
+    evaluatePermissionAction(user.id, "hr.roster", "delete"),
   ]);
 
   return renderAppShellPage({
@@ -20,7 +26,9 @@ export default async function HrRosterPage() {
         hideShell
         canArchiveRoster={canArchiveRoster}
         canExportGeneratedRoster={canExportGeneratedRoster}
-        canCreateEmployee={canCreateEmployee}
+        canCreateEmployee={canCreateRoster}
+        canCreateCompanyRelation={canCreateRoster}
+        canDeleteCompanyRelation={canDeleteCompanyRelation}
       />
     ),
   });

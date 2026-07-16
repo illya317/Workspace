@@ -160,10 +160,18 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/company-relation-validation.buildCompanyRelationCreateCommand",
     "packages/hr/server/company-relations.createCompanyRelation",
   ), "relationship"),
-  governance("hr.roster.companyRelation.update", "CompanyRelation", domain(
-    "packages/hr/server/domain/company-relation-validation.buildCompanyRelationFieldUpdateCommand",
-    "packages/hr/server/company-relations.updateCompanyRelationField",
-  ), "relationship"),
+  governance("hr.roster.companyRelation.update", "CompanyRelation", {
+    bindings: [
+      domain(
+        "packages/hr/server/domain/company-relation-validation.buildCompanyRelationPageDraftCommand",
+        "packages/hr/server/company-relations.updateCompanyRelationPageDraft",
+      ),
+      domain(
+        "packages/hr/server/domain/company-relation-validation.buildCompanyRelationFieldUpdateCommand",
+        "packages/hr/server/company-relations.updateCompanyRelationField",
+      ),
+    ],
+  }, "relationship"),
   governance("hr.roster.companyRelation.delete", "CompanyRelation", domain(
     "packages/hr/server/domain/company-relation-validation.validateCompanyRelationDeleteCommand",
     "packages/hr/server/company-relations.deleteCompanyRelation",

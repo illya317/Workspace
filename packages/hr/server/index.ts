@@ -11,6 +11,7 @@ export {
   deleteCompanyRelation,
   listCompanyRelations,
   updateCompanyRelationField,
+  updateCompanyRelationPageDraft,
 } from "./company-relations";
 
 export {
