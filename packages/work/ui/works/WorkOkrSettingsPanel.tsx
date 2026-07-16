@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createFormSection, createMessageSection, createPageBody, createPageDataSection, createSectionSection, type BodySurfaceProps, type BodySurfaceSectionSpec, type DataSurfaceCellSpec, type DataSurfaceStructuredCellSpec, type FormSurfaceFieldSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
 import { putJson, requestJson } from "@workspace/platform/ui/api-client";
-import { OKR_PLAN_PERIOD_TYPE_OPTIONS } from "./model";
+import {
+  OKR_AUTO_LOCK_OPTIONS,
+  OKR_CONTROL_SCOPE_OPTIONS,
+  OKR_PERIOD_RULE_MODE_OPTIONS,
+  OKR_PLAN_PERIOD_TYPE_OPTIONS,
+} from "./model";
 import {
   createDefaultOkrSettingsDraft as createDefaultDraft,
   draftWithOkrPeriodDate as draftWithPeriodDate,
@@ -31,26 +36,9 @@ type PeriodRuleRow = {
   label: string;
 };
 
-const SCOPE_OPTIONS = [
-  { value: "global", label: "全局" },
-  { value: "company", label: "公司" },
-  { value: "committee", label: "运营委员会" },
-  { value: "department", label: "部门" },
-];
-const AUTO_LOCK_OPTIONS = [
-  { value: "off", label: "不自动锁定" },
-  { value: "afterObjectiveDeadline", label: "O 截止后" },
-  { value: "afterKrDeadline", label: "KR 截止后" },
-];
 const OKR_CONTROL_ENABLED_OPTIONS = [{ value: "enabled", label: "启用" }, { value: "disabled", label: "停用" }];
 const OKR_EXCEPTION_ENABLED_OPTIONS = [{ value: "disabled", label: "不启用" }, { value: "enabled", label: "启用" }];
 const OKR_LOCK_OPTIONS = [{ value: "unlocked", label: "未锁定" }, { value: "locked", label: "已锁定" }];
-const PERIOD_RULE_MODE_OPTIONS = [
-  { value: "inherit", label: "继承默认" },
-  { value: "custom", label: "自定义" },
-  { value: "disabled", label: "不管控" },
-  { value: "report_only", label: "仅汇报" },
-];
 const PERIOD_RULE_ROWS: PeriodRuleRow[] = [
   { key: "yearly", label: "年" },
   { key: "half_year", label: "半年" },
@@ -211,7 +199,7 @@ export function useWorkOkrSettingsController({
     { key: "exceptionEnabled", label: "例外状态", required: true, spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_EXCEPTION_ENABLED_OPTIONS }, state: disabled ? "disabled" : "normal" }, value: draft.exceptionEnabled ? "enabled" : "disabled", placeholder: "请选择", onChange: (value) => setDraft((current) => ({ ...current, exceptionEnabled: value === "enabled" })) },
     { key: "periodType", label: "周期类型", required: draft.exceptionEnabled, spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_PLAN_PERIOD_TYPE_OPTIONS }, state: exceptionDisabled ? "disabled" : "normal" }, value: draft.periodType ?? "", placeholder: "请选择", onChange: (value) => setDraft((current) => draftWithPeriodDate(current, settings?.cycles ?? [], normalizeOkrSettingsPeriodType(value), current.periodDate ?? todayDate())) },
     { key: "periodDate", label: "具体周期", required: draft.exceptionEnabled, spec: { valueType: "date", control: "temporal", precision: "date", mask: selectedCycle ? { kind: "template", display: selectedCycle.name } : undefined, state: exceptionDisabled || !draft.periodType ? "disabled" : "normal" }, value: draft.periodDate, placeholder: "请选择", onChange: (value) => setDraft((current) => draftWithPeriodDate(current, settings?.cycles ?? [], current.periodType, normalizeDateValue(value))) },
-    { key: "scopeType", label: "范围", spec: { valueType: "string", control: "choice", options: { source: "static", items: SCOPE_OPTIONS, visibleCount: 4 }, state: exceptionDisabled ? "disabled" : "normal" }, value: draft.scopeType, onChange: (value) => setDraft((current) => ({ ...current, scopeType: normalizeScopeType(value), scopeId: normalizeScopeType(value) === "global" ? "" : current.scopeId })) },
+    { key: "scopeType", label: "范围", spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_CONTROL_SCOPE_OPTIONS, visibleCount: 4 }, state: exceptionDisabled ? "disabled" : "normal" }, value: draft.scopeType, onChange: (value) => setDraft((current) => ({ ...current, scopeType: normalizeScopeType(value), scopeId: normalizeScopeType(value) === "global" ? "" : current.scopeId })) },
     { key: "scopeId", label: "范围 ID", spec: { valueType: "string", control: "text", state: exceptionDisabled || draft.scopeType === "global" ? "disabled" : "normal" }, value: draft.scopeId, placeholder: "请选择", onChange: (value) => setDraft((current) => ({ ...current, scopeId: String(value ?? "") })) },
     { key: "isLocked", label: "锁定", spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_LOCK_OPTIONS }, state: exceptionDisabled ? "disabled" : "normal" }, value: draft.isLocked ? "locked" : "unlocked", onChange: (value) => setDraft((current) => ({ ...current, isLocked: value === "locked" })) },
     { key: "objectiveSubmitDeadline", label: "目标截止", spec: { valueType: "date", control: "temporal", precision: "date", state: exceptionDisabled ? "disabled" : "normal" }, value: draft.objectiveSubmitDeadline, placeholder: "请选择", onChange: (value) => setDraft((current) => ({ ...current, objectiveSubmitDeadline: String(value || "") || null })) },
@@ -344,7 +332,7 @@ function okrDefaultRuleFields(settings: WorkOkrControlSettings, setSettings: (ne
     ruleOffsetField("objectiveSubmitDeadlineOffset", "O 截止偏移", ruleWithFixedAnchor("objectiveSubmitDeadline", settings.objectiveSubmitDeadline), (rule) => patch({ objectiveSubmitDeadline: rule }), rulesDisabled),
     ruleOffsetField("krReviewOpensAtOffset", "KR开放时间", ruleWithFixedAnchor("krReviewOpensAt", settings.krReviewOpensAt), (rule) => patch({ krReviewOpensAt: rule }), rulesDisabled),
     ruleOffsetField("krSubmitDeadlineOffset", "KR 截止偏移", ruleWithFixedAnchor("krSubmitDeadline", settings.krSubmitDeadline), (rule) => patch({ krSubmitDeadline: rule }), rulesDisabled),
-    { key: "autoLock", label: "自动锁定", spec: { valueType: "string", control: "choice", options: { source: "static", items: AUTO_LOCK_OPTIONS }, state: rulesDisabled ? "disabled" : "normal" }, value: settings.autoLock, onChange: (value) => patch({ autoLock: normalizeAutoLock(value) }) },
+    { key: "autoLock", label: "自动锁定", spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_AUTO_LOCK_OPTIONS }, state: rulesDisabled ? "disabled" : "normal" }, value: settings.autoLock, onChange: (value) => patch({ autoLock: normalizeAutoLock(value) }) },
   ];
 }
 
@@ -365,7 +353,7 @@ function okrPeriodRuleRows(settings: WorkOkrControlSettings, setSettings: (next:
     })),
     ...PERIOD_RULE_ROWS.map((row): DataSurfaceStructuredCellSpec[] => [
       { content: { kind: "text", value: row.label, emphasis: "strong" } },
-      { content: { kind: "input", spec: { valueType: "string", control: "choice", options: { source: "static", items: PERIOD_RULE_MODE_OPTIONS }, state: disabled ? "disabled" : "normal" }, value: settings.periodTypes[row.key].mode, onChange: (value) => updateMode(row.key, normalizeRuleMode(value)) } },
+      { content: { kind: "input", spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_PERIOD_RULE_MODE_OPTIONS }, state: disabled ? "disabled" : "normal" }, value: settings.periodTypes[row.key].mode, onChange: (value) => updateMode(row.key, normalizeRuleMode(value)) } },
       { content: periodRuleCell(settings, row, "objectiveOpensAt", updateRule, disabled) },
       { content: periodRuleCell(settings, row, "objectiveSubmitDeadline", updateRule, disabled) },
       { content: periodRuleCell(settings, row, "krReviewOpensAt", updateRule, disabled) },

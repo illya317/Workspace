@@ -159,7 +159,7 @@ export function useConsolidationDecisionWorkspace(input: {
             `currency-${entity.id}`,
             `${entity.companyName}本位币`,
             policy.functionalCurrency,
-            [{ value: "CNY", label: "人民币 CNY" }, { value: "CAD", label: "加拿大元 CAD" }],
+            [{ value: "CNY", label: "人民币 CNY" }, { value: "CAD", label: "加元 CAD" }],
             (value) => {
               const functionalCurrency = value as "CNY" | "CAD";
               setCurrencyPolicies((current) => ({
@@ -253,12 +253,12 @@ export function useConsolidationDecisionWorkspace(input: {
         textField("debitSourceId", "左侧来源 ID", entry.debitSourceId, (value) => setEntry((current) => ({ ...current, debitSourceId: value })), { required: true }),
         textField("debitSourceFingerprint", "左侧来源指纹", entry.debitSourceFingerprint, (value) => setEntry((current) => ({ ...current, debitSourceFingerprint: value })), { required: true }),
         { key: "debitSourceAmount", label: "左侧来源金额", required: true, spec: { valueType: "number" as const, control: "number" as const, validation: { min: 0.01 } }, value: entry.debitSourceAmount || "", step: 0.01, onChange: (value: unknown) => setEntry((current) => ({ ...current, debitSourceAmount: Number(value) })) },
-        choiceField("debitSourceCurrency", "左侧来源币种", entry.debitSourceCurrency, [{ value: "CNY", label: "人民币" }, { value: "CAD", label: "加拿大元" }], (value) => setEntry((current) => ({ ...current, debitSourceCurrency: value }))),
+        choiceField("debitSourceCurrency", "左侧来源币种", entry.debitSourceCurrency, [{ value: "CNY", label: "人民币" }, { value: "CAD", label: "加元" }], (value) => setEntry((current) => ({ ...current, debitSourceCurrency: value }))),
         choiceField("creditSourceKind", "右侧来源类型", entry.creditSourceKind, MATCH_SOURCE_OPTIONS, (value) => setEntry((current) => ({ ...current, creditSourceKind: value as EntryDraft["creditSourceKind"] }))),
         textField("creditSourceId", "右侧来源 ID", entry.creditSourceId, (value) => setEntry((current) => ({ ...current, creditSourceId: value })), { required: true }),
         textField("creditSourceFingerprint", "右侧来源指纹", entry.creditSourceFingerprint, (value) => setEntry((current) => ({ ...current, creditSourceFingerprint: value })), { required: true }),
         { key: "creditSourceAmount", label: "右侧来源金额", required: true, spec: { valueType: "number" as const, control: "number" as const, validation: { min: 0.01 } }, value: entry.creditSourceAmount || "", step: 0.01, onChange: (value: unknown) => setEntry((current) => ({ ...current, creditSourceAmount: Number(value) })) },
-        choiceField("creditSourceCurrency", "右侧来源币种", entry.creditSourceCurrency, [{ value: "CNY", label: "人民币" }, { value: "CAD", label: "加拿大元" }], (value) => setEntry((current) => ({ ...current, creditSourceCurrency: value }))),
+        choiceField("creditSourceCurrency", "右侧来源币种", entry.creditSourceCurrency, [{ value: "CNY", label: "人民币" }, { value: "CAD", label: "加元" }], (value) => setEntry((current) => ({ ...current, creditSourceCurrency: value }))),
         textField("differenceResolution", `差额处置（系统计算 ${matchDifference.toFixed(2)}）`, entry.differenceResolution, (value) => setEntry((current) => ({ ...current, differenceResolution: value })), { required: matchDifference > 0, span: 3, multiline: true }),
       ] : []),
       choiceField("debitCompany", "借方公司", entry.debitCompanyId ? String(entry.debitCompanyId) : "", companyOptions, (value) => setEntry((current) => ({ ...current, debitCompanyId: Number(value) }))),

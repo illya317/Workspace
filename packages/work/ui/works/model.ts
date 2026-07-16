@@ -88,6 +88,12 @@ export const OKR_PLAN_PERIOD_TYPE_OPTIONS: Array<{ value: WorkPeriodType; label:
   { value: "yearly", label: "年" },
 ];
 
+export const OKR_CONTROL_SCOPE_OPTIONS = [{ value: "global", label: "全局" }, { value: "company", label: "公司" }, { value: "committee", label: "运营委员会" }, { value: "department", label: "部门" }];
+
+export const OKR_AUTO_LOCK_OPTIONS = [{ value: "off", label: "不自动锁定" }, { value: "afterObjectiveDeadline", label: "O 截止后" }, { value: "afterKrDeadline", label: "KR 截止后" }];
+
+export const OKR_PERIOD_RULE_MODE_OPTIONS = [{ value: "inherit", label: "继承默认" }, { value: "custom", label: "自定义" }, { value: "disabled", label: "不管控" }, { value: "report_only", label: "仅汇报" }];
+
 export function getWorkSpaceLabel(type: WorkTargetType) {
   return businessSpaceKindLabel(type, "work");
 }
