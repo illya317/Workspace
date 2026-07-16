@@ -1,18 +1,18 @@
 /// ERP 币种来源主数据
 model FinanceCurrency {
-  id              Int                  @id @default(autoincrement())
-  companyCode     String
-  sourceSystem    String
-  sourceLedger    String
-  sourceCode      String
-  sourceName      String
-  symbol          String?
-  decimalDigits   Int?
-  isBase          Boolean              @default(false)
-  latestImportId  Int?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @default(now()) @updatedAt
-  latestImport    FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
+  id             Int                  @id @default(autoincrement())
+  companyCode    String
+  sourceSystem   String
+  sourceLedger   String
+  sourceCode     String
+  sourceName     String
+  symbol         String?
+  decimalDigits  Int?
+  isBase         Boolean              @default(false)
+  latestImportId Int?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @default(now()) @updatedAt
+  latestImport   FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
 
   @@unique([companyCode, sourceSystem, sourceLedger, sourceCode])
   @@index([latestImportId])
@@ -20,23 +20,23 @@ model FinanceCurrency {
 
 /// ERP 银行账户来源主数据
 model FinanceBankAccount {
-  id              Int                  @id @default(autoincrement())
-  companyCode     String
-  accountId       Int?
-  sourceSystem    String
-  sourceLedger    String
-  sourceKey       String
-  sourceCode      String?
-  sourceName      String
-  accountNo       String?
-  bankName        String?
-  currencyCode    String?
-  isActive        Boolean              @default(true)
-  latestImportId  Int?
-  createdAt       DateTime             @default(now())
-  updatedAt       DateTime             @default(now()) @updatedAt
-  account         FinanceAccount?      @relation(fields: [accountId], references: [id])
-  latestImport    FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
+  id             Int                  @id @default(autoincrement())
+  companyCode    String
+  accountId      Int?
+  sourceSystem   String
+  sourceLedger   String
+  sourceKey      String
+  sourceCode     String?
+  sourceName     String
+  accountNo      String?
+  bankName       String?
+  currencyCode   String?
+  isActive       Boolean              @default(true)
+  latestImportId Int?
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @default(now()) @updatedAt
+  account        FinanceAccount?      @relation(fields: [accountId], references: [id])
+  latestImport   FinanceLedgerImport? @relation(fields: [latestImportId], references: [id])
 
   @@unique([companyCode, sourceSystem, sourceLedger, sourceKey])
   @@index([accountId])
