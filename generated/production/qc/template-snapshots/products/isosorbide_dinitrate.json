@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:16.136Z",
+  "generatedAt": "2026-07-16T13:29:32.759Z",
   "productKey": "isosorbide_dinitrate",
   "productName": "硝酸异山梨酯片",
   "document": {
@@ -12775,6 +12775,7 @@
             "inputType": "text",
             "valueType": "number",
             "numberFormat": "plain",
+            "formulaInputMode": "percent",
             "readonlyDisplay": false,
             "width": "3rem",
             "metadata": {
@@ -29747,7 +29748,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -29874,7 +29875,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -29921,7 +29922,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -29968,7 +29969,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30015,7 +30016,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30062,7 +30063,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30109,7 +30110,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30156,7 +30157,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30203,7 +30204,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -30250,7 +30251,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -32869,7 +32870,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32912,7 +32913,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32955,7 +32956,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -33002,7 +33003,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33045,7 +33046,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33088,7 +33089,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -38334,7 +38335,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38465,7 +38466,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -59700,6 +59701,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "isosorbide_dinitrate",
@@ -60696,6 +60698,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "isosorbide_dinitrate",
@@ -61530,6 +61533,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "isosorbide_dinitrate",
@@ -62285,6 +62289,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "isosorbide_dinitrate",
@@ -63262,6 +63267,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content_uniformity/isosorbide_hplc_uniformity/dui_zhao_han_liang",
@@ -64222,6 +64228,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/isosorbide_dinitrate_uv/dui_zhao_han_liang",
@@ -65388,6 +65395,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/isosorbide_dinitrate_hplc_content/dui_zhao_han_liang",
@@ -70227,7 +70235,7 @@
   "audit": {
     "productKey": "isosorbide_dinitrate",
     "productName": "硝酸异山梨酯片",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/isosorbide_dinitrate.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/isosorbide_dinitrate.json",
     "stages": 3,
     "experimentItems": 8,
     "tables": 102,
@@ -70273,7 +70281,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/硝酸异山梨酯片.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/硝酸异山梨酯片.md",
         "exists": true,
         "headings": [
           {
@@ -70946,12 +70954,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/isosorbide_dinitrate.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/isosorbide_dinitrate.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/isosorbide_dinitrate_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

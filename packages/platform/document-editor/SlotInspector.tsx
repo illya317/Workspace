@@ -7,11 +7,10 @@ import { useEffect, useState } from "react";
 import { collectFieldModelFormulaTokens, formulaDisplayText, validateFormulaSlotDraft, type FormulaDisplayToken } from "./formula-validation";
 import {
   effectiveOptions,
-  inputMethod,
-  inputMethodOptions,
-  inputMethodPatch,
-  isOptionSlot,
+  inputMethod, inputMethodOptions,
+  inputMethodPatch, isOptionSlot,
   normalizeInputAttrs,
+  numberDisplay, numberDisplayOptions, numberDisplayPatch,
   numberFormat,
   numberFormatOptions,
   numberPrecision,
@@ -192,7 +191,8 @@ function createInspectorSections({
         onChange: (value) => update(inputMethodPatch(String(value || "text"), attrs, field)),
       } satisfies InspectorField] : []),
       ...(supportsValueType(attrs, field, selectedType, supportsInputMethod) ? [{ key: "valueType", label: "数据类型", spec: { valueType: "string", control: "choice", options: { source: "static", items: valueTypeOptions(attrs, field), searchPlaceholder: "选择数据类型" }, state: valueTypeState }, value: slotValueType(attrs, field), onChange: (value) => update(valueTypePatch(String(value || "text"), attrs, field)) } satisfies InspectorField] : []),
-      ...(supportsNumberFormat(attrs, field, selectedType, supportsInputMethod) ? [{ key: "numberFormat", label: "数值格式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberFormatOptions(), searchPlaceholder: "选择数值格式" }, state: disabledState }, value: numberFormat(attrs), onChange: (value) => update({ numberFormat: String(value || "plain") }) } satisfies InspectorField] : []),
+      ...(supportsNumberFormat(attrs, field, selectedType, supportsInputMethod) ? [{ key: "numberDisplay", label: "显示格式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberDisplayOptions(), searchPlaceholder: "选择显示格式" }, state: disabledState }, value: numberDisplay(attrs, field), onChange: (value) => update(numberDisplayPatch(String(value || "plain"), attrs, selectedType)) } satisfies InspectorField] : []),
+      ...(supportsNumberFormat(attrs, field, selectedType, supportsInputMethod) ? [{ key: "numberFormat", label: "舍入方式", spec: { valueType: "string", control: "choice", options: { source: "static", items: numberFormatOptions(), searchPlaceholder: "选择舍入方式" }, state: disabledState }, value: numberFormat(attrs), onChange: (value) => update({ numberFormat: String(value || "plain") }) } satisfies InspectorField] : []),
       ...(supportsNumberPrecision(attrs, field, selectedType, supportsInputMethod) ? [{ key: "precision", label: "小数位数", spec: { valueType: "number", control: "number", validation: { min: 0, max: 10 }, state: disabledState }, value: numberPrecision(attrs, field), onChange: (value) => update({ precision: precisionPatch(value) }) } satisfies InspectorField] : []),
       { key: "label", label: "标签", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.label ?? "", onChange: (value) => update({ label: String(value ?? "") }) },
       ...(supportsDefaultValue(attrs, selectedType) ? [{ key: "defaultValue", label: "默认值", spec: { valueType: "string", control: "text", state: disabledState }, value: attrs.defaultValue ?? "", onChange: (value) => update({ defaultValue: String(value ?? "") }) } satisfies InspectorField] : []),
@@ -407,7 +407,7 @@ function ruleSectionTitle(attrs: EditorSlotInline, type: EditorSlotType) {
 }
 
 function slotKindPatch(value: string, attrs: EditorSlotInline, alias?: string): SlotPatch {
-  const reset: SlotPatch = { formulaText: null, formula: null, referenceFieldKey: null, placeholder: null, valueType: null, numberFormat: null, precision: null };
+  const reset: SlotPatch = { formulaText: null, formula: null, referenceFieldKey: null, placeholder: null, valueType: null, numberFormat: null, formulaInputMode: null, precision: null };
   const nonParameterWidth = attrs.slotKind === "parameter" ? { width: "3rem" } : {};
   if (value === "plain") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), ...nonParameterWidth, slotKind: "plain", placeholder: attrs.placeholder, alias };
   if (value === "variable") return { ...reset, ...inputMethodPatch(inputMethod(attrs), attrs), ...nonParameterWidth, slotKind: "variable", placeholder: attrs.placeholder, alias };

@@ -105,6 +105,7 @@ function syntheticFormulaInputParts(field: EditorFieldDefinition, withGap: boole
       inputType: field.inputType ?? (field.valueType === "number" ? "number" : "field"),
       valueType: field.valueType,
       numberFormat: field.numberFormat,
+      formulaInputMode: field.formulaInputMode,
       precision: field.precision,
       options: field.options,
       defaultValue: field.defaultValue,
@@ -273,15 +274,26 @@ function addHiddenFormulaReferences(references: Map<string, Map<string, string>>
     if (!rawFormulaText) return;
     const scope = definitionScope(formula);
     const scopeReferences = references.get(scope) ?? new Map<string, string>();
-    const replacement = formulaReferenceReplacement(canonicalFormulaText(rawFormulaText, scopeReferences));
+    const names = [formula.fieldKey, formula.fieldKey.split("/").at(-1), fieldModel.fields[formula.fieldKey]?.name].flatMap(referenceNameVariants);
+    const ownNames = new Set(names);
+    const dependencyReferences = new Map([...scopeReferences].filter(([name]) => !ownNames.has(name)));
+    const replacement = formulaReferenceReplacement(canonicalFormulaText(stripNamedFormulaAssignment(rawFormulaText, names), dependencyReferences));
     addFormulaReference(
       references,
       scope,
-      [formula.fieldKey, formula.fieldKey.split("/").at(-1), fieldModel.fields[formula.fieldKey]?.name].flatMap(referenceNameVariants),
+      names,
       replacement,
       true,
     );
   });
+}
+
+function stripNamedFormulaAssignment(formulaText: string, names: string[]) {
+  for (const name of [...names].sort((left, right) => right.length - left.length)) {
+    const match = formulaText.match(new RegExp(`^\\s*${escapeRegExp(name)}\\s*=\\s*([\\s\\S]+)$`));
+    if (match) return match[1].trim();
+  }
+  return formulaText;
 }
 
 function referenceNames(part: Exclude<EditorInlinePart, { type: "text" }>, fieldModel: EditorFieldModel) {
@@ -319,11 +331,15 @@ function addFormulaReference(
 }
 
 function replaceFormulaReferences(formulaText: string, references: Map<string, string>) {
+  const orderedReferences = [...references.entries()]
+    .filter(([name]) => name.length > 0)
+    .sort(([left], [right]) => right.length - left.length);
+  if (!orderedReferences.length) return formulaText;
+  const replacementByName = new Map(orderedReferences);
+  const referencePattern = new RegExp(orderedReferences.map(([name]) => escapeRegExp(name)).join("|"), "g");
   return formulaText.split(/(\{[^}]*\}|\[[^\]]*\])/g).map((part) => {
     if (/^(?:\{[^}]*\}|\[[^\]]*\])$/.test(part)) return part;
-    return [...references.entries()]
-      .sort(([left], [right]) => right.length - left.length)
-      .reduce((text, [name, alias]) => text.replace(new RegExp(escapeRegExp(name), "g"), alias), part);
+    return part.replace(referencePattern, (name) => replacementByName.get(name) ?? name);
   }).join("");
 }
 

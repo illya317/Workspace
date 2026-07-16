@@ -85,6 +85,7 @@ function normalizeFieldDefinition(value: unknown, fallbackKey?: string): DomainV
     inputType: stringField(value.inputType) || undefined,
     valueType: stringField(value.valueType) || stringField(value.type) || undefined,
     numberFormat: stringField(value.numberFormat) || undefined,
+    formulaInputMode: value.formulaInputMode === "percent" ? "percent" : undefined,
     precision: numberField(value.precision),
     options: stringArray(value.options),
     defaultValue: stringField(value.defaultValue) || undefined,
@@ -108,6 +109,10 @@ function normalizeSlotAttrs(attrs: EditorSlotInline, field: FieldDefinition | un
   if (inputType && !knownInputTypes.has(inputType)) return failCommand("输入方式无效", 400, `${fieldName}.inputType`);
   const valueType = stringField(attrs.valueType);
   if (valueType && !knownValueTypes.has(valueType)) return failCommand("数据类型无效", 400, `${fieldName}.valueType`);
+  const numberDisplayMode = stringField(attrs.numberDisplayMode);
+  if (numberDisplayMode && numberDisplayMode !== "plain" && numberDisplayMode !== "percent") return failCommand("显示格式无效", 400, `${fieldName}.numberDisplayMode`);
+  const formulaInputMode = stringField(attrs.formulaInputMode);
+  if (formulaInputMode && formulaInputMode !== "percent") return failCommand("公式输入格式无效", 400, `${fieldName}.formulaInputMode`);
   const normalized = normalizeInputAttrs(attrs, field, (candidate, type) => supportsDomainInputMethod({ ...candidate, type }));
   const defaultValueIssue = validateDefaultValue(normalized.defaultValue ?? attrs.defaultValue, normalized.valueType, `${fieldName}.defaultValue`);
   if (defaultValueIssue) return defaultValueIssue;
@@ -123,6 +128,8 @@ function slotPatch(attrs: EditorSlotInline) {
     withTime: attrs.withTime,
     options: attrs.options,
     numberFormat: attrs.numberFormat,
+    numberDisplayMode: attrs.numberDisplayMode,
+    formulaInputMode: attrs.formulaInputMode,
     precision: attrs.precision,
   };
 }
@@ -134,6 +141,7 @@ function fieldPatch(attrs: EditorSlotInline) {
     type: attrs.valueType,
     options: attrs.options,
     numberFormat: attrs.numberFormat,
+    formulaInputMode: attrs.formulaInputMode,
     precision: attrs.precision,
   };
 }

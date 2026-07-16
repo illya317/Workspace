@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:16.647Z",
+  "generatedAt": "2026-07-16T13:29:34.339Z",
   "productKey": "pantoprazole",
   "productName": "泮托拉唑钠肠溶片",
   "document": {
@@ -6442,13 +6442,13 @@
                   },
                   {
                     "type": "text",
-                    "text": "×100%="
+                    "text": "%"
                   }
                 ],
                 "colspan": 3,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -6530,13 +6530,13 @@
                   },
                   {
                     "type": "text",
-                    "text": "×100%="
+                    "text": "%"
                   }
                 ],
                 "colspan": 3,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -22881,13 +22881,13 @@
                   },
                   {
                     "type": "text",
-                    "text": "×100%="
+                    "text": "%"
                   }
                 ],
                 "colspan": 3,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -22969,13 +22969,13 @@
                   },
                   {
                     "type": "text",
-                    "text": "×100%="
+                    "text": "%"
                   }
                 ],
                 "colspan": 3,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -35455,7 +35455,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -35498,7 +35498,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -35541,7 +35541,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -35588,7 +35588,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -35631,7 +35631,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -35674,7 +35674,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -38332,7 +38332,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38375,7 +38375,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38418,7 +38418,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -38465,7 +38465,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38508,7 +38508,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38551,7 +38551,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -44727,7 +44727,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -44858,7 +44858,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -66147,6 +66147,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "pantoprazole",
@@ -68520,6 +68521,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "pantoprazole",
@@ -69426,6 +69428,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "pantoprazole",
@@ -70032,6 +70035,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "pantoprazole",
@@ -73091,6 +73095,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/acid_release/pantoprazole_uv/dui_zhao_han_liang",
@@ -74120,6 +74125,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/pantoprazole_uv/dui_zhao_han_liang",
@@ -74900,6 +74906,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "pantoprazole",
@@ -75520,6 +75527,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/pantoprazole_uv/dui_zhao_han_liang",
@@ -79904,7 +79912,7 @@
   "audit": {
     "productKey": "pantoprazole",
     "productName": "泮托拉唑钠肠溶片",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/pantoprazole.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/pantoprazole.json",
     "stages": 3,
     "experimentItems": 10,
     "tables": 120,
@@ -79950,7 +79958,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/泮托拉唑钠肠溶片.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/泮托拉唑钠肠溶片.md",
         "exists": true,
         "headings": [
           {
@@ -80775,12 +80783,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/pantoprazole.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/pantoprazole.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/pantoprazole_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/pantoprazole_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/pantoprazole_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/pantoprazole_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/pantoprazole_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/pantoprazole_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

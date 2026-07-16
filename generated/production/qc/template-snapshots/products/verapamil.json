@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:17.349Z",
+  "generatedAt": "2026-07-16T13:29:36.488Z",
   "productKey": "verapamil",
   "productName": "盐酸维拉帕米片",
   "document": {
@@ -32735,7 +32735,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32778,7 +32778,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32821,7 +32821,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -32868,7 +32868,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32911,7 +32911,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32954,7 +32954,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -37117,7 +37117,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -37248,7 +37248,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -58422,6 +58422,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "verapamil",
@@ -60855,6 +60856,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "verapamil",
@@ -61938,6 +61940,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "verapamil",
@@ -63847,6 +63850,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/verapamil_uv/dui_zhao_han_liang",
@@ -66410,6 +66414,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/verapamil_hplc_content/dui_zhao_han_liang",
@@ -70977,7 +70982,7 @@
   "audit": {
     "productKey": "verapamil",
     "productName": "盐酸维拉帕米片",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/verapamil.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/verapamil.json",
     "stages": 3,
     "experimentItems": 8,
     "tables": 99,
@@ -71023,7 +71028,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/盐酸维拉帕米片.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/盐酸维拉帕米片.md",
         "exists": true,
         "headings": [
           {
@@ -71717,12 +71722,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/verapamil.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/verapamil.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/verapamil_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/verapamil_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/verapamil_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/verapamil_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/verapamil_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/verapamil_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

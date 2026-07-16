@@ -147,6 +147,7 @@ function methodField(rawField: unknown): QcTemplateMethodField {
     type: asString(field.type) || undefined,
     attr: asString(field.attr) || undefined,
     unit: asString(field.unit) || undefined,
+    formulaInputMode: field.formula_input_mode === "percent" || field.formulaInputMode === "percent" ? "percent" : undefined,
     formula: asString(field.formula) || undefined,
     rule: asString(field.rule) || undefined,
     referenceFieldKey: asString(field.reference_field_key || field.referenceFieldKey) || undefined,

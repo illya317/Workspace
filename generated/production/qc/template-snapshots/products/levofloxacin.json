@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:16.329Z",
+  "generatedAt": "2026-07-16T13:29:33.352Z",
   "productKey": "levofloxacin",
   "productName": "盐酸左氧氟沙星胶囊",
   "document": {
@@ -30998,7 +30998,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -31041,7 +31041,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -31084,7 +31084,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -31131,7 +31131,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -31174,7 +31174,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -31217,7 +31217,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -35380,7 +35380,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -35511,7 +35511,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -56458,6 +56458,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "levofloxacin",
@@ -60129,6 +60130,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "levofloxacin",
@@ -60867,6 +60869,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "levofloxacin",
@@ -62731,6 +62734,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "levofloxacin",
@@ -63370,6 +63374,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/levofloxacin_uv/dui_zhao_han_liang",
@@ -67099,6 +67104,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/levofloxacin_hplc_content/dui_zhao_han_liang",
@@ -72303,7 +72309,7 @@
   "audit": {
     "productKey": "levofloxacin",
     "productName": "盐酸左氧氟沙星胶囊",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/levofloxacin.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/levofloxacin.json",
     "stages": 3,
     "experimentItems": 7,
     "tables": 93,
@@ -72349,7 +72355,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/盐酸左氧氟沙星胶囊.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/盐酸左氧氟沙星胶囊.md",
         "exists": true,
         "headings": [
           {
@@ -72988,12 +72994,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/levofloxacin.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/levofloxacin.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/levofloxacin_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/levofloxacin_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/levofloxacin_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/levofloxacin_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/levofloxacin_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/levofloxacin_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

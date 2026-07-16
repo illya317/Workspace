@@ -85,6 +85,7 @@ function formulaFields(fieldModel: FieldModel, document: EditorDocument, values:
       valueType,
       inputType: normalizedInputType(slot?.inputType ?? field?.inputType, slot?.options ?? field?.options),
       numberFormat: slot?.numberFormat ?? formula?.numberFormat ?? field?.numberFormat,
+      formulaInputMode: slot?.formulaInputMode ?? field?.formulaInputMode,
       precision: slot?.precision ?? formula?.precision ?? field?.precision,
       attr: field?.attr,
       slotKind: slot?.slotKind ?? formula?.slotKind ?? field?.slotKind,

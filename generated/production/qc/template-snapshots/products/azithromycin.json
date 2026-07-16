@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:15.155Z",
+  "generatedAt": "2026-07-16T13:29:29.270Z",
   "productKey": "azithromycin",
   "productName": "阿奇霉素胶囊",
   "document": {
@@ -33195,7 +33195,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33238,7 +33238,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33281,7 +33281,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -33328,7 +33328,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33371,7 +33371,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -33414,7 +33414,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -37954,7 +37954,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -38085,7 +38085,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -59159,6 +59159,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "azithromycin",
@@ -59255,6 +59256,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "azithromycin",
@@ -62899,6 +62901,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "azithromycin",
@@ -63648,6 +63651,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "azithromycin",
@@ -66340,6 +66344,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/azithromycin_uv/dui_zhao_han_liang",
@@ -70098,6 +70103,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/azithromycin_hplc_content/dui_zhao_han_liang",
@@ -76134,7 +76140,7 @@
   "audit": {
     "productKey": "azithromycin",
     "productName": "阿奇霉素胶囊",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/azithromycin.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/azithromycin.json",
     "stages": 3,
     "experimentItems": 7,
     "tables": 97,
@@ -76180,7 +76186,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/阿奇霉素胶囊.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/阿奇霉素胶囊.md",
         "exists": true,
         "headings": [
           {
@@ -76846,12 +76852,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/azithromycin.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/azithromycin.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/azithromycin_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/azithromycin_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/azithromycin_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/azithromycin_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/azithromycin_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/azithromycin_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []
