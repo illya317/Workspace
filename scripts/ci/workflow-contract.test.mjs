@@ -11,6 +11,7 @@ const packageJson = JSON.parse(fs.readFileSync(new URL("../../package.json", imp
 const prePush = fs.readFileSync(new URL("../../.githooks/pre-push", import.meta.url), "utf8");
 const codeowners = fs.readFileSync(new URL("../../.github/CODEOWNERS", import.meta.url), "utf8");
 const packager = fs.readFileSync(new URL("../../ops/build-standalone-artifact.sh", import.meta.url), "utf8");
+const nodeVersion = fs.readFileSync(new URL("../../.node-version", import.meta.url), "utf8").trim();
 const pinnedActions = {
   "actions/checkout": "34e114876b0b11c390a56381ad16ebd13914f8d5",
   "actions/setup-node": "49933ea5288caeca8642d1e84afbd3f7d6820020",
@@ -72,6 +73,12 @@ test("every third-party workflow action is pinned to an audited full commit SHA"
   for (const reference of uses) {
     assert.match(reference, /^[^@]+@[0-9a-f]{40}$/, "movable action reference: " + reference);
   }
+});
+
+test("every CI lane uses the repository Node LTS contract", () => {
+  assert.equal(nodeVersion, "24");
+  assert.equal([...workflow.matchAll(/node-version-file: \.node-version/g)].length, 6);
+  assert.doesNotMatch(workflow, /node-version:\s*\d+/);
 });
 
 test("public runtime asset symlinks cannot leak into the public canonical artifact", () => {
