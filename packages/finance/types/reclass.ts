@@ -8,5 +8,6 @@ export interface RuleCandidate {
   existingTarget: string | null;
   existingDecision: "reclassify" | "no_reclass" | null;
   existingSource: string | null;
+  existingRuleSourceAccountCode: string | null;
   existingEnabled: boolean | null;
 }

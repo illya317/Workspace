@@ -5,6 +5,10 @@ import {
   buildSaveReclassRuleChangeSetCommand,
   type SaveReclassRuleChangeSetInput,
 } from "../../domain/finance-validation";
+import {
+  materializeOpenAuxiliaryAdjustments,
+  ReclassMaterializationConflictError,
+} from "./materialize";
 
 export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetInput) {
   const command = buildSaveReclassRuleChangeSetCommand(input);
@@ -38,72 +42,75 @@ export async function saveReclassRuleChangeSet(input: SaveReclassRuleChangeSetIn
   let saved = 0;
   let noReclass = 0;
   let adjustmentsUpdated = 0;
-  await prisma.$transaction(async (tx) => {
-    for (const change of changes) {
-      const key = {
-        sourceAccountCode_abnormalSide: {
-          sourceAccountCode: change.sourceAccountCode,
-          abnormalSide: change.abnormalSide,
-        },
-      };
-      if (change.targetAccountCode === null) {
+  try {
+    await prisma.$transaction(async (tx) => {
+      for (const change of changes) {
+        const key = {
+          sourceAccountCode_abnormalSide: {
+            sourceAccountCode: change.sourceAccountCode,
+            abnormalSide: change.abnormalSide,
+          },
+        };
+        if (change.targetAccountCode === null) {
+          await tx.financeReclassRule.upsert({
+            where: key,
+            create: {
+              sourceAccountCode: change.sourceAccountCode,
+              abnormalSide: change.abnormalSide,
+              decision: "no_reclass",
+              targetAccountCode: null,
+              enabled: true,
+              source: "manual",
+              confirmedBy: userId,
+              confirmedAt: now,
+            },
+            update: {
+              decision: "no_reclass",
+              targetAccountCode: null,
+              enabled: true,
+              source: "manual",
+              confirmedBy: userId,
+              confirmedAt: now,
+            },
+          });
+          noReclass += 1;
+          continue;
+        }
         await tx.financeReclassRule.upsert({
           where: key,
           create: {
             sourceAccountCode: change.sourceAccountCode,
             abnormalSide: change.abnormalSide,
-            decision: "no_reclass",
-            targetAccountCode: null,
+            decision: "reclassify",
+            targetAccountCode: change.targetAccountCode,
             enabled: true,
             source: "manual",
             confirmedBy: userId,
             confirmedAt: now,
           },
           update: {
-            decision: "no_reclass",
-            targetAccountCode: null,
+            decision: "reclassify",
+            targetAccountCode: change.targetAccountCode,
             enabled: true,
             source: "manual",
             confirmedBy: userId,
             confirmedAt: now,
           },
         });
-        const adjustmentResult = await tx.financeBalanceReclassAdjustment.deleteMany({
-          where: { sourceAccountCode: change.sourceAccountCode, sourceType: "auxiliary_balance", status: "approved" },
-        });
-        adjustmentsUpdated += adjustmentResult.count;
-        noReclass += 1;
-        continue;
+        saved += 1;
       }
-      const savedRule = await tx.financeReclassRule.upsert({
-        where: key,
-        create: {
-          sourceAccountCode: change.sourceAccountCode,
-          abnormalSide: change.abnormalSide,
-          decision: "reclassify",
-          targetAccountCode: change.targetAccountCode,
-          enabled: true,
-          source: "manual",
-          confirmedBy: userId,
-          confirmedAt: now,
-        },
-        update: {
-          decision: "reclassify",
-          targetAccountCode: change.targetAccountCode,
-          enabled: true,
-          source: "manual",
-          confirmedBy: userId,
-          confirmedAt: now,
-        },
-      });
-      const adjustmentResult = await tx.financeBalanceReclassAdjustment.updateMany({
-        where: { sourceAccountCode: change.sourceAccountCode, sourceType: "auxiliary_balance", status: "approved" },
-        data: { targetAccountCode: change.targetAccountCode, ruleId: savedRule.id },
-      });
-      adjustmentsUpdated += adjustmentResult.count;
-      saved += 1;
+      const materialized = await materializeOpenAuxiliaryAdjustments(
+        tx,
+        changes.map((change) => change.sourceAccountCode),
+      );
+      adjustmentsUpdated = materialized.written + materialized.updated + materialized.deleted;
+    }, { maxWait: 10_000, timeout: 60_000 });
+  } catch (error) {
+    if (error instanceof ReclassMaterializationConflictError) {
+      return serviceError(error.message, 409);
     }
-  });
+    throw error;
+  }
 
   return serviceOk({ success: true, reclassified: saved, noReclass, adjustmentsUpdated });
 }

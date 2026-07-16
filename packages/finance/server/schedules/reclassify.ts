@@ -1,5 +1,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
+import { oppositeBalanceSide, resolveLongestPrefixRule } from "../ledger/reclass-rules/resolution";
+
 export type ReclassClassification =
   | "reclass_candidate"
   | "pending_review"
@@ -14,7 +16,8 @@ export type ReclassWorkbenchStatus =
   | "approved"
   | "adjusted"
   | "rejected"
-  | "exempt";
+  | "exempt"
+  | "historical";
 
 export interface ReclassEntry {
   id: string;
@@ -25,7 +28,12 @@ export interface ReclassEntry {
   naturalSide: "debit" | "credit";
   closingDebit: number;
   closingCredit: number;
+  /** Persisted report amount when an adjustment exists; otherwise the current candidate amount. */
   amount: number;
+  /** Current reverse closing balance, kept separate from the persisted report amount. */
+  currentAbnormalAmount: number | null;
+  /** The persisted amount no longer matches the current reverse closing balance. */
+  stale: boolean;
   classification: ReclassClassification;
   status: ReclassWorkbenchStatus;
   targetAccountCode: string | null;
@@ -43,6 +51,7 @@ export interface ReclassWorkbenchSummary {
   attention: number;
   processed: number;
   exempt: number;
+  historical: number;
   attentionAmount: number;
   processedAmount: number;
 }
@@ -62,6 +71,7 @@ interface AdjustmentInput {
   sourceType: string;
   status: string;
   note: string | null;
+  ruleId?: number | null;
 }
 
 interface RuleInput {
@@ -81,7 +91,7 @@ interface LegacyInput {
 
 export async function computeReclassification(companyCode: string, year: number, month: number) {
   const period = await prisma.financePeriod.findFirst({ where: { companyCode, year, month } });
-  if (!period) return { entries: [], summary: emptySummary() };
+  if (!period) return { entries: [], summary: emptySummary(), isClosed: false };
 
   const [balances, adjustments, rules, accounts, legacyRows] = await Promise.all([
     prisma.financeAccountBalance.findMany({ where: { periodId: period.id }, include: { account: true } }),
@@ -89,15 +99,16 @@ export async function computeReclassification(companyCode: string, year: number,
     prisma.financeReclassRule.findMany({
       where: { enabled: true, source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
     }),
-    prisma.financeAccount.findMany({ where: { companyCode, year }, select: { code: true, name: true } }),
+    prisma.financeAccount.findMany({ where: { companyCode, year }, select: { code: true, name: true, balanceDirection: true } }),
     prisma.reclassResult.findMany({
-      where: { periodId: period.id, status: { in: ["approved", "adjusted", "rejected"] } },
+      where: { periodId: period.id, status: { in: ["pending", "approved", "adjusted", "rejected"] } },
       select: { sourceAccount: true, targetAccount: true, amount: true, status: true },
     }),
   ]);
   const accountNames = new Map(accounts.map((account) => [account.code, account.name]));
-  const entries = buildReclassificationWorkbench(balances, adjustments, rules, legacyRows, accountNames, period.id);
-  return { entries, summary: summarize(entries) };
+  const accountDirections = new Map(accounts.map((account) => [account.code, account.balanceDirection]));
+  const entries = buildReclassificationWorkbench(balances, adjustments, rules, legacyRows, accountNames, period.id, accountDirections);
+  return { entries, summary: summarizeReclassificationWorkbench(entries), isClosed: period.isClosed };
 }
 
 export function buildReclassificationWorkbench(
@@ -107,6 +118,7 @@ export function buildReclassificationWorkbench(
   legacyRows: readonly LegacyInput[] = [],
   accountNames: ReadonlyMap<string, string> = new Map(),
   periodId = 0,
+  accountDirections: ReadonlyMap<string, string> = new Map(),
 ): ReclassEntry[] {
   const parentIds = new Set(balances.map((row) => row.account.parentId).filter((id): id is number => id !== null));
   const parentCodes = new Set<string>();
@@ -117,19 +129,62 @@ export function buildReclassificationWorkbench(
     }
   }
   const adjustmentMap = new Map(adjustments.map((row) => [row.sourceAccountCode, row]));
-  const ruleMap = new Map(rules.map((rule) => [`${rule.sourceAccountCode}::${rule.abnormalSide}`, rule]));
+  const handledAdjustmentSources = new Set<string>();
 
   const entries = balances.flatMap((balance): ReclassEntry[] => {
     if (parentCodes.has(balance.account.code)) return [];
     const net = roundMoney(balance.closingDebit - balance.closingCredit);
-    if (Math.abs(net) <= 0.01) return [];
+    if (net === 0) return [];
     const naturalSide = balance.account.balanceDirection === "credit" ? "credit" : "debit";
     const balanceSide = net > 0 ? "debit" : "credit";
     if (balanceSide === naturalSide) return [];
     const adjustment = adjustmentMap.get(balance.account.code);
-    const rule = ruleMap.get(`${balance.account.code}::${balanceSide}`) ?? ruleMap.get(`${balance.account.code}::both`);
+    if (adjustment) handledAdjustmentSources.add(balance.account.code);
+    const rule = resolveLongestPrefixRule(balance.account.code, balanceSide, rules);
     return [buildBalanceEntry(balance, balanceSide, naturalSide, Math.abs(net), adjustment, rule, accountNames, periodId)];
   });
+
+  const balanceMap = new Map(balances.map((row) => [row.account.code, row]));
+  for (const adjustment of adjustments) {
+    if (handledAdjustmentSources.has(adjustment.sourceAccountCode)) continue;
+    const balance = balanceMap.get(adjustment.sourceAccountCode);
+    const naturalSide = resolveNaturalSide(
+      balance?.account.balanceDirection ?? accountDirections.get(adjustment.sourceAccountCode),
+      adjustment.sourceAccountCode,
+    );
+    const current = balance ? reverseBalanceAmount(balance) : null;
+    const abnormalSide = oppositeBalanceSide(naturalSide);
+    const currentAbnormalAmount = current?.amount ?? (balance ? 0 : null);
+    const stale = isStaleAdjustment(adjustment.amount, currentAbnormalAmount);
+    const status = normalizeAdjustmentStatus(adjustment.status);
+    entries.push({
+      id: `balance:${adjustment.sourceAccountCode}`,
+      periodId: adjustment.periodId || periodId,
+      accountCode: adjustment.sourceAccountCode,
+      accountName: balance?.account.name ?? accountNames.get(adjustment.sourceAccountCode) ?? adjustment.sourceAccountCode,
+      balanceSide: current?.side ?? abnormalSide,
+      naturalSide,
+      closingDebit: balance?.closingDebit ?? 0,
+      closingCredit: balance?.closingCredit ?? 0,
+      amount: adjustment.amount,
+      currentAbnormalAmount,
+      stale,
+      classification: "reclass_candidate",
+      status,
+      targetAccountCode: adjustment.targetAccountCode,
+      targetAccountName: accountNames.get(adjustment.targetAccountCode) ?? null,
+      sourceType: adjustment.sourceType,
+      detailCount: readDetailCount(adjustment.note),
+      abnormalSide,
+      ruleId: adjustment.ruleId ?? null,
+      adjustmentId: adjustment.id,
+      reason: current
+        ? stale
+          ? "持久化报表应用金额与当前反向余额不一致；请复核源余额后重新确认调整。"
+          : reasonFor("reclass_candidate", status, adjustment.sourceType)
+        : "已有持久化重分类调整，但源科目当前已无反向余额或余额事实缺失；请复核后决定保留或更正。",
+    });
+  }
 
   const legacyGroups = new Map<string, LegacyInput>();
   for (const row of legacyRows) {
@@ -148,8 +203,10 @@ export function buildReclassificationWorkbench(
       closingDebit: 0,
       closingCredit: 0,
       amount: row.amount,
+      currentAbnormalAmount: null,
+      stale: false,
       classification: "legacy_voucher_adjustment",
-      status: normalizeStatus(row.status),
+      status: "historical",
       targetAccountCode: row.targetAccount,
       targetAccountName: accountNames.get(row.targetAccount) ?? null,
       sourceType: "legacy_voucher",
@@ -157,7 +214,7 @@ export function buildReclassificationWorkbench(
       abnormalSide: "debit",
       ruleId: null,
       adjustmentId: null,
-      reason: "历史凭证明细调整；当前继续参与报表，后续应迁移到期末余额口径。",
+      reason: "历史凭证明细重分类记录，仅供追溯；当前报表不再消费。",
     });
   }
   return entries.sort((left, right) => statusOrder(left.status) - statusOrder(right.status) || right.amount - left.amount);
@@ -175,8 +232,9 @@ function buildBalanceEntry(
 ): ReclassEntry {
   const classification = classify(balance.account.code, balance.account.name, adjustment, rule);
   const targetAccountCode = adjustment?.targetAccountCode ?? (rule?.decision === "reclassify" ? rule.targetAccountCode : null);
+  const stale = adjustment ? isStaleAdjustment(adjustment.amount, amount) : false;
   const status = adjustment
-    ? normalizeStatus(adjustment.status)
+    ? normalizeAdjustmentStatus(adjustment.status)
     : rule?.decision === "no_reclass"
       ? "exempt"
       : rule?.decision === "reclassify"
@@ -193,7 +251,9 @@ function buildBalanceEntry(
     naturalSide,
     closingDebit: balance.closingDebit,
     closingCredit: balance.closingCredit,
-    amount,
+    amount: adjustment?.amount ?? amount,
+    currentAbnormalAmount: amount,
+    stale,
     classification,
     status,
     targetAccountCode,
@@ -201,9 +261,11 @@ function buildBalanceEntry(
     sourceType: adjustment?.sourceType ?? (rule ? "rule" : "closing_balance"),
     detailCount: readDetailCount(adjustment?.note),
     abnormalSide: balanceSide,
-    ruleId: rule?.id ?? null,
+    ruleId: adjustment?.ruleId ?? rule?.id ?? null,
     adjustmentId: adjustment?.id ?? null,
-    reason: reasonFor(classification, status, adjustment?.sourceType, rule?.decision),
+    reason: stale
+      ? "持久化报表应用金额与当前反向余额不一致；请复核源余额后重新确认调整。"
+      : reasonFor(classification, status, adjustment?.sourceType, rule?.decision),
   };
 }
 
@@ -227,7 +289,7 @@ function reasonFor(classification: ReclassClassification, status: ReclassWorkben
   return "非白名单反向余额，等待财务根据经济实质确认。";
 }
 
-function normalizeStatus(status: string): ReclassWorkbenchStatus {
+function normalizeAdjustmentStatus(status: string): ReclassWorkbenchStatus {
   if (status === "adjusted" || status === "rejected") return status;
   return "approved";
 }
@@ -246,25 +308,51 @@ function readDetailCount(note?: string | null) {
   }
 }
 
-function summarize(entries: readonly ReclassEntry[]): ReclassWorkbenchSummary {
-  const attentionRows = entries.filter((row) => row.status === "pending" || row.status === "configured");
-  const processedRows = entries.filter((row) => row.status === "approved" || row.status === "adjusted");
+export function summarizeReclassificationWorkbench(entries: readonly ReclassEntry[]): ReclassWorkbenchSummary {
+  const attentionRows = entries.filter((row) => row.status === "pending"
+    || row.status === "configured"
+    || (row.stale && (row.status === "approved" || row.status === "adjusted")));
+  const processedRows = entries.filter((row) => !row.stale && (row.status === "approved" || row.status === "adjusted"));
   return {
-    total: entries.length,
+    total: entries.filter((row) => row.status !== "historical").length,
     attention: attentionRows.length,
     processed: processedRows.length,
     exempt: entries.filter((row) => row.status === "exempt" || row.status === "rejected").length,
+    historical: entries.filter((row) => row.status === "historical").length,
     attentionAmount: roundMoney(attentionRows.reduce((sum, row) => sum + row.amount, 0)),
     processedAmount: roundMoney(processedRows.reduce((sum, row) => sum + row.amount, 0)),
   };
 }
 
 function emptySummary(): ReclassWorkbenchSummary {
-  return { total: 0, attention: 0, processed: 0, exempt: 0, attentionAmount: 0, processedAmount: 0 };
+  return { total: 0, attention: 0, processed: 0, exempt: 0, historical: 0, attentionAmount: 0, processedAmount: 0 };
 }
 
 function statusOrder(status: ReclassWorkbenchStatus) {
-  return status === "pending" ? 0 : status === "configured" ? 1 : status === "adjusted" ? 2 : status === "approved" ? 3 : 4;
+  return status === "pending" ? 0
+    : status === "configured" ? 1
+      : status === "adjusted" ? 2
+        : status === "approved" ? 3
+          : status === "historical" ? 5
+            : 4;
+}
+
+function resolveNaturalSide(balanceDirection: string | undefined, accountCode: string): "debit" | "credit" {
+  if (balanceDirection === "credit") return "credit";
+  if (balanceDirection === "debit") return "debit";
+  return accountCode.startsWith("2") ? "credit" : "debit";
+}
+
+function reverseBalanceAmount(balance: BalanceInput): { amount: number; side: "debit" | "credit" } | null {
+  const net = roundMoney(balance.closingDebit - balance.closingCredit);
+  if (net === 0) return null;
+  const side = net > 0 ? "debit" : "credit";
+  const naturalSide = resolveNaturalSide(balance.account.balanceDirection, balance.account.code);
+  return side === naturalSide ? null : { amount: Math.abs(net), side };
+}
+
+export function isStaleAdjustment(persistedAmount: number, currentAbnormalAmount: number | null) {
+  return currentAbnormalAmount === null || roundMoney(persistedAmount) !== roundMoney(currentAbnormalAmount);
 }
 
 function roundMoney(value: number) {

@@ -8,6 +8,7 @@
 import { prisma } from "@workspace/platform/server/prisma";
 
 import type { RuleCandidate, ScanCandidatesResult } from "./types";
+import { oppositeBalanceSide, resolveLongestPrefixRule } from "./resolution";
 
 export async function scanCandidates(): Promise<ScanCandidatesResult> {
   const [accounts, rules] = await Promise.all([
@@ -18,7 +19,7 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
     }),
     prisma.financeReclassRule.findMany({
       orderBy: [{ sourceAccountCode: "asc" }, { abnormalSide: "asc" }],
-      where: { source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
+      where: { enabled: true, source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
       select: { id: true, sourceAccountCode: true, abnormalSide: true, decision: true, targetAccountCode: true, source: true, enabled: true },
     }),
   ]);
@@ -26,44 +27,40 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
   for (const account of accounts) {
     if (!accountUnion.has(account.code)) accountUnion.set(account.code, account);
   }
-  const rulesBySource = new Map<string, typeof rules>();
-  for (const rule of rules) {
-    const list = rulesBySource.get(rule.sourceAccountCode) ?? [];
-    list.push(rule);
-    rulesBySource.set(rule.sourceAccountCode, list);
-  }
-
   const candidates: RuleCandidate[] = [];
+  const representedRuleIds = new Set<number>();
   for (const account of accountUnion.values()) {
-    const existingRules = rulesBySource.get(account.code) ?? [];
-    const rowRules = existingRules.length > 0 ? existingRules : [null];
-    for (const rule of rowRules) {
-      candidates.push({
-        accountCode: account.code,
-        accountName: account.name,
-        balanceDirection: account.balanceDirection,
-        abnormalSide: (rule?.abnormalSide ?? oppositeSide(account.balanceDirection)) as RuleCandidate["abnormalSide"],
-        abnormalAmount: 0,
-        existingRuleId: rule?.id ?? null,
-        existingTarget: rule?.targetAccountCode ?? null,
-        existingDecision: rule?.decision as RuleCandidate["existingDecision"] ?? null,
-        existingSource: rule?.source ?? null,
-        existingEnabled: rule?.enabled ?? null,
-      });
-    }
+    const candidateSide = oppositeBalanceSide(account.balanceDirection);
+    const rule = resolveLongestPrefixRule(account.code, candidateSide, rules);
+    if (rule) representedRuleIds.add(rule.id);
+    candidates.push({
+      accountCode: account.code,
+      accountName: account.name,
+      balanceDirection: account.balanceDirection,
+      abnormalSide: (rule?.sourceAccountCode === account.code ? rule.abnormalSide : candidateSide) as RuleCandidate["abnormalSide"],
+      abnormalAmount: 0,
+      existingRuleId: rule?.id ?? null,
+      existingTarget: rule?.targetAccountCode ?? null,
+      existingDecision: rule?.decision as RuleCandidate["existingDecision"] ?? null,
+      existingSource: rule?.source ?? null,
+      existingRuleSourceAccountCode: rule?.sourceAccountCode ?? null,
+      existingEnabled: rule?.enabled ?? null,
+    });
   }
   for (const rule of rules) {
-    if (accountUnion.has(rule.sourceAccountCode)) continue;
+    if (representedRuleIds.has(rule.id)) continue;
+    const account = accountUnion.get(rule.sourceAccountCode);
     candidates.push({
       accountCode: rule.sourceAccountCode,
-      accountName: rule.sourceAccountCode,
-      balanceDirection: rule.abnormalSide === "debit" ? "credit" : "debit",
+      accountName: account?.name ?? rule.sourceAccountCode,
+      balanceDirection: account?.balanceDirection ?? (rule.abnormalSide === "debit" ? "credit" : "debit"),
       abnormalSide: rule.abnormalSide as RuleCandidate["abnormalSide"],
       abnormalAmount: 0,
       existingRuleId: rule.id,
       existingTarget: rule.targetAccountCode,
       existingDecision: rule.decision as RuleCandidate["existingDecision"],
       existingSource: rule.source,
+      existingRuleSourceAccountCode: rule.sourceAccountCode,
       existingEnabled: rule.enabled,
     });
   }
@@ -78,8 +75,4 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
       unconfirmed: candidates.filter((candidate) => candidate.existingDecision === null).length,
     },
   };
-}
-
-function oppositeSide(balanceDirection: string): "debit" | "credit" {
-  return balanceDirection === "credit" ? "debit" : "credit";
 }

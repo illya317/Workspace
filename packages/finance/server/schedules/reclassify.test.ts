@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildReclassificationWorkbench } from "./reclassify";
+import { buildReclassificationWorkbench, summarizeReclassificationWorkbench } from "./reclassify";
 
 test("classifies reverse balances without treating every negative as a reclassification", () => {
   const entries = buildReclassificationWorkbench([
@@ -35,6 +35,40 @@ test("uses persisted auxiliary adjustments as the authoritative processed result
   assert.equal(entries[0]?.targetAccountName, "预付账款");
   assert.equal(entries[0]?.detailCount, 2);
   assert.equal(entries[0]?.adjustmentId, 4);
+  assert.equal(entries[0]?.amount, 100);
+  assert.equal(entries[0]?.currentAbnormalAmount, 120);
+  assert.equal(entries[0]?.stale, true);
+  const summary = summarizeReclassificationWorkbench(entries);
+  assert.equal(summary.attention, 1);
+  assert.equal(summary.processed, 0);
+});
+
+test("keeps persisted adjustments visible after the source balance becomes zero", () => {
+  const entries = buildReclassificationWorkbench(
+    [balance(1, "2202", "应付账款", "credit", 0, 0)],
+    [{ id: 4, periodId: 3, sourceAccountCode: "2202", targetAccountCode: "1123", amount: 100, sourceType: "manual", status: "adjusted", note: null }],
+    [],
+    [],
+    new Map([["1123", "预付账款"]]),
+    3,
+  );
+
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0]?.amount, 100);
+  assert.equal(entries[0]?.currentAbnormalAmount, 0);
+  assert.equal(entries[0]?.stale, true);
+  assert.match(entries[0]?.reason ?? "", /当前已无反向余额/);
+});
+
+test("does not mark a persisted adjustment stale when its applied amount still matches", () => {
+  const entries = buildReclassificationWorkbench(
+    [balance(1, "2202", "应付账款", "credit", 100, 0)],
+    [{ id: 4, periodId: 3, sourceAccountCode: "2202", targetAccountCode: "1123", amount: 100, sourceType: "manual", status: "adjusted", note: null }],
+    [],
+  );
+  assert.equal(entries[0]?.currentAbnormalAmount, 100);
+  assert.equal(entries[0]?.amount, 100);
+  assert.equal(entries[0]?.stale, false);
 });
 
 test("removes parent balances and exposes configured rules without marking them processed", () => {
@@ -52,6 +86,20 @@ test("removes parent balances and exposes configured rules without marking them 
   assert.equal(entries[0]?.ruleId, 9);
 });
 
+test("uses the longest matching prefix rule in the workbench", () => {
+  const entries = buildReclassificationWorkbench(
+    [balance(2, "122101", "其他应收款-单位", "debit", 0, 500)],
+    [],
+    [
+      { id: 8, sourceAccountCode: "122", abnormalSide: "credit", decision: "reclassify", targetAccountCode: "2241" },
+      { id: 9, sourceAccountCode: "1221", abnormalSide: "credit", decision: "reclassify", targetAccountCode: "224101" },
+    ],
+  );
+  assert.equal(entries[0]?.status, "configured");
+  assert.equal(entries[0]?.ruleId, 9);
+  assert.equal(entries[0]?.targetAccountCode, "224101");
+});
+
 test("exposes a persisted no-reclassification decision without a target", () => {
   const entries = buildReclassificationWorkbench(
     [balance(1, "2202", "应付账款", "credit", 120, 0)],
@@ -61,6 +109,23 @@ test("exposes a persisted no-reclassification decision without a target", () => 
   assert.equal(entries[0]?.status, "exempt");
   assert.equal(entries[0]?.targetAccountCode, null);
   assert.match(entries[0]?.reason ?? "", /人工确认无需重分类/);
+});
+
+test("keeps legacy voucher results as historical evidence only", () => {
+  const entries = buildReclassificationWorkbench(
+    [],
+    [],
+    [],
+    [{ sourceAccount: "2202", targetAccount: "1123", amount: 80, status: "approved" }],
+  );
+  const summary = summarizeReclassificationWorkbench(entries);
+
+  assert.equal(entries[0]?.status, "historical");
+  assert.match(entries[0]?.reason ?? "", /当前报表不再消费/);
+  assert.equal(summary.total, 0);
+  assert.equal(summary.processed, 0);
+  assert.equal(summary.processedAmount, 0);
+  assert.equal(summary.historical, 1);
 });
 
 function balance(
