@@ -112,9 +112,9 @@ npm run test:e2e:latency
 
 ## 分支保护初始化
 
-仓库内已提供保护配置和验证脚本，但截至 2026-07-16 的远端检查结果是 GitHub `main` **尚未启用保护**。因此当前不能宣称 PR、CODEOWNER 或 `CI / required` 已在远端强制执行；必须在 bootstrap CI 成功后显式 apply，并再次读取远端状态确认。
+截至 2026-07-16，独立 bootstrap `4f675923a5e672f718ad75bcc0a84cbd374883da` 已完成精确 SHA 全量 CI，GitHub `main` 已启用并回读确认保护：strict `CI / required` 绑定 GitHub Actions App，管理员同样受限，要求 CODEOWNERS、线性历史和 conversation resolution，禁止 force push/delete。后续功能只能通过受保护候选 PR 合入，不能再使用未保护 main 的 bootstrap 推送方式。
 
-新 workflow 第一次进入尚未保护的远端时必须用独立 bootstrap 提交。当前 `origin/main` 没有 trusted classifier/migration policy，直接推送现有全部功能提交会因其中包含 migrations 而失败；失败的 main SHA 也不能被当作下一轮 trusted policy base。
+以下步骤保留为首次启用或灾难恢复时的 bootstrap 记录；本仓库本次初始化已经完成，不应重复执行：
 
 1. 记录当前未保护 `origin/main` 的完整 SHA，并从它创建隔离 worktree。
 2. 从最终 review 通过的纯 CI/CD 提交应用完整 workflow 及其所有运行依赖，但明确排除 `prisma/migrations/**`；staged diff 不得包含 `app/`、`packages/`、`prisma/migrations/` 或其他业务变更。
