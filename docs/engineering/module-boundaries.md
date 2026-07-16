@@ -54,7 +54,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/platform/server/history.ts` 已接收审计快照写入契约；业务包需要写 EditHistory 时依赖 `@workspace/platform/server/history`。
 - `packages/platform/server/resolve-fk.ts` 已接收 FK 显示名解析契约；审计日志和业务包需要展示 FK 快照时依赖 `@workspace/platform/server/resolve-fk`。
 - `packages/hr/server/crud.ts` 已接收 HR 字段级 CRUD wrapper，统一注入 `hr.roster` 读写删除权限；HR server service 使用这个 wrapper 而不是 app-root `@/lib/crud`。
-- `packages/platform/ui` 已接收登录后的 Portal、普通 L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页、审计日志 UI 和 Agent 管理视图；普通 L1 必须挂 `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面。`/agent` 使用标准 `ModuleHomePage`，下挂 `agent.config`、`agent.usage`、`agent.reports`；`/work` 是 page gate 显式登记的专用 L1 入口，部门空间由 `/work/department/:departmentId` 进入。
+- `packages/platform/ui` 已接收登录后的 Portal、普通 L1 模块首页、AppShell、跨页 NavLink、用户菜单、设置页和审计日志 UI；普通 L1 必须挂 `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面。Agent 是 headless 模块，不提供 `/agent` 页面；`/work` 是 page gate 显式登记的专用 L1 入口，部门空间由 `/work/department/:departmentId` 进入。
 - Agent 管理中心与普通员工助手分属两个授权面：`agent` 及三个 L2 只管理配置、使用分析和任务汇报；工具栏和 `/api/agent/**` 由 headless `agent.assistant` capability 保护，其 owner 是 `settings.account`，`runtimeParentKey=agent` 只负责启停耦合。profile-only 源码检索与 CNB PR 再叠加 owner=`agent.assistant` 的 `agent.source.read/submit`，不要求管理入口。只有 Workspace AI0004 维护这组 source grants；本地 Codex、CI、服务器运行时承担代码开发、检查和部署，不在 Workspace 对话中执行。
 - `packages/administration` 已接收合同台账的 module、UI、server、types，`app/(modules)/administration/contracts/page.tsx` 和 `app/api/modules/administration/contracts/*` 只保留 Next 壳。
 - `packages/library` 已接收资料库 module、UI、server、types，`app/(modules)/library/page.tsx` 和 `app/api/modules/library/basic-info/*` 只保留 Next 壳；旧 `server/services/library` 不再承载实现。

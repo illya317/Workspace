@@ -151,7 +151,6 @@ function transactionClient(txId: number, releases: Array<() => void>) {
 const resourceIdByKey: Record<string, number> = {
   "agent.assistant": 1,
   "agent.source": 2,
-  "agent.config": 3,
 };
 
 mock.module("@workspace/platform/permission-action-grantability", {
@@ -386,16 +385,16 @@ test("owner-domain revoke wins before the locked authorization callback and bloc
   assert.equal(targetTxOperations.some((operation) => operation.type === "find" || operation.type === "create"), false);
 });
 
-test("agent.config domain revoke wins before base-read revalidation", async () => {
+test("agent.assistant domain revoke wins before source-grant revalidation", async () => {
   resetState();
-  const baseReadKey = tupleKey("user", 7, 3, "read", null);
+  const baseReadKey = tupleKey("user", 7, 1, "read", null);
   const targetGrantKey = tupleKey("user", 9, 2, "read", null);
   grantCounts.set(baseReadKey, 1);
 
   const revoke = setSubjectPermissionActionGrant(
     "user",
     7,
-    "agent.config",
+    "agent.assistant",
     "read",
     false,
     { actorUserId: 99 },
@@ -405,10 +404,10 @@ test("agent.config domain revoke wins before base-read revalidation", async () =
     { subjectType: "user", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
   ], {
     actorUserId: 7,
-    authorizationResourceKeys: ["agent.config", "agent.source"],
+    authorizationResourceKeys: ["agent.assistant", "agent.source"],
     beforeMutation: async () => {
       if ((grantCounts.get(baseReadKey) ?? 0) === 0) {
-        throw new PermissionGrantMutationError("agent.config.read revoked", 403);
+        throw new PermissionGrantMutationError("agent.assistant.read revoked", 403);
       }
     },
   });
@@ -416,7 +415,7 @@ test("agent.config domain revoke wins before base-read revalidation", async () =
 
   assert.equal(revokeResult.status, "fulfilled");
   assert.equal(targetResult.status, "rejected");
-  if (targetResult.status === "rejected") assert.match(String(targetResult.reason), /agent\.config\.read revoked/);
+  if (targetResult.status === "rejected") assert.match(String(targetResult.reason), /agent\.assistant\.read revoked/);
   assert.equal(grantCounts.get(baseReadKey) ?? 0, 0);
   assert.equal(grantCounts.get(targetGrantKey) ?? 0, 0);
   assert.equal(ledgerEvents.length, 1);
@@ -428,9 +427,9 @@ test("callback denial occurs after tx-only preflight and leaves target rows and 
     setSubjectPermissionActionGrants([
       { subjectType: "user", subjectId: 9, resourceKey: "agent.source", actionKey: "read", value: true },
     ], {
-      authorizationResourceKeys: ["agent.config", "agent.source"],
+      authorizationResourceKeys: ["agent.assistant", "agent.source"],
       beforeMutation: async (tx) => {
-        operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "agent.config" });
+        operations.push({ txId: Number((tx as unknown as { __txId: number }).__txId), type: "callback", key: "agent.assistant" });
         throw new PermissionGrantMutationError("base read revoked", 403);
       },
     }),
@@ -445,8 +444,8 @@ test("callback denial occurs after tx-only preflight and leaves target rows and 
   assert.ok(txOperations.some((operation) => operation.type === "resource"));
   assert.ok(txOperations.some((operation) => operation.type === "callback"));
   assert.equal(txOperations.some((operation) => operation.type === "find" || operation.type === "create"), false);
-  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:agent.config"));
-  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:agent"));
+  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:agent.assistant"));
+  assert.ok(txOperations.some((operation) => operation.key === "permission-action-grant-domain-v1:settings.account"));
 });
 
 test("unknown advisory-lock database failures propagate without mutation or ledger claims", async () => {

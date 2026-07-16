@@ -5,7 +5,6 @@ const resourceRows = [
   { id: 1, key: "settings", parentId: null },
   { id: 2, key: "settings.account", parentId: 1 },
   { id: 3, key: "agent", parentId: null },
-  { id: 4, key: "agent.config", parentId: 3 },
   { id: 5, key: "agent.assistant", parentId: null },
   { id: 6, key: "agent.source", parentId: null },
 ];
@@ -85,7 +84,7 @@ const { canManageResourceGrant, getManageableResourceKeys } = await import("./ad
 const { authorizePermissionGrantRequest } = await import("./action-grant-request");
 
 test("lock-time Agent authorization uses only the injected transaction client through the full RBAC chain", async () => {
-  assert.equal(await evaluatePermissionAction(7, "agent.config", "read", { client: tx as never }), true);
+  assert.equal(await evaluatePermissionAction(7, "agent.assistant", "read", { client: tx as never }), true);
   const manageable = await getManageableResourceKeys(7, tx as never);
   assert.equal(manageable.has("agent.assistant"), true);
   assert.equal(manageable.has("agent.source"), true);

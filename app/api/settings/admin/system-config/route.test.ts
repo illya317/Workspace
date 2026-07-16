@@ -22,14 +22,17 @@ mock.module("@workspace/platform/server/system-config", {
   },
 } as never);
 
-test("Settings system config response does not expose Agent action policy", async () => {
+test("Settings system config exposes the headless Agent action policy", async () => {
   const { GET } = await import("./route");
   const response = await GET(new Request("http://localhost/api/settings/admin/system-config"));
   assert.equal(response.status, 200);
-  assert.deepEqual(await response.json(), { conflictStrategy: "union" });
+  assert.deepEqual(await response.json(), {
+    conflictStrategy: "union",
+    agentAllowedActions: ["read", "submit"],
+  });
 });
 
-test("Settings system config rejects Agent action policy writes", async () => {
+test("Settings system config updates the headless Agent action policy", async () => {
   const { PUT } = await import("./route");
   updateInput = null;
   const response = await PUT(new Request("http://localhost/api/settings/admin/system-config", {
@@ -37,11 +40,11 @@ test("Settings system config rejects Agent action policy writes", async () => {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ agentAllowedActions: ["read"] }),
   }));
-  assert.equal(response.status, 400);
-  assert.equal(updateInput, null);
+  assert.equal(response.status, 200);
+  assert.deepEqual(updateInput, { agentAllowedActions: ["read"] });
 });
 
-test("Settings system config still updates its own conflict policy", async () => {
+test("Settings system config still updates conflict policy", async () => {
   const { PUT } = await import("./route");
   updateInput = null;
   const response = await PUT(new Request("http://localhost/api/settings/admin/system-config", {

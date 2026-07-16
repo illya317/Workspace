@@ -22,7 +22,9 @@ export function findFocusedTests(source) {
 function trackedTestFiles(cwd) {
   const result = spawnSync("git", ["ls-files", "-z"], { cwd, encoding: "buffer" });
   if (result.status !== 0) throw new Error(result.stderr.toString("utf8").trim() || "git ls-files failed");
-  return result.stdout.toString("utf8").split("\0").filter((file) => TEST_FILE_PATTERN.test(file));
+  return result.stdout.toString("utf8").split("\0").filter((file) => (
+    TEST_FILE_PATTERN.test(file) && fs.existsSync(path.join(cwd, file))
+  ));
 }
 
 export function checkTestFocus(cwd = process.cwd()) {

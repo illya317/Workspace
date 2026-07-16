@@ -2,11 +2,11 @@
 
 # ActionContract Registry
 
-**167 contracts** across 11 modules.
+**165 contracts** across 11 modules.
 
-Kinds: write=91 · lifecycle=45 · exchange:export=4 · governance=15 · exchange:import=7 · workflow=4 · remote_effect=1
+Kinds: write=91 · lifecycle=45 · exchange:export=4 · governance=13 · exchange:import=7 · workflow=4 · remote_effect=1
 
-Workflow: not_applicable=144 · configurable=20 · native=3
+Workflow: not_applicable=142 · configurable=20 · native=3
 
 Contract facts come from `packages/platform/action-contract-registry.ts` and its composed registries. Route bindings and referenced runtime symbols are enforced by `npm run action-contract:check`.
 
@@ -23,8 +23,6 @@ Contract facts come from `packages/platform/action-contract-registry.ts` and its
 
 | Action | Kind / target | Resource | Routes | Domain binding | Persistence / semantics | Workflow |
 |---|---|---|---|---|---|---|
-| `agent.config.actionCeiling.configure`<br>配置 Agent 全局动作上限 | governance<br>SystemConfig | `agent.config`<br>direct=configure | command: PUT /api/modules/agent/config/action-ceiling<br>direct: PUT /api/modules/agent/config/action-ceiling | validate=packages/platform/server/agent/domain/permission-management-validation.validateAgentActionCeilingUpdate<br>commit=packages/platform/server/agent/permission-management-service.executeAgentActionCeilingUpdateCommand | strategy=active_table_state<br>active=SystemConfig<br>mode=native_transition<br>---<br>subject=policy<br>scope=system<br>audit=history | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
-| `agent.config.save`<br>保存 Agent 配置 | governance<br>AgentProfile | `agent.config`<br>direct=configure | command: PUT /api/modules/agent/config<br>direct: PUT /api/modules/agent/config | validate=packages/platform/server/agent/domain/configuration-validation.validateAgentConfigurationUpdate<br>commit=packages/platform/server/agent/configuration-service.executeAgentConfigurationUpdateCommand | strategy=active_table_state<br>active=AgentProfile<br>mode=native_transition<br>---<br>subject=configuration<br>scope=system<br>audit=history | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
 | `source.submitCnbPullRequest`<br>提交 CNB Pull Request | remote_effect<br>CnbPullRequest | `agent.source`<br>direct=submit | command: POST /api/agent/proposals/:id/confirm<br>direct: POST /api/agent/proposals/:id/confirm | validate=packages/platform/server/agent/cnb-pr.validateCnbPullRequestProposalPayload<br>commit=packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal | none (authoritative state is remote)<br>---<br>provider=CNB<br>operation=create_pull_request<br>localAudit=AgentProposal<br>dispatchFailure=unknown<br>retry=reconcile_before_retry | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
 
 ## capitalSecurities
