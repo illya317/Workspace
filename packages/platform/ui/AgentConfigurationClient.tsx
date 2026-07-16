@@ -10,9 +10,8 @@ import { getPageViewTabs } from "@workspace/platform/view-registry";
 import { putJson, requestJson } from "./api-client";
 import { useAgentPermissionManagementSections } from "./agent-permission-management";
 import {
-  permissionSections,
-  profileSections,
-  runtimeSections,
+  capabilityBody,
+  profileBody,
   type AgentConfigurationEditor,
   type AgentProfileConfigurationDraft,
   type AgentRuntimeConfigurationDraft,
@@ -22,6 +21,8 @@ type Props = {
   data: AgentConfigurationData;
   canConfigure: boolean;
 };
+
+type PermissionView = "capabilities" | "ceiling" | "grants";
 
 function profileDraftsFrom(data: AgentConfigurationData): Record<number, AgentProfileConfigurationDraft> {
   return Object.fromEntries(data.profiles.map((profile) => [profile.id, {
@@ -45,7 +46,12 @@ export function AgentConfigurationClient({ data, canConfigure }: Props) {
   const tabs = getPageViewTabs("/agent/config");
   const feedback = useFeedback();
   const [active, setActive] = useState(tabs[0]?.key ?? "profiles");
+  const [permissionView, setPermissionView] = useState<PermissionView>("capabilities");
   const [currentData, setCurrentData] = useState(data);
+  const [selectedProfileId, setSelectedProfileId] = useState<number | null>(data.profiles[0]?.id ?? null);
+  const [selectedRuntimeId, setSelectedRuntimeId] = useState<number | null>(
+    data.profiles.flatMap((profile) => profile.runtimes).find((runtime) => runtime.kind === "workspace")?.id ?? null,
+  );
   const [profileDrafts, setProfileDrafts] = useState(() => profileDraftsFrom(data));
   const [runtimeDrafts, setRuntimeDrafts] = useState(() => runtimeDraftsFrom(data));
   const [savingKey, setSavingKey] = useState<string | null>(null);
@@ -161,7 +167,7 @@ export function AgentConfigurationClient({ data, canConfigure }: Props) {
   const permissionManagementSections = useAgentPermissionManagementSections({
     data: currentData,
     canConfigure,
-    enabled: active === "permissions",
+    enabled: active === "permissions" && permissionView === "grants",
     onConfigurationChanged: refreshConfiguration,
     onCeilingSaved: (actionKeys) => setCurrentData((current) => ({
       ...current,
@@ -171,17 +177,28 @@ export function AgentConfigurationClient({ data, canConfigure }: Props) {
     onSuccess: feedback.success,
     onError: feedback.error,
   });
-  const sections = active === "runtimes"
-    ? runtimeSections(currentData, editor)
-    : active === "permissions"
-      ? permissionSections(currentData, editor, permissionManagementSections)
-      : profileSections(currentData, editor);
+  const body = active === "permissions"
+      ? permissionView === "capabilities"
+        ? capabilityBody(currentData, editor, selectedRuntimeId, setSelectedRuntimeId)
+        : createPageBody(permissionView === "ceiling"
+          ? permissionManagementSections.ceiling
+          : permissionManagementSections.grants)
+      : profileBody(currentData, editor, selectedProfileId, setSelectedProfileId);
 
   return (
     <PageSurface
       kind="standard"
-      tabbar={createPageTabBar({ items: tabs, active, onChange: setActive, ariaLabel: "Agent 配置视图" })}
-      body={createPageBody(sections)}
+      tabbar={createPageTabBar({
+        items: tabs,
+        active,
+        activeChild: active === "permissions" ? permissionView : undefined,
+        onChange: setActive,
+        onChildChange: active === "permissions"
+          ? (key) => setPermissionView(key as PermissionView)
+          : undefined,
+        ariaLabel: "Agent 配置视图",
+      })}
+      body={body}
     />
   );
 }

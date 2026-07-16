@@ -6,6 +6,7 @@ import { registeredModuleDefinitions } from "./module-registry";
 import { getActionContractMetadata } from "./action-contract-registry";
 import { getBusinessActionRegistration } from "./business-action-registry";
 import { resolvePermissionApiActionPolicy } from "./permission-api-action-policy";
+import { getPageViewTabs } from "./view-registry";
 import {
   getPermissionResourceActionPolicy,
   isPermissionActionExplicitOnly,
@@ -183,6 +184,27 @@ test("Agent configuration UI owns the ceiling, focused grants, and runtime allow
   assert.match(route, /buildAgentConfigurationUpdateCommand/);
   assert.match(route, /executeAgentConfigurationUpdateCommand/);
   assert.doesNotMatch(route, /prisma/);
+});
+
+test("Agent configuration separates object editing from permission write boundaries", () => {
+  const client = readFileSync("packages/platform/ui/AgentConfigurationClient.tsx", "utf8");
+  const sections = readFileSync("packages/platform/ui/agent-configuration-sections.ts", "utf8");
+  const tabs = getPageViewTabs("/agent/config");
+  const permissionTab = tabs.find((tab) => tab.key === "permissions");
+
+  assert.deepEqual(tabs.map((tab) => tab.key), ["profiles", "permissions"]);
+  assert.deepEqual(permissionTab?.children?.map((child) => child.key), [
+    "capabilities",
+    "ceiling",
+    "grants",
+  ]);
+  assert.match(client, /activeChild: active === "permissions" \? permissionView : undefined/);
+  assert.match(client, /permissionManagementSections\.ceiling/);
+  assert.match(client, /permissionManagementSections\.grants/);
+  assert.match(sections, /createFixedSidebarBody\(\{/);
+  assert.match(sections, /row\.runtime\.kind === "workspace"/);
+  assert.doesNotMatch(sections, /label: "运行状态"|label: "允许交互"/);
+  assert.doesNotMatch(sections, /createMetricsSection|四层权限交集|Workspace 已注册且虚拟员工可用的能力/);
 });
 
 test("task reports keep current responsibility and latest-run exceptions orthogonal", () => {
