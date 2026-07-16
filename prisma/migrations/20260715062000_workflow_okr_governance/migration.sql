@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 BEGIN;
 
 CREATE FUNCTION "_workspace_workflow_okr_try_jsonb"("input" TEXT)

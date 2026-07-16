@@ -1,6 +1,6 @@
 /// 可折旧/摊销资产卡片（事实表，来源于手工新建或独立资产底稿导入）
 model FinanceAssetCard {
-  id                       Int                      @id @default(autoincrement())
+  id                       Int                             @id @default(autoincrement())
   companyCode              String
   assetCode                String
   name                     String
@@ -10,13 +10,13 @@ model FinanceAssetCard {
   accumulatedAccountCode   String?
   acquisitionDate          String?
   depreciationStartDate    String?
-  originalCost             Decimal                  @db.Decimal(20, 2)
-  residualRate             Decimal                  @default(0) @db.Decimal(10, 6)
+  originalCost             Decimal                         @db.Decimal(20, 2)
+  residualRate             Decimal                         @default(0) @db.Decimal(10, 6)
   usefulLifeMonths         Int?
-  method                   String                   @default("straight_line")
-  openingAccumulatedAmount Decimal                  @default(0) @db.Decimal(20, 2)
+  method                   String                          @default("straight_line")
+  openingAccumulatedAmount Decimal                         @default(0) @db.Decimal(20, 2)
   openingAsOfDate          String?
-  status                   String                   @default("active")
+  status                   String                          @default("active")
   nonAmortizationReason    String?
   note                     String?
   sourceFile               String?
@@ -24,9 +24,9 @@ model FinanceAssetCard {
   sourceRow                Int?
   sourceKey                String?
   editedBy                 Int?
-  version                  Int                      @default(1)
-  createdAt                DateTime                 @default(now())
-  updatedAt                DateTime                 @default(now()) @updatedAt
+  version                  Int                             @default(1)
+  createdAt                DateTime                        @default(now())
+  updatedAt                DateTime                        @default(now()) @updatedAt
   costLines                FinanceAssetCostLine[]
   allocations              FinanceAssetExpenseAllocation[]
   periodEntries            FinanceAssetPeriodEntry[]
@@ -39,20 +39,20 @@ model FinanceAssetCard {
 
 /// 资产成本组成行（事实表，保留发票、免除和其他纳入/扣减依据）
 model FinanceAssetCostLine {
-  id          Int              @id @default(autoincrement())
-  assetId     Int
-  lineType    String           @default("invoice")
-  treatment   String           @default("included")
-  referenceNo String?
+  id            Int              @id @default(autoincrement())
+  assetId       Int
+  lineType      String           @default("invoice")
+  treatment     String           @default("included")
+  referenceNo   String?
   referenceDate String?
-  amount      Decimal          @db.Decimal(20, 2)
-  reason      String?
-  sourceFile  String?
-  sourceSheet String?
-  sourceRow   Int?
-  sourceKey   String?
-  createdAt   DateTime         @default(now())
-  asset       FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
+  amount        Decimal          @db.Decimal(20, 2)
+  reason        String?
+  sourceFile    String?
+  sourceSheet   String?
+  sourceRow     Int?
+  sourceKey     String?
+  createdAt     DateTime         @default(now())
+  asset         FinanceAssetCard @relation(fields: [assetId], references: [id], onDelete: Cascade)
 
   @@unique([assetId, sourceKey])
   @@index([assetId, treatment])
@@ -114,25 +114,25 @@ model FinanceAssetPeriodEntry {
 
 /// 月度折旧/摊销调整（不可变审计事实，确认后仅允许冲销）
 model FinanceAssetAdjustment {
-  id          Int               @id @default(autoincrement())
-  companyCode String
-  periodId    Int
-  assetId     Int?
-  accountCode String
-  amount      Decimal           @db.Decimal(20, 2)
-  reason      String
-  status      String            @default("confirmed")
+  id           Int               @id @default(autoincrement())
+  companyCode  String
+  periodId     Int
+  assetId      Int?
+  accountCode  String
+  amount       Decimal           @db.Decimal(20, 2)
+  reason       String
+  status       String            @default("confirmed")
   reversedById Int?
-  voucherId   Int?
-  sourceFile  String?
-  sourceSheet String?
-  sourceRow   Int?
-  sourceKey   String?
-  createdBy   Int?
-  createdAt   DateTime          @default(now())
-  asset       FinanceAssetCard? @relation(fields: [assetId], references: [id], onDelete: SetNull)
-  period      FinancePeriod     @relation(fields: [periodId], references: [id], onDelete: Cascade)
-  voucher     FinanceVoucher?   @relation(fields: [voucherId], references: [id], onDelete: SetNull)
+  voucherId    Int?
+  sourceFile   String?
+  sourceSheet  String?
+  sourceRow    Int?
+  sourceKey    String?
+  createdBy    Int?
+  createdAt    DateTime          @default(now())
+  asset        FinanceAssetCard? @relation(fields: [assetId], references: [id], onDelete: SetNull)
+  period       FinancePeriod     @relation(fields: [periodId], references: [id], onDelete: Cascade)
+  voucher      FinanceVoucher?   @relation(fields: [voucherId], references: [id], onDelete: SetNull)
 
   @@unique([companyCode, sourceKey])
   @@index([periodId, status])

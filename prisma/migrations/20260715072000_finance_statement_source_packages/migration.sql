@@ -1,3 +1,4 @@
+-- workspace:migration-mode=maintenance
 BEGIN;
 
 ALTER TABLE "FinanceStatementWorkpaper"

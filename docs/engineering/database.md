@@ -4,12 +4,53 @@
 
 ## 模型列表
 
+### AgentProfile
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| key | String | @unique |  |
+| actorUserId | Int | @unique |  |
+| displayName | String | - |  |
+| roleName | String | - |  |
+| responsibilities | String | - |  |
+| allowedToolKeysJson | String | - |  |
+| status | String | @default("active") | active | suspended |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| actorUser | User | @relation("AgentProfileActor", fields: [actorUserId], references: [id], onDelete: Restrict) |  |
+| runtimeBindings | AgentRuntimeBinding[] | - |  |
+| sessions | AgentSession[] | - |  |
+| proposals | AgentProposal[] | - |  |
+| runs | AgentRun[] | - |  |
+
+### AgentRuntimeBinding
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| agentProfileId | Int | - |  |
+| runtimeKind | String | - | workspace | codex_local | ci | server_ops |
+| status | String | @default("active") | active | suspended |
+| interactive | Boolean | @default(false) |  |
+| capabilityKeysJson | String | - |  |
+| instructions | String | - |  |
+| createdBy | Int? | - |  |
+| editedBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @updatedAt |  |
+| agentProfile | AgentProfile | @relation(fields: [agentProfileId], references: [id], onDelete: Restrict) |  |
+| runs | AgentRun[] | - |  |
+
 ### AgentSession
 
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | String | @id |  |
 | userId | Int | - |  |
+| agentProfileId | Int? | - |  |
 | status | String | @default("active") | active | deleted |
 | pagePath | String? | - |  |
 | contextLabel | String? | - |  |
@@ -24,6 +65,8 @@
 | updatedAt | DateTime | @updatedAt |  |
 | expiresAt | DateTime? | - |  |
 | deletedAt | DateTime? | - |  |
+| agentProfile | AgentProfile? | @relation(fields: [agentProfileId], references: [id], onDelete: Restrict) |  |
+| runs | AgentRun[] | - |  |
 
 ### AgentProposal
 
@@ -31,16 +74,54 @@
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
 | userId | Int | - |  |
+| actorUserId | Int? | - |  |
+| agentProfileId | Int? | - |  |
 | sessionId | String? | - |  |
-| status | String | @default("pending") | pending | confirmed | cancelled | failed |
+| status | String | @default("pending") | pending | executing | confirmed | cancelled | failed | expired |
 | actionKey | String | - | 工具 key，如 hr.updateEmployee |
+| toolKey | String? | - |  |
 | targetType | String | - | 目标实体，如 Employee |
 | targetId | String? | - | 目标记录标识 |
 | payloadJson | String | - | 变更内容 JSON |
 | diffJson | String? | - | 变更前后对比 JSON |
 | resultJson | String? | - | 执行结果 JSON |
+| executionToken | String? | - |  |
+| executionStartedAt | DateTime? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | confirmedAt | DateTime? | - |  |
+| agentProfile | AgentProfile? | @relation(fields: [agentProfileId], references: [id], onDelete: Restrict) |  |
+
+### AgentRun
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| sessionId | String | - |  |
+| requesterUserId | Int | - |  |
+| actorUserId | Int | - |  |
+| agentProfileId | Int? | - |  |
+| runtimeBindingId | Int? | - |  |
+| runtimeKind | String | @default("workspace") | workspace | codex_local | ci | server_ops |
+| runtimeConfigJson | String? | - |  |
+| runtimeConfigHash | String? | - |  |
+| status | String | @default("running") | running | succeeded | failed | aborted |
+| pagePath | String? | - |  |
+| toolKey | String? | - |  |
+| resultType | String? | - |  |
+| proposalId | Int? | - |  |
+| errorMessage | String? | - |  |
+| inputOtherTokens | Int? | - |  |
+| inputCacheReadTokens | Int? | - |  |
+| inputCacheCreationTokens | Int? | - |  |
+| outputTokens | Int? | - |  |
+| contextUsagePeak | Float? | - |  |
+| runtimeStepCount | Int? | - |  |
+| runtimeOutcome | String? | - |  |
+| startedAt | DateTime | @default(now()) |  |
+| finishedAt | DateTime? | - |  |
+| session | AgentSession | @relation(fields: [sessionId], references: [id], onDelete: Cascade) |  |
+| agentProfile | AgentProfile? | @relation(fields: [agentProfileId], references: [id], onDelete: Restrict) |  |
+| runtimeBinding | AgentRuntimeBinding? | @relation(fields: [runtimeBindingId], references: [id], onDelete: Restrict) |  |
 
 ### ApprovalRequest
 
@@ -123,6 +204,7 @@
 | editedContracts | Contract[] | @relation("ContractEditor") |  |
 | editHistories | EditHistory[] | @relation("EditHistoryEditor") |  |
 | employees | Employee[] | @relation("EmployeeUser") |  |
+| agentProfile | AgentProfile? | @relation("AgentProfileActor") |  |
 | editedFinanceAccounts | FinanceAccount[] | @relation("FinanceAccountEditor") |  |
 | editedFinanceVouchers | FinanceVoucher[] | @relation("FinanceVoucherEditor") |  |
 | editedStockFinishedGoods | StockFinishedGoods[] | @relation("StockFinishedGoodsEditor") |  |

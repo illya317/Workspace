@@ -1,43 +1,43 @@
 /// 财务来源导入批次（统一承载 T6/TPlus 账套级追溯与控制数）
 model FinanceLedgerImport {
-  id              Int                           @id @default(autoincrement())
-  batchKey        String?                       @unique
-  type            String
-  companyCode     String
-  year            Int
-  sourceSystem    String?
-  sourceLedger    String?
-  sourceDatabase  String?
-  sourceFile      String?
-  sourcePath      String?
-  snapshotDate    String?
-  cutoffDate      String?
-  checksum        String?
-  controlJson     Json?
-  status          String                        @default("completed")
-  rowCount        Int                           @default(0)
-  createdCount    Int                           @default(0)
-  updatedCount    Int                           @default(0)
-  skippedCount    Int                           @default(0)
-  deletedCount    Int                           @default(0)
-  conflictCount   Int                           @default(0)
-  blockedCount    Int                           @default(0)
-  warnings        String?
-  importedBy      Int?
-  importedAt      DateTime                      @default(now())
-  createdAt       DateTime                      @default(now())
-  updatedAt       DateTime                      @default(now()) @updatedAt
-  importer        User?                         @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id])
-  vouchers        FinanceVoucher[]
-  items           FinanceVoucherItem[]
-  sourceBalances  FinanceSourceAccountBalance[]
-  auxiliaryMembers FinanceAuxiliaryMember[]
-  auxiliaryBalances FinanceAuxiliaryBalance[]
-  cashFlowItems   FinanceCashFlowItem[]
+  id                  Int                           @id @default(autoincrement())
+  batchKey            String?                       @unique
+  type                String
+  companyCode         String
+  year                Int
+  sourceSystem        String?
+  sourceLedger        String?
+  sourceDatabase      String?
+  sourceFile          String?
+  sourcePath          String?
+  snapshotDate        String?
+  cutoffDate          String?
+  checksum            String?
+  controlJson         Json?
+  status              String                        @default("completed")
+  rowCount            Int                           @default(0)
+  createdCount        Int                           @default(0)
+  updatedCount        Int                           @default(0)
+  skippedCount        Int                           @default(0)
+  deletedCount        Int                           @default(0)
+  conflictCount       Int                           @default(0)
+  blockedCount        Int                           @default(0)
+  warnings            String?
+  importedBy          Int?
+  importedAt          DateTime                      @default(now())
+  createdAt           DateTime                      @default(now())
+  updatedAt           DateTime                      @default(now()) @updatedAt
+  importer            User?                         @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id])
+  vouchers            FinanceVoucher[]
+  items               FinanceVoucherItem[]
+  sourceBalances      FinanceSourceAccountBalance[]
+  auxiliaryMembers    FinanceAuxiliaryMember[]
+  auxiliaryBalances   FinanceAuxiliaryBalance[]
+  cashFlowItems       FinanceCashFlowItem[]
   cashFlowAllocations FinanceCashFlowAllocation[]
-  openItems       FinanceOpenItem[]
-  currencies      FinanceCurrency[]
-  bankAccounts    FinanceBankAccount[]
+  openItems           FinanceOpenItem[]
+  currencies          FinanceCurrency[]
+  bankAccounts        FinanceBankAccount[]
 
   @@index([companyCode, year, type])
   @@index([sourceSystem, sourceLedger, year])
@@ -46,25 +46,25 @@ model FinanceLedgerImport {
 
 /// ERP 原生科目余额控制事实（与系统计算的 FinanceAccountBalance 展示缓存分离）
 model FinanceSourceAccountBalance {
-  id              Int                 @id @default(autoincrement())
-  importId        Int
-  periodId        Int
-  accountId       Int
-  companyCode     String
-  sourceSystem    String
-  sourceDatabase  String
-  sourceKey       String
-  openingDebit    Decimal             @default(0) @db.Decimal(20, 2)
-  openingCredit   Decimal             @default(0) @db.Decimal(20, 2)
-  currentDebit    Decimal             @default(0) @db.Decimal(20, 2)
-  currentCredit   Decimal             @default(0) @db.Decimal(20, 2)
-  closingDebit    Decimal             @default(0) @db.Decimal(20, 2)
-  closingCredit   Decimal             @default(0) @db.Decimal(20, 2)
-  createdAt       DateTime            @default(now())
-  updatedAt       DateTime            @default(now()) @updatedAt
-  import          FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
-  period          FinancePeriod       @relation(fields: [periodId], references: [id])
-  account         FinanceAccount      @relation(fields: [accountId], references: [id])
+  id             Int                 @id @default(autoincrement())
+  importId       Int
+  periodId       Int
+  accountId      Int
+  companyCode    String
+  sourceSystem   String
+  sourceDatabase String
+  sourceKey      String
+  openingDebit   Decimal             @default(0) @db.Decimal(20, 2)
+  openingCredit  Decimal             @default(0) @db.Decimal(20, 2)
+  currentDebit   Decimal             @default(0) @db.Decimal(20, 2)
+  currentCredit  Decimal             @default(0) @db.Decimal(20, 2)
+  closingDebit   Decimal             @default(0) @db.Decimal(20, 2)
+  closingCredit  Decimal             @default(0) @db.Decimal(20, 2)
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @default(now()) @updatedAt
+  import         FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  period         FinancePeriod       @relation(fields: [periodId], references: [id])
+  account        FinanceAccount      @relation(fields: [accountId], references: [id])
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])

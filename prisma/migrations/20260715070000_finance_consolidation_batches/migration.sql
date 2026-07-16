@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 BEGIN;
 
 CREATE TABLE "FinanceConsolidationBatch" (
