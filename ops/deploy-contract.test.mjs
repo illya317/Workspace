@@ -146,12 +146,12 @@ test("deployment uses committed evidence without a CNB or server GitHub token", 
   ]);
 });
 
-test("CNB reads the repository-relative release evidence as a file", () => {
-  assert.match(deploy, /require\("\.\/" \+ process\.argv\[1\]\)/);
+test("CNB reads relative JSON inputs as files instead of Node modules", () => {
+  assert.match(deploy, /JSON\.parse\(require\("node:fs"\)\.readFileSync\(process\.argv\[1\], "utf8"\)\)/);
   assert.equal(
-    deploy.includes("const e=require(process.argv[1])"),
+    /require\((?:"\.\/" \+ )?process\.argv\[1\]\)/.test(deploy),
     false,
-    "a dotfile path without ./ is resolved as a Node package name",
+    "relative JSON inputs must not use Node module resolution",
   );
 });
 
