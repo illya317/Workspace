@@ -104,8 +104,8 @@ npm run test:e2e:latency
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。PR 合并后的 main run 产出 Actions artifact `workspace-standalone-<SHA>-run-<RUN_ID>-attempt-<RUN_ATTEMPT>`，并建立 `ci-artifact-<SHA>-run-<RUN_ID>-attempt-<RUN_ATTEMPT>` prerelease；artifact、manifest 与 release assets 都绑定 digest。
 5. `publish.sh deploy` 要求本地 HEAD 精确等于受保护 `origin/main`，读取生产 `deployed-release.json`，重新分类 `last_deployed..candidate`。
 6. 若累计等级、目标 suite 或 artifact 覆盖强度不足，发布入口对当前 main SHA 触发 `workflow_dispatch force_full=true`，等待 C3/full 结果；若生产 deployed baseline 不可读、不是候选祖先或累计 migration 区间无法证明，则直接阻断，必须先人工核验并修复发布证据。
-7. release evidence 验证 strict branch protection、精确 `CI / required` + GitHub Actions App、最新同 SHA/run/attempt、Actions artifact、prerelease assets、source tree 和全部 digest；服务器部署锁内还会重新查询同 SHA 的 push/dispatch/schedule runs，证据生成后出现更新的失败、运行中或重跑都会阻断切换。
-8. Git 跟踪的 `ops/cnb-release.yml` 是经 review 的 CNB CD 配置真源；私有目录可保留逐字一致副本和 `.env`，但不能形成第二套控制逻辑。`cnb-release` 注入提交只增加由该真源生成的 `.cnb.yml` 与 `.cnb-release-evidence.json`，其 parent 必须是 canonical source SHA。CNB 下载相同 tgz，服务器再次验 hash 后才解包，不构建源码。
+7. release evidence 验证 strict branch protection、精确 `CI / required` + GitHub Actions App、最新同 SHA/run/attempt、Actions artifact 与 prerelease asset 的元数据、source tree 和 digest 声明；本地发布入口不重复下载 standalone 或 manifest。服务器部署锁内还会重新查询同 SHA 的 push/dispatch/schedule runs，证据生成后出现更新的失败、运行中或重跑都会阻断切换。
+8. Git 跟踪的 `ops/cnb-release.yml` 是经 review 的 CNB CD 配置真源；私有目录可保留逐字一致副本和 `.env`，但不能形成第二套控制逻辑。`cnb-release` 注入提交只增加由该真源生成的 `.cnb.yml` 与 `.cnb-release-evidence.json`，其 parent 必须是 canonical source SHA。CNB 是唯一下载 tgz 与 manifest 的发布阶段，并核对 release digest、manifest、source SHA/tree、run identity 与 artifact hash 后才解包，不构建源码。
 9. `publish.sh` 记录 CNB trigger 返回的 SN，轮询 `get-build-status`；`success` 之外的 `error`/`cancel` 等终态会把 GitHub production deployment 标为失败。服务器切换后还要核对 SHA、run ID、run attempt、artifact digest，并通过 SSH 实时验证 health 与 `/workspace/api/settings/version` 精确等于目标 SHA，之后才能把 deployment 对账为 success；同 SHA 重试同样不能仅凭旧记录跳过实时验证。
 
 只有 C0 文档变化时没有运行包可发布，`deploy` 会明确 no-op。覆盖强度不足可以自动升级全量；生产基线不可读、不是候选祖先、累计 migration 区间不可证明或证据解析失败时一律阻断，不能用 `force_full` 掩盖。

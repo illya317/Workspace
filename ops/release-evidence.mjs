@@ -2,8 +2,7 @@
 
 import { spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { createReadStream, createWriteStream, mkdtempSync, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
-import { tmpdir } from "node:os";
+import { createReadStream, createWriteStream, readFileSync, readdirSync, renameSync, rmSync, statSync, writeFileSync } from "node:fs";
 import { basename, dirname, join, relative, resolve, sep } from "node:path";
 import { mkdirSync } from "node:fs";
 import { Readable } from "node:stream";
@@ -196,56 +195,8 @@ function loadEvidence(path) {
       }
     }
   }
-  const provenance = github.artifactProvenance;
-  if (!provenance || provenance.sourceCommitSha !== sourceSha || provenance.sourceTreeSha !== sourceTree) {
-    fail("release evidence artifact provenance source identity is invalid");
-  }
-  if (provenance.buildId !== sourceSha
-    || String(provenance.githubRunId) !== String(github.runId)
-    || String(provenance.githubRunAttempt) !== String(github.runAttempt)
-    || provenance.githubEventName !== github.event
-    || provenance.targetSha !== sourceSha) {
-    fail("release evidence artifact provenance does not match the selected workflow run");
-  }
-  if (!/^[0-9a-f]{64}$/.test(provenance.artifactSha256 ?? "")) {
-    fail("release evidence artifact provenance hash is invalid");
-  }
-  if (!DIGEST_PATTERN.test(provenance.manifestDigest ?? "")) {
-    fail("release evidence artifact provenance manifest digest is invalid");
-  }
-  if (!/^C[123]$/.test(provenance.riskClass ?? "")
-    || !["none", "targeted", "full"].includes(provenance.e2eMode)) {
-    fail("release evidence artifact risk provenance is invalid");
-  }
-  validateStringArray(provenance.requiredSuites, "release evidence required suites");
-  validateStringArray(provenance.e2eSpecs, "release evidence e2e specs");
-  if (!provenance.classification
-    || provenance.classification.schemaVersion !== 1
-    || provenance.classification.riskClass !== provenance.riskClass
-    || provenance.classification.e2eMode !== provenance.e2eMode
-    || JSON.stringify(provenance.classification.requiredSuites) !== JSON.stringify(provenance.requiredSuites)
-    || JSON.stringify(provenance.classification.e2eSpecs) !== JSON.stringify(provenance.e2eSpecs)) {
-    fail("release evidence classifier provenance is inconsistent");
-  }
-  if (github.release) {
-    if (github.release.manifest.digest !== provenance.manifestDigest) {
-      fail("release evidence manifest digest is not bound to artifact provenance");
-    }
-    if (github.release.artifact.digest !== `sha256:${provenance.artifactSha256}`) {
-      fail("release evidence standalone asset digest is not bound to artifact provenance");
-    }
-  }
-  if (github.event === "workflow_dispatch") {
-    if (provenance.riskClass !== "C3" || provenance.e2eMode !== "full" || provenance.forceFull !== true) {
-      fail("workflow_dispatch release evidence must prove a forced C3/full run");
-    }
-  }
-  if (evidence.deploymentBootstrap !== undefined
-    && (github.event !== "workflow_dispatch"
-      || provenance.riskClass !== "C3"
-      || provenance.e2eMode !== "full"
-      || provenance.forceFull !== true)) {
-    fail("production bootstrap evidence must prove a fresh forced C3/full workflow_dispatch run");
+  if (evidence.deploymentBootstrap !== undefined && github.event !== "workflow_dispatch") {
+    fail("production bootstrap evidence must come from a fresh workflow_dispatch run");
   }
   return { evidence, sourceSha, sourceTree, github };
 }
@@ -343,67 +294,6 @@ function verifyBranchProtection(repository, branch, sourceSha, requiredJobName, 
   };
 }
 
-async function fetchReleaseManifest(asset) {
-  let response;
-  try {
-    response = await fetch(asset.browserDownloadUrl, { redirect: "follow" });
-  } catch (error) {
-    fail(`cannot download release manifest: ${error instanceof Error ? error.message : String(error)}`);
-  }
-  if (!response.ok) fail(`cannot download release manifest: HTTP ${response.status}`);
-  const bytes = Buffer.from(await response.arrayBuffer());
-  if (bytes.length > 1024 * 1024) fail("release manifest is unexpectedly large");
-  const digest = `sha256:${createHash("sha256").update(bytes).digest("hex")}`;
-  if (digest !== asset.digest) fail("release manifest digest does not match GitHub metadata");
-  try {
-    return { manifest: JSON.parse(bytes.toString("utf8")), digest };
-  } catch {
-    fail("release manifest is not valid JSON");
-  }
-}
-
-async function downloadActionsArtifact(repository, runId, artifactName, releaseEvidence) {
-  const directory = mkdtempSync(join(tmpdir(), "workspace-release-evidence-"));
-  try {
-    const result = spawnSync("gh", [
-      "run", "download", String(runId),
-      "--repo", repository,
-      "--name", artifactName,
-      "--dir", directory,
-    ], { encoding: "utf8", maxBuffer: 16 * 1024 * 1024 });
-    if (result.error?.code === "ENOENT") fail("gh CLI is required to download the protected-main Actions artifact");
-    if (result.status !== 0) {
-      const detail = (result.stderr || "GitHub Actions artifact download failed").trim().split("\n").at(-1);
-      fail(`cannot download Actions artifact ${artifactName}: ${detail}`);
-    }
-    const names = readdirSync(directory).sort();
-    const expectedNames = [releaseEvidence.artifact.name, releaseEvidence.manifest.name].sort();
-    if (JSON.stringify(names) !== JSON.stringify(expectedNames)) {
-      fail(`Actions artifact must contain exactly ${expectedNames.join(" and ")}`);
-    }
-    const artifactPath = join(directory, releaseEvidence.artifact.name);
-    const manifestPath = join(directory, releaseEvidence.manifest.name);
-    if (!statSync(artifactPath).isFile() || !statSync(manifestPath).isFile()) {
-      fail("Actions artifact release files must be regular files");
-    }
-    const artifactDigest = await hashFile(artifactPath);
-    const manifestDigest = await hashFile(manifestPath);
-    if (artifactDigest !== releaseEvidence.artifact.digest
-      || manifestDigest !== releaseEvidence.manifest.digest) {
-      fail("protected-main Actions artifact bytes do not match the digest-pinned prerelease assets");
-    }
-    let manifest;
-    try {
-      manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
-    } catch {
-      fail("Actions artifact standalone manifest is not valid JSON");
-    }
-    return { manifest, artifactDigest, manifestDigest };
-  } finally {
-    rmSync(directory, { recursive: true, force: true });
-  }
-}
-
 function validateReleaseManifest(manifest, { sourceSha, sourceTree, selectedRun, event, releaseEvidence }) {
   const build = manifest?.build;
   if (manifest?.schemaVersion !== 1
@@ -436,22 +326,6 @@ function validateReleaseManifest(manifest, { sourceSha, sourceTree, selectedRun,
     || JSON.stringify(build.classification.e2eSpecs) !== JSON.stringify(e2eSpecs)) {
     fail("release manifest classifier provenance is inconsistent");
   }
-  return {
-    sourceCommitSha: sourceSha,
-    sourceTreeSha: sourceTree,
-    buildId: build.buildId,
-    githubRunId: Number(selectedRun.id),
-    githubRunAttempt: Number(selectedRun.run_attempt ?? 1),
-    githubEventName: event,
-    targetSha: build.targetSha,
-    riskClass: build.riskClass,
-    e2eMode: build.e2eMode,
-    forceFull: build.forceFull === true,
-    requiredSuites,
-    e2eSpecs,
-    classification: build.classification,
-    artifactSha256: manifest.artifact.sha256,
-  };
 }
 
 async function verifyGithub(args) {
@@ -568,7 +442,6 @@ async function verifyGithub(args) {
   if (!DIGEST_PATTERN.test(artifact.digest)) fail(`artifact ${artifactName} has no trusted SHA-256 digest`);
 
   let releaseEvidence = null;
-  let artifactProvenance = null;
   if (releaseTag) {
     const release = ghApi(`repos/${repository}/releases/tags/${encodeURIComponent(releaseTag)}`);
     if (release?.tag_name !== releaseTag || release.draft !== false || release.prerelease !== true) {
@@ -585,35 +458,8 @@ async function verifyGithub(args) {
       artifact: selectReleaseAsset(release, releaseArtifactName, "standalone"),
       manifest: selectReleaseAsset(release, releaseManifestName, "manifest"),
     };
-    const actionsFiles = await downloadActionsArtifact(
-      repository,
-      selectedRun.id,
-      artifactName,
-      releaseEvidence,
-    );
-    const artifactAfterDownload = ghApi(`repos/${repository}/actions/artifacts/${artifact.id}`);
-    if (artifactAfterDownload?.id !== artifact.id
-      || artifactAfterDownload?.name !== artifact.name
-      || artifactAfterDownload?.digest !== artifact.digest
-      || artifactAfterDownload?.expired === true) {
-      fail("Actions artifact identity changed during evidence verification");
-    }
-    const downloadedManifest = await fetchReleaseManifest(releaseEvidence.manifest);
-    if (downloadedManifest.digest !== actionsFiles.manifestDigest) {
-      fail("prerelease manifest does not match the protected-main Actions artifact manifest");
-    }
-    artifactProvenance = {
-      ...validateReleaseManifest(actionsFiles.manifest, {
-        sourceSha,
-        sourceTree,
-        selectedRun,
-        event,
-        releaseEvidence,
-      }),
-      manifestDigest: actionsFiles.manifestDigest,
-    };
   }
-  if (!artifactProvenance) fail("production release evidence requires a digest-pinned artifact manifest");
+  if (!releaseEvidence) fail("production release evidence requires a digest-pinned prerelease bridge");
   verifyBranchProtection(repository, branch, sourceSha, requiredJobName, checkRun.app.id);
   const finalRunsResponse = ghApi(`repos/${repository}/actions/runs`, {
     branch,
@@ -633,12 +479,8 @@ async function verifyGithub(args) {
     || finalLatest?.conclusion !== "success") {
     fail("same-SHA workflow evidence changed during release verification");
   }
-  if (bootstrapContext
-    && (event !== "workflow_dispatch"
-      || artifactProvenance.riskClass !== "C3"
-      || artifactProvenance.e2eMode !== "full"
-      || artifactProvenance.forceFull !== true)) {
-    fail("production bootstrap evidence requires a fresh forced C3/full workflow_dispatch run");
+  if (bootstrapContext && event !== "workflow_dispatch") {
+    fail("production bootstrap evidence requires a fresh workflow_dispatch run");
   }
 
   const evidence = {
@@ -668,12 +510,11 @@ async function verifyGithub(args) {
       artifactSizeBytes: Number(artifact.size_in_bytes ?? 0),
       artifactArchiveDownloadUrl: artifact.archive_download_url,
       release: releaseEvidence,
-      artifactProvenance,
     },
     ...(bootstrapContext ? { deploymentBootstrap: bootstrapContext } : {}),
   };
   writeJsonAtomic(output, evidence);
-  process.stdout.write(`Verified protected-main CI run ${selectedRun.id} and artifact ${artifact.id}.\n`);
+  process.stdout.write(`Verified protected-main CI run ${selectedRun.id} and release asset metadata.\n`);
 }
 
 function checkArtifactLive(args) {
@@ -863,26 +704,17 @@ async function validateStandalone(args) {
       if (github.release.artifact.name !== basename(artifactPath)) fail("release evidence artifact name does not match standalone artifact");
       if (github.release.manifest.name !== basename(manifestPath)) fail("release evidence manifest name does not match standalone manifest");
     }
-    const provenance = github.artifactProvenance;
-    const build = manifest.build;
     const manifestDigest = await hashFile(manifestPath);
-    if (provenance.manifestDigest !== manifestDigest
-      || provenance.artifactSha256 !== manifest.artifact.sha256
-      || provenance.sourceCommitSha !== manifest.source.commitSha
-      || provenance.sourceTreeSha !== manifest.source.treeSha
-      || provenance.buildId !== build.buildId
-      || String(provenance.githubRunId) !== String(build.githubRunId)
-      || String(provenance.githubRunAttempt) !== String(build.githubRunAttempt)
-      || provenance.githubEventName !== build.githubEventName
-      || provenance.riskClass !== build.riskClass
-      || provenance.e2eMode !== build.e2eMode
-      || provenance.forceFull !== build.forceFull
-      || provenance.targetSha !== build.targetSha
-      || JSON.stringify(provenance.requiredSuites) !== JSON.stringify(build.requiredSuites)
-      || JSON.stringify(provenance.e2eSpecs) !== JSON.stringify(build.e2eSpecs)
-      || JSON.stringify(provenance.classification) !== JSON.stringify(build.classification)) {
-      fail("release evidence provenance does not match the digest-verified standalone manifest");
+    if (github.release.manifest.digest !== manifestDigest) {
+      fail("standalone manifest digest does not match release metadata");
     }
+    validateReleaseManifest(manifest, {
+      sourceSha,
+      sourceTree,
+      selectedRun: { id: github.runId, run_attempt: github.runAttempt },
+      event: github.event,
+      releaseEvidence: github.release,
+    });
   }
   process.stdout.write(`${artifactDigest}\n`);
 }

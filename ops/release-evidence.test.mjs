@@ -180,10 +180,8 @@ const data = JSON.parse(fs.readFileSync(process.env.MOCK_GITHUB_DATA, 'utf8'));
 const args = process.argv.slice(2);
 function output(value) { process.stdout.write(JSON.stringify(value)); }
 if (args[0] === 'run' && args[1] === 'download') {
-  const directory = args[args.indexOf('--dir') + 1];
-  fs.copyFileSync(data.artifactPath, path.join(directory, data.artifactName));
-  fs.copyFileSync(data.manifestPath, path.join(directory, data.manifestName));
-  process.exit(0);
+  process.stderr.write('verify-github must not download Actions artifact bytes\\n');
+  process.exit(93);
 }
 if (args[0] !== 'api') process.exit(91);
 const endpoint = args[3];
@@ -257,22 +255,12 @@ if (endpoint === 'repos/acme/workspace/branches/main') {
 `);
   chmodSync(ghPath, 0o755);
 
-  const preloadPath = path.join(root, "fetch-preload.mjs");
-  writeFileSync(preloadPath, `import fs from 'node:fs';
-globalThis.fetch = async () => {
-  const bytes = fs.readFileSync(process.env.MOCK_RELEASE_MANIFEST);
-  return { ok: true, status: 200, arrayBuffer: async () => bytes };
-};
-`);
-
   return {
     root,
     data,
-    preloadPath,
     env: {
       PATH: `${bin}:${process.env.PATH}`,
       MOCK_GITHUB_DATA: dataPath,
-      MOCK_RELEASE_MANIFEST: manifestPath,
     },
     cleanup() { rmSync(root, { recursive: true, force: true }); },
   };
@@ -280,7 +268,6 @@ globalThis.fetch = async () => {
 
 function verificationArguments(fixture, output, { minimumRunId, timeoutSeconds = 1 } = {}) {
   const arguments_ = [
-    "--import", fixture.preloadPath,
     evidenceCli,
     "verify-github",
     "--repository", fixture.data.repository,
@@ -303,7 +290,7 @@ function verificationArguments(fixture, output, { minimumRunId, timeoutSeconds =
   return arguments_;
 }
 
-test("verifies protected-main Actions bytes, prerelease digests, and classifier provenance", () => {
+test("verifies protected-main CI and prerelease metadata without downloading artifact bytes", () => {
   const fixture = createGithubFixture({ runAttempt: 2 });
   try {
     const output = path.join(fixture.root, "evidence.json");
@@ -315,8 +302,7 @@ test("verifies protected-main Actions bytes, prerelease digests, and classifier 
     assert.equal(evidence.github.release.tagName, `ci-artifact-${sourceSha}-run-200-attempt-2`);
     assert.equal(evidence.github.branchProtection.lastPushApprovalRequired, false);
     assert.equal(evidence.github.branchProtection.pullRequestBypassAllowed, false);
-    assert.equal(evidence.github.artifactProvenance.buildId, sourceSha);
-    assert.deepEqual(evidence.github.artifactProvenance.requiredSuites, ["settings-save"]);
+    assert.equal(evidence.github.artifactProvenance, undefined);
 
     const validation = runNode([
       evidenceCli, "validate-file",
@@ -417,14 +403,34 @@ test("a newer nightly failure invalidates older same-SHA release evidence", () =
   }
 });
 
-test("accepts only a forced C3/full artifact for workflow_dispatch evidence", () => {
+test("defers workflow_dispatch C3/full proof to CNB standalone validation", () => {
   const valid = createGithubFixture({ event: "workflow_dispatch" });
   const invalid = createGithubFixture({ event: "workflow_dispatch", dispatchFull: false });
   try {
     const validResult = runNode(verificationArguments(valid, path.join(valid.root, "evidence.json")), { env: valid.env });
     assert.equal(validResult.status, 0, validResult.stderr);
 
-    const invalidResult = runNode(verificationArguments(invalid, path.join(invalid.root, "evidence.json")), { env: invalid.env });
+    const manifest = JSON.parse(readFileSync(invalid.data.manifestPath, "utf8"));
+    manifest.inputs.packageLockSha256 = sha256(readFileSync(path.join(repositoryRoot, "package-lock.json")));
+    manifest.inputs.migrationSetSha256 = migrationSetDigest(path.join(repositoryRoot, "prisma/migrations"));
+    const manifestBytes = Buffer.from(`${JSON.stringify(manifest, null, 2)}\n`);
+    writeFileSync(invalid.data.manifestPath, manifestBytes);
+    invalid.data.manifestSha = sha256(manifestBytes);
+    writeFileSync(invalid.env.MOCK_GITHUB_DATA, `${JSON.stringify(invalid.data)}\n`);
+
+    const evidencePath = path.join(invalid.root, "evidence.json");
+    const generated = runNode(verificationArguments(invalid, evidencePath), { env: invalid.env });
+    assert.equal(generated.status, 0, generated.stderr);
+    const invalidResult = runNode([
+      evidenceCli, "validate-standalone",
+      "--evidence", evidencePath,
+      "--manifest", invalid.data.manifestPath,
+      "--artifact", invalid.data.artifactPath,
+      "--sha", invalid.data.sourceSha,
+      "--tree", invalid.data.sourceTree,
+      "--lock-file", path.join(repositoryRoot, "package-lock.json"),
+      "--migrations", path.join(repositoryRoot, "prisma/migrations"),
+    ]);
     assert.notEqual(invalidResult.status, 0);
     assert.match(invalidResult.stderr, /workflow_dispatch artifact does not prove forced C3\/full execution/);
   } finally {
@@ -460,7 +466,7 @@ test("load validation rejects a syntactic bootstrap receipt attached to non-full
       "--tree", fixture.data.sourceTree,
     ]);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /fresh forced C3\/full workflow_dispatch/);
+    assert.match(result.stderr, /fresh workflow_dispatch/);
   } finally {
     fixture.cleanup();
   }
@@ -499,7 +505,7 @@ test("verify-github recomputes bootstrap history instead of trusting a well-form
   }
 });
 
-test("standalone validation rejects self-consistent evidence provenance tampering", () => {
+test("CNB standalone validation rejects manifest tampering after metadata verification", () => {
   const fixture = createGithubFixture();
   try {
     const manifest = JSON.parse(readFileSync(fixture.data.manifestPath, "utf8"));
@@ -513,12 +519,11 @@ test("standalone validation rejects self-consistent evidence provenance tamperin
     const output = path.join(fixture.root, "evidence.json");
     const generated = runNode(verificationArguments(fixture, output), { env: fixture.env });
     assert.equal(generated.status, 0, generated.stderr);
-    const evidence = JSON.parse(readFileSync(output, "utf8"));
-    evidence.github.artifactProvenance.requiredSuites = ["tampered-suite"];
-    evidence.github.artifactProvenance.e2eSpecs = ["e2e/tampered.spec.ts"];
-    evidence.github.artifactProvenance.classification.requiredSuites = ["tampered-suite"];
-    evidence.github.artifactProvenance.classification.e2eSpecs = ["e2e/tampered.spec.ts"];
-    writeFileSync(output, `${JSON.stringify(evidence, null, 2)}\n`);
+    manifest.build.requiredSuites = ["tampered-suite"];
+    manifest.build.e2eSpecs = ["e2e/tampered.spec.ts"];
+    manifest.build.classification.requiredSuites = ["tampered-suite"];
+    manifest.build.classification.e2eSpecs = ["e2e/tampered.spec.ts"];
+    writeFileSync(fixture.data.manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 
     const result = runNode([
       evidenceCli, "validate-standalone",
@@ -531,7 +536,7 @@ test("standalone validation rejects self-consistent evidence provenance tamperin
       "--migrations", path.join(repositoryRoot, "prisma/migrations"),
     ]);
     assert.notEqual(result.status, 0);
-    assert.match(result.stderr, /provenance does not match the digest-verified standalone manifest/);
+    assert.match(result.stderr, /manifest digest does not match release metadata/);
   } finally {
     fixture.cleanup();
   }
