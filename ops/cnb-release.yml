@@ -1,32 +1,23 @@
 cnb-release:
-  # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
-  # 这是经 Git review 的 CNB CD 配置真源；私有目录只能保存逐字一致副本。
+  # Production deployment is CNB-native. GitHub may still host PR/CI mirrors, but this
+  # pipeline does not call GitHub APIs, download GitHub artifacts, or require GitHub tokens.
   api_trigger_manual:
     - name: deploy-prod
       docker:
-        image: node:22-bookworm
+        image: node:24-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
-        # GitHub protected-main CI builds and tests the canonical artifact once.
-        # CNB verifies digest-bound release evidence and deploys those exact bytes without rebuilding.
-        USE_GITHUB_RELEASE_ARTIFACTS: "1"
-        RUN_LOCAL_CHECKS: "0"
         RELEASE_SOURCE_BRANCH: main
+        RUN_LOCAL_CHECKS: "0"
+        REMOTE_DIR: /home/ubuntu/workspace
+        REMOTE_WORKSPACE_CONFIG_DIR: /home/ubuntu/workspace/.workspace
+        HEALTHCHECK_URL: http://127.0.0.1:3000/workspace/login
+        INSTALL_LIBRARY_RUNTIME_DEPS: "1"
       stages:
-        - name: install-deploy-tools
-          script: |
-            apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar
         - name: deploy-to-server
-          imports:
-            - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
-          env:
-            REMOTE_DIR: /home/ubuntu/workspace
-            REMOTE_WORKSPACE_CONFIG_DIR: /home/ubuntu/workspace/.workspace
-            HEALTHCHECK_URL: http://127.0.0.1:3000/workspace/login
-            INSTALL_LIBRARY_RUNTIME_DEPS: "1"
           script: |
+            set -euo pipefail
             missing=0
             for key in SERVER REMOTE_DIR REMOTE_WORKSPACE_CONFIG_DIR KEY_CONTENT; do
               if [ -z "$(eval "printf '%s' \"\${$key:-}\"")" ]; then
@@ -34,8 +25,43 @@ cnb-release:
                 missing=1
               fi
             done
-            if [ "$missing" = "1" ]; then
-              echo "[提示] 请检查密钥仓库 server-prod.yaml 的 allow_slugs / allow_events / allow_branches 是否允许 illya317/Workspace + api_trigger_manual + cnb-release。"
-              exit 1
+            test "$missing" = "0"
+
+            release_sha="$(git rev-parse HEAD)"
+            parent_count="$(git rev-list --parents -n 1 "$release_sha" | awk '{print NF - 1}')"
+            test "$parent_count" = "1"
+            source_sha="$(git rev-parse HEAD^)"
+            source_tree="$(git rev-parse "${source_sha}^{tree}")"
+            injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_sha" | LC_ALL=C sort)"
+            test "$injection_files" = $'.cnb-deploy-request.json\n.cnb.yml'
+            bootstrap_base="$(node -e 'const r=require("./.cnb-deploy-request.json"); process.stdout.write(r.bootstrap?.baselineSha ?? "")')"
+            if [ -n "$bootstrap_base" ]; then
+              git fetch --no-tags origin "refs/tags/workspace-production-bootstrap-${bootstrap_base:0:12}"
             fi
+            node ops/cnb-deploy-request.mjs validate \
+              --request .cnb-deploy-request.json \
+              --source-sha "$source_sha" \
+              --source-tree "$source_tree" \
+              --source-ref main \
+              --repository illya317/Workspace >/dev/null
+            request_file="$(mktemp)"
+            cp .cnb-deploy-request.json "$request_file"
+            git checkout --detach "$source_sha"
+
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar python3 curl
+            npm ci --no-audit --fund=false --loglevel=error
+            npm run deploy:preflight:ci
+            npm run docs:check
+            npm run test:node
+            RELEASE_SOURCE_SHA="$source_sha" \
+            RELEASE_SOURCE_TREE="$source_tree" \
+            CNB_RELEASE_SHA="$release_sha" \
+            CI_PROVIDER=cnb \
+              bash ops/build-standalone-artifact.sh
+
+            export CNB_DEPLOY_REQUEST_FILE="$request_file"
+            export CNB_RELEASE_SHA="$release_sha"
+            export RELEASE_SOURCE_SHA="$source_sha"
+            export RELEASE_SOURCE_TREE="$source_tree"
             bash ./ops/deploy.sh

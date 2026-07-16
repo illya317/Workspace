@@ -129,10 +129,13 @@ test("all embedded deployment Python programs are syntactically executable", () 
   }
 });
 
-test("deployment uses committed evidence without a CNB or server GitHub token", () => {
-  assert.match(deploy, /--candidate-artifact-digest "\$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"/);
+test("deployment orders and records CNB-native artifacts without GitHub runtime dependencies", () => {
+  assert.match(deploy, /--candidate-artifact-digest "\$RELEASE_ARTIFACT_DIGEST"/);
   assert.match(deploy, /--current-head "\$RELEASE_SOURCE_SHA"/);
   assert.match(deploy, /git merge-base --is-ancestor "\$comparison_base" "\$RELEASE_SOURCE_SHA"/);
+  assert.match(deploy, /'schemaVersion': 2/);
+  assert.match(deploy, /'cnb': \{/);
+  assert.match(deploy, /'releaseCommitSha': os\.environ\['DEPLOY_CNB_RELEASE_SHA'\]/);
   assert.equal(deploy.includes("GITHUB_TOKEN"), false);
   assert.equal(deploy.includes("GH_TOKEN"), false);
   assert.equal(deploy.includes("stage_remote_github_token"), false);
