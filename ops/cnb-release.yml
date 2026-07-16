@@ -34,10 +34,6 @@ cnb-release:
                 missing=1
               fi
             done
-            if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ]; then
-              echo "[错误] 缺少 GITHUB_TOKEN/GH_TOKEN；需要读取 GitHub Actions、Contents 与 Administration branch protection 状态"
-              missing=1
-            fi
             if [ "$missing" = "1" ]; then
               echo "[提示] 请检查密钥仓库 server-prod.yaml 的 allow_slugs / allow_events / allow_branches 是否允许 illya317/Workspace + api_trigger_manual + cnb-release。"
               exit 1

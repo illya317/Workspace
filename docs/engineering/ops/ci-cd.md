@@ -104,7 +104,7 @@ npm run test:e2e:latency
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。PR 合并后的 main run 产出 Actions artifact `workspace-standalone-<SHA>-run-<RUN_ID>-attempt-<RUN_ATTEMPT>`，并建立 `ci-artifact-<SHA>-run-<RUN_ID>-attempt-<RUN_ATTEMPT>` prerelease；artifact、manifest 与 release assets 都绑定 digest。
 5. `publish.sh deploy` 要求本地 HEAD 精确等于受保护 `origin/main`，读取生产 `deployed-release.json`，重新分类 `last_deployed..candidate`。
 6. 若累计等级、目标 suite 或 artifact 覆盖强度不足，发布入口对当前 main SHA 触发 `workflow_dispatch force_full=true`，等待 C3/full 结果；若生产 deployed baseline 不可读、不是候选祖先或累计 migration 区间无法证明，则直接阻断，必须先人工核验并修复发布证据。
-7. release evidence 验证 strict branch protection、精确 `CI / required` + GitHub Actions App、最新同 SHA/run/attempt、Actions artifact 与 prerelease asset 的元数据、source tree 和 digest 声明；本地发布入口不重复下载 standalone 或 manifest。服务器部署锁内还会重新查询同 SHA 的 push/dispatch/schedule runs，证据生成后出现更新的失败、运行中或重跑都会阻断切换。
+7. release evidence 在 GitHub 侧验证 strict branch protection、精确 `CI / required` + GitHub Actions App、最新同 SHA/run/attempt、Actions artifact 与 prerelease asset 的元数据、source tree 和 digest 声明；本地发布入口不重复下载 standalone。CNB 不再实时回查 GitHub，而是要求注入提交的唯一 parent 精确等于 canonical source，并依据已提交 evidence 进行发布顺序、release digest 和身份校验。
 8. Git 跟踪的 `ops/cnb-release.yml` 是经 review 的 CNB CD 配置真源；私有目录可保留逐字一致副本和 `.env`，但不能形成第二套控制逻辑。`cnb-release` 注入提交只增加由该真源生成的 `.cnb.yml` 与 `.cnb-release-evidence.json`，其 parent 必须是 canonical source SHA。CNB 是唯一下载 tgz 与 manifest 的发布阶段，并核对 release digest、manifest、source SHA/tree、run identity 与 artifact hash 后才解包，不构建源码。
 9. `publish.sh` 记录 CNB trigger 返回的 SN，轮询 `get-build-status`；`success` 之外的 `error`/`cancel` 等终态会把 GitHub production deployment 标为失败。服务器切换后还要核对 SHA、run ID、run attempt、artifact digest，并通过 SSH 实时验证 health 与 `/workspace/api/settings/version` 精确等于目标 SHA，之后才能把 deployment 对账为 success；同 SHA 重试同样不能仅凭旧记录跳过实时验证。
 
@@ -173,7 +173,7 @@ ops/publish.sh deploy \
 
 入口会验证旧 CNB commit/build、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及 17 条生产 migration 的名称和 checksum 集合；候选必须重新取得 C3/full 绿灯。锁内在首次 migration、seed、provision 或 PM2 变化前原子写入 schema-v2 `mutation-started` marker，并只允许同一 receipt/candidate 续跑。首次接管的所有 pending migration 都按维护窗口处理：先停并确认所有 writer，再备份、迁移和切换。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy` 对账同一 SHA，不要再次传 bootstrap 参数。
 
-CNB/服务器锁内复验使用的细粒度 GitHub token 至少需要 Actions read、Contents read、Administration read；本地发布操作者还需要 Checks read 和 Deployments write，并按实际 tag/release 写入方式授予最小 Contents write。token 只通过 0600 临时文件进入单次验证命令，不导出到应用或 PM2 环境；应单独保管、定期轮换，发现泄漏立即吊销。
+本地发布操作者需要 Actions/Checks read、Deployments write，并按实际 tag/release 写入方式授予最小 Contents write。CNB 和生产服务器不保存 GitHub token；它们只消费注入提交内经 review 的 evidence 与 GitHub release assets，并在服务器迁移和切换前确认 `deployed-release.json` 没有被并发修改。
 
 ## 速度策略、预算与观察
 
