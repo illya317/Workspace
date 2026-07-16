@@ -82,6 +82,7 @@ function createGithubFixture({
   newerScheduleFailure = false,
   weakProtection = false,
   weakCodeOwnerProtection = false,
+  omitBypassAllowances = false,
   expiredArtifact = false,
   delayedNewRun = false,
   event = "push",
@@ -159,6 +160,7 @@ function createGithubFixture({
     newerScheduleFailure,
     weakProtection,
     weakCodeOwnerProtection,
+    omitBypassAllowances,
     expiredArtifact,
     delayedNewRun,
     runAttempt,
@@ -216,7 +218,9 @@ if (endpoint === 'repos/acme/workspace/branches/main') {
       require_code_owner_reviews: !data.weakCodeOwnerProtection,
       dismiss_stale_reviews: true,
       require_last_push_approval: false,
-      bypass_pull_request_allowances: { users: [], teams: [], apps: [] },
+      ...(data.omitBypassAllowances ? {} : {
+        bypass_pull_request_allowances: { users: [], teams: [], apps: [] },
+      }),
     },
     required_linear_history: { enabled: true },
     allow_force_pushes: { enabled: false },
@@ -327,6 +331,19 @@ test("verifies protected-main Actions bytes, prerelease digests, and classifier 
     ]);
     assert.notEqual(wrongRepository.status, 0);
     assert.match(wrongRepository.stderr, /repository does not match the pinned release policy/);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test("accepts GitHub omitting empty pull-request bypass allowances", () => {
+  const fixture = createGithubFixture({ omitBypassAllowances: true });
+  try {
+    const output = path.join(fixture.root, "evidence.json");
+    const result = runNode(verificationArguments(fixture, output), { env: fixture.env });
+    assert.equal(result.status, 0, result.stderr);
+    const evidence = JSON.parse(readFileSync(output, "utf8"));
+    assert.equal(evidence.github.branchProtection.pullRequestBypassAllowed, false);
   } finally {
     fixture.cleanup();
   }
