@@ -146,6 +146,15 @@ test("deployment uses committed evidence without a CNB or server GitHub token", 
   ]);
 });
 
+test("CNB reads the repository-relative release evidence as a file", () => {
+  assert.match(deploy, /require\("\.\/" \+ process\.argv\[1\]\)/);
+  assert.equal(
+    deploy.includes("const e=require(process.argv[1])"),
+    false,
+    "a dotfile path without ./ is resolved as a Node package name",
+  );
+});
+
 test("bootstrap crash recovery binds progress, fences writers, and validates candidate migration inventory", () => {
   assert.match(deploy, /production-bootstrap-in-progress\.json/);
   assert.match(deploy, /candidateMigrationSetSha256/);
