@@ -19,6 +19,14 @@ const noStoreHeaders = [
   { key: "Expires", value: "0" },
 ];
 
+const agentRuntimeSourceTraceExcludes = [
+  "app/**/*",
+  "docs/**/*",
+  "packages/**/*",
+  "scripts/**/*",
+  "*.{cjs,json,md,mjs,ts}",
+];
+
 const nextConfig: NextConfig = {
   output: "standalone",
   env: {
@@ -43,6 +51,11 @@ const nextConfig: NextConfig = {
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
     "/*": [".git/**/*", "../.workspace/**/*"],
+    "/agent/**": agentRuntimeSourceTraceExcludes,
+    "/api/agent": agentRuntimeSourceTraceExcludes,
+    "/api/agent/**": agentRuntimeSourceTraceExcludes,
+    "/api/integrations/wecom/**": agentRuntimeSourceTraceExcludes,
+    "/api/modules/agent/**": agentRuntimeSourceTraceExcludes,
   },
   turbopack: {
     root: workspaceRoot,
