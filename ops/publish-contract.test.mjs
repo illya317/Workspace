@@ -25,6 +25,8 @@ test("CNB deployment path does not call GitHub APIs, Actions, Releases, or evide
   const deploymentPath = [publishCnb, releaseToCnb, cnbPipeline].join("\n");
   assert.doesNotMatch(deploymentPath, /\bgh\b|api\.github\.com|release-evidence|GITHUB_TOKEN|GH_TOKEN/);
   assert.match(cnbPipeline, /exec bash <<'BASH'/);
+  assert.match(cnbPipeline, /DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+  assert.match(cnbPipeline, /SHADOW_DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci_shadow/);
   assert.match(cnbPipeline, /npm run deploy:preflight:ci/);
   assert.match(cnbPipeline, /npm run test:node/);
   assert.match(cnbPipeline, /build-standalone-artifact\.sh/);

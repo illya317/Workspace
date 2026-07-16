@@ -8,6 +8,11 @@ cnb-release:
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
+        CI: "true"
+        NEXTAUTH_SECRET: cnb-native-build-secret-2026
+        DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+        SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
         RELEASE_SOURCE_BRANCH: main
         RUN_LOCAL_CHECKS: "0"
         REMOTE_DIR: /home/ubuntu/workspace
