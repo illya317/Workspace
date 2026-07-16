@@ -51,6 +51,50 @@ const libraryDocumentSetExport: ActionContractMetadata = {
 
 export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
   {
+    ...registeredActionFacts("source.submitCnbPullRequest"),
+    kind: "remote_effect",
+    payload: {
+      cardinality: "single",
+      shape: "full_record",
+      target: "new_record",
+      notes: "确认时使用 AgentProposal 中已绑定的 repository/base commit/branch/patch hash，重新校验后向 CNB 创建远端 Pull Request。",
+    },
+    remoteEffect: {
+      provider: "CNB",
+      operation: "create_pull_request",
+      localAuditEntity: "AgentProposal",
+      outcomeAfterDispatchFailure: "unknown",
+      retryPolicy: "reconcile_before_retry",
+      notes: "push 或 CNB API 调用开始后发生异常时，远端可能已接受部分或全部副作用；AgentProposal 记录不确定失败，禁止自动重试，必须先核对远端 branch/PR。",
+    },
+    domain: d(
+      "packages/platform/server/agent/cnb-pr.validateCnbPullRequestProposalPayload",
+      "packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal",
+    ),
+  },
+  registeredGovernance({
+    key: "agent.config.save",
+    activeEntity: "AgentProfile",
+    subject: "configuration",
+    scope: "system",
+    auditPolicy: "history",
+    domain: d(
+      "packages/platform/server/agent/domain/configuration-validation.validateAgentConfigurationUpdate",
+      "packages/platform/server/agent/configuration-service.executeAgentConfigurationUpdateCommand",
+    ),
+  }),
+  registeredGovernance({
+    key: "agent.config.actionCeiling.configure",
+    activeEntity: "SystemConfig",
+    subject: "policy",
+    scope: "system",
+    auditPolicy: "history",
+    domain: d(
+      "packages/platform/server/agent/domain/permission-management-validation.validateAgentActionCeilingUpdate",
+      "packages/platform/server/agent/permission-management-service.executeAgentActionCeilingUpdateCommand",
+    ),
+  }),
+  {
     ...registeredActionFacts("docs.editor.template.draft.save"),
     kind: "write",
     resource: {

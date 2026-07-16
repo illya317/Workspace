@@ -2,11 +2,11 @@
 
 # ActionContract Registry
 
-**164 contracts** across 10 modules.
+**167 contracts** across 11 modules.
 
-Kinds: write=91 · lifecycle=45 · exchange:export=4 · governance=13 · exchange:import=7 · workflow=4
+Kinds: write=91 · lifecycle=45 · exchange:export=4 · governance=15 · exchange:import=7 · workflow=4 · remote_effect=1
 
-Workflow: not_applicable=141 · configurable=20 · native=3
+Workflow: not_applicable=144 · configurable=20 · native=3
 
 Contract facts come from `packages/platform/action-contract-registry.ts` and its composed registries. Route bindings and referenced runtime symbols are enforced by `npm run action-contract:check`.
 
@@ -18,6 +18,14 @@ Contract facts come from `packages/platform/action-contract-registry.ts` and its
 | `administration.contract.delete`<br>删除行政合同 | lifecycle<br>Contract | `administration.contracts`<br>direct=delete | command: DELETE /api/modules/administration/contracts/:id<br>direct: DELETE /api/modules/administration/contracts/:id | validate=packages/administration/server/domain/administration-contract-validation.buildContractDeleteCommand<br>commit=packages/administration/server/contracts.commitDeleteContractCommand | strategy=active_table_state<br>active=Contract<br>mode=native_transition<br>---<br>operation=delete<br>reference=none<br>audit=history | not_applicable<br>行政合同当前是权限直写命令，没有审批草稿或业务原生流程状态。 |
 | `administration.contract.export`<br>下载行政合同台账 | exchange<br>ContractExport | `administration.contracts`<br>direct=export | command: GET /api/modules/administration/contracts/export<br>direct: GET /api/modules/administration/contracts/export | validate=identity<br>execute=packages/administration/server/contracts.exportContracts | none (read-only export)<br>---<br>direction=export<br>transport=file<br>result=file | not_applicable<br>合同台账下载是只读文件生成，不创建审批草稿或正式业务记录。 |
 | `administration.contract.update`<br>更新行政合同 | write<br>Contract | `administration.contracts`<br>direct=update | command: PATCH /api/modules/administration/contracts/:id<br>direct: PATCH /api/modules/administration/contracts/:id | validate=packages/administration/server/domain/administration-contract-validation.buildContractUpdateCommand<br>commit=packages/administration/server/contracts.commitUpdateContractCommand | strategy=active_table_state<br>active=Contract<br>mode=apply_patch<br>---<br>payload=single/field_patch<br>target=existing_record | not_applicable<br>行政合同当前是权限直写命令，没有审批草稿或业务原生流程状态。 |
+
+## agent
+
+| Action | Kind / target | Resource | Routes | Domain binding | Persistence / semantics | Workflow |
+|---|---|---|---|---|---|---|
+| `agent.config.actionCeiling.configure`<br>配置 Agent 全局动作上限 | governance<br>SystemConfig | `agent.config`<br>direct=configure | command: PUT /api/modules/agent/config/action-ceiling<br>direct: PUT /api/modules/agent/config/action-ceiling | validate=packages/platform/server/agent/domain/permission-management-validation.validateAgentActionCeilingUpdate<br>commit=packages/platform/server/agent/permission-management-service.executeAgentActionCeilingUpdateCommand | strategy=active_table_state<br>active=SystemConfig<br>mode=native_transition<br>---<br>subject=policy<br>scope=system<br>audit=history | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
+| `agent.config.save`<br>保存 Agent 配置 | governance<br>AgentProfile | `agent.config`<br>direct=configure | command: PUT /api/modules/agent/config<br>direct: PUT /api/modules/agent/config | validate=packages/platform/server/agent/domain/configuration-validation.validateAgentConfigurationUpdate<br>commit=packages/platform/server/agent/configuration-service.executeAgentConfigurationUpdateCommand | strategy=active_table_state<br>active=AgentProfile<br>mode=native_transition<br>---<br>subject=configuration<br>scope=system<br>audit=history | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
+| `source.submitCnbPullRequest`<br>提交 CNB Pull Request | remote_effect<br>CnbPullRequest | `agent.source`<br>direct=submit | command: POST /api/agent/proposals/:id/confirm<br>direct: POST /api/agent/proposals/:id/confirm | validate=packages/platform/server/agent/cnb-pr.validateCnbPullRequestProposalPayload<br>commit=packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal | none (authoritative state is remote)<br>---<br>provider=CNB<br>operation=create_pull_request<br>localAudit=AgentProposal<br>dispatchFailure=unknown<br>retry=reconcile_before_retry | not_applicable<br>当前注册为 permission_only；如需接入流程，必须迁移为共享 typed command adapter 后再修改该声明。 |
 
 ## capitalSecurities
 

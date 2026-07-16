@@ -51,8 +51,11 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  AgentProfile: 'AgentProfile',
+  AgentRuntimeBinding: 'AgentRuntimeBinding',
   AgentSession: 'AgentSession',
   AgentProposal: 'AgentProposal',
+  AgentRun: 'AgentRun',
   ApprovalRequest: 'ApprovalRequest',
   ApprovalEvent: 'ApprovalEvent',
   WorkflowPolicy: 'WorkflowPolicy',
@@ -235,9 +238,45 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AgentProfileScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  actorUserId: 'actorUserId',
+  displayName: 'displayName',
+  roleName: 'roleName',
+  responsibilities: 'responsibilities',
+  allowedToolKeysJson: 'allowedToolKeysJson',
+  status: 'status',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
+
+
+export const AgentRuntimeBindingScalarFieldEnum = {
+  id: 'id',
+  agentProfileId: 'agentProfileId',
+  runtimeKind: 'runtimeKind',
+  status: 'status',
+  interactive: 'interactive',
+  capabilityKeysJson: 'capabilityKeysJson',
+  instructions: 'instructions',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentRuntimeBindingScalarFieldEnum = (typeof AgentRuntimeBindingScalarFieldEnum)[keyof typeof AgentRuntimeBindingScalarFieldEnum]
+
+
 export const AgentSessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  agentProfileId: 'agentProfileId',
   status: 'status',
   pagePath: 'pagePath',
   contextLabel: 'contextLabel',
@@ -260,19 +299,54 @@ export type AgentSessionScalarFieldEnum = (typeof AgentSessionScalarFieldEnum)[k
 export const AgentProposalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  actorUserId: 'actorUserId',
+  agentProfileId: 'agentProfileId',
   sessionId: 'sessionId',
   status: 'status',
   actionKey: 'actionKey',
+  toolKey: 'toolKey',
   targetType: 'targetType',
   targetId: 'targetId',
   payloadJson: 'payloadJson',
   diffJson: 'diffJson',
   resultJson: 'resultJson',
+  executionToken: 'executionToken',
+  executionStartedAt: 'executionStartedAt',
   createdAt: 'createdAt',
   confirmedAt: 'confirmedAt'
 } as const
 
 export type AgentProposalScalarFieldEnum = (typeof AgentProposalScalarFieldEnum)[keyof typeof AgentProposalScalarFieldEnum]
+
+
+export const AgentRunScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  requesterUserId: 'requesterUserId',
+  actorUserId: 'actorUserId',
+  agentProfileId: 'agentProfileId',
+  runtimeBindingId: 'runtimeBindingId',
+  runtimeKind: 'runtimeKind',
+  runtimeConfigJson: 'runtimeConfigJson',
+  runtimeConfigHash: 'runtimeConfigHash',
+  status: 'status',
+  pagePath: 'pagePath',
+  toolKey: 'toolKey',
+  resultType: 'resultType',
+  proposalId: 'proposalId',
+  errorMessage: 'errorMessage',
+  inputOtherTokens: 'inputOtherTokens',
+  inputCacheReadTokens: 'inputCacheReadTokens',
+  inputCacheCreationTokens: 'inputCacheCreationTokens',
+  outputTokens: 'outputTokens',
+  contextUsagePeak: 'contextUsagePeak',
+  runtimeStepCount: 'runtimeStepCount',
+  runtimeOutcome: 'runtimeOutcome',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type AgentRunScalarFieldEnum = (typeof AgentRunScalarFieldEnum)[keyof typeof AgentRunScalarFieldEnum]
 
 
 export const ApprovalRequestScalarFieldEnum = {

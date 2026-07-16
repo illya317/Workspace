@@ -67,7 +67,10 @@ test("default HR generated roster reads only the requested database page", async
   assert.deepEqual(findManyCalls[0]?.where, {
     employments: {
       some: { isActive: true },
-      none: { isActive: true, title: "顾问" },
+      none: {
+        isActive: true,
+        OR: [{ title: "顾问" }, { personnelType: "虚拟员工" }],
+      },
     },
   });
   assert.equal(findManyCalls[0]?.skip, 50);
@@ -91,7 +94,10 @@ test("generated roster cannot be widened to former employees by the legacy statu
   assert.deepEqual(findManyCalls[0]?.where, {
     employments: {
       some: { isActive: true },
-      none: { isActive: true, title: "顾问" },
+      none: {
+        isActive: true,
+        OR: [{ title: "顾问" }, { personnelType: "虚拟员工" }],
+      },
     },
   });
 });
@@ -111,7 +117,10 @@ test("searched generated roster uses the same active non-consultant scope", asyn
   assert.deepEqual(findManyCalls[0]?.where, {
     employments: {
       some: { isActive: true },
-      none: { isActive: true, title: "顾问" },
+      none: {
+        isActive: true,
+        OR: [{ title: "顾问" }, { personnelType: "虚拟员工" }],
+      },
     },
   });
 });

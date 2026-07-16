@@ -1,7 +1,7 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_DEFS, RESOURCE_KEYS, getCapabilityOwnerKey } from "@workspace/platform/resources";
 import { isResourceEnabled } from "../../effective-module-registry";
-import { getProjectedDescendantResourceIds } from "./resource-projection";
+import { getProjectedDescendantResourceIdsForRoots } from "./resource-projection";
 import { getUserPositionIds, getUserDepartmentIds } from "./helpers";
 import { isRootAdminUser } from "../auth/root";
 import {
@@ -19,29 +19,30 @@ const ADMIN_CONFIGURATION_RESOURCE_KEYS = [
   "settings.admin",
   ...listWorkflowManagementResourceRegistrations().map((resource) => resource.key),
 ];
+type PermissionDatabaseClient = Prisma.TransactionClient | typeof prisma;
 
 /**
  * Find all resource IDs where the user (or their positions/departments)
  * has been granted explicit authorization management.
  */
-async function findGrantManagerResourceIds(userId: number): Promise<number[]> {
+async function findGrantManagerResourceIds(userId: number, client: PermissionDatabaseClient): Promise<number[]> {
   const [directAction, positionAction, departmentAction] = await Promise.all([
-    prisma.userResourceActionGrant.findMany({
+    client.userResourceActionGrant.findMany({
       where: { userId, actionKey: { in: [...AUTHORIZATION_MANAGER_ACTION_KEYS] }, scopeId: null },
       select: { resourceId: true },
     }),
     (async () => {
-      const posIds = await getUserPositionIds(userId);
+      const posIds = await getUserPositionIds(userId, client);
       if (posIds.length === 0) return [] as Array<{ resourceId: number }>;
-      return prisma.positionResourceActionGrant.findMany({
+      return client.positionResourceActionGrant.findMany({
         where: { positionId: { in: posIds }, actionKey: { in: [...AUTHORIZATION_MANAGER_ACTION_KEYS] }, scopeId: null },
         select: { resourceId: true },
       });
     })(),
     (async () => {
-      const deptIds = await getUserDepartmentIds(userId);
+      const deptIds = await getUserDepartmentIds(userId, client);
       if (deptIds.length === 0) return [] as Array<{ resourceId: number }>;
-      return prisma.departmentResourceActionGrant.findMany({
+      return client.departmentResourceActionGrant.findMany({
         where: { departmentId: { in: deptIds }, actionKey: { in: [...AUTHORIZATION_MANAGER_ACTION_KEYS] }, scopeId: null },
         select: { resourceId: true },
       });
@@ -57,24 +58,24 @@ async function findGrantManagerResourceIds(userId: number): Promise<number[]> {
   ];
 }
 
-async function findResourceConfigureResourceIds(userId: number): Promise<number[]> {
+async function findResourceConfigureResourceIds(userId: number, client: PermissionDatabaseClient): Promise<number[]> {
   const [directAction, positionAction, departmentAction] = await Promise.all([
-    prisma.userResourceActionGrant.findMany({
+    client.userResourceActionGrant.findMany({
       where: { userId, actionKey: { in: [...RESOURCE_CONFIGURE_ACTION_KEYS] }, resource: { key: { in: ADMIN_CONFIGURATION_RESOURCE_KEYS } } },
       select: { resourceId: true },
     }),
     (async () => {
-      const posIds = await getUserPositionIds(userId);
+      const posIds = await getUserPositionIds(userId, client);
       if (posIds.length === 0) return [] as Array<{ resourceId: number }>;
-      return prisma.positionResourceActionGrant.findMany({
+      return client.positionResourceActionGrant.findMany({
         where: { positionId: { in: posIds }, actionKey: { in: [...RESOURCE_CONFIGURE_ACTION_KEYS] }, resource: { key: { in: ADMIN_CONFIGURATION_RESOURCE_KEYS } } },
         select: { resourceId: true },
       });
     })(),
     (async () => {
-      const deptIds = await getUserDepartmentIds(userId);
+      const deptIds = await getUserDepartmentIds(userId, client);
       if (deptIds.length === 0) return [] as Array<{ resourceId: number }>;
-      return prisma.departmentResourceActionGrant.findMany({
+      return client.departmentResourceActionGrant.findMany({
         where: { departmentId: { in: deptIds }, actionKey: { in: [...RESOURCE_CONFIGURE_ACTION_KEYS] }, resource: { key: { in: ADMIN_CONFIGURATION_RESOURCE_KEYS } } },
         select: { resourceId: true },
       });
@@ -94,28 +95,25 @@ async function findResourceConfigureResourceIds(userId: number): Promise<number[
  * Return all resource keys this user is allowed to manage grants for.
  * Includes the admin resource itself and all its descendants.
  */
-export async function getManageableResourceKeys(userId: number): Promise<Set<string>> {
+export async function getManageableResourceKeys(
+  userId: number,
+  client: PermissionDatabaseClient = prisma,
+): Promise<Set<string>> {
   const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
   if (
-    await isRootAdminUser(userId) ||
-    await isImplicitAllResourceGrantUser(userId)
+    await isRootAdminUser(userId, client) ||
+    await isImplicitAllResourceGrantUser(userId, client)
   ) {
     return new Set(activeResourceKeys);
   }
 
   const adminResourceIds = [
-    ...await findGrantManagerResourceIds(userId),
-    ...await getImplicitGrantResourceIdsForUser(userId),
+    ...await findGrantManagerResourceIds(userId, client),
+    ...await getImplicitGrantResourceIdsForUser(userId, client),
   ];
-  const manageableIds = new Set<number>();
+  const manageableIds = new Set(await getProjectedDescendantResourceIdsForRoots(adminResourceIds, undefined, client));
 
-  for (const rid of adminResourceIds) {
-    // Include the resource itself and all descendants
-    const descendants = await getProjectedDescendantResourceIds(rid);
-    for (const id of descendants) manageableIds.add(id);
-  }
-
-  const resources = await prisma.resource.findMany({
+  const resources = await client.resource.findMany({
     where: { id: { in: [...manageableIds] } },
     select: { key: true },
   });
@@ -128,22 +126,20 @@ export async function getManageableResourceKeys(userId: number): Promise<Set<str
   return manageableKeys;
 }
 
-export async function getAdminResourceKeys(userId: number): Promise<Set<string>> {
+export async function getAdminResourceKeys(
+  userId: number,
+  client: PermissionDatabaseClient = prisma,
+): Promise<Set<string>> {
   const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
-  if (await isRootAdminUser(userId)) return new Set(activeResourceKeys);
+  if (await isRootAdminUser(userId, client)) return new Set(activeResourceKeys);
 
   const adminResourceIds = [
-    ...await findResourceConfigureResourceIds(userId),
-    ...await getImplicitAdminResourceIdsForUser(userId),
+    ...await findResourceConfigureResourceIds(userId, client),
+    ...await getImplicitAdminResourceIdsForUser(userId, client),
   ];
-  const adminIds = new Set<number>();
+  const adminIds = new Set(await getProjectedDescendantResourceIdsForRoots(adminResourceIds, undefined, client));
 
-  for (const rid of adminResourceIds) {
-    const descendants = await getProjectedDescendantResourceIds(rid);
-    for (const id of descendants) adminIds.add(id);
-  }
-
-  const resources = await prisma.resource.findMany({
+  const resources = await client.resource.findMany({
     where: { id: { in: [...adminIds] } },
     select: { key: true },
   });
@@ -156,12 +152,22 @@ export async function getAdminResourceKeys(userId: number): Promise<Set<string>>
   return adminKeys;
 }
 
-export async function hasResourceAdminAccess(userId: number): Promise<boolean> {
-  return (await getAdminResourceKeys(userId)).size > 0;
+export async function hasResourceAdminAccess(userId: number, client: PermissionDatabaseClient = prisma): Promise<boolean> {
+  return (await getAdminResourceKeys(userId, client)).size > 0;
 }
 
-export async function hasGlobalGrantManagementAccess(userId: number): Promise<boolean> {
-  return (await getManageableResourceKeys(userId)).size > 0;
+export async function hasGlobalGrantManagementAccess(userId: number, client: PermissionDatabaseClient = prisma): Promise<boolean> {
+  return (await getManageableResourceKeys(userId, client)).size > 0;
+}
+
+export function manageableResourceKeysAllowGrant(
+  manageableResourceKeys: ReadonlySet<string>,
+  resourceKey: string,
+) {
+  if (!RESOURCE_KEYS.includes(resourceKey) || !isResourceEnabled(resourceKey)) return false;
+  const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
+  return manageableResourceKeys.has(resourceKey)
+    || Boolean(capabilityOwnerKey && manageableResourceKeys.has(capabilityOwnerKey));
 }
 
 /**
@@ -171,16 +177,11 @@ export async function canManageResourceGrant(
   userId: number,
   resourceKey: string,
   _actionKey: string,
+  client: PermissionDatabaseClient = prisma,
 ): Promise<boolean> {
   const activeResourceKeys = new Set(RESOURCE_KEYS.filter((key) => isResourceEnabled(key)));
   if (!activeResourceKeys.has(resourceKey)) return false;
-  if (await isRootAdminUser(userId)) return true;
-  const manageable = await getManageableResourceKeys(userId);
-
-  const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
-  if (capabilityOwnerKey) {
-    return manageable.has(capabilityOwnerKey);
-  }
-
-  return manageable.has(resourceKey);
+  if (await isRootAdminUser(userId, client)) return true;
+  const manageable = await getManageableResourceKeys(userId, client);
+  return manageableResourceKeysAllowGrant(manageable, resourceKey);
 }

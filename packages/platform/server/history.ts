@@ -12,6 +12,7 @@ async function readRecord(
   entityId: number,
   client: HistoryClient | Prisma.TransactionClient,
 ) {
+  if (policy.readRecord) return policy.readRecord(entityId, client as HistoryClient);
   return getHistoryModelDelegate(client as HistoryClient, policy).findUnique({
     where: { id: entityId },
   });

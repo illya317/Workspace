@@ -99,7 +99,12 @@ const BASE_PERMISSION_RESOURCE_ACTION_POLICIES = [
   { resourceKey: "settings.ui", status: "docs", supportedActions: ["entry", "read"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: [] },
   { resourceKey: "settings.account.apiAccess", status: "capability", supportedActions: ["entry", "read", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "revise"] },
   { resourceKey: "settings.api.manage", status: "capability", supportedActions: ["entry", "read", "create", "update", "revise"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "create", "update", "revise"] },
-  { resourceKey: "agent", status: "headless", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["submit"] },
+  { resourceKey: "agent", status: "container", supportedActions: ["entry", "read"], ancestorInheritedActions: [], explicitOnlyActions: [], notes: "Restricted Agent management center; ordinary toolbar use is authorized by the separate headless agent.assistant capability." },
+  { resourceKey: "agent.config", status: "business", supportedActions: ["entry", "read", "configure"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: ["configure"] },
+  { resourceKey: "agent.usage", status: "business", supportedActions: ["entry", "read", "audit"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: ["audit"], notes: "read exposes aggregate usage; audit is required for employee and session detail." },
+  { resourceKey: "agent.reports", status: "business", supportedActions: ["entry", "read", "audit"], ancestorInheritedActions: ["entry", "read"], explicitOnlyActions: ["audit"], notes: "read exposes Agent-level summaries; audit is required for individual run and error detail." },
+  { resourceKey: "agent.assistant", status: "capability", supportedActions: ["entry", "read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["entry", "read", "submit"], notes: "Headless toolbar/API capability retained separately from the Agent management navigation tree." },
+  { resourceKey: "agent.source", status: "capability", supportedActions: ["read", "submit"], ancestorInheritedActions: [], explicitOnlyActions: ["read", "submit"], notes: "Profile-only Workspace source search and CNB PR proposal execution; both requester and virtual actor need agent.assistant entry plus explicit live source grants, without Agent management-center access." },
 ] as const satisfies readonly PermissionResourceActionPolicy[];
 
 const WORKFLOW_MANAGEMENT_RESOURCE_ACTION_POLICIES: readonly PermissionResourceActionPolicy[] =

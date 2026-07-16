@@ -20,6 +20,8 @@ import {
   isResourceEnabled,
 } from "../../effective-module-registry";
 import type { SessionUser } from "../../types";
+import type { PermissionActionKey } from "../../permission-actions";
+import { evaluatePermissionAction } from "../rbac/action-grants";
 
 function redirectToDisabled(resourceKey: string, reason?: string | null): never {
   const params = new URLSearchParams({
@@ -60,6 +62,19 @@ export async function requireRouteAccess(pathname: string): Promise<SessionUser>
     !(await canEnterResource(user.id, match.resourceKey)) &&
     !(await authorize({ user, resourceKey: match.resourceKey, action: "entry" }))
   ) redirect("/portal");
+  return user;
+}
+
+/** Require both route entry and one explicit resource action for its resolved resource. */
+export async function requireRouteActionAccess(
+  pathname: string,
+  actionKey: PermissionActionKey,
+): Promise<SessionUser> {
+  const user = await requireRouteAccess(pathname);
+  const match = findModuleByRoute(pathname);
+  if (!match || !(await evaluatePermissionAction(user.id, match.resourceKey, actionKey))) {
+    redirect("/portal");
+  }
   return user;
 }
 

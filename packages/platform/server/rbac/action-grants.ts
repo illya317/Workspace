@@ -14,11 +14,11 @@ import {
   isPermissionActionSupported,
 } from "@workspace/platform/permission-resource-policy";
 import { isRegisteredSpaceResourceKey } from "@workspace/platform/space-registry";
-import { prisma } from "@workspace/platform/server/prisma";
-import { getCapabilityOwnerKey } from "@workspace/platform/resources";
-import { isRootAdminUser } from "../auth/root";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { getCapabilityOwnerKey, getResourceDef } from "@workspace/platform/resources";
+import { isRootAdminUsername, isRootAdminUser } from "../auth/root";
 import { getUserDepartmentIds, getUserPositionIds } from "./helpers";
-import { hasImplicitAccessGrant } from "./implicit";
+import { defaultResourceActionAllows } from "./implicit";
 import { hasImplicitAdminForResourceIds, hasImplicitGrantForResourceIds } from "./implicit-admins";
 import { hasGlobalGrantManagementAccess, hasResourceAdminAccess } from "./admin-scope";
 import { recordPermissionGrantLedgerEvent } from "./permission-grant-ledger";
@@ -37,11 +37,41 @@ export interface ActionGrantItem {
 export interface EvaluatePermissionActionOptions {
   scopeId?: string | null;
   projection?: PermissionResourceProjectionKind;
+  client?: Prisma.TransactionClient | typeof prisma;
 }
 
 export interface PermissionGrantMutationResult {
   changed: boolean;
   eventId?: number;
+}
+
+export interface SubjectPermissionActionGrantChange {
+  subjectType: SubjectType;
+  subjectId: number;
+  resourceKey: string;
+  actionKey: PermissionActionKey;
+  value: boolean;
+  scopeId?: string | null;
+}
+
+export interface PermissionGrantMutationOptions {
+  actorUserId?: number;
+  source?: string;
+  reason?: string | null;
+  batchId?: string | null;
+  metadata?: Record<string, unknown> | null;
+  authorizationResourceKeys?: readonly string[];
+  beforeMutation?: (tx: Prisma.TransactionClient) => Promise<void>;
+}
+
+export class PermissionGrantMutationError extends Error {
+  readonly status: number;
+
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "PermissionGrantMutationError";
+    this.status = status;
+  }
 }
 
 export async function getActionGrants(
@@ -106,91 +136,204 @@ export async function setSubjectPermissionActionGrant(
   resourceKey: string,
   actionKey: PermissionActionKey,
   value: boolean,
-  opts?: {
-    scopeId?: string | null;
-    actorUserId?: number;
-    source?: string;
-    reason?: string | null;
-    batchId?: string | null;
-    metadata?: Record<string, unknown> | null;
-  },
+  opts?: PermissionGrantMutationOptions & { scopeId?: string | null },
 ): Promise<PermissionGrantMutationResult> {
-  if (value && !isPermissionActionSupported(resourceKey, actionKey)) {
-    throw new Error("该资源尚未接入该权限动作");
-  }
-  if (value && !isPermissionActionGrantable(resourceKey, actionKey)) {
-    throw new Error("空间入口资源仅支持访问权限");
-  }
-  if (!isResourceEnabled(resourceKey)) {
-    throw new Error("模块未启用，不能配置该资源权限");
-  }
-  if (subjectType === "user" && await isRootAdminUser(subjectId)) {
-    throw new Error("内置 admin 账号不参与 RBAC 授权");
-  }
-  const resource = await prisma.resource.findUnique({ where: { key: resourceKey } });
-  if (!resource) throw new Error(`Invalid resourceKey(${resourceKey})`);
+  const [result] = await setSubjectPermissionActionGrants([{
+    subjectType,
+    subjectId,
+    resourceKey,
+    actionKey,
+    value,
+    scopeId: opts?.scopeId,
+  }], opts);
+  return result ?? { changed: false };
+}
 
-  const scopeId = opts?.scopeId ?? null;
-  return prisma.$transaction(async (tx) => {
-    let changed = false;
-    if (subjectType === "user") {
-      if (value) {
-        const existing = await tx.userResourceActionGrant.findFirst({
-          where: { userId: subjectId, resourceId: resource.id, actionKey, scopeId },
-        });
-        if (!existing) {
-          await tx.userResourceActionGrant.create({ data: { userId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-          changed = true;
-        }
-      } else {
-        const deleted = await tx.userResourceActionGrant.deleteMany({ where: { userId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-        changed = deleted.count > 0;
-      }
-    } else if (subjectType === "position") {
-      if (value) {
-        const existing = await tx.positionResourceActionGrant.findFirst({
-          where: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId },
-        });
-        if (!existing) {
-          await tx.positionResourceActionGrant.create({ data: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-          changed = true;
-        }
-      } else {
-        const deleted = await tx.positionResourceActionGrant.deleteMany({ where: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-        changed = deleted.count > 0;
-      }
-    } else if (value) {
-      const existing = await tx.departmentResourceActionGrant.findFirst({
-        where: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId },
-      });
-      if (!existing) {
-        await tx.departmentResourceActionGrant.create({ data: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-        changed = true;
-      }
-    } else {
-      const deleted = await tx.departmentResourceActionGrant.deleteMany({ where: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId } });
-      changed = deleted.count > 0;
+type GrantResource = { id: number; key: string; name: string };
+
+function validateGrantChange(change: SubjectPermissionActionGrantChange) {
+  if (!Number.isInteger(change.subjectId) || change.subjectId <= 0) {
+    throw new PermissionGrantMutationError("授权主体无效");
+  }
+  if (change.value && !isPermissionActionSupported(change.resourceKey, change.actionKey)) {
+    throw new PermissionGrantMutationError("该资源尚未接入该权限动作");
+  }
+  if (change.value && !isPermissionActionGrantable(change.resourceKey, change.actionKey)) {
+    throw new PermissionGrantMutationError("空间入口资源仅支持访问权限");
+  }
+  if (!isResourceEnabled(change.resourceKey)) {
+    throw new PermissionGrantMutationError("模块未启用，不能配置该资源权限");
+  }
+}
+
+async function assertGrantSubjectsExist(
+  changes: readonly SubjectPermissionActionGrantChange[],
+  client: Prisma.TransactionClient,
+) {
+  const userIds = [...new Set(changes.filter((change) => change.subjectType === "user").map((change) => change.subjectId))];
+  const positionIds = [...new Set(changes.filter((change) => change.subjectType === "position").map((change) => change.subjectId))];
+  const departmentIds = [...new Set(changes.filter((change) => change.subjectType === "department").map((change) => change.subjectId))];
+  const [users, positions, departments] = await Promise.all([
+    userIds.length ? client.user.findMany({
+      where: { id: { in: userIds } },
+      select: { id: true, username: true, canLogin: true },
+    }) : [],
+    positionIds.length ? client.position.findMany({ where: { id: { in: positionIds } }, select: { id: true } }) : [],
+    departmentIds.length ? client.department.findMany({ where: { id: { in: departmentIds } }, select: { id: true } }) : [],
+  ]);
+  const found = {
+    user: new Set(users.map((row) => row.id)),
+    position: new Set(positions.map((row) => row.id)),
+    department: new Set(departments.map((row) => row.id)),
+  };
+  if (changes.some((change) => !found[change.subjectType].has(change.subjectId))) {
+    throw new PermissionGrantMutationError("授权主体不存在");
+  }
+  if (users.some((user) => user.canLogin && isRootAdminUsername(user.username))) {
+    throw new PermissionGrantMutationError("内置 admin 账号不参与 RBAC 授权");
+  }
+}
+
+async function mutateGrant(
+  tx: Prisma.TransactionClient,
+  change: SubjectPermissionActionGrantChange,
+  resource: GrantResource,
+) {
+  const { subjectType, subjectId, actionKey, value } = change;
+  const scopeId = change.scopeId ?? null;
+  if (subjectType === "user") {
+    if (!value) {
+      const deleted = await tx.userResourceActionGrant.deleteMany({ where: { userId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+      return deleted.count > 0;
     }
+    const existing = await tx.userResourceActionGrant.findFirst({ where: { userId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+    if (existing) return false;
+    await tx.userResourceActionGrant.create({ data: { userId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+    return true;
+  }
+  if (subjectType === "position") {
+    if (!value) {
+      const deleted = await tx.positionResourceActionGrant.deleteMany({ where: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+      return deleted.count > 0;
+    }
+    const existing = await tx.positionResourceActionGrant.findFirst({ where: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+    if (existing) return false;
+    await tx.positionResourceActionGrant.create({ data: { positionId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+    return true;
+  }
+  if (!value) {
+    const deleted = await tx.departmentResourceActionGrant.deleteMany({ where: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+    return deleted.count > 0;
+  }
+  const existing = await tx.departmentResourceActionGrant.findFirst({ where: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+  if (existing) return false;
+  await tx.departmentResourceActionGrant.create({ data: { departmentId: subjectId, resourceId: resource.id, actionKey, scopeId } });
+  return true;
+}
 
-    if (!changed) return { changed: false };
-    const event = await recordPermissionGrantLedgerEvent({
-      eventType: value ? "grant" : "revoke",
-      actorUserId: opts?.actorUserId ?? null,
-      subjectType,
-      subjectId,
-      resourceId: resource.id,
-      resourceKey: resource.key,
-      resourceName: resource.name,
-      actionKey,
-      scopeId,
-      beforeValue: !value,
-      afterValue: value,
-      source: opts?.source ?? (opts?.actorUserId ? "permission_request" : "system"),
-      reason: opts?.reason,
-      batchId: opts?.batchId,
-      metadata: opts?.metadata,
-    }, tx);
-    return { changed: true, eventId: event.id };
+function grantMutationTupleLockKey(change: SubjectPermissionActionGrantChange) {
+  return [
+    "permission-action-grant-tuple-v1",
+    change.subjectType,
+    change.subjectId,
+    change.resourceKey,
+    change.actionKey,
+    change.scopeId ?? "<global>",
+  ].join(":");
+}
+
+function authorizationDomainResourceKeys(resourceKeys: readonly string[]) {
+  const result = new Set<string>();
+  const expanded = new Set<string>();
+  function addResource(resourceKey: string) {
+    if (expanded.has(resourceKey)) return;
+    expanded.add(resourceKey);
+    let current: string | null = resourceKey;
+    while (current) {
+      result.add(current);
+      const ownerKey = getCapabilityOwnerKey(current);
+      if (ownerKey) addResource(ownerKey);
+      current = getResourceDef(current)?.parentKey ?? null;
+    }
+  }
+  resourceKeys.forEach(addResource);
+  return [...result].sort();
+}
+
+async function acquireGrantMutationLocks(
+  tx: Prisma.TransactionClient,
+  changes: readonly SubjectPermissionActionGrantChange[],
+  authorizationResourceKeys: readonly string[],
+) {
+  const domainResourceKeys = authorizationDomainResourceKeys([
+    ...changes.map((change) => change.resourceKey),
+    ...authorizationResourceKeys,
+  ]);
+  for (const resourceKey of domainResourceKeys) {
+    const lockKey = `permission-action-grant-domain-v1:${resourceKey}`;
+    await tx.$queryRaw(
+      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+    );
+  }
+  const tupleLockKeys = [...new Set(changes.map(grantMutationTupleLockKey))].sort();
+  for (const lockKey of tupleLockKeys) {
+    await tx.$queryRaw(
+      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+    );
+  }
+}
+
+export async function setSubjectPermissionActionGrants(
+  changes: readonly SubjectPermissionActionGrantChange[],
+  opts: PermissionGrantMutationOptions = {},
+): Promise<PermissionGrantMutationResult[]> {
+  if (changes.length === 0) return [];
+  changes.forEach(validateGrantChange);
+  const resourceKeys = [...new Set(changes.map((change) => change.resourceKey))];
+
+  return prisma.$transaction(async (tx) => {
+    await acquireGrantMutationLocks(tx, changes, opts.authorizationResourceKeys ?? []);
+    await assertGrantSubjectsExist(changes, tx);
+    const resources = await tx.resource.findMany({
+      where: { key: { in: resourceKeys } },
+      select: { id: true, key: true, name: true },
+    });
+    const resourceByKey = new Map(resources.map((resource) => [resource.key, resource]));
+    for (const resourceKey of resourceKeys) {
+      if (!resourceByKey.has(resourceKey)) throw new PermissionGrantMutationError(`Invalid resourceKey(${resourceKey})`);
+    }
+    await opts.beforeMutation?.(tx);
+    const preparedChanges = changes.map((change) => ({
+      change,
+      resource: resourceByKey.get(change.resourceKey)!,
+    }));
+    const results: PermissionGrantMutationResult[] = [];
+    for (const { change, resource } of preparedChanges) {
+      const changed = await mutateGrant(tx, change, resource);
+      if (!changed) {
+        results.push({ changed: false });
+        continue;
+      }
+      const event = await recordPermissionGrantLedgerEvent({
+        eventType: change.value ? "grant" : "revoke",
+        actorUserId: opts.actorUserId ?? null,
+        subjectType: change.subjectType,
+        subjectId: change.subjectId,
+        resourceId: resource.id,
+        resourceKey: resource.key,
+        resourceName: resource.name,
+        actionKey: change.actionKey,
+        scopeId: change.scopeId ?? null,
+        beforeValue: !change.value,
+        afterValue: change.value,
+        source: opts.source ?? (opts.actorUserId ? "permission_request" : "system"),
+        reason: opts.reason,
+        batchId: opts.batchId,
+        metadata: opts.metadata,
+      }, tx);
+      results.push({ changed: true, eventId: event.id });
+    }
+    return results;
   });
 }
 
@@ -200,35 +343,32 @@ export async function evaluatePermissionAction(
   actionKey: PermissionActionKey,
   opts?: EvaluatePermissionActionOptions,
 ) {
-  if (await isRootAdminUser(userId)) return true;
+  const client = opts?.client ?? prisma;
+  if (await isRootAdminUser(userId, client)) return true;
   if (!isResourceEnabled(resourceKey)) return false;
   if (!isPermissionActionSupported(resourceKey, actionKey)) return false;
   if (isRegisteredSpaceResourceKey(resourceKey) && actionKey !== "entry") return false;
   if (resourceKey === "settings.admin" && actionKey === "entry") {
-    return await hasGlobalGrantManagementAccess(userId) || await hasResourceAdminAccess(userId);
+    return await hasGlobalGrantManagementAccess(userId, client) || await hasResourceAdminAccess(userId, client);
   }
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
   if (capabilityOwnerKey) {
     if (!isResourceEnabled(capabilityOwnerKey)) return false;
-    if (!(await evaluatePermissionAction(userId, capabilityOwnerKey, "entry"))) return false;
+    if (!(await evaluatePermissionAction(userId, capabilityOwnerKey, "entry", { ...opts, client }))) return false;
   }
 
-  const resourceIds = await getProjectedAncestorResourceIds(resourceKey, opts?.projection ?? "default");
+  const resourceIds = await getProjectedAncestorResourceIds(resourceKey, opts?.projection ?? "default", client);
   const resourceId = resourceIds[0];
   if (!resourceId) return false;
-  if (actionKey !== "grant" && await hasImplicitAdminForResourceIds(userId, resourceIds)) return true;
-  if (actionKey === "grant" && await hasImplicitGrantForResourceIds(userId, resourceIds)) return true;
-  if (await hasImplicitAccessGrant({
-    roleKey: actionKey,
-    resourceIds,
-    isCapability: Boolean(capabilityOwnerKey),
-  })) return true;
+  if (actionKey !== "grant" && await hasImplicitAdminForResourceIds(userId, resourceIds, client)) return true;
+  if (actionKey === "grant" && await hasImplicitGrantForResourceIds(userId, resourceIds, client)) return true;
+  if (!capabilityOwnerKey && defaultResourceActionAllows(resourceKey, actionKey)) return true;
   const inheritableResourceIds = canPermissionActionInheritFromAncestor(resourceKey, actionKey)
     ? resourceIds
     : [resourceId];
   const [positionIds, departmentIds] = await Promise.all([
-    getUserPositionIds(userId),
-    getUserDepartmentIds(userId),
+    getUserPositionIds(userId, client),
+    getUserDepartmentIds(userId, client),
   ]);
   const matchingActionKeys = isRegisteredSpaceResourceKey(resourceKey) && actionKey === "entry"
     ? [...PERMISSION_ACTION_KEYS]
@@ -247,13 +387,13 @@ export async function evaluatePermissionAction(
         : { scopeId: opts.scopeId };
 
   const [userGrant, positionGrant, departmentGrant] = await Promise.all([
-    prisma.userResourceActionGrant.findFirst({
+    client.userResourceActionGrant.findFirst({
       where: { userId, resourceId: { in: inheritableResourceIds }, actionKey: { in: matchingActionKeys }, ...scopeWhere },
     }),
-    positionIds.length ? prisma.positionResourceActionGrant.findFirst({
+    positionIds.length ? client.positionResourceActionGrant.findFirst({
       where: { positionId: { in: positionIds }, resourceId: { in: inheritableResourceIds }, actionKey: { in: matchingActionKeys }, ...scopeWhere },
     }) : null,
-    departmentIds.length ? prisma.departmentResourceActionGrant.findFirst({
+    departmentIds.length ? client.departmentResourceActionGrant.findFirst({
       where: { departmentId: { in: departmentIds }, resourceId: { in: inheritableResourceIds }, actionKey: { in: matchingActionKeys }, ...scopeWhere },
     }) : null,
   ]);

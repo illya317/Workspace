@@ -10,7 +10,7 @@ import { isRegisteredSpaceResourceKey } from "@workspace/platform/space-registry
 import { getCapabilityOwnerKey } from "@workspace/platform/resources";
 import { prisma } from "@workspace/platform/server/prisma";
 import { evaluatePermissionAction } from "./action-grants";
-import { getDefaultResourceAction } from "./implicit";
+import { defaultResourceActionAllows } from "./implicit";
 import type { PermissionContext } from "./types";
 
 interface ResourceNode {
@@ -99,8 +99,7 @@ export async function evaluatePermissionWithContext(
     return true;
   }
 
-  const defaultAction = getDefaultResourceAction(resourceKey);
-  if (!capabilityOwnerKey && defaultAction && permissionGrantContributesToAction(resourceKey, defaultAction, actionKey)) {
+  if (!capabilityOwnerKey && defaultResourceActionAllows(resourceKey, actionKey)) {
     return true;
   }
 

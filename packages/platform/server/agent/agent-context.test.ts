@@ -20,6 +20,7 @@ const user: SessionUser = { id: 1, username: "agent-test" };
 const session: AgentSessionRow = {
   id: "sess_00000000000000000000000000000000",
   userId: user.id,
+  agentProfileId: null,
   status: "active",
   pagePath: null,
   contextLabel: null,

@@ -6,7 +6,11 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { hrAgentProposalExecutors } from "@workspace/hr/server/agent-tools";
-import { confirmProposalAction, sourceAgentProposalExecutors } from "@workspace/platform/server/agent";
+import {
+  agentProposalActionErrorStatus,
+  confirmProposalAction,
+  sourceAgentProposalExecutors,
+} from "@workspace/platform/server/agent";
 import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
@@ -30,6 +34,6 @@ export async function POST(
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "执行失败";
-    return jsonErrorResponse(message, 500);
+    return jsonErrorResponse(message, agentProposalActionErrorStatus(err));
   }
 }

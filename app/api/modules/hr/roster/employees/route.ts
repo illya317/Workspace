@@ -8,6 +8,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";const 
   company: z.string().catch(""),
   department: z.string().catch(""),
   position: z.string().catch(""),
+  personnelType: z.string().catch(""),
   employmentStatus: z.enum(["active", "inactive"]).optional().catch(undefined),
   filterField: z.string().catch(""),
   filterValue: z.string().catch(""),

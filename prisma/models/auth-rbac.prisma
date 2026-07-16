@@ -19,6 +19,7 @@ model User {
   editedContracts                   Contract[]                          @relation("ContractEditor")
   editHistories                     EditHistory[]                       @relation("EditHistoryEditor")
   employees                         Employee[]                          @relation("EmployeeUser")
+  agentProfile                     AgentProfile?                       @relation("AgentProfileActor")
   editedFinanceAccounts             FinanceAccount[]                    @relation("FinanceAccountEditor")
   editedFinanceVouchers             FinanceVoucher[]                    @relation("FinanceVoucherEditor")
   editedStockFinishedGoods          StockFinishedGoods[]                @relation("StockFinishedGoodsEditor")

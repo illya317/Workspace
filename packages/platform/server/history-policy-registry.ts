@@ -53,6 +53,7 @@ export type HistoryPolicy = {
   fieldLabels?: Record<string, string>;
   ignoredFields?: readonly string[];
   restore: false | HistoryRestorePolicy;
+  readRecord?: (entityId: number, client: HistoryClient) => Promise<Record<string, unknown> | null>;
   prepareSnapshot?: (record: Record<string, unknown>, client: HistoryClient) => Promise<Record<string, unknown>>;
   summarizeChanges?: (context: HistorySummaryContext) => HistoryChange[];
 };
@@ -94,6 +95,11 @@ function nonRestorableHistoryPolicy(
   displayName: HistoryDisplayPolicy,
 ) {
   return { entityType, modelKey, trackHistory: true, baseline: "before-first-update", displayName, ignoredFields: AUDIT_FIELDS, restore: false } as const satisfies HistoryPolicy;
+}
+
+async function readAgentPermissionPolicy(_entityId: number, client: HistoryClient) {
+  const delegate = client.systemConfig as { findUnique: (args: { where: { key: string } }) => Promise<Record<string, unknown> | null> };
+  return delegate.findUnique({ where: { key: "agentAllowedActions" } });
 }
 
 function getDelegate(client: HistoryClient, modelKey: PrismaModelKey): HistoryModelDelegate {
@@ -384,6 +390,9 @@ export const historyPolicyRegistry = {
   ProjectPlanPhase: nonRestorableHistoryPolicy("ProjectPlanPhase", "projectPlanPhase", { field: "name", fallback: "未知项目阶段" }),
   Meeting: nonRestorableHistoryPolicy("Meeting", "meeting", { field: "title", fallback: "未知会议" }),
   WorkflowPolicy: nonRestorableHistoryPolicy("WorkflowPolicy", "workflowPolicy", { field: "businessActionKey", fallback: "未知流程策略" }),
+  AgentProfile: { ...nonRestorableHistoryPolicy("AgentProfile", "agentProfile", { field: "displayName", fallback: "未知 Agent 档案" }), fieldLabels: { displayName: "Agent 名称", roleName: "岗位名称", responsibilities: "职责说明", status: "档案状态" } },
+  AgentRuntimeBinding: { ...nonRestorableHistoryPolicy("AgentRuntimeBinding", "agentRuntimeBinding", { field: "runtimeKind", fallback: "未知 Agent 运行时" }), fieldLabels: { runtimeKind: "运行时类型", status: "运行时状态", interactive: "允许交互", capabilityKeysJson: "运行时能力白名单", instructions: "运行时职责指令" } },
+  AgentPermissionPolicy: { ...nonRestorableHistoryPolicy("AgentPermissionPolicy", "systemConfig", { fallback: "Agent 全局动作上限", resolveNames: async (ids) => Object.fromEntries(ids.map((id) => [String(id), "Agent 全局动作上限"])) }), readRecord: readAgentPermissionPolicy, fieldLabels: { value: "允许动作" } },
   PositionDescription: {
     entityType: "PositionDescription",
     modelKey: "positionDescription",

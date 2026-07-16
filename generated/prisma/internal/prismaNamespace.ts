@@ -384,8 +384,11 @@ type FieldRefInputType<Model, FieldType> = Model extends never ? never : FieldRe
 
 
 export const ModelName = {
+  AgentProfile: 'AgentProfile',
+  AgentRuntimeBinding: 'AgentRuntimeBinding',
   AgentSession: 'AgentSession',
   AgentProposal: 'AgentProposal',
+  AgentRun: 'AgentRun',
   ApprovalRequest: 'ApprovalRequest',
   ApprovalEvent: 'ApprovalEvent',
   WorkflowPolicy: 'WorkflowPolicy',
@@ -565,10 +568,158 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentSession" | "agentProposal" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationEntryLine" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationEntryLine" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
+    AgentProfile: {
+      payload: Prisma.$AgentProfilePayload<ExtArgs>
+      fields: Prisma.AgentProfileFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentProfileFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentProfileFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        findFirst: {
+          args: Prisma.AgentProfileFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentProfileFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        findMany: {
+          args: Prisma.AgentProfileFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>[]
+        }
+        create: {
+          args: Prisma.AgentProfileCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        createMany: {
+          args: Prisma.AgentProfileCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentProfileCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>[]
+        }
+        delete: {
+          args: Prisma.AgentProfileDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        update: {
+          args: Prisma.AgentProfileUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentProfileDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentProfileUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentProfileUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentProfileUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentProfilePayload>
+        }
+        aggregate: {
+          args: Prisma.AgentProfileAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentProfile>
+        }
+        groupBy: {
+          args: Prisma.AgentProfileGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentProfileCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentProfileCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentRuntimeBinding: {
+      payload: Prisma.$AgentRuntimeBindingPayload<ExtArgs>
+      fields: Prisma.AgentRuntimeBindingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentRuntimeBindingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentRuntimeBindingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentRuntimeBindingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentRuntimeBindingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        findMany: {
+          args: Prisma.AgentRuntimeBindingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>[]
+        }
+        create: {
+          args: Prisma.AgentRuntimeBindingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        createMany: {
+          args: Prisma.AgentRuntimeBindingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentRuntimeBindingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>[]
+        }
+        delete: {
+          args: Prisma.AgentRuntimeBindingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        update: {
+          args: Prisma.AgentRuntimeBindingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentRuntimeBindingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentRuntimeBindingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentRuntimeBindingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentRuntimeBindingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRuntimeBindingPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentRuntimeBindingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentRuntimeBinding>
+        }
+        groupBy: {
+          args: Prisma.AgentRuntimeBindingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRuntimeBindingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentRuntimeBindingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRuntimeBindingCountAggregateOutputType> | number
+        }
+      }
+    }
     AgentSession: {
       payload: Prisma.$AgentSessionPayload<ExtArgs>
       fields: Prisma.AgentSessionFieldRefs
@@ -714,6 +865,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AgentProposalCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AgentProposalCountAggregateOutputType> | number
+        }
+      }
+    }
+    AgentRun: {
+      payload: Prisma.$AgentRunPayload<ExtArgs>
+      fields: Prisma.AgentRunFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AgentRunFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AgentRunFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        findFirst: {
+          args: Prisma.AgentRunFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AgentRunFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        findMany: {
+          args: Prisma.AgentRunFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>[]
+        }
+        create: {
+          args: Prisma.AgentRunCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        createMany: {
+          args: Prisma.AgentRunCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AgentRunCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>[]
+        }
+        delete: {
+          args: Prisma.AgentRunDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        update: {
+          args: Prisma.AgentRunUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        deleteMany: {
+          args: Prisma.AgentRunDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AgentRunUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AgentRunUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>[]
+        }
+        upsert: {
+          args: Prisma.AgentRunUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AgentRunPayload>
+        }
+        aggregate: {
+          args: Prisma.AgentRunAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAgentRun>
+        }
+        groupBy: {
+          args: Prisma.AgentRunGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRunGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AgentRunCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AgentRunCountAggregateOutputType> | number
         }
       }
     }
@@ -12892,9 +13117,45 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
 
 
+export const AgentProfileScalarFieldEnum = {
+  id: 'id',
+  key: 'key',
+  actorUserId: 'actorUserId',
+  displayName: 'displayName',
+  roleName: 'roleName',
+  responsibilities: 'responsibilities',
+  allowedToolKeysJson: 'allowedToolKeysJson',
+  status: 'status',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentProfileScalarFieldEnum = (typeof AgentProfileScalarFieldEnum)[keyof typeof AgentProfileScalarFieldEnum]
+
+
+export const AgentRuntimeBindingScalarFieldEnum = {
+  id: 'id',
+  agentProfileId: 'agentProfileId',
+  runtimeKind: 'runtimeKind',
+  status: 'status',
+  interactive: 'interactive',
+  capabilityKeysJson: 'capabilityKeysJson',
+  instructions: 'instructions',
+  createdBy: 'createdBy',
+  editedBy: 'editedBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AgentRuntimeBindingScalarFieldEnum = (typeof AgentRuntimeBindingScalarFieldEnum)[keyof typeof AgentRuntimeBindingScalarFieldEnum]
+
+
 export const AgentSessionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  agentProfileId: 'agentProfileId',
   status: 'status',
   pagePath: 'pagePath',
   contextLabel: 'contextLabel',
@@ -12917,19 +13178,54 @@ export type AgentSessionScalarFieldEnum = (typeof AgentSessionScalarFieldEnum)[k
 export const AgentProposalScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
+  actorUserId: 'actorUserId',
+  agentProfileId: 'agentProfileId',
   sessionId: 'sessionId',
   status: 'status',
   actionKey: 'actionKey',
+  toolKey: 'toolKey',
   targetType: 'targetType',
   targetId: 'targetId',
   payloadJson: 'payloadJson',
   diffJson: 'diffJson',
   resultJson: 'resultJson',
+  executionToken: 'executionToken',
+  executionStartedAt: 'executionStartedAt',
   createdAt: 'createdAt',
   confirmedAt: 'confirmedAt'
 } as const
 
 export type AgentProposalScalarFieldEnum = (typeof AgentProposalScalarFieldEnum)[keyof typeof AgentProposalScalarFieldEnum]
+
+
+export const AgentRunScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  requesterUserId: 'requesterUserId',
+  actorUserId: 'actorUserId',
+  agentProfileId: 'agentProfileId',
+  runtimeBindingId: 'runtimeBindingId',
+  runtimeKind: 'runtimeKind',
+  runtimeConfigJson: 'runtimeConfigJson',
+  runtimeConfigHash: 'runtimeConfigHash',
+  status: 'status',
+  pagePath: 'pagePath',
+  toolKey: 'toolKey',
+  resultType: 'resultType',
+  proposalId: 'proposalId',
+  errorMessage: 'errorMessage',
+  inputOtherTokens: 'inputOtherTokens',
+  inputCacheReadTokens: 'inputCacheReadTokens',
+  inputCacheCreationTokens: 'inputCacheCreationTokens',
+  outputTokens: 'outputTokens',
+  contextUsagePeak: 'contextUsagePeak',
+  runtimeStepCount: 'runtimeStepCount',
+  runtimeOutcome: 'runtimeOutcome',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type AgentRunScalarFieldEnum = (typeof AgentRunScalarFieldEnum)[keyof typeof AgentRunScalarFieldEnum]
 
 
 export const ApprovalRequestScalarFieldEnum = {
@@ -16242,20 +16538,6 @@ export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof Json
 
 
 /**
- * Reference to a field of type 'String'
- */
-export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
-
-
-
-/**
- * Reference to a field of type 'String[]'
- */
-export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
-
-
-
-/**
  * Reference to a field of type 'Int'
  */
 export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -16266,6 +16548,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+
+
+
+/**
+ * Reference to a field of type 'String'
+ */
+export type StringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String'>
+
+
+
+/**
+ * Reference to a field of type 'String[]'
+ */
+export type ListStringFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'String[]'>
 
 
 
@@ -16455,8 +16751,11 @@ export type PrismaClientOptions = ({
   queryPlanCacheMaxSize?: number
 }
 export type GlobalOmitConfig = {
+  agentProfile?: Prisma.AgentProfileOmit
+  agentRuntimeBinding?: Prisma.AgentRuntimeBindingOmit
   agentSession?: Prisma.AgentSessionOmit
   agentProposal?: Prisma.AgentProposalOmit
+  agentRun?: Prisma.AgentRunOmit
   approvalRequest?: Prisma.ApprovalRequestOmit
   approvalEvent?: Prisma.ApprovalEventOmit
   workflowPolicy?: Prisma.WorkflowPolicyOmit

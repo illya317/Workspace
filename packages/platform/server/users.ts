@@ -6,6 +6,7 @@ import { isPermissionActionKey } from "../permission-actions";
 import { isPermissionActionSupported } from "../permission-resource-policy";
 import { rotateUserApiKey } from "./personal-api-key";
 import { prisma } from "./prisma";
+import { validateAgentActorUserFieldChange } from "./agent/actor-user-policy";
 
 export type CreateAdminUserInput = {
   username: string;
@@ -99,6 +100,17 @@ async function validateEmployeeAccountLink(userId: number, employeeId: string | 
 }
 
 export async function updateAdminUserField(input: UpdateAdminUserFieldInput): Promise<UpdateAdminUserFieldResult> {
+  const profile = await prisma.agentProfile.findUnique({
+    where: { actorUserId: input.userId },
+    select: { key: true },
+  });
+  const agentActorError = validateAgentActorUserFieldChange({
+    profileKey: profile?.key ?? null,
+    field: input.field,
+    value: input.value,
+  });
+  if (agentActorError) return { success: false, status: 409, error: agentActorError };
+
   if (input.field === "employeeId") {
     const value = normalizeNullableText(input.value);
     const error = await validateEmployeeAccountLink(input.userId, value);

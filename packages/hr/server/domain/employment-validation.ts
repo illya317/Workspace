@@ -4,6 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
+import { HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE } from "@workspace/hr/constants/field-options";
 import { isValidDateValue, rejectInvalidDateField, validateEmploymentOption } from "../field-validation";
 import {
   buildHrPageDraftEnvelopeCommand,
@@ -45,6 +46,28 @@ export interface EmploymentFieldUpdateCommand {
   value: unknown;
 }
 
+export const VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR =
+  "虚拟员工身份只能由 Agent provisioning 管理";
+
+export function validateOrdinaryEmploymentTarget(agentProfileKey: string | null) {
+  return agentProfileKey
+    ? failCommand(VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR)
+    : okCommand({});
+}
+
+export function validateEmploymentPersonnelTypeTransition(
+  currentValue: unknown,
+  nextValue: unknown,
+): DomainValidationResult<{ value: unknown }> {
+  if (
+    currentValue === HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE
+    || nextValue === HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE
+  ) {
+    return failCommand(VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR);
+  }
+  return okCommand({ value: nextValue });
+}
+
 function validateEmploymentOptions(data: Record<string, unknown>) {
   for (const field of OPTION_FIELDS) {
     if (!validateEmploymentOption(field, data[field])) return field;
@@ -60,13 +83,26 @@ function parseEmployeeId(value: unknown) {
 export async function buildEmploymentCreateCommand(
   body: Record<string, unknown>,
 ): Promise<DomainValidationResult<Record<string, unknown>>> {
+  const personnelType = validateEmploymentPersonnelTypeTransition(null, body.personnelType);
+  if (!personnelType.ok) return personnelType;
   const employeeId = parseEmployeeId(body.employeeId);
   if (!employeeId) return failCommand("员工不能为空");
   const employee = await prisma.employee.findUnique({
     where: { id: employeeId },
-    select: { id: true },
+    select: { id: true, employeeId: true, userId: true },
   });
   if (!employee) return failCommand("员工不存在");
+  const agentProfile = await prisma.agentProfile.findFirst({
+    where: {
+      OR: [
+        ...(employee.userId == null ? [] : [{ actorUserId: employee.userId }]),
+        { actorUser: { employeeId: employee.employeeId } },
+      ],
+    },
+    select: { key: true },
+  });
+  const target = validateOrdinaryEmploymentTarget(agentProfile?.key ?? null);
+  if (!target.ok) return target;
   for (const field of DATE_FIELDS) {
     if (!isValidDateValue(body[field])) return failCommand("日期格式无效");
   }
@@ -84,6 +120,10 @@ export async function buildEmploymentFieldUpdateCommand(
   _id?: number,
 ): Promise<DomainValidationResult<EmploymentFieldUpdateCommand>> {
   if (field === "employeeId") return failCommand("雇佣记录员工不可修改");
+  if (field === "personnelType") {
+    const personnelType = validateEmploymentPersonnelTypeTransition(null, value);
+    if (!personnelType.ok) return personnelType;
+  }
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   const optionResult = validateEmploymentOption(field, value);

@@ -8,8 +8,11 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/AgentProfile'
+export type * from './models/AgentRuntimeBinding'
 export type * from './models/AgentSession'
 export type * from './models/AgentProposal'
+export type * from './models/AgentRun'
 export type * from './models/ApprovalRequest'
 export type * from './models/ApprovalEvent'
 export type * from './models/WorkflowPolicy'

@@ -95,6 +95,25 @@ function pathMatchesPrefix(apiPath, pathPrefix) {
   return apiPath === pathPrefix || apiPath.startsWith(`${pathPrefix}/`);
 }
 
+function capabilityOwnerTerminatesAtPageResource(
+  resource,
+  byKey,
+  l2ResourceKeys,
+  l1OnlyResourceKeys,
+) {
+  const visited = new Set([resource.key]);
+  let ownerKey = resource.capabilityOwnerKey;
+  while (ownerKey) {
+    if (l2ResourceKeys.has(ownerKey) || l1OnlyResourceKeys.has(ownerKey)) return true;
+    if (visited.has(ownerKey)) return false;
+    visited.add(ownerKey);
+    const owner = byKey.get(ownerKey);
+    if (!owner || owner.kind !== "capability") return false;
+    ownerKey = owner.capabilityOwnerKey;
+  }
+  return false;
+}
+
 function runCheck() {
   const modules = collectModuleDefs();
   const explicitResources = collectResourceDefs();
@@ -204,11 +223,16 @@ function runCheck() {
           line: resource.line,
           message: `capability 资源 "${resource.key}" 的 capabilityOwnerKey 未注册: ${resource.capabilityOwnerKey}`,
         });
-      } else if (!l2ResourceKeys.has(resource.capabilityOwnerKey) && !l1OnlyResourceKeys.has(resource.capabilityOwnerKey)) {
+      } else if (!capabilityOwnerTerminatesAtPageResource(
+        resource,
+        byKey,
+        l2ResourceKeys,
+        l1OnlyResourceKeys,
+      )) {
         violations.push({
           filePath: resource.filePath,
           line: resource.line,
-          message: `capability 资源 "${resource.key}" 的 capabilityOwnerKey 必须归属于已注册 L2 或无 L2 的 L1: ${resource.capabilityOwnerKey}`,
+          message: `capability 资源 "${resource.key}" 的 capabilityOwnerKey 必须直接或经无环 capability 链归属于已注册 L2 或无 L2 的 L1: ${resource.capabilityOwnerKey}`,
         });
       }
       if (resource.parentKey) {

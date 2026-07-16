@@ -120,7 +120,7 @@ export async function resolveWecomAgentUser(incomingUserId: string): Promise<Res
   if (!user || !user.canLogin) {
     return { ok: false, response: jsonErrorResponse("企业微信账号尚未绑定或已停用", 403) };
   }
-  if (!(await evaluatePermissionAction(user.id, "agent", "submit"))) {
+  if (!(await evaluatePermissionAction(user.id, "agent.assistant", "submit"))) {
     return { ok: false, response: jsonErrorResponse("当前账号未开通智能体权限", 403) };
   }
 
@@ -141,6 +141,7 @@ export function toParsedAgentRequest(input: WecomAgentBridgeInput): ParsedAgentR
     body: {
       message: input.message,
       sessionId: input.sessionId,
+      agentProfileId: null,
       context: {
         contextLabel: input.chatType === "group" ? "企业微信群聊" : "企业微信私聊",
         path: input.chatType === "group" ? "wecom://group" : "wecom://single",

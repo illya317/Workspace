@@ -1,5 +1,8 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { buildContractRows } from "./contracts";
+import { employeeWhereFromKey } from "./employee-profile-key";
+
+export { employeeWhereFromKey } from "./employee-profile-key";
 
 function findPrimaryContractCompany(
   contracts: Array<{ employmentId?: number; company?: string | null; isPrimary?: boolean }>,
@@ -20,14 +23,6 @@ async function findCompanyByNameOrCode(value: string | null) {
     where: { OR: [{ code: text }, { name: text }, { fullName: text }] },
     select: { id: true, name: true },
   });
-}
-
-export function employeeWhereFromKey(key: string) {
-  const value = decodeURIComponent(key).trim();
-  if (/^\d{5}$/.test(value)) return { employeeId: value };
-  const numericId = Number(value);
-  if (Number.isInteger(numericId) && numericId > 0) return { id: numericId };
-  return null;
 }
 
 export async function getEmployeeProfileByKey(key: string) {

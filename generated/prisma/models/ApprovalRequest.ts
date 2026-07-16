@@ -1074,18 +1074,6 @@ export type ApprovalRequestOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type BoolFieldUpdateOperationsInput = {
-  set?: boolean
-}
-
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ApprovalRequestCreateNestedOneWithoutEventsInput = {
   create?: Prisma.XOR<Prisma.ApprovalRequestCreateWithoutEventsInput, Prisma.ApprovalRequestUncheckedCreateWithoutEventsInput>
   connectOrCreate?: Prisma.ApprovalRequestCreateOrConnectWithoutEventsInput

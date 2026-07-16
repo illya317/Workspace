@@ -3,7 +3,8 @@ export type ActionContractKind =
   | "lifecycle"
   | "exchange"
   | "governance"
-  | "workflow";
+  | "workflow"
+  | "remote_effect";
 
 export type ActionExecutionMode = "direct" | "workflow" | "native";
 export type ActionWorkflowReadiness = "ready" | "native" | "partial" | "not_ready" | "not_applicable";
@@ -49,6 +50,8 @@ export type ActionGovernanceSubject = "organization" | "relationship" | "classif
 export type ActionGovernanceScope = "record" | "resource" | "organization" | "system";
 export type ActionExchangeTransport = "json" | "file" | "stream" | "generated" | "scan";
 export type ActionExchangeResult = "records" | "batch" | "file" | "stream" | "data";
+export type ActionRemoteEffectFailureOutcome = "unknown";
+export type ActionRemoteEffectRetryPolicy = "reconcile_before_retry";
 
 export interface ActionPayloadBatchContract {
   itemKey: string;
@@ -120,6 +123,19 @@ export interface ActionExportExchangeContract {
   transport: ActionExchangeTransport;
   result: Extract<ActionExchangeResult, "file" | "stream" | "data">;
   contentTypes?: readonly string[];
+  notes?: string;
+}
+
+/**
+ * Describes a mutation whose authoritative state lives at an external provider.
+ * `localAuditEntity` records the request/result, but is not the effect's persistence.
+ */
+export interface ActionRemoteEffectContract {
+  provider: string;
+  operation: string;
+  localAuditEntity: string;
+  outcomeAfterDispatchFailure: ActionRemoteEffectFailureOutcome;
+  retryPolicy: ActionRemoteEffectRetryPolicy;
   notes?: string;
 }
 
@@ -401,6 +417,14 @@ export interface ActionExportContract<TInput = unknown, TNormalized = TInput, TR
   domain: ActionProducerDomainContract<TInput, TNormalized, TResult, TContext>;
 }
 
+export interface ActionRemoteEffectActionContract<TInput = unknown, TNormalized = TInput, TResult = unknown, TContext = unknown>
+  extends ActionContractBase<TInput, TNormalized, TResult, TContext> {
+  kind: "remote_effect";
+  remoteEffect: ActionRemoteEffectContract;
+  persistence?: never;
+  domain: ActionMutationDomainContract<TInput, TNormalized, TResult, TContext>;
+}
+
 export type ActionContract<
   TInput = unknown,
   TNormalized = TInput,
@@ -412,7 +436,8 @@ export type ActionContract<
   | ActionGovernanceActionContract<TInput, TNormalized, TResult, TContext>
   | ActionWorkflowActionContract<TInput, TNormalized, TResult, TContext>
   | ActionImportContract<TInput, TNormalized, TResult, TContext>
-  | ActionExportContract<TInput, TNormalized, TResult, TContext>;
+  | ActionExportContract<TInput, TNormalized, TResult, TContext>
+  | ActionRemoteEffectActionContract<TInput, TNormalized, TResult, TContext>;
 
 type ActionContractMetadataVariant<TContract> = TContract extends ActionExportContract<unknown, unknown, unknown, unknown>
   ? Omit<TContract, "domain" | "display"> & {

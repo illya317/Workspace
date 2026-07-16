@@ -84,6 +84,7 @@ export interface ResourceItem {
   enabled?: boolean;
   hidden?: boolean;
   disabledReason?: string | null;
+  grantManageable?: boolean;
   children?: ResourceItem[];
 }
 

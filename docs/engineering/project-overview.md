@@ -46,7 +46,7 @@ If a source-of-truth file is dirty, treat the related section here as possibly s
 
 ## 1. What This Project Is
 
-Workspace is an internal management system. It is not a single HR app; it is a modular platform for HR, finance, work/project management, production QC, administration contracts, library/documents, external relationships, user-facing docs, settings, and headless agent APIs.
+Workspace is an internal management system. It is not a single HR app; it is a modular platform for HR, finance, work/project management, production QC, administration contracts, library/documents, external relationships, user-facing docs, settings, and governed Agent runtimes. HR virtual-employee records describe organizational identity; only an explicit runtime binding makes that identity executable on Workspace, local Codex, CI, or servers.
 
 The current product modules are registered in `packages/platform/module-registry.ts`. That registry is the source of truth for module keys, labels, routes, resource keys, API prefixes, headless modules, and module disable behavior.
 
@@ -127,9 +127,11 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 | Docs `docs` | Platform docs module | positions, company, expense | static/product docs pages, no independent business API |
 | Library `library` | `@workspace/library` domain | `library.basicInfo` | basic-info module API |
 | Settings `settings` | Platform | account, admin, api, ui | settings account/admin/api APIs; UI component page is page-only |
-| Agent `agent` | Platform headless | no page | `/api/agent` protected API only |
+| Agent `agent` | Platform | `agent.config`, `agent.usage`, `agent.reports` | management L2s are protected server-rendered views; `/api/agent` and the toolbar use the separate `agent.assistant` capability |
 
-Important capability resources include `hr.roster.generated`, `settings.account.apiAccess`, and `settings.api.manage`. Check the registry and `docs/engineering/security/rbac.md` before changing capability semantics.
+Agent is a restricted management center and its L1 uses the standard `ModuleHomePage`. Ordinary employees do not need management-center access: the toolbar assistant is the headless `agent.assistant` capability, owned by `settings.account` and runtime-coupled to `agent`. Profile-only source search and CNB PR proposals use the additional `agent.source` capability owned by `agent.assistant`; both requester and virtual actor need explicit live source grants, without `agent.config.entry`. Workspace, local Codex, CI, and server operations remain separate runtime kinds. Only AI0004 is provisioned for Workspace source/PR tools; local development, direct commits, and deployment happen outside Workspace conversations.
+
+Important capability resources include `hr.roster.generated`, `settings.account.apiAccess`, `settings.api.manage`, `agent.assistant`, and `agent.source`. Check the registry and `docs/engineering/security/rbac.md` before changing capability semantics.
 
 ## 6. Development Rules That Usually Matter
 

@@ -35,7 +35,11 @@ function domain(contract: ActionContractMetadata) {
 }
 
 function persistence(contract: ActionContractMetadata) {
-  if (!contract.persistence) return "none (read-only export)";
+  if (!contract.persistence) {
+    return contract.kind === "remote_effect"
+      ? "none (authoritative state is remote)"
+      : "none (read-only export)";
+  }
   const value = contract.persistence;
   return [
     `strategy=${value.strategy}`,
@@ -67,6 +71,15 @@ function semantics(contract: ActionContractMetadata) {
       `result=${contract.exchange.result}`,
       "atomicity" in contract.exchange ? `atomicity=${contract.exchange.atomicity}` : null,
     ].filter(Boolean).join("<br>");
+  }
+  if (contract.kind === "remote_effect") {
+    return [
+      `provider=${contract.remoteEffect.provider}`,
+      `operation=${contract.remoteEffect.operation}`,
+      `localAudit=${contract.remoteEffect.localAuditEntity}`,
+      `dispatchFailure=${contract.remoteEffect.outcomeAfterDispatchFailure}`,
+      `retry=${contract.remoteEffect.retryPolicy}`,
+    ].join("<br>");
   }
   return `payload=${contract.payload.cardinality}/${contract.payload.shape}<br>target=${contract.payload.target}`;
 }

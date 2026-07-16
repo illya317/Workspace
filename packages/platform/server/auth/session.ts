@@ -9,7 +9,11 @@ import { isRootAdminUser } from "./root";
 import type { SessionUser } from "../../types";
 import type { AuthPayload } from "../auth-token";
 
-async function buildSessionUser(userId: number, expectedSessionVersion?: number): Promise<SessionUser | null> {
+async function buildSessionUser(
+  userId: number,
+  expectedSessionVersion?: number,
+  options: { requireLogin?: boolean } = {},
+): Promise<SessionUser | null> {
   const userWithPerms = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -24,7 +28,7 @@ async function buildSessionUser(userId: number, expectedSessionVersion?: number)
     },
   });
   if (!userWithPerms) return null;
-  if (!userWithPerms.canLogin) return null;
+  if (options.requireLogin !== false && !userWithPerms.canLogin) return null;
   if (expectedSessionVersion != null && userWithPerms.sessionVersion !== expectedSessionVersion) {
     return null;
   }
@@ -115,6 +119,12 @@ export const getCurrentUser = cache(_getCurrentUser);
 export async function getSessionUserFromAuthPayload(payload: AuthPayload): Promise<SessionUser | null> {
   const expectedSessionVersion = (payload as AuthPayload & { sessionVersion?: number }).sessionVersion;
   return buildSessionUser(payload.userId, expectedSessionVersion);
+}
+
+/** Build a permission-bearing identity for a non-login virtual employee. */
+export async function getAgentActorSessionUser(userId: number): Promise<SessionUser | null> {
+  const user = await buildSessionUser(userId, undefined, { requireLogin: false });
+  return user?.canLogin === false ? user : null;
 }
 
 /** For API routes: throws on unauthenticated. */

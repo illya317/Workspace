@@ -776,14 +776,6 @@ export type ContractUncheckedUpdateManyWithoutEditorNestedInput = {
   deleteMany?: Prisma.ContractScalarWhereInput | Prisma.ContractScalarWhereInput[]
 }
 
-export type NullableFloatFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type ContractCreateWithoutEditorInput = {
   contractNo?: string | null
   name: string

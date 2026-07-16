@@ -6,12 +6,10 @@ import {
   updateSystemConfig,
 } from "@workspace/platform/server/system-config";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
-import { PERMISSION_ACTION_KEYS } from "@workspace/platform/permission-actions";
 
 const systemConfigSchema = z.object({
   conflictStrategy: z.enum(["union", "deny_override"]).optional(),
-  agentAllowedActions: z.array(z.enum(PERMISSION_ACTION_KEYS)).max(PERMISSION_ACTION_KEYS.length).optional(),
-});
+}).strict();
 
 export async function GET(request: Request) {
   const auth = await requireAdminApiAccess(request);
@@ -20,7 +18,8 @@ export async function GET(request: Request) {
 
   if (!(await isSuperAdmin(payload.userId))) return jsonErrorResponse("无权限", 403);
 
-  return NextResponse.json(await getSystemConfig());
+  const config = await getSystemConfig();
+  return NextResponse.json({ conflictStrategy: config.conflictStrategy });
 }
 
 export async function PUT(request: Request) {

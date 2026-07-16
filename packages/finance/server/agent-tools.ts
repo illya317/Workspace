@@ -3,7 +3,6 @@
  * 不搬业务逻辑，只做权限校验 + 调用领域 service。
  */
 import type { AgentTool } from "@workspace/platform/server/agent";
-import type { SessionUser } from "@workspace/platform/types";
 
 import {
   type DeptBudgetItem,
@@ -24,7 +23,7 @@ export const queryBudgetTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "finance.budget", action: "read" }],
   mutates: false,
 
-  async execute(params: Record<string, unknown>, _user: SessionUser) {
+  async execute(params: Record<string, unknown>) {
     const year = typeof params.year === "number" ? params.year
       : typeof params.year === "string" ? parseInt(params.year)
       : new Date().getFullYear();
