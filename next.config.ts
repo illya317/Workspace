@@ -50,7 +50,7 @@ const nextConfig: NextConfig = {
   ],
   outputFileTracingRoot: workspaceRoot,
   outputFileTracingExcludes: {
-    "/*": [".git/**/*", "../.workspace/**/*"],
+    "/*": [".git", ".git/**/*", "../.workspace/**/*"],
     "/agent/**": agentRuntimeSourceTraceExcludes,
     "/api/agent": agentRuntimeSourceTraceExcludes,
     "/api/agent/**": agentRuntimeSourceTraceExcludes,
