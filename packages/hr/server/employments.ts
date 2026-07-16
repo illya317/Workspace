@@ -9,11 +9,14 @@ import { parseContracts } from "./contracts";
 import {
   buildEmploymentCreateCommand,
   buildEmploymentPageDraftCommand,
+  validateEmploymentPersonnelTypeTransition,
 } from "./domain/employment-validation";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 
 type ServiceResult<T> = { ok: true; data: T } | { ok: false; error: string; status?: number };
+
+class EmploymentConcurrentUpdateError extends Error {}
 
 function openEndedAtDateWhere(employeeId: number, date: string) {
   return {
@@ -173,51 +176,71 @@ export async function updateEmploymentPageDraft(input: {
   if (!direct.ok) return direct;
 
   const ids = Array.from(new Set(command.data.changes.map((change) => change.id)));
-  const rows = await prisma.employment.findMany({
-    where: { id: { in: ids } },
-    select: { id: true, employeeId: true, leaveDate: true },
-  });
-  if (rows.length !== ids.length) return serviceError("部分雇佣记录不存在，请刷新后重试", 404);
-  const rowMap = new Map(rows.map((row) => [row.id, row]));
   const changesById = new Map<number, Record<string, unknown>>();
   for (const change of command.data.changes) {
     changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), [change.field]: change.value ?? null });
   }
 
-  await prisma.$transaction(async (tx) => {
-    for (const id of ids) {
-      const row = rowMap.get(id)!;
-      const data = changesById.get(id) ?? {};
-      await ensureEditHistoryBaseline("Employment", id, command.data.userId, tx);
-      await tx.employment.update({
-        where: { id },
-        data: { ...data, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+  let persisted: ServiceResult<{ success: true }>;
+  try {
+    persisted = await prisma.$transaction(async (tx) => {
+      const rows = await tx.employment.findMany({
+        where: { id: { in: ids } },
+        select: { id: true, employeeId: true, leaveDate: true, personnelType: true, version: true },
       });
-
-      if (data.isActive === false) {
-        const endDate = typeof data.leaveDate === "string" && data.leaveDate
-          ? data.leaveDate
-          : row.leaveDate || new Date().toISOString().slice(0, 10);
-        const [edps, projectMembers] = await Promise.all([
-          tx.eDP.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
-          tx.employeeProject.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
-        ]);
-        for (const item of edps) await ensureEditHistoryBaseline("EDP", item.id, command.data.userId, tx);
-        for (const item of projectMembers) await ensureEditHistoryBaseline("EmployeeProject", item.id, command.data.userId, tx);
-        if (edps.length > 0) await tx.eDP.updateMany({
-          where: { id: { in: edps.map((item) => item.id) } },
-          data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
-        });
-        if (projectMembers.length > 0) await tx.employeeProject.updateMany({
-          where: { id: { in: projectMembers.map((item) => item.id) } },
-          data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
-        });
-        for (const item of edps) await snapshotHistory("EDP", item.id, command.data.userId, tx);
-        for (const item of projectMembers) await snapshotHistory("EmployeeProject", item.id, command.data.userId, tx);
+      if (rows.length !== ids.length) return serviceError("部分雇佣记录不存在，请刷新后重试", 404);
+      const rowMap = new Map(rows.map((row) => [row.id, row]));
+      for (const [id, data] of changesById) {
+        if (!("personnelType" in data)) continue;
+        const personnelType = validateEmploymentPersonnelTypeTransition(
+          rowMap.get(id)?.personnelType,
+          data.personnelType,
+        );
+        if (!personnelType.ok) return mapValidationToServiceResult(personnelType);
       }
-      await snapshotHistory("Employment", id, command.data.userId, tx);
+
+      for (const id of ids) {
+        const row = rowMap.get(id)!;
+        const data = changesById.get(id) ?? {};
+        await ensureEditHistoryBaseline("Employment", id, command.data.userId, tx);
+        const updated = await tx.employment.updateMany({
+          where: { id, version: row.version, personnelType: row.personnelType },
+          data: { ...data, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+        });
+        if (updated.count !== 1) throw new EmploymentConcurrentUpdateError();
+
+        if (data.isActive === false) {
+          const endDate = typeof data.leaveDate === "string" && data.leaveDate
+            ? data.leaveDate
+            : row.leaveDate || new Date().toISOString().slice(0, 10);
+          const [edps, projectMembers] = await Promise.all([
+            tx.eDP.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
+            tx.employeeProject.findMany({ where: openEndedAtDateWhere(row.employeeId, endDate), select: { id: true } }),
+          ]);
+          for (const item of edps) await ensureEditHistoryBaseline("EDP", item.id, command.data.userId, tx);
+          for (const item of projectMembers) await ensureEditHistoryBaseline("EmployeeProject", item.id, command.data.userId, tx);
+          if (edps.length > 0) await tx.eDP.updateMany({
+            where: { id: { in: edps.map((item) => item.id) } },
+            data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+          if (projectMembers.length > 0) await tx.employeeProject.updateMany({
+            where: { id: { in: projectMembers.map((item) => item.id) } },
+            data: { endDate, editedBy: command.data.userId, editedAt: new Date(), version: { increment: 1 } },
+          });
+          for (const item of edps) await snapshotHistory("EDP", item.id, command.data.userId, tx);
+          for (const item of projectMembers) await snapshotHistory("EmployeeProject", item.id, command.data.userId, tx);
+        }
+        await snapshotHistory("Employment", id, command.data.userId, tx);
+      }
+      return serviceOk({ success: true });
+    });
+  } catch (error) {
+    if (error instanceof EmploymentConcurrentUpdateError) {
+      return serviceError("雇佣记录已发生变化，请刷新后重试", 409);
     }
-  });
+    throw error;
+  }
+  if (!persisted.ok) return persisted;
   return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
 }
 

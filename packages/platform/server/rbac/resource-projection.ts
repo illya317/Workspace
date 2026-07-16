@@ -1,13 +1,15 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 import { RESOURCE_DEFS } from "@workspace/platform/resources";
 import {
   getResourceAncestorKeys,
   getResourceAncestors,
   getResourceChildKeys,
   getResourceDescendants,
+  getResourceDescendantsForRoots,
 } from "./resource";
 
 export type PermissionResourceProjectionKind = "default" | "space";
+type PermissionDatabaseClient = Prisma.TransactionClient | typeof prisma;
 
 export interface PermissionResourceProjection {
   kind?: PermissionResourceProjectionKind;
@@ -65,16 +67,27 @@ export function getPermissionProjectionTree(
 export async function getProjectedAncestorResourceIds(
   resourceKey: string,
   projection?: PermissionResourceProjection | PermissionResourceProjectionKind | null,
+  client: PermissionDatabaseClient = prisma,
 ) {
   void normalizePermissionResourceProjection(projection);
-  const resource = await prisma.resource.findUnique({ where: { key: resourceKey }, select: { id: true } });
-  return resource ? getResourceAncestors(resource.id) : [];
+  const resource = await client.resource.findUnique({ where: { key: resourceKey }, select: { id: true } });
+  return resource ? getResourceAncestors(resource.id, client) : [];
 }
 
 export async function getProjectedDescendantResourceIds(
   resourceId: number,
   projection?: PermissionResourceProjection | PermissionResourceProjectionKind | null,
+  client: PermissionDatabaseClient = prisma,
 ) {
   void normalizePermissionResourceProjection(projection);
-  return getResourceDescendants(resourceId);
+  return getResourceDescendants(resourceId, client);
+}
+
+export async function getProjectedDescendantResourceIdsForRoots(
+  resourceIds: readonly number[],
+  projection?: PermissionResourceProjection | PermissionResourceProjectionKind | null,
+  client: PermissionDatabaseClient = prisma,
+) {
+  void normalizePermissionResourceProjection(projection);
+  return getResourceDescendantsForRoots(resourceIds, client);
 }

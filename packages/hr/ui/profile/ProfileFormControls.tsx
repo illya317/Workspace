@@ -219,15 +219,20 @@ export function ProfileFieldInput({
       );
     }
 
+    const currentValue = normalizeInputValue(value);
+    const options = field.options || [];
+    const visibleOptions = currentValue && !options.includes(currentValue)
+      ? [currentValue, ...options]
+      : options;
     return (
       <ControlField
         spec={{
           valueType: "string",
           control: "choice",
           state: disabled ? "disabled" : "normal",
-          options: { source: "static", items: (field.options || []).map((option) => ({ label: option, value: option })) },
+          options: { source: "static", items: visibleOptions.map((option) => ({ label: option, value: option })) },
         }}
-        value={normalizeInputValue(value)}
+        value={currentValue}
         onChange={(next) => onChange(field.key, next)}
       />
     );

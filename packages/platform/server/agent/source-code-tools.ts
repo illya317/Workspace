@@ -1,26 +1,18 @@
-import { execFile as execFileCallback } from "node:child_process";
-import { existsSync } from "node:fs";
-import { mkdir, readFile, realpath, stat } from "node:fs/promises";
-import os from "node:os";
-import path from "node:path";
-import { promisify } from "node:util";
-import type { SessionUser } from "@workspace/platform/types";
+import type { AgentExecutionContext } from "./execution";
 
+import { buildCnbPullRequestProposalDraft } from "./cnb-pr";
 import { createProposal } from "./proposals";
+import { resolveSourceRepo } from "./source-repository";
 import {
   sourceQueryHints,
   sourceSeedFiles,
   sourceTermMatches,
   uniqueStrings,
   type SourceQueryHints,
+  type SourceRepositoryReader,
 } from "./source-route-context";
 import type { AgentTool, AgentToolResult } from "./tools";
 
-const execFile = promisify(execFileCallback);
-
-const DEFAULT_REPO_URL = "https://cnb.cool/illya317/Workspace.git";
-const DEFAULT_BRANCH = "main";
-const MAX_FILE_BYTES = 260_000;
 const MAX_CANDIDATE_FILES = 900;
 const MAX_SNIPPETS = 8;
 const MAX_STARTUP_DOC_CHARS = 2_400;
@@ -42,100 +34,6 @@ type StartupDoc = {
   excerpt: string;
   truncated: boolean;
 };
-
-type SourceSnapshot = { repoDir: string; repoUrl: string; branch: string; commit: string; mode: "remote" | "local"; dirtySummary?: string };
-
-function runtimeSourcePath(root: string, ...segments: string[]) {
-  return path.join(/* turbopackIgnore: true */ root, ...segments);
-}
-
-function workspaceConfigDir() {
-  const configured = process.env.WORKSPACE_CONFIG_DIR?.trim();
-  if (configured) {
-    if (!path.isAbsolute(configured)) throw new Error(`WORKSPACE_CONFIG_DIR must be absolute: ${configured}`);
-    return configured;
-  }
-  return path.join(os.tmpdir(), "workspace-agent-source");
-}
-
-function sourceRepoUrl() {
-  return process.env.AGENT_SOURCE_REPO_URL?.trim() || DEFAULT_REPO_URL;
-}
-
-function sourceBranch() {
-  return process.env.AGENT_SOURCE_BRANCH?.trim() || DEFAULT_BRANCH;
-}
-
-function cacheDir() {
-  const configured = process.env.AGENT_SOURCE_CACHE_DIR?.trim();
-  if (!configured) return path.join(workspaceConfigDir(), "agent-source", "Workspace");
-  if (!path.isAbsolute(configured)) throw new Error(`AGENT_SOURCE_CACHE_DIR must be absolute: ${configured}`);
-  return configured;
-}
-
-function sourceWorktreeDir() {
-  const configured = process.env.AGENT_SOURCE_WORKTREE?.trim();
-  if (!configured) return null;
-  if (!path.isAbsolute(configured)) throw new Error(`AGENT_SOURCE_WORKTREE must be absolute: ${configured}`);
-  return configured;
-}
-
-async function runGit(args: string[], options: { cwd?: string; timeout?: number } = {}) {
-  const { stdout } = await execFile("git", args, {
-    cwd: options.cwd,
-    timeout: options.timeout ?? 10_000,
-    maxBuffer: 2 * 1024 * 1024,
-    encoding: "utf8",
-  });
-  return String(stdout).trim();
-}
-
-async function resolveLocalSourceRepo(worktreeDir: string): Promise<SourceSnapshot> {
-  const resolved = await realpath(worktreeDir);
-  const repoDir = await runGit(["rev-parse", "--show-toplevel"], { cwd: resolved, timeout: 5_000 });
-  const commit = await runGit(["rev-parse", "HEAD"], { cwd: repoDir, timeout: 5_000 });
-  const branch = await runGit(["rev-parse", "--abbrev-ref", "HEAD"], { cwd: repoDir, timeout: 5_000 }).catch(() => "HEAD");
-  const dirtySummary = await runGit(["status", "--porcelain"], { cwd: repoDir, timeout: 5_000 }).catch(() => "");
-  return {
-    repoDir,
-    repoUrl: "local-worktree",
-    branch,
-    commit,
-    mode: "local",
-    dirtySummary: dirtySummary ? dirtySummary.split("\n").slice(0, 40).join("\n") : undefined,
-  };
-}
-
-async function ensureRemoteSourceRepo(): Promise<SourceSnapshot> {
-  const repoDir = cacheDir();
-  const repoUrl = sourceRepoUrl();
-  const branch = sourceBranch();
-
-  if (existsSync(runtimeSourcePath(repoDir, ".git"))) {
-    await runGit(["fetch", "--depth=1", "origin", branch], { cwd: repoDir, timeout: 20_000 });
-    await runGit(["reset", "--hard", `origin/${branch}`], { cwd: repoDir, timeout: 10_000 });
-  } else {
-    await mkdir(path.dirname(repoDir), { recursive: true });
-    await runGit(["clone", "--depth=1", "--branch", branch, repoUrl, repoDir], { timeout: 45_000 });
-  }
-
-  const commit = await runGit(["rev-parse", "HEAD"], { cwd: repoDir, timeout: 5_000 });
-  return { repoDir, repoUrl, branch, commit, mode: "remote" };
-}
-
-async function resolveSourceRepo() {
-  const worktreeDir = sourceWorktreeDir();
-  if (worktreeDir) return resolveLocalSourceRepo(worktreeDir);
-  return ensureRemoteSourceRepo();
-}
-
-async function listSourceFiles(repo: SourceSnapshot) {
-  const tracked = (await runGit(["ls-files"], { cwd: repo.repoDir, timeout: 8_000 })).split("\n");
-  if (repo.mode !== "local") return tracked;
-  const untracked = (await runGit(["ls-files", "--others", "--exclude-standard"], { cwd: repo.repoDir, timeout: 8_000 }).catch(() => ""))
-    .split("\n");
-  return uniqueStrings([...tracked, ...untracked]);
-}
 
 function normalizeQuery(value: unknown) {
   return String(value ?? "").trim().slice(0, 300);
@@ -235,22 +133,19 @@ async function searchSource(query: string): Promise<AgentToolResult> {
   if (!query) return { type: "error", message: "缺少源码查询关键词" };
 
   const repo = await resolveSourceRepo();
-  const startupContext = await readStartupContext(repo.repoDir, query);
+  const startupContext = await readStartupContext(repo.reader, query);
   const sourceHints = sourceQueryHints(query);
   const terms = queryTerms(query, sourceHints);
-  const seedFiles = await sourceSeedFiles(repo.repoDir, sourceHints, terms);
+  const seedFiles = await sourceSeedFiles(repo.reader, sourceHints, terms);
   const seedFileSet = new Set(seedFiles);
-  const repoFiles = (await listSourceFiles(repo))
+  const repoFiles = (await repo.listFiles())
     .filter((file) => candidatePath(file, terms, sourceHints, seedFileSet));
   const files = uniqueStrings([...seedFiles, ...repoFiles])
     .slice(0, MAX_CANDIDATE_FILES);
   const snippets: SourceSnippet[] = [];
 
   for (const file of files) {
-    const absolute = runtimeSourcePath(repo.repoDir, file);
-    const fileStat = await stat(absolute).catch(() => null);
-    if (!fileStat || fileStat.size > MAX_FILE_BYTES) continue;
-    const content = await readFile(absolute, "utf8").catch(() => "");
+    const content = await repo.reader.readText(file);
     if (!content) continue;
     const lower = content.toLowerCase();
     const lowerFile = file.toLowerCase();
@@ -339,13 +234,12 @@ function routedStartupFiles(query: string) {
   return [...files];
 }
 
-async function readStartupContext(repoDir: string, query: string): Promise<StartupDoc[]> {
+async function readStartupContext(reader: SourceRepositoryReader, query: string): Promise<StartupDoc[]> {
   const requiredFiles = new Set<string>(REQUIRED_STARTUP_FILES);
   const docs: StartupDoc[] = [];
 
   for (const file of routedStartupFiles(query)) {
-    const absolute = runtimeSourcePath(repoDir, file);
-    const content = await readFile(absolute, "utf8").catch(() => "");
+    const content = await reader.readText(file);
     if (!content) continue;
     const redacted = redactText(content.trim());
     docs.push({
@@ -427,7 +321,9 @@ export const sourceSearchTool: AgentTool = {
       arguments: { query: "agent source code tools AGENTS docs project overview orchestrator" },
     },
   ],
-  requiredPermissions: [{ resourceKey: "agent", action: "read" }],
+  requiredPermissions: [{ resourceKey: "agent.source", action: "read" }],
+  delegatedExecution: true,
+  requiresAgentProfile: true,
   mutates: false,
 
   async execute(params: Record<string, unknown>) {
@@ -439,7 +335,7 @@ export const sourceSearchTool: AgentTool = {
 export const prProposalTool: AgentTool = {
   key: "source.proposePullRequest",
   label: "提出 PR 草案",
-  description: "基于公开源码阅读结果生成待确认 CNB PR 草案，包含标题、范围、涉及文件、unified diff patch、验证方式和风险；只入库为 proposal，用户确认后才会推分支并创建 PR。",
+  description: "基于已授权 Workspace 源码阅读结果生成待确认 CNB PR 草案，包含标题、范围、涉及文件、unified diff patch、验证方式和风险；只入库为 proposal，用户确认后才会推分支并创建 PR。",
   parameters: {
     type: "object",
     properties: {
@@ -464,10 +360,6 @@ export const prProposalTool: AgentTool = {
         type: "string",
         description: "Unified diff patch，必须能被 git apply 应用。没有 patch 时只能保存草案，不能提交代码 PR。",
       },
-      baseBranch: {
-        type: "string",
-        description: "目标分支，默认 main。",
-      },
     },
     required: ["title", "summary", "files", "validation", "patch"],
     additionalProperties: false,
@@ -477,7 +369,7 @@ export const prProposalTool: AgentTool = {
       user: "给 agent 源码阅读能力提个 PR 草案",
       arguments: {
         title: "Add read-only source-code tools for agent answers",
-        summary: "让 agent 在回答源码和架构问题前读取 AGENTS.md 与路由后的 docs，并用只读工具搜索公开源码。",
+        summary: "让 agent 在回答源码和架构问题前读取 AGENTS.md 与路由后的 docs，并用只读工具搜索已授权 Workspace 源码。",
         files: [
           "packages/platform/server/agent/source-code-tools.ts",
           "packages/platform/server/agent/orchestrator.ts",
@@ -488,57 +380,53 @@ export const prProposalTool: AgentTool = {
       },
     },
   ],
-  requiredPermissions: [{ resourceKey: "agent", action: "submit" }],
+  requiredPermissions: [{ resourceKey: "agent.source", action: "submit" }],
+  delegatedExecution: true,
+  requiresAgentProfile: true,
   mutates: true,
 
-  async execute(params: Record<string, unknown>, user: SessionUser) {
+  async execute(params: Record<string, unknown>, execution: AgentExecutionContext) {
     const title = normalizeText(params.title, 180);
     const summary = normalizeText(params.summary);
-    const files = normalizeTextArray(params.files);
     const validation = normalizeValidationArray(params.validation);
     const risks = normalizeTextArray(params.risks);
     const patch = normalizePatch(params.patch);
-    const baseBranch = normalizeText(params.baseBranch, 120) || "main";
 
-    if (!title || !summary || files.length === 0 || !patch) {
+    if (!title || !summary || !patch) {
       return {
         type: "error",
         message: "PR 草案缺少标题、摘要、涉及文件或 patch。",
       };
     }
 
-    const payload = { title, summary, files, validation, risks, patch, baseBranch };
-    const result = await createProposal(user, {
+    let draft: Awaited<ReturnType<typeof buildCnbPullRequestProposalDraft>>;
+    try {
+      draft = await buildCnbPullRequestProposalDraft({ title, summary, files: params.files, validation, risks, patch });
+    } catch (error) {
+      return {
+        type: "error",
+        message: error instanceof Error ? error.message : "PR 草案目标或文件路径无效。",
+      };
+    }
+    const { binding, diff, payload } = draft;
+    const result = await createProposal(execution, {
       actionKey: "source.submitCnbPullRequest",
+      toolKey: "source.proposePullRequest",
       targetType: "CnbPullRequest",
-      targetId: sourceRepoUrl().replace(/\.git$/, ""),
+      targetId: binding.repositoryUrl,
       payload,
-      diff: {
-        title,
-        files,
-        validation,
-        risks,
-        baseBranch,
-        patchBytes: Buffer.byteLength(patch, "utf8"),
-      },
+      diff,
     });
 
     return {
       type: "proposal",
-      message: `已生成 CNB PR 草案 #${result.proposalId}：${title}。尚未推分支或创建远端 PR，确认后才会提交到 CNB。`,
+      message: `已生成 CNB PR 草案 #${result.proposalId}：${title}。补丁 ${binding.patchSha256.slice(0, 12)}… 已绑定到 ${binding.repository}@${binding.baseBranch}，确认后才会推送 ${binding.branch} 并创建 PR。`,
       proposal: {
         id: result.proposalId,
         actionKey: "source.submitCnbPullRequest",
         targetType: "CnbPullRequest",
-        targetId: sourceRepoUrl().replace(/\.git$/, ""),
-        diff: {
-          title,
-          files,
-          validation,
-          risks,
-          baseBranch,
-          patchBytes: Buffer.byteLength(patch, "utf8"),
-        },
+        targetId: binding.repositoryUrl,
+        diff,
       },
     };
   },

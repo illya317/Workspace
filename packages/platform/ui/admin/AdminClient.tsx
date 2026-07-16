@@ -9,7 +9,6 @@ import { useSpacePermissionsTabBody, type SpaceFilter } from "./tabs/SpacePermis
 import { usePermissionLedgerTab } from "./tabs/PermissionLedgerTab";
 import { useWorkflowLedgerTab } from "./tabs/WorkflowLedgerTab";
 import { useWorkflowPoliciesTab } from "./tabs/WorkflowPoliciesTab";
-import { useAgentPermissionPolicyTab } from "./tabs/AgentPermissionPolicyTab";
 import { usePermissionsTab } from "./hooks/usePermissionsTab";
 import { flattenTree } from "./lib";
 
@@ -21,7 +20,7 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   const isSuperAdmin = user.isSuperAdmin ?? false;
   const canUseResourcePermissions = isSuperAdmin || (user.manageableResourceKeys?.length ?? 0) > 0;
   const canUseWorkflowAdmin = isSuperAdmin || (user.adminResourceKeys ?? []).some(isWorkflowManagementResourceKey);
-  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "agentPolicy" | "modules">(
+  const [activeTab, setActiveTab] = useState<"permissions" | "ledger" | "workflowPolicies" | "workflowLedger" | "modules">(
     () => canUseWorkflowAdmin ? "workflowPolicies" : "permissions",
   );
   const [permissionMode, setPermissionMode] = useState<SubjectType | "space">(
@@ -253,7 +252,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
     }] : []),
     ...(canUseResourcePermissions ? [{ key: "permissions" as const, label: "权限管理", children: subjectTabs }] : []),
     ...(canUseResourcePermissions ? [{ key: "ledger" as const, label: "权限台账" }] : []),
-    ...(isSuperAdmin ? [{ key: "agentPolicy" as const, label: "智能体" }] : []),
     ...(isSuperAdmin ? [{ key: "modules" as const, label: "模块管理" }] : []),
   ];
 
@@ -282,10 +280,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
   });
   const workflowLedgerTab = useWorkflowLedgerTab({
     enabled: activeTab === "workflowLedger" && canUseWorkflowAdmin,
-    showToast,
-  });
-  const agentPolicyTab = useAgentPermissionPolicyTab({
-    enabled: activeTab === "agentPolicy" && isSuperAdmin,
     showToast,
   });
   const modulesSection = useModuleManagementSection({
@@ -332,8 +326,6 @@ export default function AdminClient({ user }: { user: SessionUser }) {
                 ? workflowPoliciesTab.body
               : activeTab === "workflowLedger"
                 ? workflowLedgerTab.body
-              : activeTab === "agentPolicy"
-                ? agentPolicyTab.body
               : createPageBody([modulesSection])}
 	    />
   );

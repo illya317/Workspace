@@ -2,15 +2,14 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
 import { BotMessageSquare, Plus, X } from "lucide-react";
-import {
-  PageAssistantProvider as CorePageAssistantProvider,
-  type PageAssistantOpenInput,
-} from "@workspace/core/ui";
+import { NavigationContextSelector, PageAssistantProvider as CorePageAssistantProvider, type PageAssistantOpenInput } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 
 import { PageAssistantComposer } from "./page-assistant/PageAssistantComposer";
 import { PageAssistantMessages } from "./page-assistant/PageAssistantMessages";
 import { readAgentStream } from "./page-assistant/agent-stream";
+import { createEmptyConversationSnapshot, type ConversationSnapshot } from "./page-assistant/conversation-state";
+import { useAgentProfileSelector } from "./page-assistant/useAgentProfileSelector";
 import {
   contextKey,
   contextLabel,
@@ -25,16 +24,13 @@ import {
   type PendingAttachment,
 } from "./page-assistant/types";
 
-type ConversationSnapshot = {
-  messages: AssistantMessage[];
-  draft: string;
-  attachments: PendingAttachment[];
-  sessionId: string | null;
-  sessionSummary: string | null;
-  busyProposalId: number | null;
-};
-
-export default function WorkspacePageAssistantProvider({ children }: { children: ReactNode }) {
+export default function WorkspacePageAssistantProvider({
+  children,
+  enabled,
+}: {
+  children: ReactNode;
+  enabled: boolean;
+}) {
   const [assistantContext, setAssistantContext] = useState<PageAssistantOpenInput | null>(null);
   const [pageContext, setPageContext] = useState<PageAssistantOpenInput | null>(null);
   const handleOpen = useCallback((input?: PageAssistantOpenInput) => {
@@ -44,6 +40,8 @@ export default function WorkspacePageAssistantProvider({ children }: { children:
     setPageContext(input ?? null);
     setAssistantContext((current) => current === null || !input ? current : input);
   }, []);
+
+  if (!enabled) return children;
 
   return (
     <CorePageAssistantProvider
@@ -60,26 +58,11 @@ export default function WorkspacePageAssistantProvider({ children }: { children:
   );
 }
 
-function emptyConversationSnapshot(): ConversationSnapshot {
-  return {
-    messages: [],
-    draft: "",
-    attachments: [],
-    sessionId: null,
-    sessionSummary: null,
-    busyProposalId: null,
-  };
-}
-
 function PageAssistantPanel({
   open,
   context,
   onClose,
-}: {
-  open: boolean;
-  context: PageAssistantOpenInput | null;
-  onClose: () => void;
-}) {
+}: { open: boolean; context: PageAssistantOpenInput | null; onClose: () => void }) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [draft, setDraft] = useState("");
   const [attachments, setAttachments] = useState<PendingAttachment[]>([]);
@@ -92,8 +75,13 @@ function PageAssistantPanel({
   const abortControllerRef = useRef<AbortController | null>(null);
   const previewUrlsRef = useRef<Set<string>>(new Set());
   const conversationsRef = useRef<Map<string, ConversationSnapshot>>(new Map());
+  const abortActiveRequest = useCallback(() => abortControllerRef.current?.abort(), []);
+  const { selectedAgentProfileId, selector: agentProfileSelector } = useAgentProfileSelector({
+    open,
+    onBeforeChange: abortActiveRequest,
+  });
   const currentContextLabel = useMemo(() => contextLabel(context), [context]);
-  const currentContextKey = useMemo(() => contextKey(context), [context]);
+  const currentContextKey = useMemo(() => `${contextKey(context)}::agent-profile:${selectedAgentProfileId ?? "self"}`, [context, selectedAgentProfileId]);
   const activeContextKeyRef = useRef(currentContextKey);
 
   useEffect(() => {
@@ -138,7 +126,7 @@ function PageAssistantPanel({
       sessionSummary,
       busyProposalId: null,
     });
-    const restored = conversationsRef.current.get(currentContextKey) ?? emptyConversationSnapshot();
+    const restored = conversationsRef.current.get(currentContextKey) ?? createEmptyConversationSnapshot();
     setMessages(restored.messages);
     setDraft(restored.draft);
     setAttachments(restored.attachments);
@@ -173,7 +161,7 @@ function PageAssistantPanel({
       setMessages(updater);
       return;
     }
-    const snapshot = conversationsRef.current.get(key) ?? emptyConversationSnapshot();
+    const snapshot = conversationsRef.current.get(key) ?? createEmptyConversationSnapshot();
     conversationsRef.current.set(key, {
       ...snapshot,
       messages: updater(snapshot.messages),
@@ -186,7 +174,7 @@ function PageAssistantPanel({
       setSessionSummary(nextSummary ?? null);
       return;
     }
-    const snapshot = conversationsRef.current.get(key) ?? emptyConversationSnapshot();
+    const snapshot = conversationsRef.current.get(key) ?? createEmptyConversationSnapshot();
     conversationsRef.current.set(key, {
       ...snapshot,
       sessionId: nextSessionId,
@@ -300,6 +288,7 @@ function PageAssistantPanel({
     try {
       const payload = {
         sessionId,
+        agentProfileId: selectedAgentProfileId,
         message: question,
         context: {
           contextLabel: context?.contextLabel,
@@ -382,9 +371,9 @@ function PageAssistantPanel({
     } finally {
       if (abortControllerRef.current === controller) {
         abortControllerRef.current = null;
-      }
-      if (activeContextKeyRef.current === requestContextKey) {
-        setSending(false);
+        if (activeContextKeyRef.current === requestContextKey) {
+          setSending(false);
+        }
       }
     }
   }
@@ -446,7 +435,10 @@ function PageAssistantPanel({
             <BotMessageSquare aria-hidden="true" className="h-5 w-5" strokeWidth={1.9} />
           </div>
           <div className="min-w-0 flex-1">
-            <h2 className="text-sm font-semibold text-slate-900">页面助手</h2>
+            <div className="flex min-w-0 items-center gap-2">
+              <h2 className="shrink-0 text-sm font-semibold text-slate-900">页面助手</h2>
+              <NavigationContextSelector selector={agentProfileSelector} />
+            </div>
             <p className="mt-0.5 truncate text-xs text-slate-500">
               {sessionSummary ? `已压缩上下文 · ${currentContextLabel}` : currentContextLabel}
             </p>

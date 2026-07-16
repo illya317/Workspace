@@ -1,43 +1,61 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 
 let resourceCache: { id: number; parentId: number | null }[] | null = null;
+type PermissionDatabaseClient = Prisma.TransactionClient | typeof prisma;
+const transactionResourceCache = new WeakMap<object, Promise<{ id: number; parentId: number | null }[]>>();
 
 export function invalidateResourceCache() {
   resourceCache = null;
 }
 
-export async function getResourceDescendants(resourceId: number): Promise<number[]> {
-  if (!resourceCache) {
-    resourceCache = await prisma.resource.findMany({
-      select: { id: true, parentId: true },
-    });
+async function loadResourceTree(client: PermissionDatabaseClient) {
+  if (client === prisma && resourceCache) return resourceCache;
+  if (client !== prisma) {
+    let cached = transactionResourceCache.get(client);
+    if (!cached) {
+      cached = client.resource.findMany({ select: { id: true, parentId: true } });
+      transactionResourceCache.set(client, cached);
+    }
+    return cached;
   }
+  const resources = await client.resource.findMany({
+      select: { id: true, parentId: true },
+  });
+  resourceCache = resources;
+  return resources;
+}
 
+export async function getResourceDescendantsForRoots(
+  resourceIds: readonly number[],
+  client: PermissionDatabaseClient = prisma,
+): Promise<number[]> {
+  const resources = await loadResourceTree(client);
   const byParent = new Map<number, number[]>();
-  for (const r of resourceCache) {
+  for (const r of resources) {
     if (r.parentId != null) {
       byParent.set(r.parentId, [...(byParent.get(r.parentId) || []), r.id]);
     }
   }
 
-  const result: number[] = [];
+  const result = new Set<number>();
   function dfs(id: number) {
-    result.push(id);
+    if (result.has(id)) return;
+    result.add(id);
     for (const child of byParent.get(id) || []) dfs(child);
   }
-  dfs(resourceId);
-  return result;
+  resourceIds.forEach(dfs);
+  return [...result];
 }
 
-export async function getResourceAncestors(resourceId: number): Promise<number[]> {
-  if (!resourceCache) {
-    resourceCache = await prisma.resource.findMany({
-      select: { id: true, parentId: true },
-    });
-  }
+export async function getResourceDescendants(resourceId: number, client: PermissionDatabaseClient = prisma): Promise<number[]> {
+  return getResourceDescendantsForRoots([resourceId], client);
+}
+
+export async function getResourceAncestors(resourceId: number, client: PermissionDatabaseClient = prisma): Promise<number[]> {
+  const resources = await loadResourceTree(client);
 
   const byId = new Map<number, number | null>();
-  for (const r of resourceCache) byId.set(r.id, r.parentId);
+  for (const r of resources) byId.set(r.id, r.parentId);
 
   const result: number[] = [];
   let current = resourceId;
@@ -50,15 +68,15 @@ export async function getResourceAncestors(resourceId: number): Promise<number[]
   return result;
 }
 
-export async function getResourceAncestorKeys(resourceKey: string): Promise<string[]> {
-  const resource = await prisma.resource.findUnique({
+export async function getResourceAncestorKeys(resourceKey: string, client: PermissionDatabaseClient = prisma): Promise<string[]> {
+  const resource = await client.resource.findUnique({
     where: { key: resourceKey },
     select: { id: true },
   });
   if (!resource) return [];
 
-  const ancestorIds = await getResourceAncestors(resource.id);
-  const resources = await prisma.resource.findMany({
+  const ancestorIds = await getResourceAncestors(resource.id, client);
+  const resources = await client.resource.findMany({
     where: { id: { in: ancestorIds } },
     select: { id: true, key: true },
   });
@@ -68,16 +86,16 @@ export async function getResourceAncestorKeys(resourceKey: string): Promise<stri
     .filter((key): key is string => Boolean(key));
 }
 
-export async function getResourceChildKeys(resourceKey: string): Promise<string[]> {
-  const resource = await prisma.resource.findUnique({
+export async function getResourceChildKeys(resourceKey: string, client: PermissionDatabaseClient = prisma): Promise<string[]> {
+  const resource = await client.resource.findUnique({
     where: { key: resourceKey },
     select: { children: { select: { key: true } } },
   });
   return resource?.children.map((child) => child.key) ?? [];
 }
 
-export async function getResourceSummariesByIds(resourceIds: number[]) {
-  return prisma.resource.findMany({
+export async function getResourceSummariesByIds(resourceIds: number[], client: PermissionDatabaseClient = prisma) {
+  return client.resource.findMany({
     where: { id: { in: resourceIds } },
     select: { id: true, key: true, name: true },
   });

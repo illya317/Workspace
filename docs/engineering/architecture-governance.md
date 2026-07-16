@@ -190,7 +190,7 @@ API 一级目录只表达系统能力类型：
 - `/api/settings/account/*`：当前登录用户自己的账号、安全密码、头像、目标、routine、week-info；普通自助接口是 `session` API，个人 API key 另挂 `settings.account.apiAccess` capability。
 - `/api/settings/admin/*`：系统管理，包含用户、权限、资源和系统配置。
 - `/api/settings/api/*`：Open API 接入管理，包含 Client、Scope 授权和调用日志。
-- `/api/agent/*`：智能体对话、能力清单和变更提案。
+- `/api/agent/*`：工具栏助手的对话、能力清单和变更提案，由 headless `agent.assistant` capability 保护，不属于 `/agent` 管理中心页面 API。
 - `/api/modules/<module>/*`：业务模块数据入口，例如 HR、Finance、Work、Production、Library、Administration。
 - `/api/open/v1/*`：外部开放 API，必须由 Open API registry 注册 endpoint 和 scope。
 - `/api/integrations/*`：飞书、企业微信、外部 webhook 等系统集成。
@@ -238,10 +238,10 @@ app/* route shell
 - L2 四件套必须统一：真实 app route、URL `href`、`resourceKey + RBAC`、API contract/guard 一一对应。L2 的 `resourceKey` 必须等于 `module.key + "." + child.key`，例如 `finance.statements`、`production.qc`、`work.me`；多个页面不能共用一个模糊 resource，例如旧 `finance.statement`。
 - 每个 L2 必须声明规范 API URL 或明确 `noApiReason`。规范 URL 是 `/api/modules/<module>/<resource path>`，由 resourceKey 自动生成并推导；`apiPrefixes` 只保留旧兼容路径，必须配套 `migrationNote`。API contract 只写 `method/pathPrefix/access`，由 Platform 按最长前缀推导 owner resource；宽泛的 `/api/modules/<module>` 只能作为迁移兼容，不允许作为 L2 最终契约来蒙混覆盖。
 - `app` 真实页面路径必须落在注册过的 L1 module 或系统保留 route 下。源码可以使用 route groups，例如 `app/(modules)/work/page.tsx` 对外仍是 `/work`。禁止重新创建绕开 L1 的顶层 route shell。
-- `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；普通 L1 目录页必须使用 Platform `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面；Work 的默认 L2 是 `/work/me`。
-- L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey` 指向已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
+- `app/(modules)` 页面只能做 route shell：认证、预取、参数解析后挂对应 `@workspace/<module>/ui` 或 `@workspace/platform/ui` 组件。除 login 等系统特例外，模块 app page 不得直接 import `@workspace/core/ui`、不得手写 DOM/Surface/UI 组合；普通 L1 目录页必须使用 Platform `ModuleHomePage`，或只做鉴权后 redirect 到已注册的默认 L2 页面。Agent 是标准 `ModuleHomePage`，并固定注册 `agent.config`、`agent.usage`、`agent.reports` 三个 L2；Work 是 page gate 显式登记的专用 L1 入口。
+- L2 以下 capability 属于业务能力，不自动进入全局页面 L2。capability 必须声明 `capabilityOwnerKey`，直接指向已注册 L2，或通过无环 capability owner 链最终落到已注册 L2；它不能用 `parentKey` 继承 owner 权限，但可以用 `runtimeParentKey` 跟随 owner 的模块启停。Settings 下的 account/admin/api 也是标准 L2，页面 URL、resource、RBAC 和 API contract 必须统一。
 - 资源注册中的 `parentKey` 只表达权限树继承；模块启停级联使用 `runtimeParentKey`。不要用 `parentKey` 同时表达权限继承和运行态归属；只有真实存在独立授权语义的能力才声明 capability，并用 `runtimeParentKey` 跟随 owner 模块启停。
-- Headless/API-only 能力必须显式声明 `presentation: "headless"` 和 `noPageReason`。例如 Agent 仅保留 API / bot 接入能力，不要求真实 `/agent` 页面，但 API 和 runtime disabled 仍必须绑定 `agent` resource。
+- Headless module 必须声明 `presentation: "headless"` 和 `noPageReason`；L2 以下的 headless capability 必须声明独立 resource 与 `capabilityOwnerKey`，不能借 capability 权限进入管理页面。它可以与同名模块的真实 L1 并存。`agent.assistant` 以 `settings.account` 为 owner，保护工具栏与 `/api/agent/**`；`agent.source` 再以 `agent.assistant` 为 owner，显式保护 profile-only 源码与 PR 工具，而不要求 `agent.config.entry`；`runtimeParentKey=agent` 只提供模块启停耦合。只有 Workspace AI0004 获得 source grants，本地开发、直接提交和部署属于外部运行时。
 - Settings 下的 account/admin/api 是标准 L2。默认权限、隐式继承和 Open API 边界只在 `docs/engineering/security/rbac.md` 维护，不在 registry 或页面层写特判。
 
 这些规则由 `npm run arch:gate` 中的 module registry、app route hierarchy、resource registry 和 package boundary 检查执行。package boundary 还会扫描非 Core 包内疑似重复基础组件文件名（例如 `*Select*`、`*Dropdown*`、`*Confirm*`、`*Date*Input`、`*Search*`、`*Table*`、`*Filter*`、`*Shell*`、`*Toolbar*`、`*Modal*`、`*Pagination*`、`*Tab*`）。这些组件必须 import Core/Platform 对应基建，或在 `scripts/check/check-package-boundaries.js` 的 allowlist 中写明业务特殊性和迁移计划。
@@ -251,7 +251,7 @@ Core UI registry 治理：
 - Core UI registry 保留三组核心口径：`declares` 是 agent 可声明能力，`contract` 是生成契约详情，`composes` 是内部组合关系。旧 `category/subcategory`、`role`、`exposure`、`verified` 不再作为 registry 字段。
 - 业务和普通 agent 默认只能使用公共 runtime 入口、helper 或 Surface spec；正文二级 Surface 通过 `BodySurface` 声明，不作为业务直引 renderer。`/settings/ui` 只自动展示有 `declares` 的封装组件，分类派生为 `页面布局 / 页面内容 / 通用`。
 - 标准新建流只有一个声明入口 `CreateSurface`，通过 `BodySurface kind="create"` 使用。Agent 分别选择 toolbar/surface trigger、inline/block/modal presentation、可选 block anchor 与 form/sections content；这些维度不得互相改变语义或非 inline 表单格式。内部 renderer 不得挂 public `declares`，按钮位置、样式和顺序不得进入业务 contract。
-- Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent 页面 UI 已停用，仅保留 API / bot 接入能力。
+- Platform runtime 使用 Core UI 时只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用 Platform `ModuleHomePage`；三个 L2 分别通过公开的 `PageSurface` / `BodySurface` contract 组合配置、分析和汇报视图。
 - 改 `packages/core/ui/**`、Core UI registry 或 `/settings/ui` 声明能力页必须是 UI-system/Architecture 任务，并通过 `CORE_UI_CHANGE=1` 或明确 change request 授权。
 
 页面组件注册表：

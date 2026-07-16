@@ -2,9 +2,11 @@
  * Workspace Agent policy boundary.
  * Kimi SDK owns the agent loop; Platform still owns identity, RBAC and concurrency.
  */
-import type { SessionUser } from "@workspace/platform/types";
-
 import { resolveAgentToolAccess } from "./capabilities";
+import {
+  normalizeAgentExecutionContext,
+  type AgentExecutionPrincipal,
+} from "./execution";
 import { isAgentIdentityQuestion } from "./identity-context";
 import type { AgentInputImage, AgentResponse, AgentRuntime, HistoryMessage } from "./runtime/contracts";
 import { defaultAgentRuntime } from "./runtime/kimi-runtime";
@@ -53,11 +55,12 @@ function shouldRefuseSecurityQuestion(message: string) {
 
 export async function processMessage(
   userMessage: string,
-  user: SessionUser,
+  principal: AgentExecutionPrincipal,
   tools: AgentTool[],
   history: HistoryMessage[] = [],
   options: ProcessMessageOptions = {},
 ): Promise<AgentResponse> {
+  const execution = normalizeAgentExecutionContext(principal);
   if (options.identityAnswer && isAgentIdentityQuestion(userMessage)) {
     return { type: "answer", message: options.identityAnswer };
   }
@@ -65,7 +68,7 @@ export async function processMessage(
     return { type: "answer", message: SECURITY_REFUSAL_MESSAGE };
   }
 
-  const access = await (options.resolveToolAccess ?? resolveAgentToolAccess)(user, tools);
+  const access = await (options.resolveToolAccess ?? resolveAgentToolAccess)(execution, tools);
   if (access.tools.length === 0) {
     return {
       type: "answer",
@@ -76,7 +79,7 @@ export async function processMessage(
   const runtime = options.runtime ?? defaultAgentRuntime;
   return runWithAgentTurnLimit(options.signal, () => runtime.runTurn({
     message: userMessage,
-    user,
+    execution: access.execution ?? execution,
     tools: access.tools,
     history,
     images: options.images ?? [],

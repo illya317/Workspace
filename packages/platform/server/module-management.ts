@@ -1,6 +1,6 @@
 import "server-only";
 
-import type { SubModuleRegistration } from "@workspace/core";
+import type { ModuleRegistration, SubModuleRegistration } from "@workspace/core";
 import {
   clearResourceRuntimeStateCache,
   getResourceRuntimeState,
@@ -62,7 +62,7 @@ function statusOf(input: { enabled?: boolean; hidden?: boolean }): ModuleManagem
 function getModuleResourceKeys() {
   const keys = new Set<string>();
   for (const definition of registeredModuleDefinitions) {
-    const moduleDef = definition.moduleDef;
+    const moduleDef: ModuleRegistration | undefined = definition.moduleDef;
     if (!moduleDef?.resourceKey) continue;
     keys.add(moduleDef.resourceKey);
     for (const child of moduleDef.children ?? []) keys.add(child.resourceKey);
@@ -119,10 +119,11 @@ export function listModuleManagement() {
   const modules: ModuleManagementNode[] = [];
 
   for (const definition of registeredModuleDefinitions) {
-    const moduleDef = definition.moduleDef;
+    const moduleDef: ModuleRegistration | undefined = definition.moduleDef;
     if (!moduleDef?.resourceKey) continue;
-    moduleResourceKeys.add(moduleDef.resourceKey);
-    const state = getResourceRuntimeState(moduleDef.resourceKey);
+    const moduleResourceKey = moduleDef.resourceKey;
+    moduleResourceKeys.add(moduleResourceKey);
+    const state = getResourceRuntimeState(moduleResourceKey);
     const children = (moduleDef.children as SubModuleRegistration[] | undefined ?? []).map((child) => {
       moduleResourceKeys.add(child.resourceKey);
       const childState = getResourceRuntimeState(child.resourceKey);
@@ -142,7 +143,7 @@ export function listModuleManagement() {
         enabled: childState.enabled,
         disabledReason: childState.disabledReason ?? null,
         overrideKey: child.resourceKey,
-        parentResourceKey: moduleDef.resourceKey,
+        parentResourceKey: moduleResourceKey,
         parentEnabled: state.enabled,
         children: [],
       };
@@ -154,7 +155,7 @@ export function listModuleManagement() {
       level: "L1",
       packageName: definition.packageName,
       pageHref: moduleDef.presentation === "headless" ? null : moduleDef.href,
-      resourceKey: moduleDef.resourceKey,
+      resourceKey: moduleResourceKey,
       apiPrefixes: [],
       noApiReason: children.length > 0 ? "L1 由子模块 API contract 组成" : null,
       noPageReason: moduleDef.noPageReason ?? null,
@@ -162,7 +163,7 @@ export function listModuleManagement() {
       hidden: state.hidden,
       enabled: state.enabled,
       disabledReason: state.disabledReason ?? null,
-      overrideKey: moduleDef.resourceKey,
+      overrideKey: moduleResourceKey,
       parentResourceKey: null,
       parentEnabled: null,
       children,

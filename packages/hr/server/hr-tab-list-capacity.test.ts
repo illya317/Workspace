@@ -92,6 +92,10 @@ mockModule("./domain/employment-validation", {
   namedExports: {
     buildEmploymentCreateCommand: () => ({ ok: true, data: {} }),
     buildEmploymentPageDraftCommand: () => ({ ok: true, data: {} }),
+    validateEmploymentPersonnelTypeTransition: (_current: unknown, next: unknown) => ({
+      ok: true,
+      data: { value: next },
+    }),
   },
 });
 mockModule("./employee-position-filters", {

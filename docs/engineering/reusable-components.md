@@ -88,7 +88,7 @@ Platform 可以聚合模块注册和导航，但不能写 HR、Finance、Product
 
 标准业务空间工作台不得在业务包里复制顶部空间 tab 逻辑，也不得把所有可见部门直接塞进顶部导航。项目、任务、编辑器属于同一类空间工作台：项目只是业务对象和工作来源，不是独立空间权限 scope；业务页只做工作台，权限配置入口集中在 Settings。
 
-Platform 系统壳的少量 Core UI 候选由 Platform 自己治理，不属于业务 Page API：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`。Agent 页面 UI 已停用，仅保留 API / bot 接入能力；这些例外不得加入 `businessCoreUiRoleBypassImports` 的业务 allowlist。
+Platform 系统壳的少量 Core UI 候选由 Platform 自己治理，不属于业务 Page API：`AppShell -> PageShell`、`UserMenu -> DropdownMenu`。Agent L1 与页面助手都必须复用公开 Core contract；不得为它们增加业务 allowlist 或专用 Core kind。
 
 ## 页面模板与薄壳 ViewModel
 

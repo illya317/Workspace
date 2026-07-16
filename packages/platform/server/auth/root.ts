@@ -1,5 +1,5 @@
 import "server-only";
-import { prisma } from "@workspace/platform/server/prisma";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
 
 export const ROOT_ADMIN_USERNAME = "admin";
 
@@ -7,8 +7,11 @@ export function isRootAdminUsername(username: string | null | undefined): boolea
   return username === ROOT_ADMIN_USERNAME;
 }
 
-export async function isRootAdminUser(userId: number): Promise<boolean> {
-  const user = await prisma.user.findUnique({
+export async function isRootAdminUser(
+  userId: number,
+  client: Prisma.TransactionClient | typeof prisma = prisma,
+): Promise<boolean> {
+  const user = await client.user.findUnique({
     where: { id: userId },
     select: { username: true, canLogin: true },
   });

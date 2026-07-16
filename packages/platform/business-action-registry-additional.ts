@@ -1,4 +1,5 @@
 import type { ApiMethod } from "./api-contract-types";
+import { AGENT_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-agent";
 import { OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS } from "./business-action-registry-operational";
 import { WORK_GOAL_ACTION_DESCRIPTORS } from "./work-goal-action-descriptors";
 
@@ -96,6 +97,7 @@ const WORK_OKR_WORKFLOW_ACTIONS = WORK_GOAL_ACTION_DESCRIPTORS.map((descriptor) 
 
 export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   ...OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS,
+  ...AGENT_BUSINESS_ACTION_REGISTRATIONS,
   {
     ...HR_PERFORMANCE,
     eligibility: "workflow_optional",

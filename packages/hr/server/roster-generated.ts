@@ -12,6 +12,7 @@ import type {
 } from "@workspace/hr/types";
 import { buildContractRows, type ContractRow } from "./contract-records";
 import { primaryContractCompany } from "./employments";
+import { HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE } from "@workspace/hr/constants/field-options";
 
 const MANAGEMENT_COLUMNS: RosterGeneratedColumn[] = [
   { key: "employeeId", label: "员工编号", scope: "employee", required: true },
@@ -170,7 +171,13 @@ function rosterEmployeeWhere(): Prisma.EmployeeWhereInput {
   return {
     employments: {
       some: { isActive: true },
-      none: { isActive: true, title: "顾问" },
+      none: {
+        isActive: true,
+        OR: [
+          { title: "顾问" },
+          { personnelType: HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE },
+        ],
+      },
     },
   };
 }

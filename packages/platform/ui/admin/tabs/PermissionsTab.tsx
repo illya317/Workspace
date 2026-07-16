@@ -44,7 +44,7 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
       ];
       return {
         ...resource,
-        selectableWithChildren: capabilityChildren.length > 0,
+        selectableWithChildren: Boolean(resource.grantManageable && capabilityChildren.length > 0),
         children,
       };
     }

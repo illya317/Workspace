@@ -68,6 +68,12 @@ Permission actions：
 
 容器资源通常只支持入口、读、基础维护和 `grant`。业务资源按当前 API 和业务规则声明实际支持动作。Capability resource 通过 `capabilityOwnerKey` 要求 owner 资源至少可进入；`runtimeParentKey` 只用于 enabled/disabled 运行态耦合，不参与 RBAC 继承。
 
+### 显式授权写入与并发边界
+
+`setSubjectPermissionActionGrant(s)` 是显式 action grant 的共享写入口。PostgreSQL 事务先按稳定顺序获取授权域 advisory lock：授权域包含本次目标资源和调用方声明的授权前置资源，并为每个资源展开自身、所有 registry 祖先，以及递归 `capabilityOwnerKey` owner 及其祖先；随后再按稳定顺序获取 `subjectType + subjectId + resourceKey + actionKey + scopeId` 授权元组锁。取得锁后，同一事务才重新校验主体存在、root identity 禁止授权、Resource FK 和调用方 `beforeMutation(tx)` 授权前置条件，然后写入 grant 与对应台账。
+
+这组锁只线性化经共享 setter 写入的显式 grant。构造授权域使用的 registry `parentKey/capabilityOwnerKey` 必须与 evaluator 读取的已 seed `Resource` 父链保持一致；修改资源关系时必须同步 registry、resource seed 和对应检查。HR 任职/部门成员关系、隐式管理员事实、root/canLogin、模块启停、seed 或直接 SQL 不共享这组锁；通用流程的 `preauthorizedActor` 也只表示上游业务授权已完成，不能由 grant 锁替代。依赖这些事实保持稳定的写入必须在自身事务域内加锁并重新校验。
+
 ## 空间权限
 
 空间不是 capability。空间是 L2/L3 业务资源的 scoped projection。
@@ -129,16 +135,26 @@ space.company
 
 `/settings/admin` 走 `requireAdminManageAccess()`：root identity，或拥有至少一个资源级 `grant` / `configure` 管理范围的用户才可进入。scoped `grant` 只在对应空间权限接口生效，不放大到后台全局授权矩阵。
 
-## 无界面智能体
+## Agent 与虚拟员工
 
-`agent` 是 headless resource，没有页面入口。它只保护助手 API、能力清单和 proposal 生命周期：
+`agent` 是有真实 `/agent` L1 的受限管理容器，与普通员工使用的工具栏助手分开授权：
 
-- `agent.read`：读取 `/api/agent/capabilities`，实际可用工具仍由各 tool adapter 的 domain 权限过滤。
-- `agent.submit`：提交 `/api/agent` 消息，以及确认/取消自己创建的 proposal。
-- 每个智能体 tool 必须声明最小 `resourceKey + action`；Platform 在把工具暴露给模型前统一按当前用户 RBAC 解析，tool 和实际 domain service 不得把模型身份当作授权主体。
+- `agent.entry/read`：进入管理中心及其标准 `ModuleHomePage`。管理中心固定包含 `agent.config`、`agent.usage`、`agent.reports` 三个 L2。
+- `agent.config.entry/read/configure`：查看 Agent 档案、运行时、能力与权限边界；配置写权限单独使用 `configure`。
+- `agent.usage.entry/read/audit`：`read` 只看聚合使用情况，员工与会话明细需要 `audit`。
+- `agent.reports.entry/read/audit`：`read` 只看 Agent 级汇总，单次运行、请求人、结果与错误明细需要 `audit`。
+
+`agent.assistant` 是普通员工工具栏和 `/api/agent/**` 使用的 headless capability。它以 `settings.account` 为 `capabilityOwnerKey`，所以获得助手权限不会暴露 `/agent` 管理中心；`runtimeParentKey=agent` 只让 Agent 模块停用时同步停止运行态，不产生 RBAC 继承：
+
+- `agent.assistant.read`：发现可用 profile，并读取能力清单或本人安全视图。
+- `agent.assistant.submit`：显示工具栏助手、提交消息，以及确认/取消自己创建的 proposal；`submit` 按 action registry 同时隐含 `entry/read`。
+- `agent.source.read/submit`：分别控制 Workspace 源码检索、CNB PR 草案及确认 executor。该 capability 以 `agent.assistant` 为 owner，所以双方还必须拥有显式 assistant entry，但不需要 `agent.config.entry`。助手授权不会自动迁移或推导为 source 授权。
+- 每个智能体 tool 必须声明最小 `resourceKey + action`。本人助手按请求人执行；选择虚拟员工后，Platform 在初次暴露、每次 tool call 和 proposal 确认时实时检查请求人与虚拟员工 actor 的权限交集。
+- 虚拟员工模式只暴露显式声明 `delegatedExecution` 且进入该 `AgentProfile` 工具白名单的 adapter。`requiresAgentProfile` 工具在本人助手中始终失败关闭；toolbar profile discovery 还会隐藏对当前请求人没有任何可用注册工具的 profile。尚未实现双主体对象/数据范围校验的业务 adapter 必须失败关闭。
+- 当前 Workspace 绑定的 AI0004 只允许源码检索和 PR 提案，并由 provisioner 精确维护 assistant/source grants；AI0001-AI0003 不获得 Workspace source grants。本地代码开发、直接提交和部署属于本地 Codex、CI 或服务器运行时，不在 Workspace 对话中执行。
 - 智能体 action ceiling 是用户 RBAC 之上的全局收紧策略，只能减少任意模型 provider 可见的 action，不能授予用户原本没有的权限。root identity 也受 ceiling 约束。
 - 默认 ceiling 只允许 `entry/read/create/update/submit/import/export`；`delete/archive/revise/reverse/lock/unlock/approve/reject/share/apiUse/grant/configure/audit` 默认关闭。新注册 action 默认关闭，必须由 root admin 在“智能体策略”中显式复核后才能开放。
-- proposal 确认不是全局 `approve`。确认只表示用户继续执行这次智能体提案；真正写库前 executor 必须重新检查对应业务资源权限，例如 HR 工具检查 `hr.roster.update` 派生的 session 能力。
+- proposal 确认不是全局 `approve`。确认只表示请求人继续执行这次智能体提案；proposal 固定创建时的虚拟员工 actor，先原子抢占 `pending -> executing`，再实时重验全局上限与双方权限，业务写入以 actor 进入编辑审计。
 - proposal 取消不做独立 `reverse`。它只取消本人的 pending proposal，不撤销已生效业务事实。
 
 ## Open API 边界

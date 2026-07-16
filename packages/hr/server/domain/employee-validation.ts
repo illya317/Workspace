@@ -29,7 +29,6 @@ export const EMPLOYEE_ALLOWED_FIELDS = [
   "workStartDate",
   "idNumber",
   "otherId",
-  "userId",
 ];
 
 const DATE_FIELDS = ["birthDate", "workStartDate"];
@@ -75,6 +74,7 @@ export function buildEmployeeFieldUpdateCommand(
   value: unknown,
 ): DomainValidationResult<EmployeeFieldUpdateCommand> {
   if (field === "employeeId") return failCommand("员工编号由系统生成，不能手动修改");
+  if (field === "userId") return failCommand("关联账号只能通过账号管理流程维护");
   const dateResult = rejectInvalidDateField(field, value, DATE_FIELDS);
   if (!dateResult) return failCommand("日期格式无效");
   if (field === "alias") return okCommand({ field, value: normalizeAliasUpdate(value) });

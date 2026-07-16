@@ -11,7 +11,7 @@ import {
   mapAdvancedFilterField,
 } from "../components/generic-filter-toolbar-items";
 import { useGenericTab } from "../hooks/useGenericTab";
-import { formatEditableTableCell, useEditableTableSection } from "./EditableTable";
+import { formatEditableTableCell, isEditableHrTableCell, useEditableTableSection } from "./EditableTable";
 import { columnToggleOptions, defaultVisibleColumnKeys, fieldsWithCompanyOptions } from "./generic-table-columns";
 import { downloadGenericTableCsv } from "./generic-table-export";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
@@ -123,7 +123,7 @@ export default function GenericTableTab({
   }
 
   function handleStartEdit(item: Record<string, unknown>, field: FieldConfig) {
-    if (!canEdit || !editMode || !field.editable) return;
+    if (!canEdit || !editMode || !field.editable || !isEditableHrTableCell(item, field, config)) return;
     const itemId = item.id as number;
     if (editingCell?.id === itemId && editingCell?.field === field.key) return;
     let initVal: string | boolean | number | unknown;

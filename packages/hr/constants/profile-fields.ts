@@ -8,7 +8,7 @@ import {
   HR_LEGAL_RELATIONS,
   HR_LEAVE_REASONS,
   HR_OFFICE_LOCATIONS,
-  HR_PERSONNEL_TYPES,
+  HR_EDITABLE_PERSONNEL_TYPES,
   HR_POLITICS,
   HR_RANKS,
 } from "@workspace/hr/constants/field-options";
@@ -38,7 +38,7 @@ export const employeeFields: ProfileField[] = [
 export const employmentFields: ProfileField[] = [
   { key: "isActive", label: "在职", type: "boolean", booleanLabels: { true: "在职", false: "离职", unset: "未设置" } },
   { key: "currentCompany", label: "当前公司", readOnly: true },
-  { key: "personnelType", label: "人员类型", type: "select", options: HR_PERSONNEL_TYPES },
+  { key: "personnelType", label: "人员类型", type: "select", options: HR_EDITABLE_PERSONNEL_TYPES },
   { key: "rank", label: "职级", type: "select", options: HR_RANKS },
   { key: "title", label: "职务", type: "select", options: HR_EMPLOYMENT_TITLES },
   { key: "joinDate", label: "入职日期", type: "date" },

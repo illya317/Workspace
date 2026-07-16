@@ -1,4 +1,4 @@
-import { serviceOk } from "@workspace/platform/server/api";
+import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
@@ -15,7 +15,22 @@ export async function updateEmployeeProfileEdps(
   const changedIds: number[] = [];
   const { rows: normalizedRows, deletedIds } = command.data;
 
-  await prisma.$transaction(async (tx) => {
+  const persisted = await prisma.$transaction(async (tx) => {
+    if (deletedIds.length > 0) {
+      const employee = await tx.employee.findUnique({
+        where: { id: employeeId },
+        select: {
+          user: { select: { agentProfile: { select: { key: true } } } },
+        },
+      });
+      const agentProfile = employee?.user?.agentProfile;
+      if (agentProfile) {
+        return serviceError(
+          `Agent 虚拟员工 ${agentProfile.key} 的岗位记录不能直接删除，请通过结束日期维护生命周期`,
+          409,
+        );
+      }
+    }
     for (const rowId of deletedIds) {
       await ensureEditHistoryBaseline("EDP", rowId, userId, tx);
       await snapshotHistory("EDP", rowId, userId, tx);
@@ -40,7 +55,7 @@ export async function updateEmployeeProfileEdps(
         changedIds.push(created.id);
       }
     }
+    return serviceOk({ success: true as const, ids: changedIds, deletedIds });
   });
-
-  return serviceOk({ success: true, ids: changedIds, deletedIds });
+  return persisted;
 }

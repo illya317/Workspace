@@ -17,6 +17,7 @@ export {
   requireAdminManageAccess,
   requireResourceAccess,
   requireRouteAccess,
+  requireRouteActionAccess,
 } from "./auth/guard";
 export { canEnterResource } from "./rbac/resource-entry";
 export {
@@ -26,6 +27,7 @@ export {
 } from "./api-access";
 export {
   getCurrentUser,
+  getAgentActorSessionUser,
   getSessionUserFromAuthPayload,
   requireAuth,
   requireCurrentUser,

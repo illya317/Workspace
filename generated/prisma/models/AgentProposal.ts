@@ -30,24 +30,33 @@ export type AggregateAgentProposal = {
 export type AgentProposalAvgAggregateOutputType = {
   id: number | null
   userId: number | null
+  actorUserId: number | null
+  agentProfileId: number | null
 }
 
 export type AgentProposalSumAggregateOutputType = {
   id: number | null
   userId: number | null
+  actorUserId: number | null
+  agentProfileId: number | null
 }
 
 export type AgentProposalMinAggregateOutputType = {
   id: number | null
   userId: number | null
+  actorUserId: number | null
+  agentProfileId: number | null
   sessionId: string | null
   status: string | null
   actionKey: string | null
+  toolKey: string | null
   targetType: string | null
   targetId: string | null
   payloadJson: string | null
   diffJson: string | null
   resultJson: string | null
+  executionToken: string | null
+  executionStartedAt: Date | null
   createdAt: Date | null
   confirmedAt: Date | null
 }
@@ -55,14 +64,19 @@ export type AgentProposalMinAggregateOutputType = {
 export type AgentProposalMaxAggregateOutputType = {
   id: number | null
   userId: number | null
+  actorUserId: number | null
+  agentProfileId: number | null
   sessionId: string | null
   status: string | null
   actionKey: string | null
+  toolKey: string | null
   targetType: string | null
   targetId: string | null
   payloadJson: string | null
   diffJson: string | null
   resultJson: string | null
+  executionToken: string | null
+  executionStartedAt: Date | null
   createdAt: Date | null
   confirmedAt: Date | null
 }
@@ -70,14 +84,19 @@ export type AgentProposalMaxAggregateOutputType = {
 export type AgentProposalCountAggregateOutputType = {
   id: number
   userId: number
+  actorUserId: number
+  agentProfileId: number
   sessionId: number
   status: number
   actionKey: number
+  toolKey: number
   targetType: number
   targetId: number
   payloadJson: number
   diffJson: number
   resultJson: number
+  executionToken: number
+  executionStartedAt: number
   createdAt: number
   confirmedAt: number
   _all: number
@@ -87,24 +106,33 @@ export type AgentProposalCountAggregateOutputType = {
 export type AgentProposalAvgAggregateInputType = {
   id?: true
   userId?: true
+  actorUserId?: true
+  agentProfileId?: true
 }
 
 export type AgentProposalSumAggregateInputType = {
   id?: true
   userId?: true
+  actorUserId?: true
+  agentProfileId?: true
 }
 
 export type AgentProposalMinAggregateInputType = {
   id?: true
   userId?: true
+  actorUserId?: true
+  agentProfileId?: true
   sessionId?: true
   status?: true
   actionKey?: true
+  toolKey?: true
   targetType?: true
   targetId?: true
   payloadJson?: true
   diffJson?: true
   resultJson?: true
+  executionToken?: true
+  executionStartedAt?: true
   createdAt?: true
   confirmedAt?: true
 }
@@ -112,14 +140,19 @@ export type AgentProposalMinAggregateInputType = {
 export type AgentProposalMaxAggregateInputType = {
   id?: true
   userId?: true
+  actorUserId?: true
+  agentProfileId?: true
   sessionId?: true
   status?: true
   actionKey?: true
+  toolKey?: true
   targetType?: true
   targetId?: true
   payloadJson?: true
   diffJson?: true
   resultJson?: true
+  executionToken?: true
+  executionStartedAt?: true
   createdAt?: true
   confirmedAt?: true
 }
@@ -127,14 +160,19 @@ export type AgentProposalMaxAggregateInputType = {
 export type AgentProposalCountAggregateInputType = {
   id?: true
   userId?: true
+  actorUserId?: true
+  agentProfileId?: true
   sessionId?: true
   status?: true
   actionKey?: true
+  toolKey?: true
   targetType?: true
   targetId?: true
   payloadJson?: true
   diffJson?: true
   resultJson?: true
+  executionToken?: true
+  executionStartedAt?: true
   createdAt?: true
   confirmedAt?: true
   _all?: true
@@ -229,14 +267,19 @@ export type AgentProposalGroupByArgs<ExtArgs extends runtime.Types.Extensions.In
 export type AgentProposalGroupByOutputType = {
   id: number
   userId: number
+  actorUserId: number | null
+  agentProfileId: number | null
   sessionId: string | null
   status: string
   actionKey: string
+  toolKey: string | null
   targetType: string
   targetId: string | null
   payloadJson: string
   diffJson: string | null
   resultJson: string | null
+  executionToken: string | null
+  executionStartedAt: Date | null
   createdAt: Date
   confirmedAt: Date | null
   _count: AgentProposalCountAggregateOutputType | null
@@ -267,31 +310,43 @@ export type AgentProposalWhereInput = {
   NOT?: Prisma.AgentProposalWhereInput | Prisma.AgentProposalWhereInput[]
   id?: Prisma.IntFilter<"AgentProposal"> | number
   userId?: Prisma.IntFilter<"AgentProposal"> | number
+  actorUserId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
+  agentProfileId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
   sessionId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   status?: Prisma.StringFilter<"AgentProposal"> | string
   actionKey?: Prisma.StringFilter<"AgentProposal"> | string
+  toolKey?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   targetType?: Prisma.StringFilter<"AgentProposal"> | string
   targetId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   payloadJson?: Prisma.StringFilter<"AgentProposal"> | string
   diffJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   resultJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionToken?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionStartedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AgentProposal"> | Date | string
   confirmedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
+  agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
 }
 
 export type AgentProposalOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   sessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   actionKey?: Prisma.SortOrder
+  toolKey?: Prisma.SortOrderInput | Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   diffJson?: Prisma.SortOrderInput | Prisma.SortOrder
   resultJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  executionToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  executionStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  agentProfile?: Prisma.AgentProfileOrderByWithRelationInput
 }
 
 export type AgentProposalWhereUniqueInput = Prisma.AtLeast<{
@@ -300,29 +355,40 @@ export type AgentProposalWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AgentProposalWhereInput[]
   NOT?: Prisma.AgentProposalWhereInput | Prisma.AgentProposalWhereInput[]
   userId?: Prisma.IntFilter<"AgentProposal"> | number
+  actorUserId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
+  agentProfileId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
   sessionId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   status?: Prisma.StringFilter<"AgentProposal"> | string
   actionKey?: Prisma.StringFilter<"AgentProposal"> | string
+  toolKey?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   targetType?: Prisma.StringFilter<"AgentProposal"> | string
   targetId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   payloadJson?: Prisma.StringFilter<"AgentProposal"> | string
   diffJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
   resultJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionToken?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionStartedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"AgentProposal"> | Date | string
   confirmedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
+  agentProfile?: Prisma.XOR<Prisma.AgentProfileNullableScalarRelationFilter, Prisma.AgentProfileWhereInput> | null
 }, "id">
 
 export type AgentProposalOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrderInput | Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrderInput | Prisma.SortOrder
   sessionId?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   actionKey?: Prisma.SortOrder
+  toolKey?: Prisma.SortOrderInput | Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrderInput | Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   diffJson?: Prisma.SortOrderInput | Prisma.SortOrder
   resultJson?: Prisma.SortOrderInput | Prisma.SortOrder
+  executionToken?: Prisma.SortOrderInput | Prisma.SortOrder
+  executionStartedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AgentProposalCountOrderByAggregateInput
@@ -338,72 +404,97 @@ export type AgentProposalScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AgentProposalScalarWhereWithAggregatesInput | Prisma.AgentProposalScalarWhereWithAggregatesInput[]
   id?: Prisma.IntWithAggregatesFilter<"AgentProposal"> | number
   userId?: Prisma.IntWithAggregatesFilter<"AgentProposal"> | number
+  actorUserId?: Prisma.IntNullableWithAggregatesFilter<"AgentProposal"> | number | null
+  agentProfileId?: Prisma.IntNullableWithAggregatesFilter<"AgentProposal"> | number | null
   sessionId?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
   status?: Prisma.StringWithAggregatesFilter<"AgentProposal"> | string
   actionKey?: Prisma.StringWithAggregatesFilter<"AgentProposal"> | string
+  toolKey?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
   targetType?: Prisma.StringWithAggregatesFilter<"AgentProposal"> | string
   targetId?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
   payloadJson?: Prisma.StringWithAggregatesFilter<"AgentProposal"> | string
   diffJson?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
   resultJson?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
+  executionToken?: Prisma.StringNullableWithAggregatesFilter<"AgentProposal"> | string | null
+  executionStartedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AgentProposal"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AgentProposal"> | Date | string
   confirmedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AgentProposal"> | Date | string | null
 }
 
 export type AgentProposalCreateInput = {
   userId: number
+  actorUserId?: number | null
   sessionId?: string | null
   status?: string
   actionKey: string
+  toolKey?: string | null
   targetType: string
   targetId?: string | null
   payloadJson: string
   diffJson?: string | null
   resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
   createdAt?: Date | string
   confirmedAt?: Date | string | null
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutProposalsInput
 }
 
 export type AgentProposalUncheckedCreateInput = {
   id?: number
   userId: number
+  actorUserId?: number | null
+  agentProfileId?: number | null
   sessionId?: string | null
   status?: string
   actionKey: string
+  toolKey?: string | null
   targetType: string
   targetId?: string | null
   payloadJson: string
   diffJson?: string | null
   resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
   createdAt?: Date | string
   confirmedAt?: Date | string | null
 }
 
 export type AgentProposalUpdateInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
   diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutProposalsNestedInput
 }
 
 export type AgentProposalUncheckedUpdateInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  agentProfileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
   diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -411,28 +502,37 @@ export type AgentProposalUncheckedUpdateInput = {
 export type AgentProposalCreateManyInput = {
   id?: number
   userId: number
+  actorUserId?: number | null
+  agentProfileId?: number | null
   sessionId?: string | null
   status?: string
   actionKey: string
+  toolKey?: string | null
   targetType: string
   targetId?: string | null
   payloadJson: string
   diffJson?: string | null
   resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
   createdAt?: Date | string
   confirmedAt?: Date | string | null
 }
 
 export type AgentProposalUpdateManyMutationInput = {
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
   diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
@@ -440,29 +540,49 @@ export type AgentProposalUpdateManyMutationInput = {
 export type AgentProposalUncheckedUpdateManyInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
   userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  agentProfileId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   targetType?: Prisma.StringFieldUpdateOperationsInput | string
   targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
   diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type AgentProposalListRelationFilter = {
+  every?: Prisma.AgentProposalWhereInput
+  some?: Prisma.AgentProposalWhereInput
+  none?: Prisma.AgentProposalWhereInput
+}
+
+export type AgentProposalOrderByRelationAggregateInput = {
+  _count?: Prisma.SortOrder
 }
 
 export type AgentProposalCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrder
   sessionId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   actionKey?: Prisma.SortOrder
+  toolKey?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   diffJson?: Prisma.SortOrder
   resultJson?: Prisma.SortOrder
+  executionToken?: Prisma.SortOrder
+  executionStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
@@ -470,19 +590,26 @@ export type AgentProposalCountOrderByAggregateInput = {
 export type AgentProposalAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrder
 }
 
 export type AgentProposalMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrder
   sessionId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   actionKey?: Prisma.SortOrder
+  toolKey?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   diffJson?: Prisma.SortOrder
   resultJson?: Prisma.SortOrder
+  executionToken?: Prisma.SortOrder
+  executionStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
@@ -490,14 +617,19 @@ export type AgentProposalMaxOrderByAggregateInput = {
 export type AgentProposalMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrder
   sessionId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   actionKey?: Prisma.SortOrder
+  toolKey?: Prisma.SortOrder
   targetType?: Prisma.SortOrder
   targetId?: Prisma.SortOrder
   payloadJson?: Prisma.SortOrder
   diffJson?: Prisma.SortOrder
   resultJson?: Prisma.SortOrder
+  executionToken?: Prisma.SortOrder
+  executionStartedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   confirmedAt?: Prisma.SortOrder
 }
@@ -505,6 +637,211 @@ export type AgentProposalMinOrderByAggregateInput = {
 export type AgentProposalSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   userId?: Prisma.SortOrder
+  actorUserId?: Prisma.SortOrder
+  agentProfileId?: Prisma.SortOrder
+}
+
+export type AgentProposalCreateNestedManyWithoutAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput> | Prisma.AgentProposalCreateWithoutAgentProfileInput[] | Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput[]
+  connectOrCreate?: Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput | Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput[]
+  createMany?: Prisma.AgentProposalCreateManyAgentProfileInputEnvelope
+  connect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+}
+
+export type AgentProposalUncheckedCreateNestedManyWithoutAgentProfileInput = {
+  create?: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput> | Prisma.AgentProposalCreateWithoutAgentProfileInput[] | Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput[]
+  connectOrCreate?: Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput | Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput[]
+  createMany?: Prisma.AgentProposalCreateManyAgentProfileInputEnvelope
+  connect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+}
+
+export type AgentProposalUpdateManyWithoutAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput> | Prisma.AgentProposalCreateWithoutAgentProfileInput[] | Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput[]
+  connectOrCreate?: Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput | Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput[]
+  upsert?: Prisma.AgentProposalUpsertWithWhereUniqueWithoutAgentProfileInput | Prisma.AgentProposalUpsertWithWhereUniqueWithoutAgentProfileInput[]
+  createMany?: Prisma.AgentProposalCreateManyAgentProfileInputEnvelope
+  set?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  disconnect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  delete?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  connect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  update?: Prisma.AgentProposalUpdateWithWhereUniqueWithoutAgentProfileInput | Prisma.AgentProposalUpdateWithWhereUniqueWithoutAgentProfileInput[]
+  updateMany?: Prisma.AgentProposalUpdateManyWithWhereWithoutAgentProfileInput | Prisma.AgentProposalUpdateManyWithWhereWithoutAgentProfileInput[]
+  deleteMany?: Prisma.AgentProposalScalarWhereInput | Prisma.AgentProposalScalarWhereInput[]
+}
+
+export type AgentProposalUncheckedUpdateManyWithoutAgentProfileNestedInput = {
+  create?: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput> | Prisma.AgentProposalCreateWithoutAgentProfileInput[] | Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput[]
+  connectOrCreate?: Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput | Prisma.AgentProposalCreateOrConnectWithoutAgentProfileInput[]
+  upsert?: Prisma.AgentProposalUpsertWithWhereUniqueWithoutAgentProfileInput | Prisma.AgentProposalUpsertWithWhereUniqueWithoutAgentProfileInput[]
+  createMany?: Prisma.AgentProposalCreateManyAgentProfileInputEnvelope
+  set?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  disconnect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  delete?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  connect?: Prisma.AgentProposalWhereUniqueInput | Prisma.AgentProposalWhereUniqueInput[]
+  update?: Prisma.AgentProposalUpdateWithWhereUniqueWithoutAgentProfileInput | Prisma.AgentProposalUpdateWithWhereUniqueWithoutAgentProfileInput[]
+  updateMany?: Prisma.AgentProposalUpdateManyWithWhereWithoutAgentProfileInput | Prisma.AgentProposalUpdateManyWithWhereWithoutAgentProfileInput[]
+  deleteMany?: Prisma.AgentProposalScalarWhereInput | Prisma.AgentProposalScalarWhereInput[]
+}
+
+export type AgentProposalCreateWithoutAgentProfileInput = {
+  userId: number
+  actorUserId?: number | null
+  sessionId?: string | null
+  status?: string
+  actionKey: string
+  toolKey?: string | null
+  targetType: string
+  targetId?: string | null
+  payloadJson: string
+  diffJson?: string | null
+  resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
+  createdAt?: Date | string
+  confirmedAt?: Date | string | null
+}
+
+export type AgentProposalUncheckedCreateWithoutAgentProfileInput = {
+  id?: number
+  userId: number
+  actorUserId?: number | null
+  sessionId?: string | null
+  status?: string
+  actionKey: string
+  toolKey?: string | null
+  targetType: string
+  targetId?: string | null
+  payloadJson: string
+  diffJson?: string | null
+  resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
+  createdAt?: Date | string
+  confirmedAt?: Date | string | null
+}
+
+export type AgentProposalCreateOrConnectWithoutAgentProfileInput = {
+  where: Prisma.AgentProposalWhereUniqueInput
+  create: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput>
+}
+
+export type AgentProposalCreateManyAgentProfileInputEnvelope = {
+  data: Prisma.AgentProposalCreateManyAgentProfileInput | Prisma.AgentProposalCreateManyAgentProfileInput[]
+  skipDuplicates?: boolean
+}
+
+export type AgentProposalUpsertWithWhereUniqueWithoutAgentProfileInput = {
+  where: Prisma.AgentProposalWhereUniqueInput
+  update: Prisma.XOR<Prisma.AgentProposalUpdateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedUpdateWithoutAgentProfileInput>
+  create: Prisma.XOR<Prisma.AgentProposalCreateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedCreateWithoutAgentProfileInput>
+}
+
+export type AgentProposalUpdateWithWhereUniqueWithoutAgentProfileInput = {
+  where: Prisma.AgentProposalWhereUniqueInput
+  data: Prisma.XOR<Prisma.AgentProposalUpdateWithoutAgentProfileInput, Prisma.AgentProposalUncheckedUpdateWithoutAgentProfileInput>
+}
+
+export type AgentProposalUpdateManyWithWhereWithoutAgentProfileInput = {
+  where: Prisma.AgentProposalScalarWhereInput
+  data: Prisma.XOR<Prisma.AgentProposalUpdateManyMutationInput, Prisma.AgentProposalUncheckedUpdateManyWithoutAgentProfileInput>
+}
+
+export type AgentProposalScalarWhereInput = {
+  AND?: Prisma.AgentProposalScalarWhereInput | Prisma.AgentProposalScalarWhereInput[]
+  OR?: Prisma.AgentProposalScalarWhereInput[]
+  NOT?: Prisma.AgentProposalScalarWhereInput | Prisma.AgentProposalScalarWhereInput[]
+  id?: Prisma.IntFilter<"AgentProposal"> | number
+  userId?: Prisma.IntFilter<"AgentProposal"> | number
+  actorUserId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
+  agentProfileId?: Prisma.IntNullableFilter<"AgentProposal"> | number | null
+  sessionId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  status?: Prisma.StringFilter<"AgentProposal"> | string
+  actionKey?: Prisma.StringFilter<"AgentProposal"> | string
+  toolKey?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  targetType?: Prisma.StringFilter<"AgentProposal"> | string
+  targetId?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  payloadJson?: Prisma.StringFilter<"AgentProposal"> | string
+  diffJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  resultJson?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionToken?: Prisma.StringNullableFilter<"AgentProposal"> | string | null
+  executionStartedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"AgentProposal"> | Date | string
+  confirmedAt?: Prisma.DateTimeNullableFilter<"AgentProposal"> | Date | string | null
+}
+
+export type AgentProposalCreateManyAgentProfileInput = {
+  id?: number
+  userId: number
+  actorUserId?: number | null
+  sessionId?: string | null
+  status?: string
+  actionKey: string
+  toolKey?: string | null
+  targetType: string
+  targetId?: string | null
+  payloadJson: string
+  diffJson?: string | null
+  resultJson?: string | null
+  executionToken?: string | null
+  executionStartedAt?: Date | string | null
+  createdAt?: Date | string
+  confirmedAt?: Date | string | null
+}
+
+export type AgentProposalUpdateWithoutAgentProfileInput = {
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
+  diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type AgentProposalUncheckedUpdateWithoutAgentProfileInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
+  diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+}
+
+export type AgentProposalUncheckedUpdateManyWithoutAgentProfileInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  userId?: Prisma.IntFieldUpdateOperationsInput | number
+  actorUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sessionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  actionKey?: Prisma.StringFieldUpdateOperationsInput | string
+  toolKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  payloadJson?: Prisma.StringFieldUpdateOperationsInput | string
+  diffJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  resultJson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionToken?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  executionStartedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  confirmedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 
@@ -512,79 +849,124 @@ export type AgentProposalSumOrderByAggregateInput = {
 export type AgentProposalSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  actorUserId?: boolean
+  agentProfileId?: boolean
   sessionId?: boolean
   status?: boolean
   actionKey?: boolean
+  toolKey?: boolean
   targetType?: boolean
   targetId?: boolean
   payloadJson?: boolean
   diffJson?: boolean
   resultJson?: boolean
+  executionToken?: boolean
+  executionStartedAt?: boolean
   createdAt?: boolean
   confirmedAt?: boolean
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
 }, ExtArgs["result"]["agentProposal"]>
 
 export type AgentProposalSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  actorUserId?: boolean
+  agentProfileId?: boolean
   sessionId?: boolean
   status?: boolean
   actionKey?: boolean
+  toolKey?: boolean
   targetType?: boolean
   targetId?: boolean
   payloadJson?: boolean
   diffJson?: boolean
   resultJson?: boolean
+  executionToken?: boolean
+  executionStartedAt?: boolean
   createdAt?: boolean
   confirmedAt?: boolean
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
 }, ExtArgs["result"]["agentProposal"]>
 
 export type AgentProposalSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   userId?: boolean
+  actorUserId?: boolean
+  agentProfileId?: boolean
   sessionId?: boolean
   status?: boolean
   actionKey?: boolean
+  toolKey?: boolean
   targetType?: boolean
   targetId?: boolean
   payloadJson?: boolean
   diffJson?: boolean
   resultJson?: boolean
+  executionToken?: boolean
+  executionStartedAt?: boolean
   createdAt?: boolean
   confirmedAt?: boolean
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
 }, ExtArgs["result"]["agentProposal"]>
 
 export type AgentProposalSelectScalar = {
   id?: boolean
   userId?: boolean
+  actorUserId?: boolean
+  agentProfileId?: boolean
   sessionId?: boolean
   status?: boolean
   actionKey?: boolean
+  toolKey?: boolean
   targetType?: boolean
   targetId?: boolean
   payloadJson?: boolean
   diffJson?: boolean
   resultJson?: boolean
+  executionToken?: boolean
+  executionStartedAt?: boolean
   createdAt?: boolean
   confirmedAt?: boolean
 }
 
-export type AgentProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "sessionId" | "status" | "actionKey" | "targetType" | "targetId" | "payloadJson" | "diffJson" | "resultJson" | "createdAt" | "confirmedAt", ExtArgs["result"]["agentProposal"]>
+export type AgentProposalOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "actorUserId" | "agentProfileId" | "sessionId" | "status" | "actionKey" | "toolKey" | "targetType" | "targetId" | "payloadJson" | "diffJson" | "resultJson" | "executionToken" | "executionStartedAt" | "createdAt" | "confirmedAt", ExtArgs["result"]["agentProposal"]>
+export type AgentProposalInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
+}
+export type AgentProposalIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
+}
+export type AgentProposalIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  agentProfile?: boolean | Prisma.AgentProposal$agentProfileArgs<ExtArgs>
+}
 
 export type $AgentProposalPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AgentProposal"
-  objects: {}
+  objects: {
+    agentProfile: Prisma.$AgentProfilePayload<ExtArgs> | null
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
     userId: number
+    /**
+     * Expand-phase column: new code always writes it; nullable keeps the rolling deploy safe for the previous writer.
+     */
+    actorUserId: number | null
+    agentProfileId: number | null
     sessionId: string | null
     status: string
     actionKey: string
+    toolKey: string | null
     targetType: string
     targetId: string | null
     payloadJson: string
     diffJson: string | null
     resultJson: string | null
+    /**
+     * Claim token and lease timestamp make interrupted side effects visible and non-retryable.
+     */
+    executionToken: string | null
+    executionStartedAt: Date | null
     createdAt: Date
     confirmedAt: Date | null
   }, ExtArgs["result"]["agentProposal"]>
@@ -981,6 +1363,7 @@ readonly fields: AgentProposalFieldRefs;
  */
 export interface Prisma__AgentProposalClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  agentProfile<T extends Prisma.AgentProposal$agentProfileArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AgentProposal$agentProfileArgs<ExtArgs>>): Prisma.Prisma__AgentProfileClient<runtime.Types.Result.GetResult<Prisma.$AgentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1012,14 +1395,19 @@ export interface Prisma__AgentProposalClient<T, Null = never, ExtArgs extends ru
 export interface AgentProposalFieldRefs {
   readonly id: Prisma.FieldRef<"AgentProposal", 'Int'>
   readonly userId: Prisma.FieldRef<"AgentProposal", 'Int'>
+  readonly actorUserId: Prisma.FieldRef<"AgentProposal", 'Int'>
+  readonly agentProfileId: Prisma.FieldRef<"AgentProposal", 'Int'>
   readonly sessionId: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly status: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly actionKey: Prisma.FieldRef<"AgentProposal", 'String'>
+  readonly toolKey: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly targetType: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly targetId: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly payloadJson: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly diffJson: Prisma.FieldRef<"AgentProposal", 'String'>
   readonly resultJson: Prisma.FieldRef<"AgentProposal", 'String'>
+  readonly executionToken: Prisma.FieldRef<"AgentProposal", 'String'>
+  readonly executionStartedAt: Prisma.FieldRef<"AgentProposal", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"AgentProposal", 'DateTime'>
   readonly confirmedAt: Prisma.FieldRef<"AgentProposal", 'DateTime'>
 }
@@ -1039,6 +1427,10 @@ export type AgentProposalFindUniqueArgs<ExtArgs extends runtime.Types.Extensions
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
+  /**
    * Filter, which AgentProposal to fetch.
    */
   where: Prisma.AgentProposalWhereUniqueInput
@@ -1057,6 +1449,10 @@ export type AgentProposalFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Ext
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
+  /**
    * Filter, which AgentProposal to fetch.
    */
   where: Prisma.AgentProposalWhereUniqueInput
@@ -1074,6 +1470,10 @@ export type AgentProposalFindFirstArgs<ExtArgs extends runtime.Types.Extensions.
    * Omit specific fields from the AgentProposal
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
   /**
    * Filter, which AgentProposal to fetch.
    */
@@ -1123,6 +1523,10 @@ export type AgentProposalFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Exte
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
+  /**
    * Filter, which AgentProposal to fetch.
    */
   where?: Prisma.AgentProposalWhereInput
@@ -1170,6 +1574,10 @@ export type AgentProposalFindManyArgs<ExtArgs extends runtime.Types.Extensions.I
    * Omit specific fields from the AgentProposal
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
   /**
    * Filter, which AgentProposals to fetch.
    */
@@ -1219,6 +1627,10 @@ export type AgentProposalCreateArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
+  /**
    * The data needed to create a AgentProposal.
    */
   data: Prisma.XOR<Prisma.AgentProposalCreateInput, Prisma.AgentProposalUncheckedCreateInput>
@@ -1252,6 +1664,10 @@ export type AgentProposalCreateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    */
   data: Prisma.AgentProposalCreateManyInput | Prisma.AgentProposalCreateManyInput[]
   skipDuplicates?: boolean
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalIncludeCreateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1266,6 +1682,10 @@ export type AgentProposalUpdateArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the AgentProposal
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
   /**
    * The data needed to update a AgentProposal.
    */
@@ -1318,6 +1738,10 @@ export type AgentProposalUpdateManyAndReturnArgs<ExtArgs extends runtime.Types.E
    * Limit how many AgentProposals to update.
    */
   limit?: number
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalIncludeUpdateManyAndReturn<ExtArgs> | null
 }
 
 /**
@@ -1332,6 +1756,10 @@ export type AgentProposalUpsertArgs<ExtArgs extends runtime.Types.Extensions.Int
    * Omit specific fields from the AgentProposal
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
   /**
    * The filter to search for the AgentProposal to update in case it exists.
    */
@@ -1359,6 +1787,10 @@ export type AgentProposalDeleteArgs<ExtArgs extends runtime.Types.Extensions.Int
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
+  /**
    * Filter which AgentProposal to delete.
    */
   where: Prisma.AgentProposalWhereUniqueInput
@@ -1379,6 +1811,25 @@ export type AgentProposalDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
 }
 
 /**
+ * AgentProposal.agentProfile
+ */
+export type AgentProposal$agentProfileArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AgentProfile
+   */
+  select?: Prisma.AgentProfileSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AgentProfile
+   */
+  omit?: Prisma.AgentProfileOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProfileInclude<ExtArgs> | null
+  where?: Prisma.AgentProfileWhereInput
+}
+
+/**
  * AgentProposal without action
  */
 export type AgentProposalDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1390,4 +1841,8 @@ export type AgentProposalDefaultArgs<ExtArgs extends runtime.Types.Extensions.In
    * Omit specific fields from the AgentProposal
    */
   omit?: Prisma.AgentProposalOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AgentProposalInclude<ExtArgs> | null
 }

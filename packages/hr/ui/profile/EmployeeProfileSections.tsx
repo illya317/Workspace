@@ -2,6 +2,7 @@
 
 import { SectionShell, createSectionShellSection } from "./ProfileFormControls";
 import { edpFields, employmentFields } from "@workspace/hr/constants";
+import { HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE } from "@workspace/hr/constants/field-options";
 import type { ContractRow, EdpRow, EmploymentRow, ProfileField } from "@workspace/hr/types";
 import { createPageBody, BodySurface, type BodySurfaceSectionSpec, type ReferenceOption } from "@workspace/core/ui";
 import { createEmptyFormSection, createFieldGridSection, createFieldRegionSection, isCurrentByEndDate, pickFields, type EditableRecord, type RowBase } from "./EmployeeProfileUtils";
@@ -111,7 +112,10 @@ export function useEmploymentSections({
           sections: [createFieldGridSection(fields, employment as unknown as EditableRecord, !canEdit, (key, value, option) => {
           const field = fields.find(item => item.key === key);
           if (field) onChange(field, value, option);
-          }, undefined, "employment-fields")],
+          }, (field, record) => (
+            field.key === "personnelType"
+            && record.personnelType === HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE
+          ), "employment-fields")],
         }),
         ...contractSections,
       ];

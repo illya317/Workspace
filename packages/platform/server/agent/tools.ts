@@ -2,8 +2,9 @@
  * Agent tool contracts.
  * Platform owns orchestration; domain packages own concrete tool adapters.
  */
-import type { SessionUser } from "@workspace/platform/types";
 import type { PermissionActionKey } from "@workspace/platform/permission-actions";
+
+import type { AgentExecutionContext } from "./execution";
 
 export interface AgentToolPermissionRequirement {
   resourceKey: string;
@@ -48,7 +49,11 @@ export interface AgentTool {
   examples?: AgentToolExample[];
   /** Minimum actor permissions; the Agent action ceiling may only narrow them. */
   requiredPermissions: readonly AgentToolPermissionRequirement[];
+  /** Explicit opt-in: the adapter is safe when requester and virtual actor differ. */
+  delegatedExecution?: boolean;
+  /** Explicit opt-in: this tool is unavailable to the profile-less personal assistant. */
+  requiresAgentProfile?: boolean;
   /** true = 涉及写入，只能返回 proposal */
   mutates: boolean;
-  execute: (params: Record<string, unknown>, user: SessionUser) => Promise<AgentToolResult>;
+  execute: (params: Record<string, unknown>, execution: AgentExecutionContext) => Promise<AgentToolResult>;
 }

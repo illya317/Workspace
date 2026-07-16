@@ -1,6 +1,9 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
-import { cancelProposal } from "@workspace/platform/server/agent";
+import {
+  agentProposalActionErrorStatus,
+  cancelProposal,
+} from "@workspace/platform/server/agent";
 import { jsonErrorResponse, routeIdParamsSchema } from "@workspace/platform/server/api";
 
 export async function POST(
@@ -21,6 +24,6 @@ export async function POST(
     return NextResponse.json(result);
   } catch (err) {
     const message = err instanceof Error ? err.message : "取消失败";
-    return jsonErrorResponse(message, 500);
+    return jsonErrorResponse(message, agentProposalActionErrorStatus(err));
   }
 }

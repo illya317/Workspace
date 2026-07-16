@@ -1,8 +1,30 @@
-import { prisma } from "@workspace/platform/server/prisma";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
+import {
+  workspaceBusinessDate,
+  workspaceBusinessDayStart,
+} from "../business-date";
 
-export async function getUserPositionIds(userId: number): Promise<number[]> {
-  const eps = await prisma.eDP.findMany({
-    where: { employee: { userId } },
+type PermissionDatabaseClient = Prisma.TransactionClient | typeof prisma;
+
+export async function getUserPositionIds(
+  userId: number,
+  client: PermissionDatabaseClient = prisma,
+  at = new Date(),
+): Promise<number[]> {
+  const today = workspaceBusinessDate(at);
+  const activeDateTimeFloor = workspaceBusinessDayStart(at);
+  const eps = await client.eDP.findMany({
+    where: {
+      employee: { userId, employments: { some: { isActive: true } } },
+      AND: [
+        { OR: [{ startDate: null }, { startDate: "" }, { startDate: { lte: today } }] },
+        { OR: [{ endDate: null }, { endDate: "" }, { endDate: { gte: today } }] },
+      ],
+      position: {
+        isArchived: false,
+        OR: [{ endDate: null }, { endDate: { gte: activeDateTimeFloor } }],
+      },
+    },
     select: { positionId: true },
   });
   return eps
@@ -10,9 +32,25 @@ export async function getUserPositionIds(userId: number): Promise<number[]> {
     .filter((id): id is number => id !== null);
 }
 
-export async function getUserDepartmentIds(userId: number): Promise<number[]> {
-  const eps = await prisma.eDP.findMany({
-    where: { employee: { userId } },
+export async function getUserDepartmentIds(
+  userId: number,
+  client: PermissionDatabaseClient = prisma,
+  at = new Date(),
+): Promise<number[]> {
+  const today = workspaceBusinessDate(at);
+  const activeDateTimeFloor = workspaceBusinessDayStart(at);
+  const eps = await client.eDP.findMany({
+    where: {
+      employee: { userId, employments: { some: { isActive: true } } },
+      AND: [
+        { OR: [{ startDate: null }, { startDate: "" }, { startDate: { lte: today } }] },
+        { OR: [{ endDate: null }, { endDate: "" }, { endDate: { gte: today } }] },
+      ],
+      department: {
+        isArchived: false,
+        OR: [{ endDate: null }, { endDate: { gte: activeDateTimeFloor } }],
+      },
+    },
     select: { departmentId: true },
   });
   return [

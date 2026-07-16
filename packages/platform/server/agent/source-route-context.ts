@@ -1,4 +1,3 @@
-import { readFile, stat } from "node:fs/promises";
 import path from "node:path";
 
 const MAX_SOURCE_SEED_FILES = 60;
@@ -16,9 +15,10 @@ export type SourceQueryHints = {
   contextTerms: string[];
 };
 
-function runtimeSourcePath(root: string, ...segments: string[]) {
-  return path.join(/* turbopackIgnore: true */ root, ...segments);
-}
+export type SourceRepositoryReader = {
+  exists(file: string): Promise<boolean>;
+  readText(file: string): Promise<string | null>;
+};
 
 export function uniqueStrings(values: Iterable<string>) {
   return [...new Set([...values].map((value) => value.trim()).filter(Boolean))];
@@ -95,15 +95,11 @@ function sourceFileCandidates(file: string) {
   ];
 }
 
-async function sourceFileExists(repoDir: string, file: string) {
-  return Boolean(await stat(runtimeSourcePath(repoDir, file)).catch(() => null));
-}
-
-async function resolveSourceFile(repoDir: string, file: string) {
+async function resolveSourceFile(reader: SourceRepositoryReader, file: string) {
   const normalized = path.posix.normalize(file).replace(/^\/+/, "");
   if (normalized.startsWith("../")) return null;
   for (const candidate of sourceFileCandidates(normalized)) {
-    if (await sourceFileExists(repoDir, candidate)) return candidate;
+    if (await reader.exists(candidate)) return candidate;
   }
   return null;
 }
@@ -136,9 +132,9 @@ function workspaceUiImports(content: string) {
   return imports;
 }
 
-async function resolvePackageUiExport(repoDir: string, packageName: string, exportName: string) {
+async function resolvePackageUiExport(reader: SourceRepositoryReader, packageName: string, exportName: string) {
   const indexFile = `packages/${packageName}/ui/index.ts`;
-  const content = await readFile(runtimeSourcePath(repoDir, indexFile), "utf8").catch(() => "");
+  const content = await reader.readText(indexFile);
   if (!content) return null;
   const escaped = exportName.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const exportPattern = /export\s*\{([^}]+)\}\s*from\s*["']([^"']+)["']/g;
@@ -148,27 +144,28 @@ async function resolvePackageUiExport(repoDir: string, packageName: string, expo
       return normalized === exportName || new RegExp(`\\b(?:default\\s+as\\s+)?${escaped}\\b`).test(normalized);
     });
     if (!hasExport) continue;
-    const resolved = await resolveSourceFile(repoDir, path.posix.join(path.posix.dirname(indexFile), match[2]));
+    const resolved = await resolveSourceFile(reader, path.posix.join(path.posix.dirname(indexFile), match[2]));
     if (resolved) return resolved;
   }
   return null;
 }
 
-async function routeEntrySourceFiles(repoDir: string, hints: SourceQueryHints) {
+async function routeEntrySourceFiles(reader: SourceRepositoryReader, hints: SourceQueryHints) {
   const seeds: string[] = [];
   for (const page of hints.routePages) {
-    const resolved = await resolveSourceFile(repoDir, page);
+    const resolved = await resolveSourceFile(reader, page);
     if (resolved) seeds.push(resolved);
   }
   for (const routeFile of [...seeds]) {
-    const content = await readFile(runtimeSourcePath(repoDir, routeFile), "utf8").catch(() => "");
+    const content = await reader.readText(routeFile);
+    if (!content) continue;
     for (const importSpec of workspaceUiImports(content)) {
       if (importSpec.subpath) {
-        const resolved = await resolveSourceFile(repoDir, `packages/${importSpec.packageName}/ui/${importSpec.subpath}`);
+        const resolved = await resolveSourceFile(reader, `packages/${importSpec.packageName}/ui/${importSpec.subpath}`);
         if (resolved) seeds.push(resolved);
       }
       for (const name of importSpec.names) {
-        const resolved = await resolvePackageUiExport(repoDir, importSpec.packageName, name);
+        const resolved = await resolvePackageUiExport(reader, importSpec.packageName, name);
         if (resolved) seeds.push(resolved);
       }
     }
@@ -188,7 +185,7 @@ function sourceTermScore(value: string, terms: string[]) {
   }, 0);
 }
 
-async function collectSourceImportGraph(repoDir: string, roots: string[], terms: string[]) {
+async function collectSourceImportGraph(reader: SourceRepositoryReader, roots: string[], terms: string[]) {
   const result = new Set<string>(roots);
   const queue = roots.map((file) => ({ file, depth: 0 }));
   const seen = new Set<string>();
@@ -197,11 +194,11 @@ async function collectSourceImportGraph(repoDir: string, roots: string[], terms:
     const next = queue.shift();
     if (!next || seen.has(next.file) || next.depth >= 3) continue;
     seen.add(next.file);
-    const content = await readFile(runtimeSourcePath(repoDir, next.file), "utf8").catch(() => "");
+    const content = await reader.readText(next.file);
     if (!content) continue;
     const imports: string[] = [];
     for (const specifier of relativeImportSpecifiers(content)) {
-      const resolved = await resolveSourceFile(repoDir, path.posix.join(path.posix.dirname(next.file), specifier));
+      const resolved = await resolveSourceFile(reader, path.posix.join(path.posix.dirname(next.file), specifier));
       if (resolved) imports.push(resolved);
     }
     imports.sort((a, b) => sourceTermScore(b, terms) - sourceTermScore(a, terms));
@@ -215,7 +212,7 @@ async function collectSourceImportGraph(repoDir: string, roots: string[], terms:
   return [...result];
 }
 
-export async function sourceSeedFiles(repoDir: string, hints: SourceQueryHints, terms: string[]) {
-  const routeEntries = await routeEntrySourceFiles(repoDir, hints);
-  return collectSourceImportGraph(repoDir, routeEntries, [...terms, ...hints.contextTerms]);
+export async function sourceSeedFiles(reader: SourceRepositoryReader, hints: SourceQueryHints, terms: string[]) {
+  const routeEntries = await routeEntrySourceFiles(reader, hints);
+  return collectSourceImportGraph(reader, routeEntries, [...terms, ...hints.contextTerms]);
 }

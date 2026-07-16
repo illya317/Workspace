@@ -9,7 +9,22 @@ import {
 } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec } from "@workspace/core/ui";
 import type { TabConfig, FieldConfig } from "@workspace/hr/types";
-import { formatHrMajorItems } from "@workspace/hr/constants/field-options";
+import {
+  formatHrMajorItems,
+  HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE,
+} from "@workspace/hr/constants/field-options";
+
+export function isEditableHrTableCell(
+  item: Record<string, unknown>,
+  field: FieldConfig,
+  config: TabConfig,
+) {
+  return !(
+    config.entityType === "Employment"
+    && field.key === "personnelType"
+    && item.personnelType === HR_VIRTUAL_EMPLOYEE_PERSONNEL_TYPE
+  );
+}
 
 export function getVal(obj: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((o, k) => {
@@ -130,10 +145,11 @@ export function useEditableTableSection({
 
 
         cell: (item) => {
-          const isEditing = editingCell?.id === item.id && editingCell?.field === field.key;
+          const rowEditable = editableCell && isEditableHrTableCell(item, field, config);
+          const isEditing = rowEditable && editingCell?.id === item.id && editingCell?.field === field.key;
           if (isEditing) return renderEditInput(field.key);
           const content: DataSurfaceCellSpec = { kind: "text", value: formatEditableTableCell(item, field, config), wrap: "nowrap" };
-          return editableCell
+          return rowEditable
             ? { kind: "interactive", content, ariaLabel: `编辑${field.label}`, onClick: () => onStartEdit(item, field) }
             : content;
         },

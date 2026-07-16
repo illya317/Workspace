@@ -1,8 +1,53 @@
+/// 虚拟员工的 Agent 描述档案。员工、雇佣与岗位事实仍由 HR 拥有；执行载体由 AgentRuntimeBinding 独立治理。
+model AgentProfile {
+  id                  Int             @id @default(autoincrement())
+  key                 String          @unique
+  actorUserId         Int             @unique
+  displayName         String
+  roleName            String
+  responsibilities    String
+  /// 滚动发布兼容字段；新运行时只读取 AgentRuntimeBinding.capabilityKeysJson。
+  allowedToolKeysJson String
+  status              String          @default("active") // active | suspended
+  createdBy           Int?
+  editedBy            Int?
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  actorUser           User            @relation("AgentProfileActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+  runtimeBindings     AgentRuntimeBinding[]
+  sessions            AgentSession[]
+  proposals           AgentProposal[]
+  runs                AgentRun[]
+
+  @@index([status, displayName])
+}
+
+/// 虚拟员工身份与执行载体之间的绑定。Workspace、Codex、CI 和服务器运行时各自独立治理。
+model AgentRuntimeBinding {
+  id                 Int          @id @default(autoincrement())
+  agentProfileId     Int
+  runtimeKind        String       // workspace | codex_local | ci | server_ops
+  status             String       @default("active") // active | suspended
+  interactive        Boolean      @default(false)
+  capabilityKeysJson String
+  instructions       String
+  createdBy          Int?
+  editedBy           Int?
+  createdAt          DateTime     @default(now())
+  updatedAt          DateTime     @updatedAt
+  agentProfile       AgentProfile @relation(fields: [agentProfileId], references: [id], onDelete: Restrict)
+  runs               AgentRun[]
+
+  @@unique([agentProfileId, runtimeKind])
+  @@index([runtimeKind, status, interactive])
+}
+
 /// Agent 对话会话索引（事实表，来源于页面助手运行时；原始消息存 AGENT_DATA_DIR 文件系统）
 /// DB 仅保存可检索状态和短摘要，长摘要与 transcript 存外部文件，方便按 session 目录删除。
 model AgentSession {
   id                    String    @id
   userId                Int
+  agentProfileId        Int?
   status                String    @default("active") // active | deleted
   pagePath              String?
   contextLabel          String?
@@ -17,6 +62,10 @@ model AgentSession {
   updatedAt             DateTime  @updatedAt
   expiresAt             DateTime?
   deletedAt             DateTime?
+  agentProfile          AgentProfile? @relation(fields: [agentProfileId], references: [id], onDelete: Restrict)
+  runs                  AgentRun[]
+
+  @@index([agentProfileId, updatedAt])
 }
 
 /// Agent 待确认变更记录（审计用）
@@ -24,14 +73,68 @@ model AgentSession {
 model AgentProposal {
   id          Int       @id @default(autoincrement())
   userId      Int
+  /// Expand-phase column: new code always writes it; nullable keeps the rolling deploy safe for the previous writer.
+  actorUserId Int?
+  agentProfileId Int?
   sessionId   String?
-  status      String    @default("pending") // pending | confirmed | cancelled | failed
+  status      String    @default("pending") // pending | executing | confirmed | cancelled | failed | expired
   actionKey   String // 工具 key，如 hr.updateEmployee
+  toolKey     String?
   targetType  String // 目标实体，如 Employee
   targetId    String? // 目标记录标识
   payloadJson String // 变更内容 JSON
   diffJson    String? // 变更前后对比 JSON
   resultJson  String? // 执行结果 JSON
+  /// Claim token and lease timestamp make interrupted side effects visible and non-retryable.
+  executionToken String?
+  executionStartedAt DateTime?
   createdAt   DateTime  @default(now())
   confirmedAt DateTime?
+  agentProfile AgentProfile? @relation(fields: [agentProfileId], references: [id], onDelete: Restrict)
+
+  @@index([agentProfileId, createdAt])
+  @@index([actorUserId, createdAt])
+  @@index([status, executionStartedAt])
+}
+
+/// 每一轮 Agent 执行审计。只保存身份、结果和工具元数据，不复制会话正文。
+model AgentRun {
+  id              String        @id
+  sessionId       String
+  requesterUserId Int
+  actorUserId     Int
+  agentProfileId  Int?
+  runtimeBindingId Int?
+  /// Immutable execution location for both personal and virtual-employee runs.
+  runtimeKind     String        @default("workspace") // workspace | codex_local | ci | server_ops
+  /// Immutable JSON snapshot of runtime kind, responsibility instructions and capability keys used by this run.
+  runtimeConfigJson String?
+  runtimeConfigHash String?
+  status          String        @default("running") // running | succeeded | failed | aborted
+  pagePath        String?
+  toolKey         String?
+  resultType      String?
+  proposalId      Int?
+  errorMessage    String?
+  inputOtherTokens Int?
+  inputCacheReadTokens Int?
+  inputCacheCreationTokens Int?
+  outputTokens    Int?
+  /// Raw peak of Kimi StatusUpdate.context_usage (a 0..1 ratio).
+  contextUsagePeak Float?
+  runtimeStepCount Int?
+  runtimeOutcome  String?
+  startedAt       DateTime      @default(now())
+  finishedAt      DateTime?
+  session         AgentSession  @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  agentProfile    AgentProfile? @relation(fields: [agentProfileId], references: [id], onDelete: Restrict)
+  runtimeBinding  AgentRuntimeBinding? @relation(fields: [runtimeBindingId], references: [id], onDelete: Restrict)
+
+  @@index([requesterUserId, startedAt])
+  @@index([actorUserId, startedAt])
+  @@index([agentProfileId, startedAt])
+  @@index([runtimeBindingId, startedAt])
+  @@index([status, startedAt])
+  @@index([startedAt])
+  @@index([sessionId, startedAt])
 }

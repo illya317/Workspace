@@ -30,12 +30,12 @@ export const searchLibraryTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "library.basicInfo", action: "read" }],
   mutates: false,
 
-  async execute(params, user) {
+  async execute(params, execution) {
     const query = typeof params.query === "string" ? params.query : "";
     const limit = typeof params.limit === "number" ? params.limit : undefined;
     try {
-      const result = await searchLibraryDocumentSet({ query, limit, userId: user.id });
-      const canExport = await checkLibraryExport(user.id);
+      const result = await searchLibraryDocumentSet({ query, limit, userId: execution.requester.id });
+      const canExport = await checkLibraryExport(execution.requester.id);
       const data = {
         ...result,
         canExport,
@@ -90,10 +90,10 @@ export const planLibraryDeliveryTool: AgentTool = {
   },
   requiredPermissions: [{ resourceKey: "library.basicInfo", action: "export" }],
   mutates: false,
-  async execute(params, user) {
+  async execute(params, execution) {
     const query = typeof params.query === "string" ? params.query : "";
     try {
-      const plan = await planLibraryAgentDelivery({ query, userId: user.id });
+      const plan = await planLibraryAgentDelivery({ query, userId: execution.requester.id });
       if (plan.status === "denied") return { type: "error", message: "当前账号没有资料导出权限。" };
       if (plan.status === "empty") return { type: "empty", message: plan.message };
       const data = {
@@ -142,13 +142,13 @@ export const deliverLibraryDocumentsTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "library.basicInfo", action: "export" }],
   // Export creates only a short-lived requester-owned delivery artifact, not a business-data mutation.
   mutates: false,
-  async execute(params, user) {
+  async execute(params, execution) {
     const query = typeof params.query === "string" ? params.query : "";
     const versionUids = Array.isArray(params.versionUids)
       ? params.versionUids.filter((value): value is string => typeof value === "string")
       : [];
     try {
-      const delivery = await createLibraryAgentDelivery({ query, versionUids, userId: user.id });
+      const delivery = await createLibraryAgentDelivery({ query, versionUids, userId: execution.requester.id });
       if (delivery.status === "denied") return { type: "error", message: "当前账号没有资料导出权限。" };
       if (delivery.status === "empty") return { type: "empty", message: delivery.message };
       const data: LibraryAgentDeliveryReadyData = {

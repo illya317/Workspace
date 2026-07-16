@@ -5,17 +5,21 @@
 import {
   createProposal,
   type AgentTool,
+  type AgentExecutionContext,
   type ProposalExecutors,
 } from "@workspace/platform/server/agent";
 import { prisma } from "@workspace/platform/server/prisma";
-import type { SessionUser } from "@workspace/platform/types";
 
 import { normalizeHrSchoolValue } from "../constants/school-options";
+import {
+  AGENT_EMPLOYEE_MUTABLE_FIELDS,
+  buildAgentEmployeeBatchDraftCommand,
+  buildAgentEmployeeDraftCommand,
+  parseExpectedEmployeeFieldSnapshots,
+} from "./domain/agent-employee-proposal-validation";
 import { searchAgentEmployeeDirectory } from "./agent-employee-search";
 import { queryRawEmployees } from "./roster";
-import { updateEmployeeFieldsByEmployeeIds } from "./employees";
-
-const ALLOWED_FIELDS = ["education", "title", "phone", "school", "major", "alias", "hometown", "politics"];
+import { updateEmployeeFieldsByEmployeeIds } from "./employee-agent-updates";
 
 function normalizeAgentFieldValue(field: string, value: unknown) {
   if (field === "school") {
@@ -45,7 +49,7 @@ export const searchEmployeesTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "hr.roster", action: "read" }],
   mutates: false,
 
-  async execute(params: Record<string, unknown>, _user: SessionUser) {
+  async execute(params: Record<string, unknown>) {
     const keyword = typeof params.keyword === "string" ? params.keyword.trim() : "";
     if (!keyword) {
       return { type: "error", message: "请提供姓名、工号或别名后再查询员工，不能空关键词返回全员名单。" };
@@ -81,56 +85,51 @@ export const updateEmployeeDraftTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
   mutates: true,
 
-  async execute(params: Record<string, unknown>, user: SessionUser) {
-    const employeeId = typeof params.employeeId === "string" ? params.employeeId : "";
-    const keyword = typeof params.keyword === "string" ? params.keyword : "";
-    const field = typeof params.field === "string" ? params.field : "";
-    const newValue = params.newValue != null ? String(params.newValue) : "";
-
-    if ((!employeeId && !keyword) || !field) {
-      return { type: "error", message: "缺少必填参数：employeeId/keyword 或 field" };
-    }
-
-    // 允许修改的白名单字段
-    if (!ALLOWED_FIELDS.includes(field)) {
-      return { type: "error", message: `字段"${field}"不支持修改。支持：${ALLOWED_FIELDS.join("、")}` };
-    }
-    const normalizedNewValue = field === "school" ? normalizeHrSchoolValue(newValue) : null;
-    if (normalizedNewValue && !normalizedNewValue.ok) {
-      return { type: "error", message: normalizedNewValue.error };
-    }
+  async execute(params: Record<string, unknown>, execution: AgentExecutionContext) {
+    const command = buildAgentEmployeeDraftCommand(params);
+    if (!command.ok) return { type: "error", message: command.issue.message };
+    const { employeeId, keyword, field, value: finalNewValue } = command.data;
 
     // 查当前值：优先用工号，否则按姓名搜索
-    let emp: { id: number; name: string } & Record<string, unknown> | null = null;
+    let candidateId: number | null = null;
     if (employeeId) {
       const found = await prisma.employee.findUnique({
         where: { employeeId },
-        select: { id: true, employeeId: true, name: true, [field]: true },
+        select: { id: true },
       });
-      if (found) emp = found as unknown as { id: number; name: string } & Record<string, unknown>;
+      candidateId = found?.id ?? null;
     } else if (keyword) {
       const employees = await queryRawEmployees(keyword);
       if (employees.length === 1) {
-        emp = employees[0] as unknown as { id: number; name: string } & Record<string, unknown>;
+        candidateId = employees[0].id;
       } else if (employees.length > 1) {
         return { type: "error", message: `找到 ${employees.length} 名匹配"${keyword}"的员工，请指定工号` };
       }
     }
+    const emp = candidateId == null ? null : await prisma.employee.findUnique({
+      where: { id: candidateId },
+      select: { id: true, employeeId: true, name: true, version: true, [field]: true },
+    }) as ({ id: number; employeeId: string; name: string; version: number } & Record<string, unknown>) | null;
     if (!emp) {
       return { type: "error", message: `未找到员工${employeeId ? ` ${employeeId}` : ` "${keyword}"`}` };
     }
 
-    const actualId = (emp as Record<string, unknown>).employeeId || employeeId;
+    const actualId = emp.employeeId;
 
     const oldValue = (emp as Record<string, unknown>)[field];
-    const finalNewValue = normalizedNewValue?.ok ? normalizedNewValue.value : newValue;
     const diff = { employeeId: actualId, name: emp.name, field, oldValue, newValue: finalNewValue };
 
-    const result = await createProposal(user, {
+    const result = await createProposal(execution, {
       actionKey: "hr.updateEmployee",
+      toolKey: "hr.updateEmployee",
       targetType: "Employee",
       targetId: actualId as string,
-      payload: { employeeId: actualId, field, value: finalNewValue },
+      payload: {
+        employeeId: actualId,
+        field,
+        value: finalNewValue,
+        expectedRows: [{ employeeId: actualId, version: emp.version, oldValue: oldValue ?? null }],
+      },
       diff,
     });
 
@@ -150,29 +149,27 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
   requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
   mutates: true,
 
-  async execute(params: Record<string, unknown>, user: SessionUser) {
-    const filterField = typeof params.filterField === "string" ? params.filterField : "";
-    const filterOp = typeof params.filterOp === "string" ? params.filterOp : "notContains";
-    const filterValue = typeof params.filterValue === "string" ? params.filterValue : "";
-    const updateField = typeof params.updateField === "string" ? params.updateField : "";
-    const updateValue = typeof params.updateValue === "string" ? params.updateValue : "";
-
-    if (!filterField || !updateField) {
-      return { type: "error", message: "缺少必填参数：filterField 或 updateField" };
-    }
-
-    if (!ALLOWED_FIELDS.includes(filterField) || !ALLOWED_FIELDS.includes(updateField)) {
-      return { type: "error", message: `字段不支持。允许：${ALLOWED_FIELDS.join("、")}` };
-    }
-    const normalizedUpdateValue = updateField === "school" ? normalizeHrSchoolValue(updateValue) : null;
-    if (normalizedUpdateValue && !normalizedUpdateValue.ok) {
-      return { type: "error", message: normalizedUpdateValue.error };
-    }
-    const finalUpdateValue = normalizedUpdateValue?.ok ? normalizedUpdateValue.value : updateValue;
+  async execute(params: Record<string, unknown>, execution: AgentExecutionContext) {
+    const command = buildAgentEmployeeBatchDraftCommand(params);
+    if (!command.ok) return { type: "error", message: command.issue.message };
+    const {
+      filterField,
+      filterOp,
+      filterValue,
+      updateField,
+      updateValue: finalUpdateValue,
+    } = command.data;
 
     // SQLite adapter 对 not: { contains } 支持不佳，走 JS 过滤
     const allRows = await prisma.employee.findMany({
-      select: { id: true, employeeId: true, name: true, [filterField]: true, [updateField]: true },
+      select: {
+        id: true,
+        employeeId: true,
+        name: true,
+        version: true,
+        [filterField]: true,
+        [updateField]: true,
+      },
       orderBy: { employeeId: "asc" },
     });
 
@@ -181,7 +178,7 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
       const val = String((r as Record<string, unknown>)[filterField] ?? "");
       if (filterOp === "notContains") return !val.includes(filterValue);
       if (filterOp === "contains") return val.includes(filterValue);
-      return val === filterValue;
+      return filterOp === "equals" && val === filterValue;
     });
 
     if (all.length === 0) {
@@ -197,11 +194,21 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
     const employeeIds = all.map((e) => e.employeeId);
     const diff = { filterField, filterOp, filterValue, updateField, updateValue: finalUpdateValue, count: all.length, sample: all.slice(0, 5).map((e) => ({ name: e.name, employeeId: e.employeeId, oldValue: (e as Record<string, unknown>)[updateField] })) };
 
-    const result = await createProposal(user, {
+    const result = await createProposal(execution, {
       actionKey: "hr.batchUpdateEmployee",
+      toolKey: "hr.batchUpdateEmployee",
       targetType: "Employee",
       targetId: employeeIds.join(","),
-      payload: { employeeIds, field: updateField, value: finalUpdateValue },
+      payload: {
+        employeeIds,
+        field: updateField,
+        value: finalUpdateValue,
+        expectedRows: all.map((employee) => ({
+          employeeId: employee.employeeId,
+          version: employee.version,
+          oldValue: (employee as Record<string, unknown>)[updateField] ?? null,
+        })),
+      },
       diff,
     });
 
@@ -215,23 +222,21 @@ export const batchUpdateEmployeeDraftTool: AgentTool = {
 
 export async function executeHrAgentProposal(
   payload: Record<string, unknown>,
-  user: SessionUser,
+  execution: AgentExecutionContext,
 ) {
-  const { field, value, employeeIds } = payload;
+  const { field, value, expectedRows: rawExpectedRows } = payload;
   if (!field || typeof field !== "string") throw new Error("缺少参数 field");
-  if (!ALLOWED_FIELDS.includes(field)) throw new Error(`字段 ${field} 不允许修改`);
+  if (!AGENT_EMPLOYEE_MUTABLE_FIELDS.includes(field)) throw new Error(`字段 ${field} 不允许修改`);
   const normalizedValue = normalizeAgentFieldValue(field, value);
 
-  const targetIds = Array.isArray(employeeIds) && employeeIds.length > 0
-    ? employeeIds.map(String)
-    : typeof payload.employeeId === "string" && payload.employeeId
-      ? [payload.employeeId]
-      : [];
+  const expectedRows = parseExpectedEmployeeFieldSnapshots(rawExpectedRows);
+  const targetIds = expectedRows.map((row) => row.employeeId);
   const result = await updateEmployeeFieldsByEmployeeIds({
     employeeIds: targetIds,
     field,
     value: normalizedValue,
-    userId: user.id,
+    userId: execution.actor.id,
+    expectedRows,
   });
   if (!result.ok) throw new Error(result.error);
   if (targetIds.length > 1) return { success: true, updatedCount: result.data.updatedCount };
@@ -247,8 +252,18 @@ export async function executeHrAgentProposal(
 }
 
 export const hrAgentProposalExecutors: ProposalExecutors = {
-  "hr.updateEmployee": executeHrAgentProposal,
-  "hr.batchUpdateEmployee": executeHrAgentProposal,
+  "hr.updateEmployee": {
+    toolKey: "hr.updateEmployee",
+    requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
+    failureMayHaveSideEffects: true,
+    execute: executeHrAgentProposal,
+  },
+  "hr.batchUpdateEmployee": {
+    toolKey: "hr.batchUpdateEmployee",
+    requiredPermissions: [{ resourceKey: "hr.roster", action: "update" }],
+    failureMayHaveSideEffects: true,
+    execute: executeHrAgentProposal,
+  },
 };
 
 export const hrAgentTools: AgentTool[] = [

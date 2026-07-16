@@ -31,8 +31,8 @@ export * from "./enums"
  * const prisma = new PrismaClient({
  *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
  * })
- * // Fetch zero or more AgentSessions
- * const agentSessions = await prisma.agentSession.findMany()
+ * // Fetch zero or more AgentProfiles
+ * const agentProfiles = await prisma.agentProfile.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -41,6 +41,16 @@ export const PrismaClient = $Class.getPrismaClientClass()
 export type PrismaClient<LogOpts extends Prisma.LogLevel = never, OmitOpts extends Prisma.PrismaClientOptions["omit"] = Prisma.PrismaClientOptions["omit"], ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = $Class.PrismaClient<LogOpts, OmitOpts, ExtArgs>
 export { Prisma }
 
+/**
+ * Model AgentProfile
+ * 虚拟员工的 Agent 描述档案。员工、雇佣与岗位事实仍由 HR 拥有；执行载体由 AgentRuntimeBinding 独立治理。
+ */
+export type AgentProfile = Prisma.AgentProfileModel
+/**
+ * Model AgentRuntimeBinding
+ * 虚拟员工身份与执行载体之间的绑定。Workspace、Codex、CI 和服务器运行时各自独立治理。
+ */
+export type AgentRuntimeBinding = Prisma.AgentRuntimeBindingModel
 /**
  * Model AgentSession
  * Agent 对话会话索引（事实表，来源于页面助手运行时；原始消息存 AGENT_DATA_DIR 文件系统）
@@ -53,6 +63,11 @@ export type AgentSession = Prisma.AgentSessionModel
  * Agent 不能直接写库，所有写入先创建 proposal，用户确认后才执行。
  */
 export type AgentProposal = Prisma.AgentProposalModel
+/**
+ * Model AgentRun
+ * 每一轮 Agent 执行审计。只保存身份、结果和工具元数据，不复制会话正文。
+ */
+export type AgentRun = Prisma.AgentRunModel
 /**
  * Model ApprovalRequest
  * 通用单步审批单。业务 payload 存 JSON 字符串，正式落库由业务 adapter 提交。

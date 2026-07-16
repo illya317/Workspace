@@ -4,6 +4,7 @@ import { jsonErrorResponse } from "@workspace/platform/server/api";
 const agentMessageSchema = z.object({
   message: z.string().trim().max(2000).optional().default(""),
   sessionId: z.string().trim().max(80).optional().nullable(),
+  agentProfileId: z.number().int().positive().optional().nullable().default(null),
   context: z.object({
     contextLabel: z.string().trim().max(300).optional().nullable(),
     path: z.string().trim().max(500).optional().nullable(),

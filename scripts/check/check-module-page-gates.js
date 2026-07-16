@@ -11,6 +11,7 @@
 const fs = require("fs");
 const path = require("path");
 const { collectModuleDefs, collectRoutes, ROOT } = require("./module-registry-reader");
+const { hasModuleHomePage, hasRouteAccessGate } = require("./module-page-gate-detector");
 
 const APP_DIR = path.join(ROOT, "app");
 const VALID_PAGE_ACCESS = new Set(["resource", "adminManage", "authenticated", "public"]);
@@ -51,32 +52,14 @@ function routeFromPagePath(pagePath) {
   return normalizeRoute(`/${segments.join("/")}`);
 }
 
-function escapeRegExp(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
 function hasNamedImport(content, name, source) {
-  const escaped = escapeRegExp(source);
+  const escaped = source.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const regex = new RegExp(`import\\s*\\{([^}]*)\\}\\s*from\\s*["']${escaped}["']`, "g");
   let match;
   while ((match = regex.exec(content))) {
     const names = match[1].split(",").map((item) => item.trim().split(/\s+as\s+/)[0]?.trim());
     if (names.includes(name)) return true;
   }
-  return false;
-}
-
-function hasRouteAccessGate(text, gatePath, moduleKey) {
-  const route = escapeRegExp(gatePath);
-  if (new RegExp(`requireRouteAccess\\s*\\(\\s*["']${route}["']\\s*\\)`).test(text)) return true;
-  if (new RegExp(`createProtectedModulePage\\s*\\([\\s\\S]*?route\\s*:\\s*["']${route}["']`).test(text)) return true;
-  if (moduleKey && hasModuleHomePage(text, moduleKey)) return true;
-  return false;
-}
-
-function hasModuleHomePage(text, moduleKey) {
-  if (moduleKey && new RegExp(`ModuleHomePage\\s+moduleKey=["']${escapeRegExp(moduleKey)}["']`).test(text)) return true;
-  if (moduleKey && new RegExp(`ModuleHomePage\\s*\\(\\s*\\{\\s*moduleKey\\s*:\\s*["']${escapeRegExp(moduleKey)}["']`).test(text)) return true;
   return false;
 }
 
@@ -259,7 +242,7 @@ for (const pagePath of walkPages(APP_DIR)) {
   }
   if (!checkPageGate(pagePath, contract)) {
     const expected = contract.access === "resource"
-      ? `requireRouteAccess("${contract.gatePath}") or createProtectedModulePage({ route: "${contract.gatePath}" })`
+      ? `requireRouteAccess("${contract.gatePath}"), requireRouteActionAccess("${contract.gatePath}", <action>), or createProtectedModulePage({ route: "${contract.gatePath}" })`
       : contract.access === "adminManage"
         ? "requireAdminManageAccess()"
         : contract.access === "authenticated"

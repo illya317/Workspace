@@ -1,10 +1,17 @@
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
-import { isPermissionActionKey } from "@workspace/platform/permission-actions";
+import { isPermissionActionKey, type PermissionActionKey } from "@workspace/platform/permission-actions";
 import { isPermissionActionGrantable } from "@workspace/platform/permission-action-grantability";
 import { isPermissionActionSupported } from "@workspace/platform/permission-resource-policy";
 import { isRegisteredSpaceResourceKey } from "@workspace/platform/space-registry";
+import { prisma, type Prisma } from "@workspace/platform/server/prisma";
+import { isRootAdminUser } from "../auth/root";
 import { canManageResourceGrant } from "./admin-scope";
-import { evaluatePermissionAction, setSubjectPermissionActionGrant, type SubjectType } from "./action-grants";
+import {
+  evaluatePermissionAction,
+  PermissionGrantMutationError,
+  setSubjectPermissionActionGrant,
+  type SubjectType,
+} from "./action-grants";
 import { canMutatePermissionGrantAction } from "./action-grant-policy";
 import type { PermissionResourceProjectionKind } from "./resource-projection";
 
@@ -25,7 +32,23 @@ export type PermissionGrantRequestResult =
   | { ok: true }
   | { ok: false; error: string; status?: number };
 
-export async function setPermissionGrantFromRequest(input: PermissionGrantRequest): Promise<PermissionGrantRequestResult> {
+export type AuthorizedPermissionGrantRequest = Omit<PermissionGrantRequest, "actionKey"> & {
+  actionKey: PermissionActionKey;
+};
+
+export type PermissionGrantAuthorizationResult =
+  | { ok: true; request: AuthorizedPermissionGrantRequest }
+  | { ok: false; error: string; status?: number };
+
+export interface PermissionGrantAuthorizationOptions {
+  client?: Prisma.TransactionClient | typeof prisma;
+}
+
+export async function authorizePermissionGrantRequest(
+  input: PermissionGrantRequest,
+  options: PermissionGrantAuthorizationOptions = {},
+): Promise<PermissionGrantAuthorizationResult> {
+  const client = options.client ?? prisma;
   const actionKey = isPermissionActionKey(input.actionKey) ? input.actionKey : null;
   if (!actionKey) return { ok: false, error: "参数错误: actionKey 不支持", status: 400 };
   if (!isResourceEnabled(input.resourceKey)) return { ok: false, error: "模块未启用，不能配置该资源权限", status: 403 };
@@ -45,18 +68,45 @@ export async function setPermissionGrantFromRequest(input: PermissionGrantReques
     };
   }
   const scopedGrantManager = input.scopeId !== undefined && input.scopeId !== null
-    ? await evaluatePermissionAction(input.actorUserId, input.resourceKey, "grant", { scopeId: input.scopeId, projection: input.projection })
+    ? await evaluatePermissionAction(input.actorUserId, input.resourceKey, "grant", { scopeId: input.scopeId, projection: input.projection, client })
     : false;
-  if (!input.preauthorizedActor && !scopedGrantManager && !await canManageResourceGrant(input.actorUserId, input.resourceKey, actionKey)) {
+  if (!input.preauthorizedActor && !scopedGrantManager && !await canManageResourceGrant(input.actorUserId, input.resourceKey, actionKey, client)) {
     return { ok: false, error: "无权限管理该资源权限", status: 403 };
   }
-  await setSubjectPermissionActionGrant(
-    input.subjectType,
-    input.subjectId,
-    input.resourceKey,
-    actionKey,
-    input.value,
-    { actorUserId: input.actorUserId, scopeId: input.scopeId ?? null },
-  );
+  return { ok: true, request: { ...input, actionKey } };
+}
+
+export async function setPermissionGrantFromRequest(input: PermissionGrantRequest): Promise<PermissionGrantRequestResult> {
+  const authorization = await authorizePermissionGrantRequest(input);
+  if (!authorization.ok) return authorization;
+  const authorized = authorization.request;
+  try {
+    await setSubjectPermissionActionGrant(
+      authorized.subjectType,
+      authorized.subjectId,
+      authorized.resourceKey,
+      authorized.actionKey,
+      authorized.value,
+      {
+        actorUserId: authorized.actorUserId,
+        scopeId: authorized.scopeId ?? null,
+        authorizationResourceKeys: [authorized.resourceKey],
+        beforeMutation: async (tx) => {
+          const refreshed = await authorizePermissionGrantRequest({
+            ...input,
+            isSystemAdmin: await isRootAdminUser(input.actorUserId, tx),
+          }, { client: tx });
+          if (!refreshed.ok) {
+            throw new PermissionGrantMutationError(refreshed.error, refreshed.status ?? 403);
+          }
+        },
+      },
+    );
+  } catch (error) {
+    if (error instanceof PermissionGrantMutationError) {
+      return { ok: false, error: error.message, status: error.status };
+    }
+    throw error;
+  }
   return { ok: true };
 }

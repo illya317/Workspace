@@ -217,6 +217,11 @@ export function profileFieldSpec(
         onChange: (next) => onChange(field.key, next === null || next === undefined || next === "" ? null : String(next)),
       };
     }
+    const currentValue = normalizeInputValue(record[field.key]);
+    const options = field.key === "ethnicity" ? HR_ETHNICITIES : field.options || [];
+    const visibleOptions = currentValue && !options.includes(currentValue)
+      ? [currentValue, ...options]
+      : options;
     return {
       ...base,
       spec: {
@@ -225,12 +230,12 @@ export function profileFieldSpec(
         state: fieldDisabled ? "disabled" : "normal",
         options: {
           source: "static",
-          items: (field.key === "ethnicity" ? HR_ETHNICITIES : field.options || []).map((option) => ({ label: option, value: option })),
+          items: visibleOptions.map((option) => ({ label: option, value: option })),
           commonValues: field.key === "ethnicity" ? HR_COMMON_ETHNICITIES : undefined,
           searchPlaceholder: field.key === "ethnicity" ? "搜索民族" : undefined,
         },
       },
-      value: normalizeInputValue(record[field.key]),
+      value: currentValue,
       placeholder: "未设置",
       onChange: (next) => onChange(field.key, next),
     };

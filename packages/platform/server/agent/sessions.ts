@@ -22,6 +22,7 @@ export type AgentStoredAttachment = {
 
 export type AgentSessionContextInput = {
   sessionId?: string | null;
+  agentProfileId?: number | null;
   contextLabel?: string | null;
   path?: string | null;
   title?: string | null;
@@ -54,6 +55,7 @@ export type AgentStoredMessage = {
 export type AgentSessionRow = {
   id: string;
   userId: number;
+  agentProfileId: number | null;
   status: string;
   pagePath: string | null;
   contextLabel: string | null;
@@ -172,6 +174,7 @@ async function getSessionById(sessionId: string, user: SessionUser) {
     where: { id: sessionId, userId: user.id, deletedAt: null },
     select: {
       id: true, userId: true, status: true, pagePath: true, contextLabel: true,
+      agentProfileId: true,
       title: true, storageKey: true, summaryShort: true, summaryLongStorageKey: true,
       messageCount: true, compactedMessageCount: true, byteSize: true,
     },
@@ -192,6 +195,7 @@ async function createSession(user: SessionUser, input: AgentSessionContextInput)
     data: {
       id: sessionId,
       userId: user.id,
+      agentProfileId: input.agentProfileId ?? null,
       pagePath,
       contextLabel,
       title,
@@ -226,6 +230,10 @@ async function updateSessionContext(session: AgentSessionRow, input: AgentSessio
 
 export async function prepareAgentSession(user: SessionUser, input: AgentSessionContextInput): Promise<PreparedAgentSession> {
   const existing = input.sessionId ? await getSessionById(input.sessionId, user) : null;
+  const requestedProfileId = input.agentProfileId ?? null;
+  if (existing && existing.agentProfileId !== requestedProfileId) {
+    throw new Error("Agent 会话已绑定其他执行身份，请新建会话");
+  }
   const session = existing
     ? await updateSessionContext(existing, input, user)
     : await createSession(user, input);

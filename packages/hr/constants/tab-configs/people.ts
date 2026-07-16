@@ -8,7 +8,7 @@ import {
   HR_LEGAL_RELATIONS,
   HR_LEAVE_REASONS,
   HR_OFFICE_LOCATIONS,
-  HR_PERSONNEL_TYPES,
+  HR_EDITABLE_PERSONNEL_TYPES,
   HR_POLITICS,
   HR_RANKS,
 } from "@workspace/hr/constants/field-options";
@@ -20,7 +20,7 @@ const insuranceStatusOptions = HR_INSURANCE_STATUSES.map((value) => ({ label: va
 const legalRelationOptions = HR_LEGAL_RELATIONS.map((value) => ({ label: value, value }));
 const contractTypeOptions = HR_CONTRACT_TYPES.map((value) => ({ label: value, value }));
 const employmentFormOptions = HR_EMPLOYMENT_FORMS.map((value) => ({ label: value, value }));
-const personnelTypeOptions = HR_PERSONNEL_TYPES.map((value) => ({ label: value, value }));
+const personnelTypeOptions = HR_EDITABLE_PERSONNEL_TYPES.map((value) => ({ label: value, value }));
 const rankOptions = HR_RANKS.map((value) => ({ label: value, value }));
 const edpTitleOptions = HR_EMPLOYMENT_TITLES.map((value) => ({ label: value, value }));
 const ethnicityOptions = HR_ETHNICITIES.map((value) => ({ label: value, value }));

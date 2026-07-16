@@ -12,9 +12,7 @@ import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
 import {
   buildEmployeeCreateCommand,
-  buildEmployeeFieldUpdateCommand,
   buildEmployeePageDraftCommand,
-  EMPLOYEE_ALLOWED_FIELDS,
   validateEmployeeDeleteCommand,
 } from "./domain/employee-validation";
 import { primaryContractCompany } from "./employments";
@@ -131,6 +129,27 @@ function formatAlias(value: string | null) {
 async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
   const command = await validateEmployeeDeleteCommand(id);
   if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  const employee = await context.tx.employee.findUnique({
+    where: { id: command.data.id },
+    select: { employeeId: true, userId: true },
+  });
+  const agentProfile = !employee
+    ? null
+    : await context.tx.agentProfile.findFirst({
+      where: {
+        OR: [
+          ...(employee.userId == null ? [] : [{ actorUserId: employee.userId }]),
+          { actorUser: { employeeId: employee.employeeId } },
+        ],
+      },
+      select: { key: true },
+    });
+  if (agentProfile) {
+    return {
+      error: `Agent 虚拟员工 ${agentProfile.key} 不能通过普通 HR 删除，请使用 Agent 生命周期管理`,
+      status: 409,
+    };
+  }
   const [salaryCount, shipmentCount, workshopCount, projectMemberCount] = await Promise.all([
     context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
     context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
@@ -168,12 +187,24 @@ function activeFilterValue(value: string | null | undefined) {
 
 function buildFastDirectoryWhere(input: {
   isActive: boolean | null;
+  personnelType?: string;
   filterField?: string;
   filterValue?: string;
 }): Prisma.EmployeeWhereInput {
   const where: Prisma.EmployeeWhereInput = {};
-  if (input.isActive === true) where.employments = { some: { isActive: true } };
-  if (input.isActive === false) where.employments = { none: { isActive: true } };
+  if (input.personnelType) {
+    where.employments = {
+      some: {
+        personnelType: input.personnelType,
+        ...(input.isActive === true ? { isActive: true } : {}),
+      },
+      ...(input.isActive === false ? { none: { isActive: true } } : {}),
+    };
+  } else if (input.isActive === true) {
+    where.employments = { some: { isActive: true } };
+  } else if (input.isActive === false) {
+    where.employments = { none: { isActive: true } };
+  }
   if (input.filterField === "gender" && input.filterValue) {
     if (input.filterValue === "男") where.gender = true;
     if (input.filterValue === "女") where.gender = false;
@@ -206,12 +237,15 @@ async function attachEmployeeUserNames<T extends { userId?: number | null }>(emp
   if (userIds.length === 0) return;
   const users = await prisma.user.findMany({
     where: { id: { in: userIds } },
-    select: { id: true, employees: { select: { name: true }, take: 1 } },
+    select: { id: true, username: true, canLogin: true, employees: { select: { name: true }, take: 1 } },
   });
   const nameByUserId = new Map(users.map((user) => [user.id, user.employees[0]?.name || "未绑定员工"]));
+  const accountByUserId = new Map(users.map((user) => [user.id, user]));
   for (const employee of employees) {
     if (!employee.userId) continue;
     (employee as Record<string, unknown>).userIdName = nameByUserId.get(employee.userId) ?? String(employee.userId);
+    (employee as Record<string, unknown>).username = accountByUserId.get(employee.userId)?.username ?? null;
+    (employee as Record<string, unknown>).accountCanLogin = accountByUserId.get(employee.userId)?.canLogin ?? false;
   }
 }
 
@@ -221,6 +255,7 @@ export async function listEmployees(input: {
   company?: string;
   department?: string;
   position?: string;
+  personnelType?: string;
   keyword: string;
   filterField?: string;
   filterValue?: string;
@@ -240,6 +275,7 @@ export async function listEmployees(input: {
   if (canUseFastDirectoryQuery) {
     const where = buildFastDirectoryWhere({
       isActive,
+      personnelType: input.personnelType,
       filterField: input.filterField,
       filterValue: input.filterValue,
     });
@@ -249,7 +285,7 @@ export async function listEmployees(input: {
         where,
         include: {
           employments: {
-            select: { isActive: true, currentCompany: true, contracts: true },
+            select: { isActive: true, currentCompany: true, contracts: true, personnelType: true },
             orderBy: [{ isActive: "desc" }, { id: "desc" }],
           },
           positions: {
@@ -274,7 +310,7 @@ export async function listEmployees(input: {
   let employees = await prisma.employee.findMany({
     include: {
       employments: {
-        select: { isActive: true, currentCompany: true, contracts: true },
+        select: { isActive: true, currentCompany: true, contracts: true, personnelType: true },
         orderBy: [{ isActive: "desc" }, { id: "desc" }],
       },
       positions: {
@@ -293,6 +329,13 @@ export async function listEmployees(input: {
       return isActive ? hasActiveEmployment : !hasActiveEmployment;
     });
     logEmployeeListDiagnostics(diagnostics, "slow:filter-active", { rows: employees.length });
+  }
+  if (input.personnelType) {
+    employees = employees.filter((employee) => employee.employments.some((employment) => (
+      employment.personnelType === input.personnelType
+      && (isActive === null || employment.isActive === isActive)
+    )));
+    logEmployeeListDiagnostics(diagnostics, "slow:filter-personnel-type", { rows: employees.length });
   }
   if (input.company) {
     employees = employees.filter((employee) =>
@@ -415,51 +458,6 @@ export async function updateEmployeePageDraft(input: {
     }
   });
   return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
-}
-
-export async function updateEmployeeFieldsByEmployeeIds(input: {
-  employeeIds: string[];
-  field: string;
-  value: unknown;
-  userId: number;
-}) {
-  if (!(await checkHRUpdate(input.userId, "hr.roster"))) return serviceError("无 HR 编辑权限", 403);
-  const direct = await assertBusinessActionDirectExecutionAllowed({
-    businessActionKey: "hr.roster.employee.update",
-    actorUserId: input.userId,
-    resourceKey: "hr.roster",
-    scopeType: "global",
-    scopeId: null,
-    blockedMessage: "员工更新已配置为必须走流程，智能体不能直接写入",
-  });
-  if (!direct.ok) return direct;
-  if (!EMPLOYEE_ALLOWED_FIELDS.includes(input.field)) return serviceError("字段不允许修改", 400);
-  const command = buildEmployeeFieldUpdateCommand(input.field, input.value);
-  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
-  const employeeIds = Array.from(new Set(input.employeeIds.map((id) => id.trim()).filter(Boolean)));
-  if (employeeIds.length === 0) return serviceError("缺少员工编号", 400);
-  if (employeeIds.length > 500) return serviceError("批量更新上限 500", 400);
-  const rows = await prisma.employee.findMany({
-    where: { employeeId: { in: employeeIds } },
-    select: { id: true, employeeId: true },
-  });
-  if (rows.length !== employeeIds.length) return serviceError("部分员工不存在，请刷新后重试", 404);
-  await prisma.$transaction(async (tx) => {
-    for (const row of rows) {
-      await ensureEditHistoryBaseline("Employee", row.id, input.userId, tx);
-      await tx.employee.update({
-        where: { id: row.id },
-        data: {
-          [command.data.field]: command.data.value ?? null,
-          editedBy: input.userId,
-          editedAt: new Date(),
-          version: { increment: 1 },
-        },
-      });
-      await snapshotHistory("Employee", row.id, input.userId, tx);
-    }
-  });
-  return serviceOk({ updatedCount: rows.length });
 }
 
 export async function deleteEmployee(command: CrudDeleteCommand) {

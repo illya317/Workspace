@@ -27,6 +27,7 @@ export type PermissionResourceNode = {
   enabled?: boolean;
   hidden?: boolean;
   disabledReason?: string | null;
+  grantManageable?: boolean;
   children?: PermissionResourceNode[];
 };
 
@@ -39,10 +40,11 @@ function toPermissionNode(
   countMap: Map<number, number>,
   visibleKeys: Set<string>,
   renderableKeys: Set<string>,
+  manageableKeys: Set<string>,
   resourceMetaMap: Map<string, { enabled?: boolean; hidden?: boolean; disabledReason?: string | null }>,
 ): PermissionResourceNode {
   const children = (resource.children || [])
-    .map((child) => toPermissionNode(child, countMap, visibleKeys, renderableKeys, resourceMetaMap))
+    .map((child) => toPermissionNode(child, countMap, visibleKeys, renderableKeys, manageableKeys, resourceMetaMap))
     .filter((child) => visibleKeys.has(child.key) && renderableKeys.has(child.key));
   const meta = resourceMetaMap.get(resource.key);
 
@@ -59,6 +61,7 @@ function toPermissionNode(
     enabled: meta?.enabled,
     hidden: meta?.hidden,
     disabledReason: meta?.disabledReason,
+    grantManageable: manageableKeys.has(resource.key),
     children,
   };
 }
@@ -124,19 +127,24 @@ export async function listPermissionResources(input: {
   );
   const visibleKeys = new Set(allowedKeys);
   for (const key of allowedKeys) {
+    const ownerKey = getCapabilityOwnerKey(key);
+    if (ownerKey) visibleKeys.add(ownerKey);
     for (let current = keyToParent.get(key); current; current = keyToParent.get(current)) {
+      visibleKeys.add(current);
+    }
+    for (let current = ownerKey ? keyToParent.get(ownerKey) : undefined; current; current = keyToParent.get(current)) {
       visibleKeys.add(current);
     }
   }
 
   const resources = treeResources
     .filter((resource) => resource.parentId === null && visibleKeys.has(resource.key) && renderableKeys.has(resource.key))
-    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, renderableKeys, resourceMetaMap));
+    .map((resource) => toPermissionNode(resource, countMap, visibleKeys, renderableKeys, allowedKeys, resourceMetaMap));
 
   const fullTreeVisibleKeys = new Set(renderableKeys);
   const resourceTree = treeResources
     .filter((resource) => resource.parentId === null && renderableKeys.has(resource.key))
-    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, renderableKeys, resourceMetaMap));
+    .map((resource) => toPermissionNode(resource, countMap, fullTreeVisibleKeys, renderableKeys, allowedKeys, resourceMetaMap));
 
   const resourceByKey = new Map(activeResources.map((resource) => [resource.key, resource]));
   const capabilityResourceIds = new Set(
@@ -148,9 +156,9 @@ export async function listPermissionResources(input: {
     && (!resource.parentId || !capabilityResourceIds.has(resource.parentId))
   ))) {
     const ownerKey = getCapabilityOwnerKey(capability.key);
-    if (!ownerKey || !allowedKeys.has(ownerKey)) continue;
+    if (!ownerKey || (!allowedKeys.has(ownerKey) && !allowedKeys.has(capability.key))) continue;
     if (!capabilitiesByOwner[ownerKey]) capabilitiesByOwner[ownerKey] = [];
-    const node = toPermissionNode(capability, countMap, capabilityKeys, capabilityKeys, resourceMetaMap);
+    const node = toPermissionNode(capability, countMap, capabilityKeys, capabilityKeys, allowedKeys, resourceMetaMap);
     capabilitiesByOwner[ownerKey].push({
       ...node,
       ownerKey,

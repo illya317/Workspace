@@ -1,6 +1,7 @@
 import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
@@ -25,9 +26,26 @@ const EDP_CONFIG = {
   onBeforeDelete: normalizeEdpDelete,
 };
 
-async function normalizeEdpDelete(id: number) {
+async function normalizeEdpDelete(id: number, context: DeleteGuardContext) {
   const command = await validateEdpDeleteCommand(id);
-  return command.ok ? { ok: true as const } : { error: command.issue.message, status: command.issue.status };
+  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
+  const row = await context.tx.eDP.findUnique({
+    where: { id: command.data.id },
+    select: {
+      employee: {
+        select: {
+          user: { select: { agentProfile: { select: { key: true } } } },
+        },
+      },
+    },
+  });
+  if (row?.employee?.user?.agentProfile) {
+    return {
+      error: `Agent 虚拟员工 ${row.employee.user.agentProfile.key} 的岗位记录不能直接删除，请通过结束日期维护生命周期`,
+      status: 409,
+    };
+  }
+  return { ok: true as const };
 }
 
 function activeFilterValue(value: string | null | undefined) {
