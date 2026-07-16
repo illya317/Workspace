@@ -90,7 +90,7 @@ fi
 
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 if [ "$current_branch" != "$RELEASE_BRANCH" ]; then
-  echo "[错误] 当前分支是 $current_branch，请切换到 $RELEASE_BRANCH 后再发布"
+  echo "[错误] 当前分支是 ${current_branch}，请切换到 $RELEASE_BRANCH 后再发布"
   exit 1
 fi
 
