@@ -2,6 +2,7 @@
 
 const { spawnSync } = require("node:child_process");
 const path = require("node:path");
+const { changedFileSets } = require("./changed-files");
 
 const repoRoot = path.resolve(__dirname, "../..");
 const MIGRATION_RELEVANT_PATTERNS = [
@@ -13,35 +14,15 @@ const MIGRATION_RELEVANT_PATTERNS = [
   /^scripts\/check\/check-prisma-migrations\.js$/i,
 ];
 
-function runGit(args) {
-  const result = spawnSync("git", args, { cwd: repoRoot, encoding: "utf8" });
-  if (result.status !== 0) return [];
-  return result.stdout
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-function unique(values) {
-  return Array.from(new Set(values));
-}
-
 function isMigrationRelevant(file) {
   return MIGRATION_RELEVANT_PATTERNS.some((pattern) => pattern.test(file));
 }
 
-const staged = runGit(["diff", "--name-only", "--diff-filter=ACMR", "--cached"]);
-const hasStagedChanges = staged.length > 0;
-const candidates = hasStagedChanges
-  ? staged
-  : unique([
-      ...runGit(["diff", "--name-only", "--diff-filter=ACMR", "HEAD", "--"]),
-      ...runGit(["ls-files", "--others", "--exclude-standard"]),
-    ]);
+const { files: candidates, source } = changedFileSets({ cwd: repoRoot });
 const relevantFiles = candidates.filter(isMigrationRelevant);
 
 if (relevantFiles.length === 0) {
-  process.stdout.write("No changed Prisma migration inputs; skipping.\n");
+  process.stdout.write(`No changed Prisma migration inputs (${source}); skipping.\n`);
   process.exit(0);
 }
 

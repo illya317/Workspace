@@ -1,6 +1,6 @@
 # Checks
 
-本项目把检查分成几类。命令可以在 CI 中串起来，但每类检查只负责自己的边界，避免把细碎治理塞进主 gate。
+本项目把检查分成静态 lint、类型、架构/契约 gate、行为测试、真实依赖集成测试和浏览器 E2E。命令可以在 CI 中串起来，但每类检查只负责自己的边界，失败时应能直接判断是代码质量、结构契约还是运行行为出了问题。
 
 本地多 agent 并行时，lint/typecheck/gate 类检查以“同一台机器、同一代码快照、同一命令成功一次”为准。每个 agent 都可以收口自己的任务，但检查结果是工作区级别共享的：谁先跑通都算，后续同快照同命令直接复用。`scripts/check/with-check-lock.js` 会串行化本地检查，并对已通过的 lint/typecheck/gate 命令按快照复用结果。
 
@@ -8,9 +8,10 @@
 
 | 场景 | 命令 | 说明 |
 |---|---|---|
-| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 changed lint 和 quick typecheck；日常开发不检查净增行。 |
+| 局部 TS/TSX 改动 | `npm run check:changed` | 跑 Playwright 生命周期、changed ESLint、静态 contract、domain/migration changed 和 quick typecheck；日常开发不检查净增行。 |
 | 本地提交默认检查 | `npm run check:precommit` | pre-commit 默认入口；只跑 staged/changed 增量并复用 ESLint/TypeScript 缓存。全量本地提交用 `PRE_COMMIT_FULL=1 git commit ...`。 |
-| 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint 和 quick typecheck。 |
+| 本地推送自适应检查 | `npm run check:push` | 按 `origin/main..HEAD` 的完整 diff 分类：C0 只跑文档检查，代码改动跑 blockers、changed 和 Node；显式全量用 `npm run check:push:full`。 |
+| 清债/重构改动 | `npm run check:refactor` | 跑拆分质量、changed lint、静态 contract 和 quick typecheck。 |
 | 仅检查本次总行数预算 | `npm run complexity:line-budget` | 检查 staged diff；没有 staged diff 时检查 tracked changed + untracked。默认净增必须 `<= 0`。 |
 | 仅检查拆分质量 | `npm run complexity:split-quality` | 防止为过 `max-lines` 把大文件随便搬家。 |
 | 当前变更阻断项 | `npm run check:blockers` | 跑业务阻断和 UI 阻断；这些问题由当前改动 agent 自己修。 |
@@ -18,19 +19,30 @@
 | UI 阻断 | `npm run gate:ui` | Core UI 唯一入口、PageSurface 协议、Toolbar/Input/Selector 等结构性 UI 边界。 |
 | 架构兼容入口 | `npm run check:arch` | 等价于 `npm run check:blockers`。`npm run arch:gate` 保留为兼容总入口。 |
 | Prisma schema、model、migration | `npm run check:data` | 跑 schema 合法性、schema governance 和 migration diff。 |
-| PR / CI 权威检查 | `npm run check:ci` | 合并前主链路；hygiene 只以 warning 方式提示。 |
+| 所有 Node 行为/工具测试 | `npm test` / `npm run test:node` | 自动发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS `.test.*`，是 PR / CI 的标准 Node 测试入口。 |
+| 产品行为测试 | `npm run test:behavior` | 执行 `packages/`、`app/` 和 `scripts/runtime/` 下的行为测试；不包含扫描器自测。 |
+| 工程工具自测 | `npm run test:tooling` | 执行 `scripts/` 与 `ops/` 下的 checker/scanner、CI/CD contract fixture 与测试基础设施安全测试。 |
+| Action contract 行为 | `npm run test:contract` | 执行 ActionContract、BusinessAction command 与 route binding 的运行时行为测试。 |
+| Work 计划治理行为 | `npm run test:domain:work-plan-governance` | 执行 reopen、scope、report action/snapshot、在途引用和完成联动等领域行为测试。 |
+| 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
+| PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint/notification capacity smoke。 |
+| 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
+| 本地全量诊断 | `npm run check:ci` | 串行执行静态门禁、全部 Node 测试、full type 和 production build；用于明确要求全量或诊断，不是远端每个 PR 都必须串行执行的唯一入口。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
 | Core UI surface 边界 | `npm run arch:surface-boundaries` | 检查声明入口 declares 边界，以及业务侧 deprecated escape hatch 使用。 |
 | Core UI 新建入口 | `npm run arch:create-surface-entry` | 禁止业务侧自行声明新建 `+`、旧 Toolbar create 或直接 import 旧 renderer；折叠、树展开和数值增减不在扫描范围。 |
+| 全项目保存/提交运行时 | `npm run arch:action-runtime-ui` | 禁止业务 UI 用权限布尔值手拼保存/提交、同时暴露两个持久化出口，或在 CreateSurface 硬编码提交；必须由 ActionRuntime 映射最终动作。 |
 | Core UI PageSurface 迁移债 | `npm run arch:surface-page-adoption` | 检查业务侧是否还在用 PageSurface 顶层兼容 props；由 `check:hygiene:warn` 提示，清零后再收紧。 |
 | Core UI 可视化迁移债 | `npm run arch:surface-visualization-adoption` | 检查复杂可视化是否还把 React 组件塞进 VisualizationSurface；由 `check:hygiene:warn` 提示。 |
 | Playwright 生命周期 | `npm run playwright:lifecycle:check` | 阻断仓库内直接启动 Playwright Browser；手动 Browser 只能经过统一生命周期 helper。 |
 | Playwright 残留进程 | `npm run playwright:processes:check` | 检查本机是否残留 `playwright_*dev_profile` headless 进程；用于 agent/test 收尾。 |
 | Action registry | `npm run action-registry:check` | 检查新动作注册表：重复 key、permission icon 唯一、implies 指向存在，旧权限 bundle 不再注册。 |
 | Business action registry | `npm run business-action-registry:check` | 强制业务写 API 登记为 BusinessAction，并阻断 workflow readiness 证据缺口、未知 readiness key 和未登记 write API candidate。只读 POST 等例外必须逐 route 声明理由。 |
-| Action contract 覆盖 | `npm run action-contract:check` | 强制每个 BusinessAction 具备唯一 `ActionContract`，校验 domain 符号可导出、API 引用存在真实 handler，并双向约束 BusinessAction route 与 Contract command/direct route。Contract 按 `write/lifecycle/governance/workflow/exchange` 声明；mutation/import 必须有 persistence，纯 export 明确声明输出且不得伪造 persistence。 |
+| Action contract 覆盖 | `npm run action-contract:check` | 强制每个 BusinessAction 具备唯一 `ActionContract`，校验 domain 符号可导出、API 引用存在真实 handler，并双向约束 BusinessAction route 与 Contract command/direct route；允许 direct override 的流程必须同时声明 active persistence 与 direct form mode。Contract 按 `write/lifecycle/governance/workflow/exchange` 声明；mutation/import 必须有 persistence，纯 export 明确声明输出且不得伪造 persistence。 |
+| 跨仓库 API/history contract | `npm run check:contracts` | 检查 API 响应格式与 history policy registry；这是静态契约 gate，不属于 ESLint，也不执行产品行为。 |
+| OKR 计划治理 | `npm run work-plan-governance:check` | 只做静态治理：强制 WorkPlan 创建时绑定流程/日期版本，审批单记录来源版本，OKR 设置只能增量写策略且不能批量清空。对应行为由 `test:domain:work-plan-governance` 执行。 |
 | Action contract 文档 | `npm run docs:action-contracts` / `npm run docs:action-contracts:check` | 从 canonical registry 生成或校验 `docs/generated/action-contracts.md`；`docs:check` 会阻断漂移。 |
 
 ## 边界
@@ -39,7 +51,7 @@
 
 `lint` 负责代码质量和局部静态规则，例如 ESLint warnings=0、基础 restricted imports、行数、明显不安全语法。它不承载架构模型，也不承载公司名、baseline 巡检这类细碎治理。
 
-`lint:changed` 只跑 changed ESLint，不检查净增行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
+`lint:changed` 只跑 changed ESLint，不再隐式执行 API response format 或 history policy。后两者属于跨仓库静态契约，由 `check:contracts` 显式执行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
 
 并行开发时不要让每个 agent 都实际跑一遍 `lint:changed`。同一快照已有通过记录时，锁脚本会直接复用；需要重新跑的信号是代码快照、命令参数或相关环境变量发生变化。
 
@@ -49,9 +61,9 @@
 
 ### typecheck
 
-`typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。`typecheck:full` 固定使用 `4096 MiB` Node old-space，避免大型类型图在 Node 默认约 `2 GiB` 堆上限下 OOM；`check:ci`、pre-push 和 GitHub Actions 都通过该入口自动继承。
+`typecheck` 负责 TypeScript 类型正确性。它回答代码在类型系统里是否成立，不回答权限语义、业务规则或生产构建是否完整。`typecheck:full` 固定使用 `4096 MiB` Node old-space，避免大型类型图在 Node 默认约 `2 GiB` 堆上限下 OOM；本地 `check:ci` 和远端 C2/C3 type job 都通过该入口自动继承，C1 使用 incremental quick type。
 
-`typecheck:quick` 使用 TypeScript incremental cache，缓存文件固定在 `.cache/tsconfig.quick.tsbuildinfo`，用于本地 changed/pre-commit 链路复用；不要为了触发“干净检查”删除 `.cache`，需要全量时跑 `typecheck:full` 或 `check:ci`。`typecheck:quick` 和 `typecheck:full` 的脚本都固定使用 `4096 MiB` Node old-space，调用方不需要再手工设置 `NODE_OPTIONS`。
+`typecheck:quick` 使用 TypeScript incremental cache，缓存文件固定在 `.cache/tsconfig.quick.tsbuildinfo`，用于本地 changed/pre-commit 和远端 C1 链路复用；不要为了触发“干净检查”删除 `.cache`，需要全量时跑 `typecheck:full` 或 `check:ci`。`typecheck:quick` 和 `typecheck:full` 的脚本都固定使用 `4096 MiB` Node old-space，调用方不需要再手工设置 `NODE_OPTIONS`。
 
 ### blockers
 
@@ -62,6 +74,7 @@
 `gate:domain` 负责业务和系统正确性：
 
 - API / route / resource / RBAC / API contract 的对应关系。
+- API response format 与 history policy registry 等跨仓库静态 contract。
 - 新 action registry 的唯一性和包含关系：permission action 的 icon 不能重复，旧权限 bundle 不再注册。
 - ActionContract 的 key 唯一性和 business action 对齐；历史 action 缺少完整 contract 暂时 warning-only，用于逐步迁移 payload/persistence/form/domain/api/workflow/display 覆盖。普通写入、生命周期、治理和 workflow mutation 必须声明 persistence；exchange import 声明批量/原子性与 persistence，exchange export 声明输出媒介/类型且不得伪造 active entity。`workflow.kind=not_applicable` 明确动作不可接流程，只需说明原因；`configurable/native` 才声明默认节点、路由、修改策略和允许管理员配置的能力。
 - 所有 `app/api/**/route.ts` 导出的 HTTP method 必须命中注册契约；内部 API 进 module registry 派生 contract，开放 API 进 Open API registry。
@@ -84,6 +97,7 @@
 - 业务不得直接 value import 非公共 runtime 入口的 Core UI renderer，也不得 import 禁止的 Core UI type。
 - PageSurface 协议、页面壳、toolbar/input/selector/tabbar 的结构边界。
 - 页面级 toolbar 与数据块 toolbar 重复、Surface 自带 page chrome、业务直引 Common renderer。
+- 全项目写入入口只负责打开本地表单；CreateSurface 与编辑表单的 `保存/提交` 必须分别通过 `actionRuntimeCreateSubmission` / `actionRuntimeCommands` 映射，不得由页面权限条件猜测，也不得同时暴露两个持久化出口。审批处理、发布、结案等显式业务状态流转不属于同一表单的保存/提交替换关系。
 - 业务 UI 候选组件没有复用 Core/Platform 基建、Core UI ownership/coupling 违规。
 - UI helper 纯度是零 baseline Gate：纯数据 helper 不得拥有可见 UI、页面 chrome、构造期流程副作用或权限显示决策；显式结构声明可以拥有完整结构内的语义文案、状态和动作，但禁止单字段/单 cell 叶子声明。
 - Surface raw/custom content 是零 baseline Gate：未审核的 `content JSX`、JSX `cell`、`expandedRowContent`、`renderItem/renderOption` 直接失败。`@ui-specialized-surface` 只能出现在脚本精确登记的完整深模块，目前为 Platform 文档工作区、阶段流程板、Page Assistant composer/message stream、Workflow BPMN canvas/element editor 和 Production QC runtime paper；QC 纸面字段必须走 Core `PaperInputSurface`，页面、字段、cell、label/icon 级例外禁止登记。
@@ -102,19 +116,33 @@
 
 ### build
 
-`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `4096 MiB` Node old-space，避免大型 route/type graph 在默认约 `2 GiB` 堆上限下反复 OOM。
+`build` 负责生产构建。单独执行 `npm run build` 时会先生成 Prisma Client，再执行 `next build`。CI 中会在 typecheck 前显式运行 `db:generate`，最后用 `build:next` 只执行 Next 生产构建，避免重复 generate。两个入口都固定给 Next 构建进程 `6144 MiB` Node old-space，覆盖 Turbopack 编译后仍需运行的完整 route/type graph 检查，避免在 `Running TypeScript` 阶段触顶旧的 `4096 MiB` 上限。
 
-### capacity
+### tests
 
-`test:capacity:workflow` 是 PR CI 主链路中的确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，且成员判定路径不得枚举全部可登录用户。
+测试回答“给定输入实际会发生什么”，不替代全库静态 gate：
 
-`test:capacity:hr` 是 HR 默认 Tab 读取的结构容量门禁：花名册、雇佣关系、员工岗位和合同默认读取必须在数据库内完成计数和分页，不允许先全量加载员工及关系后再在 Node 内存分页；同时锁定尽调版默认列契约。它进入 `check:ci`，因此 full pre-commit、pre-push、发布和 GitHub Actions 都会阻断回归。
+- `test:node` 是统一聚合入口，递归发现 `packages/`、`scripts/`、`app/`、`ops/` 下的 JS/TS Node test；新增 Node 测试不需要再手工追加到 `check:ci`。
+- `test:behavior` 聚合产品/领域/runtime 行为，`test:tooling` 聚合 `scripts/` checker/scanner、`ops/` CI/CD contract 与测试基础设施自测。gate 扫描整个仓库回答“是否存在结构违规”，tooling test 用正反 fixture 回答“scanner 会不会正确识别违规”，并锁定 E2E 数据库 guard、发布证据和部署顺序等安全契约。
+- `test:contract` 和 `test:domain:work-plan-governance` 是聚焦入口，便于局部开发；其中的测试同时已被 `test:node` 覆盖，不在 `check:ci` 重复串行执行。
+- PostgreSQL integration 使用一次性 `*_ci` / `*_test` / `*_e2e` 库，验证 migration、Prisma、真实约束、事务和写后读；不得指向开发或生产库。
+- 所有 `test:e2e*` 入口都会先 seed 身份，Playwright config 也会独立校验 `DATABASE_URL` 以及已设置的 `DIRECT_URL`：两者必须指向同名的 `*_ci` / `*_test` / `*_e2e` 库，所以直接绕过 package script 也不能连接开发/生产库。当前只有账户设置 spec 通过真实页面事件覆盖保存、服务端回读、刷新持久化和原值恢复，并以独立 `10 s` 暖重载上限拦截灾难性回归；其他已注册模块浏览器证据仍是只读或 readiness。Playwright 禁止复用已有 server；CI 中只启动已由 build job 产出并校验 manifest/digest 的 standalone，不在 E2E job 重建。
+
+GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 canonical build；E2E 是独立 job，只下载并启动同一个 standalone 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
+
+### scalability contract 与真实容量
+
+`test:scalability-contract` 中的 workflow case 是确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，且成员判定路径不得枚举全部可登录用户。
+
+同一入口中的 HR case 是默认 Tab 读取的结构容量门禁：花名册、雇佣关系、员工岗位和合同默认读取必须在数据库内完成计数和分页，不允许先全量加载员工及关系后再在 Node 内存分页；同时锁定尽调版默认列契约。
+
+以上测试使用 mock/fixture 验证查询形状和复杂度上界，只能证明“没有明显的全量读取或调用次数爆炸”，不能证明页面 P95/P99 延迟。E2E 暖刷新上限也只拦截灾难性回归；真实“加载慢”仍应由稳定测试数据上的 integration benchmark、候选环境浏览器计时或生产 synthetic/APM 监控负责，避免拿开发机冷启动时间做易抖动的精细 PR gate。
 
 `db:postgresql:notification-capacity` 是 PostgreSQL CI 容量门禁：只允许在 `*_ci` 数据库中运行，用 `173` 个可登录用户、`7` 张已提交 Work 审批单和 `8` 个并发通知读取验证默认 `10` 连接池。它由 `db:postgresql:ci-smoke` 自动调用，连接等待超时、provider 内部捕获并降级的查询错误，或总耗时超过 `15 s` 都会阻断 CI。
 
 ### deploy/runtime
 
-deploy/runtime 检查回答目标环境能不能运行，例如 workspace manifest、PostgreSQL 连通性、migration/constraint 状态、核心表数据和 admin 账号。它依赖运行环境和真实数据，不属于 PR CI 主链路。
+deploy/runtime 检查回答目标环境能不能运行，例如 workspace manifest、目标 PostgreSQL 连通性、migration/constraint 状态、核心表数据和 admin 账号。针对真实目标环境的检查不属于 PR CI；PR workflow 中运行的是隔离的一次性 PostgreSQL integration，不读取或修改生产数据。
 
 ### hygiene
 

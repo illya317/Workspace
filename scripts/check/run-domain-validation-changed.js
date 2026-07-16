@@ -3,6 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { spawnSync } = require("node:child_process");
+const { changedFileSets } = require("./changed-files");
 
 const repoRoot = path.resolve(__dirname, "../..");
 const DOMAIN_RELEVANT_PATTERNS = [
@@ -13,32 +14,8 @@ const DOMAIN_RELEVANT_PATTERNS = [
   /^scripts\/arch\/domain-validation-baseline\.json$/i,
 ];
 
-function runGit(args) {
-  const result = spawnSync("git", args, { cwd: repoRoot, encoding: "utf8" });
-  if (result.status !== 0) return [];
-  return result.stdout
-    .split("\n")
-    .map((line) => line.trim())
-    .filter(Boolean);
-}
-
-function unique(values) {
-  return Array.from(new Set(values));
-}
-
 function isDomainRelevant(file) {
   return DOMAIN_RELEVANT_PATTERNS.some((pattern) => pattern.test(file));
-}
-
-function changedFileSets() {
-  const staged = runGit(["diff", "--name-only", "--diff-filter=ACMR", "--cached"]);
-  const unstaged = runGit(["diff", "--name-only", "--diff-filter=ACMR", "HEAD", "--"]);
-  const untracked = runGit(["ls-files", "--others", "--exclude-standard"]);
-  return {
-    staged: unique(staged),
-    unstaged: unique(unstaged),
-    untracked: unique(untracked),
-  };
 }
 
 function runDomainValidation(cwd, scriptPath) {
@@ -65,13 +42,11 @@ function createIndexSnapshot() {
   return snapshotDir;
 }
 
-const { staged, unstaged, untracked } = changedFileSets();
-const hasStagedChanges = staged.length > 0;
-const candidateFiles = hasStagedChanges ? staged : unique([...unstaged, ...untracked]);
+const { files: candidateFiles, hasStagedChanges, source } = changedFileSets({ cwd: repoRoot });
 const relevantFiles = candidateFiles.filter(isDomainRelevant);
 
 if (relevantFiles.length === 0) {
-  process.stdout.write("No changed domain-validation inputs; skipping.\n");
+  process.stdout.write(`No changed domain-validation inputs (${source}); skipping.\n`);
   process.exit(0);
 }
 

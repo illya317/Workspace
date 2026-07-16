@@ -1,22 +1,40 @@
 import { expect, test } from "@playwright/test";
+import { E2E_ADMIN_STORAGE_STATE } from "./support/auth";
+import { recordReadyTransition } from "./support/readiness";
 
-test("管理会计六个视图使用真实三表、成本与控制数据", async ({ page }) => {
-  const loginResponse = await page.request.get("/workspace/api/auth/dev-login-bypass?userId=2");
-  expect(loginResponse.ok()).toBeTruthy();
+test.use({ storageState: E2E_ADMIN_STORAGE_STATE });
+test.describe.configure({ retries: 0 });
 
+test("管理会计六个视图使用真实三表、成本与控制数据", {
+  tag: ["@critical", "@nightly", "@latency", "@finance-analysis-read"],
+}, async ({ page }, testInfo) => {
   const consoleErrors: string[] = [];
   page.on("console", (message) => {
-    if (message.type() === "error") consoleErrors.push(message.text());
+    const sourceUrl = message.location().url;
+    const isExternalBrandAsset = sourceUrl.endsWith("/workspace/company/logo.png");
+    if (message.type() === "error" && !isExternalBrandAsset) consoleErrors.push(message.text());
   });
   const managementResponsePromise = page.waitForResponse((response) =>
     new URL(response.url()).pathname.endsWith("/workspace/api/modules/finance/analysis/management"),
   );
 
-  await page.goto("/workspace/finance/analysis");
-  expect((await managementResponsePromise).status()).toBe(200);
-
-  await expect(page.getByRole("textbox", { name: "合并口径" })).toBeVisible();
-  await expect(page.getByText("管理会计七领域覆盖", { exact: true })).toBeVisible();
+  await recordReadyTransition({
+    page,
+    testInfo,
+    name: "finance-analysis-initial",
+    requiredUrlPaths: [
+      "/workspace/finance/analysis",
+      "/workspace/api/modules/finance/analysis/management",
+    ],
+    trigger: async () => {
+      await page.goto("/workspace/finance/analysis");
+      expect((await managementResponsePromise).status()).toBe(200);
+    },
+    waitUntilReady: async () => {
+      await expect(page.getByRole("textbox", { name: "合并口径" })).toBeVisible();
+      await expect(page.getByText("管理会计七领域覆盖", { exact: true })).toBeVisible();
+    },
+  });
   for (const label of ["管理总览", "资金与营运", "预算与预测", "盈利与成本", "投融资", "绩效与风险"]) {
     await expect(page.getByText(label, { exact: true })).toBeVisible();
   }

@@ -7,56 +7,45 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 负责公开 CI；CNB API/CLI 只触发私有生产发布，CNB/Linux CD 容器构建 standalone 产物，CVM + PM2 只解包产物并重启
+- **CI/CD**: GitHub Actions 负责公开 CI、canonical standalone 构建和按风险选择的 E2E；CNB API/CLI 只部署同 SHA/run/attempt 的已验证产物，CNB 与 CVM 都不重新构建
 
 ## 2. 部署与运行态同步
 
-仓库只维护两个远端：`origin` 是 GitHub，用于公开 CI；`cnb` 是 CNB，用于私有 CD/生产发布源码同步。历史 `codeup` 远端已废弃，不再配置或同步。
+`origin`（GitHub）是 canonical 源码、公开 CI 和 release artifact 真源；`cnb` 只承载私有 `cnb-release` 注入提交和 CD 触发。历史 `codeup` 远端已废弃，不再配置或同步。
 
-- `git push origin main` 触发 GitHub Actions CI；CI 执行 `npm run ci`。
-- `git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main` 只同步 CNB 源码，不触发生产发布，也不作为常规 CI 使用。
+- 普通候选不直接 push `main`。Git 跟踪的 `ops/publish.sh push` 先跑自适应本地 gate，再更新稳定 staging ref；受信任的 GitHub workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上触发 CI。桌面 ops 的同名脚本只是加载私有 `.env` 后转交此脚本。
+- 不再把 `cnb/main` 当源码同步或构建入口。正式发布时，底层脚本只在 canonical main 的 child commit 中注入由 Git 跟踪 `ops/cnb-release.yml` 产生的 `.cnb.yml` 和已验证 evidence，然后触发 `cnb-release` 的 `api_trigger_manual`。
 - 生产维护尽量在本地完成代码、migration、文档和检查，再通过 CNB 部署过去。服务器 SSH 只做只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。
-- 正式发布必须先 commit，并同步 push 到 GitHub 与 CNB，再用 CNB API/CLI 触发 `.cnb.yml` 的 `api_trigger_manual`。
-- CNB/API 部署使用 `./ops/deploy.sh`，在 CNB/Linux CD 容器里完成部署构建，然后只把 `.next/standalone` 产物包上传到服务器；服务器不执行 `npm ci` / `npm run build`。
+- 正式发布必须先 commit、经 PR 合并到 GitHub main，并取得该 SHA 的 required CI/release evidence；不能用 CNB push 绕过 GitHub 门禁。
+- CNB/API 调用 `./ops/deploy.sh` 下载 GitHub 已构建的同一 standalone tgz，复核 manifest/digest 后上传服务器；CNB 和服务器都不执行 `npm ci` / `npm run build`。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
 - `.env` 可以软链到外部 `.workspace/.env`；`public/company` 和 `public/assets/agent/avatar` 开发时可软链到 `.workspace/assets/...`，生产 standalone 打包时脚本用 `cp -rL` 复制真实文件。
 - 页面助手源码阅读默认使用服务端 CNB 浅克隆缓存；本地/内网调试可配置 `AGENT_SOURCE_WORKTREE=/absolute/path/to/workspace`，让助手只读当前 checkout 和未提交源码改动。生产部署时 `ops/deploy.sh` 会同步 CNB 源码到 `$REMOTE_DIR/source/Workspace`，并把远端 `.workspace/.env` 的 `AGENT_SOURCE_WORKTREE` 指向该 git worktree。
 
-更新源码流程：
+候选提交流程：
 
 ```bash
 git status --short
 git add <files>
 git commit -m "<message>"
-git push origin main
-git -c credential.helper= -c credential.helper='!cnb git-credential' push cnb main
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
 ```
 
 生产发布流程：
 
-1. 运行私有发布脚本（会自动注入真实 `.cnb.yml` 并推送 `cnb-release` 分支）：
+1. 确认候选 PR 已合并、远端 main 的 required CI 成功且本地 HEAD 精确等于 main，然后运行私有发布入口：
 
 ```bash
-OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env $PRIVATE_OPS_DIR/scripts/release-to-cnb.sh
+OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 ```
 
-2. 复制脚本输出的 `cnb build start-build` 命令并执行，触发部署。该命令中的 `--sha` 已经是注入真实 CNB 配置后的 release commit，不要用手动 `git rev-parse HEAD` 替换。
-
-3. 部署后用返回的 `sn` 查询状态：
-
-部署后用返回的 `sn` 查询状态：
-
-```bash
-cnb build get-build-status --repo <CNB_REPO> --sn "<sn>" --verbose
-```
-
-如果部署失败，用同一个 `sn` 和 pipeline/stage id 拉取失败 stage 日志；不要再额外 push 一次制造第二条部署记录。
+2. `publish.sh deploy` 会校验受保护 main、累计风险、同 SHA/run/attempt CI、artifact/release digest，必要时先补强制 C3/full；随后自动触发 CNB、记录 SN、轮询终态并等待服务器 `deployed-release.json` 与 GitHub production deployment 对账。诊断时使用同一个 SN 拉日志，不要额外 push 制造第二条部署记录。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 
-新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `$PRIVATE_OPS_DIR/AGENTS.md`。部署专题说明见 `$PRIVATE_OPS_DIR/docs/deploy.md` 和 `$PRIVATE_OPS_DIR/docs/environment.md`。
+风险分级、artifact 命名、migration maintenance 和分支保护状态以 [`ops/ci-cd.md`](ops/ci-cd.md) 为准。新环境构造、`.workspace` 目录恢复、服务器 data 拉取规则见 `$PRIVATE_OPS_DIR/AGENTS.md`；私有部署细节见 `$PRIVATE_OPS_DIR/docs/deploy.md` 和 `$PRIVATE_OPS_DIR/docs/environment.md`。
 
 ## 3. 项目地图
 

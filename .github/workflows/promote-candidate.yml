@@ -1,0 +1,118 @@
+name: Promote candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      staging_branch:
+        description: Stable owner staging branch; its SHA is verified separately
+        required: true
+        type: string
+      staging_sha:
+        description: Exact commit to copy into the bot-authored candidate PR
+        required: true
+        type: string
+      base_sha:
+        description: Main SHA used by the local adaptive gate
+        required: true
+        type: string
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: promote-candidate-main
+  cancel-in-progress: true
+
+jobs:
+  promote:
+    name: Promote / candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Create bot-authored PR and dispatch candidate CI
+        env:
+          GH_TOKEN: ${{ github.token }}
+          STAGING_BRANCH: ${{ inputs.staging_branch }}
+          STAGING_SHA: ${{ inputs.staging_sha }}
+          BASE_SHA: ${{ inputs.base_sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          full_sha='^[0-9a-f]{40}$'
+          if ! [[ "$STAGING_SHA" =~ $full_sha ]] || ! [[ "$BASE_SHA" =~ $full_sha ]]; then
+            echo "staging_sha and base_sha must be full lowercase Git SHAs" >&2
+            exit 1
+          fi
+          expected_staging_branch="codex/staging-main"
+          if [ "$STAGING_BRANCH" != "$expected_staging_branch" ]; then
+            echo "staging branch must be $expected_staging_branch" >&2
+            exit 1
+          fi
+
+          git fetch --no-tags origin \
+            "+refs/heads/main:refs/remotes/origin/main" \
+            "+refs/heads/$STAGING_BRANCH:refs/remotes/origin/$STAGING_BRANCH"
+          canonical_main="$(git rev-parse refs/remotes/origin/main)"
+          canonical_staging="$(git rev-parse "refs/remotes/origin/$STAGING_BRANCH")"
+          test "$canonical_main" = "$BASE_SHA"
+          test "$canonical_staging" = "$STAGING_SHA"
+          git merge-base --is-ancestor "$BASE_SHA" "$STAGING_SHA"
+
+          candidate_branch="codex/candidate-main"
+          candidate_before="$(git ls-remote --heads origin "refs/heads/$candidate_branch" | awk '{print $1}')"
+          git push origin \
+            --force-with-lease="refs/heads/$candidate_branch:$candidate_before" \
+            "$STAGING_SHA:refs/heads/$candidate_branch"
+
+          owner="${GITHUB_REPOSITORY%%/*}"
+          mapfile -t pull_urls < <(gh pr list \
+            --repo "$GITHUB_REPOSITORY" \
+            --state open \
+            --base main \
+            --head "$owner:$candidate_branch" \
+            --json url \
+            --jq '.[].url')
+          if [ "${#pull_urls[@]}" -gt 1 ]; then
+            echo "multiple open PRs exist for $candidate_branch" >&2
+            exit 1
+          fi
+          if [ "${#pull_urls[@]}" -eq 0 ]; then
+            title="$(git show -s --format=%s "$STAGING_SHA")"
+            pr_url="$(gh pr create \
+              --repo "$GITHUB_REPOSITORY" \
+              --base main \
+              --head "$candidate_branch" \
+              --title "$title" \
+              --body "Bot-authored promotion of owner-validated staging commit $STAGING_SHA. The repository owner can approve CODEOWNERS paths without self-review deadlock.")"
+          else
+            pr_url="${pull_urls[0]}"
+          fi
+          title="$(git show -s --format=%s "$STAGING_SHA")"
+          gh pr edit "$pr_url" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$title" \
+            --body "Bot-authored promotion of owner-validated staging commit $STAGING_SHA. Every update dismisses stale approval; the repository owner can approve CODEOWNERS paths without self-review deadlock."
+
+          # GITHUB_TOKEN-created PR events are intentionally suppressed by GitHub.
+          # Dispatch CI explicitly on the exact candidate ref and bind its classifier
+          # to the trusted current main SHA.
+          gh workflow run ci.yml \
+            --repo "$GITHUB_REPOSITORY" \
+            --ref "$candidate_branch" \
+            -f target_sha="$STAGING_SHA" \
+            -f base_sha="$BASE_SHA" \
+            -f force_full=false \
+            -f publish_artifact=false
+
+          {
+            echo "Bot-authored PR: $pr_url"
+            echo "Candidate SHA: $STAGING_SHA"
+            echo "Trusted base SHA: $BASE_SHA"
+          } >> "$GITHUB_STEP_SUMMARY"

@@ -9,8 +9,7 @@ PM2_NAME="${PM2_NAME:-workspace}"
 PM2_WECOM_BOT_NAME="${PM2_WECOM_BOT_NAME:-${PM2_NAME}-wecom-agent}"
 REMOTE_WORKSPACE_CONFIG_DIR="${REMOTE_WORKSPACE_CONFIG_DIR:-}"
 HEALTHCHECK_URL="${HEALTHCHECK_URL:-}"
-RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-1}"
-ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
+RUN_LOCAL_CHECKS="${RUN_LOCAL_CHECKS:-0}"
 ENV_CONTENT="${ENV_CONTENT:-}"
 REMOTE_BACKUP_DIR="${REMOTE_BACKUP_DIR:-}"
 REMOTE_WORKSPACE_BACKUP_DIR="${REMOTE_WORKSPACE_BACKUP_DIR:-}"
@@ -23,6 +22,17 @@ BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-5}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
 INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
 INSTALL_KIMI_AGENT_RUNTIME_DEPS="${INSTALL_KIMI_AGENT_RUNTIME_DEPS:-1}"
+RELEASE_EVIDENCE_FILE="${RELEASE_EVIDENCE_FILE:-.cnb-release-evidence.json}"
+RELEASE_SOURCE_BRANCH="${RELEASE_SOURCE_BRANCH:-main}"
+USE_GITHUB_RELEASE_ARTIFACTS="${USE_GITHUB_RELEASE_ARTIFACTS:-1}"
+EXPECTED_GITHUB_REPOSITORY="${EXPECTED_GITHUB_REPOSITORY:-illya317/Workspace}"
+EXPECTED_GITHUB_WORKFLOW_NAME="${EXPECTED_GITHUB_WORKFLOW_NAME:-CI}"
+EXPECTED_GITHUB_WORKFLOW_PATH="${EXPECTED_GITHUB_WORKFLOW_PATH:-.github/workflows/ci.yml}"
+EXPECTED_GITHUB_REQUIRED_JOB="${EXPECTED_GITHUB_REQUIRED_JOB:-CI / required}"
+EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX="${EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX:-workspace-standalone-}"
+EXPECTED_GITHUB_RELEASE_TAG_PREFIX="${EXPECTED_GITHUB_RELEASE_TAG_PREFIX:-ci-artifact-}"
+EXPECTED_RELEASE_ARTIFACT_NAME="${EXPECTED_RELEASE_ARTIFACT_NAME:-workspace-standalone.tgz}"
+EXPECTED_RELEASE_MANIFEST_NAME="${EXPECTED_RELEASE_MANIFEST_NAME:-workspace-standalone.manifest.json}"
 REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
@@ -42,6 +52,10 @@ fi
 
 if [ -z "$HEALTHCHECK_URL" ]; then
   echo "[错误] 缺少 HEALTHCHECK_URL；部署必须配置服务器本机可访问的强制健康检查地址"
+  exit 1
+fi
+if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ]; then
+  echo "[错误] 缺少 GITHUB_TOKEN/GH_TOKEN；锁内部署必须读取 Actions 与完整 branch protection 状态"
   exit 1
 fi
 case "$HEALTHCHECK_URL" in
@@ -113,8 +127,39 @@ SSH_OPTIONS=(
   -o ServerAliveCountMax=3
 )
 RSYNC_SSH_COMMAND="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=15 -o ConnectionAttempts=1 -o StrictHostKeyChecking=accept-new -o ControlMaster=auto -o ControlPersist=$SSH_CONTROL_PERSIST_SECONDS -o ControlPath=$SSH_CONTROL_PATH -o ServerAliveInterval=30 -o ServerAliveCountMax=3"
+REMOTE_DEPLOY_LOCK_PID=""
+REMOTE_DEPLOY_LOCK_TOKEN=""
+REMOTE_DEPLOY_LOCK_HELD=0
+REMOTE_GITHUB_TOKEN_FILE=""
+DEPLOYED_SOURCE_SHA=""
+DEPLOYED_RUN_ID=""
+DEPLOYED_RUN_ATTEMPT=""
+DEPLOYED_ARTIFACT_DIGEST=""
+
+release_remote_deploy_lock() {
+  if [ "$REMOTE_DEPLOY_LOCK_HELD" != "1" ]; then
+    return
+  fi
+  ssh "${SSH_OPTIONS[@]}" "$SERVER" \
+    "touch '$REMOTE_WORKSPACE_CONFIG_DIR/deploy-lock.release-$REMOTE_DEPLOY_LOCK_TOKEN'" >/dev/null 2>&1 || true
+  for _ in 1 2 3 4 5 6 7 8 9 10; do
+    if ! kill -0 "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1; then
+      break
+    fi
+    sleep 1
+  done
+  if kill -0 "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1; then
+    kill "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1 || true
+  fi
+  wait "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1 || true
+  REMOTE_DEPLOY_LOCK_HELD=0
+}
 
 cleanup_deploy() {
+  release_remote_deploy_lock
+  if [ -n "$REMOTE_GITHUB_TOKEN_FILE" ]; then
+    ssh "${SSH_OPTIONS[@]}" "$SERVER" "rm -f '$REMOTE_GITHUB_TOKEN_FILE'" >/dev/null 2>&1 || true
+  fi
   ssh "${SSH_OPTIONS[@]}" -O exit "$SERVER" >/dev/null 2>&1 || true
   rm -rf "$SSH_CONTROL_DIR"
   rm -f "${TMPKEY:-}"
@@ -123,6 +168,13 @@ trap cleanup_deploy EXIT
 
 ssh_cmd() {
   ssh "${SSH_OPTIONS[@]}" "$SERVER" "$@"
+}
+
+stage_remote_github_token() {
+  local github_token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+  REMOTE_GITHUB_TOKEN_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/.deploy-github-token-$REMOTE_DEPLOY_LOCK_TOKEN"
+  printf '%s' "$github_token" | ssh "${SSH_OPTIONS[@]}" "$SERVER" \
+    "umask 077; test ! -e '$REMOTE_GITHUB_TOKEN_FILE'; cat > '$REMOTE_GITHUB_TOKEN_FILE'; test -s '$REMOTE_GITHUB_TOKEN_FILE'"
 }
 
 start_ssh_master() {
@@ -140,6 +192,588 @@ start_ssh_master() {
   exit 1
 }
 
+acquire_remote_deploy_lock() {
+  local lock_owner_file
+  local lock_release_file
+  local wait_status
+
+  REMOTE_DEPLOY_LOCK_TOKEN="${RELEASE_SOURCE_SHA}-$$-$(date +%s)"
+  lock_owner_file="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-lock.owner"
+  lock_release_file="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-lock.release-$REMOTE_DEPLOY_LOCK_TOKEN"
+  echo "==> 获取生产部署互斥锁..."
+  ssh "${SSH_OPTIONS[@]}" "$SERVER" "
+    set -e
+    mkdir -p '$REMOTE_WORKSPACE_CONFIG_DIR'
+    command -v flock >/dev/null
+    rm -f '$lock_release_file'
+    exec 9>'$REMOTE_WORKSPACE_CONFIG_DIR/deploy.lock'
+    if ! flock -n 9; then
+      echo '[错误] 另一生产部署正在 backup→switch 临界区运行'
+      exit 73
+    fi
+    printf '%s\n' '$REMOTE_DEPLOY_LOCK_TOKEN' > '$lock_owner_file'
+    trap \"rm -f '$lock_owner_file' '$lock_release_file'\" EXIT
+    while [ ! -f '$lock_release_file' ]; do sleep 1; done
+  " &
+  REMOTE_DEPLOY_LOCK_PID=$!
+
+  for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+    if ssh_cmd "test \"\$(cat '$lock_owner_file' 2>/dev/null)\" = '$REMOTE_DEPLOY_LOCK_TOKEN'" >/dev/null 2>&1; then
+      REMOTE_DEPLOY_LOCK_HELD=1
+      echo "==> 已获取生产部署互斥锁。"
+      return
+    fi
+    if ! kill -0 "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1; then
+      wait_status=0
+      wait "$REMOTE_DEPLOY_LOCK_PID" || wait_status=$?
+      echo "[错误] 无法获取生产部署互斥锁（remote status: ${wait_status}）"
+      exit 1
+    fi
+    sleep 1
+  done
+
+  kill "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1 || true
+  wait "$REMOTE_DEPLOY_LOCK_PID" >/dev/null 2>&1 || true
+  echo "[错误] 获取生产部署互斥锁超时"
+  exit 1
+}
+
+reconcile_completed_deploy_markers() {
+  echo "==> 锁内清理遗留 candidate，并对账正式部署记录与 maintenance/bootstrap marker..."
+  ssh_cmd "
+    set -e
+    deployed_record='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
+    maintenance_marker='$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
+    bootstrap_marker='$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'
+    fence_all_writers() {
+      pm2 delete '$PM2_NAME-candidate' 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      managed_processes=\$(pm2 jlist)
+      MANAGED_PROCESSES=\"\$managed_processes\" MANAGED_NAMES='$PM2_NAME-candidate,$PM2_NAME,$PM2_WECOM_BOT_NAME' python3 - <<'PY'
+import json
+import os
+
+processes = json.loads(os.environ['MANAGED_PROCESSES'])
+if not isinstance(processes, list) or any(not isinstance(item, dict) for item in processes):
+    raise SystemExit('PM2 writer fencing did not return a process object list')
+names = set(os.environ['MANAGED_NAMES'].split(','))
+for item in processes:
+    if item.get('name') not in names:
+        continue
+    environment = item.get('pm2_env') or {}
+    pid = item.get('pid') or 0
+    if environment.get('status') != 'stopped' or pid != 0:
+        raise SystemExit(f\"managed writer {item.get('name')} is still active after fencing\")
+PY
+      pm2 save
+    }
+    # A candidate from an interrupted or older deploy must never survive into
+    # backup, migration, seed, or provisioning for the next attempt.
+    pm2 delete '$PM2_NAME-candidate' 2>/dev/null || true
+    candidate_processes=\$(pm2 jlist)
+    PROCESS_LIST=\"\$candidate_processes\" PROCESS_NAME='$PM2_NAME-candidate' python3 - <<'PY'
+import json
+import os
+
+processes = json.loads(os.environ['PROCESS_LIST'])
+if not isinstance(processes, list) or any(not isinstance(item, dict) for item in processes):
+    raise SystemExit('candidate cleanup did not return a process object list')
+matches = [item for item in processes if item.get('name') == os.environ['PROCESS_NAME']]
+for item in matches:
+    environment = item.get('pm2_env') or {}
+    pid = item.get('pid') or 0
+    if environment.get('status') != 'stopped' or pid != 0:
+        raise SystemExit('candidate writer is still active before release verification')
+PY
+    pm2 save
+    if [ ! -e \"\$maintenance_marker\" ] && [ ! -e \"\$bootstrap_marker\" ]; then
+      exit 0
+    fi
+    if [ ! -f \"\$deployed_record\" ]; then
+      echo '==> 正式部署记录尚未创建；先隔离所有 writer，再验证同一 candidate 的续跑 marker'
+      fence_all_writers
+    fi
+    marker_values=\$(DEPLOYED_RECORD=\"\$deployed_record\" MAINTENANCE_MARKER=\"\$maintenance_marker\" BOOTSTRAP_MARKER=\"\$bootstrap_marker\" REMOTE_DIR='$REMOTE_DIR' EXPECTED_CANDIDATE='$RELEASE_SOURCE_SHA' python3 - <<'PY'
+import json
+import os
+import re
+from pathlib import Path
+
+try:
+    marker_sources = []
+    maintenance = Path(os.environ['MAINTENANCE_MARKER'])
+    if maintenance.exists():
+        if not maintenance.is_file():
+            raise ValueError('maintenance marker is not a regular file')
+        lines = maintenance.read_text(encoding='utf-8').splitlines()
+        values = [line.removeprefix('sourceSha=') for line in lines if line.startswith('sourceSha=')]
+        if len(lines) != 4 or len(values) != 1 or not re.fullmatch(r'[0-9a-f]{40}', values[0]):
+            raise ValueError('maintenance marker source is invalid')
+        marker_sources.append(values[0])
+    bootstrap = Path(os.environ['BOOTSTRAP_MARKER'])
+    if bootstrap.exists():
+        if not bootstrap.is_file():
+            raise ValueError('bootstrap progress marker is not a regular file')
+        candidate = json.loads(bootstrap.read_text(encoding='utf-8')).get('candidateSha')
+        if not isinstance(candidate, str) or not re.fullmatch(r'[0-9a-f]{40}', candidate):
+            raise ValueError('bootstrap progress marker source is invalid')
+        marker_sources.append(candidate)
+    if not marker_sources:
+        raise ValueError('marker reconciliation found no candidate source')
+
+    deployed_path = Path(os.environ['DEPLOYED_RECORD'])
+    if not deployed_path.exists():
+        if all(value == os.environ['EXPECTED_CANDIDATE'] for value in marker_sources):
+            print('RESUME')
+        else:
+            print('CONFLICT')
+        raise SystemExit(0)
+
+    record = json.loads(deployed_path.read_text(encoding='utf-8'))
+    source = record.get('source', {}).get('commitSha')
+    release_dir = record.get('deployment', {}).get('releaseDir')
+    if not isinstance(source, str) or not re.fullmatch(r'[0-9a-f]{40}', source):
+        raise ValueError('formal deployed-release source is invalid')
+    release_root = (Path(os.environ['REMOTE_DIR']) / 'releases').resolve(strict=True)
+    target = Path(release_dir).resolve(strict=True)
+    target.relative_to(release_root)
+    if all(value == source for value in marker_sources):
+        print('CLEAN')
+        print(source)
+        print(target)
+    elif all(value == os.environ['EXPECTED_CANDIDATE'] for value in marker_sources):
+        print('RESUME')
+    else:
+        print('CONFLICT')
+except Exception as error:
+    print('INVALID')
+    print(str(error))
+PY
+    )
+    marker_action=\$(printf '%s\n' \"\$marker_values\" | sed -n '1p')
+    if [ \"\$marker_action\" = 'RESUME' ]; then
+      fence_all_writers
+      echo '==> marker 属于当前 candidate 的未完成尝试；writer 已隔离，保留并进入锁内 resume'
+      exit 0
+    fi
+    if [ \"\$marker_action\" = 'CONFLICT' ] || [ \"\$marker_action\" = 'INVALID' ]; then
+      fence_all_writers
+      echo '[错误] marker 与正式记录/当前 candidate 冲突或损坏；writer 已保持隔离'
+      printf '%s\n' \"\$marker_values\" | sed -n '2p' >&2
+      exit 1
+    fi
+    if [ \"\$marker_action\" != 'CLEAN' ]; then
+      fence_all_writers
+      echo '[错误] marker reconciliation action 无效'
+      exit 1
+    fi
+    if ! (
+      set -e
+      record_source=\$(printf '%s\n' \"\$marker_values\" | sed -n '2p')
+      record_target=\$(printf '%s\n' \"\$marker_values\" | sed -n '3p')
+      current_target=\$(readlink -f '$REMOTE_DIR/current') || exit 1
+      if [ \"\$current_target\" != \"\$record_target\" ]; then
+        echo '[错误] marker 对账时 current 未指向正式 deployed-release'
+        exit 1
+      fi
+      process_list=\$(pm2 jlist) || exit 1
+      PROCESS_LIST=\"\$process_list\" PROCESS_NAME='$PM2_NAME' EXPECTED_TARGET=\"\$record_target\" node - <<'NODE' || exit 1
+const fs = require('fs');
+const path = require('path');
+const processes = JSON.parse(process.env.PROCESS_LIST || 'null');
+const matches = Array.isArray(processes)
+  ? processes.filter((item) => item?.name === process.env.PROCESS_NAME)
+  : [];
+if (matches.length !== 1 || matches[0]?.pm2_env?.status !== 'online'
+  || !Number.isInteger(matches[0]?.pid) || matches[0].pid < 1) {
+  throw new Error('marker reconciliation requires one online Workspace process');
+}
+const target = fs.realpathSync(process.env.EXPECTED_TARGET);
+for (const value of [matches[0]?.pm2_env?.pm_cwd, matches[0]?.pm2_env?.pm_exec_path]) {
+  if (typeof value !== 'string') throw new Error('marker reconciliation PM2 identity is incomplete');
+  const actual = fs.realpathSync(value);
+  if (actual !== target && !actual.startsWith(target + path.sep)) {
+    throw new Error('marker reconciliation PM2 identity is outside the deployed release');
+  }
+}
+NODE
+      curl -fsS '$HEALTHCHECK_URL' >/dev/null || exit 1
+      version_response=\$(curl -fsS 'http://127.0.0.1:3000/workspace/api/settings/version') || exit 1
+      VERSION_RESPONSE=\"\$version_response\" EXPECTED_VERSION=\"\$record_source\" node - <<'NODE' || exit 1
+const payload = JSON.parse(process.env.VERSION_RESPONSE || 'null');
+if (!payload || payload.version !== process.env.EXPECTED_VERSION) {
+  throw new Error('marker reconciliation runtime version does not match deployed-release');
+}
+NODE
+    ); then
+      fence_all_writers
+      echo '[错误] CLEAN marker 无法证明 current/PM2/health/version 与正式记录一致；writer 已隔离'
+      exit 1
+    fi
+    rm -f \"\$maintenance_marker\" \"\$bootstrap_marker\"
+    echo '==> 正式 release 已在线；遗留 marker 已幂等清理'
+  "
+}
+
+verify_bootstrap_production_state() {
+  [ -n "$RELEASE_BOOTSTRAP_BASE" ] || return 0
+  echo "==> 锁内复验旧生产接管凭证（current / PM2 / runtime / BUILD_ID / migrations）..."
+  ssh_cmd "
+    set -e
+    test ! -e '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
+    bootstrap_progress_marker='$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'
+    bootstrap_progress=0
+    if [ -e \"\$bootstrap_progress_marker\" ]; then
+      bootstrap_marker_status=\$(BOOTSTRAP_PROGRESS_MARKER=\"\$bootstrap_progress_marker\" \
+      EXPECTED_BASELINE='$RELEASE_BOOTSTRAP_BASE' \
+      EXPECTED_CANDIDATE='$RELEASE_SOURCE_SHA' \
+      EXPECTED_TREE='$RELEASE_SOURCE_TREE' \
+      EXPECTED_MIGRATION_SET='$RELEASE_MIGRATION_SET_SHA' \
+      EXPECTED_LEGACY_RELEASE='$RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID' \
+      EXPECTED_LEGACY_CNB_COMMIT='$RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT' \
+      EXPECTED_LEGACY_CNB_BUILD_SN='$RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN' \
+      EXPECTED_LEGACY_RUNTIME_VERSION='$RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION' \
+      EXPECTED_LEGACY_BUILD_ID='$RELEASE_BOOTSTRAP_LEGACY_BUILD_ID' \
+      EXPECTED_LEGACY_CNB_REPOSITORY='$RELEASE_BOOTSTRAP_CNB_REPOSITORY' \
+      EXPECTED_BASELINE_COUNT='$RELEASE_BOOTSTRAP_MIGRATION_COUNT' \
+      EXPECTED_BASELINE_DIGEST='$RELEASE_BOOTSTRAP_MIGRATION_DIGEST' python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+expected = {
+    'schemaVersion': 2,
+    'phase': 'mutation-started',
+    'baselineSha': os.environ['EXPECTED_BASELINE'],
+    'candidateSha': os.environ['EXPECTED_CANDIDATE'],
+    'candidateTreeSha': os.environ['EXPECTED_TREE'],
+    'candidateMigrationSetSha256': os.environ['EXPECTED_MIGRATION_SET'],
+    'legacyReleaseId': os.environ['EXPECTED_LEGACY_RELEASE'],
+    'legacyCnbCommitSha': os.environ['EXPECTED_LEGACY_CNB_COMMIT'],
+    'legacyCnbBuildSn': os.environ['EXPECTED_LEGACY_CNB_BUILD_SN'],
+    'legacyRuntimeVersion': os.environ['EXPECTED_LEGACY_RUNTIME_VERSION'],
+    'legacyBuildId': os.environ['EXPECTED_LEGACY_BUILD_ID'],
+    'legacyCnbRepository': os.environ['EXPECTED_LEGACY_CNB_REPOSITORY'],
+    'baselineMigrationCount': int(os.environ['EXPECTED_BASELINE_COUNT']),
+    'baselineMigrationSetSha256': os.environ['EXPECTED_BASELINE_DIGEST'],
+}
+path = Path(os.environ['BOOTSTRAP_PROGRESS_MARKER'])
+try:
+    actual = json.loads(path.read_text(encoding='utf-8'))
+except Exception as error:
+    raise SystemExit(f'production bootstrap progress marker is invalid: {error}')
+if actual == expected:
+    print('MATCH')
+else:
+    raise SystemExit('production bootstrap progress marker is not the exact same receipt and candidate')
+PY
+      )
+      case \"\$bootstrap_marker_status\" in
+        MATCH) bootstrap_progress=1 ;;
+        *) echo '[错误] production bootstrap progress marker 状态无效'; exit 1 ;;
+      esac
+    fi
+    expected_target='$REMOTE_DIR/releases/$RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID'
+    maintenance_marker='$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
+    test -d \"\$expected_target\"
+    current_target=\$(readlink -f '$REMOTE_DIR/current')
+    if [ \"\$current_target\" = \"\$expected_target\" ]; then
+      test -f \"\$expected_target/workspace/.next/BUILD_ID\"
+      actual_build_id=\$(cat \"\$expected_target/workspace/.next/BUILD_ID\")
+      if [ \"\$actual_build_id\" != '$RELEASE_BOOTSTRAP_LEGACY_BUILD_ID' ]; then
+        echo '[错误] production bootstrap legacy filesystem BUILD_ID 已漂移'
+        exit 1
+      fi
+    elif [ \"\$bootstrap_progress\" = '1' ]; then
+      CURRENT_TARGET=\"\$current_target\" RELEASE_ROOT='$REMOTE_DIR/releases' EXPECTED_SHA='$RELEASE_SOURCE_SHA' EXPECTED_TREE='$RELEASE_SOURCE_TREE' EXPECTED_MIGRATION_SET='$RELEASE_MIGRATION_SET_SHA' node - <<'NODE'
+const fs = require('fs');
+const path = require('path');
+const target = fs.realpathSync(process.env.CURRENT_TARGET);
+const releaseRoot = fs.realpathSync(process.env.RELEASE_ROOT);
+if (target !== releaseRoot && !target.startsWith(releaseRoot + path.sep)) {
+  throw new Error('bootstrap retry candidate current is outside the release root');
+}
+if (!path.basename(target).endsWith('-' + process.env.EXPECTED_SHA.slice(0, 8))) {
+  throw new Error('bootstrap retry candidate release id does not bind the source SHA');
+}
+const manifest = JSON.parse(fs.readFileSync(path.join(target, '.release-manifest.json'), 'utf8'));
+const buildId = fs.readFileSync(path.join(target, 'workspace/.next/BUILD_ID'), 'utf8').trim();
+if (manifest?.source?.commitSha !== process.env.EXPECTED_SHA
+  || manifest?.source?.treeSha !== process.env.EXPECTED_TREE
+  || manifest?.build?.buildId !== process.env.EXPECTED_SHA
+  || manifest?.inputs?.migrationSetSha256 !== process.env.EXPECTED_MIGRATION_SET
+  || buildId !== process.env.EXPECTED_SHA) {
+  throw new Error('bootstrap retry candidate current identity does not match the progress receipt');
+}
+NODE
+    else
+      echo '[错误] production bootstrap current release 已漂移'
+      exit 1
+    fi
+    if [ \"\$bootstrap_progress\" = '1' ]; then
+      echo '==> bootstrap mutation-started marker 已存在；在任何网络复验前保持所有 writer 隔离'
+      pm2 delete '$PM2_NAME-candidate' 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      pm2 save
+    fi
+    if [ -f \"\$maintenance_marker\" ]; then
+      if [ \"\$bootstrap_progress\" != '1' ]; then
+        echo '[错误] production bootstrap maintenance marker 缺少绑定 progress receipt'
+        exit 1
+      fi
+      persisted_source=\$(sed -n 's/^sourceSha=//p' \"\$maintenance_marker\")
+      if [ \"\$persisted_source\" != '$RELEASE_SOURCE_SHA' ]; then
+        echo '[错误] production bootstrap maintenance marker 属于其他候选版本'
+        exit 1
+      fi
+      echo '==> 已验证 maintenance/progress 身份；锁内主动隔离所有可能残留的 writer'
+      pm2 delete '$PM2_NAME-candidate' 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      pm2 save
+    fi
+    pm2_list=\$(pm2 jlist)
+    pm2_mode=\$(EXPECTED_TARGET=\"\$expected_target\" EXPECTED_PM2_NAME='$PM2_NAME' EXPECTED_CANDIDATE_NAME='$PM2_NAME-candidate' EXPECTED_WECOM_NAME='$PM2_WECOM_BOT_NAME' PM2_LIST=\"\$pm2_list\" python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+target = Path(os.environ['EXPECTED_TARGET']).resolve(strict=True)
+try:
+    processes = json.loads(os.environ['PM2_LIST'])
+except Exception as error:
+    raise SystemExit(f'production bootstrap PM2 state is invalid: {error}')
+if not isinstance(processes, list):
+    raise SystemExit('production bootstrap PM2 state is not a list')
+names = {
+    os.environ['EXPECTED_PM2_NAME'],
+    os.environ['EXPECTED_CANDIDATE_NAME'],
+    os.environ['EXPECTED_WECOM_NAME'],
+}
+managed = [item for item in processes if isinstance(item, dict) and item.get('name') in names]
+grouped = {name: [item for item in managed if item.get('name') == name] for name in names}
+if any(len(items) > 1 for items in grouped.values()):
+    raise SystemExit('production bootstrap PM2 contains duplicate managed process names')
+
+workspace = grouped[os.environ['EXPECTED_PM2_NAME']][0] if grouped[os.environ['EXPECTED_PM2_NAME']] else None
+candidate = grouped[os.environ['EXPECTED_CANDIDATE_NAME']][0] if grouped[os.environ['EXPECTED_CANDIDATE_NAME']] else None
+wecom = grouped[os.environ['EXPECTED_WECOM_NAME']][0] if grouped[os.environ['EXPECTED_WECOM_NAME']] else None
+
+def state(item):
+    if item is None:
+        return 'absent'
+    environment = item.get('pm2_env') or {}
+    status = environment.get('status')
+    pid = item.get('pid')
+    if status == 'stopped' and pid == 0:
+        return 'stopped'
+    if status == 'online' and isinstance(pid, int) and pid > 0:
+        return 'online'
+    return 'ambiguous'
+
+def assert_bound(item, label):
+    environment = item.get('pm2_env') or {}
+    try:
+        cwd = Path(environment['pm_cwd']).resolve(strict=True)
+        executable = Path(environment['pm_exec_path']).resolve(strict=True)
+        cwd.relative_to(target)
+        executable.relative_to(target)
+    except Exception:
+        raise SystemExit(f'production bootstrap {label} PM2 cwd/exec is outside the legacy release')
+    if not cwd.is_dir() or not executable.is_file():
+        raise SystemExit(f'production bootstrap {label} PM2 cwd/exec is not readable')
+
+candidate_state = state(candidate)
+workspace_state = state(workspace)
+wecom_state = state(wecom)
+if candidate_state not in {'absent', 'stopped'}:
+    raise SystemExit('production bootstrap candidate writer is not safely offline')
+if workspace_state == 'online' and wecom_state in {'absent', 'stopped', 'online'}:
+    assert_bound(workspace, 'Workspace')
+    if wecom_state == 'online':
+        assert_bound(wecom, 'WeCom')
+    print('ONLINE')
+elif workspace_state in {'absent', 'stopped'} and wecom_state in {'absent', 'stopped'}:
+    print('OFFLINE')
+else:
+    raise SystemExit('production bootstrap PM2 writer state is ambiguous')
+PY
+    )
+    database_progress=0
+    if [ -f \"\$maintenance_marker\" ]; then
+      if [ \"\$bootstrap_progress\" != '1' ] || [ \"\$pm2_mode\" != 'OFFLINE' ]; then
+        echo '[错误] production bootstrap maintenance 状态缺少绑定凭证或 writer 未隔离'
+        exit 1
+      fi
+      database_progress=1
+    elif [ \"\$pm2_mode\" != 'ONLINE' ] && [ \"\$bootstrap_progress\" != '1' ]; then
+      echo '[错误] production bootstrap 在非维护状态下必须保持旧 Workspace 在线'
+      exit 1
+    fi
+    if [ \"\$pm2_mode\" = 'ONLINE' ]; then
+      curl -fsS '$HEALTHCHECK_URL' >/dev/null
+      version_response=\$(curl -fsS 'http://127.0.0.1:3000/workspace/api/settings/version')
+      VERSION_RESPONSE=\"\$version_response\" EXPECTED_VERSION='$RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION' node - <<'NODE'
+const payload = JSON.parse(process.env.VERSION_RESPONSE || 'null');
+if (!payload || payload.version !== process.env.EXPECTED_VERSION) {
+  throw new Error('production bootstrap runtime version has drifted');
+}
+NODE
+    fi
+    set -a
+    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    set +a
+    test -n \"\${DIRECT_URL:-}\"
+    migration_rows=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -At -F '|' -c 'SELECT migration_name, checksum, CASE WHEN finished_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, CASE WHEN rolled_back_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, applied_steps_count::text FROM "_prisma_migrations" ORDER BY migration_name, id')
+    MIGRATION_ROWS=\"\$migration_rows\" EXPECTED_COUNT='$RELEASE_BOOTSTRAP_MIGRATION_COUNT' EXPECTED_DIGEST='$RELEASE_BOOTSTRAP_MIGRATION_DIGEST' VALIDATION_MODE=\"\$database_progress\" python3 - <<'PY'
+from hashlib import sha256
+import os
+import re
+
+rows = []
+for line in os.environ.get('MIGRATION_ROWS', '').splitlines():
+    parts = line.split('|')
+    if len(parts) != 5:
+        raise SystemExit('production bootstrap migration row is malformed')
+    name, checksum, finished, rolled_back, steps = parts
+    if not re.fullmatch(r'[0-9]{14}_[a-z0-9_]+', name):
+        raise SystemExit('production bootstrap migration name is invalid')
+    if not re.fullmatch(r'[0-9a-f]{64}', checksum):
+        raise SystemExit('production bootstrap migration checksum is invalid')
+    if not steps.isdigit() or int(steps) < 0:
+        raise SystemExit('production bootstrap migration applied-step count is invalid')
+    rows.append((name, checksum, finished, rolled_back, int(steps)))
+expected_count = int(os.environ['EXPECTED_COUNT'])
+if len(rows) < expected_count:
+    raise SystemExit('production bootstrap baseline migrations are missing')
+baseline = rows[:expected_count]
+if len({name for name, *_ in baseline}) != len(baseline):
+    raise SystemExit('production bootstrap baseline migration names are duplicated')
+if any(finished != '1' or rolled_back != '0' or steps < 1 for _, _, finished, rolled_back, steps in baseline):
+    raise SystemExit('production bootstrap baseline migration state has drifted')
+canonical = ''.join(f'{name}\t{checksum}\n' for name, checksum, *_ in baseline).encode()
+if sha256(canonical).hexdigest() != os.environ['EXPECTED_DIGEST']:
+    raise SystemExit('production bootstrap migration checksum set has drifted')
+if os.environ['VALIDATION_MODE'] == '0' and len(rows) != expected_count:
+    raise SystemExit('production bootstrap has migrations beyond the audited baseline before takeover')
+if len(rows) > expected_count:
+    last_baseline_name = baseline[-1][0]
+    if any(name <= last_baseline_name for name, *_ in rows[expected_count:]):
+        raise SystemExit('production bootstrap migration progress is not append-only')
+PY
+  "
+}
+
+verify_release_order() {
+  local remote_state
+  local record_kind=""
+  local deployed_repository=""
+  local deployed_branch=""
+  local order_action
+  local args
+
+  remote_state="$(ssh_cmd "REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' EXPECTED_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' EXPECTED_BRANCH='$RELEASE_GITHUB_BRANCH' python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+path = Path(os.environ['REMOTE_WORKSPACE_CONFIG_DIR']) / 'deployed-release.json'
+if not path.exists():
+    print('MISSING')
+else:
+    try:
+        record = json.loads(path.read_text(encoding='utf-8'))
+        value = record['source']['commitSha']
+        repository = record['github']['repository']
+        branch = record['github']['branch']
+        run_id = record['github']['runId']
+        run_attempt = record['github']['runAttempt']
+        artifact_digest = record['github']['actionsArtifactDigest']
+    except Exception:
+        print('INVALID')
+    else:
+        if (
+            isinstance(value, str)
+            and len(value) == 40
+            and all(char in '0123456789abcdef' for char in value)
+            and isinstance(run_id, int)
+            and run_id > 0
+            and isinstance(run_attempt, int)
+            and run_attempt > 0
+            and isinstance(repository, str)
+            and repository == os.environ.get('EXPECTED_REPOSITORY')
+            and isinstance(branch, str)
+            and branch == os.environ.get('EXPECTED_BRANCH')
+            and isinstance(artifact_digest, str)
+            and len(artifact_digest) == 71
+            and artifact_digest.startswith('sha256:')
+            and all(char in '0123456789abcdef' for char in artifact_digest[7:])
+        ):
+            print('\t'.join(['RECORD', value, str(run_id), str(run_attempt), artifact_digest, repository, branch]))
+        else:
+            print('INVALID')
+PY")"
+  IFS=$'\t' read -r record_kind DEPLOYED_SOURCE_SHA DEPLOYED_RUN_ID DEPLOYED_RUN_ATTEMPT DEPLOYED_ARTIFACT_DIGEST deployed_repository deployed_branch <<< "$remote_state"
+  case "$record_kind" in
+    MISSING)
+      DEPLOYED_SOURCE_SHA=""
+      DEPLOYED_RUN_ID=""
+      DEPLOYED_RUN_ATTEMPT=""
+      DEPLOYED_ARTIFACT_DIGEST=""
+      if [ -z "$RELEASE_BOOTSTRAP_BASE" ]; then
+        echo "[错误] 生产部署记录缺失；只有经审计的一次性 production bootstrap 凭证可接管"
+        exit 1
+      fi
+      ;;
+    RECORD)
+      if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
+        echo "[错误] production bootstrap 凭证在正式部署记录存在后必须失效"
+        exit 1
+      fi
+      ;;
+    *) echo "[错误] 服务器 deployed-release.json 无法证明当前生产版本"; exit 1 ;;
+  esac
+
+  args=(
+    --repository "$RELEASE_GITHUB_REPOSITORY"
+    --branch "$RELEASE_GITHUB_BRANCH"
+    --candidate "$RELEASE_SOURCE_SHA"
+    --candidate-run-id "$RELEASE_GITHUB_RUN_ID"
+    --candidate-run-attempt "$RELEASE_GITHUB_RUN_ATTEMPT"
+    --candidate-artifact-digest "$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"
+    --candidate-event "$RELEASE_GITHUB_EVENT"
+    --workflow-name "$EXPECTED_GITHUB_WORKFLOW_NAME"
+    --workflow-path "$EXPECTED_GITHUB_WORKFLOW_PATH"
+    --required-job "$EXPECTED_GITHUB_REQUIRED_JOB"
+    --required-check-app-id "$RELEASE_GITHUB_CHECK_APP_ID"
+  )
+  if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
+    args+=(--bootstrap-base "$RELEASE_BOOTSTRAP_BASE")
+  elif [ -n "$DEPLOYED_SOURCE_SHA" ]; then
+    args+=(
+      --deployed "$DEPLOYED_SOURCE_SHA"
+      --deployed-run-id "$DEPLOYED_RUN_ID"
+      --deployed-run-attempt "$DEPLOYED_RUN_ATTEMPT"
+      --deployed-artifact-digest "$DEPLOYED_ARTIFACT_DIGEST"
+    )
+  fi
+  order_action="$(node ops/verify-deploy-order.mjs "${args[@]}")"
+  if [ "$order_action" = "noop" ]; then
+    echo "==> 生产记录已是 ${RELEASE_SOURCE_SHA:0:12} 的同一 CI run；锁内复验实时健康与版本。"
+    run_healthcheck
+    echo "==> 实时生产健康且版本一致，跳过重复部署。"
+    exit 0
+  fi
+  if [ "$order_action" != "deploy" ]; then
+    echo "[错误] 未知部署顺序判断: $order_action"
+    exit 1
+  fi
+  verify_bootstrap_production_state
+  echo "==> 锁内已证明候选仍是受保护 main，且不会回滚当前生产版本。"
+}
+
 require_local_cmd() {
   local cmd="$1"
   if ! command -v "$cmd" >/dev/null 2>&1; then
@@ -148,146 +782,114 @@ require_local_cmd() {
   fi
 }
 
-hash_cmd() {
-  if command -v shasum >/dev/null 2>&1; then
-    shasum -a 256
-  else
-    sha256sum
-  fi
-}
+resolve_release_evidence() {
+  local release_head
+  local release_parent_count
+  local injection_files
+  local evidence_values
+  local line_count
 
-copy_runtime_package() {
-  local pkg="$1"
-  if [ ! -e "node_modules/$pkg" ]; then
-    echo "[错误] 构建产物缺少运行时依赖: node_modules/$pkg"
+  if [ "$RELEASE_EVIDENCE_FILE" != ".cnb-release-evidence.json" ]; then
+    echo "[错误] RELEASE_EVIDENCE_FILE 必须是 .cnb-release-evidence.json"
     exit 1
   fi
-  rm -rf ".next/standalone/node_modules/$pkg"
-  mkdir -p ".next/standalone/node_modules/$(dirname "$pkg")"
-  cp -R "node_modules/$pkg" ".next/standalone/node_modules/$pkg"
-}
+  case "$USE_GITHUB_RELEASE_ARTIFACTS" in
+    1) ;;
+    *) echo "[错误] 生产部署只接受 GitHub required CI 的 build-once 产物（USE_GITHUB_RELEASE_ARTIFACTS=1）"; exit 1 ;;
+  esac
+  test -f "$RELEASE_EVIDENCE_FILE"
+  test -f ops/release-evidence.mjs
 
-copy_runtime_package_tree() {
-  node - "$@" <<'NODE' | while IFS= read -r pkg; do
-const fs = require("fs");
-const path = require("path");
-
-const root = process.cwd();
-const roots = process.argv.slice(2);
-const seen = new Set();
-
-function packageDir(name) {
-  if (name.startsWith("@")) {
-    return path.join(root, "node_modules", ...name.split("/"));
+  release_head="$(git rev-parse HEAD)"
+  release_parent_count="$(git rev-list --parents -n 1 "$release_head" | awk '{print NF - 1}')"
+  if [ "$release_parent_count" != "1" ]; then
+    echo "[错误] CNB injection commit 必须恰好有一个 canonical source parent"
+    exit 1
+  fi
+  RELEASE_SOURCE_SHA="$(git rev-parse HEAD^ 2>/dev/null)" || {
+    echo "[错误] CNB 发布提交缺少 canonical source parent"
+    exit 1
   }
-  return path.join(root, "node_modules", name);
-}
+  RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")"
+  injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_head" | LC_ALL=C sort)"
+  if [ "$injection_files" != $'.cnb-release-evidence.json\n.cnb.yml' ]; then
+    echo "[错误] CNB injection commit 只能修改 .cnb.yml 与 .cnb-release-evidence.json"
+    printf '%s\n' "$injection_files"
+    exit 1
+  fi
 
-function walk(name, optional = false) {
-  if (seen.has(name)) return;
-  const packageJson = path.join(packageDir(name), "package.json");
-  if (!fs.existsSync(packageJson)) {
-    if (optional) return;
-    throw new Error(`Missing runtime dependency: ${name}`);
-  }
-  seen.add(name);
-  const pkg = JSON.parse(fs.readFileSync(packageJson, "utf8"));
-  for (const dependency of Object.keys(pkg.dependencies || {})) {
-    walk(dependency);
-  }
-  for (const dependency of Object.keys(pkg.optionalDependencies || {})) {
-    walk(dependency, true);
-  }
-}
+  evidence_values="$(mktemp)"
+  if ! node ops/release-evidence.mjs validate-file \
+    --file "$RELEASE_EVIDENCE_FILE" \
+    --sha "$RELEASE_SOURCE_SHA" \
+    --tree "$RELEASE_SOURCE_TREE" \
+    --repository "$EXPECTED_GITHUB_REPOSITORY" \
+    --branch "$RELEASE_SOURCE_BRANCH" \
+    --workflow-name "$EXPECTED_GITHUB_WORKFLOW_NAME" \
+    --workflow-path "$EXPECTED_GITHUB_WORKFLOW_PATH" \
+    --required-job "$EXPECTED_GITHUB_REQUIRED_JOB" \
+    --artifact-name-prefix "${EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX}${RELEASE_SOURCE_SHA}-run-" \
+    --release-tag-prefix "${EXPECTED_GITHUB_RELEASE_TAG_PREFIX}${RELEASE_SOURCE_SHA}-run-" \
+    --release-artifact-name "$EXPECTED_RELEASE_ARTIFACT_NAME" \
+    --release-manifest-name "$EXPECTED_RELEASE_MANIFEST_NAME" \
+    --format lines > "$evidence_values"; then
+    rm -f "$evidence_values"
+    exit 1
+  fi
+  line_count="$(wc -l < "$evidence_values" | tr -d '[:space:]')"
+  if [ "$line_count" != "16" ]; then
+    rm -f "$evidence_values"
+    echo "[错误] release evidence 输出字段数量异常"
+    exit 1
+  fi
+  RELEASE_GITHUB_REPOSITORY="$(sed -n '3p' "$evidence_values")"
+  RELEASE_GITHUB_BRANCH="$(sed -n '4p' "$evidence_values")"
+  RELEASE_GITHUB_EVENT="$(sed -n '5p' "$evidence_values")"
+  RELEASE_GITHUB_RUN_ID="$(sed -n '6p' "$evidence_values")"
+  RELEASE_GITHUB_RUN_ATTEMPT="$(sed -n '7p' "$evidence_values")"
+  RELEASE_GITHUB_JOB_ID="$(sed -n '8p' "$evidence_values")"
+  RELEASE_GITHUB_CHECK_APP_ID="$(sed -n '9p' "$evidence_values")"
+  RELEASE_GITHUB_ACTIONS_ARTIFACT="$(sed -n '10p' "$evidence_values")"
+  RELEASE_GITHUB_ACTIONS_ARTIFACT_ID="$(sed -n '11p' "$evidence_values")"
+  RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST="$(sed -n '12p' "$evidence_values")"
+  RELEASE_GITHUB_RELEASE_ID="$(sed -n '13p' "$evidence_values")"
+  RELEASE_GITHUB_RELEASE_TAG="$(sed -n '14p' "$evidence_values")"
+  RELEASE_GITHUB_RELEASE_ARTIFACT_DIGEST="$(sed -n '15p' "$evidence_values")"
+  RELEASE_GITHUB_RELEASE_MANIFEST_DIGEST="$(sed -n '16p' "$evidence_values")"
+  rm -f "$evidence_values"
+  RELEASE_BOOTSTRAP_BASE="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap?.baselineSha ?? "");' "$RELEASE_EVIDENCE_FILE")"
+  RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT=""
+  RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID=""
+  RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN=""
+  RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION=""
+  RELEASE_BOOTSTRAP_LEGACY_BUILD_ID=""
+  RELEASE_BOOTSTRAP_CNB_REPOSITORY=""
+  RELEASE_BOOTSTRAP_MIGRATION_COUNT=""
+  RELEASE_BOOTSTRAP_MIGRATION_DIGEST=""
+  if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
+    RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbCommitSha);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.releaseId);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbBuildSn);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.runtimeVersion);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_BUILD_ID="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.buildId);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_CNB_REPOSITORY="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbRepository);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_MIGRATION_COUNT="$(node -e 'const e=require(process.argv[1]); process.stdout.write(String(e.deploymentBootstrap.database.migrationCount));' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_MIGRATION_DIGEST="$(node -e 'const e=require(process.argv[1]); process.stdout.write(e.deploymentBootstrap.database.migrationSetSha256);' "$RELEASE_EVIDENCE_FILE")"
+    if [ "$RELEASE_BOOTSTRAP_CNB_REPOSITORY" != "$EXPECTED_GITHUB_REPOSITORY" ]; then
+      echo "[错误] production bootstrap CNB repository 与 canonical repository 不一致"
+      exit 1
+    fi
+  fi
 
-for (const name of roots) {
-  walk(name);
-}
-for (const name of [...seen].sort()) {
-  console.log(name);
-}
-NODE
-    copy_runtime_package "$pkg"
-  done
-}
-
-copy_prisma_deploy_files() {
-  echo "==> 打包 Prisma schema、migrations 和 CLI..."
-  test -f prisma.config.ts
-  test -f prisma/schema.prisma
-  test -f prisma/migrations/migration_lock.toml
-  test -f scripts/check/check-prisma-deploy-status.js
-
-  rm -rf .next/standalone/prisma .next/standalone/prisma.config.ts
-  mkdir -p .next/standalone/prisma
-  cp prisma/schema.prisma .next/standalone/prisma/schema.prisma
-  cp -R prisma/models .next/standalone/prisma/models
-  cp -R prisma/migrations .next/standalone/prisma/migrations
-  cp -R prisma/migrations-sqlite-legacy .next/standalone/prisma/migrations-sqlite-legacy
-  cp prisma.config.ts .next/standalone/prisma.config.ts
-  mkdir -p .next/standalone/scripts/check
-  cp scripts/check/check-prisma-deploy-status.js .next/standalone/scripts/check/check-prisma-deploy-status.js
-  mkdir -p .next/standalone/scripts/migrate
-  cp scripts/migrate/sqlite-to-postgresql.mjs .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
-
-  rm -rf .next/standalone/node_modules/prisma .next/standalone/node_modules/@prisma
-  mkdir -p .next/standalone/node_modules
-  cp -R node_modules/prisma .next/standalone/node_modules/prisma
-  cp -R node_modules/@prisma .next/standalone/node_modules/@prisma
-  node - <<'NODE' | while IFS= read -r pkg; do
-const fs = require("fs");
-const path = require("path");
-
-const root = process.cwd();
-const seen = new Set();
-
-function packageDir(name) {
-  if (name.startsWith("@")) {
-    return path.join(root, "node_modules", ...name.split("/"));
-  }
-  return path.join(root, "node_modules", name);
-}
-
-function walk(name) {
-  if (seen.has(name)) return;
-  seen.add(name);
-  const packageJson = path.join(packageDir(name), "package.json");
-  if (!fs.existsSync(packageJson)) {
-    throw new Error(`Missing Prisma CLI dependency: ${name}`);
-  }
-  const pkg = JSON.parse(fs.readFileSync(packageJson, "utf8"));
-  for (const dependency of Object.keys(pkg.dependencies || {})) {
-    walk(dependency);
-  }
-}
-
-walk("prisma");
-for (const name of [...seen].filter((value) => value !== "prisma" && !value.startsWith("@prisma/")).sort()) {
-  console.log(name);
-}
-NODE
-    copy_runtime_package "$pkg"
-  done
-
-  test -f .next/standalone/prisma/schema.prisma
-  test -f .next/standalone/prisma/migrations/migration_lock.toml
-  test -f .next/standalone/prisma/migrations-sqlite-legacy/migration_lock.toml
-  test -f .next/standalone/prisma.config.ts
-  test -f .next/standalone/scripts/check/check-prisma-deploy-status.js
-  test -f .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
-  test -f .next/standalone/node_modules/prisma/build/index.js
-  test -f .next/standalone/node_modules/effect/package.json
-}
-
-copy_resource_seed_files() {
-  echo "==> 打包 RBAC resource manifest..."
-  npx tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
-  cp scripts/seed-resources-runtime.mjs .next/standalone/seed-resources-runtime.mjs
-  mkdir -p .next/standalone/scripts/check
-  cp scripts/check/check-permission-action-grants.mjs .next/standalone/scripts/check/check-permission-action-grants.mjs
-  test -f .next/standalone/resource-defs.json
-  test -f .next/standalone/seed-resources-runtime.mjs
-  test -f .next/standalone/scripts/check/check-permission-action-grants.mjs
+  if [ "$RELEASE_GITHUB_BRANCH" != "$RELEASE_SOURCE_BRANCH" ]; then
+    echo "[错误] release evidence branch 不是 $RELEASE_SOURCE_BRANCH"
+    exit 1
+  fi
+  if [ -z "$RELEASE_GITHUB_RELEASE_ID" ] || [ -z "$RELEASE_GITHUB_RELEASE_TAG" ]; then
+    echo "[错误] 已要求 build-once，但 release evidence 没有 GitHub prerelease asset"
+    exit 1
+  fi
+  echo "==> 已验证 canonical source: ${RELEASE_SOURCE_SHA:0:12} (GitHub run $RELEASE_GITHUB_RUN_ID/$RELEASE_GITHUB_RUN_ATTEMPT)"
 }
 
 run_local_checks() {
@@ -299,83 +901,21 @@ run_local_checks() {
   npm run docs:check
 }
 
-ensure_build_deps() {
-  if [ ! -d node_modules ]; then
-    echo "==> 当前构建环境缺少 node_modules，安装依赖..."
-    npm ci --no-audit --fund=false --loglevel=error
-  fi
-}
-
 build_artifact() {
-  if [ "$(uname -s)" != "Linux" ] && [ "$ALLOW_NON_LINUX_BUILD" != "1" ]; then
-    echo "[错误] 当前部署脚本会上传本机 standalone 产物。请在 CNB/Linux CI 中运行；如确认要从当前机器构建，设置 ALLOW_NON_LINUX_BUILD=1。"
-    exit 1
-  fi
-
-  ensure_build_deps
-
-  echo "==> 在当前 CI/CNB 环境构建 Next standalone 产物..."
-  npm run build
-
-  local standalone_server
-  local standalone_app_dir
-  standalone_server="$(find .next/standalone -path '*/node_modules/*' -prune -o -type f -name server.js -print | head -n 1)"
-  if [ -z "$standalone_server" ]; then
-    echo "[错误] Next standalone 产物缺少 server.js"
-    find .next/standalone -maxdepth 4 -type f | sort | head -80 || true
-    exit 1
-  fi
-  standalone_app_dir="$(dirname "$standalone_server")"
-  printf '%s\n' "${standalone_server#.next/standalone/}" > .next/standalone/.server-entry
-
-  rm -rf "$standalone_app_dir/.next/static"
-  mkdir -p "$standalone_app_dir/.next"
-  cp -r .next/static "$standalone_app_dir/.next/static"
-  rm -rf "$standalone_app_dir/public"
-  # Keep runtime asset symlinks as symlinks in CI. The server-side deploy step
-  # below relinks them to REMOTE_WORKSPACE_CONFIG_DIR after extraction.
-  cp -R public "$standalone_app_dir/public"
-  rm -rf "$standalone_app_dir/data"
-  rm -f "$standalone_app_dir/.env"
-
-  # Next standalone tracing can leave database/runtime packages as partial shells.
-  # Keep the PostgreSQL adapter stack complete so production does not depend on
-  # bundler internals for database access.
-  copy_runtime_package_tree pg @prisma/adapter-pg @prisma/client dotenv @wecom/aibot-node-sdk @moonshot-ai/kimi-agent-sdk
-  copy_prisma_deploy_files
-  copy_resource_seed_files
-
-  mkdir -p .next/standalone/scripts/runtime
-  cp scripts/runtime/wecom-agent-bot.mjs .next/standalone/scripts/runtime/wecom-agent-bot.mjs
-  cp scripts/runtime/wecom-agent-delivery.mjs .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
-  cp scripts/runtime/wecom-agent-input.mjs .next/standalone/scripts/runtime/wecom-agent-input.mjs
-  cp scripts/runtime/wecom-agent-stream.mjs .next/standalone/scripts/runtime/wecom-agent-stream.mjs
-
-  rm -rf .next/standalone/generated/prisma
-  mkdir -p .next/standalone/generated
-  cp -R generated/prisma .next/standalone/generated/prisma
-  rm -rf .next/standalone/generated/production/qc/template-snapshots
-  mkdir -p .next/standalone/generated/production/qc
-  cp -R generated/production/qc/template-snapshots .next/standalone/generated/production/qc/template-snapshots
-  find .next/standalone \( -name '.DS_Store' -o -name '._*' \) -delete
-
-  test -f .next/standalone/node_modules/pg/lib/index.js
-  test -f .next/standalone/node_modules/@prisma/adapter-pg/dist/index.js
-  test -f .next/standalone/node_modules/@prisma/client/default.js
-  test -f .next/standalone/node_modules/@wecom/aibot-node-sdk/dist/index.cjs.js
-  test -f .next/standalone/node_modules/@moonshot-ai/kimi-agent-sdk/dist/index.cjs
-  test -f .next/standalone/scripts/runtime/wecom-agent-bot.mjs
-  test -f .next/standalone/scripts/runtime/wecom-agent-delivery.mjs
-  test -f .next/standalone/scripts/runtime/wecom-agent-input.mjs
-  test -f .next/standalone/scripts/runtime/wecom-agent-stream.mjs
-  test -f .next/standalone/generated/prisma/client.ts
-  test -f .next/standalone/generated/production/qc/template-snapshots/products/allopurinol.json
-
-  ARTIFACT_PATH=".next/workspace-standalone.tgz"
-  rm -f "$ARTIFACT_PATH"
-  COPYFILE_DISABLE=1 tar -C .next/standalone -czf "$ARTIFACT_PATH" .
-  ARTIFACT_SHA="$(hash_cmd < "$ARTIFACT_PATH" | awk '{print $1}')"
-  echo "==> 产物: $ARTIFACT_PATH ($ARTIFACT_SHA)"
+  ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
+  ARTIFACT_MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
+  echo "==> 下载受 GitHub prerelease digest 约束的 build-once 产物..."
+  rm -f "$ARTIFACT_PATH" "$ARTIFACT_MANIFEST_PATH"
+  node ops/release-evidence.mjs download-asset --file "$RELEASE_EVIDENCE_FILE" --kind artifact --output "$ARTIFACT_PATH"
+  node ops/release-evidence.mjs download-asset --file "$RELEASE_EVIDENCE_FILE" --kind manifest --output "$ARTIFACT_MANIFEST_PATH"
+  ARTIFACT_SHA="$(node ops/release-evidence.mjs validate-standalone \
+    --evidence "$RELEASE_EVIDENCE_FILE" \
+    --manifest "$ARTIFACT_MANIFEST_PATH" \
+    --artifact "$ARTIFACT_PATH" \
+    --sha "$RELEASE_SOURCE_SHA" \
+    --tree "$RELEASE_SOURCE_TREE")"
+  RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=require(process.argv[1]); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
+  ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
 }
 
 prepare_remote_runtime() {
@@ -467,7 +1007,7 @@ sync_remote_library_source() {
 
 ensure_remote_library_runtime_deps() {
   if [ "$INSTALL_LIBRARY_RUNTIME_DEPS" != "1" ]; then
-    echo "==> 跳过服务器 OCR/PDF 依赖安装（INSTALL_LIBRARY_RUNTIME_DEPS=$INSTALL_LIBRARY_RUNTIME_DEPS）"
+    echo "==> 跳过服务器 OCR/PDF 依赖安装（INSTALL_LIBRARY_RUNTIME_DEPS=${INSTALL_LIBRARY_RUNTIME_DEPS}）"
     return
   fi
 
@@ -485,22 +1025,40 @@ ensure_remote_library_runtime_deps() {
 
 ensure_remote_kimi_agent_runtime() {
   if [ "$INSTALL_KIMI_AGENT_RUNTIME_DEPS" != "1" ]; then
-    echo "==> 跳过 Kimi Agent SDK 运行时安装（INSTALL_KIMI_AGENT_RUNTIME_DEPS=$INSTALL_KIMI_AGENT_RUNTIME_DEPS）"
+    echo "==> 跳过 Kimi Agent SDK 运行时安装（INSTALL_KIMI_AGENT_RUNTIME_DEPS=${INSTALL_KIMI_AGENT_RUNTIME_DEPS}）"
     return
   fi
 
   local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap"
-  echo "==> 同步并安装 Kimi Agent SDK 隔离运行时..."
+  echo "==> 同步并校验 Kimi Agent SDK 隔离运行时..."
   ssh_cmd "mkdir -p '$remote_tool_dir'"
   rsync -az -e "$RSYNC_SSH_COMMAND" \
     ops/install-kimi-agent-runtime.sh \
     ops/kimi-agent-sandbox-runner.sh \
     "$SERVER:$remote_tool_dir/"
-  ssh_cmd "chmod +x '$remote_tool_dir/install-kimi-agent-runtime.sh' '$remote_tool_dir/kimi-agent-sandbox-runner.sh' && WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-kimi-agent-runtime.sh'"
+  ssh_cmd "
+    set -e
+    chmod +x '$remote_tool_dir/install-kimi-agent-runtime.sh' '$remote_tool_dir/kimi-agent-sandbox-runner.sh'
+    runtime_digest=\$(sha256sum \
+      '$remote_tool_dir/install-kimi-agent-runtime.sh' \
+      '$remote_tool_dir/kimi-agent-sandbox-runner.sh' | sha256sum | awk '{print \$1}')
+    runtime_marker='$remote_tool_dir/.installed-source.sha256'
+    if [ -f \"\$runtime_marker\" ] \
+      && [ \"\$(cat \"\$runtime_marker\")\" = \"\$runtime_digest\" ] \
+      && WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-kimi-agent-runtime.sh' --check; then
+      echo '==> Kimi Agent 隔离运行时 source/version 未变化，跳过网络安装'
+    else
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-kimi-agent-runtime.sh'
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-kimi-agent-runtime.sh' --check
+      printf '%s\\n' \"\$runtime_digest\" > \"\$runtime_marker.tmp\"
+      chmod 600 \"\$runtime_marker.tmp\"
+      mv \"\$runtime_marker.tmp\" \"\$runtime_marker\"
+    fi
+  "
 }
 
 sync_remote_agent_source() {
-  echo "==> 同步服务器页面助手源码: $REMOTE_AGENT_SOURCE_BRANCH -> $REMOTE_AGENT_SOURCE_DIR"
+  echo "==> 同步服务器页面助手源码到 canonical SHA: ${RELEASE_SOURCE_SHA:0:12} -> $REMOTE_AGENT_SOURCE_DIR"
   ssh_cmd "
     set -e
     if ! command -v git >/dev/null 2>&1; then
@@ -510,14 +1068,26 @@ sync_remote_agent_source() {
     mkdir -p \"\$(dirname '$REMOTE_AGENT_SOURCE_DIR')\"
     if [ -d '$REMOTE_AGENT_SOURCE_DIR/.git' ]; then
       git -C '$REMOTE_AGENT_SOURCE_DIR' remote set-url origin '$REMOTE_AGENT_SOURCE_REPO_URL'
-      git -C '$REMOTE_AGENT_SOURCE_DIR' fetch --depth=1 origin '$REMOTE_AGENT_SOURCE_BRANCH'
-      git -C '$REMOTE_AGENT_SOURCE_DIR' reset --hard 'origin/$REMOTE_AGENT_SOURCE_BRANCH'
-      git -C '$REMOTE_AGENT_SOURCE_DIR' clean -fd
     else
       rm -rf '$REMOTE_AGENT_SOURCE_DIR'
-      git clone --depth=1 --branch '$REMOTE_AGENT_SOURCE_BRANCH' '$REMOTE_AGENT_SOURCE_REPO_URL' '$REMOTE_AGENT_SOURCE_DIR'
+      mkdir -p '$REMOTE_AGENT_SOURCE_DIR'
+      git -C '$REMOTE_AGENT_SOURCE_DIR' init
+      git -C '$REMOTE_AGENT_SOURCE_DIR' remote add origin '$REMOTE_AGENT_SOURCE_REPO_URL'
     fi
-    git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse --short HEAD
+    git -C '$REMOTE_AGENT_SOURCE_DIR' fetch --no-tags --depth=1 origin '$RELEASE_SOURCE_SHA'
+    if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse FETCH_HEAD)\" != '$RELEASE_SOURCE_SHA' ]; then
+      echo '[错误] 页面助手源码 fetch 未得到 canonical source SHA'
+      exit 1
+    fi
+    git -C '$REMOTE_AGENT_SOURCE_DIR' reset --hard '$RELEASE_SOURCE_SHA'
+    git -C '$REMOTE_AGENT_SOURCE_DIR' clean -ffdx
+    if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse HEAD)\" != '$RELEASE_SOURCE_SHA' ] \
+      || [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse 'HEAD^{tree}')\" != '$RELEASE_SOURCE_TREE' ] \
+      || [ -n \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' status --porcelain)\" ]; then
+      echo '[错误] 页面助手源码未锁定到 canonical source identity'
+      exit 1
+    fi
+    git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse HEAD
   "
 }
 
@@ -702,6 +1272,9 @@ cleanup_remote_backups() {
   ssh_cmd "
     set -e
     mkdir -p '$REMOTE_BACKUP_DIR'
+    if [ ! -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy' ]; then
+      rm -rf '$REMOTE_BACKUP_DIR/maintenance-pinned'
+    fi
     python3 - <<'PY'
 from pathlib import Path
 import shutil
@@ -751,16 +1324,54 @@ PY
 deploy_remote_artifact() {
   local release_id
   local remote_tar
-  release_id="$(date +%Y%m%d%H%M%S)-$(git rev-parse --short HEAD 2>/dev/null || echo manual)"
+  local remote_manifest
+  release_id="$(date +%Y%m%d%H%M%S)-${RELEASE_SOURCE_SHA:0:8}"
   remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
+  remote_manifest="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.manifest.json"
 
   echo "==> 上传 CNB 构建产物到服务器..."
-  rsync -avz -e "$RSYNC_SSH_COMMAND" \
+  rsync -av -e "$RSYNC_SSH_COMMAND" \
     "$ARTIFACT_PATH" "$SERVER:$remote_tar"
+  rsync -av -e "$RSYNC_SSH_COMMAND" \
+    "$ARTIFACT_MANIFEST_PATH" "$SERVER:$remote_manifest"
+  echo "==> 上传后再次确认 protected main 与发布顺序..."
+  verify_release_order
+  stage_remote_github_token
 
-  echo "==> 服务器解包产物并重启服务..."
+  echo "==> 服务器复验产物与 manifest 后解包并重启服务..."
   ssh_cmd "
     set -e
+    test -s '$REMOTE_GITHUB_TOKEN_FILE'
+    github_token=\$(cat '$REMOTE_GITHUB_TOKEN_FILE')
+    rm -f '$REMOTE_GITHUB_TOKEN_FILE'
+    test -n \"\$github_token\"
+    if command -v sha256sum >/dev/null 2>&1; then
+      remote_artifact_sha=\$(sha256sum '$remote_tar' | awk '{print \$1}')
+      remote_manifest_sha=\$(sha256sum '$remote_manifest' | awk '{print \$1}')
+    else
+      remote_artifact_sha=\$(shasum -a 256 '$remote_tar' | awk '{print \$1}')
+      remote_manifest_sha=\$(shasum -a 256 '$remote_manifest' | awk '{print \$1}')
+    fi
+    if [ \"\$remote_artifact_sha\" != '$ARTIFACT_SHA' ]; then
+      echo '[错误] 服务器收到的 standalone 产物 SHA-256 不匹配'
+      exit 1
+    fi
+    if [ \"\$remote_manifest_sha\" != '$ARTIFACT_MANIFEST_SHA' ]; then
+      echo '[错误] 服务器收到的 standalone manifest SHA-256 不匹配'
+      exit 1
+    fi
+    node - '$remote_manifest' '$RELEASE_SOURCE_SHA' '$RELEASE_SOURCE_TREE' '$ARTIFACT_SHA' <<'NODE'
+const fs = require('fs');
+const [manifestPath, sourceSha, sourceTree, artifactSha] = process.argv.slice(2);
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+if (manifest.schemaVersion !== 1
+  || manifest.source?.commitSha !== sourceSha
+  || manifest.source?.treeSha !== sourceTree
+  || manifest.build?.buildId !== sourceSha
+  || manifest.artifact?.sha256 !== artifactSha) {
+  throw new Error('standalone manifest identity does not match trusted release values');
+}
+NODE
     mkdir -p '$REMOTE_DIR/releases'
     old_release=\$(readlink -f '$REMOTE_DIR/current' 2>/dev/null || true)
     find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
@@ -768,7 +1379,8 @@ deploy_remote_artifact() {
     rm -rf \"\$release_dir\"
     mkdir -p \"\$release_dir\"
     tar -xzf '$remote_tar' -C \"\$release_dir\"
-    rm -f '$remote_tar'
+    cp '$remote_manifest' \"\$release_dir/.release-manifest.json\"
+    rm -f '$remote_tar' '$remote_manifest'
 
     server_entry=\$(cat \"\$release_dir/.server-entry\" 2>/dev/null || printf 'server.js')
     app_dir=\$(dirname \"\$release_dir/\$server_entry\")
@@ -802,11 +1414,15 @@ deploy_remote_artifact() {
     test -f \"\$release_dir/prisma/schema.prisma\"
     test -f \"\$release_dir/prisma/migrations/migration_lock.toml\"
     test -f \"\$release_dir/scripts/check/check-prisma-deploy-status.js\"
+    test -f \"\$release_dir/scripts/ci/check-migration-policy.mjs\"
     test -f \"\$release_dir/scripts/migrate/sqlite-to-postgresql.mjs\"
     test -f \"\$release_dir/node_modules/prisma/build/index.js\"
     test -f \"\$release_dir/resource-defs.json\"
     test -f \"\$release_dir/seed-resources-runtime.mjs\"
+    test -f \"\$release_dir/scripts/provision-agent-workforce.mjs\"
+    test -f \"\$release_dir/scripts/lib/agent-workforce-specs.mjs\"
     test -f \"\$release_dir/scripts/check/check-permission-action-grants.mjs\"
+    test -f \"\$release_dir/.release-manifest.json\"
 
     cd \"\$release_dir\"
     set -a
@@ -818,6 +1434,21 @@ deploy_remote_artifact() {
     cutover_public_switched=0
     cutover_public_wal_lsn=''
     cutover_candidate_name='$PM2_NAME-candidate'
+    current_swap_tmp=''
+    public_process_stopped=0
+    release_committed=0
+    maintenance_migrations=''
+    maintenance_migration_started=0
+    maintenance_marker_path='$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
+    maintenance_marker_source='$RELEASE_SOURCE_SHA'
+    maintenance_backup=''
+    maintenance_backup_sha=''
+    maintenance_marker_present=0
+    if [ -f \"\$maintenance_marker_path\" ]; then
+      maintenance_marker_present=1
+      maintenance_migration_started=1
+      public_process_stopped=1
+    fi
     pm2_pid_or_unavailable() {
       local process_name=\$1
       local process_list
@@ -852,20 +1483,202 @@ except Exception:
     print('__unavailable__')
 PY
     }
-    if [ -n \"\$cutover_source\" ]; then
-      case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
-      test -r \"\$cutover_rollback_env\"
-      test -n \"\$old_release\"
-      test -f \"\$old_release/.server-entry\"
-      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
-        echo '[错误] SQLite cutover 前必须先停止 candidate、Workspace 与企业微信 PM2 writer'
+    assert_release_version() {
+      version_url=\$1
+      version_label=\$2
+      version_response=\$(curl -fsS \"\$version_url\")
+      actual_version=\$(VERSION_RESPONSE=\"\$version_response\" node - <<'NODE'
+const payload = JSON.parse(process.env.VERSION_RESPONSE || 'null');
+if (!payload || typeof payload.version !== 'string') {
+  throw new Error('version endpoint did not return a string version');
+}
+process.stdout.write(payload.version);
+NODE
+      )
+      if [ \"\$actual_version\" != '$RELEASE_SOURCE_SHA' ]; then
+        echo \"[错误] \$version_label 版本 \$actual_version 与 canonical source $RELEASE_SOURCE_SHA 不一致\"
         exit 1
       fi
-    fi
+    }
+    verify_remote_release_order() {
+      verification_phase=\$1
+      deployed_record='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
+      if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
+        if [ -e \"\$deployed_record\" ]; then
+          echo "[错误] \$verification_phase: production bootstrap 期间出现正式部署记录"
+          exit 1
+        fi
+      else
+        test -f \"\$deployed_record\"
+        DEPLOYED_RECORD=\"\$deployed_record\" \
+        EXPECTED_SHA='$DEPLOYED_SOURCE_SHA' \
+        EXPECTED_RUN_ID='$DEPLOYED_RUN_ID' \
+        EXPECTED_RUN_ATTEMPT='$DEPLOYED_RUN_ATTEMPT' \
+        EXPECTED_ARTIFACT_DIGEST='$DEPLOYED_ARTIFACT_DIGEST' \
+        EXPECTED_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' \
+        EXPECTED_BRANCH='$RELEASE_GITHUB_BRANCH' node - <<'NODE'
+const fs = require('fs');
+const record = JSON.parse(fs.readFileSync(process.env.DEPLOYED_RECORD, 'utf8'));
+if (record?.source?.commitSha !== process.env.EXPECTED_SHA
+  || String(record?.github?.runId) !== process.env.EXPECTED_RUN_ID
+  || String(record?.github?.runAttempt) !== process.env.EXPECTED_RUN_ATTEMPT
+  || record?.github?.actionsArtifactDigest !== process.env.EXPECTED_ARTIFACT_DIGEST
+  || record?.github?.repository !== process.env.EXPECTED_REPOSITORY
+  || record?.github?.branch !== process.env.EXPECTED_BRANCH) {
+  throw new Error('deployed-release record changed during deployment');
+}
+NODE
+      fi
+      order_args=(
+        --repository '$RELEASE_GITHUB_REPOSITORY'
+        --branch '$RELEASE_GITHUB_BRANCH'
+        --candidate '$RELEASE_SOURCE_SHA'
+        --candidate-run-id '$RELEASE_GITHUB_RUN_ID'
+        --candidate-run-attempt '$RELEASE_GITHUB_RUN_ATTEMPT'
+        --candidate-artifact-digest '$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST'
+        --candidate-event '$RELEASE_GITHUB_EVENT'
+        --workflow-name '$EXPECTED_GITHUB_WORKFLOW_NAME'
+        --workflow-path '$EXPECTED_GITHUB_WORKFLOW_PATH'
+        --required-job '$EXPECTED_GITHUB_REQUIRED_JOB'
+        --required-check-app-id '$RELEASE_GITHUB_CHECK_APP_ID'
+      )
+      if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
+        order_args+=(--bootstrap-base '$RELEASE_BOOTSTRAP_BASE')
+      else
+        order_args+=(
+          --deployed '$DEPLOYED_SOURCE_SHA'
+          --deployed-run-id '$DEPLOYED_RUN_ID'
+          --deployed-run-attempt '$DEPLOYED_RUN_ATTEMPT'
+          --deployed-artifact-digest '$DEPLOYED_ARTIFACT_DIGEST'
+        )
+      fi
+      late_order_action=\$(GITHUB_TOKEN=\"\$github_token\" node \"\$release_dir/scripts/ci/verify-deploy-order.mjs\" \"\${order_args[@]}\")
+      if [ \"\$late_order_action\" != 'deploy' ]; then
+        echo "[错误] \$verification_phase: 候选已不再满足实时发布顺序"
+        exit 1
+      fi
+      echo "==> \$verification_phase: 已复核最新同 SHA CI 与完整 branch protection"
+    }
+    ensure_bootstrap_progress_marker() {
+      [ -n '$RELEASE_BOOTSTRAP_BASE' ] || return 0
+      bootstrap_progress_marker='$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'
+      test ! -e '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
+      BOOTSTRAP_PROGRESS_MARKER="\$bootstrap_progress_marker" \
+      EXPECTED_BASELINE='$RELEASE_BOOTSTRAP_BASE' \
+      EXPECTED_CANDIDATE='$RELEASE_SOURCE_SHA' \
+      EXPECTED_TREE='$RELEASE_SOURCE_TREE' \
+      EXPECTED_MIGRATION_SET='$RELEASE_MIGRATION_SET_SHA' \
+      EXPECTED_LEGACY_RELEASE='$RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID' \
+      EXPECTED_LEGACY_CNB_COMMIT='$RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT' \
+      EXPECTED_LEGACY_CNB_BUILD_SN='$RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN' \
+      EXPECTED_LEGACY_RUNTIME_VERSION='$RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION' \
+      EXPECTED_LEGACY_BUILD_ID='$RELEASE_BOOTSTRAP_LEGACY_BUILD_ID' \
+      EXPECTED_LEGACY_CNB_REPOSITORY='$RELEASE_BOOTSTRAP_CNB_REPOSITORY' \
+      EXPECTED_BASELINE_COUNT='$RELEASE_BOOTSTRAP_MIGRATION_COUNT' \
+      EXPECTED_BASELINE_DIGEST='$RELEASE_BOOTSTRAP_MIGRATION_DIGEST' python3 - <<'PY'
+import json
+import os
+from pathlib import Path
+
+expected = {
+    'schemaVersion': 2,
+    'phase': 'mutation-started',
+    'baselineSha': os.environ['EXPECTED_BASELINE'],
+    'candidateSha': os.environ['EXPECTED_CANDIDATE'],
+    'candidateTreeSha': os.environ['EXPECTED_TREE'],
+    'candidateMigrationSetSha256': os.environ['EXPECTED_MIGRATION_SET'],
+    'legacyReleaseId': os.environ['EXPECTED_LEGACY_RELEASE'],
+    'legacyCnbCommitSha': os.environ['EXPECTED_LEGACY_CNB_COMMIT'],
+    'legacyCnbBuildSn': os.environ['EXPECTED_LEGACY_CNB_BUILD_SN'],
+    'legacyRuntimeVersion': os.environ['EXPECTED_LEGACY_RUNTIME_VERSION'],
+    'legacyBuildId': os.environ['EXPECTED_LEGACY_BUILD_ID'],
+    'legacyCnbRepository': os.environ['EXPECTED_LEGACY_CNB_REPOSITORY'],
+    'baselineMigrationCount': int(os.environ['EXPECTED_BASELINE_COUNT']),
+    'baselineMigrationSetSha256': os.environ['EXPECTED_BASELINE_DIGEST'],
+}
+path = Path(os.environ['BOOTSTRAP_PROGRESS_MARKER'])
+if path.exists():
+    try:
+        actual = json.loads(path.read_text(encoding='utf-8'))
+    except Exception as error:
+        raise SystemExit(f'production bootstrap progress marker is invalid: {error}')
+    if actual != expected:
+        raise SystemExit('production bootstrap progress marker is not the exact same receipt and candidate')
+else:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = path.parent / f'.{path.name}.tmp-{os.getpid()}'
+    temporary.write_text(json.dumps(expected, indent=2) + '\n', encoding='utf-8')
+    temporary.chmod(0o600)
+    temporary.replace(path)
+PY
+      echo '==> production bootstrap 已在首次 mutation 前原子绑定当前 receipt/candidate'
+    }
+    atomic_switch_current() {
+      current_target=\$1
+      current_swap_tmp='$REMOTE_DIR/.current.swap-$RELEASE_SOURCE_SHA'
+      rm -f "\$current_swap_tmp"
+      ln -s "\$current_target" "\$current_swap_tmp"
+      mv -Tf "\$current_swap_tmp" '$REMOTE_DIR/current'
+      current_swap_tmp=''
+    }
     rollback_cutover() {
       exit_code=\$?
       trap - EXIT
-      if [ \"\$exit_code\" -ne 0 ] && [ -n \"\$cutover_source\" ] && [ \"\$cutover_public_switched\" = '0' ]; then
+      if [ -n "\$current_swap_tmp" ]; then
+        rm -f "\$current_swap_tmp"
+        current_swap_tmp=''
+      fi
+      if [ \"\$exit_code\" -ne 0 ] && [ \"\$release_committed\" = '0' ] && [ -f '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' ]; then
+        if DEPLOYED_RECORD='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
+          EXPECTED_SOURCE='$RELEASE_SOURCE_SHA' \
+          EXPECTED_TREE='$RELEASE_SOURCE_TREE' \
+          EXPECTED_RUN_ID='$RELEASE_GITHUB_RUN_ID' \
+          EXPECTED_RUN_ATTEMPT='$RELEASE_GITHUB_RUN_ATTEMPT' \
+          EXPECTED_ARTIFACT_DIGEST='$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST' \
+          EXPECTED_RELEASE_DIR="\$release_dir" node - <<'NODE'
+const fs = require('fs');
+const record = JSON.parse(fs.readFileSync(process.env.DEPLOYED_RECORD, 'utf8'));
+if (record?.source?.commitSha !== process.env.EXPECTED_SOURCE
+  || record?.source?.treeSha !== process.env.EXPECTED_TREE
+  || String(record?.github?.runId) !== process.env.EXPECTED_RUN_ID
+  || String(record?.github?.runAttempt) !== process.env.EXPECTED_RUN_ATTEMPT
+  || record?.github?.actionsArtifactDigest !== process.env.EXPECTED_ARTIFACT_DIGEST
+  || record?.deployment?.releaseDir !== process.env.EXPECTED_RELEASE_DIR) {
+  process.exit(1);
+}
+NODE
+        then
+          release_committed=1
+          echo '==> deployed-release 原子记录已绑定当前 candidate；将其视为 commit point，不执行旧版本回滚'
+        fi
+      fi
+      if [ \"\$exit_code\" -ne 0 ] && [ \"\$release_committed\" = '1' ]; then
+        exit "\$exit_code"
+      fi
+      candidate_cleanup_failed=0
+      if [ \"\$exit_code\" -ne 0 ]; then
+        pm2 delete "\$cutover_candidate_name" 2>/dev/null || true
+        rollback_candidate_pid=\$(pm2_pid_or_unavailable "\$cutover_candidate_name")
+        if [ "\$rollback_candidate_pid" != '0' ]; then
+          candidate_cleanup_failed=1
+          echo '[错误] 未提交 candidate writer 未能确认停止；禁止自动启动或回退任何 writer。'
+        else
+          pm2 save
+        fi
+      fi
+      if [ \"\$exit_code\" -ne 0 ] && [ "\$candidate_cleanup_failed" = '1' ]; then
+        echo '[错误] candidate 无法确认停止；立即隔离 public 与 WeCom，避免双 writer。'
+        pm2 delete '$PM2_NAME' 2>/dev/null || true
+        pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+        rollback_public_pid=\$(pm2_pid_or_unavailable '$PM2_NAME')
+        rollback_wecom_pid=\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')
+        pm2 save || echo '[错误] writer 已隔离，但 PM2 状态持久化失败；禁止自动恢复。'
+        if [ "\$rollback_public_pid" != '0' ] || [ "\$rollback_wecom_pid" != '0' ]; then
+          echo '[错误] candidate 状态不明且其余 writer 也未能全部隔离；保持失败并等待人工处理。'
+        else
+          echo '[维护] candidate 状态不明；public 与 WeCom 已确认停止，不执行自动回退。'
+        fi
+      elif [ \"\$exit_code\" -ne 0 ] && [ -n \"\$cutover_source\" ] && [ \"\$cutover_public_switched\" = '0' ]; then
         pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
         pm2 delete '$PM2_NAME' 2>/dev/null || true
         pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
@@ -910,12 +1723,239 @@ PY
           fi
           pm2 save
         fi
+      elif [ \"\$exit_code\" -ne 0 ] && [ -z \"\$cutover_source\" ] && [ \"\$public_process_stopped\" = '1' ] && [ \"\$release_committed\" = '0' ]; then
+        pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+        pm2 delete '$PM2_NAME' 2>/dev/null || true
+        pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+        if [ \"\$maintenance_migration_started\" = '1' ]; then
+          echo '[维护] 不兼容 migration 已开始执行；为防止旧版本读取新协议，保持 Workspace 与企业微信停止。'
+          if [ ! -f \"\$maintenance_marker_path\" ]; then
+            echo '[错误] maintenance 持久 marker 丢失；保持停机并等待人工恢复'
+          else
+            chmod 600 \"\$maintenance_marker_path\"
+          fi
+          pm2 save
+        elif [ -n \"\$old_release\" ] && [ -f \"\$old_release/.server-entry\" ]; then
+          echo '[回滚] 新 release 未完成健康/版本/证据提交，恢复上一 PostgreSQL 应用版本。'
+          old_server_entry=\$(cat \"\$old_release/.server-entry\" 2>/dev/null || printf 'server.js')
+          old_app_dir=\$(dirname \"\$old_release/\$old_server_entry\")
+          PORT=3000 HOSTNAME=0.0.0.0 pm2 start \"\$old_release/\$old_server_entry\" --name '$PM2_NAME' --cwd \"\$old_app_dir\" --update-env
+          atomic_switch_current \"\$old_release\"
+          rollback_ready=0
+          for i in \$(seq 1 20); do
+            if curl -fsS '$HEALTHCHECK_URL' >/dev/null; then
+              rollback_ready=1
+              break
+            fi
+            sleep 1
+          done
+          if [ \"\$rollback_ready\" != '1' ]; then
+            echo '[错误] 上一 PostgreSQL 应用版本已重启，但健康检查失败。'
+            pm2 logs '$PM2_NAME' --lines 80 --nostream || true
+          fi
+          if [ -n \"\${WECHAT_BOT_ID:-}\" ] && [ -n \"\${WECHAT_BOT_SECRET:-}\" ] && [ -f \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" ]; then
+            pm2 start \"\$old_release/scripts/runtime/wecom-agent-bot.mjs\" --name '$PM2_WECOM_BOT_NAME' --cwd \"\$old_release\" --update-env
+          fi
+          pm2 save
+        else
+          echo '[错误] 没有可用的上一 release，无法自动恢复公网应用。'
+        fi
       fi
       exit \"\$exit_code\"
     }
     trap rollback_cutover EXIT
+    if [ \"\$maintenance_migration_started\" = '1' ]; then
+      echo '==> 检测到 maintenance marker；先无条件隔离所有旧 writer'
+      public_process_stopped=1
+      pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
+        echo '[错误] maintenance 续跑未能确认所有旧 writer 停止'
+        exit 1
+      fi
+      pm2 save
+      test \"\$maintenance_marker_present\" = '1'
+      test -f \"\$maintenance_marker_path\"
+      persisted_line_count=\$(awk 'END { print NR }' \"\$maintenance_marker_path\")
+      persisted_source=\$(sed -n 's/^sourceSha=//p' \"\$maintenance_marker_path\")
+      persisted_migrations=\$(sed -n 's/^migrations=//p' \"\$maintenance_marker_path\")
+      persisted_backup=\$(sed -n 's/^backupPath=//p' \"\$maintenance_marker_path\")
+      persisted_backup_sha=\$(sed -n 's/^backupSha256=//p' \"\$maintenance_marker_path\")
+      if [ \"\$persisted_line_count\" != '4' ] \
+        || ! printf '%s' \"\$persisted_source\" | grep -Eq '^[0-9a-f]{40}$' \
+        || ! printf '%s' \"\$persisted_migrations\" | grep -Eq '^[0-9]{14}_[a-z0-9_]+(,[0-9]{14}_[a-z0-9_]+)*$' \
+        || ! printf '%s' \"\$persisted_backup_sha\" | grep -Eq '^(pending|[0-9a-f]{64})$'; then
+        echo '[错误] maintenance-deploy 持久状态损坏；writer 已保持停止'
+        exit 1
+      fi
+      if [ \"\$persisted_source\" != '$RELEASE_SOURCE_SHA' ]; then
+        echo '[错误] maintenance-deploy 属于其他 candidate；writer 已保持停止'
+        exit 1
+      fi
+      case \"\$persisted_backup\" in
+        '$REMOTE_BACKUP_DIR/maintenance-pinned/'*.dump) ;;
+        *) echo '[错误] maintenance-deploy 备份路径不在受保护目录；writer 已保持停止'; exit 1 ;;
+      esac
+      maintenance_migrations=\"\$persisted_migrations\"
+      maintenance_backup=\"\$persisted_backup\"
+      maintenance_backup_sha=\"\$persisted_backup_sha\"
+      maintenance_marker_source=\"\$persisted_source\"
+      if [ \"\$maintenance_backup_sha\" != 'pending' ]; then
+        test -s \"\$maintenance_backup\"
+        pg_restore --list \"\$maintenance_backup\" >/dev/null
+        if command -v sha256sum >/dev/null 2>&1; then
+          persisted_backup_actual=\$(sha256sum \"\$maintenance_backup\" | awk '{print \$1}')
+        else
+          persisted_backup_actual=\$(shasum -a 256 \"\$maintenance_backup\" | awk '{print \$1}')
+        fi
+        if [ \"\$persisted_backup_actual\" != \"\$maintenance_backup_sha\" ]; then
+          echo '[错误] maintenance 前置恢复点 digest 不匹配；writer 已保持停止'
+          exit 1
+        fi
+      fi
+      echo \"==> 未完成维护状态（source \$persisted_source）已隔离；旧版本回滚保持禁用\"
+    fi
+    if [ -n \"\$cutover_source\" ]; then
+      case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac
+      test -r \"\$cutover_rollback_env\"
+      test -n \"\$old_release\"
+      test -f \"\$old_release/.server-entry\"
+      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
+        echo '[错误] SQLite cutover 前必须先停止 candidate、Workspace 与企业微信 PM2 writer'
+        exit 1
+      fi
+    fi
     echo '==> 检查 Prisma migration 状态...'
     node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\" --allow-pending
+    migration_inventory_rows=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -At -F '|' -c 'SELECT migration_name, checksum, CASE WHEN finished_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, CASE WHEN rolled_back_at IS NULL THEN '\''0'\'' ELSE '\''1'\'' END, applied_steps_count::text FROM "_prisma_migrations" ORDER BY migration_name, id')
+    MIGRATION_ROWS=\"\$migration_inventory_rows\" MIGRATIONS_DIR=\"\$release_dir/prisma/migrations\" node - <<'NODE'
+const { createHash } = require('crypto');
+const { readFileSync, readdirSync } = require('fs');
+const path = require('path');
+
+const migrations = new Map();
+for (const entry of readdirSync(process.env.MIGRATIONS_DIR, { withFileTypes: true })) {
+  if (!entry.isDirectory() || !/^[0-9]{14}_[a-z0-9_]+$/.test(entry.name)) continue;
+  const sqlPath = path.join(process.env.MIGRATIONS_DIR, entry.name, 'migration.sql');
+  const checksum = createHash('sha256').update(readFileSync(sqlPath)).digest('hex');
+  migrations.set(entry.name, checksum);
+}
+const active = new Set();
+for (const line of (process.env.MIGRATION_ROWS || '').split('\n').filter(Boolean)) {
+  const [name, checksum, finished, rolledBack, steps, ...rest] = line.split('|');
+  if (rest.length || !/^[0-9]{14}_[a-z0-9_]+$/.test(name || '')
+    || !/^[0-9a-f]{64}$/.test(checksum || '') || !/^[01]$/.test(finished || '')
+    || !/^[01]$/.test(rolledBack || '') || !/^[0-9]+$/.test(steps || '')) {
+    throw new Error('database migration inventory contains a malformed row');
+  }
+  if (!migrations.has(name) || migrations.get(name) !== checksum) {
+    throw new Error('database migration ' + name + ' is absent from the candidate or has a different checksum');
+  }
+  if (finished === '0' && rolledBack === '0') {
+    throw new Error('database migration ' + name + ' is unfinished; resolve it explicitly before retrying deployment');
+  }
+  if (finished === '1' && rolledBack === '1') {
+    throw new Error('database migration ' + name + ' is both finished and rolled back');
+  }
+  if (finished === '1' && rolledBack === '0') {
+    if (active.has(name)) throw new Error('database migration ' + name + ' has duplicate active receipts');
+    active.add(name);
+    if (Number(steps) < 1) throw new Error('database migration ' + name + ' has no applied steps');
+  }
+}
+NODE
+    if [ -z \"\$cutover_source\" ]; then
+      for migration_file in \"\$release_dir\"/prisma/migrations/*/migration.sql; do
+        [ -f \"\$migration_file\" ] || continue
+        migration_name=\$(basename \"\$(dirname \"\$migration_file\")\")
+        if ! printf '%s' \"\$migration_name\" | grep -Eq '^[0-9]{14}_[a-z0-9_]+$'; then
+          echo \"[错误] migration 名称不安全: \$migration_name\"
+          exit 1
+        fi
+        migration_applied=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -v migration_name=\"\$migration_name\" -Atc \"SELECT CASE WHEN EXISTS (SELECT 1 FROM \\\"_prisma_migrations\\\" WHERE migration_name = :'migration_name' AND finished_at IS NOT NULL AND rolled_back_at IS NULL) THEN '1' ELSE '0' END\")
+        [ \"\$migration_applied\" = '1' ] && continue
+        migration_mode=\$(node \"\$release_dir/scripts/ci/check-migration-policy.mjs\" --file \"\$migration_file\" --print-mode)
+        if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
+          case \",\$maintenance_migrations,\" in
+            *,\"\$migration_name\",*) ;;
+            *) maintenance_migrations=\"\${maintenance_migrations}\${maintenance_migrations:+,}\$migration_name\" ;;
+          esac
+        else
+          case \"\$migration_mode\" in
+            expand) ;;
+            maintenance)
+              case \",\$maintenance_migrations,\" in
+                *,\"\$migration_name\",*) ;;
+                *) maintenance_migrations=\"\${maintenance_migrations}\${maintenance_migrations:+,}\$migration_name\" ;;
+              esac
+              ;;
+            *) echo \"[错误] migration mode 不可识别: \$migration_name\"; exit 1 ;;
+          esac
+        fi
+      done
+    fi
+    # This is the first candidate-bound production mutation. The exact marker
+    # is durable before maintenance state, database writes, seed/provision,
+    # candidate PM2, or current can change. Different candidates never rebind it.
+    ensure_bootstrap_progress_marker
+    if [ -n \"\$maintenance_migrations\" ]; then
+      umask 077
+      mkdir -p '$REMOTE_BACKUP_DIR/maintenance-pinned'
+      if [ -z \"\$maintenance_backup\" ]; then
+        maintenance_backup='$REMOTE_BACKUP_DIR/maintenance-pinned/pre-'\"\$maintenance_marker_source\"'.dump'
+        maintenance_backup_sha='pending'
+      fi
+      marker_tmp=\"\$maintenance_marker_path.tmp.\$\$\"
+      printf '%s\\n' \
+        \"sourceSha=\$maintenance_marker_source\" \
+        \"migrations=\$maintenance_migrations\" \
+        \"backupPath=\$maintenance_backup\" \
+        \"backupSha256=\$maintenance_backup_sha\" > \"\$marker_tmp\"
+      chmod 600 \"\$marker_tmp\"
+      mv \"\$marker_tmp\" \"\$maintenance_marker_path\"
+      maintenance_migration_started=1
+      echo \"==> 进入维护窗口；停止旧 Workspace、candidate 与企业微信: \$maintenance_migrations\"
+      public_process_stopped=1
+      pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
+      pm2 delete '$PM2_NAME' 2>/dev/null || true
+      pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
+      if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_NAME')\" != '0' ] \
+        || [ \"\$(pm2_pid_or_unavailable '$PM2_WECOM_BOT_NAME')\" != '0' ]; then
+        echo '[错误] maintenance migration 前未能确认所有旧 writer 停止'
+        exit 1
+      fi
+      pm2 save
+      if [ \"\$maintenance_backup_sha\" = 'pending' ]; then
+        echo '==> 所有 writer 已停止并持久化；创建唯一的 migration 前 PostgreSQL 恢复点...'
+        maintenance_backup_tmp=\"\$maintenance_backup.tmp.\$\$\"
+        rm -f \"\$maintenance_backup_tmp\"
+        pg_dump --format=custom --no-owner --no-privileges --file=\"\$maintenance_backup_tmp\" \"\$DIRECT_URL\"
+        pg_restore --list \"\$maintenance_backup_tmp\" >/dev/null
+        if command -v sha256sum >/dev/null 2>&1; then
+          maintenance_backup_sha=\$(sha256sum \"\$maintenance_backup_tmp\" | awk '{print \$1}')
+        else
+          maintenance_backup_sha=\$(shasum -a 256 \"\$maintenance_backup_tmp\" | awk '{print \$1}')
+        fi
+        test -s \"\$maintenance_backup_tmp\"
+        mv \"\$maintenance_backup_tmp\" \"\$maintenance_backup\"
+        printf '%s  %s\\n' \"\$maintenance_backup_sha\" \"\$maintenance_backup\" > \"\$maintenance_backup.sha256\"
+        marker_tmp=\"\$maintenance_marker_path.tmp.\$\$\"
+        printf '%s\\n' \
+          \"sourceSha=\$maintenance_marker_source\" \
+          \"migrations=\$maintenance_migrations\" \
+          \"backupPath=\$maintenance_backup\" \
+          \"backupSha256=\$maintenance_backup_sha\" > \"\$marker_tmp\"
+        chmod 600 \"\$marker_tmp\"
+        mv \"\$marker_tmp\" \"\$maintenance_marker_path\"
+      fi
+      test -s \"\$maintenance_backup\"
+      test -s \"\$maintenance_backup.sha256\"
+    fi
+    verify_remote_release_order 'pre-migration'
     echo '==> 执行 Prisma 数据库迁移...'
     node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
     if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
@@ -981,6 +2021,9 @@ PY
     node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\"
     echo '==> 同步 RBAC resource registry...'
     node \"\$release_dir/seed-resources-runtime.mjs\" \"\$release_dir/resource-defs.json\"
+    echo '==> 幂等同步 Agent 虚拟员工与岗位...'
+    node \"\$release_dir/scripts/provision-agent-workforce.mjs\" --execute
+    node \"\$release_dir/scripts/provision-agent-workforce.mjs\" --check
     echo '==> 校验 RBAC action grant 数据...'
     node \"\$release_dir/scripts/check/check-permission-action-grants.mjs\" \"\$release_dir/resource-defs.json\"
     user_count=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT count(*) FROM \"User\";')
@@ -1015,6 +2058,9 @@ PY
       pm2 logs \"\$cutover_candidate_name\" --lines 80 --nostream || true
       exit 1
     fi
+    assert_release_version 'http://127.0.0.1:3101/workspace/api/settings/version' 'candidate'
+    verify_remote_release_order 'pre-cutover'
+    unset github_token
     pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
     if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ]; then
       echo '[错误] PostgreSQL candidate writer 未能确认停止，拒绝启动公网进程'
@@ -1025,6 +2071,7 @@ PY
       echo '[错误] PostgreSQL public writer 未能确认停止，拒绝记录 WAL 基线'
       exit 1
     fi
+    public_process_stopped=1
     if [ -n \"\$cutover_source\" ]; then
       cutover_public_wal_lsn=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc 'SELECT pg_current_wal_lsn()')
     fi
@@ -1041,8 +2088,9 @@ PY
       pm2 logs '$PM2_NAME' --lines 80 --nostream || true
       exit 1
     fi
+    assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'
     cutover_public_switched=1
-    ln -sfn \"\$release_dir\" '$REMOTE_DIR/current'
+    atomic_switch_current \"\$release_dir\"
     pm2 delete '$PM2_WECOM_BOT_NAME' 2>/dev/null || true
     if [ -n "\${WECHAT_BOT_ID:-}" ] && [ -n "\${WECHAT_BOT_SECRET:-}" ]; then
       pm2 start "\$release_dir/scripts/runtime/wecom-agent-bot.mjs" --name '$PM2_WECOM_BOT_NAME' --cwd "\$release_dir" --update-env
@@ -1050,14 +2098,90 @@ PY
       echo '==> 跳过企业微信智能机器人：WECHAT_BOT_ID/WECHAT_BOT_SECRET 未配置'
     fi
     pm2 save
+    DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' \
+    DEPLOY_SOURCE_TREE='$RELEASE_SOURCE_TREE' \
+    DEPLOY_ARTIFACT_SHA='$ARTIFACT_SHA' \
+    DEPLOY_MANIFEST_SHA='$ARTIFACT_MANIFEST_SHA' \
+    DEPLOY_GITHUB_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' \
+    DEPLOY_GITHUB_BRANCH='$RELEASE_GITHUB_BRANCH' \
+    DEPLOY_GITHUB_EVENT='$RELEASE_GITHUB_EVENT' \
+    DEPLOY_GITHUB_RUN_ID='$RELEASE_GITHUB_RUN_ID' \
+    DEPLOY_GITHUB_RUN_ATTEMPT='$RELEASE_GITHUB_RUN_ATTEMPT' \
+    DEPLOY_GITHUB_JOB_ID='$RELEASE_GITHUB_JOB_ID' \
+    DEPLOY_GITHUB_CHECK_APP_ID='$RELEASE_GITHUB_CHECK_APP_ID' \
+    DEPLOY_GITHUB_ARTIFACT_NAME='$RELEASE_GITHUB_ACTIONS_ARTIFACT' \
+    DEPLOY_GITHUB_ARTIFACT_ID='$RELEASE_GITHUB_ACTIONS_ARTIFACT_ID' \
+    DEPLOY_GITHUB_ARTIFACT_DIGEST='$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST' \
+    DEPLOY_GITHUB_RELEASE_ID='$RELEASE_GITHUB_RELEASE_ID' \
+    DEPLOY_GITHUB_RELEASE_TAG='$RELEASE_GITHUB_RELEASE_TAG' \
+    DEPLOY_RELEASE_ID='$release_id' \
+    DEPLOY_RELEASE_DIR='$REMOTE_DIR/releases/$release_id' \
+    REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' \
+      python3 - <<'PY'
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+
+config_dir = Path(os.environ['REMOTE_WORKSPACE_CONFIG_DIR'])
+record = {
+    'schemaVersion': 1,
+    'source': {
+        'commitSha': os.environ['DEPLOY_SOURCE_SHA'],
+        'treeSha': os.environ['DEPLOY_SOURCE_TREE'],
+    },
+    'artifact': {
+        'sha256': os.environ['DEPLOY_ARTIFACT_SHA'],
+        'manifestSha256': os.environ['DEPLOY_MANIFEST_SHA'],
+    },
+    'github': {
+        'repository': os.environ['DEPLOY_GITHUB_REPOSITORY'],
+        'branch': os.environ['DEPLOY_GITHUB_BRANCH'],
+        'event': os.environ['DEPLOY_GITHUB_EVENT'],
+        'runId': int(os.environ['DEPLOY_GITHUB_RUN_ID']),
+        'runAttempt': int(os.environ['DEPLOY_GITHUB_RUN_ATTEMPT']),
+        'requiredJobId': int(os.environ['DEPLOY_GITHUB_JOB_ID']),
+        'requiredCheckAppId': int(os.environ['DEPLOY_GITHUB_CHECK_APP_ID']),
+        'actionsArtifactName': os.environ['DEPLOY_GITHUB_ARTIFACT_NAME'],
+        'actionsArtifactId': int(os.environ['DEPLOY_GITHUB_ARTIFACT_ID']),
+        'actionsArtifactDigest': os.environ['DEPLOY_GITHUB_ARTIFACT_DIGEST'],
+        'releaseId': int(os.environ['DEPLOY_GITHUB_RELEASE_ID']),
+        'releaseTag': os.environ['DEPLOY_GITHUB_RELEASE_TAG'],
+    },
+    'deployment': {
+        'releaseId': os.environ['DEPLOY_RELEASE_ID'],
+        'releaseDir': os.environ['DEPLOY_RELEASE_DIR'],
+        'deployedAt': datetime.now(timezone.utc).isoformat(),
+    },
+}
+config_dir.mkdir(parents=True, exist_ok=True)
+path = config_dir / 'deployed-release.json'
+temporary = config_dir / f'.deployed-release.json.tmp-{os.getpid()}'
+temporary.write_text(json.dumps(record, indent=2) + '\n', encoding='utf-8')
+temporary.chmod(0o600)
+temporary.replace(path)
+PY
+    release_committed=1
+    rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
+    rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'
     find '$REMOTE_DIR/releases' -mindepth 1 -maxdepth 1 -type d | sort -r | tail -n +6 | xargs -r rm -rf
     pm2 status
   "
 }
 
 run_healthcheck() {
-  echo "==> 健康检查..."
-  ssh_cmd "curl -fsS '$HEALTHCHECK_URL' >/dev/null"
+  echo "==> 健康检查与 canonical 版本复验..."
+  ssh_cmd "
+    set -e
+    curl -fsS '$HEALTHCHECK_URL' >/dev/null
+    version_response=\$(curl -fsS 'http://127.0.0.1:3000/workspace/api/settings/version')
+    VERSION_RESPONSE=\"\$version_response\" EXPECTED_VERSION='$RELEASE_SOURCE_SHA' node - <<'NODE'
+const payload = JSON.parse(process.env.VERSION_RESPONSE || 'null');
+if (!payload || payload.version !== process.env.EXPECTED_VERSION) {
+  throw new Error('post-deploy version endpoint does not match canonical source SHA');
+}
+NODE
+  "
 }
 
 notify_workspace_bot_deploy() {
@@ -1112,6 +2236,9 @@ require_local_cmd tar
 echo "==> ssh: $(command -v ssh)"
 echo "==> rsync: $(command -v rsync)"
 
+echo "==> 校验远端 CI 与 canonical source 证据..."
+resolve_release_evidence
+
 if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
   run_local_checks
 else
@@ -1130,6 +2257,9 @@ build_artifact
 echo "==> 验证服务器连接..."
 start_ssh_master
 ssh_cmd "echo CONNECTED && whoami && mkdir -p '$REMOTE_DIR'"
+acquire_remote_deploy_lock
+reconcile_completed_deploy_markers
+verify_release_order
 
 prepare_remote_runtime
 ensure_remote_library_runtime_deps
@@ -1137,6 +2267,7 @@ ensure_remote_kimi_agent_runtime
 sync_remote_library_source
 sync_remote_agent_source
 validate_remote_runtime
+verify_release_order
 backup_remote_postgresql
 backup_remote_runtime
 cleanup_remote_backups

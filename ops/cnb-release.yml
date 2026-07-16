@@ -1,0 +1,45 @@
+cnb-release:
+  # 关闭 GitHub 镜像同步后的自动部署；手动触发用 api_trigger_manual。
+  # 这是经 Git review 的 CNB CD 配置真源；私有目录只能保存逐字一致副本。
+  api_trigger_manual:
+    - name: deploy-prod
+      docker:
+        image: node:22-bookworm
+      imports:
+        - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+      env:
+        # GitHub protected-main CI builds and tests the canonical artifact once.
+        # CNB verifies digest-bound release evidence and deploys those exact bytes without rebuilding.
+        USE_GITHUB_RELEASE_ARTIFACTS: "1"
+        RUN_LOCAL_CHECKS: "0"
+        RELEASE_SOURCE_BRANCH: main
+      stages:
+        - name: install-deploy-tools
+          script: |
+            apt-get update
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar
+        - name: deploy-to-server
+          imports:
+            - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
+          env:
+            REMOTE_DIR: /home/ubuntu/workspace
+            REMOTE_WORKSPACE_CONFIG_DIR: /home/ubuntu/workspace/.workspace
+            HEALTHCHECK_URL: http://127.0.0.1:3000/workspace/login
+            INSTALL_LIBRARY_RUNTIME_DEPS: "1"
+          script: |
+            missing=0
+            for key in SERVER REMOTE_DIR REMOTE_WORKSPACE_CONFIG_DIR KEY_CONTENT; do
+              if [ -z "$(eval "printf '%s' \"\${$key:-}\"")" ]; then
+                echo "[错误] 缺少部署环境变量: $key"
+                missing=1
+              fi
+            done
+            if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ]; then
+              echo "[错误] 缺少 GITHUB_TOKEN/GH_TOKEN；需要读取 GitHub Actions、Contents 与 Administration branch protection 状态"
+              missing=1
+            fi
+            if [ "$missing" = "1" ]; then
+              echo "[提示] 请检查密钥仓库 server-prod.yaml 的 allow_slugs / allow_events / allow_branches 是否允许 illya317/Workspace + api_trigger_manual + cnb-release。"
+              exit 1
+            fi
+            bash ./ops/deploy.sh
