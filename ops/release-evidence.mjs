@@ -309,13 +309,11 @@ function verifyBranchProtection(repository, branch, sourceSha, requiredJobName, 
   const protection = ghApi(`repos/${repository}/branches/${encodeURIComponent(branch)}/protection`);
   const checks = protection?.required_status_checks?.checks ?? [];
   const exactChecks = checks.filter((check) => check.context === requiredJobName && check.app_id === requiredCheckAppId);
-  const legacyContexts = protection?.required_status_checks?.contexts ?? [];
   const bypass = protection?.required_pull_request_reviews?.bypass_pull_request_allowances;
   const noPullRequestBypass = bypass === undefined
     || [bypass.users, bypass.teams, bypass.apps].every((actors) => Array.isArray(actors) && actors.length === 0);
   if (protection?.required_status_checks?.strict !== true
     || exactChecks.length !== 1
-    || legacyContexts.includes(requiredJobName)
     || protection?.enforce_admins?.enabled !== true
     || !protection?.required_pull_request_reviews
     || protection.required_pull_request_reviews.require_code_owner_reviews !== true

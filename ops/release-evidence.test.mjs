@@ -83,6 +83,7 @@ function createGithubFixture({
   weakProtection = false,
   weakCodeOwnerProtection = false,
   omitBypassAllowances = false,
+  includeDerivedContext = false,
   expiredArtifact = false,
   delayedNewRun = false,
   event = "push",
@@ -161,6 +162,7 @@ function createGithubFixture({
     weakProtection,
     weakCodeOwnerProtection,
     omitBypassAllowances,
+    includeDerivedContext,
     expiredArtifact,
     delayedNewRun,
     runAttempt,
@@ -211,7 +213,11 @@ if (endpoint === 'repos/acme/workspace/branches/main') {
   output({ name: data.requiredJobName, head_sha: data.sourceSha, status: 'completed', conclusion: 'success', app: { id: data.checkAppId, slug: 'github-actions' } });
 } else if (endpoint === 'repos/acme/workspace/branches/main/protection') {
   output({
-    required_status_checks: { strict: true, contexts: [], checks: [{ context: data.requiredJobName, app_id: data.checkAppId }] },
+    required_status_checks: {
+      strict: true,
+      contexts: data.includeDerivedContext ? [data.requiredJobName] : [],
+      checks: [{ context: data.requiredJobName, app_id: data.checkAppId }],
+    },
     enforce_admins: { enabled: !data.weakProtection },
     required_pull_request_reviews: {
       required_approving_review_count: 0,
@@ -344,6 +350,19 @@ test("accepts GitHub omitting empty pull-request bypass allowances", () => {
     assert.equal(result.status, 0, result.stderr);
     const evidence = JSON.parse(readFileSync(output, "utf8"));
     assert.equal(evidence.github.branchProtection.pullRequestBypassAllowed, false);
+  } finally {
+    fixture.cleanup();
+  }
+});
+
+test("accepts GitHub deriving legacy contexts from an exact App-bound check", () => {
+  const fixture = createGithubFixture({ includeDerivedContext: true });
+  try {
+    const output = path.join(fixture.root, "evidence.json");
+    const result = runNode(verificationArguments(fixture, output), { env: fixture.env });
+    assert.equal(result.status, 0, result.stderr);
+    const evidence = JSON.parse(readFileSync(output, "utf8"));
+    assert.equal(evidence.github.requiredCheckAppId, checkAppId);
   } finally {
     fixture.cleanup();
   }
