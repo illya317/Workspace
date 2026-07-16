@@ -296,7 +296,7 @@ if [ "$current_branch" != "$RELEASE_BRANCH" ]; then
   exit 1
 fi
 if [ "$head_sha" != "$remote_main_sha" ]; then
-  echo "[错误] 本地 HEAD 必须精确等于 GitHub 受保护 $RELEASE_BRANCH；禁止发布未合并或旧提交"
+  echo "[错误] 本地 HEAD 必须精确等于 GitHub 受保护 ${RELEASE_BRANCH}；禁止发布未合并或旧提交"
   exit 1
 fi
 
@@ -765,7 +765,7 @@ read_classification_field() {
 cumulative_risk="$(read_classification_field riskClass)"
 cumulative_e2e="$(read_classification_field e2eMode)"
 cumulative_suites="$(read_classification_field requiredSuites)"
-echo "==> 累计风险: $cumulative_risk；浏览器测试: $cumulative_e2e"
+echo "==> 累计风险: ${cumulative_risk}；浏览器测试: $cumulative_e2e"
 if [ -f "$migration_policy_file" ]; then
   cumulative_maintenance="$(node -e 'const p=require(process.argv[1]); process.stdout.write(String(p.requiresMaintenance === true));' "$migration_policy_file")"
   if [ "$cumulative_maintenance" = "true" ]; then

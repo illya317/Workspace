@@ -1816,7 +1816,7 @@ NODE
           exit 1
         fi
       fi
-      echo \"==> 未完成维护状态（source \$persisted_source）已隔离；旧版本回滚保持禁用\"
+      echo \"==> 未完成维护状态（source \${persisted_source}）已隔离；旧版本回滚保持禁用\"
     fi
     if [ -n \"\$cutover_source\" ]; then
       case \"\$cutover_rollback_env\" in /*) ;; *) echo '[错误] SQLITE_CUTOVER_ROLLBACK_ENV 必须是绝对路径'; exit 1 ;; esac

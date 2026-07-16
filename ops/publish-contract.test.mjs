@@ -4,6 +4,13 @@ import test from "node:test";
 
 const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
 
+test("shell variables next to non-ASCII punctuation use explicit braces", () => {
+  for (const name of ["publish.sh", "release-to-cnb.sh", "deploy.sh"]) {
+    const source = readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+    assert.doesNotMatch(source, /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]/u, name);
+  }
+});
+
 test("same-SHA reconciliation requires live health and exact version", () => {
   assert.match(
     publish,
