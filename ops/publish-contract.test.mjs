@@ -34,6 +34,7 @@ test("CNB deployment path does not call GitHub APIs, Actions, Releases, or evide
   assert.doesNotMatch(cnbPlaceholder, /bash \.\/ops\/deploy\.sh/);
   assert.match(cnbPipeline, /pg_ctlcluster 15 main start/);
   assert.match(cnbPipeline, /CREATE DATABASE workspace_ci_shadow OWNER workspace/);
+  assert.match(cnbPipeline, /apt-get install[^\n]*\bshellcheck\b/);
   assert.match(cnbPipeline, /npm run deploy:preflight:ci/);
   assert.match(cnbPipeline, /npm run test:node/);
   assert.match(cnbPipeline, /build-standalone-artifact\.sh/);
