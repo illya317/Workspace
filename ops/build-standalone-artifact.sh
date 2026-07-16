@@ -102,7 +102,6 @@ copy_prisma_deploy_files() {
   test -f prisma/migrations/migration_lock.toml
   test -f scripts/check/check-prisma-deploy-status.js
   test -f scripts/ci/check-migration-policy.mjs
-  test -f ops/verify-deploy-order.mjs
 
   rm -rf .next/standalone/prisma .next/standalone/prisma.config.ts
   mkdir -p .next/standalone/prisma
@@ -115,7 +114,6 @@ copy_prisma_deploy_files() {
   cp scripts/check/check-prisma-deploy-status.js .next/standalone/scripts/check/check-prisma-deploy-status.js
   mkdir -p .next/standalone/scripts/ci
   cp scripts/ci/check-migration-policy.mjs .next/standalone/scripts/ci/check-migration-policy.mjs
-  cp ops/verify-deploy-order.mjs .next/standalone/scripts/ci/verify-deploy-order.mjs
   mkdir -p .next/standalone/scripts/migrate
   cp scripts/migrate/sqlite-to-postgresql.mjs .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
 
@@ -155,7 +153,6 @@ NODE
   test -f .next/standalone/prisma.config.ts
   test -f .next/standalone/scripts/check/check-prisma-deploy-status.js
   test -f .next/standalone/scripts/ci/check-migration-policy.mjs
-  test -f .next/standalone/scripts/ci/verify-deploy-order.mjs
   test -f .next/standalone/scripts/migrate/sqlite-to-postgresql.mjs
   test -f .next/standalone/node_modules/prisma/build/index.js
   test -f .next/standalone/node_modules/effect/package.json

@@ -54,10 +54,6 @@ if [ -z "$HEALTHCHECK_URL" ]; then
   echo "[错误] 缺少 HEALTHCHECK_URL；部署必须配置服务器本机可访问的强制健康检查地址"
   exit 1
 fi
-if [ -z "${GITHUB_TOKEN:-}" ] && [ -z "${GH_TOKEN:-}" ]; then
-  echo "[错误] 缺少 GITHUB_TOKEN/GH_TOKEN；锁内部署必须读取 Actions 与完整 branch protection 状态"
-  exit 1
-fi
 case "$HEALTHCHECK_URL" in
   http://*|https://*) ;;
   *) echo "[错误] HEALTHCHECK_URL 必须使用 http:// 或 https://"; exit 1 ;;
@@ -130,7 +126,6 @@ RSYNC_SSH_COMMAND="ssh -i $SSH_KEY -o BatchMode=yes -o ConnectTimeout=15 -o Conn
 REMOTE_DEPLOY_LOCK_PID=""
 REMOTE_DEPLOY_LOCK_TOKEN=""
 REMOTE_DEPLOY_LOCK_HELD=0
-REMOTE_GITHUB_TOKEN_FILE=""
 DEPLOYED_SOURCE_SHA=""
 DEPLOYED_RUN_ID=""
 DEPLOYED_RUN_ATTEMPT=""
@@ -157,9 +152,6 @@ release_remote_deploy_lock() {
 
 cleanup_deploy() {
   release_remote_deploy_lock
-  if [ -n "$REMOTE_GITHUB_TOKEN_FILE" ]; then
-    ssh "${SSH_OPTIONS[@]}" "$SERVER" "rm -f '$REMOTE_GITHUB_TOKEN_FILE'" >/dev/null 2>&1 || true
-  fi
   ssh "${SSH_OPTIONS[@]}" -O exit "$SERVER" >/dev/null 2>&1 || true
   rm -rf "$SSH_CONTROL_DIR"
   rm -f "${TMPKEY:-}"
@@ -168,13 +160,6 @@ trap cleanup_deploy EXIT
 
 ssh_cmd() {
   ssh "${SSH_OPTIONS[@]}" "$SERVER" "$@"
-}
-
-stage_remote_github_token() {
-  local github_token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
-  REMOTE_GITHUB_TOKEN_FILE="$REMOTE_WORKSPACE_CONFIG_DIR/.deploy-github-token-$REMOTE_DEPLOY_LOCK_TOKEN"
-  printf '%s' "$github_token" | ssh "${SSH_OPTIONS[@]}" "$SERVER" \
-    "umask 077; test ! -e '$REMOTE_GITHUB_TOKEN_FILE'; cat > '$REMOTE_GITHUB_TOKEN_FILE'; test -s '$REMOTE_GITHUB_TOKEN_FILE'"
 }
 
 start_ssh_master() {
@@ -673,6 +658,10 @@ verify_release_order() {
   local deployed_branch=""
   local order_action
   local args
+  local comparison_base=""
+  local comparison_status
+  local comparison_ahead
+  local comparison_json=""
 
   remote_state="$(ssh_cmd "REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' EXPECTED_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' EXPECTED_BRANCH='$RELEASE_GITHUB_BRANCH' python3 - <<'PY'
 import json
@@ -737,20 +726,15 @@ PY")"
   esac
 
   args=(
-    --repository "$RELEASE_GITHUB_REPOSITORY"
-    --branch "$RELEASE_GITHUB_BRANCH"
     --candidate "$RELEASE_SOURCE_SHA"
     --candidate-run-id "$RELEASE_GITHUB_RUN_ID"
     --candidate-run-attempt "$RELEASE_GITHUB_RUN_ATTEMPT"
     --candidate-artifact-digest "$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"
-    --candidate-event "$RELEASE_GITHUB_EVENT"
-    --workflow-name "$EXPECTED_GITHUB_WORKFLOW_NAME"
-    --workflow-path "$EXPECTED_GITHUB_WORKFLOW_PATH"
-    --required-job "$EXPECTED_GITHUB_REQUIRED_JOB"
-    --required-check-app-id "$RELEASE_GITHUB_CHECK_APP_ID"
+    --current-head "$RELEASE_SOURCE_SHA"
   )
   if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
     args+=(--bootstrap-base "$RELEASE_BOOTSTRAP_BASE")
+    comparison_base="$RELEASE_BOOTSTRAP_BASE"
   elif [ -n "$DEPLOYED_SOURCE_SHA" ]; then
     args+=(
       --deployed "$DEPLOYED_SOURCE_SHA"
@@ -758,6 +742,32 @@ PY")"
       --deployed-run-attempt "$DEPLOYED_RUN_ATTEMPT"
       --deployed-artifact-digest "$DEPLOYED_ARTIFACT_DIGEST"
     )
+    if [ "$DEPLOYED_SOURCE_SHA" != "$RELEASE_SOURCE_SHA" ]; then
+      comparison_base="$DEPLOYED_SOURCE_SHA"
+    fi
+  fi
+  if [ -n "$comparison_base" ]; then
+    if ! git cat-file -e "${comparison_base}^{commit}" 2>/dev/null; then
+      echo "[错误] 本地仓库缺少部署顺序基线提交: $comparison_base"
+      exit 1
+    fi
+    if [ "$comparison_base" = "$RELEASE_SOURCE_SHA" ]; then
+      comparison_status="identical"
+      comparison_ahead=0
+    else
+      if ! git merge-base --is-ancestor "$comparison_base" "$RELEASE_SOURCE_SHA"; then
+        echo "[错误] 候选 $RELEASE_SOURCE_SHA 不是部署基线 $comparison_base 的后代"
+        exit 1
+      fi
+      if [ "$(git merge-base "$comparison_base" "$RELEASE_SOURCE_SHA")" != "$comparison_base" ]; then
+        echo "[错误] 候选与部署基线的 merge-base 不精确"
+        exit 1
+      fi
+      comparison_status="ahead"
+      comparison_ahead="$(git rev-list --count "$comparison_base..$RELEASE_SOURCE_SHA")"
+    fi
+    comparison_json="{\"status\":\"$comparison_status\",\"ahead_by\":$comparison_ahead,\"base_commit\":{\"sha\":\"$comparison_base\"},\"merge_base_commit\":{\"sha\":\"$comparison_base\"},\"head_commit\":{\"sha\":\"$RELEASE_SOURCE_SHA\"}}"
+    args+=(--comparison-json "$comparison_json")
   fi
   order_action="$(node ops/verify-deploy-order.mjs "${args[@]}")"
   if [ "$order_action" = "noop" ]; then
@@ -771,7 +781,7 @@ PY")"
     exit 1
   fi
   verify_bootstrap_production_state
-  echo "==> 锁内已证明候选仍是受保护 main，且不会回滚当前生产版本。"
+  echo "==> 锁内已证明候选与已提交发布证据一致，且不会回滚当前生产版本。"
 }
 
 require_local_cmd() {
@@ -1334,17 +1344,12 @@ deploy_remote_artifact() {
     "$ARTIFACT_PATH" "$SERVER:$remote_tar"
   rsync -av -e "$RSYNC_SSH_COMMAND" \
     "$ARTIFACT_MANIFEST_PATH" "$SERVER:$remote_manifest"
-  echo "==> 上传后再次确认 protected main 与发布顺序..."
+  echo "==> 上传后再次确认发布证据与部署顺序..."
   verify_release_order
-  stage_remote_github_token
 
   echo "==> 服务器复验产物与 manifest 后解包并重启服务..."
   ssh_cmd "
     set -e
-    test -s '$REMOTE_GITHUB_TOKEN_FILE'
-    github_token=\$(cat '$REMOTE_GITHUB_TOKEN_FILE')
-    rm -f '$REMOTE_GITHUB_TOKEN_FILE'
-    test -n \"\$github_token\"
     if command -v sha256sum >/dev/null 2>&1; then
       remote_artifact_sha=\$(sha256sum '$remote_tar' | awk '{print \$1}')
       remote_manifest_sha=\$(sha256sum '$remote_manifest' | awk '{print \$1}')
@@ -1500,7 +1505,7 @@ NODE
         exit 1
       fi
     }
-    verify_remote_release_order() {
+    verify_remote_deployed_record() {
       verification_phase=\$1
       deployed_record='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
       if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
@@ -1529,35 +1534,7 @@ if (record?.source?.commitSha !== process.env.EXPECTED_SHA
 }
 NODE
       fi
-      order_args=(
-        --repository '$RELEASE_GITHUB_REPOSITORY'
-        --branch '$RELEASE_GITHUB_BRANCH'
-        --candidate '$RELEASE_SOURCE_SHA'
-        --candidate-run-id '$RELEASE_GITHUB_RUN_ID'
-        --candidate-run-attempt '$RELEASE_GITHUB_RUN_ATTEMPT'
-        --candidate-artifact-digest '$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST'
-        --candidate-event '$RELEASE_GITHUB_EVENT'
-        --workflow-name '$EXPECTED_GITHUB_WORKFLOW_NAME'
-        --workflow-path '$EXPECTED_GITHUB_WORKFLOW_PATH'
-        --required-job '$EXPECTED_GITHUB_REQUIRED_JOB'
-        --required-check-app-id '$RELEASE_GITHUB_CHECK_APP_ID'
-      )
-      if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
-        order_args+=(--bootstrap-base '$RELEASE_BOOTSTRAP_BASE')
-      else
-        order_args+=(
-          --deployed '$DEPLOYED_SOURCE_SHA'
-          --deployed-run-id '$DEPLOYED_RUN_ID'
-          --deployed-run-attempt '$DEPLOYED_RUN_ATTEMPT'
-          --deployed-artifact-digest '$DEPLOYED_ARTIFACT_DIGEST'
-        )
-      fi
-      late_order_action=\$(GITHUB_TOKEN=\"\$github_token\" node \"\$release_dir/scripts/ci/verify-deploy-order.mjs\" \"\${order_args[@]}\")
-      if [ \"\$late_order_action\" != 'deploy' ]; then
-        echo "[错误] \$verification_phase: 候选已不再满足实时发布顺序"
-        exit 1
-      fi
-      echo "==> \$verification_phase: 已复核最新同 SHA CI 与完整 branch protection"
+      echo "==> \$verification_phase: 生产部署记录未被并发修改"
     }
     ensure_bootstrap_progress_marker() {
       [ -n '$RELEASE_BOOTSTRAP_BASE' ] || return 0
@@ -1955,7 +1932,7 @@ NODE
       test -s \"\$maintenance_backup\"
       test -s \"\$maintenance_backup.sha256\"
     fi
-    verify_remote_release_order 'pre-migration'
+    verify_remote_deployed_record 'pre-migration'
     echo '==> 执行 Prisma 数据库迁移...'
     node \"\$release_dir/node_modules/prisma/build/index.js\" migrate deploy --schema=\"\$release_dir/prisma\"
     if [ -n \"\${SQLITE_CUTOVER_SOURCE:-}\" ]; then
@@ -2059,8 +2036,7 @@ PY
       exit 1
     fi
     assert_release_version 'http://127.0.0.1:3101/workspace/api/settings/version' 'candidate'
-    verify_remote_release_order 'pre-cutover'
-    unset github_token
+    verify_remote_deployed_record 'pre-cutover'
     pm2 delete \"\$cutover_candidate_name\" 2>/dev/null || true
     if [ \"\$(pm2_pid_or_unavailable \"\$cutover_candidate_name\")\" != '0' ]; then
       echo '[错误] PostgreSQL candidate writer 未能确认停止，拒绝启动公网进程'

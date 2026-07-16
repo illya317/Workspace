@@ -92,14 +92,14 @@ test("a second maintenance attempt keeps old rollback disabled and reuses the ve
   assert.match(deploy, /release_committed=1\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/);
 });
 
-test("Kimi runtime and release order have fast and late fail-closed checks", () => {
+test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   assert.match(
     deploy,
     /installed-source\.sha256[\s\S]*?install-kimi-agent-runtime\.sh' --check[\s\S]*?跳过网络安装/,
   );
   assert.match(
     deploy,
-    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认 protected main 与发布顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认发布证据与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
   );
   assert.match(
     deploy,
@@ -129,18 +129,19 @@ test("all embedded deployment Python programs are syntactically executable", () 
   }
 });
 
-test("late CI checks bind digest, full protection, and never export the GitHub token to application processes", () => {
+test("deployment uses committed evidence without a CNB or server GitHub token", () => {
   assert.match(deploy, /--candidate-artifact-digest "\$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"/);
-  assert.match(deploy, /--required-job "\$EXPECTED_GITHUB_REQUIRED_JOB"/);
-  assert.match(deploy, /--required-check-app-id "\$RELEASE_GITHUB_CHECK_APP_ID"/);
-  assert.match(deploy, /GITHUB_TOKEN=\\"\\\$github_token\\" node/);
-  assert.equal(deploy.includes("export GITHUB_TOKEN"), false);
+  assert.match(deploy, /--current-head "\$RELEASE_SOURCE_SHA"/);
+  assert.match(deploy, /git merge-base --is-ancestor "\$comparison_base" "\$RELEASE_SOURCE_SHA"/);
+  assert.equal(deploy.includes("GITHUB_TOKEN"), false);
+  assert.equal(deploy.includes("GH_TOKEN"), false);
+  assert.equal(deploy.includes("stage_remote_github_token"), false);
+  assert.equal(deploy.includes("verify_remote_release_order"), false);
   assertOrdered(deploy, [
-    "verify_remote_release_order 'pre-migration'",
+    "verify_remote_deployed_record 'pre-migration'",
     "migrate deploy",
     "assert_release_version 'http://127.0.0.1:3101/workspace/api/settings/version' 'candidate'",
-    "verify_remote_release_order 'pre-cutover'",
-    "unset github_token",
+    "verify_remote_deployed_record 'pre-cutover'",
     "PORT=3000 HOSTNAME=0.0.0.0 pm2 start",
   ]);
 });
