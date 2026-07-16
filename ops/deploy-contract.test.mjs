@@ -48,6 +48,8 @@ test("deploy uses the exact CI migration parser and fences writers before the pi
     deploy,
     /node \\"\\\$release_dir\/scripts\/ci\/check-migration-policy\.mjs\\" --file \\"\\\$migration_file\\" --print-mode/,
   );
+  assert.ok(deploy.includes("migration_name = '\\$migration_name'"));
+  assert.equal(deploy.includes(":'migration_name'"), false);
   const start = deploy.indexOf('if [ -n \\"\\$maintenance_migrations\\" ]; then');
   const end = deploy.indexOf("echo '==> 执行 Prisma 数据库迁移...'", start);
   assert.ok(start >= 0 && end > start);
