@@ -33,6 +33,8 @@ test("continuous owner pushes reuse one bot candidate and cancel stale CI", () =
   assert.match(promotionWorkflow, /expected_staging_branch="codex\/staging-main"/);
   assert.match(promotionWorkflow, /candidate_branch="codex\/candidate-main"/);
   assert.match(promotionWorkflow, /--force-with-lease="refs\/heads\/\$candidate_branch:\$candidate_before"/);
+  assert.match(promotionWorkflow, /--head "\$candidate_branch"/);
+  assert.doesNotMatch(promotionWorkflow, /--head "\$owner:\$candidate_branch"/);
   assert.doesNotMatch(promotionWorkflow, /push origin --delete "\$STAGING_BRANCH"/);
   assert.match(workflow, /cancel-in-progress: true/);
 });
