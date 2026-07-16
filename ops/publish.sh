@@ -2,6 +2,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ORIGINAL_ARGS=("$@")
 OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 # shellcheck source=/dev/null
 source "$OPS_ENV_FILE"
@@ -47,24 +48,23 @@ usage() {
 
 模式:
   push     对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR，避免 CODEOWNER 自审死锁
-  deploy   只发布 GitHub 受保护 main 的已验证同 SHA 产物；不推源码、不重建
+  deploy   将当前已提交源码交给 CNB 独立检查、构建、打包和部署
 
 deploy 选项:
-  --force-full       无论累计风险如何，都先触发一次指定 SHA 的全量 CI
   --bootstrap-production-base SHA
-                     仅 deployed-release 缺失时接管现有生产；绑定旧运行态 receipt，并强制 fresh C3/full
+                     仅 deployed-release 缺失时接管现有生产；绑定旧运行态 receipt
   --bootstrap-legacy-cnb-commit SHA
   --bootstrap-legacy-release-id ID
   --bootstrap-legacy-cnb-build-sn SN
   --bootstrap-legacy-runtime-version VERSION
   --bootstrap-legacy-build-id BUILD_ID
                      五项共同绑定旧 CNB injection、服务器 current/PM2/runtime/BUILD_ID 与已成功历史 build
-  --print-command    生成证据并更新 CNB release ref，但只打印 start-build 命令
+  --print-command    更新 CNB release ref，但只打印 start-build 命令
   -h, --help         显示帮助
 
 说明:
   push 不再直推 main 或 CNB；临时 staging 只供受信任 main workflow 复制，PR 由 bot 创建。
-  deploy 比较“生产上次部署 SHA..当前 main SHA”的累计风险；证据不足时自动升级为全量。
+  deploy 不调用 GitHub API/Actions/Release；CNB 对当前 source SHA 完成完整发布闭环。
 EOF
 }
 
@@ -153,6 +153,12 @@ while [ "$#" -gt 0 ]; do
   esac
   shift
 done
+
+# Deployment is a CNB-owned module. Keep the public `publish.sh deploy` interface,
+# but do not let the candidate-promotion/GitHub implementation participate in it.
+if [ "$MODE" = "deploy" ]; then
+  exec "$SCRIPT_DIR/publish-cnb.sh" "${ORIGINAL_ARGS[@]}"
+fi
 
 if [ -z "$MODE" ]; then
   echo "[错误] 请指定模式: push 或 deploy"
