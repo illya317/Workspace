@@ -29,7 +29,7 @@
 - 单个展示资源 blob 超过 2 MiB、展示资源 blob 总变化超过 5 MiB，或展示资源超过 20 个文件；文本和二进制都计入；
 - 任意非展示二进制文件变化；这类产物无法用行数证明影响范围，直接全量；
 - base/head、生产基线或远端证据不能被严格证明；
-- 人工 `force_full`，或生产累计差异要求比当前 artifact 更强的覆盖。
+- 人工 `force_full`。
 
 阈值只负责升级，不负责降级。一行 migration 仍是 C3；大量生成文件不会单独把普通变更误判成大改。
 
@@ -104,11 +104,11 @@ npm run test:e2e:latency
 3. `publish.sh deploy` 要求当前分支是发布分支、工作区干净且 HEAD 已提交。它不 fetch/查询 GitHub，而是创建 `.cnb-deploy-request.json`，绑定 source SHA/tree、CNB repository/ref 和可选的一次性 bootstrap context。
 4. `release-to-cnb.sh` 从当前 source 创建唯一 parent 的 `cnb-release` 子提交，只注入 `.cnb.yml` 与 `.cnb-deploy-request.json`，推送 CNB 后用 `api_trigger_manual` 触发一次 build，并记录返回 SN。
 5. CNB 复验 release parent、注入文件集合和 deploy request；随后 checkout source parent，运行 `deploy:preflight:ci`、`docs:check`、`test:node`，并用 `build-standalone-artifact.sh` 在 Linux 构建 artifact/manifest。manifest provenance 只记录 CNB release commit，不包含 GitHub 运行身份。
-6. `ops/deploy.sh` 复验 source/tree、CNB provenance、artifact size/digest 和 migration-set digest；生产顺序只比较上次 source 与候选 source 的 Git ancestry。首次接管必须带一次性 bootstrap context，后续只允许单调前进；同 source 重试只做实时健康与版本复验。
+6. `ops/deploy.sh` 是唯一外部部署入口，负责复验 source/tree、CNB provenance、artifact size/digest 和 migration-set digest；它通过私有可执行模块 `ops/deploy/runtime-provision.sh` 准备服务器运行时，再上传并执行 `ops/deploy/remote-release.sh` 完成原子发布事务。生产顺序只比较上次 source 与候选 source 的 Git ancestry。首次接管必须带一次性 bootstrap context，后续只允许单调前进；同 source 重试只做实时健康与版本复验。
 7. 服务器继续执行互斥锁、备份、maintenance writer fencing、migration、candidate warm-up、原子 current 切换和 PM2 恢复。成功后写 schema-v2 `deployed-release.json`，只包含 source、artifact、CNB release identity 和 deployment 目录。
 8. 本地 `publish-cnb.sh` 轮询同一个 CNB SN；终态成功后通过只读 SSH 复验 deployed record、Workspace/WeCom PM2、health 与 `/workspace/api/settings/version` 精确等于 source SHA。诊断失败使用同一 SN，不额外触发第二条部署。
 
-只有 C0 文档变化时没有运行包可发布，`deploy` 会明确 no-op。覆盖强度不足可以自动升级全量；生产基线不可读、不是候选祖先、累计 migration 区间不可证明或证据解析失败时一律阻断，不能用 `force_full` 掩盖。
+生产部署不复用 GitHub CI artifact：CNB 对精确 source 重新执行部署前检查并构建产物。生产基线不可读、不是候选祖先、累计 migration 区间不可证明或证据解析失败时一律阻断。
 
 ## 分支保护初始化
 

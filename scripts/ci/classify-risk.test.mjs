@@ -107,14 +107,12 @@ test("C0 accepts only explicit documentation paths", () => {
   assert.equal(result.riskClass, "C0");
   assert.equal(result.runStatic, true);
   assert.equal(result.runBuild, false);
-  assert.equal(result.publishArtifact, false);
 });
 
 test("C1 is an allowlist for static presentation assets", () => {
   const result = classifyChangedPaths({
     changedPaths: ["packages/hr/ui/employee/styles.css"],
     map: impactMap(),
-    publishRequested: true,
     finalCandidate: true,
   });
   assert.equal(result.riskClass, "C1");
@@ -123,7 +121,6 @@ test("C1 is an allowlist for static presentation assets", () => {
   assert.equal(result.typeMode, "quick");
   assert.equal(result.runBuild, true);
   assert.equal(result.runE2e, false);
-  assert.equal(result.publishArtifact, true);
 });
 
 test("C1 does not include Core, Platform, app-global, or public assets", () => {
@@ -188,7 +185,6 @@ test("unknown infrastructure paths fail closed to C3", () => {
     map: impactMap(),
   });
   assert.equal(result.riskClass, "C3");
-  assert.equal(result.publishArtifact, false);
 });
 
 test("large source or line diffs escalate to C3", () => {
@@ -343,7 +339,6 @@ test("forced classification always selects the full matrix", () => {
     changedPaths: ["docs/README.md"],
     map: null,
     forceFull: true,
-    publishRequested: true,
   });
   assert.equal(result.riskClass, "C3");
   assert.equal(result.runNode, true);
@@ -351,7 +346,6 @@ test("forced classification always selects the full matrix", () => {
   assert.equal(result.runPostgresql, true);
   assert.equal(result.runBuild, true);
   assert.equal(result.runE2e, true);
-  assert.equal(result.publishArtifact, true);
 });
 
 test("NUL name-status parser keeps both sides of renames", () => {

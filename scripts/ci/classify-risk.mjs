@@ -418,7 +418,6 @@ function finalizeClassification(base, context) {
     riskClass: "C3",
     reasonCodes: [...new Set([...base.reasonCodes, "size-or-contract-escalation"])],
     ...fullJobMatrix(),
-    publishArtifact: context.publishRequested,
     ...escalation,
     escalationReasons: escalation.reasons,
   };
@@ -430,7 +429,6 @@ export function classifyChangedPaths({
   changes = changedPaths.map((repositoryPath) => ({ status: "M", paths: [repositoryPath] })),
   lineStats = [],
   forceFull = false,
-  publishRequested = false,
   finalCandidate = false,
   eventName = "local",
 }) {
@@ -453,9 +451,8 @@ export function classifyChangedPaths({
       unmappedWritePaths: [],
       e2eSpecs: [],
       ...fullJobMatrix(),
-      publishArtifact: publishRequested,
       eventName,
-    }, { normalizedPaths, changes, lineStats, publishRequested });
+    }, { normalizedPaths, changes, lineStats });
   }
   if (normalizedPaths.length === 0) {
     return finalizeClassification({
@@ -473,9 +470,8 @@ export function classifyChangedPaths({
       unmappedWritePaths: [],
       e2eSpecs: [],
       ...fullJobMatrix(),
-      publishArtifact: publishRequested,
       eventName,
-    }, { normalizedPaths, changes, lineStats, publishRequested });
+    }, { normalizedPaths, changes, lineStats });
   }
 
   const documentationPaths = normalizedPaths.filter(isDocumentationPath);
@@ -503,9 +499,8 @@ export function classifyChangedPaths({
       runE2e: false,
       e2eMode: "none",
       typeMode: "none",
-      publishArtifact: false,
       eventName,
-    }, { normalizedPaths, changes, lineStats, publishRequested });
+    }, { normalizedPaths, changes, lineStats });
   }
 
   const presentationPaths = nonDocumentationPaths.filter(isPresentationOnlyPath);
@@ -534,10 +529,9 @@ export function classifyChangedPaths({
       runE2e: false,
       e2eMode: "none",
       typeMode: "quick",
-      publishArtifact: publishRequested && finalCandidate,
       eventName,
     };
-    return finalizeClassification(base, { normalizedPaths, changes, lineStats, publishRequested });
+    return finalizeClassification(base, { normalizedPaths, changes, lineStats });
   }
 
   const impact = resolveTrustedImpact(map, impactPaths);
@@ -564,10 +558,9 @@ export function classifyChangedPaths({
     runE2e: riskClass === "C3" || targetedE2e,
     e2eMode: riskClass === "C3" ? "full" : targetedE2e ? "targeted" : "none",
     typeMode: riskClass === "C1" ? "quick" : "full",
-    publishArtifact: publishRequested && runBuild,
     eventName,
   };
-  return finalizeClassification(base, { normalizedPaths, changes, lineStats, publishRequested });
+  return finalizeClassification(base, { normalizedPaths, changes, lineStats });
 }
 
 function runGit(cwd, args, { allowFailure = false, encoding = "utf8" } = {}) {
@@ -660,7 +653,7 @@ export function loadTrustedMapFromRevision({ cwd, baseSha }) {
   return validateTrustedImpactMap(JSON.parse(result.stdout));
 }
 
-export function failClosedClassification({ eventName, publishRequested, reason, baseSha, headSha, diffMode }) {
+export function failClosedClassification({ eventName, reason, baseSha, headSha, diffMode }) {
   return {
     schemaVersion: 1,
     riskClass: "C3",
@@ -680,7 +673,6 @@ export function failClosedClassification({ eventName, publishRequested, reason, 
     unmappedWritePaths: [],
     e2eSpecs: [],
     ...fullJobMatrix(),
-    publishArtifact: publishRequested,
     eventName,
   };
 }
@@ -691,7 +683,6 @@ export function classifyRepositoryDiff({
   headSha,
   diffMode = "three-dot",
   forceFull = false,
-  publishRequested = false,
   finalCandidate = false,
   eventName = "local",
 }) {
@@ -706,7 +697,6 @@ export function classifyRepositoryDiff({
         lineStats,
         map: null,
         forceFull,
-        publishRequested,
         finalCandidate,
         eventName,
       });
@@ -720,7 +710,6 @@ export function classifyRepositoryDiff({
         changes,
         lineStats,
         map,
-        publishRequested,
         finalCandidate,
         eventName,
       });
@@ -729,7 +718,6 @@ export function classifyRepositoryDiff({
   } catch (error) {
     return failClosedClassification({
       eventName,
-      publishRequested,
       reason: error instanceof Error ? error.message : String(error),
       baseSha,
       headSha,
@@ -744,7 +732,6 @@ function parseArguments(argv) {
     diffMode: "three-dot",
     eventName: "local",
     forceFull: false,
-    publishRequested: false,
     finalCandidate: false,
     githubOutput: null,
     summary: null,
@@ -752,7 +739,6 @@ function parseArguments(argv) {
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--force-full") options.forceFull = true;
-    else if (argument === "--publish-requested") options.publishRequested = true;
     else if (argument === "--final-candidate") options.finalCandidate = true;
     else if (argument === "--base") options.baseSha = argv[++index];
     else if (argument === "--head") options.headSha = argv[++index];
@@ -795,7 +781,6 @@ function githubOutputs(classification) {
     e2e_specs_json: JSON.stringify(classification.e2eSpecs),
     required_suites_json: JSON.stringify(classification.requiredSuites),
     affected_modules_json: JSON.stringify(classification.affectedModules),
-    publish_artifact: String(classification.publishArtifact),
     classification_json: JSON.stringify(classificationEvidence),
   };
 }
@@ -808,7 +793,6 @@ function markdownSummary(classification) {
     ["Affected modules", classification.affectedModules.join(", ") || "none"],
     ["Required E2E suites", classification.requiredSuites.join(", ") || "none"],
     ["E2E mode", classification.e2eMode],
-    ["Publish artifact", String(classification.publishArtifact)],
   ];
   if (classification.failureReason) rows.push(["Fail-closed reason", classification.failureReason]);
   return [

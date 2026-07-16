@@ -23,11 +23,6 @@ on:
         required: true
         default: true
         type: boolean
-      publish_artifact:
-        description: Republish the canonical main-HEAD prerelease after full verification
-        required: true
-        default: false
-        type: boolean
   schedule:
     - cron: "17 18 * * *"
 
@@ -68,7 +63,6 @@ jobs:
       e2e_specs_json: ${{ steps.risk.outputs.e2e_specs_json || '[]' }}
       required_suites_json: ${{ steps.risk.outputs.required_suites_json || '[]' }}
       classification_json: ${{ steps.risk.outputs.classification_json || '{"schemaVersion":1,"riskClass":"C3","e2eMode":"full","requiredSuites":[],"e2eSpecs":[],"reasonCodes":["trusted-classifier-bootstrap"]}' }}
-      publish_artifact: ${{ steps.risk.outputs.publish_artifact || steps.refs.outputs.publish_requested }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
@@ -80,7 +74,6 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SHA: ${{ github.sha }}
-          EVENT_REF: ${{ github.ref }}
           PUSH_BEFORE: ${{ github.event.before }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -91,13 +84,11 @@ jobs:
           INPUT_TARGET_SHA: ${{ inputs.target_sha }}
           INPUT_BASE_SHA: ${{ inputs.base_sha }}
           INPUT_FORCE_FULL: ${{ inputs.force_full }}
-          INPUT_PUBLISH_ARTIFACT: ${{ inputs.publish_artifact }}
         run: |
           set -euo pipefail
           full_sha='^[0-9a-f]{40}$'
           force_full=false
           final_candidate=true
-          publish_requested=false
           source_sha="$EVENT_SHA"
 
           case "$EVENT_NAME" in
@@ -119,7 +110,6 @@ jobs:
                 trusted_sha="$head_sha"
                 force_full=true
               fi
-              if [ "$EVENT_REF" = "refs/heads/main" ]; then publish_requested=true; fi
               ;;
             merge_group)
               base_sha="$MERGE_BASE_SHA"
@@ -158,23 +148,6 @@ jobs:
                 trusted_sha="$head_sha"
               fi
               force_full="${INPUT_FORCE_FULL:-true}"
-              publish_requested="${INPUT_PUBLISH_ARTIFACT:-false}"
-              if [ "$publish_requested" = "true" ]; then
-                if [ "$force_full" != "true" ]; then
-                  echo "workflow_dispatch publishing requires force_full=true" >&2
-                  exit 1
-                fi
-                if [ "$EVENT_REF" != "refs/heads/main" ]; then
-                  echo "workflow_dispatch publishing is restricted to refs/heads/main" >&2
-                  exit 1
-                fi
-                git fetch --no-tags origin main
-                canonical_main="$(git rev-parse refs/remotes/origin/main)"
-                if [ "$head_sha" != "$canonical_main" ]; then
-                  echo "publish target $head_sha is not canonical main HEAD $canonical_main" >&2
-                  exit 1
-                fi
-              fi
               ;;
             schedule)
               head_sha="$EVENT_SHA"
@@ -202,7 +175,6 @@ jobs:
             echo "source_sha=$source_sha"
             echo "force_full=$force_full"
             echo "final_candidate=$final_candidate"
-            echo "publish_requested=$publish_requested"
           } >> "$GITHUB_OUTPUT"
 
       - name: Classify the complete trusted-base diff
@@ -214,7 +186,6 @@ jobs:
           TRUSTED_SHA: ${{ steps.refs.outputs.trusted_sha }}
           FORCE_FULL: ${{ steps.refs.outputs.force_full }}
           FINAL_CANDIDATE: ${{ steps.refs.outputs.final_candidate }}
-          PUBLISH_REQUESTED: ${{ steps.refs.outputs.publish_requested }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
@@ -233,7 +204,6 @@ jobs:
           )
           if [ "$FORCE_FULL" = "true" ]; then args+=(--force-full); fi
           if [ "$FINAL_CANDIDATE" = "true" ]; then args+=(--final-candidate); fi
-          if [ "$PUBLISH_REQUESTED" = "true" ]; then args+=(--publish-requested); fi
           node "$trusted_classifier" "${args[@]}"
 
   static:
@@ -275,6 +245,9 @@ jobs:
           node -e 'const p=require("./.ci/migration-policy.json"); process.stdout.write("Migration maintenance required: " + p.requiresMaintenance + "\n")' \
             >> "$GITHUB_STEP_SUMMARY"
       - run: npm ci --no-audit --fund=false
+      - name: Ensure ShellCheck for ops lint
+        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
+        run: command -v shellcheck >/dev/null || { sudo apt-get update && sudo apt-get install -y shellcheck; }
       - name: Documentation consistency
         run: npm run docs:check
       - name: Static gates and data contracts
@@ -451,9 +424,6 @@ jobs:
             --expected-run-id "${{ github.run_id }}"
             --expected-run-attempt "${{ github.run_attempt }}"
           )
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ needs.classify.outputs.publish_artifact }}" = "true" ]; then
-            args+=(--require-full-dispatch)
-          fi
           node scripts/ci/verify-artifact-manifest.mjs "${args[@]}"
       - name: Upload canonical standalone artifact
         id: upload
@@ -558,99 +528,3 @@ jobs:
           git show "${TRUSTED_SHA}:scripts/ci/verify-ci-results.mjs" > "$verifier" 2>/dev/null \
             || cp scripts/ci/verify-ci-results.mjs "$verifier"
           node "$verifier"
-
-  publish:
-    name: CI / release evidence
-    needs: [classify, build, required]
-    if: ${{ always() && needs.classify.outputs.publish_artifact == 'true' && needs.build.result == 'success' && needs.required.result == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Download verified canonical artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: workspace-standalone-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: .release
-      - name: Reverify exact source and dispatch evidence
-        env:
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          args=(
-            --artifact .release/workspace-standalone.tgz
-            --manifest .release/workspace-standalone.manifest.json
-            --expected-sha "$SOURCE_SHA"
-            --expected-tree "$(git rev-parse "${SOURCE_SHA}^{tree}")"
-            --expected-event "$EVENT_NAME"
-            --expected-run-id "${{ github.run_id }}"
-            --expected-run-attempt "${{ github.run_attempt }}"
-          )
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then args+=(--require-full-dispatch); fi
-          node scripts/ci/verify-artifact-manifest.mjs "${args[@]}"
-      - name: Publish or replace immutable-SHA prerelease assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-        run: |
-          set -euo pipefail
-          tag="ci-artifact-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" --jq .object.sha)"
-            test "$tag_sha" = "$SOURCE_SHA"
-            gh release upload "$tag" \
-              .release/workspace-standalone.tgz \
-              .release/workspace-standalone.manifest.json \
-              --clobber --repo "$GITHUB_REPOSITORY"
-            gh release edit "$tag" --prerelease --title "CI artifact ${SOURCE_SHA} run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}" --repo "$GITHUB_REPOSITORY"
-          else
-            gh release create "$tag" \
-              .release/workspace-standalone.tgz \
-              .release/workspace-standalone.manifest.json \
-              --target "$SOURCE_SHA" \
-              --prerelease \
-              --title "CI artifact ${SOURCE_SHA} run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}" \
-              --notes "Canonical standalone artifact from GitHub Actions run ${GITHUB_RUN_ID}, attempt ${GITHUB_RUN_ATTEMPT}." \
-              --repo "$GITHUB_REPOSITORY"
-          fi
-          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${tag}" > .release/release-evidence.json
-      - name: Retain structured release evidence
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: release-evidence-${{ needs.classify.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .release/workspace-standalone.manifest.json
-            .release/release-evidence.json
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 30
-
-  retention:
-    name: CI / artifact retention
-    needs: [classify, required, publish]
-    if: >-
-      ${{ always() && needs.required.result == 'success' &&
-      (github.event_name == 'schedule' ||
-      (needs.classify.outputs.publish_artifact == 'true' && needs.publish.result == 'success') ||
-      (github.event_name == 'push' && needs.classify.outputs.publish_artifact == 'false')) }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      deployments: read
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Keep recent artifacts and every active deployment
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          PUBLISH_RESULT: ${{ needs.publish.result }}
-        run: |
-          args=(--repository "$GITHUB_REPOSITORY" --keep 10 --minimum-age-hours 24 --apply)
-          if [ "$PUBLISH_RESULT" = "success" ]; then
-            args+=(--protect-tag "ci-artifact-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}")
-          fi
-          node scripts/ci/cleanup-prereleases.mjs "${args[@]}"

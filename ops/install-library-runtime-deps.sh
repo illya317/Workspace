@@ -183,14 +183,14 @@ install_python_packages() {
 }
 
 check_runtime() {
-  local missing=0
+  local missing_runtime=0
   local command_name
   for command_name in ccache tesseract ocrmypdf qpdf gs pdftotext pdfinfo; do
     if command -v "$command_name" >/dev/null 2>&1; then
       echo "$command_name=$(command -v "$command_name")"
     else
       echo "[error] missing command: $command_name"
-      missing=1
+      missing_runtime=1
     fi
   done
 
@@ -199,7 +199,7 @@ check_runtime() {
     echo "soffice=$soffice_path"
   else
     echo "[error] missing command: soffice"
-    missing=1
+    missing_runtime=1
   fi
 
   if command -v tesseract >/dev/null 2>&1; then
@@ -209,16 +209,16 @@ check_runtime() {
     for language in eng chi_sim chi_tra; do
       if ! printf '%s\n' "$languages" | grep -qx "$language"; then
         echo "[error] missing Tesseract language: $language"
-        missing=1
+        missing_runtime=1
       fi
     done
   fi
 
   if [ ! -x "$VENV_DIR/bin/python" ]; then
     echo "[error] missing library worker venv: $VENV_DIR"
-    missing=1
+    missing_runtime=1
   else
-    LIBRARY_REQUIREMENTS_FILE="$REQUIREMENTS_FILE" PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True "$VENV_DIR/bin/python" - <<'PY' || missing=1
+    LIBRARY_REQUIREMENTS_FILE="$REQUIREMENTS_FILE" PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True "$VENV_DIR/bin/python" - <<'PY' || missing_runtime=1
 import importlib
 import importlib.metadata
 import os
@@ -252,10 +252,10 @@ for raw_line in Path(os.environ["LIBRARY_REQUIREMENTS_FILE"]).read_text().splitl
     if actual != expected:
         raise RuntimeError(f"{distribution} expected {expected}, got {actual}")
 PY
-    "$VENV_DIR/bin/python" -m pip check || missing=1
+    "$VENV_DIR/bin/python" -m pip check || missing_runtime=1
   fi
 
-  if [ "$missing" -ne 0 ]; then
+  if [ "$missing_runtime" -ne 0 ]; then
     return 1
   fi
   echo "Library OCR/PDF runtime dependency check passed."

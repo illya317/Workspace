@@ -5,7 +5,10 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import test from "node:test";
 
-const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const orchestrator = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const runtimeProvision = readFileSync(new URL("./deploy/runtime-provision.sh", import.meta.url), "utf8");
+const remoteRelease = readFileSync(new URL("./deploy/remote-release.sh", import.meta.url), "utf8");
+const deploy = [orchestrator, runtimeProvision, remoteRelease].join("\n");
 
 function assertOrdered(source, needles) {
   let previous = -1;
@@ -25,6 +28,20 @@ function embeddedPrograms(runtime, delimiter) {
   return programs;
 }
 
+test("deploy keeps one external seam and invokes two private executable modules", () => {
+  assert.match(orchestrator, /bash ops\/deploy\/runtime-provision\.sh/);
+  assert.match(orchestrator, /ops\/deploy\/remote-release\.sh/);
+  assert.doesNotMatch(orchestrator, /function source|source ops\/deploy/);
+  assert.match(runtimeProvision, /require_env[\s\S]*?DEPLOY_SSH_CONTROL_PATH/);
+  assert.match(remoteRelease, /require_env[\s\S]*?RELEASE_MIGRATION_SET_SHA/);
+  assert.match(remoteRelease, /main\(\) \{[\s\S]*?main "\$@"/);
+  const rollback = remoteRelease.slice(
+    remoteRelease.indexOf("rollback_cutover()"),
+    remoteRelease.indexOf("trap rollback_cutover EXIT"),
+  );
+  assert.equal((rollback.match(/cleanup_remote_release_module/g) ?? []).length, 2);
+});
+
 function runPython(program, env = {}) {
   return spawnSync("python3", ["-c", program], {
     encoding: "utf8",
@@ -33,75 +50,75 @@ function runPython(program, env = {}) {
 }
 
 test("ordinary PostgreSQL releases restore the previous application until evidence is committed", () => {
-  assert.match(deploy, /public_process_stopped=0/);
-  assert.match(deploy, /release_committed=0/);
-  assert.match(deploy, /pm2 delete '\$PM2_NAME'[\s\S]*?public_process_stopped=1/);
-  assert.match(deploy, /\[ -z \\"\\\$cutover_source\\" \][\s\S]*?\[ \\"\\\$public_process_stopped\\" = '1' \][\s\S]*?\[ \\"\\\$release_committed\\" = '0' \]/);
-  assert.match(deploy, /PORT=3000 HOSTNAME=0\.0\.0\.0 pm2 start \\"\\\$old_release\/\\\$old_server_entry\\"/);
-  assert.match(deploy, /atomic_switch_current \\"\\\$old_release\\"/);
-  assert.match(deploy, /temporary\.replace\(path\)\nPY\n    release_committed=1/);
+  assert.match(remoteRelease, /public_process_stopped=0/);
+  assert.match(remoteRelease, /release_committed=0/);
+  assert.match(remoteRelease, /pm2 delete "\$PM2_NAME"[\s\S]*?public_process_stopped=1/);
+  assert.match(remoteRelease, /\[ -z "\$cutover_source" \][\s\S]*?\[ "\$public_process_stopped" = '1' \][\s\S]*?\[ "\$release_committed" = '0' \]/);
+  assert.match(remoteRelease, /PORT=3000 HOSTNAME=0\.0\.0\.0 pm2 start "\$old_release\/\$old_server_entry"/);
+  assert.match(remoteRelease, /atomic_switch_current "\$old_release"/);
+  assert.match(remoteRelease, /temporary\.replace\(path\)\nPY\n    release_committed=1/);
 });
 
 test("deploy uses the exact CI migration parser and fences writers before the pinned recovery point", () => {
   assert.equal(deploy.includes("=\\\\$("), false, "remote command substitutions must have one escape");
   assert.match(
-    deploy,
-    /node \\"\\\$release_dir\/scripts\/ci\/check-migration-policy\.mjs\\" --file \\"\\\$migration_file\\" --print-mode/,
+    remoteRelease,
+    /node "\$release_dir\/scripts\/ci\/check-migration-policy\.mjs" --file "\$migration_file" --print-mode/,
   );
-  assert.ok(deploy.includes("migration_name = '\\$migration_name'"));
-  assert.equal(deploy.includes(":'migration_name'"), false);
-  const start = deploy.indexOf('if [ -n \\"\\$maintenance_migrations\\" ]; then');
-  const end = deploy.indexOf("echo '==> 执行 Prisma 数据库迁移...'", start);
+  assert.ok(remoteRelease.includes("migration_name = '$migration_name'"));
+  assert.equal(remoteRelease.includes(":'migration_name'"), false);
+  const start = remoteRelease.indexOf('if [ -n "$maintenance_migrations" ]; then');
+  const end = remoteRelease.indexOf("echo '==> 执行 Prisma 数据库迁移...'", start);
   assert.ok(start >= 0 && end > start);
-  const section = deploy.slice(start, end);
+  const section = remoteRelease.slice(start, end);
   assertOrdered(section, [
-    'backupSha256=\\$maintenance_backup_sha',
-    "pm2 delete '$PM2_NAME'",
+    'backupSha256=$maintenance_backup_sha',
+    'pm2 delete "$PM2_NAME"',
     "pm2 save",
     "pg_dump --format=custom",
     "pg_restore --list",
-    'backupSha256=\\$maintenance_backup_sha',
+    'backupSha256=$maintenance_backup_sha',
   ]);
   assert.match(section, /maintenance-pinned\/pre-/);
-  assert.match(section, /mv \\"\\\$marker_tmp\\" \\"\\\$maintenance_marker_path\\"/);
+  assert.match(section, /mv "\$marker_tmp" "\$maintenance_marker_path"/);
 });
 
 test("a second maintenance attempt keeps old rollback disabled and reuses the verified pre-migration dump", () => {
-  assert.equal((deploy.match(/maintenance_migration_started=0/g) ?? []).length, 1);
-  assert.match(deploy, /if \[ -f \\"\\\$maintenance_marker_path\\" \]; then[\s\S]*?maintenance_marker_present=1[\s\S]*?maintenance_migration_started=1/);
-  const resumeStart = deploy.indexOf("echo '==> 检测到 maintenance marker；先无条件隔离所有旧 writer'");
-  const resumeStop = deploy.indexOf("pm2 delete '$PM2_WECOM_BOT_NAME'", resumeStart);
-  const resumeSaved = deploy.indexOf("pm2 save", resumeStop);
-  const markerParse = deploy.indexOf("persisted_line_count=", resumeSaved);
-  const backupValidation = deploy.indexOf('pg_restore --list \\"\\$maintenance_backup\\"', markerParse);
+  assert.equal((remoteRelease.match(/maintenance_migration_started=0/g) ?? []).length, 1);
+  assert.match(remoteRelease, /if \[ -f "\$maintenance_marker_path" \]; then[\s\S]*?maintenance_marker_present=1[\s\S]*?maintenance_migration_started=1/);
+  const resumeStart = remoteRelease.indexOf("echo '==> 检测到 maintenance marker；先无条件隔离所有旧 writer'");
+  const resumeStop = remoteRelease.indexOf('pm2 delete "$PM2_WECOM_BOT_NAME"', resumeStart);
+  const resumeSaved = remoteRelease.indexOf("pm2 save", resumeStop);
+  const markerParse = remoteRelease.indexOf("persisted_line_count=", resumeSaved);
+  const backupValidation = remoteRelease.indexOf('pg_restore --list "$maintenance_backup"', markerParse);
   assert.ok(resumeStart >= 0 && resumeStop > resumeStart);
   assert.ok(resumeSaved > resumeStop, "writer stop must be persisted before marker validation");
   assert.ok(markerParse > resumeSaved, "marker must be parsed only after writers are fenced");
   assert.ok(backupValidation > markerParse, "pinned backup is validated after marker parsing");
   assert.match(
-    deploy,
-    /trap rollback_cutover EXIT[\s\S]*?if \[ \\"\\\$maintenance_migration_started\\" = '1' \]; then[\s\S]*?pm2 delete '\$PM2_NAME'[\s\S]*?pm2 save/,
+    remoteRelease,
+    /trap rollback_cutover EXIT[\s\S]*?if \[ "\$maintenance_migration_started" = '1' \]; then[\s\S]*?pm2 delete "\$PM2_NAME"[\s\S]*?pm2 save/,
   );
   assert.match(
-    deploy,
-    /if \[ \\"\\\$maintenance_migration_started\\" = '1' \]; then[\s\S]*?保持 Workspace 与企业微信停止[\s\S]*?elif \[ -n \\"\\\$old_release\\" \]/,
+    remoteRelease,
+    /if \[ "\$maintenance_migration_started" = '1' \]; then[\s\S]*?保持 Workspace 与企业微信停止[\s\S]*?elif \[ -n "\$old_release" \]/,
   );
-  assert.match(deploy, /maintenance_backup_sha\\" != 'pending'[\s\S]*?digest 不匹配/);
+  assert.match(remoteRelease, /maintenance_backup_sha" != 'pending'[\s\S]*?digest 不匹配/);
   assert.match(
     deploy,
     /if \[ ! -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy' \]; then\n\s+rm -rf '\$REMOTE_BACKUP_DIR\/maintenance-pinned'/,
   );
-  assert.match(deploy, /release_committed=1\n\s+rm -f '\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy'/);
+  assert.match(remoteRelease, /release_committed=1\n\s+rm -f "\$REMOTE_WORKSPACE_CONFIG_DIR\/maintenance-deploy"/);
 });
 
 test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   assert.match(
-    deploy,
+    runtimeProvision,
     /installed-source\.sha256[\s\S]*?install-kimi-agent-runtime\.sh' --check[\s\S]*?跳过网络安装/,
   );
   assert.match(
-    deploy,
-    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认发布证据与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    orchestrator,
+    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认发布证据与部署顺序[\s\S]*?verify_release_order[\s\S]*?启动服务器原子发布事务/,
   );
   assert.match(
     deploy,
@@ -152,7 +169,8 @@ test("deployment orders and records CNB-native artifacts without GitHub runtime 
 });
 
 test("CNB reads relative JSON inputs as files instead of Node modules", () => {
-  assert.match(deploy, /JSON\.parse\(require\("node:fs"\)\.readFileSync\(process\.argv\[1\], "utf8"\)\)/);
+  assert.match(deploy, /node ops\/cnb-deploy-request\.mjs validate \\\n[\s\S]*?--request "\$CNB_DEPLOY_REQUEST_FILE"/);
+  assert.match(deploy, /const manifestBytes = readFileSync\(manifestPath\);/);
   assert.equal(
     /require\((?:"\.\/" \+ )?process\.argv\[1\]\)/.test(deploy),
     false,
@@ -175,17 +193,17 @@ test("bootstrap crash recovery binds progress, fences writers, and validates can
   assert.match(deploy, /database_progress=1/);
   assert.match(deploy, /absent from the candidate or has a different checksum/);
   assert.match(deploy, /unfinished; resolve it explicitly before retrying deployment/);
-  assert.match(deploy, /if \[ -n '\$RELEASE_BOOTSTRAP_BASE' \]; then[\s\S]*?maintenance_migrations/);
-  const progressCall = deploy.indexOf("\n    ensure_bootstrap_progress_marker\n    if [ -n");
+  assert.match(remoteRelease, /if \[ -n "\$RELEASE_BOOTSTRAP_BASE" \]; then[\s\S]*?maintenance_migrations/);
+  const progressCall = remoteRelease.indexOf("\n    ensure_bootstrap_progress_marker\n    if [ -n");
   assert.ok(progressCall >= 0, "bootstrap progress marker must be called before mutations");
   for (const mutation of [
-    'marker_tmp=\\"\\$maintenance_marker_path.tmp.',
+    'marker_tmp="$maintenance_marker_path.tmp.',
     'migrate deploy --schema=',
     'seed-resources-runtime.mjs',
-    'provision-agent-workforce.mjs\\" --execute',
-    'pm2 start \\"\\$release_dir/\\$server_entry\\" --name \\"\\$cutover_candidate_name\\"',
+    'provision-agent-workforce.mjs" --execute',
+    'pm2 start "$release_dir/$server_entry" --name "$cutover_candidate_name"',
   ]) {
-    assert.ok(deploy.indexOf(mutation, progressCall) > progressCall, "progress marker must precede " + mutation);
+    assert.ok(remoteRelease.indexOf(mutation, progressCall) > progressCall, "progress marker must precede " + mutation);
   }
 });
 
@@ -290,11 +308,11 @@ test("completed marker reconciliation runs before release-order checks and prese
   assert.match(deploy, /all\(value == source for value in marker_sources\)[\s\S]*?print\('CLEAN'\)/);
   assert.match(deploy, /all\(value == os\.environ\['EXPECTED_CANDIDATE'\] for value in marker_sources\)[\s\S]*?print\('RESUME'\)/);
   assert.match(deploy, /marker_action\\" = 'RESUME'[\s\S]*?保留并进入锁内 resume/);
-  assertOrdered(deploy, [
+  assertOrdered(remoteRelease, [
     "temporary.replace(path)",
     "release_committed=1",
-    "rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'",
-    "rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'",
+    'rm -f "$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy"',
+    'rm -f "$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json"',
   ]);
 });
 
@@ -305,18 +323,18 @@ test("current switches atomically and deployed-release is the rollback commit po
     "current must never use unlink-before-create ln -sfn",
   );
   assert.match(
-    deploy,
-    /atomic_switch_current\(\)[\s\S]*?ln -s "\\\$current_target" "\\\$current_swap_tmp"[\s\S]*?mv -Tf "\\\$current_swap_tmp" '\$REMOTE_DIR\/current'/,
+    remoteRelease,
+    /atomic_switch_current\(\)[\s\S]*?ln -s "\$current_target" "\$current_swap_tmp"[\s\S]*?mv -Tf "\$current_swap_tmp" "\$REMOTE_DIR\/current"/,
   );
-  assert.match(deploy, /atomic_switch_current \\"\\\$old_release\\"/);
-  assert.match(deploy, /atomic_switch_current \\"\\\$release_dir\\"/);
-  assertOrdered(deploy, [
+  assert.match(remoteRelease, /atomic_switch_current "\$old_release"/);
+  assert.match(remoteRelease, /atomic_switch_current "\$release_dir"/);
+  assertOrdered(remoteRelease, [
     "assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'",
-    'atomic_switch_current \\"\\$release_dir\\"',
+    'atomic_switch_current "$release_dir"',
     "temporary.replace(path)",
     "release_committed=1",
   ]);
-  assertOrdered(deploy, [
+  assertOrdered(remoteRelease, [
     "rollback_cutover()",
     "deployed-release 原子记录已绑定当前 candidate",
     "candidate_cleanup_failed=0",
@@ -324,16 +342,16 @@ test("current switches atomically and deployed-release is the rollback commit po
 });
 
 test("every uncommitted failure removes candidate, and unknown candidate state fences all other writers first", () => {
-  const rollbackStart = deploy.indexOf("rollback_cutover()");
-  const rollbackEnd = deploy.indexOf("trap rollback_cutover EXIT", rollbackStart);
-  const rollback = deploy.slice(rollbackStart, rollbackEnd);
+  const rollbackStart = remoteRelease.indexOf("rollback_cutover()");
+  const rollbackEnd = remoteRelease.indexOf("trap rollback_cutover EXIT", rollbackStart);
+  const rollback = remoteRelease.slice(rollbackStart, rollbackEnd);
   assertOrdered(rollback, [
-    'pm2 delete "\\$cutover_candidate_name"',
-    'rollback_candidate_pid=\\$(pm2_pid_or_unavailable "\\$cutover_candidate_name")',
+    'pm2 delete "$cutover_candidate_name"',
+    'rollback_candidate_pid=$(pm2_pid_or_unavailable "$cutover_candidate_name")',
     "candidate_cleanup_failed=1",
     "candidate 无法确认停止；立即隔离 public 与 WeCom",
-    "pm2 delete '$PM2_NAME'",
-    "pm2 delete '$PM2_WECOM_BOT_NAME'",
+    'pm2 delete "$PM2_NAME"',
+    'pm2 delete "$PM2_WECOM_BOT_NAME"',
     "rollback_public_pid=",
     "rollback_wecom_pid=",
     "pm2 save ||",

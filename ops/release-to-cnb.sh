@@ -127,7 +127,6 @@ cleanup() {
 trap cleanup EXIT
 
 source_sha="$(git rev-parse HEAD)"
-source_tree="$(git rev-parse 'HEAD^{tree}')"
 REQUEST_FILE="$(mktemp)"
 request_args=(
   create

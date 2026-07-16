@@ -43,14 +43,12 @@ test("workflow exposes forced exact-SHA dispatch and stable required evidence", 
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /target_sha:/);
   assert.match(workflow, /force_full:/);
-  assert.match(workflow, /publish_artifact:/);
+  assert.doesNotMatch(workflow, /publish_artifact:|release evidence|prerelease/);
   assert.match(workflow, /name: CI \/ required/);
   assert.match(workflow, /name: workspace-standalone-\$\{\{ needs\.classify\.outputs\.source_sha \}\}-run-\$\{\{ github\.run_id \}\}-attempt-\$\{\{ github\.run_attempt \}\}/);
-  assert.match(workflow, /ci-artifact-\$\{SOURCE_SHA\}-run-\$\{GITHUB_RUN_ID\}-attempt-\$\{GITHUB_RUN_ATTEMPT\}/);
   assert.match(workflow, /CI_CLASSIFICATION_JSON:/);
   assert.match(workflow, /CI_REQUIRED_SUITES_JSON:/);
   assert.match(workflow, /CI_E2E_SPECS_JSON:/);
-  assert.match(workflow, /name: Keep recent artifacts and every active deployment\n\s+continue-on-error: true/);
 });
 
 test("adaptive diff and hidden canonical artifacts remain usable on GitHub runners", () => {
@@ -62,8 +60,15 @@ test("adaptive diff and hidden canonical artifacts remain usable on GitHub runne
     ),
   );
   assert.match(workflow, /name: Upload canonical standalone artifact[\s\S]*?include-hidden-files: true/);
-  assert.match(workflow, /name: Retain structured release evidence[\s\S]*?include-hidden-files: true/);
   assert.match(workflow, /name: Enforce canonical npm install input\n\s+run: test ! -e npm-shrinkwrap\.json/);
+  assert.match(
+    workflow,
+    /name: Ensure ShellCheck for ops lint[\s\S]*?command -v shellcheck[\s\S]*?apt-get install -y shellcheck/,
+  );
+  assert.equal(
+    packageJson.scripts["lint:full"],
+    "npm run lint -- --max-warnings=0 && npm run lint:ops:shell",
+  );
 });
 
 test("every third-party workflow action is pinned to an audited full commit SHA", () => {

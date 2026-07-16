@@ -107,8 +107,7 @@ jobs:
             --ref "$candidate_branch" \
             -f target_sha="$STAGING_SHA" \
             -f base_sha="$BASE_SHA" \
-            -f force_full=false \
-            -f publish_artifact=false
+            -f force_full=false
 
           {
             echo "Bot-authored PR: $pr_url"

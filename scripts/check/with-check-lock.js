@@ -57,7 +57,8 @@ function checkCacheKind() {
   const scriptPath = commandRest[commandRest.length - 1] ?? "";
 
   if (command === "eslint") return "lint";
-  if (command === "node" && scriptPath === "scripts/check/run-eslint-changed.js") return "lint";
+  if (command === "node" && scriptPath === "scripts/check/run-lint-changed.js") return "lint";
+  if (command === "node" && scriptPath === "scripts/check/run-ops-shellcheck.js") return "lint";
   if (command === "npx" && commandRest[0] === "tsc") return "typecheck";
 
   if (

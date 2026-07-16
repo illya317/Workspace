@@ -51,7 +51,7 @@
 
 `lint` 负责代码质量和局部静态规则，例如 ESLint warnings=0、基础 restricted imports、行数、明显不安全语法。它不承载架构模型，也不承载公司名、baseline 巡检这类细碎治理。
 
-`lint:changed` 只跑 changed ESLint，不再隐式执行 API response format 或 history policy。后两者属于跨仓库静态契约，由 `check:contracts` 显式执行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
+`lint:changed` 对 changed JS/TS 跑 ESLint，并对 changed `ops/**/*.sh` 跑 ShellCheck；`lint:full` 同时覆盖全仓 ESLint 与全部 tracked/untracked ops Shell。ShellCheck 是本地/runner 必需命令，缺失时 lint 直接失败而不是跳过。lint 不再隐式执行 API response format 或 history policy；后两者属于跨仓库静态契约，由 `check:contracts` 显式执行。净增行属于复杂度 ratchet，由 `complexity:line-budget` 显式触发。
 
 并行开发时不要让每个 agent 都实际跑一遍 `lint:changed`。同一快照已有通过记录时，锁脚本会直接复用；需要重新跑的信号是代码快照、命令参数或相关环境变量发生变化。
 

@@ -64,7 +64,6 @@ export function verifyArtifactManifest({
   expectedEventName,
   expectedRunId,
   expectedRunAttempt,
-  requireFullDispatch = false,
 }) {
   if (!GIT_SHA_PATTERN.test(expectedCommitSha)) throw new Error("expected commit must be a full lowercase Git SHA");
   if (fs.existsSync(path.join(repositoryRoot, "npm-shrinkwrap.json"))) {
@@ -120,12 +119,6 @@ export function verifyArtifactManifest({
   ) {
     throw new Error("manifest build classification fields are inconsistent");
   }
-  if (requireFullDispatch) {
-    if (build.githubEventName !== "workflow_dispatch") throw new Error("full dispatch evidence must come from workflow_dispatch");
-    if (build.riskClass !== "C3" || build.e2eMode !== "full" || build.forceFull !== true) {
-      throw new Error("workflow_dispatch artifact must prove C3/full/forceFull=true");
-    }
-  }
   return {
     sourceCommitSha: source.commitSha,
     sourceTreeSha: source.treeSha,
@@ -141,7 +134,7 @@ export function verifyArtifactManifest({
 }
 
 function parseArguments(argv) {
-  const options = { repositoryRoot: process.cwd(), requireFullDispatch: false };
+  const options = { repositoryRoot: process.cwd() };
   for (let index = 0; index < argv.length; index += 1) {
     const argument = argv[index];
     if (argument === "--repo") options.repositoryRoot = argv[++index];
@@ -152,7 +145,6 @@ function parseArguments(argv) {
     else if (argument === "--expected-event") options.expectedEventName = argv[++index];
     else if (argument === "--expected-run-id") options.expectedRunId = argv[++index];
     else if (argument === "--expected-run-attempt") options.expectedRunAttempt = argv[++index];
-    else if (argument === "--require-full-dispatch") options.requireFullDispatch = true;
     else throw new Error(`unknown argument: ${argument}`);
   }
   if (!options.artifactPath || !options.manifestPath || !options.expectedCommitSha || !options.expectedTreeSha) {
