@@ -71,12 +71,11 @@ jobs:
             --force-with-lease="refs/heads/$candidate_branch:$candidate_before" \
             "$STAGING_SHA:refs/heads/$candidate_branch"
 
-          owner="${GITHUB_REPOSITORY%%/*}"
           mapfile -t pull_urls < <(gh pr list \
             --repo "$GITHUB_REPOSITORY" \
             --state open \
             --base main \
-            --head "$owner:$candidate_branch" \
+            --head "$candidate_branch" \
             --json url \
             --jq '.[].url')
           if [ "${#pull_urls[@]}" -gt 1 ]; then
