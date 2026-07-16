@@ -55,7 +55,13 @@ cnb-release:
             git checkout --detach "$source_sha"
 
             apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar python3 curl
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar python3 curl postgresql
+            pg_ctlcluster 15 main start
+            su postgres -c "psql --set ON_ERROR_STOP=1" <<'SQL'
+            CREATE ROLE workspace LOGIN PASSWORD 'workspace';
+            CREATE DATABASE workspace_ci OWNER workspace;
+            CREATE DATABASE workspace_ci_shadow OWNER workspace;
+            SQL
             npm ci --no-audit --fund=false --loglevel=error
             npm run deploy:preflight:ci
             npm run docs:check
