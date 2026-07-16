@@ -17,6 +17,7 @@ cnb-release:
       stages:
         - name: deploy-to-server
           script: |
+            exec bash <<'BASH'
             set -euo pipefail
             missing=0
             for key in SERVER REMOTE_DIR REMOTE_WORKSPACE_CONFIG_DIR KEY_CONTENT; do
@@ -65,3 +66,4 @@ cnb-release:
             export RELEASE_SOURCE_SHA="$source_sha"
             export RELEASE_SOURCE_TREE="$source_tree"
             bash ./ops/deploy.sh
+            BASH

@@ -24,6 +24,7 @@ test("the public deploy interface enters the CNB-owned module before GitHub prom
 test("CNB deployment path does not call GitHub APIs, Actions, Releases, or evidence", () => {
   const deploymentPath = [publishCnb, releaseToCnb, cnbPipeline].join("\n");
   assert.doesNotMatch(deploymentPath, /\bgh\b|api\.github\.com|release-evidence|GITHUB_TOKEN|GH_TOKEN/);
+  assert.match(cnbPipeline, /exec bash <<'BASH'/);
   assert.match(cnbPipeline, /npm run deploy:preflight:ci/);
   assert.match(cnbPipeline, /npm run test:node/);
   assert.match(cnbPipeline, /build-standalone-artifact\.sh/);
