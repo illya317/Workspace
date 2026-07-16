@@ -12,8 +12,15 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     label: "Agent 配置",
     views: [
       { key: "profiles", label: "Agent 档案" },
-      { key: "runtimes", label: "运行时" },
-      { key: "permissions", label: "能力与权限" },
+      {
+        key: "permissions",
+        label: "能力与权限",
+        children: [
+          { key: "capabilities", label: "运行能力" },
+          { key: "ceiling", label: "动作上限" },
+          { key: "grants", label: "组织授权" },
+        ],
+      },
     ],
   },
   {

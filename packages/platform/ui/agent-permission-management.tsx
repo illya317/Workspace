@@ -6,7 +6,6 @@ import {
   createFormSection,
   createMessageSection,
   createPageDataSection,
-  createSectionSection,
   createStatusSection,
   type BodySurfaceSectionSpec,
   type DataSurfaceCellSpec,
@@ -51,6 +50,11 @@ type AgentPermissionManagementInput = {
   onCeilingSaved: (actionKeys: PermissionActionKey[]) => void;
   onSuccess: (message: string) => void;
   onError: (message: string) => void;
+};
+
+export type AgentPermissionManagementSections = {
+  ceiling: BodySurfaceSectionSpec[];
+  grants: BodySurfaceSectionSpec[];
 };
 
 const ACTION_CEILING_COLUMNS: PermissionMatrixColumn[] = [
@@ -118,7 +122,7 @@ export function useAgentPermissionManagementSections({
   onCeilingSaved,
   onSuccess,
   onError,
-}: AgentPermissionManagementInput): BodySurfaceSectionSpec[] {
+}: AgentPermissionManagementInput): AgentPermissionManagementSections {
   const initialActions = useMemo(() => normalizedActionKeys(data.globalActionCeiling), [data.globalActionCeiling]);
   const [savedActions, setSavedActions] = useState(initialActions);
   const [draftActions, setDraftActions] = useState(initialActions);
@@ -327,7 +331,7 @@ export function useAgentPermissionManagementSections({
   ];
   const filterSection = createFormSection("agent-permission-grant-filters", {
     kind: "filters",
-    header: { title: "Agent 能力组织授权", description: "只显示已注册到 Agent 运行时的能力资源；每个资源仍由自己的 grant 权限控制。" },
+    header: { title: "授权范围", description: "选择能力资源与授权主体，再维护其真实组织权限。" },
     content: { items: filterItems, layout: { flow: "inline", columns: 3, density: "compact" } },
   });
 
@@ -388,19 +392,14 @@ export function useAgentPermissionManagementSections({
     };
   }
 
-  return [
-    createMessageSection("agent-action-ceiling-boundary", {
-      tone: "muted",
-      content: "全局动作上限是所有 Agent 的最高动作边界；它只会限制动作，不会给任何主体新增组织权限。",
-    }),
-    ceilingSection,
-    ...(!canConfigure ? [createMessageSection("agent-action-ceiling-readonly", {
-      tone: "muted",
-      content: "当前只有读取权限；修改全局动作上限需要 agent.config.configure。",
-    })] : []),
-    createSectionSection("agent-permission-rbac", {
-      title: "Agent 能力组织授权",
-      sections: [filterSection, ...(resultSummary ? [resultSummary] : []), matrixSection],
-    }),
-  ];
+  return {
+    ceiling: [
+      ceilingSection,
+      ...(!canConfigure ? [createMessageSection("agent-action-ceiling-readonly", {
+        tone: "muted",
+        content: "当前只有读取权限；修改动作上限需要 agent.config.configure。",
+      })] : []),
+    ],
+    grants: [filterSection, ...(resultSummary ? [resultSummary] : []), matrixSection],
+  };
 }

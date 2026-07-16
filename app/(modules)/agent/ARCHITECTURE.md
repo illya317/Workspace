@@ -8,6 +8,7 @@
   - `/agent/usage`: employee adoption, run volume and real SDK Token usage.
   - `/agent/reports`: Workspace run reports grouped by session, plus explicit external-receipt gaps.
 - Each L2 is one Core `PageSurface`; `PageSurface.tabbar` owns the internal L3 views. The app pages authenticate and preload only; Platform owns the read models and UI composition.
+- `/agent/config` uses master-detail composition for Agent profiles. It does not expose a generic runtime switchboard: external Codex/CI/server bindings are identity and receipt facts until a real adapter can enforce them. `能力与权限` is a parent view with three independent child tabs: `运行能力` (actual Workspace instructions plus its enforced tool allowlist), `动作上限` (global action ceiling), and `组织授权` (real RBAC grants). These write boundaries must not be recombined into one stacked page.
 
 ## Permission boundary
 
