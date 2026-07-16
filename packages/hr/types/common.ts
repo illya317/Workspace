@@ -121,6 +121,7 @@ export interface AdvancedFilterConfig {
 export interface TabConfig {
   title: string;
   apiPath: string;
+  rowPath?: (id: number) => string;
   entityType: string;
   fields: FieldConfig[];
   fkFields?: Record<string, FKFieldConfig>;

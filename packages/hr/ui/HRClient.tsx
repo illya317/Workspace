@@ -7,6 +7,7 @@ import { type SurfaceNavigationTabSpec } from "@workspace/core/ui";
 import { getPageViewTabsForUser } from "@workspace/platform/view-registry";
 
 import {
+  companyRelationConfig,
   contractConfig,
   edpConfig,
   employeeConfig,
@@ -27,6 +28,7 @@ type HRTab =
   | "employee"
   | "employment"
   | "contract"
+  | "companyRelation"
   | "department"
   | "position"
   | "edp";
@@ -34,6 +36,16 @@ type HRTab =
 type HRView = "employee" | "organization" | "department-position" | "bulk" | "generated";
 
 type HRViewTab = SurfaceNavigationTabSpec & { key: HRView };
+
+function withCompanyRelationView(views: HRViewTab[]): HRViewTab[] {
+  return views.map((view) => {
+    if (view.key !== "bulk" || view.children?.some((child) => child.key === "companyRelation")) return view;
+    return {
+      ...view,
+      children: [...(view.children ?? []), { key: "companyRelation", label: "股权关系" }],
+    };
+  });
+}
 
 function toHRUser(user: SessionUser): HRUser {
   return {
@@ -52,15 +64,21 @@ export default function HRClient({
   canArchiveRoster = false,
   canExportGeneratedRoster = false,
   canCreateEmployee = false,
+  canCreateCompanyRelation = false,
+  canDeleteCompanyRelation = false,
 }: {
   user: SessionUser;
   hideShell?: boolean;
   canArchiveRoster?: boolean;
   canExportGeneratedRoster?: boolean;
   canCreateEmployee?: boolean;
+  canCreateCompanyRelation?: boolean;
+  canDeleteCompanyRelation?: boolean;
 }) {
   const rosterViews = useMemo(
-    () => getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
+    () => withCompanyRelationView(
+      getPageViewTabsForUser("/hr/roster", user.visibleResourceKeys || []) as HRViewTab[],
+    ),
     [user.visibleResourceKeys],
   );
   const [activeView, setActiveView] = useState<HRView>("employee");
@@ -193,6 +211,20 @@ export default function HRClient({
     }
     if (activeBulkTab === "contract") {
       return <GenericTableTab config={contractConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
+    }
+    if (activeBulkTab === "companyRelation") {
+      return (
+        <GenericTableTab
+          config={companyRelationConfig}
+          user={hrUser}
+          surface={surface}
+          onUnsavedChange={setHasUnsavedChanges}
+          crudPermissions={{
+            canCreate: canCreateCompanyRelation,
+            canDelete: canDeleteCompanyRelation,
+          }}
+        />
+      );
     }
     return <GenericTableTab config={employeeConfig} user={hrUser} surface={surface} onUnsavedChange={setHasUnsavedChanges} />;
   }

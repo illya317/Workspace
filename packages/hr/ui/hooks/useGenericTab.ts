@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useMemo } from "react";
 import { useDebouncedEffect, usePageDraft } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import type { TabConfig } from "@workspace/hr/types";
+import { buildGenericTabSaveRequests } from "./generic-tab-save-requests";
 
 export interface TabItem {
   id: number | string;
@@ -225,28 +226,36 @@ export function useGenericTab(config: TabConfig): GenericTabState {
     try {
       const changes = pageDraft.changes.map((change) => {
         const { id, field } = parseCellKey(change.key);
-        return { id, field, value: valueForSave(field, change.value) };
+        const version = baseItems.find((item) => Number(item.id) === id)?.version;
+        return {
+          id,
+          field,
+          value: valueForSave(field, change.value),
+          expectedVersion: Number.isInteger(version) ? Number(version) : undefined,
+        };
       });
-      const res = await fetch(apiPath, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ changes }),
-      });
-      if (res.ok) {
-        setEditingCell(null);
-        setEditingInitialValue("");
-        pageDraft.acceptChanges();
-        await load();
-        return { ok: true };
+      for (const request of buildGenericTabSaveRequests(config, changes)) {
+        const res = await fetch(workspacePath(request.path), {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(request.body),
+        });
+        if (!res.ok) {
+          const data = await res.json().catch(() => null) as { error?: string } | null;
+          return { ok: false, error: data?.error || `保存失败 (${res.status})` };
+        }
       }
-      const data = await res.json().catch(() => null) as { error?: string } | null;
-      return { ok: false, error: data?.error || `保存失败 (${res.status})` };
+      setEditingCell(null);
+      setEditingInitialValue("");
+      pageDraft.acceptChanges();
+      await load();
+      return { ok: true };
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : "网络错误" };
     } finally {
       setSaving(false);
     }
-  }, [apiPath, load, pageDraft]);
+  }, [baseItems, config, load, pageDraft]);
 
   return {
     items, loading, error, keyword, searchKeyword, setKeyword,

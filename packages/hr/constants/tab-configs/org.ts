@@ -48,13 +48,16 @@ export const companyConfig: TabConfig = {
 const companyRelationFields: FieldConfig[] = [
   { key: "parentId", label: "持股方", type: "fk", editable: true, required: true },
   { key: "childId", label: "被持股方", type: "fk", editable: true, required: true },
-  { key: "shareRatio", label: "持股比例", editable: true, type: "number" },
+  { key: "shareRatio", label: "持股比例（0-1）", editable: true, type: "number" },
   { key: "isConsolidated", label: "并表", editable: true, type: "boolean" },
+  { key: "effectiveFrom", label: "生效日期", editable: true, type: "date" },
+  { key: "effectiveTo", label: "失效日期", editable: true, type: "date" },
 ];
 
 export const companyRelationConfig: TabConfig = {
   title: "公司关系",
   apiPath: "/api/modules/hr/roster/company-relations",
+  rowPath: (id) => `/api/modules/hr/roster/company-relations/${id}`,
   entityType: "CompanyRelation",
   fields: companyRelationFields,
   fkFields: {

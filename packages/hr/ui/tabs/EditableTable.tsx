@@ -4,6 +4,7 @@ import { useMemo } from "react";
 import {
   type DataSurfaceColumnSpec,
   type DataSurfaceCellSpec,
+  type DataSurfaceRowActionSpec,
   createPageBody,
   BodySurface,
 } from "@workspace/core/ui";
@@ -86,6 +87,7 @@ interface EditableTableProps {
   canEdit: boolean;
   renderEditInput: (fieldKey: string) => DataSurfaceCellSpec | null;
   onStartEdit: (item: Record<string, unknown>, field: FieldConfig) => void;
+  rowActions?: (item: Record<string, unknown>) => DataSurfaceRowActionSpec[];
   framed?: boolean;
   loading?: boolean;
   emptyText?: string;
@@ -102,6 +104,7 @@ export default function EditableTable({
   canEdit,
   renderEditInput,
   onStartEdit,
+  rowActions,
   loading,
   emptyText,
 }: EditableTableProps) {
@@ -115,6 +118,7 @@ export default function EditableTable({
     canEdit,
     renderEditInput,
     onStartEdit,
+    rowActions,
     loading,
     emptyText,
   });
@@ -131,6 +135,7 @@ export function useEditableTableSection({
   canEdit,
   renderEditInput,
   onStartEdit,
+  rowActions,
   loading,
   emptyText,
 }: EditableTableProps): BodySurfaceSectionSpec {
@@ -166,6 +171,8 @@ export function useEditableTableSection({
       columns,
       visibleColumns,
       rowKey: (item) => String(item.id),
+      rowActions,
+      actionsColumn: rowActions ? { label: "操作", align: "center" } : undefined,
       presentation: { density: "compact",
  },
       loading,

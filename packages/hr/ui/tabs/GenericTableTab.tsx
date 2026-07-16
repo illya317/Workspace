@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useState, useEffect, useMemo, useRef } from "react";
 import { useAuditLogModal } from "../audit/AuditLogModal";
 import { createPageBody, PageSurface, useFeedback, type BodySurfaceSectionSpec } from "@workspace/core/ui";
-import { createGenericEditInputSpec } from "../components/GenericFieldInput";
+import { createGenericEditInputSpec, createGenericInputControl } from "../components/GenericFieldInput";
 import { buildHRToolbarItems } from "../components/hr-toolbar-items";
 import {
   buildAdvancedFilterValueOptions,
@@ -16,17 +16,28 @@ import { columnToggleOptions, defaultVisibleColumnKeys, fieldsWithCompanyOptions
 import { downloadGenericTableCsv } from "./generic-table-export";
 import { type TabConfig, type FieldConfig, type HRUser, hrCanEdit } from "@workspace/hr/types";
 import type { RosterSurfaceTabBarProps } from "../roster-surface";
+import {
+  buildGenericTabCreateBody,
+  buildGenericTabDeleteRequest,
+  emptyGenericTabCreateDraft,
+  genericTabCreateFields,
+  isGenericTabCreateReady,
+  resolveGenericTabCrudCapabilities,
+  type GenericTabCrudPermissions,
+} from "../hooks/generic-tab-crud";
 
 export default function GenericTableTab({
   config,
   user,
   surface,
   onUnsavedChange,
+  crudPermissions,
 }: {
   config: TabConfig;
   user: HRUser;
   surface?: RosterSurfaceTabBarProps;
   onUnsavedChange?: (dirty: boolean) => void;
+  crudPermissions?: GenericTabCrudPermissions;
 }) {
   const canEdit = hrCanEdit(user);
   const {
@@ -37,14 +48,19 @@ export default function GenericTableTab({
     page, pageSize, total, setPage,
   } = useGenericTab(config);
 
-  const feedback = useFeedback({ unsavedChanges: dirty });
   const inputRef = useRef<HTMLInputElement>(null);
   const [downloading, setDownloading] = useState(false);
+  const [createDraft, setCreateDraft] = useState<Record<string, unknown> | null>(null);
+  const [creating, setCreating] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const hasUnsavedChanges = dirty || createDraft !== null;
+  const feedback = useFeedback({ unsavedChanges: hasUnsavedChanges });
+  const crudCapabilities = resolveGenericTabCrudCapabilities(config, crudPermissions);
 
   useEffect(() => {
-    onUnsavedChange?.(dirty);
+    onUnsavedChange?.(hasUnsavedChanges);
     return () => onUnsavedChange?.(false);
-  }, [dirty, onUnsavedChange]);
+  }, [hasUnsavedChanges, onUnsavedChange]);
 
   // 动态加载公司列表作为编码池选项
   const [companyOptions, setCompanyOptions] = useState<Array<{ label: string; value: string }>>([]);
@@ -73,6 +89,7 @@ export default function GenericTableTab({
     () => fieldsWithCompanyOptions(config.fields, companyOptions),
     [companyOptions, config.fields],
   );
+  const createFields = useMemo(() => genericTabCreateFields(tableFields), [tableFields]);
 
   const defaultVisibleColumns = useMemo(() => defaultVisibleColumnKeys(tableFields), [tableFields]);
 
@@ -175,6 +192,51 @@ export default function GenericTableTab({
     }
   }
 
+  async function handleCreate() {
+    if (!crudCapabilities.canCreate || !createDraft) throw new Error("无权限新增记录");
+    setCreating(true);
+    try {
+      const response = await fetch(workspacePath(config.apiPath), {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(buildGenericTabCreateBody(config, createDraft)),
+      });
+      if (!response.ok) throw new Error(await mutationError(response, "新增失败"));
+      setCreateDraft(null);
+      await load();
+      return { outcome: "saved" as const, message: `${config.title}已新增` };
+    } finally {
+      setCreating(false);
+    }
+  }
+
+  async function handleDelete(item: Record<string, unknown>) {
+    if (!crudCapabilities.canDelete) {
+      feedback.error("无权限删除记录");
+      return;
+    }
+    const confirmed = await feedback.confirmDelete({
+      message: `确定删除这条${config.title}记录吗？此操作不可撤销。`,
+    });
+    if (!confirmed) return;
+    const request = buildGenericTabDeleteRequest(config, item);
+    const itemId = Number(item.id);
+    setDeletingId(itemId);
+    try {
+      const response = await fetch(workspacePath(request.path), {
+        method: "DELETE",
+        headers: request.headers,
+      });
+      if (!response.ok) throw new Error(await mutationError(response, "删除失败"));
+      feedback.success("删除成功");
+      await load();
+    } catch (error) {
+      feedback.error(error instanceof Error ? error.message : "删除失败");
+    } finally {
+      setDeletingId(null);
+    }
+  }
+
   function handleKeyDown(e: React.KeyboardEvent) {
     if (e.key === "Enter") {
       e.preventDefault();
@@ -264,10 +326,64 @@ export default function GenericTableTab({
       fkConfig: config.fkFields?.[fieldKey],
     }) : null,
     onStartEdit: handleStartEdit,
+    rowActions: crudCapabilities.canDelete
+      ? (item) => [{
+          key: "delete",
+          label: "删除",
+          kind: "delete" as const,
+          disabled: saving || dirty || deletingId !== null,
+          onClick: () => void handleDelete(item),
+        }]
+      : undefined,
   });
   const auditLogModal = useAuditLogModal({ open: showHistory, onClose: () => setShowHistory(false), entityType: config.entityType, onRestored: load });
 
-  const sections: BodySurfaceSectionSpec[] = [tableSection];
+  const createSection: BodySurfaceSectionSpec | null = crudCapabilities.canCreate ? {
+    key: "generic-create",
+    chrome: "plain",
+    body: {
+      kind: "create",
+      create: {
+        id: `generic-create-${config.entityType}`,
+        trigger: "toolbar",
+        presentation: "modal",
+        title: `新增${config.title}`,
+        open: createDraft !== null,
+        canCreate: crudCapabilities.canCreate,
+        disabled: creating,
+        content: {
+          kind: "sections",
+          sections: [{
+            key: "fields",
+            layout: { columns: 2, density: "compact" },
+            items: createFields.map((field) => ({
+              key: field.key,
+              label: field.label,
+              required: field.required,
+              ...createGenericInputControl({
+                field,
+                value: createDraft?.[field.key] ?? "",
+                onChange: (value) => setCreateDraft((current) => current ? { ...current, [field.key]: value } : current),
+                fkConfig: config.fkFields?.[field.key],
+              }),
+            })),
+          }],
+        },
+        submission: {
+          action: "save",
+          disabled: creating || !createDraft || !isGenericTabCreateReady(createFields, createDraft),
+          execute: handleCreate,
+        },
+        onOpenChange: (open) => setCreateDraft(open ? emptyGenericTabCreateDraft(createFields) : null),
+        onCancel: () => setCreateDraft(null),
+      },
+    },
+  } : null;
+
+  const sections: BodySurfaceSectionSpec[] = [
+    ...(createSection ? [createSection] : []),
+    tableSection,
+  ];
 
   return (
     <PageSurface kind="standard"
@@ -277,4 +393,9 @@ export default function GenericTableTab({
       footer={pagination ? { pagination } : undefined}
     />
   );
+}
+
+async function mutationError(response: Response, fallback: string) {
+  const body = await response.json().catch(() => null) as { error?: unknown } | null;
+  return typeof body?.error === "string" ? body.error : `${fallback} (${response.status})`;
 }
