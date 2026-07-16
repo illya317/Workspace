@@ -890,7 +890,7 @@ if [ "$needs_forced_full" = "1" ]; then
   artifact_event="workflow_dispatch"
 fi
 
-echo "==> 等待并验证受保护 main 的 CI、required check、产物与 prerelease 摘要..."
+echo "==> 等待并验证受保护 main 的 CI、required check 与 prerelease 元数据..."
 evidence_args=(
   verify-github
   --repository "$github_repository"
