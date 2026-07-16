@@ -84,6 +84,7 @@
     "db:resource-manifest": "npx tsx scripts/write-resource-manifest.ts",
     "db:seed:resources": "npx tsx scripts/seed-resources.ts",
     "db:permission-actions:check": "npx tsx scripts/write-resource-manifest.ts .cache/resource-defs.json && node scripts/check/check-permission-action-grants.mjs .cache/resource-defs.json",
+    "provision:agent-workforce": "node scripts/provision-agent-workforce.mjs",
     "db:backfill:permission-ledger": "npx tsx scripts/backfill-permission-grant-ledger.ts",
     "db:generate": "node scripts/check/with-check-lock.js -- npm run db:generate:inner",
     "db:generate:inner": "prisma generate --schema=./prisma && node scripts/check/normalize-generated-prisma.js",

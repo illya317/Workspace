@@ -166,19 +166,15 @@ copy_resource_seed_files() {
   npx tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
   cp scripts/seed-resources-runtime.mjs .next/standalone/seed-resources-runtime.mjs
   mkdir -p .next/standalone/scripts
-  if [ -f scripts/provision-agent-workforce.mjs ] && [ -f scripts/lib/agent-workforce-specs.mjs ]; then
-    cp scripts/provision-agent-workforce.mjs .next/standalone/scripts/provision-agent-workforce.mjs
-    mkdir -p .next/standalone/scripts/lib
-    cp scripts/lib/agent-workforce-specs.mjs .next/standalone/scripts/lib/agent-workforce-specs.mjs
-  fi
+  cp scripts/provision-agent-workforce.mjs .next/standalone/scripts/provision-agent-workforce.mjs
+  mkdir -p .next/standalone/scripts/lib
+  cp scripts/lib/agent-workforce-specs.mjs .next/standalone/scripts/lib/agent-workforce-specs.mjs
   mkdir -p .next/standalone/scripts/check
   cp scripts/check/check-permission-action-grants.mjs .next/standalone/scripts/check/check-permission-action-grants.mjs
   test -f .next/standalone/resource-defs.json
   test -f .next/standalone/seed-resources-runtime.mjs
-  if [ -f scripts/provision-agent-workforce.mjs ]; then
-    test -f .next/standalone/scripts/provision-agent-workforce.mjs
-    test -f .next/standalone/scripts/lib/agent-workforce-specs.mjs
-  fi
+  test -f .next/standalone/scripts/provision-agent-workforce.mjs
+  test -f .next/standalone/scripts/lib/agent-workforce-specs.mjs
   test -f .next/standalone/scripts/check/check-permission-action-grants.mjs
 }
 
