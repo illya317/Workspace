@@ -867,7 +867,7 @@ resolve_release_evidence() {
   RELEASE_GITHUB_RELEASE_ARTIFACT_DIGEST="$(sed -n '15p' "$evidence_values")"
   RELEASE_GITHUB_RELEASE_MANIFEST_DIGEST="$(sed -n '16p' "$evidence_values")"
   rm -f "$evidence_values"
-  RELEASE_BOOTSTRAP_BASE="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap?.baselineSha ?? "");' "$RELEASE_EVIDENCE_FILE")"
+  RELEASE_BOOTSTRAP_BASE="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap?.baselineSha ?? "");' "$RELEASE_EVIDENCE_FILE")"
   RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT=""
   RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID=""
   RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN=""
@@ -877,14 +877,14 @@ resolve_release_evidence() {
   RELEASE_BOOTSTRAP_MIGRATION_COUNT=""
   RELEASE_BOOTSTRAP_MIGRATION_DIGEST=""
   if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
-    RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbCommitSha);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.releaseId);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbBuildSn);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.runtimeVersion);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_BUILD_ID="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.buildId);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_CNB_REPOSITORY="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.legacy.cnbRepository);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_MIGRATION_COUNT="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(String(e.deploymentBootstrap.database.migrationCount));' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_MIGRATION_DIGEST="$(node -e 'const e=require("./" + process.argv[1]); process.stdout.write(e.deploymentBootstrap.database.migrationSetSha256);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbCommitSha);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.releaseId);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbBuildSn);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.runtimeVersion);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_LEGACY_BUILD_ID="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.buildId);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_CNB_REPOSITORY="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbRepository);' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_MIGRATION_COUNT="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(String(e.deploymentBootstrap.database.migrationCount));' "$RELEASE_EVIDENCE_FILE")"
+    RELEASE_BOOTSTRAP_MIGRATION_DIGEST="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.database.migrationSetSha256);' "$RELEASE_EVIDENCE_FILE")"
     if [ "$RELEASE_BOOTSTRAP_CNB_REPOSITORY" != "$EXPECTED_GITHUB_REPOSITORY" ]; then
       echo "[错误] production bootstrap CNB repository 与 canonical repository 不一致"
       exit 1
@@ -924,7 +924,7 @@ build_artifact() {
     --artifact "$ARTIFACT_PATH" \
     --sha "$RELEASE_SOURCE_SHA" \
     --tree "$RELEASE_SOURCE_TREE")"
-  RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=require(process.argv[1]); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
+  RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
   ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
 }
 
