@@ -19,6 +19,7 @@ import {
   type PermissionActionKey,
 } from "@workspace/platform/permission-actions";
 import type { AgentConfigurationData } from "@workspace/platform/types";
+import { matchText } from "@workspace/platform/search";
 import { putJson, requestJson } from "./api-client";
 import {
   createPermissionActionMatrixSurface,
@@ -110,8 +111,7 @@ function subjectContent(subject: AgentPermissionSubject, subjectType: AgentPermi
 function subjectSearchText(subject: AgentPermissionSubject) {
   return [subject.name, ...Object.values(subject.extra ?? {})]
     .filter((value) => typeof value === "string" || typeof value === "number")
-    .join(" ")
-    .toLocaleLowerCase();
+    .join(" ");
 }
 
 export function useAgentPermissionManagementSections({
@@ -335,10 +335,10 @@ export function useAgentPermissionManagementSections({
     content: { items: filterItems, layout: { flow: "inline", columns: 3, density: "compact" } },
   });
 
-  const normalizedQuery = query.trim().toLocaleLowerCase();
+  const normalizedQuery = query.trim();
   const matchingSubjects = (grantData?.subjects ?? [])
     .filter((subject) => subjectType !== "user" || Boolean(subject.extra?.hasUser))
-    .filter((subject) => !normalizedQuery || subjectSearchText(subject).includes(normalizedQuery));
+    .filter((subject) => !normalizedQuery || matchText(subjectSearchText(subject), normalizedQuery));
   const visibleSubjects = matchingSubjects.slice(0, 100);
   const resultSummary = grantData && selectedResource?.grantManageable
     ? createMessageSection("agent-permission-result-summary", {
