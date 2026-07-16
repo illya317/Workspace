@@ -5,7 +5,7 @@ import type { ReclassEntry } from "../../server/schedules/reclassify";
 import type { RuleCandidate } from "../../server/ledger/reclass-rules";
 import { formatFinanceAmount } from "../formatters";
 
-export type ReclassWorkbenchFilter = "attention" | "processed" | "exempt" | "all";
+export type ReclassWorkbenchFilter = "attention" | "processed" | "exempt" | "historical" | "all";
 export type GroupRuleStatusFilter = "all" | "reclassified" | "no_reclass" | "unconfirmed";
 
 export interface ReclassTargetOption {
@@ -48,6 +48,9 @@ export function createGroupReclassRuleColumns(input: {
       cell: (row) => ({ kind: "stack", gap: "xs", items: [
         { kind: "text", value: row.accountCode, font: "mono", emphasis: "medium" },
         { kind: "text", value: row.accountName },
+        ...(row.existingRuleSourceAccountCode && row.existingRuleSourceAccountCode !== row.accountCode
+          ? [{ kind: "text" as const, value: `继承规则 ${row.existingRuleSourceAccountCode}`, tone: "muted" as const }]
+          : []),
       ] }),
     },
     {
@@ -106,9 +109,12 @@ export function createGroupReclassRuleColumns(input: {
 export function filterReclassEntries(entries: readonly ReclassEntry[], filter: ReclassWorkbenchFilter, keyword: string) {
   return entries.filter((row) => {
     const inFilter = filter === "all"
-      || (filter === "attention" && (row.status === "pending" || row.status === "configured"))
-      || (filter === "processed" && (row.status === "approved" || row.status === "adjusted"))
-      || (filter === "exempt" && (row.status === "exempt" || row.status === "rejected"));
+      || (filter === "attention" && (row.status === "pending"
+        || row.status === "configured"
+        || (row.stale && (row.status === "approved" || row.status === "adjusted"))))
+      || (filter === "processed" && !row.stale && (row.status === "approved" || row.status === "adjusted"))
+      || (filter === "exempt" && (row.status === "exempt" || row.status === "rejected"))
+      || (filter === "historical" && row.status === "historical");
     if (!inFilter) return false;
     if (!keyword) return true;
     return [row.accountCode, row.accountName, row.targetAccountCode, row.targetAccountName, row.reason]
@@ -140,18 +146,43 @@ export function createReclassWorkbenchColumns(input: {
     },
     {
       key: "amount",
-      label: "期末反向余额",
+      label: "应用 / 候选金额",
       required: true,
       align: "right",
       font: "mono",
       cell: (row) => `¥${formatFinanceAmount(row.amount)}`,
     },
     {
+      key: "currentAmount",
+      label: "当前反向余额",
+      required: true,
+      align: "right",
+      font: "mono",
+      cell: (row) => {
+        if (row.currentAbnormalAmount === null) {
+          return { kind: "text", value: "无余额事实", tone: "muted" };
+        }
+        if (!row.stale) return `¥${formatFinanceAmount(row.currentAbnormalAmount)}`;
+        return {
+          kind: "stack",
+          gap: "xs",
+          items: [
+            { kind: "text", value: `¥${formatFinanceAmount(row.currentAbnormalAmount)}`, font: "mono" },
+            { kind: "badge", label: "已过期 · 待复核", tone: "orange" },
+          ],
+        };
+      },
+    },
+    {
       key: "direction",
       label: "余额方向",
       required: true,
       align: "center",
-      cell: (row) => ({ kind: "badge", label: row.balanceSide === "debit" ? "借" : "贷", tone: "red" }),
+      cell: (row) => row.currentAbnormalAmount === null
+        ? { kind: "badge", label: "无余额事实", tone: "gray" }
+        : row.currentAbnormalAmount === 0
+          ? { kind: "badge", label: "无反向余额", tone: "gray" }
+          : { kind: "badge", label: row.balanceSide === "debit" ? "借" : "贷", tone: "red" },
     },
     {
       key: "classification",
@@ -224,7 +255,10 @@ function isRuleEditable(row: ReclassEntry, canRevise: boolean) {
   return canRevise
     && row.sourceType !== "legacy_voucher"
     && (row.classification === "reclass_candidate" || row.classification === "pending_review")
-    && row.status !== "exempt";
+    && row.status !== "exempt"
+    && row.status !== "historical"
+    && row.currentAbnormalAmount !== null
+    && row.currentAbnormalAmount > 0;
 }
 
 function classificationBadge(row: ReclassEntry) {
@@ -247,6 +281,7 @@ function statusBadge(row: ReclassEntry) {
     adjusted: { label: "已人工调整", tone: "blue" as const },
     rejected: { label: "已排除", tone: "gray" as const },
     exempt: { label: "无需重分类", tone: "gray" as const },
+    historical: { label: "历史记录", tone: "gray" as const },
   };
   return { kind: "badge" as const, ...specs[row.status] };
 }
@@ -259,7 +294,7 @@ function targetLabel(row: ReclassEntry) {
 function sourceLabel(row: ReclassEntry) {
   if (row.sourceType === "auxiliary_balance") return `辅助余额表${row.detailCount ? ` · ${row.detailCount} 个对象` : ""}`;
   if (row.sourceType === "reference_workpaper") return "法定报表底稿勾稽";
-  if (row.sourceType === "legacy_voucher") return "历史凭证明细";
+  if (row.sourceType === "legacy_voucher") return "历史凭证明细（不参与报表）";
   if (row.sourceType === "rule") return "集团规则";
   if (row.sourceType === "manual") return "人工调整";
   return "期末余额检测";

@@ -200,6 +200,7 @@ budget/page.tsx
 - `decision`: `"reclassify"` 必须同时保存 `targetAccountCode`；`"no_reclass"` 必须保持目标为空
 - `source` 只使用 `"manual"`；没有数据库记录表示未确认，不存在系统默认或静态配对回退
 - 保存目标、明确选择“无需重分类”都会记录确认人和确认时间
+- 若目标科目在存在待重算辅助余额的开放期间账套中不存在或已停用，整次规则保存返回冲突并回滚，避免旧自动调整继续生效
 - 缺少确认人或确认时间的历史 `manual` 标记不作为规则消费，迁移时退回未确认
 
 ### 结果表 (`ReclassResult`)
@@ -207,7 +208,7 @@ budget/page.tsx
 - `@@unique([periodId, voucherItemId])` 确保同一明细只有一条结果
 - `ruleId` (Int?) 追溯到生成此结果的 `FinanceReclassRule`；手工添加或历史兼容时为 null
 - `status`: 默认 `approved`（系统自动通过），`adjusted`（人工调整，受保护不被覆盖），`pending`（历史兼容，不在 UI 主流程），`rejected`（历史兼容）
-- `approved` / `adjusted` 被报表消费
+- 历史 `ReclassResult` 仅用于追溯，不再被当前报表消费；报表只消费余额层 `FinanceBalanceReclassAdjustment`
 
 ### 端到端数据流
 
@@ -216,7 +217,7 @@ budget/page.tsx
 │ 重分类工作台 → 集团全局长期规则                           │
 │   GET /api/modules/finance/ledger/reclass-rules             │
 │   GET 读取集团科目并集与人工确认状态                       │
-│   PUT change set → 事务写入 reclassify / no_reclass 结论    │
+│   PUT change set → 事务写入结论并重算开放期间的辅助余额调整 │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 生成结果 ──────────────────────────────────────────────┐
@@ -233,8 +234,9 @@ budget/page.tsx
 │   schedules/reclassify 汇总期末反向余额、现有规则、余额调整 │
 │   未有确认结果 → pending/configured，不进入报表重分类       │
 │   approved/adjusted → 已重分类；rejected/exempt → 不消费    │
+│   持久化应用金额与当前反向余额分列；不一致时标记待复核      │
 │   PUT reclass-adjustments → 新增或修改期间人工调整          │
-│   历史源凭证已删除的 ReclassResult 只读暴露，等待迁移       │
+│   历史 ReclassResult 只读暴露且不再参与当前报表消费         │
 └──────────────────────────────────────────────────────────┘
                     ↓
 ┌─ 报表消费 (只读) ───────────────────────────────────────┐
@@ -254,6 +256,8 @@ budget/page.tsx
 - 按 `sourceAccount` 前缀扣减对应资产负债表行（资产 1xxx 扣贷方，负债 2xxx 扣借方）
 - 按 `targetAccount` 前缀增加到对应资产负债表行
 - `ReclassEntry { sourceAccount, targetAccount, amount }` 精确金额，非整科目余额
+- 长期规则 change set 保存后，在同一事务按最长科目前缀重新读取已入库辅助余额，只物化开放期间的 `approved + auxiliary_balance` 调整；`adjusted/rejected` 人工事实和关闭期间不被覆盖。
+- 工作台把持久化的报表应用金额与当前反向余额分列；源余额归零、转为正常方向或金额变化时仍保留调整，并标记为待复核，不能让报表仍消费但 UI 静默消失。
 - 报表页不触发生成、不编辑规则、不审核结果；这些入口统一归重分类工作台
 - 重分类规则唯一存放于 `FinanceReclassRule`；旧科目字段已迁移并删除，科目 API 不再接受规则写入。
 

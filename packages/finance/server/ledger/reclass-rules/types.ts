@@ -23,6 +23,8 @@ export interface RuleCandidate {
   existingDecision: "reclassify" | "no_reclass" | null;
   /** 已有规则的来源（manual | suggested，无规则时为 null） */
   existingSource: string | null;
+  /** 实际命中的规则源科目；与 accountCode 不同时表示继承父级前缀规则。 */
+  existingRuleSourceAccountCode: string | null;
   /** 已有规则是否启用（无规则时为 null） */
   existingEnabled: boolean | null;
 }

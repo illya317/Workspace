@@ -6,6 +6,7 @@ import {
   buildSaveBalanceReclassAdjustmentChangeSetCommand,
   type SaveBalanceReclassAdjustmentChangeSetInput,
 } from "../../domain/finance-validation";
+import { currentReverseBalanceAmount } from "./reverse-balance";
 
 export async function saveBalanceReclassAdjustmentChangeSet(input: SaveBalanceReclassAdjustmentChangeSetInput) {
   const command = buildSaveBalanceReclassAdjustmentChangeSetCommand(input);
@@ -21,97 +22,90 @@ export async function saveBalanceReclassAdjustmentChangeSet(input: SaveBalanceRe
   });
   if (!direct.ok) return direct;
 
-  const periodIds = [...new Set(changes.map((change) => change.periodId))];
-  const periods = await prisma.financePeriod.findMany({
-    where: { id: { in: periodIds } },
-    select: { id: true, companyCode: true, year: true },
-  });
-  if (periods.length !== periodIds.length) return serviceError("部分会计期间不存在", 404);
-  const periodMap = new Map(periods.map((period) => [period.id, period]));
-
-  const accounts = await prisma.financeAccount.findMany({
-    where: {
-      isActive: true,
-      OR: changes.flatMap((change) => {
-        const period = periodMap.get(change.periodId)!;
-        return [
-          { companyCode: period.companyCode, year: period.year, code: change.sourceAccountCode },
-          { companyCode: period.companyCode, year: period.year, code: change.targetAccountCode },
-        ];
-      }),
-    },
-    select: { id: true, companyCode: true, year: true, code: true, balanceDirection: true },
-  });
-  const accountMap = new Map(accounts.map((account) => [`${account.companyCode}::${account.year}::${account.code}`, account]));
-  for (const change of changes) {
-    const period = periodMap.get(change.periodId)!;
-    const prefix = `${period.companyCode}::${period.year}::`;
-    if (!accountMap.has(`${prefix}${change.sourceAccountCode}`) || !accountMap.has(`${prefix}${change.targetAccountCode}`)) {
-      return serviceError("源科目或目标科目在对应公司和年度中不存在或已停用", 400);
-    }
-  }
-
-  const existing = await prisma.financeBalanceReclassAdjustment.findMany({
-    where: { OR: changes.map((change) => ({ periodId: change.periodId, sourceAccountCode: change.sourceAccountCode })) },
-    select: { periodId: true, sourceAccountCode: true, amount: true },
-  });
-  const existingMap = new Map(existing.map((row) => [`${row.periodId}::${row.sourceAccountCode}`, row]));
-  const balances = await prisma.financeAccountBalance.findMany({
-    where: {
-      OR: changes.filter((change) => !existingMap.has(`${change.periodId}::${change.sourceAccountCode}`)).map((change) => {
-        const period = periodMap.get(change.periodId)!;
-        const account = accountMap.get(`${period.companyCode}::${period.year}::${change.sourceAccountCode}`)!;
-        return { periodId: change.periodId, accountId: account.id };
-      }),
-    },
-    select: { periodId: true, closingDebit: true, closingCredit: true, account: { select: { code: true, balanceDirection: true } } },
-  });
-  const balanceMap = new Map(balances.map((row) => [`${row.periodId}::${row.account.code}`, row]));
-  const amounts = new Map<string, number>();
-  for (const change of changes) {
-    const key = `${change.periodId}::${change.sourceAccountCode}`;
-    const old = existingMap.get(key);
-    if (old) {
-      amounts.set(key, old.amount);
-      continue;
-    }
-    const balance = balanceMap.get(key);
-    if (!balance) return serviceError(`科目 ${change.sourceAccountCode} 没有可调整的期末余额`, 409);
-    const net = Math.round((balance.closingDebit - balance.closingCredit + Number.EPSILON) * 100) / 100;
-    const naturalSide = balance.account.balanceDirection === "credit" ? "credit" : "debit";
-    const balanceSide = net > 0 ? "debit" : "credit";
-    if (Math.abs(net) <= 0.01 || balanceSide === naturalSide) {
-      return serviceError(`科目 ${change.sourceAccountCode} 当前不是期末反向余额`, 409);
-    }
-    amounts.set(key, Math.abs(net));
-  }
-
-  const adjustedAt = new Date();
-  await prisma.$transaction(changes.map((change) => {
-    const period = periodMap.get(change.periodId)!;
-    const key = `${change.periodId}::${change.sourceAccountCode}`;
-    return prisma.financeBalanceReclassAdjustment.upsert({
-      where: { periodId_sourceAccountCode: { periodId: change.periodId, sourceAccountCode: change.sourceAccountCode } },
-      create: {
-        periodId: change.periodId,
-        companyCode: period.companyCode,
-        year: period.year,
-        sourceAccountCode: change.sourceAccountCode,
-        targetAccountCode: change.targetAccountCode,
-        amount: amounts.get(key)!,
-        sourceType: "manual",
-        status: "adjusted",
-        adjustedBy: userId,
-        adjustedAt,
-      },
-      update: {
-        targetAccountCode: change.targetAccountCode,
-        sourceType: "manual",
-        status: "adjusted",
-        adjustedBy: userId,
-        adjustedAt,
-      },
+  return prisma.$transaction(async (tx) => {
+    const periodIds = [...new Set(changes.map((change) => change.periodId))];
+    const periods = await tx.financePeriod.findMany({
+      where: { id: { in: periodIds } },
+      select: { id: true, companyCode: true, year: true, isClosed: true },
     });
-  }));
-  return serviceOk({ success: true, saved: changes.length });
+    if (periods.length !== periodIds.length) return serviceError("部分会计期间不存在", 404);
+    if (periods.some((period) => period.isClosed)) return serviceError("期间已结账，不能保存重分类调整", 409);
+    const periodMap = new Map(periods.map((period) => [period.id, period]));
+
+    const accounts = await tx.financeAccount.findMany({
+      where: {
+        isActive: true,
+        OR: changes.flatMap((change) => {
+          const period = periodMap.get(change.periodId)!;
+          return [
+            { companyCode: period.companyCode, year: period.year, code: change.sourceAccountCode },
+            { companyCode: period.companyCode, year: period.year, code: change.targetAccountCode },
+          ];
+        }),
+      },
+      select: { id: true, companyCode: true, year: true, code: true, balanceDirection: true },
+    });
+    const accountMap = new Map(accounts.map((account) => [`${account.companyCode}::${account.year}::${account.code}`, account]));
+    for (const change of changes) {
+      const period = periodMap.get(change.periodId)!;
+      const prefix = `${period.companyCode}::${period.year}::`;
+      if (!accountMap.has(`${prefix}${change.sourceAccountCode}`) || !accountMap.has(`${prefix}${change.targetAccountCode}`)) {
+        return serviceError("源科目或目标科目在对应公司和年度中不存在或已停用", 400);
+      }
+    }
+
+    const balances = await tx.financeAccountBalance.findMany({
+      where: {
+        OR: changes.map((change) => {
+          const period = periodMap.get(change.periodId)!;
+          const account = accountMap.get(`${period.companyCode}::${period.year}::${change.sourceAccountCode}`)!;
+          return { periodId: change.periodId, accountId: account.id };
+        }),
+      },
+      select: { periodId: true, closingDebit: true, closingCredit: true, account: { select: { code: true, balanceDirection: true } } },
+    });
+    const balanceMap = new Map(balances.map((row) => [`${row.periodId}::${row.account.code}`, row]));
+    const amounts = new Map<string, number>();
+    for (const change of changes) {
+      const key = `${change.periodId}::${change.sourceAccountCode}`;
+      const balance = balanceMap.get(key);
+      if (!balance) return serviceError(`科目 ${change.sourceAccountCode} 没有可调整的期末余额`, 409);
+      const amount = currentReverseBalanceAmount(balance);
+      if (amount === null) return serviceError(`科目 ${change.sourceAccountCode} 当前不是期末反向余额`, 409);
+      amounts.set(key, amount);
+    }
+
+    const adjustedAt = new Date();
+    for (const change of changes) {
+      const period = periodMap.get(change.periodId)!;
+      const key = `${change.periodId}::${change.sourceAccountCode}`;
+      await tx.financeBalanceReclassAdjustment.upsert({
+        where: { periodId_sourceAccountCode: { periodId: change.periodId, sourceAccountCode: change.sourceAccountCode } },
+        create: {
+          periodId: change.periodId,
+          companyCode: period.companyCode,
+          year: period.year,
+          sourceAccountCode: change.sourceAccountCode,
+          targetAccountCode: change.targetAccountCode,
+          amount: amounts.get(key)!,
+          sourceType: "manual",
+          status: "adjusted",
+          note: JSON.stringify({ basis: "manual_closing_balance" }),
+          adjustedBy: userId,
+          adjustedAt,
+        },
+        update: {
+          targetAccountCode: change.targetAccountCode,
+          amount: amounts.get(key)!,
+          sourceType: "manual",
+          ruleId: null,
+          status: "adjusted",
+          note: JSON.stringify({ basis: "manual_closing_balance" }),
+          adjustedBy: userId,
+          adjustedAt,
+        },
+      });
+    }
+    return serviceOk({ success: true, saved: changes.length });
+  }, { maxWait: 10_000, timeout: 60_000 });
 }

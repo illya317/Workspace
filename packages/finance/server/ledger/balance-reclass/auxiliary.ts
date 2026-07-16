@@ -2,6 +2,7 @@ import { prisma } from "@workspace/platform/server/prisma";
 
 import type { PreviewAuxiliaryBalance } from "../../import/shared";
 import { buildFinancePeriodScopeCommand } from "../../domain/finance-validation";
+import { resolveLongestPrefixRule } from "../reclass-rules/resolution";
 
 export interface AuxiliaryReclassEntry {
   sourceAccount: string;
@@ -28,7 +29,7 @@ export function buildAuxiliaryReclassEntries(rows: readonly PreviewAuxiliaryBala
   const grouped = new Map<string, AuxiliaryReclassEntry>();
   for (const row of rows) {
     const net = roundMoney(row.closingDebit - row.closingCredit);
-    const side = net > 0.005 ? "debit" : net < -0.005 ? "credit" : null;
+    const side = net > 0 ? "debit" : net < 0 ? "credit" : null;
     if (!side) continue;
     const rule = resolveRule(row.accountCode, side, rules);
     const target = rule?.decision === "reclassify" ? rule.targetAccountCode : null;
@@ -126,9 +127,7 @@ function hasRule(accountCode: string, rules: readonly AuxiliaryReclassRule[]) {
 }
 
 function resolveRule(accountCode: string, side: "debit" | "credit", rules: readonly AuxiliaryReclassRule[]) {
-  return rules
-    .filter((rule) => rule.enabled && accountCode.startsWith(rule.sourceAccountCode) && (rule.abnormalSide === side || rule.abnormalSide === "both"))
-    .sort((left, right) => right.sourceAccountCode.length - left.sourceAccountCode.length)[0];
+  return resolveLongestPrefixRule(accountCode, side, rules);
 }
 
 async function getOrCreatePeriod(companyCode: string, year: number, month: number) {

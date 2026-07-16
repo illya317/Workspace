@@ -275,6 +275,21 @@ export function buildReclassRuleScopeCommand(companyCode: unknown, year: unknown
   return buildFinancePeriodScopeCommand({ companyCode, year });
 }
 
+export function buildMaterializeReclassAdjustmentsCommand(
+  changedSourcePrefixes: readonly string[],
+): DomainValidationResult<{ sourcePrefixes: string[] }> {
+  if (!Array.isArray(changedSourcePrefixes)) {
+    return failCommand("sourcePrefixes must be an array", 400, "sourcePrefixes");
+  }
+  const sourcePrefixes: string[] = [];
+  for (const prefix of new Set(changedSourcePrefixes)) {
+    const sourcePrefix = requiredText(prefix, "sourcePrefix");
+    if (!sourcePrefix.ok) return sourcePrefix;
+    sourcePrefixes.push(sourcePrefix.data);
+  }
+  return okCommand({ sourcePrefixes });
+}
+
 export type SaveReclassRuleChangeSetInput = {
   userId: number;
   changes: Array<{
