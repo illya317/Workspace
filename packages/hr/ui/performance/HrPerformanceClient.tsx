@@ -10,6 +10,7 @@ import { getPageViewTabs } from "@workspace/platform/view-registry";
 import {
   HrPerformanceView,
 } from "./HrPerformanceView";
+import { PERIOD_TYPE_OPTIONS } from "./performance-options";
 import type {
   DashboardData,
   PerfTab,
@@ -23,14 +24,6 @@ const tabs = getPageViewTabs("/hr/performance") as Array<{
   label: string;
   children?: Array<{ key: PerformanceAudience; label: string }>;
 }>;
-
-const PERIOD_TYPE_OPTIONS: Array<{ value: PerformancePeriodType; label: string }> = [
-  { value: "yearly", label: "年" },
-  { value: "half_year", label: "半年" },
-  { value: "quarterly", label: "季度" },
-  { value: "monthly", label: "月" },
-  { value: "weekly", label: "周" },
-];
 
 const AUDIENCE_SEARCH_LABEL: Record<PerformanceAudience, string> = {
   personal: "人员",
