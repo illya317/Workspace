@@ -47,10 +47,16 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
 });
 
 test("deployment notification records the exact release transport", () => {
-  assert.match(deploy, /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' python3/);
+  assert.match(deploy, /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' RELEASE_SOURCE_SHA='\$RELEASE_SOURCE_SHA' python3/);
   assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
   assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
   assert.match(deploy, /'transport': transport/);
+  assert.match(deploy, /os\.environ\['RELEASE_SOURCE_SHA'\]/);
+});
+
+test("remote receipt verification output stays inside the SSH command", () => {
+  assert.match(deploy, /echo \\"==> \\\$verification_phase: 生产部署记录未被并发修改\\"/);
+  assert.doesNotMatch(deploy, /echo "==> \\\$verification_phase: 生产部署记录未被并发修改"/);
 });
 
 test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {

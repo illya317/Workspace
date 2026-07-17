@@ -1629,7 +1629,7 @@ NODE
           --artifact-sha '$DEPLOYED_ARTIFACT_SHA' \
           --transport '$DEPLOYED_TRANSPORT'
       fi
-      echo "==> \$verification_phase: 生产部署记录未被并发修改"
+      echo \"==> \$verification_phase: 生产部署记录未被并发修改\"
     }
     ensure_bootstrap_progress_marker() {
       [ -n '$RELEASE_BOOTSTRAP_BASE' ] || return 0
@@ -2203,7 +2203,7 @@ NODE
 
 notify_workspace_bot_deploy() {
   echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' python3 - <<'PY'
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' RELEASE_SOURCE_SHA='$RELEASE_SOURCE_SHA' python3 - <<'PY'
 import datetime
 import json
 import os
@@ -2223,7 +2223,7 @@ def read_json(path):
 package = read_json(app_dir / 'package.json').get('version') or 'unknown'
 build = (app_dir / '.next' / 'BUILD_ID').read_text().strip() if (app_dir / '.next' / 'BUILD_ID').exists() else 'unknown'
 required = read_json(app_dir / '.next' / 'required-server-files.json')
-build = required.get('config', {}).get('env', {}).get('NEXT_PUBLIC_BUILD_VERSION') or build
+build = required.get('config', {}).get('env', {}).get('NEXT_PUBLIC_BUILD_VERSION') or (build if build != 'unknown' else os.environ['RELEASE_SOURCE_SHA'])
 release = release_path.name
 transport = os.environ['RELEASE_TRANSPORT']
 if transport not in {'cnb', 'ssh-hotfix'}:
