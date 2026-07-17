@@ -50,12 +50,6 @@ export function canMaintainWorkByType(
   return maintenance.task;
 }
 
-export function isPlanDraftComplete(draft: Pick<WorkPlan, "kind" | "title" | "okrCycleId" | "periodType" | "plannedStartDate" | "plannedEndDate" | "ownerEmployeeId">) {
-  if (draft.kind === "okr") return Boolean(draft.title.trim() && draft.periodType && draft.plannedStartDate && draft.plannedEndDate && draft.ownerEmployeeId);
-  if (!draft.title.trim()) return false;
-  return true;
-}
-
 export function createDefaultNodeDraft(activePlan: WorkPlan, itemType: WorkItemType, rootObjectives: WorkItem[], works: WorkItem[], routineTaskType: RoutineTaskType = "task") {
   const parentObjective = itemType === "objective" ? null : rootObjectives[0] ?? null;
   const isRoutineTask = activePlan.kind === "routine" && itemType === "task";

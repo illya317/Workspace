@@ -10,3 +10,20 @@ export function validateWorkPlanCommand(action: string): DomainValidationResult<
   }
   return okCommand(action as WorkPlanAction);
 }
+
+export function validateWorkPlanCycleBinding(input: {
+  kind?: string | null;
+  isSystemGenerated?: boolean;
+  okrCycleId?: number | null;
+  periodType?: string | null;
+}): DomainValidationResult<true> {
+  if ((input.kind || "okr") !== "okr") return okCommand(true);
+  if (input.isSystemGenerated) {
+    return input.okrCycleId
+      ? okCommand(true)
+      : failCommand("系统固定周期计划必须选择 OKR 周期");
+  }
+  return input.okrCycleId || input.periodType
+    ? failCommand("额外 OKR 计划不属于固定周期")
+    : okCommand(true);
+}

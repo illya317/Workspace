@@ -1,7 +1,7 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { isCompletedStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
-import { validateWorkPlanCommand } from "./domain/work-plan-validation";
+import { validateWorkPlanCommand, validateWorkPlanCycleBinding } from "./domain/work-plan-validation";
 import { normalizeSourceType } from "./domain/work-item-source-validation";
 import {
   assertWorkPlanHeaderStageAllowed,
@@ -56,6 +56,13 @@ async function normalizeOkrWindow(input: { isSystemGenerated?: boolean; okrCycle
   if (okrCycleId && !cycle) return { ok: false as const, error: "OKR 周期不存在" };
   const periodType = normalizePlanPeriodType(cycle?.periodType ?? input.periodType);
   if (!periodType.ok) return periodType;
+  const cycleBinding = validateWorkPlanCycleBinding({
+    kind: "okr",
+    isSystemGenerated: input.isSystemGenerated === true,
+    okrCycleId,
+    periodType: periodType.data,
+  });
+  if (!cycleBinding.ok) return { ok: false as const, error: cycleBinding.issue.message };
   const actualStartDate = input.isSystemGenerated ? null : toDateOrNull(input.actualStartDate);
   const actualEndDate = input.isSystemGenerated ? null : toDateOrNull(input.actualEndDate);
   return { ok: true as const, data: { periodType: periodType.data, actualStartDate, actualEndDate, okrCycleId, cycle } };

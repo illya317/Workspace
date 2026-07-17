@@ -299,6 +299,7 @@ export function createWorkPlanDraft(plan: WorkPlan): WorkPlanDraft {
 
 export function workPlanDraftPayload(draft: WorkPlanDraft) {
   const isOkr = draft.kind === "okr";
+  const isFixedCycleOkr = isOkr && draft.isSystemGenerated;
   return {
     kind: draft.kind,
     title: draft.title,
@@ -306,15 +307,15 @@ export function workPlanDraftPayload(draft: WorkPlanDraft) {
     status: draft.status,
     ownerEmployeeId: draft.ownerEmployeeId,
     collaborationId: draft.collaborationId,
-    okrCycleId: isOkr ? draft.okrCycleId : null,
+    okrCycleId: isFixedCycleOkr ? draft.okrCycleId : null,
     sourcePlanId: null,
-    parentPeriodPlanId: isOkr && draft.alignmentSourceType === "plan" ? draft.alignmentSourcePlanId : null,
-    alignmentSourceType: isOkr ? draft.alignmentSourceType : null,
-    alignmentSourcePlanId: isOkr && draft.alignmentSourceType === "plan" ? draft.alignmentSourcePlanId : null,
-    alignmentSourceWorkItemId: isOkr && draft.alignmentSourceType !== "plan" ? draft.alignmentSourceWorkItemId : null,
-    alignmentRelationKind: isOkr ? draft.alignmentRelationKind : null,
-    previousPeriodPlanId: isOkr ? draft.previousPeriodPlanId : null,
-    periodType: isOkr ? draft.periodType : null,
+    parentPeriodPlanId: isFixedCycleOkr && draft.alignmentSourceType === "plan" ? draft.alignmentSourcePlanId : null,
+    alignmentSourceType: isFixedCycleOkr ? draft.alignmentSourceType : null,
+    alignmentSourcePlanId: isFixedCycleOkr && draft.alignmentSourceType === "plan" ? draft.alignmentSourcePlanId : null,
+    alignmentSourceWorkItemId: isFixedCycleOkr && draft.alignmentSourceType !== "plan" ? draft.alignmentSourceWorkItemId : null,
+    alignmentRelationKind: isFixedCycleOkr ? draft.alignmentRelationKind : null,
+    previousPeriodPlanId: isFixedCycleOkr ? draft.previousPeriodPlanId : null,
+    periodType: isFixedCycleOkr ? draft.periodType : null,
     actualStartDate: isOkr ? draft.actualStartDate : null,
     actualEndDate: isOkr ? draft.actualEndDate : null,
     plannedStartDate: isOkr ? draft.plannedStartDate : null,
@@ -331,6 +332,12 @@ export function workPlanDraftPayload(draft: WorkPlanDraft) {
     linkedProjectPhaseId: null,
     sortOrder: draft.sortOrder,
   };
+}
+
+export function isPlanDraftComplete(draft: Pick<WorkPlan, "kind" | "title" | "isSystemGenerated" | "okrCycleId" | "periodType" | "plannedStartDate" | "plannedEndDate" | "ownerEmployeeId">) {
+  if (draft.kind !== "okr") return Boolean(draft.title.trim());
+  const cycleComplete = !draft.isSystemGenerated || Boolean(draft.okrCycleId && draft.periodType);
+  return Boolean(draft.title.trim() && cycleComplete && draft.plannedStartDate && draft.plannedEndDate && draft.ownerEmployeeId);
 }
 
 function planAlignmentRelationKind(plan: WorkPlan) {

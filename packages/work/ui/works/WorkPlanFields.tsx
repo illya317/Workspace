@@ -51,12 +51,15 @@ export function useWorkPlanFormSurface({
   const titleValue = isOkrPlan
     ? draft.isSystemGenerated ? standardOkrPlanTitleFromDraft(draft) || draft.title : draft.title
     : draft.title || (isRoutinePlan ? "日常工作" : "");
+  const fixedCycleFields: FormSurfaceFieldSpec[] = draft.isSystemGenerated ? [
+    { key: "periodType", label: "计划周期", required: true, spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_PLAN_PERIOD_TYPE_OPTIONS, visibleCount: 4 }, state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.periodType ?? "", onChange: (value: unknown) => patch({ periodType: OKR_PLAN_PERIOD_TYPE_OPTIONS.find((option) => option.value === value)?.value ?? null }) },
+    ...alignmentSourceFields(draft, target, disabled, patch),
+  ] : [];
 
   const fields: FormSurfaceItemSpec[] = [
     { key: "title", label: isOkrPlan ? "OKR 计划" : "日常工作", required: true, span: "wide", spec: { valueType: "string", control: "text", state: titleLocked ? "disabled" : "normal" }, value: titleValue, placeholder: isOkrPlan ? "输入 OKR 计划名称" : "日常工作", autoFocus: autoFocusTitle && !titleLocked, onChange: (value) => patch({ title: String(value ?? "") }) },
     ...(isOkrPlan ? [
-      { key: "periodType", label: "计划周期", required: true, spec: { valueType: "string", control: "choice", options: { source: "static", items: OKR_PLAN_PERIOD_TYPE_OPTIONS, visibleCount: 4 }, state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.periodType ?? "", onChange: (value: unknown) => patch({ periodType: OKR_PLAN_PERIOD_TYPE_OPTIONS.find((option) => option.value === value)?.value ?? null }) },
-      ...alignmentSourceFields(draft, target, disabled, patch),
+      ...fixedCycleFields,
       { key: "plannedStartDate", label: "计划开始", required: true, spec: { valueType: "date", control: "temporal", precision: "date", state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.plannedStartDate, placeholder: "请选择", onChange: (value: unknown) => patch({ plannedStartDate: normalizeDateValue(value) }) },
       { key: "plannedEndDate", label: "计划结束", required: true, spec: { valueType: "date", control: "temporal", precision: "date", state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.plannedEndDate, placeholder: "请选择", onChange: (value: unknown) => patch({ plannedEndDate: normalizeDateValue(value) }) },
       { key: "status", label: "状态", spec: { valueType: "string", control: "choice", options: { source: "static", items: [{ value: "active", label: "进行中" }, { value: "done", label: "已完成" }] }, state: disabled ? "disabled" : "normal" }, value: draft.status, onChange: (value: unknown) => {

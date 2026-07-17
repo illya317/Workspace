@@ -7,9 +7,9 @@ import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBus
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
 import type { SessionUser } from "@workspace/platform/types";
 import { fetchWorkPeriodCollection, listTaskSpaces, listWorkTaskSubmissions, postWorkPeriodScheduleItem, type WorkPeriodScheduleCreateResult } from "./api";
-import { createEmptyWorkPlanDraft, createWorkPlanDraft, getWorkSpacePath, getWorkTargetFromPath, isWorkDraftDirty, isWorkPlanDraftDirty } from "./model";
+import { createEmptyWorkPlanDraft, createWorkPlanDraft, getWorkSpacePath, getWorkTargetFromPath, isPlanDraftComplete, isWorkDraftDirty, isWorkPlanDraftDirty } from "./model";
 import { useWorks } from "./useWorks";
-import { canMaintainWorkByType, createDefaultNodeDraft, createSpaceMetricsSection, isPlanDraftComplete, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
+import { canMaintainWorkByType, createDefaultNodeDraft, createSpaceMetricsSection, listReadableWorkPlans, nextSortOrder, normalizeInitialTarget, prependActiveTargetId, sameTarget } from "./works-client-helpers";
 import { createWorkReportPeriodNavigationBody, useWorkReportsController } from "./WorkReportsPanel";
 import { workReportingSection } from "./WorkReportingSections";
 import { useWorkOkrSettingsController, workOkrSettingsBody } from "./WorkOkrSettingsPanel";
@@ -729,6 +729,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     setPendingRoutineTaskCreatePlanId(null);
     worksState.setCreating(false);
     worksState.cancelEdit();
+    setPlanPeriodFilter("routine");
     setActivePlanId(null);
     setPlanCreating(true);
     setPlanDraft(createEmptyWorkPlanDraft(nextSortOrder(currentSpacePlans)));
