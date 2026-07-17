@@ -58,6 +58,7 @@ model User {
   secretariedMeetings               Meeting[]                           @relation("MeetingSecretary")
   meetingParticipations             MeetingParticipant[]                @relation("MeetingParticipantUser")
   meetingVotes                      MeetingVote[]                       @relation("MeetingVoteUser")
+  mutationImpactBatches             MutationImpactBatch[]               @relation("MutationImpactBatchActor")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

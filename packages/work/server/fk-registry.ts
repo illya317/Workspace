@@ -1,11 +1,10 @@
 import {
-  createFkRegistryFromRegistrations,
-  defineFkRegistrations,
-  type FkRegistration,
-  type FkRegistrationAdapters,
-} from "@workspace/platform/server/fk-targets";
+  createRelationCatalogFromRegistrations,
+  defineRelationRegistrations,
+  type RelationRegistrationAdapters,
+} from "@workspace/platform/server/relation-targets";
 import { getRegisteredModuleDefinition } from "@workspace/platform/module-registry";
-import { archivedBooleanFilter, matchesFkKeyword, normalizeLifecycleScope } from "@workspace/platform/server/fk-registry";
+import { archivedBooleanFilter, matchesFkKeyword, normalizeLifecycleScope } from "@workspace/platform/server/relation-registry";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { buildVisibleProjectWhere } from "./access";
 import { buildVisibleMeetingWhere } from "./meeting-access";
@@ -33,9 +32,10 @@ import {
   resolveDepartmentCollaborationReferenceOption,
 } from "./work-collaboration-references";
 
-const WORK_FK_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/work").fkRegistrations as FkRegistration[];
+const WORK_RELATION_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/work").relationRegistrations ?? [];
+const WORK_SELECTOR_RELATION_REGISTRATIONS = WORK_RELATION_REGISTRATIONS.filter((registration) => registration.usage !== "governance");
 
-const WORK_FK_ADAPTERS: FkRegistrationAdapters = {
+const WORK_RELATION_ADAPTERS: RelationRegistrationAdapters = {
   "work.projects.parent": {
     search: ({ keyword, lifecycleScope, userId }) => listVisibleProjectReferenceOptions({
       userId: requireFkUserId(userId),
@@ -546,5 +546,5 @@ export async function listVisibleProjectReferenceOptions(input: {
     .slice(0, 20);
 }
 
-export const WORK_FK_DEFINITIONS = defineFkRegistrations(WORK_FK_REGISTRATIONS, WORK_FK_ADAPTERS);
-export const WORK_FK_REGISTRY = createFkRegistryFromRegistrations(WORK_FK_REGISTRATIONS, WORK_FK_ADAPTERS);
+export const WORK_FK_DEFINITIONS = defineRelationRegistrations(WORK_SELECTOR_RELATION_REGISTRATIONS, WORK_RELATION_ADAPTERS);
+export const WORK_FK_REGISTRY = createRelationCatalogFromRegistrations(WORK_SELECTOR_RELATION_REGISTRATIONS, WORK_RELATION_ADAPTERS);

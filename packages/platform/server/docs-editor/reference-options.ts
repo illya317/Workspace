@@ -1,18 +1,17 @@
 import "server-only";
 
 import {
-  createFkRegistryFromRegistrations,
-  type FkRegistration,
-} from "../fk-targets";
+  createRelationCatalogFromRegistrations,
+} from "../relation-targets";
 import type { PermissionActionKey } from "../../permission-actions";
 import { getRegisteredModuleDefinition } from "../../module-registry";
-import { searchFkOptions, normalizeLifecycleScope } from "../fk-registry";
+import { searchFkOptions, normalizeLifecycleScope } from "../relation-registry";
 import { authorize } from "../auth/authorize";
 import { isRootAdminUser } from "../auth/root";
 import { serviceError, serviceOk } from "../api";
 
-const DOCS_FK_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/platform:docs").fkRegistrations as FkRegistration[];
-const DOCS_FK_REGISTRY = createFkRegistryFromRegistrations(DOCS_FK_REGISTRATIONS);
+const DOCS_RELATION_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/platform:docs").relationRegistrations ?? [];
+const DOCS_FK_REGISTRY = createRelationCatalogFromRegistrations(DOCS_RELATION_REGISTRATIONS);
 
 export async function executeDocsEditorReferenceOptionsCommand(command: {
   fkKey: string;

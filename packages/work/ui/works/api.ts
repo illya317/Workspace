@@ -1,4 +1,5 @@
 import { workspacePath } from "@workspace/core/routing";
+import type { ImpactPlan, ImpactResolutionInput } from "@workspace/platform/mutation-impact-contract";
 import type {
   WorkItem,
   WorkAssignedPlanGroup,
@@ -45,8 +46,34 @@ export type WorkSubmissionMutationResult =
 
 async function readJson<T>(response: Response, fallbackError: string): Promise<T> {
   const data = await response.json().catch(() => ({}));
-  if (!response.ok) throw new Error(data.error || fallbackError);
+  if (!response.ok) {
+    if (typeof data.code === "string" && data.impact) {
+      throw new WorkMutationImpactError(impactErrorMessage(data.impact, data.error || fallbackError), data.code, data.impact);
+    }
+    throw new Error(data.error || fallbackError);
+  }
   return data as T;
+}
+
+function impactErrorMessage(impact: ImpactPlan, fallback: string) {
+  if (!impact.blockers.length) return fallback;
+  return impact.blockers.map((group) => {
+    const labels = group.samples.map((sample) => sample.label).join("、");
+    const remainder = Math.max(0, group.count - group.samples.length);
+    const examples = labels ? `：${labels}${remainder ? ` 等 ${group.count} 项` : ""}` : `（${group.count} 项）`;
+    return `${group.reason}${examples}`;
+  }).join("；");
+}
+
+export class WorkMutationImpactError extends Error {
+  constructor(
+    message: string,
+    readonly code: string,
+    readonly impact: ImpactPlan,
+  ) {
+    super(message);
+    this.name = "WorkMutationImpactError";
+  }
 }
 
 export async function listTaskSpaces() {
@@ -98,13 +125,21 @@ export async function updateWorkPlan(id: number, draft: WorkPlanDraft) {
   return readJson<{ plan: WorkPlan }>(response, "保存工作计划失败");
 }
 
-export async function archiveWorkPlan(id: number) {
-  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), { method: "DELETE" });
+export async function archiveWorkPlan(id: number, impactResolution?: ImpactResolutionInput) {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}`), {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ impactResolution }),
+  });
   return readJson<{ success: true }>(response, "归档工作计划失败");
 }
 
-export async function deleteWorkPlan(id: number) {
-  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}/delete`), { method: "DELETE" });
+export async function deleteWorkPlan(id: number, impactResolution?: ImpactResolutionInput) {
+  const response = await fetch(workspacePath(`/api/modules/work/tasks/plans/${id}/delete`), {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ impactResolution }),
+  });
   return readJson<{ success: true }>(response, "删除工作计划失败");
 }
 

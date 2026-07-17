@@ -87,7 +87,7 @@ export async function executeCreateWorkItemRouteCommand(command: CreateWorkItemR
 export async function executeUpdateWorkItemRouteCommand(command: UpdateWorkItemRouteCommand) {
   if (command.lifecycleOnly) {
     const work = await updateWorkItem(command.workId, { actorUserId: command.userId, ...command.data });
-    if (!work.ok) return serviceError(work.error, work.status || 400);
+    if (!work.ok) return serviceError(work.error, work.status || 400, work.details);
     return serviceOk({ work: work.data });
   }
   const payload = {

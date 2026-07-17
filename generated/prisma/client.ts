@@ -686,6 +686,17 @@ export type LibraryTag = Prisma.LibraryTagModel
  */
 export type LibraryDocumentTag = Prisma.LibraryDocumentTagModel
 /**
+ * Model MutationImpactBatch
+ * 变更影响批次（append-only 事实表，来源于 Platform mutation impact executor 的原子写入）
+ * 只保存策略、确认和提交上下文；不复制业务实体的完整敏感记录。
+ */
+export type MutationImpactBatch = Prisma.MutationImpactBatchModel
+/**
+ * Model MutationImpactEffect
+ * 变更影响效果（append-only 事实表，记录批次内按确定性顺序评估和执行的最小化摘要）
+ */
+export type MutationImpactEffect = Prisma.MutationImpactEffectModel
+/**
  * Model OpenApiClient
  * Open API 调用方（事实表，来源于设置页手工创建/轮换）
  */

@@ -25,6 +25,7 @@ import {
 } from "./work-plans";
 import { archiveWorkPlan, deleteWorkPlan } from "./work-plan-lifecycle";
 import { assertWorkTaskDirectUpdateAllowed } from "./work-task-workflow-policy";
+import type { WorkImpactResolution } from "./work-mutation-impact";
 
 type WorkPlanUserContext = {
   userId: number;
@@ -75,11 +76,13 @@ export type WorkPlanUpdateRouteCommand = {
 export type WorkPlanArchiveRouteCommand = {
   userId: number;
   planId: number;
+  impactResolution?: WorkImpactResolution;
 };
 
 export type WorkPlanDeleteRouteCommand = {
   userId: number;
   planId: number;
+  impactResolution?: WorkImpactResolution;
 };
 
 function resolveTarget(
@@ -167,7 +170,7 @@ export async function executeCreateWorkPlanCommand(
     ...command.body,
     actorUserId: command.userId,
   });
-  if (plan.ok === false) return serviceError(plan.error, plan.status || 400);
+  if (plan.ok === false) return serviceError(plan.error, plan.status || 400, plan.details);
   return serviceOk({ plan: plan.data });
 }
 
@@ -196,13 +199,14 @@ export async function executeUpdateWorkPlanCommand(
   });
   if (!directAllowed.ok) return directAllowed;
   const plan = await updateWorkPlan(command.planId, { ...command.body, actorUserId: command.userId });
-  if (plan.ok === false) return serviceError(plan.error, plan.status || 400);
+  if (plan.ok === false) return serviceError(plan.error, plan.status || 400, plan.details);
   return serviceOk({ plan: plan.data });
 }
 
 export function buildArchiveWorkPlanCommand(input: {
   userId: number;
   planId: number;
+  impactResolution?: WorkImpactResolution;
 }): DomainValidationResult<WorkPlanArchiveRouteCommand> {
   return okCommand(input);
 }
@@ -216,14 +220,15 @@ export async function executeArchiveWorkPlanCommand(
   if (!(await canArchiveWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限归档工作计划", 403);
   }
-  const result = await archiveWorkPlan(command.planId, command.userId);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  const result = await archiveWorkPlan(command.planId, command.userId, command.impactResolution);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk(result.data);
 }
 
 export function buildDeleteWorkPlanCommand(input: {
   userId: number;
   planId: number;
+  impactResolution?: WorkImpactResolution;
 }): DomainValidationResult<WorkPlanDeleteRouteCommand> {
   return okCommand(input);
 }
@@ -237,7 +242,7 @@ export async function executeDeleteWorkPlanCommand(
   if (!(await canDeleteWorkTaskAction(command.userId, existing.targetType, existing.targetId))) {
     return serviceError("无权限删除工作计划", 403);
   }
-  const result = await deleteWorkPlan(command.planId, command.userId);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  const result = await deleteWorkPlan(command.planId, command.userId, command.impactResolution);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk(result.data);
 }

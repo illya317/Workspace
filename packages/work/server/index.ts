@@ -154,6 +154,8 @@ export {
   executeUpdateWorkPlanCommand,
 } from "./work-plan-route-command";
 
+export { workImpactCommandBodySchema } from "./work-mutation-impact-schema";
+
 export { executeSaveWorkReportRouteCommand } from "./work-report-mutation-executor";
 
 export {

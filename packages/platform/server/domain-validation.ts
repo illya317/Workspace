@@ -45,8 +45,13 @@ export function domainIssueToResponse(issue: DomainValidationIssue) {
   return jsonErrorResponse(issue.message, issue.status ?? 400, issue.field ? { field: issue.field } : undefined);
 }
 
-export function toServiceErrorResponse(result: { error: string; status?: number }) {
-  return serviceResponse({ ok: false, error: result.error, status: result.status });
+export function toServiceErrorResponse(result: { error: string; status?: number; details?: Record<string, unknown> }) {
+  return serviceResponse({
+    ok: false,
+    error: result.error,
+    status: result.status,
+    details: result.details,
+  });
 }
 
 export function isDomainServiceResult<T = unknown>(result: unknown): result is DomainServiceResult<T> {

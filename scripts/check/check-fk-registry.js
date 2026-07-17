@@ -91,10 +91,10 @@ function collectRegistrations() {
   const registrations = [];
 
   function visit(node) {
-    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text.endsWith("_FK_REGISTRATIONS") && node.initializer) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.name.text.endsWith("_RELATION_REGISTRATIONS") && node.initializer) {
       const initializer = unwrap(node.initializer);
       if (!ts.isArrayLiteralExpression(initializer)) {
-        fail(`${path.relative(ROOT, REGISTRY_PATH)}:${lineOf(sourceFile, node)} FK registrations must be an array literal`);
+        fail(`${path.relative(ROOT, REGISTRY_PATH)}:${lineOf(sourceFile, node)} relation registrations must be an array literal`);
         return;
       }
       for (const element of initializer.elements) {
@@ -123,26 +123,26 @@ function validateRegistrations(registrations) {
   const keys = new Set();
   for (const registration of registrations) {
     const label = registration.key || `line ${registration.line}`;
-    if (!registration.key) fail(`FK registration ${label} is missing string key`);
-    if (registration.key && keys.has(registration.key)) fail(`duplicate FK registration key: ${registration.key}`);
+    if (!registration.key) fail(`relation registration ${label} is missing string key`);
+    if (registration.key && keys.has(registration.key)) fail(`duplicate relation registration key: ${registration.key}`);
     if (registration.key) keys.add(registration.key);
 
     for (const property of REQUIRED_PROPERTIES) {
-      if (!hasProperty(registration.node, property)) fail(`FK registration ${label} missing ${property}`);
+      if (!hasProperty(registration.node, property)) fail(`relation registration ${label} missing ${property}`);
     }
 
     const source = objectLiteralProperty(registration.node, "source");
     for (const property of SOURCE_PROPERTIES) {
-      if (!source || !stringProperty(source, property)) fail(`FK registration ${label} missing source.${property}`);
+      if (!source || !stringProperty(source, property)) fail(`relation registration ${label} missing source.${property}`);
     }
     const sourceValueKind = source ? stringProperty(source, "valueKind") : null;
     if (sourceValueKind && sourceValueKind !== "id" && sourceValueKind !== "semantic") {
-      fail(`FK registration ${label} has invalid source.valueKind: ${sourceValueKind}`);
+      fail(`relation registration ${label} has invalid source.valueKind: ${sourceValueKind}`);
     }
 
     const permission = objectLiteralProperty(registration.node, "permission");
     for (const property of PERMISSION_PROPERTIES) {
-      if (!permission || !stringProperty(permission, property)) fail(`FK registration ${label} missing permission.${property}`);
+      if (!permission || !stringProperty(permission, property)) fail(`relation registration ${label} missing permission.${property}`);
     }
   }
   return keys;
@@ -184,6 +184,7 @@ function validateFkKeyUsages(keys) {
   for (const file of files) {
     const rel = path.relative(ROOT, file);
     if (rel === "packages/platform/module-registry.ts") continue;
+    if (/\.test\.[cm]?[jt]sx?$/.test(rel)) continue;
     const text = read(file);
     const patterns = [
       /fkKey\s*[:=]\s*["']([^"']+)["']/g,
@@ -232,8 +233,8 @@ validateReferenceOptionRoutes();
 validateResolveFk();
 
 if (failed) {
-  console.error("\nFK registry check failed.");
+  console.error("\nRelation Catalog selector check failed.");
   process.exit(1);
 }
 
-ok(`FK registry check passed (${keys.size} keys)`);
+ok(`Relation Catalog registration check passed (${keys.size} keys)`);

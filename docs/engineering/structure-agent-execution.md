@@ -107,7 +107,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 - 已有 Core/Platform 入口覆盖同能力时，直接复用，不新增平行 helper。
 - 同一 package 内两个以上文件复用且语义稳定，放到同 package 的私有 `utils` / `hooks` / `components` 子目录。
 - 三个以上业务包重复、且不含业务事实时，提给 Architecture/Core 判断是否进入 Core。
-- 涉及用户、权限、导航、审计、FK registry、生命周期 guard 等跨业务平台语义时，提给 Platform，不放 Core。
+- 涉及用户、权限、导航、审计、Relation Catalog、生命周期 guard 等跨业务平台语义时，提给 Platform，不放 Core。
 - 只服务一个组件的拆分物留在组件子目录，避免把“降行数”变成“全局碎片化”。
 
 ## 6. Baseline 规则

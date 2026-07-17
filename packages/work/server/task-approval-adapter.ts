@@ -148,7 +148,7 @@ export async function commitPreparedWorkTaskPayload(input: {
           : entityType === "revision"
             ? await commitRevisionApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskRevisionApprovalPayload })
             : await commitWorkReportApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskReportApprovalPayload });
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk(result.data);
 }
 
@@ -168,7 +168,7 @@ export async function commitWorkItemApproval(actorUserId: number, submitterUserI
     : payload.workId
       ? await updateWorkItem(payload.workId, { ...payload.data, actorUserId, ownerEligibilityUserId: submitterUserId, mutationAuthorization: "workflow-approved" } as Parameters<typeof updateWorkItem>[1])
       : serviceError("审批单缺少工作项 ID", 400);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   const entity = result.data as { id?: unknown };
   if (!entity.id) return serviceError("审批通过后未能取得工作项 ID", 500);
   return serviceOk({ entityType: "work.task", entityId: String(entity.id), entity: result.data });
@@ -186,7 +186,7 @@ async function commitWorkPlanApproval(actorUserId: number, submitterUserId: numb
     : payload.planId
       ? await updateWorkPlan(payload.planId, { ...payload.data, actorUserId, ownerEligibilityUserId: submitterUserId } as Parameters<typeof updateWorkPlan>[1])
       : serviceError("审批单缺少 OKR 计划 ID", 400);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   const entity = result.data as { id?: unknown };
   if (!entity.id) return serviceError("审批通过后未能取得 OKR 计划 ID", 500);
   return serviceOk({ entityType: "work.plan", entityId: String(entity.id) });
@@ -221,7 +221,7 @@ export async function commitRevisionApproval(input: {
     actorUserId: input.actorUserId,
     updateGuard: "workflow-approved",
   } as Parameters<typeof updateWorkPlan>[1] & { updateGuard: "workflow-approved" });
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk({ entityType: "work.plan", entityId: String(input.payload.planId) });
 }
 
@@ -314,7 +314,7 @@ export async function validateUpdateItemApprovalPayload(
       parentWorkItemId: true,
       parentPeriodWorkItemId: true,
       previousPeriodWorkItemId: true,
-      collaborationId: true,
+      collaborationId: true, status: true,
     },
   });
   if (!existing?.targetId) return serviceError("工作项不存在", 404);
@@ -329,7 +329,7 @@ export async function validateUpdateItemApprovalPayload(
   const relationError = await validateWorkItemRelations({
     targetType: existing.targetType,
     targetId: existing.targetId,
-    currentWorkId: command.data.workId,
+    currentWorkId: command.data.workId, status: command.data.data.status === undefined ? existing.status : command.data.data.status,
     ownerEmployeeId: command.data.data.ownerEmployeeId,
     collaborationId: command.data.data.collaborationId === undefined ? existing.collaborationId : command.data.data.collaborationId,
     actorUserId,

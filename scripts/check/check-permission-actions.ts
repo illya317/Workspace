@@ -119,12 +119,12 @@ for (const policy of PERMISSION_RESOURCE_ACTION_POLICIES as readonly PermissionR
 }
 
 for (const definition of registeredModuleDefinitions) {
-  for (const fk of definition.fkRegistrations ?? []) {
-    if (isRegisteredSpaceResourceKey(fk.permission.resourceKey)) {
+  for (const relation of definition.relationRegistrations ?? []) {
+    if (isRegisteredSpaceResourceKey(relation.permission.resourceKey)) {
       assert.equal(
-        fk.permission.action,
+        relation.permission.action,
         "entry",
-        `${fk.key} references registered space root ${fk.permission.resourceKey}; FK permission must use entry and let the target adapter filter objects`,
+        `${relation.key} references registered space root ${relation.permission.resourceKey}; selector relation permission must use entry and let the target adapter filter objects`,
       );
     }
   }

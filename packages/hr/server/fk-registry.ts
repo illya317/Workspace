@@ -1,9 +1,8 @@
 import {
-  createFkRegistryFromRegistrations,
-  defineFkRegistrations,
-  type FkRegistrationAdapters,
-  type FkRegistration,
-} from "@workspace/platform/server/fk-targets";
+  createRelationCatalogFromRegistrations,
+  defineRelationRegistrations,
+  type RelationRegistrationAdapters,
+} from "@workspace/platform/server/relation-targets";
 import { getRegisteredModuleDefinition } from "@workspace/platform/module-registry";
 import {
   archivedBooleanFilter,
@@ -11,16 +10,16 @@ import {
   matchesFkKeyword,
   type FkOption,
   type LifecycleScope,
-} from "@workspace/platform/server/fk-registry";
+} from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { getManagerPositionScopeDepartmentIds } from "./department-manager-positions";
 import { searchEdpReportToOptions } from "./edp-report-to";
 import { searchPositionsInOrganizationScope } from "./position-organization-scope";
 import { validateActiveManagementDepartmentId } from "./domain/position-report-override-validation";
 
-const HR_FK_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/hr").fkRegistrations as FkRegistration[];
+const HR_RELATION_REGISTRATIONS = getRegisteredModuleDefinition("@workspace/hr").relationRegistrations ?? [];
 
-const HR_FK_ADAPTERS: FkRegistrationAdapters = {
+const HR_RELATION_ADAPTERS: RelationRegistrationAdapters = {
   "hr.department.manager.position": {
     search: ({ keyword, lifecycleScope, params }) =>
       searchDepartmentManagerPositionOptions({
@@ -238,5 +237,5 @@ async function searchPositionInDepartmentOptions(input: {
   return searchPositionsInOrganizationScope(input);
 }
 
-export const HR_FK_DEFINITIONS = defineFkRegistrations(HR_FK_REGISTRATIONS, HR_FK_ADAPTERS);
-export const HR_FK_REGISTRY = createFkRegistryFromRegistrations(HR_FK_REGISTRATIONS, HR_FK_ADAPTERS);
+export const HR_FK_DEFINITIONS = defineRelationRegistrations(HR_RELATION_REGISTRATIONS, HR_RELATION_ADAPTERS);
+export const HR_FK_REGISTRY = createRelationCatalogFromRegistrations(HR_RELATION_REGISTRATIONS, HR_RELATION_ADAPTERS);

@@ -1,4 +1,5 @@
 import type { Dispatch, SetStateAction } from "react";
+import type { ImpactPlan, ImpactResolutionInput } from "@workspace/platform/mutation-impact-contract";
 import {
   archiveWorkPlan,
   createWorkPlan,
@@ -7,6 +8,7 @@ import {
   saveWorkPlanRevisionSubmissionDraft,
   submitWorkTaskSubmission,
   updateWorkPlan,
+  WorkMutationImpactError,
 } from "./api";
 import { createEmptyWorkPlanDraft, getWorkPlanKindLabel } from "./model";
 import type { WorkPlan, WorkPlanDraft, WorkTarget } from "./types";
@@ -124,12 +126,17 @@ export function useWorkPlanCommands({
       title: `${restoring ? "恢复" : "归档"}${getWorkPlanKindLabel(activePlan.kind)}`,
       message: restoring
         ? `确定恢复「${activePlan.title}」吗？`
-        : `确定归档「${activePlan.title}」吗？计划内节点会保留但默认不再显示。`,
+        : `确定归档「${activePlan.title}」吗？`,
       confirmLabel: restoring ? "恢复计划" : "归档计划",
     });
     if (!ok) return;
     try {
-      await archiveWorkPlan(activePlan.id);
+      const executed = await executeGovernedPlanMutation({
+        execute: (resolution) => archiveWorkPlan(activePlan.id, resolution),
+        confirmDelete,
+        confirmLabel: restoring ? "恢复计划及关联项" : "归档计划及关联项",
+      });
+      if (!executed) return;
       setActivePlanId(null);
       await loadPlans();
       showToast(`${getWorkPlanKindLabel(activePlan.kind)}已${restoring ? "恢复" : "归档"}`, "success");
@@ -147,12 +154,43 @@ export function useWorkPlanCommands({
     });
     if (!ok) return;
     try {
-      await deleteWorkPlan(activePlan.id);
+      const executed = await executeGovernedPlanMutation({
+        execute: (resolution) => deleteWorkPlan(activePlan.id, resolution),
+        confirmDelete,
+        confirmLabel: "删除计划及关联项",
+      });
+      if (!executed) return;
       await Promise.all([loadSpaces(), loadPlans()]);
       showToast(`${getWorkPlanKindLabel(activePlan.kind)}已删除`, "success");
     } catch (err) {
       showToast(err instanceof Error ? err.message : `删除${getWorkPlanKindLabel(activePlan.kind)}失败`, "error");
     }
+  }
+
+  async function executeGovernedPlanMutation(input: {
+    execute: (resolution?: ImpactResolutionInput) => Promise<unknown>;
+    confirmDelete: WorkPlanCommandInput["confirmDelete"];
+    confirmLabel: string;
+  }) {
+    let resolution: ImpactResolutionInput | undefined;
+    for (let confirmationRound = 0; confirmationRound < 3; confirmationRound += 1) {
+      try {
+        await input.execute(resolution);
+        return true;
+      } catch (error) {
+        if (!(error instanceof WorkMutationImpactError)) throw error;
+        const refreshedResolution = singleChoiceResolution(error.impact);
+        if (!refreshedResolution) throw error;
+        const confirmed = await input.confirmDelete({
+          title: confirmationRound === 0 ? "确认关联影响" : "关联影响已变化，请再次确认",
+          message: impactConfirmationMessage(error.impact),
+          confirmLabel: input.confirmLabel,
+        });
+        if (!confirmed) return false;
+        resolution = refreshedResolution;
+      }
+    }
+    throw new Error("关联影响持续变化，请刷新后重试");
   }
 
   return {
@@ -163,4 +201,21 @@ export function useWorkPlanCommands({
     handleSubmitObjectiveReview,
     handleSavePlan,
   };
+}
+
+function singleChoiceResolution(impact: ImpactPlan): ImpactResolutionInput | null {
+  if (impact.blockers.length > 0 || impact.confirmableEffects.length === 0) return null;
+  const resolutions = impact.confirmableEffects.map((group) => {
+    const [resolution] = group.allowedResolutions;
+    return group.allowedResolutions.length === 1 && resolution
+      ? { relationKey: group.relationKey, resolution }
+      : null;
+  });
+  if (resolutions.some((resolution) => !resolution)) return null;
+  return { impactToken: impact.token, resolutions: resolutions.filter((choice) => choice !== null) };
+}
+
+function impactConfirmationMessage(impact: ImpactPlan) {
+  const groups = impact.confirmableEffects.map((group) => `${group.reason}（${group.count} 项）`);
+  return groups.join("；");
 }

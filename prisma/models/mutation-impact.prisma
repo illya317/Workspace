@@ -1,0 +1,58 @@
+/// 变更影响批次（append-only 事实表，来源于 Platform mutation impact executor 的原子写入）
+/// 只保存策略、确认和提交上下文；不复制业务实体的完整敏感记录。
+model MutationImpactBatch {
+  id                String    @id @default(uuid())
+  actorUserId       Int?
+  actorLabel        String?
+  scopeType         String?
+  scopeId           String?
+  requestId         String?
+  rootEntityType    String
+  rootEntityId      String
+  intent            String
+  policyRevision    String
+  impactFingerprint String
+  resolutionsJson   String    @default("[]") // 仅保存 relationKey + resolution 的允许列表
+  status            String    @default("pending") // pending, succeeded, failed, stale_confirmation
+  resultCode        String?
+  resultMessage     String?
+  sourceBatchId     String? // restore 批次指向其使用的 archive provenance 批次
+  startedAt         DateTime  @default(now())
+  finishedAt        DateTime?
+
+  actor          User?                  @relation("MutationImpactBatchActor", fields: [actorUserId], references: [id], onDelete: SetNull)
+  sourceBatch    MutationImpactBatch?   @relation("MutationImpactBatchProvenance", fields: [sourceBatchId], references: [id], onDelete: Restrict)
+  derivedBatches MutationImpactBatch[]  @relation("MutationImpactBatchProvenance")
+  effects        MutationImpactEffect[]
+
+  @@index([rootEntityType, rootEntityId, intent, status, finishedAt])
+  @@index([actorUserId, startedAt])
+  @@index([requestId])
+  @@index([sourceBatchId])
+}
+
+/// 变更影响效果（append-only 事实表，记录批次内按确定性顺序评估和执行的最小化摘要）
+model MutationImpactEffect {
+  id                Int      @id @default(autoincrement())
+  batchId           String
+  sequence          Int
+  relationKey       String
+  relationPathJson  String   @default("[]") // 从 root 到 effect 的 relationKey 有序列表
+  policyKey         String
+  entityType        String
+  entityId          String
+  operation         String
+  beforeRevision    String? // adapter 提供的版本、updatedAt 或稳定状态指纹
+  afterRevision     String? // restore 前必须与当前 revision 重新比较
+  beforeSummaryJson String? // 仅允许模块声明的非敏感摘要字段
+  afterSummaryJson  String? // 仅允许模块声明的非敏感摘要字段
+  changedInBatch    Boolean  @default(false) // false 表示已处于目标状态，本批次未改写
+  createdAt         DateTime @default(now())
+
+  batch MutationImpactBatch @relation(fields: [batchId], references: [id], onDelete: Cascade)
+
+  @@unique([batchId, sequence])
+  @@index([batchId, changedInBatch, sequence])
+  @@index([entityType, entityId, createdAt])
+  @@index([relationKey, operation, createdAt])
+}

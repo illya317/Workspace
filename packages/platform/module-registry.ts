@@ -1,37 +1,61 @@
 import type { WorkspacePackageRegistration } from "@workspace/core";
-import type { FkRegistration } from "./server/fk-targets";
+import type { RelationRegistration } from "./server/relation-targets";
 import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./module-registry-utils";
 import { listWorkflowManagementResourceRegistrations } from "./workflow-management-resources";
 
-const WORK_FK_REGISTRATIONS = [
-  { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.enablingDepartment", scope: "work", source: { entity: "ProjectEnablingDepartment", field: "departmentId" }, target: "department", targetLabel: "赋能部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
+export type RelationAwareWorkspacePackageRegistration = Omit<WorkspacePackageRegistration, "fkRegistrations"> & {
+  relationRegistrations?: RelationRegistration[];
+};
+
+const WORK_RELATION_REGISTRATIONS = [
+  { key: "work.plan.items", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkItem", field: "planId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "confirm_cascade", targetArchive: "confirm_cascade", targetRestore: "auto_cascade_owned", sourceRelationChange: "retain" }, adapterKey: "work.plan.items", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.kr-evidence.kr", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKrEvidence", field: "krWorkItemId" }, target: "workItem", targetLabel: "关键结果", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.kr-evidence.kr", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.kr-evidence.task", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkKrEvidence", field: "taskWorkItemId" }, target: "workItem", targetLabel: "证据任务", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.kr-evidence.task", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.meeting-action.work-item", scope: "work", usage: "governance", semantics: "reference", source: { entity: "MeetingActionCandidate", field: "linkedWorkItemId" }, target: "workItem", targetLabel: "关联工作项", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.meeting-action.work-item", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.meeting-action.work-plan", scope: "work", usage: "governance", semantics: "reference", source: { entity: "MeetingActionCandidate", field: "linkedWorkPlanId" }, target: "workPlan", targetLabel: "关联计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.meeting-action.work-plan", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.plan-alignment.source-item", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlanAlignment", field: "sourceWorkItemId" }, target: "workItem", targetLabel: "承接来源工作项", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan-alignment.source-item", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.item.participants", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkParticipant", field: "workItemId" }, target: "workItem", targetLabel: "所属工作项", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.item.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.item.responsibility-reference", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkResponsibilityReference", field: "workItemId" }, target: "workItem", targetLabel: "所属工作项", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.item.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.plan.alignment-details", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "WorkPlanAlignment", field: "childPlanId" }, target: "workPlan", targetLabel: "所属计划", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.owned-details", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.report-item.work-item", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkReportItem", field: "workItemId" }, target: "workItem", targetLabel: "快照工作项", nullable: true, lifecycle: { targetDelete: "retain", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.report-item.work-item", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.report-item.work-plan", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkReportItem", field: "workPlanId" }, target: "workPlan", targetLabel: "快照计划", nullable: true, lifecycle: { targetDelete: "retain", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.report-item.work-plan", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.plan.governance-history", scope: "work", usage: "governance", semantics: "snapshot", source: { entity: "WorkPlanGovernanceEvent", field: "workPlanId" }, target: "workPlan", targetLabel: "治理历史计划", nullable: false, lifecycle: { targetDelete: "block", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.governance-history", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "赋能部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.owningDepartment", scope: "work", source: { entity: "Project", field: "owningDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.parent", scope: "work", source: { entity: "Project", field: "parentProjectId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.member.enablingDepartmentEmployee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", targetLabel: "赋能部门成员", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.member.project", scope: "work", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.member.project", scope: "work", usage: "both", semantics: "owned_child", source: { entity: "EmployeeProject", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.enabling-department.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectEnablingDepartment", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.phase.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanPhase", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.dependency.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanDependency", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.baseline.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectPlanBaseline", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.work-assignee.project", scope: "work", usage: "governance", semantics: "owned_child", source: { entity: "ProjectWorkAssignee", field: "projectId" }, target: "project", nullable: false, lifecycle: { targetDelete: "auto_cascade_owned", targetArchive: "retain", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.project.owned-children", permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.tasks.owner.employee", scope: "work", source: { entity: "WorkItem", field: "ownerEmployeeId" }, target: "employee", targetLabel: "负责人", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.collaboration", scope: "work", source: { entity: "Any", field: "collaborationId" }, target: "departmentCollaboration", targetLabel: "部门协作", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.owner.position", scope: "work", source: { entity: "WorkResponsibilityReference", field: "lockedPositionId" }, target: "position", targetLabel: "关联岗位", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.item.responsibility-group", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "职责大类", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.item.responsibility", scope: "work", source: { entity: "WorkItem", field: "responsibilityNodeId" }, target: "positionResponsibilityNode", targetLabel: "关联职责", nullable: false, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.linked.project", scope: "work", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.linked.project", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.linked.project", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.linked.project-phase", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "linkedProjectPhaseId" }, target: "projectPlanPhase", targetLabel: "关联项目阶段", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.linked.project-phase", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.plan.linked.project", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlan", field: "linkedProjectId" }, target: "project", targetLabel: "关联项目", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.linked.project", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.plan.linked.project-phase", scope: "work", usage: "governance", semantics: "reference", source: { entity: "WorkPlan", field: "linkedProjectPhaseId" }, target: "projectPlanPhase", targetLabel: "关联项目阶段", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.plan.linked.project-phase", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.source.meeting", scope: "work", source: { entity: "WorkItem", field: "sourceMeetingId" }, target: "meeting", targetLabel: "来源会议", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.source.department", scope: "work", source: { entity: "Any", field: "sourceDepartmentId" }, target: "department", targetLabel: "来源部门", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.okr.cycle", scope: "work", source: { entity: "WorkPlan", field: "okrCycleId" }, target: "workOkrCycle", targetLabel: "OKR 周期", nullable: false, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.source.plan", scope: "work", source: { entity: "WorkPlan", field: "sourcePlanId" }, target: "workPlan", targetLabel: "来源 OKR 计划", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.parent.plan", scope: "work", source: { entity: "WorkPlan", field: "parentPeriodPlanId" }, target: "workPlan", targetLabel: "上级计划", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.plan.alignment", scope: "work", source: { entity: "WorkPlanAlignment", field: "sourcePlanId" }, target: "workPlan", targetLabel: "承接来源", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.source.plan", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlan", field: "sourcePlanId" }, target: "workPlan", targetLabel: "来源 OKR 计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.source.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.parent.plan", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkPlan", field: "parentPeriodPlanId" }, target: "workPlan", targetLabel: "上级计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.parent.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.plan.alignment", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlanAlignment", field: "sourcePlanId" }, target: "workPlan", targetLabel: "承接来源", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.plan.alignment", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.plan.upper-alignment", scope: "work", source: { entity: "WorkPlanAlignment", field: "sourcePlanId" }, target: "workPlan", targetLabel: "上级", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.tasks.assigned.alignment.item", scope: "work", source: { entity: "WorkItem", field: "parentPeriodWorkItemId" }, target: "workItem", targetLabel: "承接内容", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.previous.plan", scope: "work", source: { entity: "WorkPlan", field: "previousPeriodPlanId" }, target: "workPlan", targetLabel: "前序计划", nullable: true, permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.parent.item", scope: "work", source: { entity: "WorkItem", field: "parentPeriodWorkItemId" }, target: "workItem", targetLabel: "上级节点", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.item.parent", scope: "work", source: { entity: "WorkItem", field: "parentWorkItemId" }, target: "workItem", targetLabel: "所属目标/常设职责", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
-  { key: "work.tasks.previous.item", scope: "work", source: { entity: "WorkItem", field: "previousPeriodWorkItemId" }, target: "workItem", targetLabel: "前序节点", nullable: true, targetArchivePolicy: "block", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.previous.plan", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkPlan", field: "previousPeriodPlanId" }, target: "workPlan", targetLabel: "前序计划", nullable: true, lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.previous.plan", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.parent.item", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkItem", field: "parentPeriodWorkItemId" }, target: "workItem", targetLabel: "上级节点", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.parent.item", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.item.parent", scope: "work", usage: "both", semantics: "hierarchy", source: { entity: "WorkItem", field: "parentWorkItemId" }, target: "workItem", targetLabel: "所属目标/常设职责", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.item.parent", permission: { resourceKey: "work.tasks", action: "entry" } },
+  { key: "work.tasks.previous.item", scope: "work", usage: "both", semantics: "reference", source: { entity: "WorkItem", field: "previousPeriodWorkItemId" }, target: "workItem", targetLabel: "前序节点", nullable: true, targetArchivePolicy: "block", lifecycle: { targetDelete: "block", targetArchive: "block", targetRestore: "retain", sourceRelationChange: "retain" }, adapterKey: "work.tasks.previous.item", permission: { resourceKey: "work.tasks", action: "entry" } },
   { key: "work.meetings.participant.user", scope: "work", source: { entity: "MeetingParticipant", field: "userId" }, target: "user", targetLabel: "参会账号", nullable: false, permission: { resourceKey: "work.meetings", action: "read" } },
-] satisfies FkRegistration[];
+] satisfies RelationRegistration[];
 
-const HR_FK_REGISTRATIONS = [
+const HR_RELATION_REGISTRATIONS = [
   { key: "hr.department", scope: "hr", source: { entity: "Any", field: "departmentId" }, target: "department", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.department.parent", scope: "hr", source: { entity: "Department", field: "parentId" }, target: "department", targetLabel: "上级部门", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.department.manager.position", scope: "hr", source: { entity: "Department", field: "managerPositionId" }, target: "position", targetLabel: "负责人岗位", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
@@ -47,13 +71,13 @@ const HR_FK_REGISTRATIONS = [
   { key: "hr.edp.position", scope: "hr", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo", valueKind: "semantic" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.position.department", scope: "hr", source: { entity: "Position", field: "departmentId" }, target: "department", targetLabel: "所属部门", nullable: false, permission: { resourceKey: "hr.roster", action: "read" } },
-] satisfies FkRegistration[];
+] satisfies RelationRegistration[];
 
-const FINANCE_FK_REGISTRATIONS = [
+const FINANCE_RELATION_REGISTRATIONS = [
   { key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } },
-] satisfies FkRegistration[];
+] satisfies RelationRegistration[];
 
-const DOCS_FK_REGISTRATIONS = [] satisfies FkRegistration[];
+const DOCS_RELATION_REGISTRATIONS = [] satisfies RelationRegistration[];
 
 // 模块台账：声明模块是谁、挂在哪个页面、归属哪个资源，以及暴露哪些 API contract。
 export const registeredModuleDefinitions = [
@@ -84,7 +108,7 @@ export const registeredModuleDefinitions = [
       { path: "/work/project/[projectId]/space", gatePath: "/work/me", resourceKey: "work.tasks", notes: "Project workspace execution view." },
       { path: "/work/meetings", gatePath: "/work/meeting", resourceKey: "work.meetings", notes: "Legacy meeting-management URL redirects to /work/meeting." },
     ],
-    fkRegistrations: WORK_FK_REGISTRATIONS,
+    relationRegistrations: WORK_RELATION_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/work/meetings", ["GET", "POST", "PUT", "DELETE"]),
       ...apiResourceGuards("/api/modules/work/projects", ["GET", "POST", "PUT", "DELETE"]),
@@ -159,7 +183,7 @@ export const registeredModuleDefinitions = [
       },
     ],
     routes: ["/hr/roster/employees/[id]"],
-    fkRegistrations: HR_FK_REGISTRATIONS,
+    relationRegistrations: HR_RELATION_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/hr/performance", ["GET"]),
       ...apiResourceGuards("/api/modules/hr/roster/generated", ["GET"]),
@@ -222,7 +246,7 @@ export const registeredModuleDefinitions = [
         { key: "import", label: "数据导入与治理", desc: "科目/凭证/余额/预算/成本导入，校验与异常", href: "/finance/import", iconKey: "import", color: "amber", resourceKey: "finance.import", apiPrefixes: ["/api/modules/finance/import"] },
       ],
     },
-    fkRegistrations: FINANCE_FK_REGISTRATIONS,
+    relationRegistrations: FINANCE_RELATION_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/finance/ledger"),
       ...apiResourceGuards("/api/modules/finance/statements"),
@@ -346,7 +370,7 @@ export const registeredModuleDefinitions = [
       ],
     },
     routes: ["/docs/editor/templates/[templateId]"],
-    fkRegistrations: DOCS_FK_REGISTRATIONS,
+    relationRegistrations: DOCS_RELATION_REGISTRATIONS,
     apiGuards: [
       ...apiResourceGuards("/api/modules/docs", ["GET"]),
       { method: "GET", pathPrefix: "/api/modules/docs/editor" },
@@ -489,7 +513,7 @@ export const registeredModuleDefinitions = [
     ],
     apiRoutes: systemApiRoutes(),
   },
-] satisfies WorkspacePackageRegistration[];
+] satisfies RelationAwareWorkspacePackageRegistration[];
 
 export const registeredModules = registeredModuleDefinitions
   .map((definition) => definition.moduleDef?.key)
@@ -501,7 +525,7 @@ export const registeredDomainPackageNames = registeredModuleDefinitions
   .filter((definition) => definition.layer === "domain")
   .map((definition) => definition.packageName);
 
-export function getRegisteredModuleDefinition(packageName: string): WorkspacePackageRegistration {
+export function getRegisteredModuleDefinition(packageName: string): RelationAwareWorkspacePackageRegistration {
   const definition = registeredModuleDefinitions.find((item) => item.packageName === packageName);
   if (!definition) {
     throw new Error(`Module package is not registered: ${packageName}`);

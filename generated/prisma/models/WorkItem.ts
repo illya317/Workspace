@@ -133,6 +133,7 @@ export type WorkItemMinAggregateOutputType = {
   isPrivate: boolean | null
   sortOrder: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type WorkItemMaxAggregateOutputType = {
@@ -186,6 +187,7 @@ export type WorkItemMaxAggregateOutputType = {
   isPrivate: boolean | null
   sortOrder: number | null
   createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type WorkItemCountAggregateOutputType = {
@@ -239,6 +241,7 @@ export type WorkItemCountAggregateOutputType = {
   isPrivate: number
   sortOrder: number
   createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -350,6 +353,7 @@ export type WorkItemMinAggregateInputType = {
   isPrivate?: true
   sortOrder?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type WorkItemMaxAggregateInputType = {
@@ -403,6 +407,7 @@ export type WorkItemMaxAggregateInputType = {
   isPrivate?: true
   sortOrder?: true
   createdAt?: true
+  updatedAt?: true
 }
 
 export type WorkItemCountAggregateInputType = {
@@ -456,6 +461,7 @@ export type WorkItemCountAggregateInputType = {
   isPrivate?: true
   sortOrder?: true
   createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -596,6 +602,7 @@ export type WorkItemGroupByOutputType = {
   isPrivate: boolean
   sortOrder: number
   createdAt: Date
+  updatedAt: Date
   _count: WorkItemCountAggregateOutputType | null
   _avg: WorkItemAvgAggregateOutputType | null
   _sum: WorkItemSumAggregateOutputType | null
@@ -672,6 +679,7 @@ export type WorkItemWhereInput = {
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
   plan?: Prisma.XOR<Prisma.WorkPlanNullableScalarRelationFilter, Prisma.WorkPlanWhereInput> | null
   participants?: Prisma.WorkParticipantListRelationFilter
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
@@ -747,6 +755,7 @@ export type WorkItemOrderByWithRelationInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   plan?: Prisma.WorkPlanOrderByWithRelationInput
   participants?: Prisma.WorkParticipantOrderByRelationAggregateInput
   owner?: Prisma.EmployeeOrderByWithRelationInput
@@ -825,6 +834,7 @@ export type WorkItemWhereUniqueInput = Prisma.AtLeast<{
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
   plan?: Prisma.XOR<Prisma.WorkPlanNullableScalarRelationFilter, Prisma.WorkPlanWhereInput> | null
   participants?: Prisma.WorkParticipantListRelationFilter
   owner?: Prisma.XOR<Prisma.EmployeeNullableScalarRelationFilter, Prisma.EmployeeWhereInput> | null
@@ -900,6 +910,7 @@ export type WorkItemOrderByWithAggregationInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.WorkItemCountOrderByAggregateInput
   _avg?: Prisma.WorkItemAvgOrderByAggregateInput
   _max?: Prisma.WorkItemMaxOrderByAggregateInput
@@ -961,6 +972,7 @@ export type WorkItemScalarWhereWithAggregatesInput = {
   isPrivate?: Prisma.BoolWithAggregatesFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntWithAggregatesFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"WorkItem"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"WorkItem"> | Date | string
 }
 
 export type WorkItemCreateInput = {
@@ -1001,6 +1013,7 @@ export type WorkItemCreateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -1076,6 +1089,7 @@ export type WorkItemUncheckedCreateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -1126,6 +1140,7 @@ export type WorkItemUpdateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -1201,6 +1216,7 @@ export type WorkItemUncheckedUpdateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -1264,6 +1280,7 @@ export type WorkItemCreateManyInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateManyMutationInput = {
@@ -1304,6 +1321,7 @@ export type WorkItemUpdateManyMutationInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemUncheckedUpdateManyInput = {
@@ -1357,6 +1375,7 @@ export type WorkItemUncheckedUpdateManyInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemListRelationFilter = {
@@ -1430,6 +1449,7 @@ export type WorkItemCountOrderByAggregateInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WorkItemAvgOrderByAggregateInput = {
@@ -1511,6 +1531,7 @@ export type WorkItemMaxOrderByAggregateInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WorkItemMinOrderByAggregateInput = {
@@ -1564,6 +1585,7 @@ export type WorkItemMinOrderByAggregateInput = {
   isPrivate?: Prisma.SortOrder
   sortOrder?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type WorkItemSumOrderByAggregateInput = {
@@ -2288,6 +2310,7 @@ export type WorkItemCreateWithoutOwnerInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   collaboration?: Prisma.DepartmentCollaborationCreateNestedOneWithoutWorkItemsInput
@@ -2361,6 +2384,7 @@ export type WorkItemUncheckedCreateWithoutOwnerInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -2453,6 +2477,7 @@ export type WorkItemScalarWhereInput = {
   isPrivate?: Prisma.BoolFilter<"WorkItem"> | boolean
   sortOrder?: Prisma.IntFilter<"WorkItem"> | number
   createdAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"WorkItem"> | Date | string
 }
 
 export type WorkItemCreateWithoutSourceDepartmentInput = {
@@ -2493,6 +2518,7 @@ export type WorkItemCreateWithoutSourceDepartmentInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -2566,6 +2592,7 @@ export type WorkItemUncheckedCreateWithoutSourceDepartmentInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -2642,6 +2669,7 @@ export type WorkItemCreateWithoutCollaborationInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -2715,6 +2743,7 @@ export type WorkItemUncheckedCreateWithoutCollaborationInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -2791,6 +2820,7 @@ export type WorkItemCreateWithoutSourceMeetingInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -2864,6 +2894,7 @@ export type WorkItemUncheckedCreateWithoutSourceMeetingInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -2940,6 +2971,7 @@ export type WorkItemCreateWithoutSourceMeetingDecisionInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3013,6 +3045,7 @@ export type WorkItemUncheckedCreateWithoutSourceMeetingDecisionInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -3089,6 +3122,7 @@ export type WorkItemCreateWithoutMeetingActionCandidatesInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3163,6 +3197,7 @@ export type WorkItemUncheckedCreateWithoutMeetingActionCandidatesInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -3217,6 +3252,7 @@ export type WorkItemCreateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3290,6 +3326,7 @@ export type WorkItemUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -3361,6 +3398,7 @@ export type WorkItemUpdateWithoutMeetingActionCandidatesInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -3435,6 +3473,7 @@ export type WorkItemUncheckedUpdateWithoutMeetingActionCandidatesInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -3500,6 +3539,7 @@ export type WorkItemCreateWithoutSourcePlanAlignmentsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3574,6 +3614,7 @@ export type WorkItemUncheckedCreateWithoutSourcePlanAlignmentsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -3639,6 +3680,7 @@ export type WorkItemUpdateWithoutSourcePlanAlignmentsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -3713,6 +3755,7 @@ export type WorkItemUncheckedUpdateWithoutSourcePlanAlignmentsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -3762,6 +3805,7 @@ export type WorkItemCreateWithoutLinkedProjectInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3835,6 +3879,7 @@ export type WorkItemUncheckedCreateWithoutLinkedProjectInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -3911,6 +3956,7 @@ export type WorkItemCreateWithoutLinkedProjectPhaseInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -3984,6 +4030,7 @@ export type WorkItemUncheckedCreateWithoutLinkedProjectPhaseInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -4060,6 +4107,7 @@ export type WorkItemCreateWithoutReportItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -4134,6 +4182,7 @@ export type WorkItemUncheckedCreateWithoutReportItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -4199,6 +4248,7 @@ export type WorkItemUpdateWithoutReportItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -4273,6 +4323,7 @@ export type WorkItemUncheckedUpdateWithoutReportItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -4322,6 +4373,7 @@ export type WorkItemCreateWithoutResponsibilityReferencesInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -4396,6 +4448,7 @@ export type WorkItemUncheckedCreateWithoutResponsibilityReferencesInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -4461,6 +4514,7 @@ export type WorkItemUpdateWithoutResponsibilityReferencesInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -4535,6 +4589,7 @@ export type WorkItemUncheckedUpdateWithoutResponsibilityReferencesInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -4584,6 +4639,7 @@ export type WorkItemCreateWithoutPlanInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   collaboration?: Prisma.DepartmentCollaborationCreateNestedOneWithoutWorkItemsInput
@@ -4657,6 +4713,7 @@ export type WorkItemUncheckedCreateWithoutPlanInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -4733,6 +4790,7 @@ export type WorkItemCreateWithoutChildWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -4807,6 +4865,7 @@ export type WorkItemUncheckedCreateWithoutChildWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPreviousPeriodWorkItemInput
@@ -4861,6 +4920,7 @@ export type WorkItemCreateWithoutParentWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -4934,6 +4994,7 @@ export type WorkItemUncheckedCreateWithoutParentWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -4994,6 +5055,7 @@ export type WorkItemCreateWithoutChildPeriodWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -5068,6 +5130,7 @@ export type WorkItemUncheckedCreateWithoutChildPeriodWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPreviousPeriodWorkItemInput
@@ -5122,6 +5185,7 @@ export type WorkItemCreateWithoutParentPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -5195,6 +5259,7 @@ export type WorkItemUncheckedCreateWithoutParentPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -5255,6 +5320,7 @@ export type WorkItemCreateWithoutNextPeriodWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -5329,6 +5395,7 @@ export type WorkItemUncheckedCreateWithoutNextPeriodWorkItemsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -5383,6 +5450,7 @@ export type WorkItemCreateWithoutPreviousPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -5456,6 +5524,7 @@ export type WorkItemUncheckedCreateWithoutPreviousPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -5527,6 +5596,7 @@ export type WorkItemUpdateWithoutChildWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -5601,6 +5671,7 @@ export type WorkItemUncheckedUpdateWithoutChildWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutPreviousPeriodWorkItemNestedInput
@@ -5677,6 +5748,7 @@ export type WorkItemUpdateWithoutChildPeriodWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -5751,6 +5823,7 @@ export type WorkItemUncheckedUpdateWithoutChildPeriodWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutPreviousPeriodWorkItemNestedInput
@@ -5827,6 +5900,7 @@ export type WorkItemUpdateWithoutNextPeriodWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -5901,6 +5975,7 @@ export type WorkItemUncheckedUpdateWithoutNextPeriodWorkItemsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -5966,6 +6041,7 @@ export type WorkItemCreateWithoutKrEvidenceTasksInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -6040,6 +6116,7 @@ export type WorkItemUncheckedCreateWithoutKrEvidenceTasksInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -6094,6 +6171,7 @@ export type WorkItemCreateWithoutTaskEvidenceForKrsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   participants?: Prisma.WorkParticipantCreateNestedManyWithoutWorkItemInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
@@ -6168,6 +6246,7 @@ export type WorkItemUncheckedCreateWithoutTaskEvidenceForKrsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   participants?: Prisma.WorkParticipantUncheckedCreateNestedManyWithoutWorkItemInput
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
@@ -6233,6 +6312,7 @@ export type WorkItemUpdateWithoutKrEvidenceTasksInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -6307,6 +6387,7 @@ export type WorkItemUncheckedUpdateWithoutKrEvidenceTasksInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -6367,6 +6448,7 @@ export type WorkItemUpdateWithoutTaskEvidenceForKrsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -6441,6 +6523,7 @@ export type WorkItemUncheckedUpdateWithoutTaskEvidenceForKrsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -6490,6 +6573,7 @@ export type WorkItemCreateWithoutParticipantsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   plan?: Prisma.WorkPlanCreateNestedOneWithoutItemsInput
   owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkItemsInput
   collaboration?: Prisma.DepartmentCollaborationCreateNestedOneWithoutWorkItemsInput
@@ -6564,6 +6648,7 @@ export type WorkItemUncheckedCreateWithoutParticipantsInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
   childWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentWorkItemInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutParentPeriodWorkItemInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPreviousPeriodWorkItemInput
@@ -6629,6 +6714,7 @@ export type WorkItemUpdateWithoutParticipantsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   collaboration?: Prisma.DepartmentCollaborationUpdateOneWithoutWorkItemsNestedInput
@@ -6703,6 +6789,7 @@ export type WorkItemUncheckedUpdateWithoutParticipantsInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
   nextPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutPreviousPeriodWorkItemNestedInput
@@ -6764,6 +6851,7 @@ export type WorkItemCreateManyOwnerInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutOwnerInput = {
@@ -6804,6 +6892,7 @@ export type WorkItemUpdateWithoutOwnerInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   collaboration?: Prisma.DepartmentCollaborationUpdateOneWithoutWorkItemsNestedInput
@@ -6877,6 +6966,7 @@ export type WorkItemUncheckedUpdateWithoutOwnerInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -6939,6 +7029,7 @@ export type WorkItemUncheckedUpdateManyWithoutOwnerInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManySourceDepartmentInput = {
@@ -6991,6 +7082,7 @@ export type WorkItemCreateManySourceDepartmentInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutSourceDepartmentInput = {
@@ -7031,6 +7123,7 @@ export type WorkItemUpdateWithoutSourceDepartmentInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -7104,6 +7197,7 @@ export type WorkItemUncheckedUpdateWithoutSourceDepartmentInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -7166,6 +7260,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceDepartmentInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManyCollaborationInput = {
@@ -7218,6 +7313,7 @@ export type WorkItemCreateManyCollaborationInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutCollaborationInput = {
@@ -7258,6 +7354,7 @@ export type WorkItemUpdateWithoutCollaborationInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -7331,6 +7428,7 @@ export type WorkItemUncheckedUpdateWithoutCollaborationInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -7393,6 +7491,7 @@ export type WorkItemUncheckedUpdateManyWithoutCollaborationInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManySourceMeetingInput = {
@@ -7445,6 +7544,7 @@ export type WorkItemCreateManySourceMeetingInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutSourceMeetingInput = {
@@ -7485,6 +7585,7 @@ export type WorkItemUpdateWithoutSourceMeetingInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -7558,6 +7659,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -7620,6 +7722,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManySourceMeetingDecisionInput = {
@@ -7672,6 +7775,7 @@ export type WorkItemCreateManySourceMeetingDecisionInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutSourceMeetingDecisionInput = {
@@ -7712,6 +7816,7 @@ export type WorkItemUpdateWithoutSourceMeetingDecisionInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -7785,6 +7890,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -7847,6 +7953,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingDecisionInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManySourceMeetingActionCandidateInput = {
@@ -7899,6 +8006,7 @@ export type WorkItemCreateManySourceMeetingActionCandidateInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutSourceMeetingActionCandidateInput = {
@@ -7939,6 +8047,7 @@ export type WorkItemUpdateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -8012,6 +8121,7 @@ export type WorkItemUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -8074,6 +8184,7 @@ export type WorkItemUncheckedUpdateManyWithoutSourceMeetingActionCandidateInput 
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManyLinkedProjectInput = {
@@ -8126,6 +8237,7 @@ export type WorkItemCreateManyLinkedProjectInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutLinkedProjectInput = {
@@ -8166,6 +8278,7 @@ export type WorkItemUpdateWithoutLinkedProjectInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -8239,6 +8352,7 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -8301,6 +8415,7 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManyLinkedProjectPhaseInput = {
@@ -8353,6 +8468,7 @@ export type WorkItemCreateManyLinkedProjectPhaseInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutLinkedProjectPhaseInput = {
@@ -8393,6 +8509,7 @@ export type WorkItemUpdateWithoutLinkedProjectPhaseInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -8466,6 +8583,7 @@ export type WorkItemUncheckedUpdateWithoutLinkedProjectPhaseInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -8528,6 +8646,7 @@ export type WorkItemUncheckedUpdateManyWithoutLinkedProjectPhaseInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManyPlanInput = {
@@ -8580,6 +8699,7 @@ export type WorkItemCreateManyPlanInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutPlanInput = {
@@ -8620,6 +8740,7 @@ export type WorkItemUpdateWithoutPlanInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
   collaboration?: Prisma.DepartmentCollaborationUpdateOneWithoutWorkItemsNestedInput
@@ -8693,6 +8814,7 @@ export type WorkItemUncheckedUpdateWithoutPlanInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -8755,6 +8877,7 @@ export type WorkItemUncheckedUpdateManyWithoutPlanInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemCreateManyParentWorkItemInput = {
@@ -8807,6 +8930,7 @@ export type WorkItemCreateManyParentWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemCreateManyParentPeriodWorkItemInput = {
@@ -8859,6 +8983,7 @@ export type WorkItemCreateManyParentPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemCreateManyPreviousPeriodWorkItemInput = {
@@ -8911,6 +9036,7 @@ export type WorkItemCreateManyPreviousPeriodWorkItemInput = {
   isPrivate?: boolean
   sortOrder?: number
   createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type WorkItemUpdateWithoutParentWorkItemInput = {
@@ -8951,6 +9077,7 @@ export type WorkItemUpdateWithoutParentWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -9024,6 +9151,7 @@ export type WorkItemUncheckedUpdateWithoutParentWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -9086,6 +9214,7 @@ export type WorkItemUncheckedUpdateManyWithoutParentWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemUpdateWithoutParentPeriodWorkItemInput = {
@@ -9126,6 +9255,7 @@ export type WorkItemUpdateWithoutParentPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -9199,6 +9329,7 @@ export type WorkItemUncheckedUpdateWithoutParentPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -9261,6 +9392,7 @@ export type WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type WorkItemUpdateWithoutPreviousPeriodWorkItemInput = {
@@ -9301,6 +9433,7 @@ export type WorkItemUpdateWithoutPreviousPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   plan?: Prisma.WorkPlanUpdateOneWithoutItemsNestedInput
   participants?: Prisma.WorkParticipantUpdateManyWithoutWorkItemNestedInput
   owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkItemsNestedInput
@@ -9374,6 +9507,7 @@ export type WorkItemUncheckedUpdateWithoutPreviousPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   participants?: Prisma.WorkParticipantUncheckedUpdateManyWithoutWorkItemNestedInput
   childWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentWorkItemNestedInput
   childPeriodWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutParentPeriodWorkItemNestedInput
@@ -9436,6 +9570,7 @@ export type WorkItemUncheckedUpdateManyWithoutPreviousPeriodWorkItemInput = {
   isPrivate?: Prisma.BoolFieldUpdateOperationsInput | boolean
   sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -9601,6 +9736,7 @@ export type WorkItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
@@ -9677,6 +9813,7 @@ export type WorkItemSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   collaboration?: boolean | Prisma.WorkItem$collaborationArgs<ExtArgs>
@@ -9742,6 +9879,7 @@ export type WorkItemSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
   plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   owner?: boolean | Prisma.WorkItem$ownerArgs<ExtArgs>
   collaboration?: boolean | Prisma.WorkItem$collaborationArgs<ExtArgs>
@@ -9807,9 +9945,10 @@ export type WorkItemSelectScalar = {
   isPrivate?: boolean
   sortOrder?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planId" | "targetType" | "targetId" | "category" | "itemType" | "content" | "description" | "importance" | "urgency" | "status" | "completedAt" | "krStartValue" | "krTargetValue" | "krCurrentValue" | "krUnit" | "routineTaskType" | "routineRecurrenceType" | "routineRecurrenceTime" | "routineRecurrenceWeekday" | "routineRecurrenceMonthDay" | "routineRecurrenceQuarterDay" | "routineRecurrenceYearMonth" | "routineRecurrenceYearDay" | "ownerEmployeeId" | "collaborationId" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate" | "isMilestone" | "milestoneDate" | "periodType" | "periodStart" | "periodEnd" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "sourceDepartmentId" | "linkedProjectId" | "linkedProjectPhaseId" | "parentWorkItemId" | "parentPeriodWorkItemId" | "previousPeriodWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt", ExtArgs["result"]["workItem"]>
+export type WorkItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "planId" | "targetType" | "targetId" | "category" | "itemType" | "content" | "description" | "importance" | "urgency" | "status" | "completedAt" | "krStartValue" | "krTargetValue" | "krCurrentValue" | "krUnit" | "routineTaskType" | "routineRecurrenceType" | "routineRecurrenceTime" | "routineRecurrenceWeekday" | "routineRecurrenceMonthDay" | "routineRecurrenceQuarterDay" | "routineRecurrenceYearMonth" | "routineRecurrenceYearDay" | "ownerEmployeeId" | "collaborationId" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate" | "isMilestone" | "milestoneDate" | "periodType" | "periodStart" | "periodEnd" | "sourceType" | "sourceKind" | "sourceMeetingId" | "sourceMeetingDecisionId" | "sourceMeetingActionCandidateId" | "sourceDepartmentId" | "linkedProjectId" | "linkedProjectPhaseId" | "parentWorkItemId" | "parentPeriodWorkItemId" | "previousPeriodWorkItemId" | "isArchived" | "isPrivate" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["workItem"]>
 export type WorkItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   plan?: boolean | Prisma.WorkItem$planArgs<ExtArgs>
   participants?: boolean | Prisma.WorkItem$participantsArgs<ExtArgs>
@@ -9941,6 +10080,7 @@ export type $WorkItemPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isPrivate: boolean
     sortOrder: number
     createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["workItem"]>
   composites: {}
 }
@@ -10436,6 +10576,7 @@ export interface WorkItemFieldRefs {
   readonly isPrivate: Prisma.FieldRef<"WorkItem", 'Boolean'>
   readonly sortOrder: Prisma.FieldRef<"WorkItem", 'Int'>
   readonly createdAt: Prisma.FieldRef<"WorkItem", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"WorkItem", 'DateTime'>
 }
     
 

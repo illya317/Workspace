@@ -30,16 +30,22 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 提供 `@workspace/platform/server/delete-guard` 作为删除和归档最低规则契约；归档必须显式声明引用已检查、确无引用或按聚合生命周期保留，缺失声明直接拒绝；`setNull/cascade` 引用必须同时提供清理实现，并在同一事务中完成引用检查/清理、审计快照和删除/归档/停用
 - 提供 `@workspace/platform/server/prisma` 作为单库 Prisma runtime 契约；旧 `lib/prisma.ts` 已删除并由 Level 2 ratchet 禁止恢复
 - 提供 `@workspace/platform/server/history` 作为 EditHistory 审计快照契约；历史策略统一声明在 `packages/platform/server/history-policy-registry.ts`
-- 提供 `@workspace/platform/server/fk-registry` 和 `@workspace/platform/server/reference-options` 作为 FK 搜索、校验、权限、生命周期和引用候选契约；带对象可见性或额外参数的业务语义通过业务包 `server/fk-registry.ts` adapter 注入
+- 提供 `@workspace/platform/server/relation-registry` 和 `@workspace/platform/server/reference-options` 作为 Relation Catalog、FK 搜索、校验、权限和引用候选契约；带对象可见性或额外参数的 selector 语义仍通过业务包 `server/fk-registry.ts` adapter 注入
+- 提供 `@workspace/platform/server/mutation-impact` 作为变更影响的递归规划和执行契约；业务 service 提供同一事务、业务 adapter、root commit 和审计上下文，Platform 不反向依赖业务 service
+- 提供 `@workspace/platform/server/mutation-impact-ledger` 作为变更批次/影响明细审计契约；root 与关联 effect 必须和真实写入共用调用方事务
 - 提供 `@workspace/platform/server/resolve-fk` 作为 registry 驱动的 FK 快照显示名解析契约，展示解析优先使用 `entityType + field`，再用 `Any + field` 兜底，避免裸字段名跨实体误解析
 
-Platform 可以读取业务包的注册信息，但不能直接 import 业务页面或业务 service。业务包需要认证和权限时依赖 `@workspace/platform/server/auth` 或 `@workspace/platform/server/with-auth`，需要 RBAC 常量或角色标准化时依赖 `@workspace/platform/permissions`，需要 API route 通用请求解析时依赖 `@workspace/platform/server/api`，需要 domain validator 结果契约时依赖 `@workspace/platform/server/domain-validation`，需要通用 CRUD helper 时依赖 `@workspace/platform/server/crud-factory` 并在本领域封装，需要自定义删除事务时依赖 `@workspace/platform/server/delete-guard`，需要数据库访问时依赖 `@workspace/platform/server/prisma`，需要审计快照时依赖 `@workspace/platform/server/history`，需要 FK 候选或校验时依赖 `@workspace/platform/server/fk-registry` / `@workspace/platform/server/reference-options`，需要 FK 快照显示名时依赖 `@workspace/platform/server/resolve-fk`；不要恢复 app-root `@/lib/auth` 聚合 hub、`lib/with-auth.ts`、`@/lib/crud*` 兼容入口，也不要直接依赖 app-root `@/lib/permissions`、`@/lib/prisma`、`@/lib/history`、`@/lib/resolve-fk` 或 generated Prisma client。
+Platform 可以读取业务包的注册信息，但不能直接 import 业务页面或业务 service。业务包需要认证和权限时依赖 `@workspace/platform/server/auth` 或 `@workspace/platform/server/with-auth`，需要 RBAC 常量或角色标准化时依赖 `@workspace/platform/permissions`，需要 API route 通用请求解析时依赖 `@workspace/platform/server/api`，需要 domain validator 结果契约时依赖 `@workspace/platform/server/domain-validation`，需要通用 CRUD helper 时依赖 `@workspace/platform/server/crud-factory` 并在本领域封装，需要自定义删除事务时依赖 `@workspace/platform/server/delete-guard`，需要数据库访问时依赖 `@workspace/platform/server/prisma`，需要审计快照时依赖 `@workspace/platform/server/history`，需要 FK 候选或校验时依赖 `@workspace/platform/server/relation-registry` / `@workspace/platform/server/reference-options`，需要 FK 快照显示名时依赖 `@workspace/platform/server/resolve-fk`；不要恢复 app-root `@/lib/auth` 聚合 hub、`lib/with-auth.ts`、`@/lib/crud*` 兼容入口，也不要直接依赖 app-root `@/lib/permissions`、`@/lib/prisma`、`@/lib/history`、`@/lib/resolve-fk` 或 generated Prisma client。
 
 `guardedDelete` 直接调用时不声明 `deleteMode` 会默认禁删；`crud-factory` 为兼容存量字段级删除会显式沿用 hard delete 默认，新增 CRUD 配置应主动填写 `deleteMode`、`deleteReferences` 或 `onBeforeDeleteScope`。
 
-## FK Registry
+## Relation Catalog
 
-新增 FK 的维护顺序固定为：先在 `packages/platform/module-registry.ts` 的 `fkRegistrations` 声明 key、scope、source、target、nullable 和 permission；普通目标直接复用 `@workspace/platform/server/fk-targets` 的 target kind；需要对象可见性或额外 query params 时在对应业务包 `server/fk-registry.ts` 添加 adapter；前端只传 `fkKey + endpoint + queryParams`；展示需要时确保 `source.entity/source.field` 能表达字段归属；最后运行 `npm run arch:gate` 和 `npm run typecheck:quick`。
+关系唯一事实源是 `packages/platform/module-registry.ts` 的 `relationRegistrations`。selector 关系声明 key、source、target、nullable 和 permission，并复用 `@workspace/platform/server/relation-targets`；governance 关系还必须声明 usage、semantics、physical、四个 lifecycle policy 和 adapterKey。运行时 planner 从包含 governance-only 声明的完整 Catalog 解析策略，adapter 返回的 policy 只作一致性断言；关系未声明、intent 未分类或二者漂移都会 fail closed。旧 `fk-registry.ts` / `fk-targets.ts` / `fk-registrations.ts` 只保留无逻辑兼容 re-export，不得新增实现。DMMF coverage 通过 `npm run relation-policy:check` 以稳定顺序报告 missing、stale、adapter capability 和数据库 `onDelete` 冲突；全仓默认 report-only，各模块在 `scripts/check/relation-policy-ratchet.json` 独立收紧。Work 试点除模块基线外，强制 `WorkPlan / WorkItem / Project` 的所有物理入向关系均已治理，新增未知入向关系会阻断 gate。
+
+## Mutation Impact
+
+变更影响协议是 `plan -> confirm -> transaction-local re-plan -> execute -> audit`。确认 token 绑定 actor、scope、root、intent、root revision、影响 fingerprint、策略 revision 和过期时间；业务 route 只能把 `impactToken + resolutions` 回传原 mutation service，不能提供通用 ignore，也不能绕到全局 execute endpoint。任何 blocker、过期/篡改 token、策略或对象版本变化都必须 fail closed。业务 adapter 只声明 relation inspect 和允许的 unlink/cascade/transition 操作；root commit、影响操作和成功的 `MutationImpactBatch` / `MutationImpactEffect` 写入必须处于同一 Serializable 业务事务，序列化冲突按统一 helper 有界重试。block、首次待确认、stale-confirmation 和执行失败使用独立 attempt 事实写入，保证业务事务回滚后仍可观测；attempt 只保存必要的结果码和脱敏消息。
 
 ## History Policy Registry
 

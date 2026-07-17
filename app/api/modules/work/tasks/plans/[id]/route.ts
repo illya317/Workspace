@@ -6,6 +6,7 @@ import {
   buildUpdateWorkPlanCommand,
   executeArchiveWorkPlanCommand,
   executeUpdateWorkPlanCommand,
+  workImpactCommandBodySchema,
 } from "@workspace/work/server";
 
 const updateWorkPlanSchema = z.object({
@@ -55,10 +56,12 @@ export const PUT = createCommandRoute({
 
 export const DELETE = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
+  bodySchema: workImpactCommandBodySchema,
   paramsError: "工作计划 ID 无效",
-  buildCommand: ({ user, params }) => buildArchiveWorkPlanCommand({
+  buildCommand: ({ user, params, body }) => buildArchiveWorkPlanCommand({
     userId: user.userId,
     planId: params.id,
+    impactResolution: body.impactResolution,
   }),
   action: executeArchiveWorkPlanCommand,
 });

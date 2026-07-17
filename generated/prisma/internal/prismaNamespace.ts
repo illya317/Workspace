@@ -510,6 +510,8 @@ export const ModelName = {
   LibraryGeneratedSource: 'LibraryGeneratedSource',
   LibraryTag: 'LibraryTag',
   LibraryDocumentTag: 'LibraryDocumentTag',
+  MutationImpactBatch: 'MutationImpactBatch',
+  MutationImpactEffect: 'MutationImpactEffect',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
   OpenApiScope: 'OpenApiScope',
@@ -568,7 +570,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationEntryLine" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
+    modelProps: "agentProfile" | "agentRuntimeBinding" | "agentSession" | "agentProposal" | "agentRun" | "approvalRequest" | "approvalEvent" | "workflowPolicy" | "user" | "resource" | "permissionActionNormalization" | "userResourceActionGrant" | "positionResourceActionGrant" | "departmentResourceActionGrant" | "permissionGrantLedgerEvent" | "notification" | "contract" | "documentTemplateSpace" | "documentTemplate" | "externalParty" | "externalPartyRole" | "financeAssetCard" | "financeAssetCostLine" | "financeAssetExpenseAllocation" | "financeAssetImportBatch" | "financeAssetPeriodEntry" | "financeAssetAdjustment" | "financeBudgetVersion" | "financeBudgetDept" | "financeBudgetRd" | "financeCashFlowItem" | "financeCashFlowAllocation" | "financeConsolidationOutputSnapshot" | "financeConsolidationBatch" | "financeConsolidationBatchEvent" | "financeConsolidationControlDecision" | "financeConsolidationEntitySnapshot" | "financeConsolidationSourceSnapshot" | "financeConsolidationRateSnapshot" | "financeConsolidationEntry" | "financeConsolidationEntryLine" | "financeConsolidationTaxEffect" | "financeDataImport" | "financeShipment" | "financeSalesSalary" | "financeCostStructureRow" | "financeCostAnalysisRow" | "financeWorkshopReport" | "financeAuxiliaryMember" | "financeVoucherItemAuxiliary" | "financeAuxiliaryBalance" | "financeAuxiliaryBalanceMember" | "financeOpenItem" | "financeOpenItemAuxiliary" | "financeLedgerImport" | "financeSourceAccountBalance" | "financeAccount" | "financePeriod" | "financeVoucher" | "financeVoucherItem" | "financeAccountBalance" | "financeBalanceSnapshot" | "financeBalanceSnapshotRow" | "financeReclassRule" | "financeReclassItemRule" | "financeBalanceReclassAdjustment" | "reclassResult" | "financeStatementSourcePackage" | "financeStatementSourceSheet" | "financeStatementSourceLine" | "financeStatementWorkpaper" | "financeStatementWorkpaperLine" | "financeStatementExchangeRate" | "financeCurrency" | "financeBankAccount" | "departmentDescription" | "positionDescription" | "hrPerformanceReview" | "employee" | "employment" | "company" | "companyRelation" | "department" | "departmentManagerEmployee" | "position" | "eDP" | "positionReportOverride" | "editHistory" | "inventoryItem" | "inventoryUnitConversion" | "inventoryWarehouse" | "inventoryBatch" | "inventoryDocument" | "inventoryDocumentLine" | "inventoryLedgerEntry" | "inventoryStocktake" | "inventoryStocktakeLine" | "inventoryPeriodClose" | "inventoryImportBatch" | "stockRawMaterial" | "stockPackaging" | "stockFinishedGoods" | "stockBatch" | "stockOperation" | "stockReturn" | "libraryTagCandidate" | "libraryEntityMention" | "libraryMetadataCandidate" | "libraryEvaluationCase" | "libraryEvaluationEvidence" | "libraryProcessingJob" | "libraryArtifact" | "libraryContentChunk" | "librarySearchIndex" | "libraryExportJob" | "libraryDocument" | "libraryDocumentVersion" | "libraryCategory" | "libraryDirectory" | "dueDiligenceParty" | "dueDiligenceRequest" | "dueDiligenceQuestion" | "dueDiligenceMaterialSelection" | "libraryGeneratedSource" | "libraryTag" | "libraryDocumentTag" | "mutationImpactBatch" | "mutationImpactEffect" | "openApiClient" | "openApiResource" | "openApiScope" | "openApiClientScopeGrant" | "openApiAccessLog" | "systemConfig" | "loginAttempt" | "departmentCollaboration" | "departmentCollaborationDepartment" | "departmentCollaborationPosition" | "meetingType" | "meetingSeries" | "meeting" | "meetingParticipant" | "meetingAgendaItem" | "meetingMinuteEntry" | "meetingProposal" | "meetingVote" | "meetingDecision" | "meetingActionCandidate" | "workPlanAlignment" | "workOkrCycle" | "workOkrControlPolicy" | "workOkrControlRevision" | "workOkrControlPolicyRevision" | "workPlanGovernanceEvent" | "project" | "projectEnablingDepartment" | "employeeProject" | "projectPlanPhase" | "projectPlanDependency" | "projectPlanBaseline" | "projectPlanBaselineItem" | "workReport" | "workReportItem" | "positionResponsibilityNode" | "workResponsibilityReference" | "workPlan" | "workItem" | "workKrEvidence" | "workParticipant" | "departmentWorkAssignee" | "projectWorkAssignee"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -9896,6 +9898,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    MutationImpactBatch: {
+      payload: Prisma.$MutationImpactBatchPayload<ExtArgs>
+      fields: Prisma.MutationImpactBatchFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MutationImpactBatchFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MutationImpactBatchFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        findFirst: {
+          args: Prisma.MutationImpactBatchFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MutationImpactBatchFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        findMany: {
+          args: Prisma.MutationImpactBatchFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>[]
+        }
+        create: {
+          args: Prisma.MutationImpactBatchCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        createMany: {
+          args: Prisma.MutationImpactBatchCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MutationImpactBatchCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>[]
+        }
+        delete: {
+          args: Prisma.MutationImpactBatchDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        update: {
+          args: Prisma.MutationImpactBatchUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        deleteMany: {
+          args: Prisma.MutationImpactBatchDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MutationImpactBatchUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MutationImpactBatchUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>[]
+        }
+        upsert: {
+          args: Prisma.MutationImpactBatchUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactBatchPayload>
+        }
+        aggregate: {
+          args: Prisma.MutationImpactBatchAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMutationImpactBatch>
+        }
+        groupBy: {
+          args: Prisma.MutationImpactBatchGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutationImpactBatchGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MutationImpactBatchCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutationImpactBatchCountAggregateOutputType> | number
+        }
+      }
+    }
+    MutationImpactEffect: {
+      payload: Prisma.$MutationImpactEffectPayload<ExtArgs>
+      fields: Prisma.MutationImpactEffectFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.MutationImpactEffectFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.MutationImpactEffectFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        findFirst: {
+          args: Prisma.MutationImpactEffectFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.MutationImpactEffectFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        findMany: {
+          args: Prisma.MutationImpactEffectFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>[]
+        }
+        create: {
+          args: Prisma.MutationImpactEffectCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        createMany: {
+          args: Prisma.MutationImpactEffectCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.MutationImpactEffectCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>[]
+        }
+        delete: {
+          args: Prisma.MutationImpactEffectDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        update: {
+          args: Prisma.MutationImpactEffectUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        deleteMany: {
+          args: Prisma.MutationImpactEffectDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.MutationImpactEffectUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.MutationImpactEffectUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>[]
+        }
+        upsert: {
+          args: Prisma.MutationImpactEffectUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$MutationImpactEffectPayload>
+        }
+        aggregate: {
+          args: Prisma.MutationImpactEffectAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateMutationImpactEffect>
+        }
+        groupBy: {
+          args: Prisma.MutationImpactEffectGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutationImpactEffectGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.MutationImpactEffectCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.MutationImpactEffectCountAggregateOutputType> | number
+        }
+      }
+    }
     OpenApiClient: {
       payload: Prisma.$OpenApiClientPayload<ExtArgs>
       fields: Prisma.OpenApiClientFieldRefs
@@ -15686,6 +15836,51 @@ export const LibraryDocumentTagScalarFieldEnum = {
 export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
 
 
+export const MutationImpactBatchScalarFieldEnum = {
+  id: 'id',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  scopeType: 'scopeType',
+  scopeId: 'scopeId',
+  requestId: 'requestId',
+  rootEntityType: 'rootEntityType',
+  rootEntityId: 'rootEntityId',
+  intent: 'intent',
+  policyRevision: 'policyRevision',
+  impactFingerprint: 'impactFingerprint',
+  resolutionsJson: 'resolutionsJson',
+  status: 'status',
+  resultCode: 'resultCode',
+  resultMessage: 'resultMessage',
+  sourceBatchId: 'sourceBatchId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type MutationImpactBatchScalarFieldEnum = (typeof MutationImpactBatchScalarFieldEnum)[keyof typeof MutationImpactBatchScalarFieldEnum]
+
+
+export const MutationImpactEffectScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  sequence: 'sequence',
+  relationKey: 'relationKey',
+  relationPathJson: 'relationPathJson',
+  policyKey: 'policyKey',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  operation: 'operation',
+  beforeRevision: 'beforeRevision',
+  afterRevision: 'afterRevision',
+  beforeSummaryJson: 'beforeSummaryJson',
+  afterSummaryJson: 'afterSummaryJson',
+  changedInBatch: 'changedInBatch',
+  createdAt: 'createdAt'
+} as const
+
+export type MutationImpactEffectScalarFieldEnum = (typeof MutationImpactEffectScalarFieldEnum)[keyof typeof MutationImpactEffectScalarFieldEnum]
+
+
 export const OpenApiClientScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -16433,7 +16628,8 @@ export const WorkItemScalarFieldEnum = {
   isArchived: 'isArchived',
   isPrivate: 'isPrivate',
   sortOrder: 'sortOrder',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type WorkItemScalarFieldEnum = (typeof WorkItemScalarFieldEnum)[keyof typeof WorkItemScalarFieldEnum]
@@ -16876,6 +17072,8 @@ export type GlobalOmitConfig = {
   libraryGeneratedSource?: Prisma.LibraryGeneratedSourceOmit
   libraryTag?: Prisma.LibraryTagOmit
   libraryDocumentTag?: Prisma.LibraryDocumentTagOmit
+  mutationImpactBatch?: Prisma.MutationImpactBatchOmit
+  mutationImpactEffect?: Prisma.MutationImpactEffectOmit
   openApiClient?: Prisma.OpenApiClientOmit
   openApiResource?: Prisma.OpenApiResourceOmit
   openApiScope?: Prisma.OpenApiScopeOmit

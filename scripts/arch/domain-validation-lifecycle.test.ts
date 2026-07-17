@@ -69,3 +69,20 @@ test("covers command-style delete names and accepts the audited transaction prot
   assert.deepEqual(lifecycleGuardBypassEntryNames("unsafe.ts", unsafe), ["executeDeleteWidget"]);
   assert.deepEqual(lifecycleGuardBypassEntryNames("audited.ts", audited), []);
 });
+
+test("accepts the shared mutation-impact lifecycle protocol", () => {
+  const source = `
+    export async function deleteGoal(id: number) {
+      return runSerializableTransaction(async (tx) => {
+        const context = { tx };
+        return buildAuditedGoalMutationImpactEngine(context).execute({
+          context,
+          root: { entity: "Goal", id: String(id), intent: "delete" },
+          commitRoot: () => tx.goal.delete({ where: { id } }),
+        });
+      });
+    }
+  `;
+
+  assert.deepEqual(lifecycleGuardBypassEntryNames("goals.ts", source), []);
+});

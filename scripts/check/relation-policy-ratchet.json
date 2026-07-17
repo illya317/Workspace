@@ -1,0 +1,15 @@
+{
+  "defaultMode": "report-only",
+  "modules": {
+    "work": {
+      "mode": "blocking",
+      "maxMissing": 48,
+      "maxUnclassified": 7,
+      "maxStale": 4,
+      "maxAdapterGaps": 0,
+      "maxOnDeleteMismatches": 19,
+      "maxExemptionIssues": 0,
+      "requiredGovernedTargets": ["WorkPlan", "WorkItem", "Project"]
+    }
+  }
+}
