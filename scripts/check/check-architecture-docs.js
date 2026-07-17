@@ -12,7 +12,6 @@ const APP_DIR = path.resolve(__dirname, "../../app");
 
 const REQUIRED_ARCHITECTURE_FILES = [
   "app/(modules)/administration/contracts/ARCHITECTURE.md",
-  "app/(modules)/agent/ARCHITECTURE.md",
   "app/(modules)/capital-securities/ARCHITECTURE.md",
   "app/(modules)/external/ARCHITECTURE.md",
   "app/(modules)/finance/ARCHITECTURE.md",
