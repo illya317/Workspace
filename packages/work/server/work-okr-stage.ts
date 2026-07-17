@@ -1,5 +1,6 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
+import { isBoundWorkOkrTimeControlEnabled } from "./domain/work-okr-bound-control";
 import { validateWorkOkrStageCommand } from "./domain/work-okr-stage-validation";
 import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
 import { resolveWorkOkrKrReviewOpensAt } from "./work-okr-control";
@@ -143,6 +144,7 @@ export async function assertWorkPlanHeaderStageAllowed(planId: number): Promise<
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
+    timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson),
   });
   if (!maintenance.plan) {
     return { ok: false, error: `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，目标审查后计划头已锁定`, status: 409 };
@@ -159,6 +161,7 @@ export async function assertWorkItemStageAllowed(input: WorkItemStageInput): Pro
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
+    timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson),
   });
   if (!canMaintainWorkItem(maintenance, input.itemType)) {
     return {

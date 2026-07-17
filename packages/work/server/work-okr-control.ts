@@ -7,6 +7,7 @@ import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registr
 import { prisma } from "@workspace/platform/server/prisma";
 import { resolveWorkflowPolicy } from "@workspace/platform/server/workflows";
 import { normalizeStoredWorkOkrControlScope } from "./domain/work-okr-control-scope";
+import { parseBoundWorkOkrControl } from "./domain/work-okr-bound-control";
 import { workOkrWorkflowBusinessActionKey } from "./task-approval-helpers";
 import { workTaskScopeId } from "./task-spaces";
 import {
@@ -173,28 +174,13 @@ function parseBoundOkrControl(
   snapshotJson: string | null | undefined,
   actionKind: "objective_submit" | "report_submit",
 ) {
-  if (!snapshotJson) return null;
-  try {
-    const snapshot = JSON.parse(snapshotJson) as {
-      version?: unknown;
-      okrControl?: { version?: unknown; settings?: unknown; policy?: unknown };
-      actions?: Record<string, {
-        policy?: { mode?: unknown };
-      }>;
-    };
-    const controlVersion = Number(snapshot.okrControl?.version);
-    if (snapshot.version !== 1 || !Number.isInteger(controlVersion) || controlVersion <= 0 || !snapshot.okrControl?.settings) return null;
-    const action = snapshot.actions?.[actionKind];
-    const mode = action?.policy?.mode;
-    if (mode !== "optional" && mode !== "required" && mode !== "direct" && mode !== "permission_only") return null;
-    return {
-      settings: normalizeWorkOkrControlSettings(snapshot.okrControl.settings),
-      policy: normalizeBoundControlPolicy(snapshot.okrControl.policy),
-      workflowEnabled: mode === "optional" || mode === "required",
-    };
-  } catch {
-    return null;
-  }
+  const bound = parseBoundWorkOkrControl(snapshotJson, actionKind);
+  if (!bound) return null;
+  return {
+    settings: normalizeWorkOkrControlSettings(bound.settings),
+    policy: normalizeBoundControlPolicy(bound.policy),
+    workflowEnabled: bound.workflowEnabled,
+  };
 }
 
 function normalizeBoundControlPolicy(value: unknown) {

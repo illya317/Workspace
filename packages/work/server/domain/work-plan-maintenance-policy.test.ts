@@ -1,17 +1,30 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { isBoundWorkOkrTimeControlEnabled } from "./work-okr-bound-control";
 import {
   canMaintainWorkItem,
   resolveWorkPlanMaintenance,
   validateWorkPlanReopenTransition,
 } from "./work-plan-maintenance-policy";
 
-test("submitted objectives remain locked independently of time-control settings", () => {
+test("bound time control unlocks maintenance only for an explicit disabled snapshot", () => {
+  const snapshot = JSON.stringify({
+    version: 1,
+    okrControl: { version: 1, settings: { enabled: false }, policy: null },
+    actions: { objective_submit: { policy: { mode: "required" } } },
+  });
+  assert.equal(isBoundWorkOkrTimeControlEnabled(snapshot), false);
+  assert.equal(isBoundWorkOkrTimeControlEnabled("{}"), true);
+  assert.equal(isBoundWorkOkrTimeControlEnabled("invalid"), true);
+});
+
+test("submitted objectives remain locked while time control is enabled", () => {
   assert.deepEqual(resolveWorkPlanMaintenance({
     kind: "okr",
     stage: "objective_submitted",
     status: "active",
     isArchived: false,
+    timeControlEnabled: true,
   }), {
     plan: false,
     objective: false,
@@ -20,12 +33,30 @@ test("submitted objectives remain locked independently of time-control settings"
   });
 });
 
+test("disabled time control unlocks every maintenance area for active OKR plans", () => {
+  for (const stage of ["objective_draft", "objective_submitted", "executing", "kr_open", "kr_submitted"]) {
+    assert.deepEqual(resolveWorkPlanMaintenance({
+      kind: "okr",
+      stage,
+      status: "active",
+      isArchived: false,
+      timeControlEnabled: false,
+    }), {
+      plan: true,
+      objective: true,
+      task: true,
+      keyResult: true,
+    });
+  }
+});
+
 test("OKR maintenance follows lifecycle stage", () => {
   assert.deepEqual(resolveWorkPlanMaintenance({
     kind: "okr",
     stage: "objective_draft",
     status: "active",
     isArchived: false,
+    timeControlEnabled: true,
   }), {
     plan: true,
     objective: true,
@@ -37,6 +68,7 @@ test("OKR maintenance follows lifecycle stage", () => {
     stage: "executing",
     status: "active",
     isArchived: false,
+    timeControlEnabled: true,
   }), {
     plan: false,
     objective: false,
@@ -54,6 +86,7 @@ test("closed lifecycle remains immutable", () => {
     assert.deepEqual(resolveWorkPlanMaintenance({
       kind: "okr",
       ...input,
+      timeControlEnabled: false,
     }), {
       plan: false,
       objective: false,
@@ -69,6 +102,7 @@ test("routine plans only allow task maintenance", () => {
     stage: "closed",
     status: "active",
     isArchived: false,
+    timeControlEnabled: false,
   });
   assert.equal(canMaintainWorkItem(maintenance, "task"), true);
   assert.equal(canMaintainWorkItem(maintenance, "objective"), false);

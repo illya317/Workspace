@@ -19,6 +19,7 @@ export function resolveWorkPlanMaintenance(input: {
   stage: string;
   status: string;
   isArchived: boolean;
+  timeControlEnabled: boolean;
 }): WorkPlanMaintenance {
   if (input.status === "done" || input.isArchived || (input.kind === "okr" && input.stage === "closed")) {
     return LOCKED_MAINTENANCE;
@@ -27,6 +28,9 @@ export function resolveWorkPlanMaintenance(input: {
     return { ...LOCKED_MAINTENANCE, task: true };
   }
   if (input.kind !== "okr") return LOCKED_MAINTENANCE;
+  if (!input.timeControlEnabled) {
+    return { plan: true, objective: true, task: true, keyResult: true };
+  }
   const objectiveOpen = input.stage === "objective_draft";
   const executionOpen = input.stage === "executing" || input.stage === "kr_open";
   return {

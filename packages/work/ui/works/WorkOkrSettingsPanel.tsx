@@ -224,7 +224,7 @@ export function useWorkOkrSettingsController({
       createSectionSection("okr-default-rules-section", {
         title: "默认规则",
         sections: [
-          ...(!timeControlEnabled ? [createMessageSection("okr-control-inactive", { content: "时间管控已停用：现有规则和例外继续保留，但不会作用于计划。计划可编辑范围仍由计划阶段与保存/提交流程决定。", tone: "muted" })] : []),
+          ...(!timeControlEnabled ? [createMessageSection("okr-control-inactive", { content: "时间管控已停用：现有规则和例外继续保留，但不会作用于计划；绑定为停用的活动计划不再按阶段锁定计划头、目标、任务或 KR。已完成、已关闭或已归档计划仍保持锁定。", tone: "muted" })] : []),
           createFormSection("okr-default-rules", { kind: "fields", content: { items: defaultRuleFields, layout: { columns: 3, density: "compact" } } }),
         ],
       }),

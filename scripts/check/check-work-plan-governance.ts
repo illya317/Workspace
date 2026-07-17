@@ -51,15 +51,27 @@ const checks: Check[] = [
     file: "packages/work/server/work-okr-control.ts",
     includes: [
       "resolveEffectiveWorkOkrControl",
+      "parseBoundWorkOkrControl",
       "不能读取当前全局日期规则补齐",
       "if (stored) return serviceOk(stored);",
     ],
     excludes: ["stored && plan.targetType !== \"personal\""],
   },
   {
+    file: "packages/work/server/domain/work-okr-bound-control.ts",
+    includes: ["isBoundWorkOkrTimeControlEnabled", "objective_submit"],
+  },
+  {
     file: "packages/work/server/domain/work-plan-maintenance-policy.ts",
-    includes: ["validateWorkPlanReopenTransition"],
-    excludes: ["timeControlEnabled"],
+    includes: ["validateWorkPlanReopenTransition", "timeControlEnabled"],
+  },
+  {
+    file: "packages/work/server/work-okr-stage.ts",
+    includes: ["timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson)"],
+  },
+  {
+    file: "packages/work/server/work-plan-dto.ts",
+    includes: ["timeControlEnabled: isBoundWorkOkrTimeControlEnabled(row.governanceSnapshotJson)"],
   },
   {
     file: "packages/work/server/work-plans.ts",
