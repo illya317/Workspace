@@ -2,6 +2,7 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
+DEPLOY_STARTED_SECONDS="$SECONDS"
 
 SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-}"
@@ -2256,8 +2257,9 @@ NODE
 }
 
 notify_workspace_bot_deploy() {
+  local duration_seconds="$((SECONDS - DEPLOY_STARTED_SECONDS))"
   echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' python3 - <<'PY'
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
 import datetime
 import json
 import os
@@ -2282,6 +2284,9 @@ release = release_path.name
 transport = os.environ['RELEASE_TRANSPORT']
 if transport not in {'cnb', 'ssh-hotfix'}:
     raise SystemExit(f'unsupported release transport: {transport}')
+duration_seconds = int(os.environ['DEPLOY_DURATION_SECONDS'])
+if duration_seconds < 0:
+    raise SystemExit('deploy duration must be non-negative')
 
 payload = {
     'id': f'{release}:{build}',
@@ -2289,6 +2294,7 @@ payload = {
     'package': str(package),
     'build': str(build),
     'release': release,
+    'durationSeconds': duration_seconds,
     'finishedAt': datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
 }
 target = Path.home() / '.finance-bot-deploy-event.json'

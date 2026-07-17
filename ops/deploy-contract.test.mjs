@@ -49,10 +49,23 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
 });
 
 test("deployment notification records the exact release transport", () => {
-  assert.match(deploy, /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' python3/);
+  assert.match(deploy, /DEPLOY_STARTED_SECONDS="\$SECONDS"/);
+  assert.match(deploy, /local duration_seconds="\$\(\(SECONDS - DEPLOY_STARTED_SECONDS\)\)"/);
+  assert.match(
+    deploy,
+    /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
+  );
   assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
   assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
+  assert.match(deploy, /duration_seconds = int\(os\.environ\['DEPLOY_DURATION_SECONDS'\]\)/);
+  assert.match(deploy, /'durationSeconds': duration_seconds/);
   assert.match(deploy, /'transport': transport/);
+  assertOrdered(deploy, [
+    'DEPLOY_STARTED_SECONDS="$SECONDS"',
+    "run_healthcheck",
+    "notify_workspace_bot_deploy",
+    "'durationSeconds': duration_seconds",
+  ]);
 });
 
 test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {
