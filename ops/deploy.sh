@@ -1674,7 +1674,7 @@ NODE
       deployed_record='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json'
       if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
         if [ -e \"\$deployed_record\" ]; then
-          echo "[错误] \$verification_phase: production bootstrap 期间出现正式部署记录"
+          echo \"[错误] \$verification_phase: production bootstrap 期间出现正式部署记录\"
           exit 1
         fi
       else
@@ -1687,7 +1687,7 @@ NODE
           --artifact-sha '$DEPLOYED_ARTIFACT_SHA' \
           --transport '$DEPLOYED_TRANSPORT'
       fi
-      echo "==> \$verification_phase: 生产部署记录未被并发修改"
+      echo \"==> \$verification_phase: 生产部署记录未被并发修改\"
     }
     ensure_bootstrap_progress_marker() {
       [ -n '$RELEASE_BOOTSTRAP_BASE' ] || return 0
@@ -2262,6 +2262,7 @@ NODE
 notify_workspace_bot_deploy() {
   local started_epoch="$PUBLISH_STARTED_EPOCH_SECONDS"
   local duration_seconds
+  local package_version
   if [ -z "$started_epoch" ] && [ "$RELEASE_TRANSPORT" = "cnb" ]; then
     started_epoch="$(node -p "require('./$RELEASE_METADATA_FILE').deployment.startedAtEpochSeconds")"
   fi
@@ -2277,26 +2278,22 @@ notify_workspace_bot_deploy() {
   else
     duration_seconds="$((SECONDS - DEPLOY_STARTED_SECONDS))"
   fi
+  package_version="$(node -p "require('./package.json').version")"
+  case "$package_version" in
+    ''|*[!0-9A-Za-z.+-]*) echo "[错误] package version 无效"; exit 1 ;;
+  esac
   echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_PACKAGE_VERSION='$package_version' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
 import datetime
-import json
 import os
 import re
 from pathlib import Path
 
 remote_dir = Path(os.environ['REMOTE_DIR'])
-current = remote_dir / 'current'
-release_path = current.resolve()
-app_dir = current / 'workspace'
-
-def read_json(path):
-    try:
-        return json.loads(path.read_text())
-    except Exception:
-        return {}
-
-package = read_json(app_dir / 'package.json').get('version') or 'unknown'
+release_path = (remote_dir / 'current').resolve()
+package = os.environ['DEPLOY_PACKAGE_VERSION']
+if not re.fullmatch(r'[0-9A-Za-z][0-9A-Za-z.+-]*', package):
+    raise SystemExit('deploy package version is invalid')
 build = os.environ['DEPLOY_SOURCE_SHA']
 if not re.fullmatch(r'[0-9a-f]{40}', build):
     raise SystemExit('deploy source SHA is invalid')
