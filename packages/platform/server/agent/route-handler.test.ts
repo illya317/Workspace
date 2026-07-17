@@ -36,10 +36,10 @@ let finishedRun: Record<string, unknown> | null = null;
 let failAgentAppend = false;
 
 mock.module("next/server", {
-  exports: { NextResponse: { json: (value: unknown) => Response.json(value) } },
+  namedExports: { NextResponse: { json: (value: unknown) => Response.json(value) } },
 } as never);
 mock.module("@workspace/platform/server/api", {
-  exports: {
+  namedExports: {
     jsonErrorResponse: (message: string, status: number) => new Response(
       JSON.stringify({ error: message }),
       { status, headers: { "content-type": "application/json" } },
@@ -47,7 +47,7 @@ mock.module("@workspace/platform/server/api", {
   },
 } as never);
 mock.module("./execution-context", {
-  exports: {
+  namedExports: {
     AgentExecutionError: class AgentExecutionError extends Error {
       status = 400;
     },
@@ -55,16 +55,16 @@ mock.module("./execution-context", {
   },
 } as never);
 mock.module("./identity-context", {
-  exports: {
+  namedExports: {
     buildAgentIdentityAnswer: () => "identity answer",
     buildAgentIdentityContext: () => "identity context",
   },
 } as never);
 mock.module("./orchestrator", {
-  exports: { processMessage: async () => processMessageImpl() },
+  namedExports: { processMessage: async () => processMessageImpl() },
 } as never);
 mock.module("./proposals", {
-  exports: {
+  namedExports: {
     cancelProposal: async (proposalId: number) => {
       cancelledProposalIds.push(proposalId);
       return { proposalId, status: "cancelled", message: "cancelled" };
@@ -72,10 +72,10 @@ mock.module("./proposals", {
   },
 } as never);
 mock.module("./route-input", {
-  exports: { parseAgentRequest: async () => ({ ok: false, response: new Response(null, { status: 400 }) }) },
+  namedExports: { parseAgentRequest: async () => ({ ok: false, response: new Response(null, { status: 400 }) }) },
 } as never);
 mock.module("./sessions", {
-  exports: {
+  namedExports: {
     appendAgentSessionMessage: async (_session: unknown, message: Record<string, unknown>) => {
       if (failAgentAppend && message.role === "agent") throw new Error("session append failed");
       appendedMessages.push(message);
@@ -91,7 +91,7 @@ mock.module("./sessions", {
   },
 } as never);
 mock.module("./stream-response", {
-  exports: {
+  namedExports: {
     createAgentStreamResponse: async (
       signal: AbortSignal,
       work: (input: { emitDelta: (delta: string) => void; signal: AbortSignal }) => Promise<unknown>,
@@ -99,7 +99,7 @@ mock.module("./stream-response", {
   },
 } as never);
 mock.module("./run-audit", {
-  exports: {
+  namedExports: {
     startAgentRun: async () => "run-1",
     finishAgentRun: async (_id: string, input: Record<string, unknown>) => {
       finishedRun = input;

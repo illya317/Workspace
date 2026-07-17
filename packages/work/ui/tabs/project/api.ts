@@ -36,9 +36,11 @@ export async function createProject(draft: ProjectDraft) {
       remark: draft.remark,
       leadingDepartmentId: draft.leadingDepartmentId,
       enablingDepartmentIds: draft.enablingDepartmentIds,
-      owningDepartmentId: draft.owningDepartmentId,
       workspaceEnabled: draft.workspaceEnabled,
-      leaderEmployeeId: null,
+      members: [
+        ...(draft.leader ? [{ employeeId: draft.leader.id, role: "负责人" }] : []),
+        ...MULTI_PROJECT_ROLES.flatMap((role) => draft.roleGroups[role].map((member) => ({ employeeId: member.id, role }))),
+      ],
       status: draft.status,
       plannedStartDate: draft.plannedStartDate,
       plannedEndDate: draft.plannedEndDate,
@@ -51,8 +53,7 @@ export async function createProject(draft: ProjectDraft) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "新建项目失败");
   }
-  const data = await res.json();
-  return Number(data.record?.id);
+  return await res.json() as { executionMode: "workflow" | "direct"; request?: { id?: number }; result?: { record?: { id?: number } } };
 }
 
 export async function listProjectOptions() {

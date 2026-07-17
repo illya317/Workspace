@@ -320,7 +320,6 @@ export type DepartmentWhereInput = {
   sourceWorkPlans?: Prisma.WorkPlanListRelationFilter
   sourceWorkItems?: Prisma.WorkItemListRelationFilter
   leadingProjects?: Prisma.ProjectListRelationFilter
-  owningProjects?: Prisma.ProjectListRelationFilter
   enabledProjects?: Prisma.ProjectEnablingDepartmentListRelationFilter
   edps?: Prisma.EDPListRelationFilter
   positions?: Prisma.PositionListRelationFilter
@@ -354,7 +353,6 @@ export type DepartmentOrderByWithRelationInput = {
   sourceWorkPlans?: Prisma.WorkPlanOrderByRelationAggregateInput
   sourceWorkItems?: Prisma.WorkItemOrderByRelationAggregateInput
   leadingProjects?: Prisma.ProjectOrderByRelationAggregateInput
-  owningProjects?: Prisma.ProjectOrderByRelationAggregateInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentOrderByRelationAggregateInput
   edps?: Prisma.EDPOrderByRelationAggregateInput
   positions?: Prisma.PositionOrderByRelationAggregateInput
@@ -391,7 +389,6 @@ export type DepartmentWhereUniqueInput = Prisma.AtLeast<{
   sourceWorkPlans?: Prisma.WorkPlanListRelationFilter
   sourceWorkItems?: Prisma.WorkItemListRelationFilter
   leadingProjects?: Prisma.ProjectListRelationFilter
-  owningProjects?: Prisma.ProjectListRelationFilter
   enabledProjects?: Prisma.ProjectEnablingDepartmentListRelationFilter
   edps?: Prisma.EDPListRelationFilter
   positions?: Prisma.PositionListRelationFilter
@@ -464,7 +461,6 @@ export type DepartmentCreateInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -496,7 +492,6 @@ export type DepartmentUncheckedCreateInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -527,7 +522,6 @@ export type DepartmentUpdateInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -559,7 +553,6 @@ export type DepartmentUncheckedUpdateInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -925,12 +918,6 @@ export type DepartmentCreateNestedOneWithoutLeadingProjectsInput = {
   connect?: Prisma.DepartmentWhereUniqueInput
 }
 
-export type DepartmentCreateNestedOneWithoutOwningProjectsInput = {
-  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedCreateWithoutOwningProjectsInput>
-  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutOwningProjectsInput
-  connect?: Prisma.DepartmentWhereUniqueInput
-}
-
 export type DepartmentUpdateOneWithoutLeadingProjectsNestedInput = {
   create?: Prisma.XOR<Prisma.DepartmentCreateWithoutLeadingProjectsInput, Prisma.DepartmentUncheckedCreateWithoutLeadingProjectsInput>
   connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutLeadingProjectsInput
@@ -939,16 +926,6 @@ export type DepartmentUpdateOneWithoutLeadingProjectsNestedInput = {
   delete?: Prisma.DepartmentWhereInput | boolean
   connect?: Prisma.DepartmentWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutLeadingProjectsInput, Prisma.DepartmentUpdateWithoutLeadingProjectsInput>, Prisma.DepartmentUncheckedUpdateWithoutLeadingProjectsInput>
-}
-
-export type DepartmentUpdateOneWithoutOwningProjectsNestedInput = {
-  create?: Prisma.XOR<Prisma.DepartmentCreateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedCreateWithoutOwningProjectsInput>
-  connectOrCreate?: Prisma.DepartmentCreateOrConnectWithoutOwningProjectsInput
-  upsert?: Prisma.DepartmentUpsertWithoutOwningProjectsInput
-  disconnect?: Prisma.DepartmentWhereInput | boolean
-  delete?: Prisma.DepartmentWhereInput | boolean
-  connect?: Prisma.DepartmentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.DepartmentUpdateToOneWithWhereWithoutOwningProjectsInput, Prisma.DepartmentUpdateWithoutOwningProjectsInput>, Prisma.DepartmentUncheckedUpdateWithoutOwningProjectsInput>
 }
 
 export type DepartmentCreateNestedOneWithoutEnabledProjectsInput = {
@@ -1034,7 +1011,6 @@ export type DepartmentCreateWithoutResourceActionGrantsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1065,7 +1041,6 @@ export type DepartmentUncheckedCreateWithoutResourceActionGrantsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1111,7 +1086,6 @@ export type DepartmentUpdateWithoutResourceActionGrantsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1142,7 +1116,6 @@ export type DepartmentUncheckedUpdateWithoutResourceActionGrantsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1172,7 +1145,6 @@ export type DepartmentCreateWithoutDescriptionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1203,7 +1175,6 @@ export type DepartmentUncheckedCreateWithoutDescriptionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1249,7 +1220,6 @@ export type DepartmentUpdateWithoutDescriptionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1280,7 +1250,6 @@ export type DepartmentUncheckedUpdateWithoutDescriptionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1310,7 +1279,6 @@ export type DepartmentCreateWithoutChildrenInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1341,7 +1309,6 @@ export type DepartmentUncheckedCreateWithoutChildrenInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1376,7 +1343,6 @@ export type DepartmentCreateWithoutParentInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1407,7 +1373,6 @@ export type DepartmentUncheckedCreateWithoutParentInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1458,7 +1423,6 @@ export type DepartmentUpdateWithoutChildrenInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1489,7 +1453,6 @@ export type DepartmentUncheckedUpdateWithoutChildrenInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1555,7 +1518,6 @@ export type DepartmentCreateWithoutManagerEmployeesInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1586,7 +1548,6 @@ export type DepartmentUncheckedCreateWithoutManagerEmployeesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1632,7 +1593,6 @@ export type DepartmentUpdateWithoutManagerEmployeesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -1663,7 +1623,6 @@ export type DepartmentUncheckedUpdateWithoutManagerEmployeesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1694,7 +1653,6 @@ export type DepartmentCreateWithoutPositionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
@@ -1725,7 +1683,6 @@ export type DepartmentUncheckedCreateWithoutPositionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1759,7 +1716,6 @@ export type DepartmentCreateWithoutManagerPositionInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -1790,7 +1746,6 @@ export type DepartmentUncheckedCreateWithoutManagerPositionInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1842,7 +1797,6 @@ export type DepartmentUpdateWithoutPositionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
@@ -1873,7 +1827,6 @@ export type DepartmentUncheckedUpdateWithoutPositionsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -1919,7 +1872,6 @@ export type DepartmentCreateWithoutEdpsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
@@ -1950,7 +1902,6 @@ export type DepartmentUncheckedCreateWithoutEdpsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
@@ -1996,7 +1947,6 @@ export type DepartmentUpdateWithoutEdpsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
@@ -2027,7 +1977,6 @@ export type DepartmentUncheckedUpdateWithoutEdpsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2057,7 +2006,6 @@ export type DepartmentCreateWithoutPositionReportOverridesInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -2088,7 +2036,6 @@ export type DepartmentUncheckedCreateWithoutPositionReportOverridesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2134,7 +2081,6 @@ export type DepartmentUpdateWithoutPositionReportOverridesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -2165,7 +2111,6 @@ export type DepartmentUncheckedUpdateWithoutPositionReportOverridesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2194,7 +2139,6 @@ export type DepartmentCreateWithoutResponsibleCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -2225,7 +2169,6 @@ export type DepartmentUncheckedCreateWithoutResponsibleCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2271,7 +2214,6 @@ export type DepartmentUpdateWithoutResponsibleCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -2302,7 +2244,6 @@ export type DepartmentUncheckedUpdateWithoutResponsibleCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2332,7 +2273,6 @@ export type DepartmentCreateWithoutEnabledCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -2363,7 +2303,6 @@ export type DepartmentUncheckedCreateWithoutEnabledCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2409,7 +2348,6 @@ export type DepartmentUpdateWithoutEnabledCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -2440,7 +2378,6 @@ export type DepartmentUncheckedUpdateWithoutEnabledCollaborationsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2470,7 +2407,6 @@ export type DepartmentCreateWithoutLeadingProjectsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -2501,7 +2437,6 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2511,72 +2446,6 @@ export type DepartmentUncheckedCreateWithoutLeadingProjectsInput = {
 export type DepartmentCreateOrConnectWithoutLeadingProjectsInput = {
   where: Prisma.DepartmentWhereUniqueInput
   create: Prisma.XOR<Prisma.DepartmentCreateWithoutLeadingProjectsInput, Prisma.DepartmentUncheckedCreateWithoutLeadingProjectsInput>
-}
-
-export type DepartmentCreateWithoutOwningProjectsInput = {
-  code: string
-  name: string
-  alias?: string | null
-  hierarchyKind?: string
-  level?: number
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  managerPosition?: Prisma.PositionCreateNestedOneWithoutManagedDepartmentsInput
-  parent?: Prisma.DepartmentCreateNestedOneWithoutChildrenInput
-  children?: Prisma.DepartmentCreateNestedManyWithoutParentInput
-  descriptions?: Prisma.DepartmentDescriptionCreateNestedManyWithoutDepartmentInput
-  managerEmployees?: Prisma.DepartmentManagerEmployeeCreateNestedManyWithoutDepartmentInput
-  resourceActionGrants?: Prisma.DepartmentResourceActionGrantCreateNestedManyWithoutDepartmentInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutDepartmentInput
-  responsibleCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutResponsibleDepartmentInput
-  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
-  sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
-  sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
-  leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
-  edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
-  positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
-  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
-}
-
-export type DepartmentUncheckedCreateWithoutOwningProjectsInput = {
-  id?: number
-  code: string
-  name: string
-  alias?: string | null
-  hierarchyKind?: string
-  level?: number
-  parentId?: number | null
-  managerPositionId?: number | null
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  endDate?: Date | string | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  children?: Prisma.DepartmentUncheckedCreateNestedManyWithoutParentInput
-  descriptions?: Prisma.DepartmentDescriptionUncheckedCreateNestedManyWithoutDepartmentInput
-  managerEmployees?: Prisma.DepartmentManagerEmployeeUncheckedCreateNestedManyWithoutDepartmentInput
-  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedCreateNestedManyWithoutDepartmentInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutDepartmentInput
-  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutResponsibleDepartmentInput
-  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
-  sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
-  sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
-  leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
-  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
-  positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
-  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
-}
-
-export type DepartmentCreateOrConnectWithoutOwningProjectsInput = {
-  where: Prisma.DepartmentWhereUniqueInput
-  create: Prisma.XOR<Prisma.DepartmentCreateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedCreateWithoutOwningProjectsInput>
 }
 
 export type DepartmentUpsertWithoutLeadingProjectsInput = {
@@ -2613,7 +2482,6 @@ export type DepartmentUpdateWithoutLeadingProjectsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -2644,79 +2512,6 @@ export type DepartmentUncheckedUpdateWithoutLeadingProjectsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
-  enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
-  edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
-  positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
-  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
-}
-
-export type DepartmentUpsertWithoutOwningProjectsInput = {
-  update: Prisma.XOR<Prisma.DepartmentUpdateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedUpdateWithoutOwningProjectsInput>
-  create: Prisma.XOR<Prisma.DepartmentCreateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedCreateWithoutOwningProjectsInput>
-  where?: Prisma.DepartmentWhereInput
-}
-
-export type DepartmentUpdateToOneWithWhereWithoutOwningProjectsInput = {
-  where?: Prisma.DepartmentWhereInput
-  data: Prisma.XOR<Prisma.DepartmentUpdateWithoutOwningProjectsInput, Prisma.DepartmentUncheckedUpdateWithoutOwningProjectsInput>
-}
-
-export type DepartmentUpdateWithoutOwningProjectsInput = {
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
-  level?: Prisma.IntFieldUpdateOperationsInput | number
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  managerPosition?: Prisma.PositionUpdateOneWithoutManagedDepartmentsNestedInput
-  parent?: Prisma.DepartmentUpdateOneWithoutChildrenNestedInput
-  children?: Prisma.DepartmentUpdateManyWithoutParentNestedInput
-  descriptions?: Prisma.DepartmentDescriptionUpdateManyWithoutDepartmentNestedInput
-  managerEmployees?: Prisma.DepartmentManagerEmployeeUpdateManyWithoutDepartmentNestedInput
-  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUpdateManyWithoutDepartmentNestedInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutDepartmentNestedInput
-  responsibleCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutResponsibleDepartmentNestedInput
-  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
-  sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
-  sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
-  leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
-  edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
-  positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
-  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
-}
-
-export type DepartmentUncheckedUpdateWithoutOwningProjectsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  hierarchyKind?: Prisma.StringFieldUpdateOperationsInput | string
-  level?: Prisma.IntFieldUpdateOperationsInput | number
-  parentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  managerPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  children?: Prisma.DepartmentUncheckedUpdateManyWithoutParentNestedInput
-  descriptions?: Prisma.DepartmentDescriptionUncheckedUpdateManyWithoutDepartmentNestedInput
-  managerEmployees?: Prisma.DepartmentManagerEmployeeUncheckedUpdateManyWithoutDepartmentNestedInput
-  resourceActionGrants?: Prisma.DepartmentResourceActionGrantUncheckedUpdateManyWithoutDepartmentNestedInput
-  workAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutDepartmentNestedInput
-  responsibleCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutResponsibleDepartmentNestedInput
-  enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
-  sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
-  sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
-  leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2747,7 +2542,6 @@ export type DepartmentCreateWithoutEnabledProjectsInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutDepartmentInput
@@ -2778,7 +2572,6 @@ export type DepartmentUncheckedCreateWithoutEnabledProjectsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2824,7 +2617,6 @@ export type DepartmentUpdateWithoutEnabledProjectsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutDepartmentNestedInput
@@ -2855,7 +2647,6 @@ export type DepartmentUncheckedUpdateWithoutEnabledProjectsInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -2884,7 +2675,6 @@ export type DepartmentCreateWithoutSourceWorkPlansInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -2915,7 +2705,6 @@ export type DepartmentUncheckedCreateWithoutSourceWorkPlansInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -2961,7 +2750,6 @@ export type DepartmentUpdateWithoutSourceWorkPlansInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -2992,7 +2780,6 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkPlansInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -3022,7 +2809,6 @@ export type DepartmentCreateWithoutSourceWorkItemsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutDepartmentInput
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -3053,7 +2839,6 @@ export type DepartmentUncheckedCreateWithoutSourceWorkItemsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -3099,7 +2884,6 @@ export type DepartmentUpdateWithoutSourceWorkItemsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutDepartmentNestedInput
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -3130,7 +2914,6 @@ export type DepartmentUncheckedUpdateWithoutSourceWorkItemsInput = {
   enabledCollaborations?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -3160,7 +2943,6 @@ export type DepartmentCreateWithoutWorkAssigneesInput = {
   sourceWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionCreateNestedManyWithoutDepartmentInput
@@ -3191,7 +2973,6 @@ export type DepartmentUncheckedCreateWithoutWorkAssigneesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourceDepartmentInput
   sourceWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutSourceDepartmentInput
   leadingProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput
-  owningProjects?: Prisma.ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutDepartmentInput
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutDepartmentInput
   positions?: Prisma.PositionUncheckedCreateNestedManyWithoutDepartmentInput
@@ -3237,7 +3018,6 @@ export type DepartmentUpdateWithoutWorkAssigneesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -3268,7 +3048,6 @@ export type DepartmentUncheckedUpdateWithoutWorkAssigneesInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -3314,7 +3093,6 @@ export type DepartmentUpdateWithoutParentInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -3345,7 +3123,6 @@ export type DepartmentUncheckedUpdateWithoutParentInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -3407,7 +3184,6 @@ export type DepartmentUpdateWithoutManagerPositionInput = {
   sourceWorkPlans?: Prisma.WorkPlanUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUpdateManyWithoutDepartmentNestedInput
@@ -3438,7 +3214,6 @@ export type DepartmentUncheckedUpdateWithoutManagerPositionInput = {
   sourceWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   sourceWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutSourceDepartmentNestedInput
   leadingProjects?: Prisma.ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput
-  owningProjects?: Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput
   enabledProjects?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutDepartmentNestedInput
   edps?: Prisma.EDPUncheckedUpdateManyWithoutDepartmentNestedInput
   positions?: Prisma.PositionUncheckedUpdateManyWithoutDepartmentNestedInput
@@ -3477,7 +3252,6 @@ export type DepartmentCountOutputType = {
   sourceWorkPlans: number
   sourceWorkItems: number
   leadingProjects: number
-  owningProjects: number
   enabledProjects: number
   edps: number
   positions: number
@@ -3495,7 +3269,6 @@ export type DepartmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extens
   sourceWorkPlans?: boolean | DepartmentCountOutputTypeCountSourceWorkPlansArgs
   sourceWorkItems?: boolean | DepartmentCountOutputTypeCountSourceWorkItemsArgs
   leadingProjects?: boolean | DepartmentCountOutputTypeCountLeadingProjectsArgs
-  owningProjects?: boolean | DepartmentCountOutputTypeCountOwningProjectsArgs
   enabledProjects?: boolean | DepartmentCountOutputTypeCountEnabledProjectsArgs
   edps?: boolean | DepartmentCountOutputTypeCountEdpsArgs
   positions?: boolean | DepartmentCountOutputTypeCountPositionsArgs
@@ -3585,13 +3358,6 @@ export type DepartmentCountOutputTypeCountLeadingProjectsArgs<ExtArgs extends ru
 /**
  * DepartmentCountOutputType without action
  */
-export type DepartmentCountOutputTypeCountOwningProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ProjectWhereInput
-}
-
-/**
- * DepartmentCountOutputType without action
- */
 export type DepartmentCountOutputTypeCountEnabledProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ProjectEnablingDepartmentWhereInput
 }
@@ -3645,7 +3411,6 @@ export type DepartmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   sourceWorkPlans?: boolean | Prisma.Department$sourceWorkPlansArgs<ExtArgs>
   sourceWorkItems?: boolean | Prisma.Department$sourceWorkItemsArgs<ExtArgs>
   leadingProjects?: boolean | Prisma.Department$leadingProjectsArgs<ExtArgs>
-  owningProjects?: boolean | Prisma.Department$owningProjectsArgs<ExtArgs>
   enabledProjects?: boolean | Prisma.Department$enabledProjectsArgs<ExtArgs>
   edps?: boolean | Prisma.Department$edpsArgs<ExtArgs>
   positions?: boolean | Prisma.Department$positionsArgs<ExtArgs>
@@ -3722,7 +3487,6 @@ export type DepartmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   sourceWorkPlans?: boolean | Prisma.Department$sourceWorkPlansArgs<ExtArgs>
   sourceWorkItems?: boolean | Prisma.Department$sourceWorkItemsArgs<ExtArgs>
   leadingProjects?: boolean | Prisma.Department$leadingProjectsArgs<ExtArgs>
-  owningProjects?: boolean | Prisma.Department$owningProjectsArgs<ExtArgs>
   enabledProjects?: boolean | Prisma.Department$enabledProjectsArgs<ExtArgs>
   edps?: boolean | Prisma.Department$edpsArgs<ExtArgs>
   positions?: boolean | Prisma.Department$positionsArgs<ExtArgs>
@@ -3753,7 +3517,6 @@ export type $DepartmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     sourceWorkPlans: Prisma.$WorkPlanPayload<ExtArgs>[]
     sourceWorkItems: Prisma.$WorkItemPayload<ExtArgs>[]
     leadingProjects: Prisma.$ProjectPayload<ExtArgs>[]
-    owningProjects: Prisma.$ProjectPayload<ExtArgs>[]
     enabledProjects: Prisma.$ProjectEnablingDepartmentPayload<ExtArgs>[]
     edps: Prisma.$EDPPayload<ExtArgs>[]
     positions: Prisma.$PositionPayload<ExtArgs>[]
@@ -4180,7 +3943,6 @@ export interface Prisma__DepartmentClient<T, Null = never, ExtArgs extends runti
   sourceWorkPlans<T extends Prisma.Department$sourceWorkPlansArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$sourceWorkPlansArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sourceWorkItems<T extends Prisma.Department$sourceWorkItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$sourceWorkItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   leadingProjects<T extends Prisma.Department$leadingProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$leadingProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  owningProjects<T extends Prisma.Department$owningProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$owningProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   enabledProjects<T extends Prisma.Department$enabledProjectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$enabledProjectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectEnablingDepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   edps<T extends Prisma.Department$edpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$edpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positions<T extends Prisma.Department$positionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Department$positionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -4886,30 +4648,6 @@ export type Department$sourceWorkItemsArgs<ExtArgs extends runtime.Types.Extensi
  * Department.leadingProjects
  */
 export type Department$leadingProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Project
-   */
-  select?: Prisma.ProjectSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Project
-   */
-  omit?: Prisma.ProjectOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ProjectInclude<ExtArgs> | null
-  where?: Prisma.ProjectWhereInput
-  orderBy?: Prisma.ProjectOrderByWithRelationInput | Prisma.ProjectOrderByWithRelationInput[]
-  cursor?: Prisma.ProjectWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ProjectScalarFieldEnum | Prisma.ProjectScalarFieldEnum[]
-}
-
-/**
- * Department.owningProjects
- */
-export type Department$owningProjectsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Project
    */

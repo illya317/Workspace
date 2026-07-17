@@ -4,13 +4,13 @@ import test, { mock } from "node:test";
 let updateInput: unknown = null;
 
 mock.module("@workspace/platform/server/auth", {
-  exports: {
+  namedExports: {
     requireAdminApiAccess: async () => ({ ok: true, user: { userId: 1 } }),
     isSuperAdmin: async () => true,
   },
 } as never);
 mock.module("@workspace/platform/server/system-config", {
-  exports: {
+  namedExports: {
     getSystemConfig: async () => ({
       conflictStrategy: "union",
       agentAllowedActions: ["read", "submit"],

@@ -58,9 +58,6 @@ export type ProjectItem = {
   leadingDepartmentCode: string | null;
   enablingDepartments: DepartmentTag[];
   enablingDepartmentIds: number[];
-  owningDepartmentId: number | null;
-  owningDepartmentName: string | null;
-  owningDepartmentCode: string | null;
   workspaceEnabled: boolean;
   plannedStartDate: string | null;
   plannedEndDate: string | null;
@@ -120,9 +117,6 @@ export type ProjectDraft = {
   leadingDepartmentCode: string | null;
   enablingDepartments: DepartmentTag[];
   enablingDepartmentIds: number[];
-  owningDepartmentId: number | null;
-  owningDepartmentName: string | null;
-  owningDepartmentCode: string | null;
   workspaceEnabled: boolean;
   status: string;
   plannedStartDate: string | null;
@@ -242,7 +236,7 @@ export function draftSnapshot(draft: ProjectDraft | null) {
     riskNote: draft.riskNote || null,
     remark: draft.remark || null,
     enablingDepartmentIds: draft.enablingDepartments.map((department) => department.id).sort((a, b) => a - b),
-    owningDepartmentId: draft.owningDepartmentId ?? null,
+    leadingDepartmentId: draft.leadingDepartmentId ?? null,
     workspaceEnabled: draft.workspaceEnabled,
     status: draft.status,
     plannedStartDate: draft.plannedStartDate || null,
@@ -272,12 +266,7 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
   for (const role of MULTI_PROJECT_ROLES) {
     roleGroups[role] = dedupeMembers(roleGroups[role]);
   }
-  const fallbackLeadingDepartment = project?.leadingDepartmentId ? [{
-    id: project.leadingDepartmentId,
-    name: project.leadingDepartmentName || "未命名部门",
-    code: project.leadingDepartmentCode ?? null,
-  }] : [];
-  const enablingDepartments = dedupeDepartments(project?.enablingDepartments?.length ? project.enablingDepartments : fallbackLeadingDepartment);
+  const enablingDepartments = dedupeDepartments(project?.enablingDepartments ?? []);
   return {
     id: project?.id ?? null,
     code: project?.code ?? null,
@@ -297,9 +286,6 @@ export function createProjectDraft(project: ProjectItem | null, entries: Project
     leadingDepartmentCode: project?.leadingDepartmentCode ?? null,
     enablingDepartments,
     enablingDepartmentIds: enablingDepartments.map((department) => department.id),
-    owningDepartmentId: project?.owningDepartmentId ?? null,
-    owningDepartmentName: project?.owningDepartmentName ?? null,
-    owningDepartmentCode: project?.owningDepartmentCode ?? null,
     workspaceEnabled: Boolean(project?.workspaceEnabled),
     status: project?.status ?? "pending",
     plannedStartDate: project?.plannedStartDate ?? null,
@@ -332,9 +318,6 @@ export function createEmptyProjectDraft(): ProjectDraft {
     leadingDepartmentCode: null,
     enablingDepartments: [],
     enablingDepartmentIds: [],
-    owningDepartmentId: null,
-    owningDepartmentName: null,
-    owningDepartmentCode: null,
     workspaceEnabled: false,
     status: "pending",
     plannedStartDate: null,

@@ -7,7 +7,7 @@ let allowExecution = false;
 let lastFailureOutcomeUnknown: boolean | null = null;
 
 mock.module("@workspace/platform/server/prisma", {
-  exports: {
+  namedExports: {
     prisma: {
       agentProposal: {
         findFirst: async (input: { where: Record<string, unknown> }) => {
@@ -21,7 +21,7 @@ mock.module("@workspace/platform/server/prisma", {
   },
 } as never);
 mock.module("./capabilities", {
-  exports: {
+  namedExports: {
     resolveAgentToolAccess: async (execution: unknown) => ({
       execution,
       tools: allowExecution ? [{}] : [],
@@ -29,7 +29,7 @@ mock.module("./capabilities", {
   },
 } as never);
 mock.module("./execution-context", {
-  exports: {
+  namedExports: {
     AgentExecutionError: class AgentExecutionError extends Error {
       constructor(message: string, readonly status = 400) {
         super(message);
@@ -43,7 +43,7 @@ mock.module("./execution-context", {
   },
 } as never);
 mock.module("./proposal-execution-lease", {
-  exports: {
+  namedExports: {
     agentProposalFailureResult: (_error: unknown, outcomeUnknown: boolean) => {
       lastFailureOutcomeUnknown = outcomeUnknown;
       return { outcomeUnknown };

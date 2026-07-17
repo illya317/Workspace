@@ -155,20 +155,20 @@ const resourceIdByKey: Record<string, number> = {
 };
 
 mock.module("@workspace/platform/permission-action-grantability", {
-  exports: {
+  namedExports: {
     isPermissionActionGrantable: () => true,
     permissionGrantContributesToAction: () => false,
   },
 } as never);
 mock.module("@workspace/platform/permission-resource-policy", {
-  exports: {
+  namedExports: {
     canPermissionActionInheritFromAncestor: () => false,
     canPermissionResourceInheritGlobalScope: () => false,
     isPermissionActionSupported: () => true,
   },
 } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: {
+  namedExports: {
     Prisma: {
       sql: (strings: TemplateStringsArray, ...values: unknown[]): SqlFragment => ({
         strings: [...strings],
@@ -194,7 +194,7 @@ mock.module("@workspace/platform/server/prisma", {
   },
 } as never);
 mock.module("../auth/root", {
-  exports: {
+  namedExports: {
     isRootAdminUsername: (username: string | null | undefined) => username === "admin",
     isRootAdminUser: async (_userId: number, client: { __txId?: number }) => {
       if (!client?.__txId) throw new Error("global root client used");
@@ -204,7 +204,7 @@ mock.module("../auth/root", {
   },
 } as never);
 mock.module("./permission-grant-ledger", {
-  exports: {
+  namedExports: {
     recordPermissionGrantLedgerEvent: async (event: Record<string, unknown>) => {
       ledgerEvents.push(event);
       return { id: ledgerEvents.length };

@@ -31,7 +31,6 @@ export type ProjectAvgAggregateOutputType = {
   budgetAmount: number | null
   completionPercent: number | null
   leadingDepartmentId: number | null
-  owningDepartmentId: number | null
   createdBy: number | null
   editedBy: number | null
   version: number | null
@@ -42,7 +41,6 @@ export type ProjectSumAggregateOutputType = {
   budgetAmount: number | null
   completionPercent: number | null
   leadingDepartmentId: number | null
-  owningDepartmentId: number | null
   createdBy: number | null
   editedBy: number | null
   version: number | null
@@ -70,7 +68,6 @@ export type ProjectMinAggregateOutputType = {
   completionPercent: number | null
   closureType: string | null
   leadingDepartmentId: number | null
-  owningDepartmentId: number | null
   workspaceEnabled: boolean | null
   isArchived: boolean | null
   archivedAt: Date | null
@@ -104,7 +101,6 @@ export type ProjectMaxAggregateOutputType = {
   completionPercent: number | null
   closureType: string | null
   leadingDepartmentId: number | null
-  owningDepartmentId: number | null
   workspaceEnabled: boolean | null
   isArchived: boolean | null
   archivedAt: Date | null
@@ -138,7 +134,6 @@ export type ProjectCountAggregateOutputType = {
   completionPercent: number
   closureType: number
   leadingDepartmentId: number
-  owningDepartmentId: number
   workspaceEnabled: number
   isArchived: number
   archivedAt: number
@@ -157,7 +152,6 @@ export type ProjectAvgAggregateInputType = {
   budgetAmount?: true
   completionPercent?: true
   leadingDepartmentId?: true
-  owningDepartmentId?: true
   createdBy?: true
   editedBy?: true
   version?: true
@@ -168,7 +162,6 @@ export type ProjectSumAggregateInputType = {
   budgetAmount?: true
   completionPercent?: true
   leadingDepartmentId?: true
-  owningDepartmentId?: true
   createdBy?: true
   editedBy?: true
   version?: true
@@ -196,7 +189,6 @@ export type ProjectMinAggregateInputType = {
   completionPercent?: true
   closureType?: true
   leadingDepartmentId?: true
-  owningDepartmentId?: true
   workspaceEnabled?: true
   isArchived?: true
   archivedAt?: true
@@ -230,7 +222,6 @@ export type ProjectMaxAggregateInputType = {
   completionPercent?: true
   closureType?: true
   leadingDepartmentId?: true
-  owningDepartmentId?: true
   workspaceEnabled?: true
   isArchived?: true
   archivedAt?: true
@@ -264,7 +255,6 @@ export type ProjectCountAggregateInputType = {
   completionPercent?: true
   closureType?: true
   leadingDepartmentId?: true
-  owningDepartmentId?: true
   workspaceEnabled?: true
   isArchived?: true
   archivedAt?: true
@@ -385,7 +375,6 @@ export type ProjectGroupByOutputType = {
   completionPercent: number | null
   closureType: string | null
   leadingDepartmentId: number | null
-  owningDepartmentId: number | null
   workspaceEnabled: boolean
   isArchived: boolean
   archivedAt: Date | null
@@ -442,7 +431,6 @@ export type ProjectWhereInput = {
   completionPercent?: Prisma.FloatNullableFilter<"Project"> | number | null
   closureType?: Prisma.StringNullableFilter<"Project"> | string | null
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
-  owningDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   workspaceEnabled?: Prisma.BoolFilter<"Project"> | boolean
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
@@ -453,7 +441,6 @@ export type ProjectWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   leadingDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
-  owningDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   employees?: Prisma.EmployeeProjectListRelationFilter
   enablingDepartments?: Prisma.ProjectEnablingDepartmentListRelationFilter
   planPhases?: Prisma.ProjectPlanPhaseListRelationFilter
@@ -486,7 +473,6 @@ export type ProjectOrderByWithRelationInput = {
   completionPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   closureType?: Prisma.SortOrderInput | Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceEnabled?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -497,7 +483,6 @@ export type ProjectOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   leadingDepartment?: Prisma.DepartmentOrderByWithRelationInput
-  owningDepartment?: Prisma.DepartmentOrderByWithRelationInput
   employees?: Prisma.EmployeeProjectOrderByRelationAggregateInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentOrderByRelationAggregateInput
   planPhases?: Prisma.ProjectPlanPhaseOrderByRelationAggregateInput
@@ -533,7 +518,6 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   completionPercent?: Prisma.FloatNullableFilter<"Project"> | number | null
   closureType?: Prisma.StringNullableFilter<"Project"> | string | null
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
-  owningDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   workspaceEnabled?: Prisma.BoolFilter<"Project"> | boolean
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
@@ -544,7 +528,6 @@ export type ProjectWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   leadingDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
-  owningDepartment?: Prisma.XOR<Prisma.DepartmentNullableScalarRelationFilter, Prisma.DepartmentWhereInput> | null
   employees?: Prisma.EmployeeProjectListRelationFilter
   enablingDepartments?: Prisma.ProjectEnablingDepartmentListRelationFilter
   planPhases?: Prisma.ProjectPlanPhaseListRelationFilter
@@ -577,7 +560,6 @@ export type ProjectOrderByWithAggregationInput = {
   completionPercent?: Prisma.SortOrderInput | Prisma.SortOrder
   closureType?: Prisma.SortOrderInput | Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrderInput | Prisma.SortOrder
   workspaceEnabled?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -619,7 +601,6 @@ export type ProjectScalarWhereWithAggregatesInput = {
   completionPercent?: Prisma.FloatNullableWithAggregatesFilter<"Project"> | number | null
   closureType?: Prisma.StringNullableWithAggregatesFilter<"Project"> | string | null
   leadingDepartmentId?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
-  owningDepartmentId?: Prisma.IntNullableWithAggregatesFilter<"Project"> | number | null
   workspaceEnabled?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   isArchived?: Prisma.BoolWithAggregatesFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"Project"> | Date | string | null
@@ -661,7 +642,6 @@ export type ProjectCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -694,7 +674,6 @@ export type ProjectUncheckedCreateInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -744,7 +723,6 @@ export type ProjectUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -777,7 +755,6 @@ export type ProjectUncheckedUpdateInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -819,7 +796,6 @@ export type ProjectCreateManyInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -884,7 +860,6 @@ export type ProjectUncheckedUpdateManyInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -928,7 +903,6 @@ export type ProjectCountOrderByAggregateInput = {
   completionPercent?: Prisma.SortOrder
   closureType?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrder
   workspaceEnabled?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
@@ -945,7 +919,6 @@ export type ProjectAvgOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
   completionPercent?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -973,7 +946,6 @@ export type ProjectMaxOrderByAggregateInput = {
   completionPercent?: Prisma.SortOrder
   closureType?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrder
   workspaceEnabled?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
@@ -1007,7 +979,6 @@ export type ProjectMinOrderByAggregateInput = {
   completionPercent?: Prisma.SortOrder
   closureType?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrder
   workspaceEnabled?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
@@ -1024,7 +995,6 @@ export type ProjectSumOrderByAggregateInput = {
   budgetAmount?: Prisma.SortOrder
   completionPercent?: Prisma.SortOrder
   leadingDepartmentId?: Prisma.SortOrder
-  owningDepartmentId?: Prisma.SortOrder
   createdBy?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -1047,24 +1017,10 @@ export type ProjectCreateNestedManyWithoutLeadingDepartmentInput = {
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
-export type ProjectCreateNestedManyWithoutOwningDepartmentInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput> | Prisma.ProjectCreateWithoutOwningDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput | Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput[]
-  createMany?: Prisma.ProjectCreateManyOwningDepartmentInputEnvelope
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-}
-
 export type ProjectUncheckedCreateNestedManyWithoutLeadingDepartmentInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutLeadingDepartmentInput, Prisma.ProjectUncheckedCreateWithoutLeadingDepartmentInput> | Prisma.ProjectCreateWithoutLeadingDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutLeadingDepartmentInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLeadingDepartmentInput | Prisma.ProjectCreateOrConnectWithoutLeadingDepartmentInput[]
   createMany?: Prisma.ProjectCreateManyLeadingDepartmentInputEnvelope
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-}
-
-export type ProjectUncheckedCreateNestedManyWithoutOwningDepartmentInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput> | Prisma.ProjectCreateWithoutOwningDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput | Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput[]
-  createMany?: Prisma.ProjectCreateManyOwningDepartmentInputEnvelope
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
 }
 
@@ -1082,20 +1038,6 @@ export type ProjectUpdateManyWithoutLeadingDepartmentNestedInput = {
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
-export type ProjectUpdateManyWithoutOwningDepartmentNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput> | Prisma.ProjectCreateWithoutOwningDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput | Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwningDepartmentInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwningDepartmentInput[]
-  createMany?: Prisma.ProjectCreateManyOwningDepartmentInputEnvelope
-  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwningDepartmentInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwningDepartmentInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwningDepartmentInput | Prisma.ProjectUpdateManyWithWhereWithoutOwningDepartmentInput[]
-  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-}
-
 export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput = {
   create?: Prisma.XOR<Prisma.ProjectCreateWithoutLeadingDepartmentInput, Prisma.ProjectUncheckedCreateWithoutLeadingDepartmentInput> | Prisma.ProjectCreateWithoutLeadingDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutLeadingDepartmentInput[]
   connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutLeadingDepartmentInput | Prisma.ProjectCreateOrConnectWithoutLeadingDepartmentInput[]
@@ -1107,20 +1049,6 @@ export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentNestedInput = {
   connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
   update?: Prisma.ProjectUpdateWithWhereUniqueWithoutLeadingDepartmentInput | Prisma.ProjectUpdateWithWhereUniqueWithoutLeadingDepartmentInput[]
   updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutLeadingDepartmentInput | Prisma.ProjectUpdateManyWithWhereWithoutLeadingDepartmentInput[]
-  deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
-}
-
-export type ProjectUncheckedUpdateManyWithoutOwningDepartmentNestedInput = {
-  create?: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput> | Prisma.ProjectCreateWithoutOwningDepartmentInput[] | Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput[]
-  connectOrCreate?: Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput | Prisma.ProjectCreateOrConnectWithoutOwningDepartmentInput[]
-  upsert?: Prisma.ProjectUpsertWithWhereUniqueWithoutOwningDepartmentInput | Prisma.ProjectUpsertWithWhereUniqueWithoutOwningDepartmentInput[]
-  createMany?: Prisma.ProjectCreateManyOwningDepartmentInputEnvelope
-  set?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  disconnect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  delete?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  connect?: Prisma.ProjectWhereUniqueInput | Prisma.ProjectWhereUniqueInput[]
-  update?: Prisma.ProjectUpdateWithWhereUniqueWithoutOwningDepartmentInput | Prisma.ProjectUpdateWithWhereUniqueWithoutOwningDepartmentInput[]
-  updateMany?: Prisma.ProjectUpdateManyWithWhereWithoutOwningDepartmentInput | Prisma.ProjectUpdateManyWithWhereWithoutOwningDepartmentInput[]
   deleteMany?: Prisma.ProjectScalarWhereInput | Prisma.ProjectScalarWhereInput[]
 }
 
@@ -1269,7 +1197,6 @@ export type ProjectCreateWithoutLeadingDepartmentInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -1301,7 +1228,6 @@ export type ProjectUncheckedCreateWithoutLeadingDepartmentInput = {
   actualEndDate?: Date | string | null
   completionPercent?: number | null
   closureType?: string | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -1328,97 +1254,6 @@ export type ProjectCreateOrConnectWithoutLeadingDepartmentInput = {
 
 export type ProjectCreateManyLeadingDepartmentInputEnvelope = {
   data: Prisma.ProjectCreateManyLeadingDepartmentInput | Prisma.ProjectCreateManyLeadingDepartmentInput[]
-  skipDuplicates?: boolean
-}
-
-export type ProjectCreateWithoutOwningDepartmentInput = {
-  code?: string | null
-  name: string
-  description?: string | null
-  projectType?: string
-  projectLevel?: string
-  plan?: string | null
-  goal?: string | null
-  milestones?: string | null
-  budgetAmount?: number | null
-  budgetNote?: string | null
-  riskNote?: string | null
-  remark?: string | null
-  status?: string
-  plannedStartDate?: Date | string | null
-  plannedEndDate?: Date | string | null
-  actualStartDate?: Date | string | null
-  actualEndDate?: Date | string | null
-  completionPercent?: number | null
-  closureType?: string | null
-  workspaceEnabled?: boolean
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  createdBy?: number | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
-  enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
-  planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
-  planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
-  planBaselines?: Prisma.ProjectPlanBaselineCreateNestedManyWithoutProjectInput
-  workAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutProjectInput
-  linkedWorkItems?: Prisma.WorkItemCreateNestedManyWithoutLinkedProjectInput
-  linkedWorkPlans?: Prisma.WorkPlanCreateNestedManyWithoutLinkedProjectInput
-}
-
-export type ProjectUncheckedCreateWithoutOwningDepartmentInput = {
-  id?: number
-  code?: string | null
-  name: string
-  description?: string | null
-  projectType?: string
-  projectLevel?: string
-  plan?: string | null
-  goal?: string | null
-  milestones?: string | null
-  budgetAmount?: number | null
-  budgetNote?: string | null
-  riskNote?: string | null
-  remark?: string | null
-  status?: string
-  plannedStartDate?: Date | string | null
-  plannedEndDate?: Date | string | null
-  actualStartDate?: Date | string | null
-  actualEndDate?: Date | string | null
-  completionPercent?: number | null
-  closureType?: string | null
-  leadingDepartmentId?: number | null
-  workspaceEnabled?: boolean
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  createdBy?: number | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  employees?: Prisma.EmployeeProjectUncheckedCreateNestedManyWithoutProjectInput
-  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedCreateNestedManyWithoutProjectInput
-  planPhases?: Prisma.ProjectPlanPhaseUncheckedCreateNestedManyWithoutProjectInput
-  planDependencies?: Prisma.ProjectPlanDependencyUncheckedCreateNestedManyWithoutProjectInput
-  planBaselines?: Prisma.ProjectPlanBaselineUncheckedCreateNestedManyWithoutProjectInput
-  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutProjectInput
-  linkedWorkItems?: Prisma.WorkItemUncheckedCreateNestedManyWithoutLinkedProjectInput
-  linkedWorkPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutLinkedProjectInput
-}
-
-export type ProjectCreateOrConnectWithoutOwningDepartmentInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput>
-}
-
-export type ProjectCreateManyOwningDepartmentInputEnvelope = {
-  data: Prisma.ProjectCreateManyOwningDepartmentInput | Prisma.ProjectCreateManyOwningDepartmentInput[]
   skipDuplicates?: boolean
 }
 
@@ -1463,7 +1298,6 @@ export type ProjectScalarWhereInput = {
   completionPercent?: Prisma.FloatNullableFilter<"Project"> | number | null
   closureType?: Prisma.StringNullableFilter<"Project"> | string | null
   leadingDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
-  owningDepartmentId?: Prisma.IntNullableFilter<"Project"> | number | null
   workspaceEnabled?: Prisma.BoolFilter<"Project"> | boolean
   isArchived?: Prisma.BoolFilter<"Project"> | boolean
   archivedAt?: Prisma.DateTimeNullableFilter<"Project"> | Date | string | null
@@ -1473,22 +1307,6 @@ export type ProjectScalarWhereInput = {
   version?: Prisma.IntFilter<"Project"> | number
   createdAt?: Prisma.DateTimeFilter<"Project"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Project"> | Date | string
-}
-
-export type ProjectUpsertWithWhereUniqueWithoutOwningDepartmentInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  update: Prisma.XOR<Prisma.ProjectUpdateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedUpdateWithoutOwningDepartmentInput>
-  create: Prisma.XOR<Prisma.ProjectCreateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedCreateWithoutOwningDepartmentInput>
-}
-
-export type ProjectUpdateWithWhereUniqueWithoutOwningDepartmentInput = {
-  where: Prisma.ProjectWhereUniqueInput
-  data: Prisma.XOR<Prisma.ProjectUpdateWithoutOwningDepartmentInput, Prisma.ProjectUncheckedUpdateWithoutOwningDepartmentInput>
-}
-
-export type ProjectUpdateManyWithWhereWithoutOwningDepartmentInput = {
-  where: Prisma.ProjectScalarWhereInput
-  data: Prisma.XOR<Prisma.ProjectUpdateManyMutationInput, Prisma.ProjectUncheckedUpdateManyWithoutOwningDepartmentInput>
 }
 
 export type ProjectCreateWithoutEnablingDepartmentsInput = {
@@ -1521,7 +1339,6 @@ export type ProjectCreateWithoutEnablingDepartmentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
@@ -1553,7 +1370,6 @@ export type ProjectUncheckedCreateWithoutEnablingDepartmentsInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -1618,7 +1434,6 @@ export type ProjectUpdateWithoutEnablingDepartmentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
@@ -1650,7 +1465,6 @@ export type ProjectUncheckedUpdateWithoutEnablingDepartmentsInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1699,7 +1513,6 @@ export type ProjectCreateWithoutEmployeesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
@@ -1731,7 +1544,6 @@ export type ProjectUncheckedCreateWithoutEmployeesInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -1796,7 +1608,6 @@ export type ProjectUpdateWithoutEmployeesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
@@ -1828,7 +1639,6 @@ export type ProjectUncheckedUpdateWithoutEmployeesInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -1877,7 +1687,6 @@ export type ProjectCreateWithoutPlanPhasesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planDependencies?: Prisma.ProjectPlanDependencyCreateNestedManyWithoutProjectInput
@@ -1909,7 +1718,6 @@ export type ProjectUncheckedCreateWithoutPlanPhasesInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -1974,7 +1782,6 @@ export type ProjectUpdateWithoutPlanPhasesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
@@ -2006,7 +1813,6 @@ export type ProjectUncheckedUpdateWithoutPlanPhasesInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2055,7 +1861,6 @@ export type ProjectCreateWithoutPlanDependenciesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -2087,7 +1892,6 @@ export type ProjectUncheckedCreateWithoutPlanDependenciesInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -2152,7 +1956,6 @@ export type ProjectUpdateWithoutPlanDependenciesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -2184,7 +1987,6 @@ export type ProjectUncheckedUpdateWithoutPlanDependenciesInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2233,7 +2035,6 @@ export type ProjectCreateWithoutPlanBaselinesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -2265,7 +2066,6 @@ export type ProjectUncheckedCreateWithoutPlanBaselinesInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -2330,7 +2130,6 @@ export type ProjectUpdateWithoutPlanBaselinesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -2362,7 +2161,6 @@ export type ProjectUncheckedUpdateWithoutPlanBaselinesInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2411,7 +2209,6 @@ export type ProjectCreateWithoutLinkedWorkPlansInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -2443,7 +2240,6 @@ export type ProjectUncheckedCreateWithoutLinkedWorkPlansInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -2508,7 +2304,6 @@ export type ProjectUpdateWithoutLinkedWorkPlansInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -2540,7 +2335,6 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkPlansInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2589,7 +2383,6 @@ export type ProjectCreateWithoutLinkedWorkItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -2621,7 +2414,6 @@ export type ProjectUncheckedCreateWithoutLinkedWorkItemsInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -2686,7 +2478,6 @@ export type ProjectUpdateWithoutLinkedWorkItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -2718,7 +2509,6 @@ export type ProjectUncheckedUpdateWithoutLinkedWorkItemsInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2767,7 +2557,6 @@ export type ProjectCreateWithoutWorkAssigneesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   leadingDepartment?: Prisma.DepartmentCreateNestedOneWithoutLeadingProjectsInput
-  owningDepartment?: Prisma.DepartmentCreateNestedOneWithoutOwningProjectsInput
   employees?: Prisma.EmployeeProjectCreateNestedManyWithoutProjectInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentCreateNestedManyWithoutProjectInput
   planPhases?: Prisma.ProjectPlanPhaseCreateNestedManyWithoutProjectInput
@@ -2799,7 +2588,6 @@ export type ProjectUncheckedCreateWithoutWorkAssigneesInput = {
   completionPercent?: number | null
   closureType?: string | null
   leadingDepartmentId?: number | null
-  owningDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -2864,7 +2652,6 @@ export type ProjectUpdateWithoutWorkAssigneesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -2896,7 +2683,6 @@ export type ProjectUncheckedUpdateWithoutWorkAssigneesInput = {
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -2936,40 +2722,6 @@ export type ProjectCreateManyLeadingDepartmentInput = {
   actualEndDate?: Date | string | null
   completionPercent?: number | null
   closureType?: string | null
-  owningDepartmentId?: number | null
-  workspaceEnabled?: boolean
-  isArchived?: boolean
-  archivedAt?: Date | string | null
-  createdBy?: number | null
-  editedBy?: number | null
-  editedAt?: Date | string | null
-  version?: number
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type ProjectCreateManyOwningDepartmentInput = {
-  id?: number
-  code?: string | null
-  name: string
-  description?: string | null
-  projectType?: string
-  projectLevel?: string
-  plan?: string | null
-  goal?: string | null
-  milestones?: string | null
-  budgetAmount?: number | null
-  budgetNote?: string | null
-  riskNote?: string | null
-  remark?: string | null
-  status?: string
-  plannedStartDate?: Date | string | null
-  plannedEndDate?: Date | string | null
-  actualStartDate?: Date | string | null
-  actualEndDate?: Date | string | null
-  completionPercent?: number | null
-  closureType?: string | null
-  leadingDepartmentId?: number | null
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: Date | string | null
@@ -3010,7 +2762,6 @@ export type ProjectUpdateWithoutLeadingDepartmentInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  owningDepartment?: Prisma.DepartmentUpdateOneWithoutOwningProjectsNestedInput
   employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
   enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
   planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
@@ -3042,7 +2793,6 @@ export type ProjectUncheckedUpdateWithoutLeadingDepartmentInput = {
   actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3083,121 +2833,6 @@ export type ProjectUncheckedUpdateManyWithoutLeadingDepartmentInput = {
   actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  owningDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type ProjectUpdateWithoutOwningDepartmentInput = {
-  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectType?: Prisma.StringFieldUpdateOperationsInput | string
-  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  leadingDepartment?: Prisma.DepartmentUpdateOneWithoutLeadingProjectsNestedInput
-  employees?: Prisma.EmployeeProjectUpdateManyWithoutProjectNestedInput
-  enablingDepartments?: Prisma.ProjectEnablingDepartmentUpdateManyWithoutProjectNestedInput
-  planPhases?: Prisma.ProjectPlanPhaseUpdateManyWithoutProjectNestedInput
-  planDependencies?: Prisma.ProjectPlanDependencyUpdateManyWithoutProjectNestedInput
-  planBaselines?: Prisma.ProjectPlanBaselineUpdateManyWithoutProjectNestedInput
-  workAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutProjectNestedInput
-  linkedWorkItems?: Prisma.WorkItemUpdateManyWithoutLinkedProjectNestedInput
-  linkedWorkPlans?: Prisma.WorkPlanUpdateManyWithoutLinkedProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateWithoutOwningDepartmentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectType?: Prisma.StringFieldUpdateOperationsInput | string
-  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employees?: Prisma.EmployeeProjectUncheckedUpdateManyWithoutProjectNestedInput
-  enablingDepartments?: Prisma.ProjectEnablingDepartmentUncheckedUpdateManyWithoutProjectNestedInput
-  planPhases?: Prisma.ProjectPlanPhaseUncheckedUpdateManyWithoutProjectNestedInput
-  planDependencies?: Prisma.ProjectPlanDependencyUncheckedUpdateManyWithoutProjectNestedInput
-  planBaselines?: Prisma.ProjectPlanBaselineUncheckedUpdateManyWithoutProjectNestedInput
-  workAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutProjectNestedInput
-  linkedWorkItems?: Prisma.WorkItemUncheckedUpdateManyWithoutLinkedProjectNestedInput
-  linkedWorkPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutLinkedProjectNestedInput
-}
-
-export type ProjectUncheckedUpdateManyWithoutOwningDepartmentInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  code?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  projectType?: Prisma.StringFieldUpdateOperationsInput | string
-  projectLevel?: Prisma.StringFieldUpdateOperationsInput | string
-  plan?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  goal?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  milestones?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  budgetAmount?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  budgetNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  riskNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  completionPercent?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
-  closureType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  leadingDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   workspaceEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   archivedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -3325,7 +2960,6 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   completionPercent?: boolean
   closureType?: boolean
   leadingDepartmentId?: boolean
-  owningDepartmentId?: boolean
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: boolean
@@ -3336,7 +2970,6 @@ export type ProjectSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
   employees?: boolean | Prisma.Project$employeesArgs<ExtArgs>
   enablingDepartments?: boolean | Prisma.Project$enablingDepartmentsArgs<ExtArgs>
   planPhases?: boolean | Prisma.Project$planPhasesArgs<ExtArgs>
@@ -3370,7 +3003,6 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   completionPercent?: boolean
   closureType?: boolean
   leadingDepartmentId?: boolean
-  owningDepartmentId?: boolean
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: boolean
@@ -3381,7 +3013,6 @@ export type ProjectSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3406,7 +3037,6 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   completionPercent?: boolean
   closureType?: boolean
   leadingDepartmentId?: boolean
-  owningDepartmentId?: boolean
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: boolean
@@ -3417,7 +3047,6 @@ export type ProjectSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
 }, ExtArgs["result"]["project"]>
 
 export type ProjectSelectScalar = {
@@ -3442,7 +3071,6 @@ export type ProjectSelectScalar = {
   completionPercent?: boolean
   closureType?: boolean
   leadingDepartmentId?: boolean
-  owningDepartmentId?: boolean
   workspaceEnabled?: boolean
   isArchived?: boolean
   archivedAt?: boolean
@@ -3454,10 +3082,9 @@ export type ProjectSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "description" | "projectType" | "projectLevel" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "status" | "plannedStartDate" | "plannedEndDate" | "actualStartDate" | "actualEndDate" | "completionPercent" | "closureType" | "leadingDepartmentId" | "owningDepartmentId" | "workspaceEnabled" | "isArchived" | "archivedAt" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+export type ProjectOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "code" | "name" | "description" | "projectType" | "projectLevel" | "plan" | "goal" | "milestones" | "budgetAmount" | "budgetNote" | "riskNote" | "remark" | "status" | "plannedStartDate" | "plannedEndDate" | "actualStartDate" | "actualEndDate" | "completionPercent" | "closureType" | "leadingDepartmentId" | "workspaceEnabled" | "isArchived" | "archivedAt" | "createdBy" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
 export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
   employees?: boolean | Prisma.Project$employeesArgs<ExtArgs>
   enablingDepartments?: boolean | Prisma.Project$enablingDepartmentsArgs<ExtArgs>
   planPhases?: boolean | Prisma.Project$planPhasesArgs<ExtArgs>
@@ -3470,18 +3097,15 @@ export type ProjectInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
 }
 export type ProjectIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
 }
 export type ProjectIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   leadingDepartment?: boolean | Prisma.Project$leadingDepartmentArgs<ExtArgs>
-  owningDepartment?: boolean | Prisma.Project$owningDepartmentArgs<ExtArgs>
 }
 
 export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "Project"
   objects: {
     leadingDepartment: Prisma.$DepartmentPayload<ExtArgs> | null
-    owningDepartment: Prisma.$DepartmentPayload<ExtArgs> | null
     employees: Prisma.$EmployeeProjectPayload<ExtArgs>[]
     enablingDepartments: Prisma.$ProjectEnablingDepartmentPayload<ExtArgs>[]
     planPhases: Prisma.$ProjectPlanPhasePayload<ExtArgs>[]
@@ -3513,7 +3137,6 @@ export type $ProjectPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     completionPercent: number | null
     closureType: string | null
     leadingDepartmentId: number | null
-    owningDepartmentId: number | null
     workspaceEnabled: boolean
     isArchived: boolean
     archivedAt: Date | null
@@ -3918,7 +3541,6 @@ readonly fields: ProjectFieldRefs;
 export interface Prisma__ProjectClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   leadingDepartment<T extends Prisma.Project$leadingDepartmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$leadingDepartmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  owningDepartment<T extends Prisma.Project$owningDepartmentArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$owningDepartmentArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   employees<T extends Prisma.Project$employeesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$employeesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeProjectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   enablingDepartments<T extends Prisma.Project$enablingDepartmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$enablingDepartmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectEnablingDepartmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   planPhases<T extends Prisma.Project$planPhasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Project$planPhasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectPlanPhasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3977,7 +3599,6 @@ export interface ProjectFieldRefs {
   readonly completionPercent: Prisma.FieldRef<"Project", 'Float'>
   readonly closureType: Prisma.FieldRef<"Project", 'String'>
   readonly leadingDepartmentId: Prisma.FieldRef<"Project", 'Int'>
-  readonly owningDepartmentId: Prisma.FieldRef<"Project", 'Int'>
   readonly workspaceEnabled: Prisma.FieldRef<"Project", 'Boolean'>
   readonly isArchived: Prisma.FieldRef<"Project", 'Boolean'>
   readonly archivedAt: Prisma.FieldRef<"Project", 'DateTime'>
@@ -4391,25 +4012,6 @@ export type ProjectDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
  * Project.leadingDepartment
  */
 export type Project$leadingDepartmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the Department
-   */
-  select?: Prisma.DepartmentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the Department
-   */
-  omit?: Prisma.DepartmentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.DepartmentInclude<ExtArgs> | null
-  where?: Prisma.DepartmentWhereInput
-}
-
-/**
- * Project.owningDepartment
- */
-export type Project$owningDepartmentArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Department
    */

@@ -8,13 +8,11 @@ export async function workOwnerDepartmentScopeIds(targetType?: string | null, ta
       where: { id: targetId },
       select: {
         projectType: true,
-        leadingDepartmentId: true,
         enablingDepartments: { select: { departmentId: true } },
       },
     });
     if (!project) return [];
     const departmentIds = project.enablingDepartments.map((entry) => entry.departmentId);
-    if (departmentIds.length === 0 && project.leadingDepartmentId) departmentIds.push(project.leadingDepartmentId);
     return resolveProjectMemberDepartmentScopeIds({ projectType: project.projectType, departmentIds });
   }
   if (targetType !== "department" && targetType !== "committee") return [];

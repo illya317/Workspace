@@ -6,9 +6,9 @@ import { AGENT_RUN_MAX_QUEUE_WAIT_MS, AGENT_RUN_RECONCILIATION_GRACE_MS } from "
 
 let updateInput: Record<string, unknown> | null = null;
 let createInput: Record<string, unknown> | null = null;
-mock.module("server-only", { exports: {} } as never);
+mock.module("server-only", { namedExports: {} } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: {
+  namedExports: {
     prisma: {
       agentRun: {
         create: async (input: Record<string, unknown>) => {
@@ -24,10 +24,10 @@ mock.module("@workspace/platform/server/prisma", {
   },
 } as never);
 mock.module("./proposal-execution-lease", {
-  exports: { reconcileStaleAgentProposalExecutions: async () => ({ count: 0 }) },
+  namedExports: { reconcileStaleAgentProposalExecutions: async () => ({ count: 0 }) },
 } as never);
 mock.module("./runtime-snapshot", {
-  exports: { buildAgentRuntimeAuditSnapshot: () => ({}) },
+  namedExports: { buildAgentRuntimeAuditSnapshot: () => ({}) },
 } as never);
 
 const { reconcileStaleAgentRuns, startAgentRun } = await import("./run-audit");

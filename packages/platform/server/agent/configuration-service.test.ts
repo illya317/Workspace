@@ -38,12 +38,12 @@ const tx = {
   },
 };
 
-mock.module("server-only", { exports: {} } as never);
+mock.module("server-only", { namedExports: {} } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: { prisma: { $transaction: async (run: (client: typeof tx) => unknown) => run(tx) } },
+  namedExports: { prisma: { $transaction: async (run: (client: typeof tx) => unknown) => run(tx) } },
 } as never);
 mock.module("@workspace/platform/server/history", {
-  exports: {
+  namedExports: {
     ensureEditHistoryBaseline: async (entityType: string, id: number, editorId: number) => {
       historyCalls.push(`baseline:${entityType}:${id}:${editorId}`);
     },
@@ -53,7 +53,7 @@ mock.module("@workspace/platform/server/history", {
   },
 } as never);
 mock.module("./configuration-capabilities", {
-  exports: { listConfigurableWorkspaceCapabilities: async () => [] },
+  namedExports: { listConfigurableWorkspaceCapabilities: async () => [] },
 } as never);
 
 const { executeAgentConfigurationUpdateCommand } = await import("./configuration-service");

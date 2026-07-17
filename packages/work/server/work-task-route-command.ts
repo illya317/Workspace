@@ -16,12 +16,12 @@ import {
   type WorkSpaceTargetType,
 } from "./access";
 import {
-  createProject,
   deleteProject,
   listProjectGantt,
   listProjects,
   updateProjectField,
 } from "./projects";
+import { executeCreateProjectWithWorkflowGuard } from "./project-approvals";
 import {
   getWorkReportDraft,
   listWorkReportCollection,
@@ -187,7 +187,7 @@ export function executeCreateProjectRouteCommand(command: {
   userId: number;
   body: ProjectCreateInput;
 }) {
-  return createProject(command);
+  return executeCreateProjectWithWorkflowGuard(command);
 }
 
 export function buildProjectUpdateRouteCommand(input: {

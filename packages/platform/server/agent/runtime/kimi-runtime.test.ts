@@ -111,6 +111,8 @@ test("Kimi runtime uses an empty builtin toolset and preserves proposal-only wri
       {
         onStart: async (options) => {
           assert.ok(options.agentFile);
+          assert.equal(options.model, "kimi-code/k3");
+          assert.equal(options.thinking, true);
           [agentSpec, systemPrompt] = await Promise.all([
             readFile(options.agentFile, "utf8"),
             readFile(path.join(path.dirname(options.agentFile), "system.md"), "utf8"),

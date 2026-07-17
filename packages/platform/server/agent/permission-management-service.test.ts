@@ -63,12 +63,12 @@ const tx = {
   },
 };
 
-mock.module("server-only", { exports: {} } as never);
+mock.module("server-only", { namedExports: {} } as never);
 mock.module("../prisma", {
-  exports: { prisma: { $transaction: async (run: (client: typeof tx) => unknown) => run(tx) } },
+  namedExports: { prisma: { $transaction: async (run: (client: typeof tx) => unknown) => run(tx) } },
 } as never);
 mock.module("../history", {
-  exports: {
+  namedExports: {
     ensureEditHistoryBaseline: async (entity: string, id: number, editor: number) => {
       historyCalls.push(`baseline:${entity}:${id}:${editor}`);
     },
@@ -78,7 +78,7 @@ mock.module("../history", {
   },
 } as never);
 mock.module("../permission-subjects", {
-  exports: {
+  namedExports: {
     getPermissionGrantData: async () => {
       permissionDataReads += 1;
       return permissionData;
@@ -86,7 +86,7 @@ mock.module("../permission-subjects", {
   },
 } as never);
 mock.module("../auth/root", {
-  exports: {
+  namedExports: {
     isRootAdminUser: async (_userId: number, client?: unknown) => {
       if (client !== transactionClient) throw new Error("mutation root check escaped transaction client");
       return false;
@@ -94,7 +94,7 @@ mock.module("../auth/root", {
   },
 } as never);
 mock.module("../rbac/admin-scope", {
-  exports: {
+  namedExports: {
     canManageResourceGrant: async () => canManage,
     getManageableResourceKeys: async (_userId: number, client?: unknown) => {
       if (client !== transactionClient) throw new Error("manageable-resource read escaped transaction client");
@@ -105,7 +105,7 @@ mock.module("../rbac/admin-scope", {
   },
 } as never);
 mock.module("../rbac/action-grant-request", {
-  exports: {
+  namedExports: {
     authorizePermissionGrantRequest: async (request: GrantChange, options?: { client?: unknown }) => {
       if (options?.client !== transactionClient) throw new Error("mutation authorization escaped transaction client");
       authorizationCalls += 1;
@@ -118,7 +118,7 @@ mock.module("../rbac/action-grant-request", {
   },
 } as never);
 mock.module("../rbac/action-grants", {
-  exports: {
+  namedExports: {
     PermissionGrantMutationError: MockPermissionGrantMutationError,
     evaluatePermissionAction: async (_userId: number, _resourceKey: string, _actionKey: string, options?: { client?: unknown }) => {
       if (options?.client && options.client !== transactionClient) {
@@ -139,7 +139,7 @@ mock.module("../rbac/action-grants", {
   },
 } as never);
 mock.module("./permission-resource-directory", {
-  exports: {
+  namedExports: {
     listRegisteredAgentCapabilityKeys: () => ["agent.assistant", "agent.source"],
   },
 } as never);

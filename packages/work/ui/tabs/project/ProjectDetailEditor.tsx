@@ -87,15 +87,11 @@ export function useProjectDetailEditorSection({
   };
   const memberFieldDisabled = !canManageCurrent;
   const enablingDepartmentMemberDisabled = memberFieldDisabled || !projectMemberScopeReady;
-  const companyOwningLocked = draft?.projectType === "company";
+  const companyLeadingLocked = draft?.projectType === "company";
   const updateEnablingDepartments = (departments: DepartmentTag[]) => {
     const next = dedupeDepartments(departments);
-    const primary = next[0] ?? null;
     onDraftChange("enablingDepartments", next);
     onDraftChange("enablingDepartmentIds", next.map((department) => department.id));
-    onDraftChange("leadingDepartmentId", primary?.id ?? null);
-    onDraftChange("leadingDepartmentName", primary?.name ?? null);
-    onDraftChange("leadingDepartmentCode", primary?.code ?? null);
   };
   const updateEnablingDepartmentAt = (index: number, option?: ReferenceOption) => {
     if (!option) {
@@ -123,7 +119,7 @@ export function useProjectDetailEditorSection({
         control: "reference" as const,
         options: {
           source: "remote" as const,
-          fkKey: "work.projects.leadingDepartment",
+          fkKey: "work.projects.enablingDepartment",
           endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT,
           returnField: "id" as const,
         },
@@ -138,7 +134,7 @@ export function useProjectDetailEditorSection({
   const actions: FormSurfaceActionSpec[] = [
     ...(creating ? [
       { key: "cancel", action: "cancel" as const, label: "取消", disabled: saving, onClick: onCancelCreate },
-      { key: "create", action: "create" as const, label: saving ? "创建中..." : "创建项目", disabled: !canSave || saving, onClick: onSave },
+      { key: "create", action: "submit" as const, label: saving ? "提交中..." : "提交确认", disabled: !canSave || saving, onClick: onSave },
     ] : []),
     ...(selectedProject ? [
       ...(selectedProject.workspaceEnabled ? [
@@ -165,11 +161,11 @@ export function useProjectDetailEditorSection({
         { key: "projectLevel", label: "项目级别", spec: { valueType: "string", control: "choice", options: { source: "static", items: PROJECT_LEVEL_OPTION_SPECS }, state: !canEditCurrent ? "disabled" : "normal" }, value: draft.projectLevel || "普通", onChange: (value: unknown) => onDraftChange("projectLevel", String(value || "") || "普通") },
         { key: "plannedStartDate", label: "计划开始", spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent ? "disabled" : "normal" }, value: draft.plannedStartDate, onChange: (value: unknown) => onDraftChange("plannedStartDate", String(value || "")), placeholder: "选择日期" },
         { key: "plannedEndDate", label: "计划结束", spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditCurrent ? "disabled" : "normal" }, value: draft.plannedEndDate, onChange: (value: unknown) => onDraftChange("plannedEndDate", String(value || "")), placeholder: "选择日期" },
-        { key: "owningDepartment", label: "归口部门", required: draft.projectType === "department", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.owningDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || companyOwningLocked ? "disabled" : "normal" }, value: draft.owningDepartmentId ? String(draft.owningDepartmentId) : "", displayValue: draft.owningDepartmentName || "", placeholder: companyOwningLocked ? "运营委员会" : "搜索部门名称、编码", onChange: (_value: unknown, option: unknown) => {
+        { key: "leadingDepartment", label: "归口部门", required: draft.projectType === "department", spec: { valueType: "reference", control: "reference", options: { source: "remote", fkKey: "work.projects.leadingDepartment", endpoint: WORK_REFERENCE_OPTIONS_ENDPOINT, returnField: "id" }, state: !canManageCurrent || companyLeadingLocked ? "disabled" : "normal" }, value: draft.leadingDepartmentId ? String(draft.leadingDepartmentId) : "", displayValue: draft.leadingDepartmentName || "", placeholder: companyLeadingLocked ? "运营委员会" : "搜索部门名称、编码", onChange: (_value: unknown, option: unknown) => {
           const fk = option as ReferenceOption | undefined;
-          onDraftChange("owningDepartmentId", fk?.id ?? null);
-          onDraftChange("owningDepartmentName", fk?.name ?? null);
-          onDraftChange("owningDepartmentCode", fk?.subtitle ?? null);
+          onDraftChange("leadingDepartmentId", fk?.id ?? null);
+          onDraftChange("leadingDepartmentName", fk?.name ?? null);
+          onDraftChange("leadingDepartmentCode", fk?.subtitle ?? null);
         } },
         ...enablingDepartmentFields,
         ...(!creating ? [

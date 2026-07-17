@@ -1,6 +1,8 @@
 # Kimi Agent SDK Runtime
 
-Workspace 页面助手与企业微信内部助手统一使用 `@moonshot-ai/kimi-agent-sdk@0.1.8`，生产 CLI 固定为 `kimi-cli==1.48.0`，Wire 协议固定为 `1.10`。版本任一不匹配时 runtime 失败关闭，不自动回退到旧 provider 或另一模型。
+Workspace 页面助手与企业微信内部助手统一使用 `@moonshot-ai/kimi-agent-sdk@0.1.8`，生产 CLI 固定为 `kimi-cli==1.48.0`，Wire 协议固定为 `1.10`，每个 turn 显式选择 Kimi Code 托管模型键 `kimi-code/k3`。版本任一不匹配、K3 尚未同步到 CLI 配置或模型不可用时 runtime 失败关闭，不自动回退到旧 provider 或另一模型。
+
+Workspace 继续通过 SDK 的 `thinking: true` 让 CLI 负责供应商参数映射；固定 CLI 会把 Kimi 的最高思考档映射为 `reasoning_effort=high`，并使用自身的 `max_tokens=32000`。不要把其他直连 HTTP Adapter 的 `reasoning_effort` 或 Token 配置重新引入应用环境。
 
 ## 安全边界
 
@@ -37,6 +39,8 @@ $WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh
 
 - `Kimi Code`：浏览器 OAuth，使用 Coding Plan 订阅；
 - `Moonshot AI Open Platform (moonshot.ai)`：输入 API Key，使用 `https://api.moonshot.ai/v1` 与 API 账户计费，不需要 OAuth。
+
+官方登录配置会从 `/models` 获取托管模型；启用 Agent 流量前必须确认配置中已有 `kimi-code/k3`。CLI 会在启动时后台刷新托管模型列表，但 Workspace 不会因此临时回退到登录时选择的旧默认模型。
 
 API Key 只在服务器终端的官方向导中输入，不写入 Workspace `.env`，也不要通过聊天、命令参数或日志传递。向导配置与 OAuth 凭据都只保存在：
 

@@ -12,7 +12,7 @@ import type { AgentExecutionContext } from "./execution";
 
 let recordedProposal: Record<string, unknown> | null = null;
 mock.module("./cnb-pr", {
-  exports: {
+  namedExports: {
     buildCnbPullRequestProposalDraft: async (input: {
       title: string;
       summary: string;
@@ -53,7 +53,7 @@ mock.module("./cnb-pr", {
   },
 } as never);
 mock.module("./proposals", {
-  exports: {
+  namedExports: {
     createProposal: async (_execution: AgentExecutionContext, input: Record<string, unknown>) => {
       recordedProposal = input;
       return { proposalId: 73 };

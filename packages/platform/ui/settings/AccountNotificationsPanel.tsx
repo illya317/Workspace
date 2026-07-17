@@ -65,7 +65,9 @@ export type AccountWorkflowDetailRendererProps = {
   onChanged: () => void;
   onBack: () => void;
 };
-export type AccountWorkflowDetailRenderer = ComponentType<AccountWorkflowDetailRendererProps>;
+export type AccountWorkflowDetailRenderer = ComponentType<AccountWorkflowDetailRendererProps> & {
+  supports?: (item: NotificationItem) => boolean;
+};
 type NotificationResponse = {
   items: NotificationItem[];
   total: number;
@@ -348,6 +350,7 @@ function WorkflowNotificationsPanel({
   const selectedGroup = groupedItems.find((group) => group.key === selectedCategoryKey) ?? groupedItems[0] ?? null;
   const selectedItem = selectedGroup?.items.find((item) => item.id === selectedItemId) ?? selectedGroup?.items[0] ?? null;
   const workflowDetailContent = perspective === "received" && detailOpen && selectedItem && WorkflowDetailRenderer
+    && (WorkflowDetailRenderer.supports?.(selectedItem) ?? true)
     ? <WorkflowDetailRenderer item={selectedItem} currentUserId={currentUserId} onChanged={() => void load(0)} onBack={() => setDetailOpen(false)} />
     : null;
   function openBusinessItem(item: NotificationItem) {
@@ -358,7 +361,7 @@ function WorkflowNotificationsPanel({
     setSelectedItemId(item.id);
     const canRenderInline = perspective === "received"
       && Boolean(WorkflowDetailRenderer)
-      && Boolean(item.workflow?.resourceKey?.includes(".tasks"));
+      && (WorkflowDetailRenderer?.supports?.(item) ?? true);
     setDetailOpen(canRenderInline);
     if (perspective === "received") void markNotificationRead(item);
     if (!canRenderInline) openBusinessItem(item);

@@ -3231,7 +3231,6 @@ export const ProjectScalarFieldEnum = {
   completionPercent: 'completionPercent',
   closureType: 'closureType',
   leadingDepartmentId: 'leadingDepartmentId',
-  owningDepartmentId: 'owningDepartmentId',
   workspaceEnabled: 'workspaceEnabled',
   isArchived: 'isArchived',
   archivedAt: 'archivedAt',

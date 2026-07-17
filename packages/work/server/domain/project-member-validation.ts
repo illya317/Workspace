@@ -46,13 +46,11 @@ async function isEmployeeInProjectEnablingDepartment(projectId: number, employee
     where: { id: projectId },
     select: {
       projectType: true,
-      leadingDepartmentId: true,
       enablingDepartments: { select: { departmentId: true } },
     },
   });
   if (!project) return false;
   const departmentIds = project.enablingDepartments.map((entry) => entry.departmentId);
-  if (departmentIds.length === 0 && project.leadingDepartmentId) departmentIds.push(project.leadingDepartmentId);
   return employeesFitProjectMemberDepartmentScope({
     employeeIds: [employeeId],
     actorUserId,

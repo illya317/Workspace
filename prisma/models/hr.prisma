@@ -137,7 +137,6 @@ model Department {
   sourceWorkPlans           WorkPlan[]                          @relation("WorkPlanSourceDepartment")
   sourceWorkItems           WorkItem[]                          @relation("WorkItemSourceDepartment")
   leadingProjects           Project[]                           @relation("ProjectLeadingDepartment")
-  owningProjects            Project[]                           @relation("ProjectOwningDepartment")
   enabledProjects           ProjectEnablingDepartment[]         @relation("ProjectEnablingDepartmentDepartment")
   edps                      EDP[]
   positions                 Position[]

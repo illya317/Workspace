@@ -6,6 +6,7 @@ import { SMALL_MODULE_ACTION_CONTRACT_METADATA } from "./action-contract-registr
 import { WORK_DIRECT_ACTION_CONTRACT_METADATA } from "./action-contract-registry-work-direct";
 import { FINANCE_DIRECT_ACTION_CONTRACT_METADATA } from "./action-contract-registry-finance-direct";
 import { WORK_GOAL_ACTION_CONTRACTS } from "./action-contract-registry-work-goal";
+import { WORK_PROJECT_ACTION_CONTRACTS } from "./action-contract-registry-work-project";
 import { PRODUCTION_QC_ACTION_CONTRACT_METADATA } from "./action-contract-registry-production-qc";
 
 const HR_PERFORMANCE_WORKFLOW_RESOURCE = {
@@ -116,6 +117,7 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
   ...WORK_DIRECT_ACTION_CONTRACT_METADATA,
   ...FINANCE_DIRECT_ACTION_CONTRACT_METADATA,
   ...PRODUCTION_QC_ACTION_CONTRACT_METADATA,
+  ...WORK_PROJECT_ACTION_CONTRACTS,
   {
     key: "hr.roster.department.update",
     version: 1,

@@ -10,10 +10,6 @@ import {
   isSystemAdminUser,
 } from "../access";
 import {
-  canCreateDepartmentProject,
-  canCreateOrganizationProject,
-} from "../project-space-action-access";
-import {
   PROJECT_CONFIG,
   PROJECT_LEVELS,
   PROJECT_TYPES,
@@ -21,8 +17,8 @@ import {
   hasValidProjectDates,
   isAllowedProjectOption,
   normalizeEnablingDepartmentIds,
+  normalizeLeadingDepartmentForProjectType,
   normalizeLeadingDepartmentId,
-  normalizeOwningDepartmentForProjectType,
   normalizeProjectType,
   nullableString,
   parseDate,
@@ -35,14 +31,14 @@ export type ProjectFieldUpdateCommand =
 export interface ProjectCreateCommand {
   data: Prisma.ProjectUncheckedCreateInput;
   enablingDepartmentIds: number[];
-  leaderEmployeeId: number | null;
+  members: Array<{ employeeId: number; role: string }>;
 }
 
 export interface ProjectDeleteCommand {
   projectId: number;
 }
 
-const PROJECT_MANAGE_FIELDS = new Set(["name", "leadingDepartmentId", "enablingDepartmentIds", "owningDepartmentId", "workspaceEnabled", "isArchived"]);
+const PROJECT_MANAGE_FIELDS = new Set(["name", "leadingDepartmentId", "enablingDepartmentIds", "workspaceEnabled", "isArchived"]);
 const PROJECT_EDIT_FIELDS = new Set([
   "description",
   "projectType",
@@ -79,33 +75,35 @@ export async function buildProjectCreateCommand(
     select: { id: true },
   });
   if (!actorEmployee && !(await isSystemAdminUser(userId))) return failCommand("只有在职员工可以发起项目", 403);
-  if (projectType === "company" && !(await canCreateOrganizationProject(userId))) {
-    return failCommand("只有公司项目授权人员可以发起公司项目", 403);
-  }
   const enablingDepartmentResult = await normalizeEnablingDepartmentIds(
-    input.enablingDepartmentIds?.length ? input.enablingDepartmentIds : input.leadingDepartmentId,
+    input.enablingDepartmentIds,
   );
   if ("error" in enablingDepartmentResult) return failCommand(enablingDepartmentResult.error);
-  const leadingDepartment = enablingDepartmentResult.departments[0];
-  const owningDepartmentResult = await normalizeOwningDepartmentForProjectType(projectType, input.owningDepartmentId);
-  if ("error" in owningDepartmentResult) return failCommand(owningDepartmentResult.error);
-  if (
-    projectType === "department"
-    && !(await canCreateDepartmentProject(userId, leadingDepartment.id))
-  ) {
-    return failCommand("只有当前部门负责人可以发起部门项目", 403);
-  }
+  const leadingDepartmentResult = await normalizeLeadingDepartmentForProjectType(projectType, input.leadingDepartmentId);
+  if ("error" in leadingDepartmentResult) return failCommand(leadingDepartmentResult.error);
 
   const explicitLeaderField = Object.prototype.hasOwnProperty.call(input, "leaderEmployeeId");
-  const leaderEmployee = input.leaderEmployeeId ? await prisma.employee.findUnique({
-    where: { id: input.leaderEmployeeId },
-    select: { id: true },
-  }) : explicitLeaderField ? null : actorEmployee;
-  if (input.leaderEmployeeId && !leaderEmployee) return failCommand("负责人不存在");
+  const requestedMembers = input.members?.length
+    ? input.members
+    : input.leaderEmployeeId
+      ? [{ employeeId: input.leaderEmployeeId, role: "负责人" as const }]
+      : explicitLeaderField
+        ? []
+        : actorEmployee
+          ? [{ employeeId: actorEmployee.id, role: "负责人" as const }]
+          : [];
+  const memberIds = requestedMembers.map((member) => member.employeeId);
+  if (new Set(memberIds).size !== memberIds.length) return failCommand("同一项目人员不能重复承担多个角色");
+  if (requestedMembers.filter((member) => member.role === "负责人").length > 1) return failCommand("项目只能设置一名负责人");
+  const existingMembers = memberIds.length ? await prisma.employee.count({ where: { id: { in: memberIds } } }) : 0;
+  if (existingMembers !== memberIds.length) return failCommand("项目人员不存在");
+  const scopedMemberIds = requestedMembers
+    .filter((member) => member.role !== "知会")
+    .map((member) => member.employeeId);
   if (
-    leaderEmployee
+    scopedMemberIds.length
     && !(await employeesFitProjectMemberDepartmentScope({
-      employeeIds: [leaderEmployee.id],
+      employeeIds: scopedMemberIds,
       actorUserId: userId,
       projectType,
       departmentIds: enablingDepartmentResult.value,
@@ -119,7 +117,7 @@ export async function buildProjectCreateCommand(
   try {
     code = await generateProjectCode({
       projectType,
-      departmentCode: leadingDepartment.code,
+      departmentCode: leadingDepartmentResult.department?.code,
       dateValue: actualStartDate,
     });
   } catch (error) {
@@ -143,8 +141,7 @@ export async function buildProjectCreateCommand(
       status: input.status,
       plannedStartDate: parseDate(input.plannedStartDate),
       plannedEndDate: parseDate(input.plannedEndDate),
-      leadingDepartmentId: leadingDepartment.id,
-      owningDepartmentId: owningDepartmentResult.value,
+      leadingDepartmentId: leadingDepartmentResult.value,
       workspaceEnabled: Boolean(input.workspaceEnabled),
       actualStartDate,
       actualEndDate: parseDate(input.actualEndDate),
@@ -153,7 +150,7 @@ export async function buildProjectCreateCommand(
       editedBy: userId,
     },
     enablingDepartmentIds: enablingDepartmentResult.value,
-    leaderEmployeeId: leaderEmployee?.id ?? null,
+    members: requestedMembers,
   });
 }
 
@@ -186,32 +183,29 @@ export async function buildProjectFieldUpdateCommand(input: {
       actualStartDate: true,
       actualEndDate: true,
       projectType: true,
-      owningDepartmentId: true,
+      leadingDepartmentId: true,
     },
   });
   if (!project) return failCommand("记录不存在", 404);
   const projectType = normalizeProjectType(project.projectType);
-  let systemDerivedData: { owningDepartmentId?: number | null } = {};
+  let systemDerivedData: { leadingDepartmentId?: number | null } = {};
   if (projectType === "company") {
-    const result = await normalizeOwningDepartmentForProjectType(projectType, project.owningDepartmentId);
+    const result = await normalizeLeadingDepartmentForProjectType(projectType, project.leadingDepartmentId);
     if ("error" in result) return failCommand(result.error);
-    if (project.owningDepartmentId !== result.value) {
-      systemDerivedData = { owningDepartmentId: result.value };
+    if (project.leadingDepartmentId !== result.value) {
+      systemDerivedData = { leadingDepartmentId: result.value };
     }
   }
 
   if (field === "leadingDepartmentId") {
     if (!canManage) return failCommand("无权限", 403);
     if (value === null || value === undefined || value === "") {
-      return failCommand("赋能部门不能为空");
+      return failCommand("归口部门不能为空");
     }
     const result = await normalizeLeadingDepartmentId(value);
     if ("error" in result) return failCommand(result.error);
-    if (!(await projectRascMembersFitDepartments(projectId, projectType, [result.value], userId))) {
-      return failCommand("请先调整 RASC 成员，再变更赋能部门");
-    }
     if (!(await isDepartmentResponsiblePositionUser(userId, result.department.id)) && !(await isSystemAdminUser(userId))) {
-      return failCommand("只有目标部门负责人可以设置赋能部门", 403);
+      return failCommand("只有目标部门负责人可以设置归口部门", 403);
     }
     const code = projectType === "department"
       ? await generateProjectCode({ projectType, departmentCode: result.department.code, dateValue: project.actualStartDate })
@@ -219,7 +213,6 @@ export async function buildProjectFieldUpdateCommand(input: {
     return okCommand({
       kind: "field",
       data: { leadingDepartmentId: result.value, ...(code !== undefined ? { code } : {}), ...systemDerivedData },
-      enablingDepartmentIds: [result.value],
     });
   }
 
@@ -230,25 +223,11 @@ export async function buildProjectFieldUpdateCommand(input: {
     if (!(await projectRascMembersFitDepartments(projectId, projectType, result.value, userId))) {
       return failCommand("请先调整 RASC 成员，再变更赋能部门");
     }
-    const primaryDepartment = result.departments[0];
-    if (!(await isDepartmentResponsiblePositionUser(userId, primaryDepartment.id)) && !(await isSystemAdminUser(userId))) {
-      return failCommand("只有目标部门负责人可以设置赋能部门", 403);
-    }
-    const code = projectType === "department"
-      ? await generateProjectCode({ projectType, departmentCode: primaryDepartment.code, dateValue: project.actualStartDate })
-      : undefined;
     return okCommand({
       kind: "field",
-      data: { leadingDepartmentId: primaryDepartment.id, ...(code !== undefined ? { code } : {}), ...systemDerivedData },
+      data: { ...systemDerivedData },
       enablingDepartmentIds: result.value,
     });
-  }
-
-  if (field === "owningDepartmentId") {
-    if (!canManage) return failCommand("无权限", 403);
-    const result = await normalizeOwningDepartmentForProjectType(projectType, value);
-    if ("error" in result) return failCommand(result.error);
-    return okCommand({ kind: "field", data: { owningDepartmentId: result.value } });
   }
 
   if (field === "workspaceEnabled") {

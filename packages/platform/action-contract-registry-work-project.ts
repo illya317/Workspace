@@ -1,0 +1,101 @@
+import { defineActionContractMetadataList } from "./action-contract";
+
+const WORK_PROJECT_CREATE_RESOURCE = {
+  resourceKey: "work.projects",
+  moduleKey: "work",
+  scopeTypes: ["personal", "company", "committee", "department"],
+  submitPermissionAction: "submit",
+  processPermissionAction: "approve",
+} as const;
+
+export const WORK_PROJECT_ACTION_CONTRACTS = defineActionContractMetadataList([{
+  key: "work.projects.project.create",
+  version: 1,
+  kind: "write",
+  label: "提交项目确认",
+  targetKind: "Project",
+  resource: WORK_PROJECT_CREATE_RESOURCE,
+  payload: {
+    cardinality: "single",
+    shape: "full_record",
+    target: "new_record",
+    notes: "提交完整项目表单、独立归口部门、全部赋能部门以及项目负责人/RASCI 人员。",
+  },
+  persistence: {
+    strategy: "approval_payload",
+    activeEntity: "Project",
+    draftEntity: "ApprovalRequest",
+    supportedPersistenceModes: ["workflowDraft"],
+    defaultMode: "workflowDraft",
+    commitMode: "copy_to_active",
+    notes: "所有赋能部门负责人会签前不创建 Project；全部确认后一次性创建项目、赋能部门和项目人员。",
+  },
+  form: {
+    adapterKey: "work.projects.create",
+    payloadVersion: 1,
+    supportedPersistenceModes: ["workflowDraft"],
+    supportedModes: ["workflow"],
+    notes: "项目新建表单是流程终结提交入口。",
+  },
+  domain: {
+    validatorKey: "packages/work/server/domain/project-validation.buildProjectCreateCommand",
+    commitKey: "packages/work/server/projects.commitProjectCreateCommand",
+    notes: "提交和最终创建均重新校验归口、赋能部门及成员范围。",
+  },
+  api: {
+    commandRoute: "POST /api/modules/work/projects",
+    workflowRoutes: [
+      "POST /api/modules/work/projects",
+      "GET /api/modules/work/projects/submissions/:id",
+      "POST /api/modules/work/projects/submissions/:id/approve",
+      "POST /api/modules/work/projects/submissions/:id/reject",
+      "POST /api/modules/work/projects/submissions/:id/comment",
+    ],
+    envelopeVersion: 1,
+  },
+  workflow: {
+    kind: "configurable",
+    defaultExecutionMode: "workflow",
+    canDisable: false,
+    whenDisabled: "unavailable",
+    entrySemantics: "form_finalization",
+    statuses: ["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled", "failed"],
+    transitions: ["submit", "withdraw", "cancel", "approve", "reject"],
+    mutationPolicy: {
+      handlerCanRevise: false,
+      requestCanWithdraw: true,
+      requestCanRevise: false,
+      requestCanCancel: true,
+      requestCanResubmit: false,
+    },
+    routing: { handlerSource: "department_owner", separationPolicy: "auto_pass_if_authorized", approvalMode: "all" },
+    defaultDefinition: {
+      version: 1,
+      nodes: [{
+        key: "work-project-enabling-departments-confirm",
+        label: "赋能部门负责人确认",
+        kind: "approval",
+        assignee: { kind: "department_owner" },
+        approvalMode: "all",
+        separationPolicy: "auto_pass_if_authorized",
+        bypassable: false,
+      }],
+    },
+    configuration: {
+      nodeKinds: ["approval"],
+      assigneeKinds: ["department_owner"],
+      approvalModes: ["all"],
+      separationPolicies: ["auto_pass_if_authorized"],
+      allowNodeAddRemove: false,
+      allowBypassConditions: false,
+      maxNodes: 1,
+    },
+    validateOn: ["draft", "submit", "commit"],
+    notes: "每个所选赋能部门都必须配置负责人；所有解析出的负责人完成会签后才创建正式项目。",
+  },
+  display: {
+    titleTemplate: "项目赋能确认：{name}",
+    summaryTemplate: "{name}",
+    hrefPattern: "/settings/account?tab=notifications&workflowRequestId={requestId}",
+  },
+}]);

@@ -33,6 +33,7 @@ import {
 
 const EXPECTED_KIMI_CLI_VERSION = "1.48.0";
 const EXPECTED_WIRE_PROTOCOL = "1.10";
+const WORKSPACE_KIMI_MODEL = "kimi-code/k3";
 const RUNTIME_DIR_NAME = "kimi-agent";
 
 const AGENT_SPEC = `version: 1
@@ -440,6 +441,7 @@ export class KimiAgentRuntime implements AgentRuntime {
       const initialized = await client.start({
         sessionId: turnId,
         workDir,
+        model: WORKSPACE_KIMI_MODEL,
         executablePath: this.paths.sandboxExecutable,
         environmentVariables: {
           LANG: "C.UTF-8",

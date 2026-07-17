@@ -106,7 +106,7 @@ async function resolveProjectControlScope(projectId: number): Promise<ServiceRes
   });
   if (!project) return serviceError("项目不存在", 404);
   if (project.projectType === "department") {
-    if (!project.leadingDepartmentId) return serviceError("项目缺少赋能部门，不能提交项目 OKR 绩效", 409);
+    if (!project.leadingDepartmentId) return serviceError("项目缺少归口部门，不能提交项目 OKR 绩效", 409);
     return serviceOk({
       type: "department",
       id: String(project.leadingDepartmentId),

@@ -26,12 +26,9 @@ import {
 import {
   applyProjectTypeRules,
   canCreateProjectDraft,
-  canCreateProjectForActiveSpace,
-  operatingCommitteeDepartment,
   projectCreateScopeForFilter,
   projectDepartmentFilterOptions,
   projectMatchesFilter,
-  projectSpaceForProjectFilter,
   type ProjectTypeFilter,
 } from "./project-tab-helpers";
 
@@ -44,7 +41,6 @@ const projectSaveSchema = z.object({
   projectType: z.enum(["company", "department", "other"]),
   leadingDepartmentId: z.number().nullable(),
   enablingDepartmentIds: z.array(z.number()),
-  owningDepartmentId: z.number().nullable(),
   workspaceEnabled: z.boolean(),
   status: z.enum(["pending", "active", "done"]),
   plannedStartDate: nullableDateSchema,
@@ -55,8 +51,8 @@ const projectSaveSchema = z.object({
   if (data.enablingDepartmentIds.length === 0) {
     ctx.addIssue({ code: z.ZodIssueCode.custom, message: "请选择赋能部门", path: ["enablingDepartmentIds"] });
   }
-  if (data.projectType === "department" && !data.owningDepartmentId) {
-    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "部门项目必须选择归口部门", path: ["owningDepartmentId"] });
+  if (data.projectType === "department" && !data.leadingDepartmentId) {
+    ctx.addIssue({ code: z.ZodIssueCode.custom, message: "部门项目必须选择归口部门", path: ["leadingDepartmentId"] });
   }
   const scheduleError = validateCompletionSchedule(data);
   if (scheduleError) ctx.addIssue({ code: z.ZodIssueCode.custom, message: scheduleError, path: ["actualEndDate"] });
@@ -79,7 +75,7 @@ const PROJECT_CONTENT_SYNC_FIELDS = [
   "actualEndDate",
 ] as const;
 
-const PROJECT_MANAGE_SYNC_FIELDS = ["enablingDepartmentIds", "owningDepartmentId", "workspaceEnabled"] as const;
+const PROJECT_MANAGE_SYNC_FIELDS = ["leadingDepartmentId", "enablingDepartmentIds", "workspaceEnabled"] as const;
 
 export function useProjectTabModel(
   user: WorkUser,
@@ -113,11 +109,6 @@ export function useProjectTabModel(
     [projectDepartmentFilter, projectListFilter, projectTypeFilter, projects]
   );
   const projectDepartmentOptions = useMemo(() => projectDepartmentFilterOptions(projects, projectSpaces), [projects, projectSpaces]);
-  const committeeDepartment = useMemo(() => operatingCommitteeDepartment(projectSpaces), [projectSpaces]);
-  const activeProjectSpace = useMemo(
-    () => projectSpaceForProjectFilter(projectSpaces, projectTypeFilter, projectDepartmentFilter),
-    [projectDepartmentFilter, projectSpaces, projectTypeFilter],
-  );
   const selectedProject = useMemo(
     () => typeof selection === "number" ? projects.find((project) => project.id === selection) || null : null,
     [projects, selection]
@@ -129,9 +120,7 @@ export function useProjectTabModel(
   const rasciRows = useMemo(() => buildRasciRows(draft), [draft]);
   const dirty = draftSnapshot(draft) !== baseline;
   const canCreateDraftProject = draft && !draft.id ? canCreateProjectDraft(draft, projectSpaces, actionPermissions) : false;
-  const canEditNewDraft = draft && !draft.id
-    ? canCreateProjectForActiveSpace("all", null, actionPermissions, projectSpaces)
-    : false;
+  const canEditNewDraft = Boolean(draft && !draft.id && actionPermissions.canCreate);
   const selectedActionPermissions = selectedProject?.actionPermissions;
   const canEditCurrent = draft?.id ? Boolean(selectedActionPermissions?.canUpdate && selectedProject?.permissions.canEdit) : Boolean(canEditNewDraft);
   const canManageCurrent = draft?.id ? Boolean(selectedActionPermissions?.canUpdate && selectedProject?.permissions.canManage) : Boolean(canEditNewDraft);
@@ -210,9 +199,9 @@ export function useProjectTabModel(
         if (prev.projectType === "company") {
           return {
             ...next,
-            owningDepartmentId: null,
-            owningDepartmentName: null,
-            owningDepartmentCode: null,
+            leadingDepartmentId: null,
+            leadingDepartmentName: null,
+            leadingDepartmentCode: null,
           };
         }
       }
@@ -251,7 +240,6 @@ export function useProjectTabModel(
       projectType: draft.projectType,
       leadingDepartmentId: draft.leadingDepartmentId,
       enablingDepartmentIds: draft.enablingDepartmentIds,
-      owningDepartmentId: draft.owningDepartmentId,
       workspaceEnabled: draft.workspaceEnabled,
       status: draft.status as "pending" | "active" | "done",
       plannedStartDate: draft.plannedStartDate,
@@ -265,13 +253,12 @@ export function useProjectTabModel(
     setSaving(true);
     try {
       if (!draft.id) {
-        const projectId = await createProject({ ...draft, name });
-        if (!projectId) throw new Error("新建项目失败");
-        await syncMembers(projectId, { ...draft, id: projectId, name }, entries);
-        setToast({ type: "success", message: "项目已新建" });
+        const result = await createProject({ ...draft, name });
+        if (result.executionMode !== "workflow" || !result.request?.id) throw new Error("项目确认流程创建失败");
+        setToast({ type: "success", message: "已提交赋能部门负责人确认" });
         setCreating(false);
-        await loadData();
-        setSelection(projectId);
+        setDraft(null);
+        setBaseline("");
         return;
       }
       const projectId = draft.id;
@@ -332,9 +319,6 @@ export function useProjectTabModel(
       leadingDepartmentCode: createScope.department?.code ?? null,
       enablingDepartments: createScope.department ? [createScope.department] : [],
       enablingDepartmentIds: createScope.department ? [createScope.department.id] : [],
-      owningDepartmentId: createScope.projectType === "company" ? committeeDepartment?.id ?? null : null,
-      owningDepartmentName: createScope.projectType === "company" ? committeeDepartment?.name ?? null : null,
-      owningDepartmentCode: createScope.projectType === "company" ? committeeDepartment?.code ?? null : null,
     }, projectSpaces);
     setCreating(true);
     setSelection(null);
@@ -349,7 +333,7 @@ export function useProjectTabModel(
   }
 
   return {
-    canCreateProject: canCreateProjectForActiveSpace(projectTypeFilter, activeProjectSpace, actionPermissions, projectSpaces), canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, creating, dirty, draft, error,
+    canCreateProject: actionPermissions.canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, creating, dirty, draft, error,
     filteredProjects, loading, preferredDepartmentIds, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectSpaces, projectTypeFilter, rasciRows, saving,
     selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,

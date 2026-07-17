@@ -103,7 +103,9 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 
 - 项目类型由用户创建时选择，创建后不可修改：公司项目、部门项目、其他项目。
 - 公司项目自动编号为 `FH-YY-0NN`，例如 `FH-26-001`；其他项目使用同一公司项目池的 `1xx` 号段，例如 `FH-26-101`；部门项目自动编号为 `{Department.code}-YY-NN`，例如 `FUN103-26-01`。
+- `leadingDepartmentId` 是单一归口/牵头部门，承担部门项目编号、项目空间归属、可见性和 OKR 管控锚点；赋能部门只由 `ProjectEnablingDepartment` 多值关系表达，没有第一项或主赋能部门语义。
 - 项目必须选择赋能部门；部门项目必须选择一个归口部门；公司项目归口部门由系统归到运营委员会；项目空间需要在项目资料中显式开启。
+- 具备 `work.projects` 入口的在职员工可以发起项目并自由选择有效赋能部门，不要求发起人拥有所选部门的项目空间权限。提交后系统向每个赋能部门的负责人发送确认待办；所有解析出的负责人会签通过前不创建正式 `Project`，通过后一次性创建项目、赋能部门关系和项目人员。任一赋能部门未配置负责人时禁止提交。
 - 项目负责人和 RASC 项目人员可从所选赋能部门及其全部下属部门中选择，并排除当前操作者的递归直属上级；赋能部门包含运营委员会时，候选范围扩展为运营委员会、全部 M 体系组织和董秘办及资本证券部，不包含其他 G 体系治理组织。
 - 项目设置保存新增 RASCI 成员或调整成员职责后，系统向该成员发送待处理通知，文案包含邀请人、项目和当前 RASCI 职责；通知可直达项目总览。
 - RASCI 成员关系在邀请发出时建立，并以未处理通知标记“待确认”。成员接受后转为已确认；成员拒绝等价于主动退出项目，服务端必须校验通知与当前用户员工身份一致，并在同一事务中删除本人 `EmployeeProject`、记录历史并收口同一项目的未处理邀请。
@@ -121,21 +123,21 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 | 资源 | 状态 | 支持 action | 说明 |
 | --- | --- | --- | --- |
 | `work` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` | 工作管理 L1 入口 |
-| `work.projects` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `revise`, `grant` | root 只直接授予 `entry`；项目、成员和甘特兼容动作由空间派生资源承载 |
+| `work.projects` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `revise`, `submit`, `approve`, `reject`, `grant` | root 只直接授予 `entry`；项目新建使用 `submit/approve/reject` 的赋能部门确认流程，正式项目、成员和甘特动作由空间派生资源承载 |
 | `work.tasks` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `archive`, `revise`, `submit`, `reverse`, `approve`, `reject`, `grant` | root 只直接授予 `entry`；工作项、OKR 计划、目标考核表和审批动作由空间派生资源承载 |
 | `work.meetings` | business | `entry`, `read`, `create`, `update`, `delete`, `submit`, `approve`, `grant` | 会议事实来源，当前仍按对象服务继续收窄 |
 
 - 项目管理权限同时受资源权限和项目成员/角色约束影响；项目工作台额外支持 `project:{projectId}` 的任务空间授权，服务端必须再次校验项目可见、可编辑、可管理、可删除。
 - 工作计划空间权限按个人、部门和项目空间分别判定；项目空间的任务权限使用 `space.project.tasks` 作用域，可与项目成员/负责人权限叠加；运营委员会按部门 ID 进入部门空间，公司不作为 Work 页面空间。项目来源工作项通过 `linkedProjectId` 关联项目对象，空间切换不代表权限继承。
 - 会议管理使用 `work.meetings.create` 控制会议创建，`work.meetings.update/delete` 控制会议编辑和删除，`work.meetings.submit` 控制参会投票提交，`work.meetings.approve` 控制关闭表决；会议对象可见、可编辑、可管理仍由会议参与角色继续收窄。
-- 项目管理 L2 `work.projects` 承载入口和普通 L2 权限；组织空间内的项目、项目成员和甘特兼容动作由目标标准业务空间的派生 resource/scoped action grant 控制。
+- 项目管理 L2 `work.projects` 承载入口和项目新建提交；正式项目创建完成后，项目、项目成员和甘特兼容动作由归口部门对应的目标标准业务空间派生 resource/scoped action grant 控制。
 - 工作计划 L2 `work.tasks` 承载入口和普通 L2 权限；组织空间内的工作项和工作计划创建/编辑/删除由目标任务空间的派生 resource/scoped action grant 控制。空间授权配置由目标空间 scoped `grant` 或 root identity 控制，业务 `manager` 不代表授权管理。
 - Work UI 当前只枚举 personal、department 和 project 空间；运营委员会由 `Department` 实例进入 `space.department.*`。`space.committee.*` / `space.company.*` 派生资源仅保留给存量授权、审批快照和非 Work 页面能力兼容，不再作为 Work 标准空间入口。项目空间使用 `space.project.*` 派生资源，空间授权只派生对应 L2 的 `entry`，不反向派生 L2 root 的 `update/delete/approve`。
 - UI 上新增项目、计划或工作项放在对应列表/空间工具栏；单条编辑、删除、归档和审批动作必须贴近具体项目、阶段、任务、工作项或审批单。
 
 ### 工作计划审批与 OKR 绩效
 
-组织空间普通工作节点的新建/修改默认按 `create/update` 权限直接写入；管理员可以分别对 `work.tasks.item.create` / `work.tasks.item.update` 显式接入通用审批链，平台规则见 `docs/engineering/approvals.md`。目标审批配置按 8 个流程拆开：部门期初目标提交、个人期初目标提交、部门期初目标修订、个人期初目标修订、部门考核结果提交、个人考核结果提交、部门考核结果修订、个人考核结果修订。项目空间参与目标考核，但不新增独立项目流程族；部门项目按赋能部门解析管控空间，公司项目按运营委员会解析，其他项目按公司空间解析。工作计划草稿直接保存；第一次目标确认通过后，计划 summary、O 结构和目标口径默认锁定，实质修改走 `work.tasks.goal.department.objective.revise` / `work.tasks.goal.personal.objective.revise`。页面始终把该能力呈现为“编辑/保存”；权限矩阵继续表达 `update/submit` 能力，目标修订只作为流程配置中的业务行为，不额外暴露第二套页面 icon。目标考核表按 `targetType + targetId + periodType + periodStart + reportStage` 保存周期快照，内容来自同空间未结束目标计划和日常工作细项。
+组织空间普通工作节点的新建/修改默认按 `create/update` 权限直接写入；管理员可以分别对 `work.tasks.item.create` / `work.tasks.item.update` 显式接入通用审批链，平台规则见 `docs/engineering/approvals.md`。目标审批配置按 8 个流程拆开：部门期初目标提交、个人期初目标提交、部门期初目标修订、个人期初目标修订、部门考核结果提交、个人考核结果提交、部门考核结果修订、个人考核结果修订。项目空间参与目标考核，但不新增独立项目流程族；部门项目按归口部门解析管控空间，公司项目按运营委员会解析，其他项目按公司空间解析。工作计划草稿直接保存；第一次目标确认通过后，计划 summary、O 结构和目标口径默认锁定，实质修改走 `work.tasks.goal.department.objective.revise` / `work.tasks.goal.personal.objective.revise`。页面始终把该能力呈现为“编辑/保存”；权限矩阵继续表达 `update/submit` 能力，目标修订只作为流程配置中的业务行为，不额外暴露第二套页面 icon。目标考核表按 `targetType + targetId + periodType + periodStart + reportStage` 保存周期快照，内容来自同空间未结束目标计划和日常工作细项。
 
 - personal、department、company、committee 都不形成独立流程配置入口；流程策略统一按 base `businessActionKey` 维护，空间仍可作为权限台账和流程台账的上下文。
 - 新的组织空间审批使用部门空间派生资源 `space.department.tasks`，并通过 `projection: "space"` 计算 `submit` / `approve`；运营委员会按其部门 ID 处理。审批单始终写 base action key，`space.committee.tasks` / `space.company.tasks` 只保留权限与历史 scope 解析语义。

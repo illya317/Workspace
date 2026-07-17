@@ -17,6 +17,8 @@ import {
   listDepartmentIdsManagedByUserPosition,
 } from "@workspace/platform/server/business-space-permissions";
 import { prisma } from "@workspace/platform/server/prisma";
+import { canEnterResource } from "@workspace/platform/server/rbac/resource-entry";
+import { isActiveEmployeeUser } from "@workspace/platform/server/business-space-natural-users";
 
 type ProjectSpaceProject = {
   projectType?: string | null;
@@ -72,16 +74,12 @@ export async function canCreateOtherProject(userId: number) {
 }
 
 export async function getWorkProjectPageActionPermissions(userId: number) {
-  const [canCreateOrg, canCreateOther, createDepartmentIds, managedDepartmentIds] = await Promise.all([
-    canCreateOrganizationProject(userId),
-    canCreateOtherProject(userId),
-    listProjectDepartmentSpaceGrantTargetIds(userId, "create"),
-    listDepartmentIdsManagedByUserPosition(userId),
-  ]);
-  const canCreateDepartment = createDepartmentIds.length > 0 || managedDepartmentIds.length > 0;
+  const canCreate = await isSuperAdmin(userId) || Boolean(
+    await canEnterResource(userId, "work.projects") && await isActiveEmployeeUser(userId)
+  );
   return {
-    canCreate: canCreateOrg || canCreateOther || canCreateDepartment,
-    canCreateOrg,
+    canCreate,
+    canCreateOrg: false,
     canUpdate: false,
     canDelete: false,
     canRevise: false,

@@ -11,6 +11,10 @@ const endDateSchema = dateStringSchema
   .nullable()
   .refine((value) => !value || value <= todayDateString(), "结项日期不能晚于今日");
 const positiveIntArraySchema = z.array(z.coerce.number().int().positive()).optional().nullable();
+const projectMemberSchema = z.object({
+  employeeId: z.coerce.number().int().positive(),
+  role: z.enum(["负责人", "执行负责", "支持协作", "咨询参与", "知会"]),
+});
 
 export const WorkProjectIdParamsSchema = z.object({
   id: z.coerce.number().int().positive(),
@@ -34,11 +38,11 @@ export const ProjectCreateSchema = z.object({
   actualStartDate: startDateSchema,
   actualEndDate: endDateSchema,
   completionPercent: z.coerce.number().min(0, "完成度不能小于 0").optional().nullable(),
-  leadingDepartmentId: z.coerce.number().int().positive("赋能部门不能为空").optional().nullable(),
+  leadingDepartmentId: z.coerce.number().int().positive("归口部门不能为空").optional().nullable(),
   enablingDepartmentIds: positiveIntArraySchema,
-  owningDepartmentId: z.coerce.number().int().positive().optional().nullable(),
   workspaceEnabled: z.coerce.boolean().optional().nullable(),
   leaderEmployeeId: z.coerce.number().int().positive().optional().nullable(),
+  members: z.array(projectMemberSchema).optional().nullable(),
 });
 
 export type ProjectCreateInput = z.infer<typeof ProjectCreateSchema>;

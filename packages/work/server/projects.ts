@@ -3,7 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
-import type { ProjectCreateInput } from "./schemas";
+import type { ProjectCreateCommand } from "./domain/project-validation";
 import {
   buildVisibleProjectWhere,
   getWorkProjectScopedActionPermissions,
@@ -12,7 +12,6 @@ import {
 } from "./access";
 import { formatDate } from "./project-normalization";
 import {
-  buildProjectCreateCommand,
   buildProjectFieldUpdateCommand,
   validateProjectDeleteCommand,
 } from "./domain/project-validation";
@@ -31,14 +30,12 @@ export async function listProjects(input: { userId: number; keyword: string; pag
         include: { department: { select: { id: true, code: true, name: true } } },
         orderBy: { id: "asc" },
       },
-      owningDepartment: { select: { id: true, code: true, name: true } },
     },
   });
 
   const mapped = await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const enablingDepartments = project.enablingDepartments.map((entry) => entry.department);
-    const owningDepartment = project.owningDepartment;
     const permissions = await getProjectPermissions(input.userId, project);
     const actionPermissions = await getWorkProjectScopedActionPermissions(input.userId, project.id);
     return {
@@ -68,11 +65,8 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       leadingDepartmentId: project.leadingDepartmentId,
       leadingDepartmentName: leadingDepartment?.name ?? null,
       leadingDepartmentCode: leadingDepartment?.code ?? null,
-      enablingDepartments: enablingDepartments.length ? enablingDepartments : (leadingDepartment ? [leadingDepartment] : []),
-      enablingDepartmentIds: enablingDepartments.length ? enablingDepartments.map((department) => department.id) : (project.leadingDepartmentId ? [project.leadingDepartmentId] : []),
-      owningDepartmentId: project.owningDepartmentId,
-      owningDepartmentName: owningDepartment?.name ?? null,
-      owningDepartmentCode: owningDepartment?.code ?? null,
+      enablingDepartments,
+      enablingDepartmentIds: enablingDepartments.map((department) => department.id),
       workspaceEnabled: project.workspaceEnabled,
       plannedStartDate: formatDate(project.plannedStartDate),
       plannedEndDate: formatDate(project.plannedEndDate),
@@ -96,7 +90,6 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     orderBy: { id: "asc" },
     include: {
       leadingDepartment: { select: { id: true, code: true, name: true } },
-      owningDepartment: { select: { id: true, code: true, name: true } },
       employees: {
         where: { role: { in: ["负责人", "项目负责人"] } },
         orderBy: { id: "asc" },
@@ -134,9 +127,6 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
         leadingDepartmentId: project.leadingDepartmentId,
         leadingDepartmentCode: project.leadingDepartment?.code ?? null,
         leadingDepartmentName: project.leadingDepartment?.name ?? null,
-        owningDepartmentId: project.owningDepartmentId,
-        owningDepartmentCode: project.owningDepartment?.code ?? null,
-        owningDepartmentName: project.owningDepartment?.name ?? null,
         workspaceEnabled: project.workspaceEnabled,
         leaderNames: project.employees
           .map((entry) => entry.employee.name)
@@ -153,31 +143,27 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
   };
 }
 
-export async function createProject(input: { userId: number; body: ProjectCreateInput }) {
-  const command = await buildProjectCreateCommand(input.userId, input.body);
-  if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
+export async function commitProjectCreateCommand(command: ProjectCreateCommand, userId: number) {
   const record = await prisma.$transaction(async (tx) => {
-    const created = await tx.project.create({
-      data: command.data.data,
-    });
-    if (command.data.enablingDepartmentIds.length) {
+    const created = await tx.project.create({ data: command.data });
+    if (command.enablingDepartmentIds.length) {
       await tx.projectEnablingDepartment.createMany({
-        data: command.data.enablingDepartmentIds.map((departmentId) => ({ projectId: created.id, departmentId })),
+        data: command.enablingDepartmentIds.map((departmentId) => ({ projectId: created.id, departmentId })),
       });
     }
-    if (command.data.leaderEmployeeId) {
-      await tx.employeeProject.create({
-        data: {
-          employeeId: command.data.leaderEmployeeId,
+    if (command.members.length) {
+      await tx.employeeProject.createMany({
+        data: command.members.map((member) => ({
+          employeeId: member.employeeId,
           projectId: created.id,
-          role: "负责人",
-          editedBy: input.userId,
-        },
+          role: member.role,
+          editedBy: userId,
+        })),
       });
     }
     return created;
   });
-  await snapshotHistory("Project", record.id, input.userId);
+  await snapshotHistory("Project", record.id, userId);
   return serviceOk({ success: true, record });
 }
 

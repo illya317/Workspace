@@ -12,30 +12,30 @@ const rootClients: unknown[] = [];
 let mutationCount = 0;
 
 mock.module("@workspace/platform/effective-module-registry", {
-  exports: { isResourceEnabled: () => true },
+  namedExports: { isResourceEnabled: () => true },
 } as never);
 mock.module("@workspace/platform/permission-action-grantability", {
-  exports: { isPermissionActionGrantable: () => true },
+  namedExports: { isPermissionActionGrantable: () => true },
 } as never);
 mock.module("@workspace/platform/permission-resource-policy", {
-  exports: { isPermissionActionSupported: () => true },
+  namedExports: { isPermissionActionSupported: () => true },
 } as never);
 mock.module("@workspace/platform/space-registry", {
-  exports: { isRegisteredSpaceResourceKey: () => false },
+  namedExports: { isRegisteredSpaceResourceKey: () => false },
 } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: { prisma: { kind: "global" } },
+  namedExports: { prisma: { kind: "global" } },
 } as never);
 mock.module("./action-grant-policy", {
-  exports: {
+  namedExports: {
     canMutatePermissionGrantAction: (_actionKey: string, isSystemAdmin: boolean) => isSystemAdmin,
   },
 } as never);
 mock.module("./admin-scope", {
-  exports: { canManageResourceGrant: async () => true },
+  namedExports: { canManageResourceGrant: async () => true },
 } as never);
 mock.module("../auth/root", {
-  exports: {
+  namedExports: {
     isRootAdminUser: async (_userId: number, client: unknown) => {
       rootClients.push(client);
       return false;
@@ -43,7 +43,7 @@ mock.module("../auth/root", {
   },
 } as never);
 mock.module("./action-grants", {
-  exports: {
+  namedExports: {
     evaluatePermissionAction: async () => false,
     PermissionGrantMutationError: MockPermissionGrantMutationError,
     setSubjectPermissionActionGrant: async (

@@ -38,9 +38,9 @@ export function applyProjectTypeRules(draft: ProjectDraft, spaces: ProjectSpace[
   if (!committee) return draft;
   return {
     ...draft,
-    owningDepartmentId: committee.id,
-    owningDepartmentName: committee.name,
-    owningDepartmentCode: committee.code,
+    leadingDepartmentId: committee.id,
+    leadingDepartmentName: committee.name,
+    leadingDepartmentCode: committee.code,
   };
 }
 
@@ -61,20 +61,14 @@ export function canCreateProjectForActiveSpace(
 
 export function canCreateProjectDraft(
   draft: ProjectDraft,
-  spaces: ProjectSpace[],
-  actionPermissions: WorkProjectActionPermissions,
+  _spaces: ProjectSpace[],
+  _actionPermissions: WorkProjectActionPermissions,
 ) {
   if (draft.projectType === "department") {
-    if (!draft.leadingDepartmentId || !draft.owningDepartmentId) return false;
-    return Boolean(spaces.find((space) => (
-      space.targetType === "department"
-      && space.targetId === draft.leadingDepartmentId
-      && space.actionPermissions.canCreate
-    )));
+    return Boolean(draft.leadingDepartmentId && draft.enablingDepartmentIds.length);
   }
-  if (!draft.leadingDepartmentId) return false;
-  const projectSpace = projectSpaceForProjectFilter(spaces, draft.projectType, draft.leadingDepartmentId);
-  return canCreateProjectForActiveSpace(draft.projectType, projectSpace, actionPermissions);
+  if (draft.projectType === "company") return Boolean(draft.leadingDepartmentId && draft.enablingDepartmentIds.length);
+  return draft.enablingDepartmentIds.length > 0;
 }
 
 export function projectDepartmentFilterOptions(projects: ProjectItem[], spaces: ProjectSpace[]): ProjectDepartmentOption[] {
@@ -134,7 +128,7 @@ export function filterForProjectLevel(projectLevel: string | null | undefined): 
 }
 
 function firstCreatableDepartment(projectSpaces: ProjectSpace[], projectDepartmentOptions: ProjectDepartmentOption[], preferredDepartmentIds: number[]) {
-  const creatableDepartmentIds = new Set(projectSpaces.filter((space) => space.targetType === "department" && space.actionPermissions.canCreate).map((space) => space.targetId));
+  const creatableDepartmentIds = new Set(projectSpaces.filter((space) => space.targetType === "department").map((space) => space.targetId));
   const preferred = preferredDepartmentIds
     .map((id) => projectDepartmentOptions.find((option) => option.id === id && creatableDepartmentIds.has(id)))
     .find((option): option is ProjectDepartmentOption => Boolean(option));

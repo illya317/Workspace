@@ -21,7 +21,6 @@ model Project {
   completionPercent   Float?
   closureType         String?
   leadingDepartmentId Int?
-  owningDepartmentId  Int?
   workspaceEnabled    Boolean                     @default(false)
   isArchived          Boolean                     @default(false)
   archivedAt          DateTime?
@@ -32,7 +31,6 @@ model Project {
   createdAt           DateTime                    @default(now())
   updatedAt           DateTime                    @default(now()) @updatedAt
   leadingDepartment   Department?                 @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
-  owningDepartment    Department?                 @relation("ProjectOwningDepartment", fields: [owningDepartmentId], references: [id], onDelete: SetNull)
   employees           EmployeeProject[]
   enablingDepartments ProjectEnablingDepartment[]
   planPhases          ProjectPlanPhase[]          @relation("ProjectPlanPhases")
@@ -43,7 +41,6 @@ model Project {
   linkedWorkPlans     WorkPlan[]                  @relation("WorkPlanLinkedProject")
 
   @@index([leadingDepartmentId])
-  @@index([owningDepartmentId])
   @@index([workspaceEnabled])
   @@index([projectType])
   @@index([status])

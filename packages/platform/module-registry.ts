@@ -4,8 +4,8 @@ import { apiResourceGuards, systemApiRoutes, validateModuleRegistry } from "./mo
 import { listWorkflowManagementResourceRegistrations } from "./workflow-management-resources";
 
 const WORK_FK_REGISTRATIONS = [
-  { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "赋能部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
-  { key: "work.projects.owningDepartment", scope: "work", source: { entity: "Project", field: "owningDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.leadingDepartment", scope: "work", source: { entity: "Project", field: "leadingDepartmentId" }, target: "department", targetLabel: "归口部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
+  { key: "work.projects.enablingDepartment", scope: "work", source: { entity: "ProjectEnablingDepartment", field: "departmentId" }, target: "department", targetLabel: "赋能部门", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.parent", scope: "work", source: { entity: "Project", field: "parentProjectId" }, target: "project", targetLabel: "上级项目", nullable: true, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.member.employee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },
   { key: "work.projects.member.enablingDepartmentEmployee", scope: "work", source: { entity: "EmployeeProject", field: "employeeId" }, target: "employee", targetLabel: "赋能部门成员", nullable: false, permission: { resourceKey: "work.projects", action: "entry" } },

@@ -3,9 +3,9 @@ import test, { mock } from "node:test";
 
 const NOW = new Date("2026-07-16T08:00:00.000Z");
 
-mock.module("server-only", { exports: {} } as never);
+mock.module("server-only", { namedExports: {} } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: {
+  namedExports: {
     prisma: {
       agentRun: {
         findMany: async () => [

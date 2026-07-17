@@ -50,7 +50,6 @@ export const PROJECT_CONFIG = {
     "completionPercent",
     "leadingDepartmentId",
     "enablingDepartmentIds",
-    "owningDepartmentId",
     "workspaceEnabled",
     "isArchived",
     "archivedAt",
@@ -108,18 +107,18 @@ function normalizeNullablePositiveInt(value: unknown) {
 
 export async function normalizeLeadingDepartmentId(value: unknown): Promise<LeadingDepartmentResult> {
   const leadingDepartmentId = normalizeNullablePositiveInt(value);
-  if (Number.isNaN(leadingDepartmentId) || !leadingDepartmentId) return { error: "赋能部门不能为空" };
+  if (Number.isNaN(leadingDepartmentId) || !leadingDepartmentId) return { error: "归口部门不能为空" };
   const validation = await validateFkValue(WORK_FK_REGISTRY, {
     fkKey: "work.projects.leadingDepartment",
     value: leadingDepartmentId,
-    requiredLabel: "赋能部门",
+    requiredLabel: "归口部门",
   });
   if (!validation.ok) return { error: validation.error };
   const department = await prisma.department.findUnique({
     where: { id: leadingDepartmentId },
     select: { id: true, code: true, name: true },
   });
-  if (!department) return { error: "赋能部门不存在" };
+  if (!department) return { error: "归口部门不存在" };
   return { value: leadingDepartmentId, department };
 }
 
@@ -129,32 +128,23 @@ export async function normalizeEnablingDepartmentIds(value: unknown): Promise<En
   if (ids.length === 0 || ids.some((id) => id === null || Number.isNaN(id))) return { error: "赋能部门不能为空" };
   const departments: Array<{ id: number; code: string; name: string }> = [];
   for (const id of ids) {
-    const result = await normalizeLeadingDepartmentId(id);
-    if ("error" in result) return { error: result.error };
-    departments.push(result.department);
+    const validation = await validateFkValue(WORK_FK_REGISTRY, {
+      fkKey: "work.projects.enablingDepartment",
+      value: id,
+      requiredLabel: "赋能部门",
+    });
+    if (!validation.ok) return { error: validation.error };
+    const department = await prisma.department.findUnique({
+      where: { id: id as number },
+      select: { id: true, code: true, name: true },
+    });
+    if (!department) return { error: "赋能部门不存在" };
+    departments.push(department);
   }
   return { value: ids as number[], departments };
 }
 
-export async function normalizeOwningDepartmentId(value: unknown): Promise<NullableDepartmentResult> {
-  const owningDepartmentId = normalizeNullablePositiveInt(value);
-  if (owningDepartmentId === null) return { value: null, department: null };
-  if (Number.isNaN(owningDepartmentId)) return { error: "归口部门无效" };
-  const validation = await validateFkValue(WORK_FK_REGISTRY, {
-    fkKey: "work.projects.owningDepartment",
-    value: owningDepartmentId,
-    requiredLabel: "归口部门",
-  });
-  if (!validation.ok) return { error: validation.error };
-  const department = await prisma.department.findUnique({
-    where: { id: owningDepartmentId },
-    select: { id: true, code: true, name: true },
-  });
-  if (!department) return { error: "归口部门不存在" };
-  return { value: owningDepartmentId, department };
-}
-
-export async function normalizeOwningDepartmentForProjectType(
+export async function normalizeLeadingDepartmentForProjectType(
   projectType: ProjectType,
   value: unknown,
 ): Promise<NullableDepartmentResult> {
@@ -172,12 +162,14 @@ export async function normalizeOwningDepartmentForProjectType(
     };
   }
 
-  const result = await normalizeOwningDepartmentId(value);
-  if ("error" in result) return result;
-  if (projectType === "department" && result.value === null) {
-    return { error: "部门项目必须选择归口部门" };
+  const requestedId = normalizeNullablePositiveInt(value);
+  if (requestedId === null) {
+    return projectType === "department"
+      ? { error: "部门项目必须选择归口部门" }
+      : { value: null, department: null };
   }
-  return result;
+  if (Number.isNaN(requestedId)) return { error: "归口部门无效" };
+  return normalizeLeadingDepartmentId(requestedId);
 }
 
 function planCodePrefix(prefixCode: string, dateValue?: Date | string | null) {
@@ -229,11 +221,6 @@ async function normalizeProjectFieldUpdate(field: string, value: unknown, id?: n
   }
   if (field === "enablingDepartmentIds") {
     const result = await normalizeEnablingDepartmentIds(value);
-    if ("error" in result) return { error: result.error };
-    return { field, value: result.value };
-  }
-  if (field === "owningDepartmentId") {
-    const result = await normalizeOwningDepartmentId(value);
     if ("error" in result) return { error: result.error };
     return { field, value: result.value };
   }

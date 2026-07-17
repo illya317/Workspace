@@ -75,9 +75,9 @@ const tx = {
   },
 };
 
-mock.module("server-only", { exports: {} } as never);
+mock.module("server-only", { namedExports: {} } as never);
 mock.module("@workspace/platform/server/prisma", {
-  exports: { Prisma: {}, prisma: globalPrisma },
+  namedExports: { Prisma: {}, prisma: globalPrisma },
 } as never);
 
 const { evaluatePermissionAction } = await import("./action-grants");

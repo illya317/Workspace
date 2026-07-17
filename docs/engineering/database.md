@@ -1932,7 +1932,6 @@
 | sourceWorkPlans | WorkPlan[] | @relation("WorkPlanSourceDepartment") |  |
 | sourceWorkItems | WorkItem[] | @relation("WorkItemSourceDepartment") |  |
 | leadingProjects | Project[] | @relation("ProjectLeadingDepartment") |  |
-| owningProjects | Project[] | @relation("ProjectOwningDepartment") |  |
 | enabledProjects | ProjectEnablingDepartment[] | @relation("ProjectEnablingDepartmentDepartment") |  |
 | edps | EDP[] | - |  |
 | positions | Position[] | - |  |
@@ -3292,7 +3291,6 @@
 | completionPercent | Float? | - |  |
 | closureType | String? | - |  |
 | leadingDepartmentId | Int? | - |  |
-| owningDepartmentId | Int? | - |  |
 | workspaceEnabled | Boolean | @default(false) |  |
 | isArchived | Boolean | @default(false) |  |
 | archivedAt | DateTime? | - |  |
@@ -3303,7 +3301,6 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | leadingDepartment | Department? | @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull) |  |
-| owningDepartment | Department? | @relation("ProjectOwningDepartment", fields: [owningDepartmentId], references: [id], onDelete: SetNull) |  |
 | employees | EmployeeProject[] | - |  |
 | enablingDepartments | ProjectEnablingDepartment[] | - |  |
 | planPhases | ProjectPlanPhase[] | @relation("ProjectPlanPhases") |  |

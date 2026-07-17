@@ -91,6 +91,15 @@ export { getProjectWorkspaceEntry } from "./projects";
 export { ProjectCreateSchema } from "./schemas";
 
 export {
+  buildProjectSubmissionActionRouteCommand,
+  buildProjectSubmissionViewRouteCommand,
+  executeApproveProjectSubmissionRouteCommand,
+  executeCommentProjectSubmissionRouteCommand,
+  executeGetProjectSubmissionRouteCommand,
+  executeRejectProjectSubmissionRouteCommand,
+} from "./project-approvals";
+
+export {
   buildCreateWorkTaskSubmissionRouteCommand,
   buildListWorkTaskSubmissionsRouteCommand,
   buildWorkTaskSubmissionActionRouteCommand,
