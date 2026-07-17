@@ -77,23 +77,27 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
     if (enteringReporting) setPeriodStart(getCurrentWeekStart());
   }, [enabled]);
 
-  const loadDraft = useCallback(async () => {
+  const loadDraft = useCallback(async (options?: { isCancelled?: () => boolean }) => {
     if (!target || !enabled) return;
     setLoading(true);
     try {
       const data = await getWorkReportDraft(target, periodType, periodStart, "final");
+      if (options?.isCancelled?.()) return;
       setDraft(data);
-      setPeriodStart(data.period.periodStart);
       setDraftSnapshot(serializeReportItems(data.items));
     } catch (error) {
-      onToast({ message: error instanceof Error ? error.message : "加载工作汇报失败", type: "error" });
+      if (!options?.isCancelled?.()) {
+        onToast({ message: error instanceof Error ? error.message : "加载工作汇报失败", type: "error" });
+      }
     } finally {
-      setLoading(false);
+      if (!options?.isCancelled?.()) setLoading(false);
     }
   }, [enabled, onToast, periodStart, periodType, target]);
 
   useEffect(() => {
-    if (target && enabled) void loadDraft();
+    let cancelled = false;
+    if (target && enabled) void loadDraft({ isCancelled: () => cancelled });
+    return () => { cancelled = true; };
   }, [enabled, loadDraft, target]);
 
   useEffect(() => {
@@ -113,7 +117,6 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
       }
       const data = outcome.report;
       setDraft(data);
-      setPeriodStart(data.period.periodStart);
       setDraftSnapshot(serializeReportItems(data.items));
       onToast({ message: "工作汇报快照已保存", type: "success" });
     } catch (error) {
