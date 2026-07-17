@@ -129,13 +129,21 @@ test("CNB production preflight fails before full CI and release trigger", () => 
   );
 });
 
-test("CNB reports formal deployment timing from trigger through production verification", () => {
+test("CNB and SSH hotfix bind end-to-end publish timing to the success event", () => {
+  for (const source of [publishCnb, publishHotfix]) {
+    assert.match(source, /PUBLISH_STARTED_EPOCH_SECONDS="\$\{PUBLISH_STARTED_EPOCH_SECONDS:-\$\(date \+%s\)\}"/);
+    assert.match(source, /export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT/);
+  }
+  assert.match(publishCnb, /deployment: \{ startedAtEpochSeconds \}/);
+  assert.match(releaseToCnb, /metadata\.deployment\?\.startedAtEpochSeconds/);
+  assert.match(deploy, /metadata\.deployment\?\.startedAtEpochSeconds/);
+  assert.match(publishHotfix, /bash "\$SCRIPT_DIR\/deploy\.sh"[\s\S]*?部署总耗时/);
   assert.match(publishCnb, /正式部署计时开始/);
   assert.match(publishCnb, /正式部署计时结束/);
   assert.match(publishCnb, /正式部署总耗时/);
   assert.ok(
-    publishCnb.indexOf("FORMAL_DEPLOY_STARTED_EPOCH")
-      < publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"'),
+    publishCnb.indexOf("PUBLISH_STARTED_EPOCH_SECONDS=")
+      < publishCnb.indexOf("production-deploy-preflight.mjs"),
   );
   assert.ok(
     publishCnb.indexOf("CNB-native 生产部署完成")

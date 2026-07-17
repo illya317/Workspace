@@ -48,15 +48,20 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
-test("deployment notification records the exact release transport", () => {
+test("deployment notification records exact source and end-to-end publish duration", () => {
   assert.match(deploy, /DEPLOY_STARTED_SECONDS="\$SECONDS"/);
-  assert.match(deploy, /local duration_seconds="\$\(\(SECONDS - DEPLOY_STARTED_SECONDS\)\)"/);
+  assert.match(deploy, /local started_epoch="\$PUBLISH_STARTED_EPOCH_SECONDS"/);
+  assert.match(deploy, /require\('\.\/\$RELEASE_METADATA_FILE'\)\.deployment\.startedAtEpochSeconds/);
+  assert.match(deploy, /duration_seconds="\$\(\(\$\(date \+%s\) - started_epoch\)\)"/);
+  assert.match(deploy, /duration_seconds="\$\(\(SECONDS - DEPLOY_STARTED_SECONDS\)\)"/);
   assert.match(
     deploy,
-    /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
+    /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='\$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
   );
   assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
   assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
+  assert.match(deploy, /build = os\.environ\['DEPLOY_SOURCE_SHA'\]/);
+  assert.match(deploy, /re\.fullmatch\(r'\[0-9a-f\]\{40\}', build\)/);
   assert.match(deploy, /duration_seconds = int\(os\.environ\['DEPLOY_DURATION_SECONDS'\]\)/);
   assert.match(deploy, /'durationSeconds': duration_seconds/);
   assert.match(deploy, /'transport': transport/);
@@ -64,6 +69,7 @@ test("deployment notification records the exact release transport", () => {
     'DEPLOY_STARTED_SECONDS="$SECONDS"',
     "run_healthcheck",
     "notify_workspace_bot_deploy",
+    "build = os.environ['DEPLOY_SOURCE_SHA']",
     "'durationSeconds': duration_seconds",
   ]);
 });

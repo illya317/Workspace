@@ -154,7 +154,9 @@ if (metadata.schemaVersion !== 1
   || metadata.localFullCi?.treeSha !== tree
   || !Number.isFinite(Date.parse(metadata.localFullCi?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
-  || metadata.cnb?.sourceBranch !== branch) {
+  || metadata.cnb?.sourceBranch !== branch
+  || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
+  || metadata.deployment.startedAtEpochSeconds <= 0) {
   throw new Error('CNB release metadata does not match local source');
 }
 if (metadata.deploymentBootstrap) {

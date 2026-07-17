@@ -3,6 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PUBLISH_STARTED_EPOCH_SECONDS="${PUBLISH_STARTED_EPOCH_SECONDS:-$(date +%s)}"
+PUBLISH_STARTED_AT="${PUBLISH_STARTED_AT:-$(date '+%Y-%m-%d %H:%M:%S %z')}"
+export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
   exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
 fi
@@ -30,6 +33,11 @@ HOTFIX_NODE_IMAGE="${HOTFIX_NODE_IMAGE:-node:24-bookworm}"
 HOTFIX_BUILD_CPUS="${HOTFIX_BUILD_CPUS:-3}"
 HOTFIX_BUILD_MEMORY="${HOTFIX_BUILD_MEMORY:-10g}"
 HOTFIX_RUN_LOCAL_CHECKS="${HOTFIX_RUN_LOCAL_CHECKS:-1}"
+
+format_duration() {
+  local total_seconds="$1"
+  printf '%dm %02ds' "$((total_seconds / 60))" "$((total_seconds % 60))"
+}
 
 usage() {
   cat <<'EOF'
@@ -236,4 +244,9 @@ export RUN_LOCAL_CHECKS=0
 export KEY="$SSH_KEY"
 bash "$SCRIPT_DIR/deploy.sh"
 
+PUBLISH_FINISHED_EPOCH_SECONDS="$(date +%s)"
+PUBLISH_FINISHED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
+PUBLISH_DURATION_SECONDS="$((PUBLISH_FINISHED_EPOCH_SECONDS - PUBLISH_STARTED_EPOCH_SECONDS))"
 echo "==> SSH hotfix 发布完成: ${SOURCE_SHA:0:12}（canonical baseline: ${CANONICAL_SHA:0:12}）"
+echo "==> 部署计时: $PUBLISH_STARTED_AT -> $PUBLISH_FINISHED_AT"
+echo "==> 部署总耗时: $(format_duration "$PUBLISH_DURATION_SECONDS") (${PUBLISH_DURATION_SECONDS}s)"

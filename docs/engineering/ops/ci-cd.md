@@ -109,7 +109,7 @@ npm run test:e2e:latency
 6. Git 跟踪的 `ops/cnb-release.yml` 是 CNB CD 配置真源；私有目录只保留逐字一致副本和 `.env`。`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 7. CNB 在 injection checkout 中安装依赖并构建 standalone。packager 绑定 parent source SHA/tree 和 BUILD_ID，生成 manifest/tgz；`deploy.sh` 在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
 8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。没有活跃 hotfix 时，candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。有活跃 hotfix 时，正式 CNB 以最后的 canonical source 排序，并始终真实覆盖 hotfix artifact。
-9. `publish.sh` 记录 CNB trigger SN、轮询 CNB 终态，并通过 SSH 等待服务器记录、health 与 `/workspace/api/settings/version` 精确等于目标 SHA。正式部署计时从 CNB release trigger 前开始，到生产版本和健康检查确认后结束；成功时输出开始、结束和总秒数，本地 preflight/full CI 不计入服务器部署耗时。full 与 SSH hotfix 共用的 `deploy.sh` 另记录本次服务器 deployer 从启动到最终 health/version 通过的 `durationSeconds`，并在成功 event 中交给更新通知显示。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
+9. `publish.sh` 记录发布入口启动时间；CNB full 将它写入受校验的 release metadata，SSH hotfix 将它直接传给共用 deployer。计时覆盖入口后的预检/门禁、构建、传输/cutover，直到生产 health 与 `/workspace/api/settings/version` 精确等于目标 SHA；成功 event 的 `durationSeconds` 与命令行总耗时使用同一口径，更新通知展示该次端到端部署时间。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
 
 生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
 

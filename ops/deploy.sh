@@ -3,6 +3,7 @@ set -euo pipefail
 
 cd "$(dirname "$0")/.."
 DEPLOY_STARTED_SECONDS="$SECONDS"
+PUBLISH_STARTED_EPOCH_SECONDS="${PUBLISH_STARTED_EPOCH_SECONDS:-}"
 
 SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-}"
@@ -896,7 +897,9 @@ if (metadata.schemaVersion !== 1
   || metadata.localFullCi?.treeSha !== tree
   || !Number.isFinite(Date.parse(metadata.localFullCi?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
-  || metadata.cnb?.sourceBranch !== branch) {
+  || metadata.cnb?.sourceBranch !== branch
+  || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
+  || metadata.deployment.startedAtEpochSeconds <= 0) {
   throw new Error('CNB release metadata does not match injection parent');
 }
 const bootstrap = metadata.deploymentBootstrap;
@@ -2257,12 +2260,29 @@ NODE
 }
 
 notify_workspace_bot_deploy() {
-  local duration_seconds="$((SECONDS - DEPLOY_STARTED_SECONDS))"
+  local started_epoch="$PUBLISH_STARTED_EPOCH_SECONDS"
+  local duration_seconds
+  if [ -z "$started_epoch" ] && [ "$RELEASE_TRANSPORT" = "cnb" ]; then
+    started_epoch="$(node -p "require('./$RELEASE_METADATA_FILE').deployment.startedAtEpochSeconds")"
+  fi
+  if [ -n "$started_epoch" ]; then
+    case "$started_epoch" in
+      ''|*[!0-9]*) echo "[错误] 发布入口开始时间无效"; exit 1 ;;
+    esac
+    duration_seconds="$(($(date +%s) - started_epoch))"
+    if [ "$duration_seconds" -lt 0 ]; then
+      echo "[错误] 发布入口开始时间晚于通知时间"
+      exit 1
+    fi
+  else
+    duration_seconds="$((SECONDS - DEPLOY_STARTED_SECONDS))"
+  fi
   echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
 import datetime
 import json
 import os
+import re
 from pathlib import Path
 
 remote_dir = Path(os.environ['REMOTE_DIR'])
@@ -2277,9 +2297,9 @@ def read_json(path):
         return {}
 
 package = read_json(app_dir / 'package.json').get('version') or 'unknown'
-build = (app_dir / '.next' / 'BUILD_ID').read_text().strip() if (app_dir / '.next' / 'BUILD_ID').exists() else 'unknown'
-required = read_json(app_dir / '.next' / 'required-server-files.json')
-build = required.get('config', {}).get('env', {}).get('NEXT_PUBLIC_BUILD_VERSION') or build
+build = os.environ['DEPLOY_SOURCE_SHA']
+if not re.fullmatch(r'[0-9a-f]{40}', build):
+    raise SystemExit('deploy source SHA is invalid')
 release = release_path.name
 transport = os.environ['RELEASE_TRANSPORT']
 if transport not in {'cnb', 'ssh-hotfix'}:

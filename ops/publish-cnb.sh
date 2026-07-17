@@ -3,6 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PUBLISH_STARTED_EPOCH_SECONDS="${PUBLISH_STARTED_EPOCH_SECONDS:-$(date +%s)}"
+PUBLISH_STARTED_AT="${PUBLISH_STARTED_AT:-$(date '+%Y-%m-%d %H:%M:%S %z')}"
+export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
   exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
 fi
@@ -236,14 +239,20 @@ BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMM
 BOOTSTRAP_LEGACY_RELEASE_ID="$BOOTSTRAP_LEGACY_RELEASE_ID" BOOTSTRAP_LEGACY_CNB_BUILD_SN="$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
 BOOTSTRAP_LEGACY_RUNTIME_VERSION="$BOOTSTRAP_LEGACY_RUNTIME_VERSION" BOOTSTRAP_LEGACY_BUILD_ID="$BOOTSTRAP_LEGACY_BUILD_ID" \
 BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="$BASELINE_MIGRATION_DIGEST" \
-LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" node <<'NODE'
+LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" node <<'NODE'
 const fs = require('node:fs');
 const localFullCi = JSON.parse(fs.readFileSync(process.env.LOCAL_CI_RECEIPT_FILE, 'utf8'));
+const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
+if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
+  throw new Error('publish start epoch is invalid');
+}
 const metadata = {
   schemaVersion: 1,
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
   localFullCi,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
+  deployment: { startedAtEpochSeconds },
 };
 if (process.env.BOOTSTRAP_PRODUCTION_BASE) {
   metadata.deploymentBootstrap = {
@@ -268,9 +277,7 @@ NODE
 release_args=(--metadata "$METADATA_FILE" --result-file "$RESULT_FILE")
 [ "$PRINT_COMMAND_ONLY" = "0" ] || release_args+=(--print-command)
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
-  FORMAL_DEPLOY_STARTED_EPOCH="$(date +%s)"
-  FORMAL_DEPLOY_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
-  echo "==> 正式部署计时开始: $FORMAL_DEPLOY_STARTED_AT"
+  echo "==> 正式部署计时开始: $PUBLISH_STARTED_AT"
 fi
 env -u CNB_TOKEN OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/release-to-cnb.sh" "${release_args[@]}"
 [ "$PRINT_COMMAND_ONLY" = "0" ] || exit 0
@@ -293,7 +300,7 @@ while [ "$(date +%s)" -le "$deadline" ]; do
     echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
     FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
     FORMAL_DEPLOY_FINISHED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
-    FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - FORMAL_DEPLOY_STARTED_EPOCH))"
+    FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
     echo "==> 正式部署计时结束: $FORMAL_DEPLOY_FINISHED_AT"
     echo "==> 正式部署总耗时: $(format_duration "$FORMAL_DEPLOY_DURATION") (${FORMAL_DEPLOY_DURATION}s)"
     exit 0
