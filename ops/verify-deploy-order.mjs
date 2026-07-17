@@ -14,12 +14,21 @@ export function validateDeployOrder({
   currentHeadSha,
   bootstrapBase,
   deployedSha,
+  deployedCanonicalSha,
+  deployedTransport = "cnb",
+  candidateTransport = "cnb",
   comparison,
 }) {
   requireSha(candidateSha, "candidate SHA");
   requireSha(currentHeadSha, "current CNB source SHA");
+  if (!new Set(["cnb", "ssh-hotfix"]).has(candidateTransport)) {
+    throw new Error(`unsupported candidate transport: ${candidateTransport}`);
+  }
+  if (!new Set(["cnb", "ssh-hotfix"]).has(deployedTransport)) {
+    throw new Error(`unsupported deployed transport: ${deployedTransport}`);
+  }
   if (candidateSha !== currentHeadSha) {
-    throw new Error(`candidate ${candidateSha} is stale; CNB source is ${currentHeadSha}`);
+    throw new Error(`candidate ${candidateSha} is stale; checked-out source is ${currentHeadSha}`);
   }
   if (bootstrapBase) {
     requireSha(bootstrapBase, "production bootstrap baseline");
@@ -37,18 +46,30 @@ export function validateDeployOrder({
   }
   if (!deployedSha) throw new Error("initial deployment requires audited production bootstrap metadata");
   requireSha(deployedSha, "deployed SHA");
-  if (deployedSha === candidateSha) {
+  const orderingBase = candidateTransport === "cnb"
+    ? (deployedCanonicalSha ?? deployedSha)
+    : deployedSha;
+  requireSha(orderingBase, "deployment ordering baseline");
+  const formalReplacesHotfix = candidateTransport === "cnb" && deployedTransport === "ssh-hotfix";
+  if (orderingBase === candidateSha) {
+    if (formalReplacesHotfix) {
+      return { action: "deploy", reason: "formal-replaces-hotfix" };
+    }
     return { action: "noop", reason: "source-already-deployed" };
   }
   if (!comparison || comparison.status !== "ahead"
-    || comparison.base_commit?.sha !== deployedSha
-    || comparison.merge_base_commit?.sha !== deployedSha
+    || comparison.base_commit?.sha !== orderingBase
+    || comparison.merge_base_commit?.sha !== orderingBase
     || comparison.head_commit?.sha !== candidateSha
     || !Number.isInteger(comparison.ahead_by)
     || comparison.ahead_by < 1) {
-    throw new Error(`candidate ${candidateSha} is not a proven descendant of deployed ${deployedSha}`);
+    throw new Error(`candidate ${candidateSha} is not a proven descendant of deployment baseline ${orderingBase}`);
   }
-  return { action: "deploy", reason: "monotonic-upgrade" };
+  if (formalReplacesHotfix) return { action: "deploy", reason: "formal-replaces-hotfix" };
+  return {
+    action: "deploy",
+    reason: candidateTransport === "ssh-hotfix" ? "hotfix-monotonic-upgrade" : "monotonic-upgrade",
+  };
 }
 
 function parseArguments(argv) {
@@ -78,6 +99,9 @@ export async function main(argv = process.argv.slice(2)) {
     currentHeadSha: options.current_head,
     bootstrapBase: options.bootstrap_base,
     deployedSha: options.deployed,
+    deployedCanonicalSha: options.deployed_canonical,
+    deployedTransport: options.deployed_transport ?? "cnb",
+    candidateTransport: options.candidate_transport ?? "cnb",
     comparison,
   });
   process.stdout.write(`${result.action}\n`);

@@ -4,6 +4,8 @@ import test from "node:test";
 
 const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
 const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "utf8");
+const publishHotfix = readFileSync(new URL("./publish-hotfix.sh", import.meta.url), "utf8");
+const hotfixRemoteBuild = readFileSync(new URL("./hotfix-remote-build.sh", import.meta.url), "utf8");
 const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
@@ -14,11 +16,45 @@ test("shell variables next to non-ASCII punctuation use explicit braces", () => 
   }
 });
 
-test("deploy dispatches to CNB before GitHub-only push setup", () => {
-  const dispatch = publish.indexOf('if [ "${1:-}" = "deploy" ]');
+test("deploy defaults to hotfix and requires an explicit full marker for CNB", () => {
+  const dispatch = publish.indexOf('case "${1:-}" in');
   const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
   assert.ok(dispatch >= 0 && dispatch < githubSetup);
-  assert.match(publish, /exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$@"/);
+  assert.match(publish, /deploy\)[\s\S]*?""\) exec "\$SCRIPT_DIR\/publish-hotfix\.sh"/);
+  assert.match(publish, /--full\)[\s\S]*?shift[\s\S]*?exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$@"/);
+  assert.match(publish, /deploy 默认为 hotfix/);
+  assert.match(publish, /exec "\$SCRIPT_DIR\/publish-hotfix\.sh" "\$@"/);
+});
+
+test("SSH hotfix keeps scope open but preserves exact-source and cutover safety", () => {
+  assert.match(publishHotfix, /HOTFIX_SCOPE_POLICY="\$\{HOTFIX_SCOPE_POLICY:-off\}"/);
+  assert.match(publishHotfix, /classify-risk\.mjs[\s\S]*?scope policy/);
+  assert.match(publishHotfix, /git status --short[\s\S]*?git bundle create/);
+  assert.match(publishHotfix, /git merge-base --is-ancestor "\$RUNTIME_SHA" "\$SOURCE_SHA"/);
+  assert.match(publishHotfix, /rsync[\s\S]*?deployed-release\.json[\s\S]*?node ops\/release-receipt\.mjs inspect/);
+  assert.doesNotMatch(publishHotfix, /\$SERVER:\$remote_receipt_tool/);
+  assert.match(publishHotfix, /RELEASE_TRANSPORT=ssh-hotfix/);
+  assert.match(publishHotfix, /bash "\$SCRIPT_DIR\/deploy\.sh"/);
+  assert.doesNotMatch(publishHotfix, /cnb build|release-to-cnb|publish-cnb/);
+});
+
+test("SSH hotfix builds exact source in a resource-capped Node 24 Linux container", () => {
+  assert.match(hotfixRemoteBuild, /git -C "\$REMOTE_AGENT_SOURCE_DIR" bundle verify/);
+  assert.match(hotfixRemoteBuild, /worktree add --detach "\$worktree" "\$SOURCE_SHA"/);
+  assert.match(hotfixRemoteBuild, /docker pull "\$HOTFIX_NODE_IMAGE"/);
+  assert.match(hotfixRemoteBuild, /RepoDigests/);
+  assert.match(hotfixRemoteBuild, /--cpus "\$HOTFIX_BUILD_CPUS"/);
+  assert.match(hotfixRemoteBuild, /--memory "\$HOTFIX_BUILD_MEMORY"/);
+  assert.match(hotfixRemoteBuild, /flock -n 9/);
+  assert.match(hotfixRemoteBuild, /--pids-limit 512/);
+  assert.match(hotfixRemoteBuild, /--security-opt no-new-privileges:true/);
+  assert.match(hotfixRemoteBuild, /REMOTE_AGENT_SOURCE_DIR:ro/);
+  assert.match(hotfixRemoteBuild, /process\.versions\.node[\s\S]*?= "24"/);
+  assert.match(hotfixRemoteBuild, /command -v git[\s\S]*?command -v make[\s\S]*?command -v g\+\+/);
+  assert.match(hotfixRemoteBuild, /build-standalone-artifact\.sh/);
+  assert.match(hotfixRemoteBuild, /trap cleanup EXIT/);
+  assert.match(hotfixRemoteBuild, /cleanup[\s\S]*?trap - EXIT[\s\S]*?find "\$REMOTE_HOTFIX_BUILD_ROOT"/);
+  assert.doesNotMatch(hotfixRemoteBuild, /current/);
 });
 
 test("CNB deployment path contains no GitHub transport or deployment API", () => {

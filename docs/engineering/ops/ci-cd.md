@@ -8,7 +8,7 @@
 - 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
 - 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
 - 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁是当前 Git tree 的本地 `npm run check:ci` 凭证。CNB 从该 source parent 在 Linux 构建一次 canonical standalone；服务器不构建源码。
+- 正式生产门禁是当前 Git tree 的本地 `npm run check:ci` 凭证。CNB 从该 source parent 在 Linux 构建一次 canonical standalone，服务器不重建正式源码。快速迭代期的唯一例外是受治理 SSH hotfix：服务器在限额的 digest-pinned Node 24 Linux 容器中构建上传的 exact Git source。
 
 ## 风险等级
 
@@ -46,7 +46,8 @@ classify
 
 所有预期结果 -> CI / required
 
-local full CI receipt -> CNB release injection -> Linux build -> artifact/manifest validation -> production
+formal: local full CI receipt -> CNB release injection -> Linux build -> artifact validation -> production
+hotfix: local fast gates -> exact Git bundle -> server Node 24 container build -> same deployer -> production
 ```
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
@@ -104,13 +105,26 @@ npm run test:e2e:latency
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 的 standalone artifact 只在同一 CI run 内交给 E2E，不发布 prerelease，也不参与部署。
-5. `publish.sh deploy` 要求本地在干净的 `main` 上运行；发布入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
+5. 只有显式 `publish.sh deploy --full` 才进入正式 CNB 发布。它要求本地在干净的 `main` 上运行；入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
 6. Git 跟踪的 `ops/cnb-release.yml` 是 CNB CD 配置真源；私有目录只保留逐字一致副本和 `.env`。`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 7. CNB 在 injection checkout 中安装依赖并构建 standalone。packager 绑定 parent source SHA/tree 和 BUILD_ID，生成 manifest/tgz；`deploy.sh` 在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
-8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准：candidate 必须是 bootstrap baseline 或已部署 source 的后代；同 source 是 no-op，回退或分叉直接阻断。
+8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。没有活跃 hotfix 时，candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。有活跃 hotfix 时，正式 CNB 以最后的 canonical source 排序，并始终真实覆盖 hotfix artifact。
 9. `publish.sh` 记录 CNB trigger SN、轮询 CNB 终态，并通过 SSH 等待服务器记录、health 与 `/workspace/api/settings/version` 精确等于目标 SHA。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
 
 生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
+
+## 受治理 SSH hotfix
+
+```bash
+OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
+```
+
+- `deploy` 默认是 hotfix，`publish.sh hotfix` 仅保留为显式别名。该路径不经 GitHub 或 CNB，但也不手改生产 `current`。入口要求干净工作区的已提交 HEAD，HEAD 必须是当前运行 source 的后代，上传内容是带当前运行 source prerequisite 的 exact Git bundle。只有用户明确使用 `publish.sh deploy --full` 才进入 CNB。
+- 当前 `HOTFIX_SCOPE_POLICY=off`，C0–C3 都会分类和记录，但不按范围拦截。`restricted` 和 `HOTFIX_ALLOWED_RISK_CLASSES` 是长期预留开关，目前不开启。默认仍强制 `check:blockers`、该区间 migration policy 和 quick typecheck。
+- 服务器只在 `$REMOTE_DIR/.hotfix-builds` 下建临时 detached worktree，用 Node 24 Linux 容器限制 CPU/内存并把镜像解析到 registry digest。构建后立即移除带 `node_modules` 的 worktree，只保留受管 artifact/manifest 和 npm 下载缓存，避免再次把数 GiB 构建垃圾带入 runtime backup。
+- artifact 后续复用正式部署器的 manifest/digest/migration 校验、互斥锁、PostgreSQL/runtime 备份、不可变 release 目录、PM2 切换、健康检查和回滚。`deployed-release.json` 区分当前 `runtime source` 与最后 `canonical source`。
+- 后续正式 CNB 始终权威：它以 canonical source 做 ancestry 判定，不要求包含 hotfix，且即使 source 相同也会重新部署 canonical artifact 并将 transport 改回 `cnb`。
+- 这种覆盖只能替换代码/artifact。已执行 migration 和已写入业务数据不会被下一次正式部署自动回退；有持久化变化时，正式 source 必须吸收兼容契约或给出明确的向前修正。
 
 ## 分支保护初始化
 
@@ -164,7 +178,7 @@ node scripts/ci/configure-branch-protection.mjs --repo illya317/Workspace --appl
 当前旧生产没有 `deployed-release.json`，首次受治理发布必须显式提供一次性 receipt，不能伪造历史记录：
 
 ```bash
-ops/publish.sh deploy \
+ops/publish.sh deploy --full \
   --bootstrap-production-base 0a5485a68fbba0298bfe5c2ebdb456f4b140c359 \
   --bootstrap-legacy-cnb-commit 515f986adae2a4bfe9c8ba3901d91765fb9549a7 \
   --bootstrap-legacy-release-id 20260715164825-515f986a \
@@ -173,7 +187,7 @@ ops/publish.sh deploy \
   --bootstrap-legacy-build-id local-1784105165133
 ```
 
-入口会验证旧 CNB anchor、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及生产 migration 的名称和 checksum 集合。锁内在首次 mutation 前写入 bootstrap marker，并只允许同一 receipt/candidate 续跑。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy` 对账同一 SHA，不要再次传 bootstrap 参数。
+入口会验证旧 CNB anchor、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及生产 migration 的名称和 checksum 集合。锁内在首次 mutation 前写入 bootstrap marker，并只允许同一 receipt/candidate 续跑。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy --full` 对账同一 SHA，不要再次传 bootstrap 参数。
 
 CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions artifact 或 release asset。它们只消费 CNB injection checkout，并在迁移和切换前确认 `deployed-release.json` 没有被并发修改。
 

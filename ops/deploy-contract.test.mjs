@@ -34,51 +34,23 @@ function runPython(program, env = {}) {
   });
 }
 
-test("deployed release reader accepts only current receipts or the exact legacy CNB receipt", (context) => {
-  const program = embeddedPrograms("python3", "PY")
-    .find((candidate) => candidate.includes("unsupported deployed-release schema"));
-  assert.ok(program, "deployed release reader must be present");
-  const root = mkdtempSync(join(tmpdir(), "workspace-deployed-release-"));
-  context.after(() => rmSync(root, { recursive: true, force: true }));
-  const recordPath = join(root, "deployed-release.json");
-  const base = {
-    source: { commitSha: "a".repeat(40) },
-    artifact: { sha256: "b".repeat(64) },
-    cnb: { repository: "illya317/Workspace" },
-  };
-  const run = (record) => {
-    writeFileSync(recordPath, JSON.stringify(record));
-    return runPython(program, {
-      REMOTE_WORKSPACE_CONFIG_DIR: root,
-      EXPECTED_REPOSITORY: "illya317/Workspace",
-    });
-  };
+test("deploy delegates all receipt reads and writes to one versioned helper", () => {
+  assert.match(deploy, /REMOTE_RELEASE_RECEIPT_TOOL=.*release-receipt\.mjs/);
+  assert.match(deploy, /release-receipt\.mjs[\s\S]*?node --check/);
+  assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' inspect/);
+  assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' assert/);
+  assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write/);
+  assert.match(deploy, /--deployed-canonical "\$DEPLOYED_CANONICAL_SOURCE_SHA"/);
+  assert.match(deploy, /--deployed-transport "\$DEPLOYED_TRANSPORT"/);
+  const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
+  assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
+});
 
-  const current = run({
-    ...base,
-    schemaVersion: 1,
-    cnb: { ...base.cnb, injectionSha: "c".repeat(40) },
-  });
-  assert.equal(current.status, 0);
-  assert.match(current.stdout, /^RECORD\ta{40}\tc{40}\tb{64}\tillya317\/Workspace$/m);
-
-  const legacy = run({
-    ...base,
-    schemaVersion: 2,
-    cnb: { ...base.cnb, releaseCommitSha: "d".repeat(40) },
-  });
-  assert.equal(legacy.status, 0);
-  assert.match(legacy.stdout, /^RECORD\ta{40}\td{40}\tb{64}\tillya317\/Workspace$/m);
-
-  for (const ambiguous of [
-    { ...base, schemaVersion: 1, cnb: { ...base.cnb, injectionSha: "c".repeat(40), releaseCommitSha: "d".repeat(40) } },
-    { ...base, schemaVersion: 2, cnb: { ...base.cnb, injectionSha: "c".repeat(40), releaseCommitSha: "d".repeat(40) } },
-    { ...base, schemaVersion: 3, cnb: { ...base.cnb, injectionSha: "c".repeat(40) } },
-  ]) {
-    const result = run(ambiguous);
-    assert.equal(result.status, 0);
-    assert.equal(result.stdout.trim(), "INVALID");
-  }
+test("deployment notification records the exact release transport", () => {
+  assert.match(deploy, /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' python3/);
+  assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
+  assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
+  assert.match(deploy, /'transport': transport/);
 });
 
 test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {
@@ -88,7 +60,7 @@ test("ordinary PostgreSQL releases restore the previous application until the re
   assert.match(deploy, /\[ -z \\"\\\$cutover_source\\" \][\s\S]*?\[ \\"\\\$public_process_stopped\\" = '1' \][\s\S]*?\[ \\"\\\$release_committed\\" = '0' \]/);
   assert.match(deploy, /PORT=3000 HOSTNAME=0\.0\.0\.0 pm2 start \\"\\\$old_release\/\\\$old_server_entry\\"/);
   assert.match(deploy, /atomic_switch_current \\"\\\$old_release\\"/);
-  assert.match(deploy, /temporary\.replace\(path\)\nPY\n    release_committed=1/);
+  assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write[\s\S]*?--release-dir[\s\S]*?release_committed=1/);
 });
 
 test("deploy uses the exact CI migration parser and fences writers before the pinned recovery point", () => {
@@ -148,7 +120,7 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
   assert.match(
     deploy,
-    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认 CNB release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    /REMOTE_STANDALONE_ARTIFACT_PATH[\s\S]*?rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?cutover 前再次确认 release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
   );
   assert.match(
     deploy,
@@ -391,7 +363,7 @@ test("current switches atomically and deployed-release is the rollback commit po
   assertOrdered(deploy, [
     "assert_release_version 'http://127.0.0.1:3000/workspace/api/settings/version' 'public'",
     'atomic_switch_current \\"\\$release_dir\\"',
-    "temporary.replace(path)",
+    "'$REMOTE_RELEASE_RECEIPT_TOOL' write",
     "release_committed=1",
   ]);
   assertOrdered(deploy, [
