@@ -213,12 +213,12 @@ export function executeUpdateProjectRouteCommand(command: {
   });
 }
 
-export function buildProjectDeleteRouteCommand(input: { id: number; userId: number }) {
+export function buildProjectDeleteRouteCommand(input: { id: number; userId: number; expectedVersion: number | undefined }) {
   return okCommand(input);
 }
 
-export function executeDeleteProjectRouteCommand(command: { id: number; userId: number }) {
-  return deleteProject({ projectId: command.id, userId: command.userId });
+export function executeDeleteProjectRouteCommand(command: { id: number; userId: number; expectedVersion: number | undefined }) {
+  return deleteProject({ projectId: command.id, userId: command.userId, expectedVersion: command.expectedVersion });
 }
 
 export async function buildProjectGanttRouteCommand(input: {

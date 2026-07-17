@@ -37,6 +37,7 @@ export type ProjectSpace = {
 
 export type ProjectItem = {
   id: number;
+  version: number;
   code: string | null;
   name: string;
   createdBy: number | null;
@@ -70,6 +71,7 @@ export type ProjectItem = {
 
 export type ProjectMemberEntry = {
   id: number;
+  version: number;
   employeeId: number;
   employeeNumber: string;
   employeeName: string;

@@ -40,6 +40,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     const actionPermissions = await getWorkProjectScopedActionPermissions(input.userId, project.id);
     return {
       id: project.id,
+      version: project.version,
       code: project.code,
       name: project.name,
       createdBy: project.createdBy,
@@ -219,7 +220,7 @@ export async function updateProjectField(input: {
   return serviceOk({ success: true });
 }
 
-export async function deleteProject(input: { userId: number; projectId: number }) {
+export async function deleteProject(input: { userId: number; projectId: number; expectedVersion: number | undefined }) {
   if (!Number.isInteger(input.projectId) || input.projectId <= 0) return serviceError("ID 无效", 400);
   const command = await validateProjectDeleteCommand(input.userId, input.projectId);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
@@ -227,6 +228,7 @@ export async function deleteProject(input: { userId: number; projectId: number }
     entityType: "Project",
     modelKey: "project",
     id: command.data.projectId,
+    expectedVersion: input.expectedVersion,
     userId: input.userId,
     actionLabel: "删除项目",
     deleteMode: "hard",

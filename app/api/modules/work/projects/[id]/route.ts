@@ -4,7 +4,7 @@ import {
   executeDeleteProjectRouteCommand,
   executeUpdateProjectRouteCommand,
 } from "@workspace/work/server";
-import { routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
+import { readRequestExpectedVersion, routeIdParamsSchema, updateFieldBodySchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 export const PUT = createCommandRoute({
@@ -24,9 +24,10 @@ export const PUT = createCommandRoute({
 export const DELETE = createCommandRoute({
   paramsSchema: routeIdParamsSchema,
   paramsError: "ID 无效",
-  buildCommand: ({ params, user }) => buildProjectDeleteRouteCommand({
+  buildCommand: ({ params, request, user }) => buildProjectDeleteRouteCommand({
     id: params.id,
     userId: user.userId,
+    expectedVersion: readRequestExpectedVersion(request),
   }),
   action: executeDeleteProjectRouteCommand,
 });

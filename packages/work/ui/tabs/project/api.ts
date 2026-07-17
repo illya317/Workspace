@@ -91,8 +91,11 @@ export async function updateProjectField(projectId: number, field: string, value
   }
 }
 
-export async function deleteProject(projectId: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), { method: "DELETE" });
+export async function deleteProject(projectId: number, version: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}`), {
+    method: "DELETE",
+    headers: { "If-Match": String(version) },
+  });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "删除项目失败");
@@ -123,8 +126,11 @@ async function updateMemberRole(entryId: number, role: string | null) {
   }
 }
 
-async function deleteMember(entryId: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), { method: "DELETE" });
+async function deleteMember(entryId: number, version: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
+    method: "DELETE",
+    headers: { "If-Match": String(version) },
+  });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "删除项目参与人失败");
@@ -147,7 +153,7 @@ export async function syncMembers(projectId: number, nextDraft: ProjectDraft, en
   const currentByEmployeeId = new Map(currentEntries.map((entry) => [entry.employeeId, entry]));
 
   for (const entry of currentEntries) {
-    if (!targetIds.has(entry.employeeId)) await deleteMember(entry.id);
+    if (!targetIds.has(entry.employeeId)) await deleteMember(entry.id, entry.version);
   }
 
   for (const { member, role } of dedupedTargets.values()) {
@@ -236,8 +242,11 @@ export async function updateProjectPlanPhase(projectId: number, phaseId: number,
   }
 }
 
-export async function deleteProjectPlanPhase(projectId: number, phaseId: number) {
-  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/plan-phases/${phaseId}`), { method: "DELETE" });
+export async function deleteProjectPlanPhase(projectId: number, phaseId: number, version: number) {
+  const res = await fetch(workspacePath(`/api/modules/work/projects/${projectId}/plan-phases/${phaseId}`), {
+    method: "DELETE",
+    headers: { "If-Match": String(version) },
+  });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
     throw new Error(data.error || "删除项目阶段失败");

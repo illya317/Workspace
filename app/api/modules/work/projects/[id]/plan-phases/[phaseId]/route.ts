@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { deleteProjectPlanPhase, updateProjectPlanPhase } from "@workspace/work/server";
+import { readRequestExpectedVersion } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
@@ -33,10 +34,11 @@ export const PUT = createCommandRoute({
 export const DELETE = createCommandRoute({
   paramsSchema: planPhaseParamsSchema,
   paramsError: "项目阶段 ID 无效",
-  buildCommand: ({ params, user }) => okCommand({
+  buildCommand: ({ params, request, user }) => okCommand({
     userId: user.userId,
     projectId: params.id,
     phaseId: params.phaseId,
+    expectedVersion: readRequestExpectedVersion(request),
   }),
   action: deleteProjectPlanPhase,
 });

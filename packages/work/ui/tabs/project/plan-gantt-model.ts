@@ -9,6 +9,7 @@ export type ProjectPlanPermission = {
 
 export type ProjectPlanPhaseItem = {
   id: number;
+  version: number;
   projectId: number;
   sequenceNo: number;
   name: string;

@@ -91,6 +91,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
       permissions,
       phases: project.planPhases.map((phase) => ({
         id: phase.id,
+        version: phase.version,
         projectId: phase.projectId,
         sequenceNo: phase.sequenceNo,
         name: phase.name,
@@ -271,7 +272,12 @@ function derivePhaseBaseline(phases: Array<{ plannedStartDate: Date | null; plan
   return { plannedStartDate, plannedEndDate };
 }
 
-export async function deleteProjectPlanPhase(input: { userId: number; projectId: number; phaseId: number }) {
+export async function deleteProjectPlanPhase(input: {
+  userId: number;
+  projectId: number;
+  phaseId: number;
+  expectedVersion: number | undefined;
+}) {
   const command = validateProjectPlanCommand("deleteProjectPlanPhase");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
   if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) return serviceError("无权限", 403);
@@ -281,6 +287,7 @@ export async function deleteProjectPlanPhase(input: { userId: number; projectId:
     entityType: "ProjectPlanPhase",
     modelKey: "projectPlanPhase",
     id: input.phaseId,
+    expectedVersion: input.expectedVersion,
     userId: input.userId,
     actionLabel: "删除项目阶段",
     deleteMode: "hard",
@@ -306,9 +313,10 @@ export async function deleteProjectPlanPhase(input: { userId: number; projectId:
   return serviceOk({ success: true });
 }
 
-function mapPlanPhase(phase: { id: number; projectId: number; sequenceNo: number; name: string; plannedStartDate: Date | null; plannedEndDate: Date | null; note: string | null }) {
+function mapPlanPhase(phase: { id: number; version: number; projectId: number; sequenceNo: number; name: string; plannedStartDate: Date | null; plannedEndDate: Date | null; note: string | null }) {
   return {
     id: phase.id,
+    version: phase.version,
     projectId: phase.projectId,
     sequenceNo: phase.sequenceNo,
     name: phase.name,

@@ -117,7 +117,6 @@ export function useProjectTabModel(
     () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
     [entries, selectedProject]
   );
-  const rasciRows = useMemo(() => buildRasciRows(draft), [draft]);
   const dirty = draftSnapshot(draft) !== baseline;
   const canCreateDraftProject = draft && !draft.id ? canCreateProjectDraft(draft, projectSpaces, actionPermissions) : false;
   const canEditNewDraft = Boolean(draft && !draft.id && actionPermissions.canCreate);
@@ -287,7 +286,7 @@ export function useProjectTabModel(
     if (!selectedProject || saving) return { ok: false as const, error: "未选择项目" };
     setSaving(true);
     try {
-      await deleteProject(selectedProject.id);
+      await deleteProject(selectedProject.id, selectedProject.version);
       setToast({ type: "success", message: "项目已删除" });
       setCreating(false);
       setDraft(null);
@@ -334,25 +333,10 @@ export function useProjectTabModel(
 
   return {
     canCreateProject: actionPermissions.canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, creating, dirty, draft, error,
-    filteredProjects, loading, preferredDepartmentIds, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectSpaces, projectTypeFilter, rasciRows, saving,
+    filteredProjects, loading, preferredDepartmentIds, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectSpaces, projectTypeFilter, saving,
     selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,
     setProjectDepartmentFilter, setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setProjectTypeFilter, setRoleMembers, setSelection,
     setToast, updateDraft,
   };
-}
-
-/** @ui-structural-declaration Complete RASCI matrix row declaration. */
-function buildRasciRows(draft: ProjectDraft | null) {
-  if (!draft) return [];
-  return [
-    {
-      kind: "project" as const,
-      id: draft.id ?? 0,
-      name: draft.name || "当前项目",
-      subtitle: "主项目",
-      leader: draft.leader,
-      roleGroups: draft.roleGroups,
-    },
-  ];
 }

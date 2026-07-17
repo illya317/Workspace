@@ -5,8 +5,6 @@ import { workspacePath } from "@workspace/core/routing";
 import { createEmptySection, createFormSection, createPageBody, type BodySurfaceProps, type FormSurfaceActionSpec, type FormSurfaceItemSpec, BodySurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { canEditActualEndDate, todayDateString } from "@workspace/platform/completion-date-policy";
-import { createProjectRasciMatrixSection } from "./ProjectRasciMatrix";
-import type { ProjectRasciRow } from "./ProjectRasciMatrix";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_LEVEL_OPTION_SPECS,
@@ -35,7 +33,6 @@ type ProjectDetailEditorProps = {
   saving: boolean;
   canSave: boolean;
   canCreate?: boolean;
-  rasciRows: ProjectRasciRow[];
   creating: boolean;
   onStartCreate: () => void;
   onCancelCreate: () => void;
@@ -56,7 +53,6 @@ export function useProjectDetailEditorSection({
   saving,
   canSave,
   canCreate,
-  rasciRows,
   creating,
   onStartCreate,
   onCancelCreate,
@@ -259,7 +255,6 @@ export function useProjectDetailEditorSection({
 
   return createPageBody([
     createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields }, actions: actions.length ? actions : undefined }),
-    ...(creating ? [] : [createProjectRasciMatrixSection(rasciRows)]),
   ]);
 }
 

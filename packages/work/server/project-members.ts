@@ -129,6 +129,7 @@ export async function listProjectMembers(input: {
 
   const mapped = entries.map((entry) => ({
     id: entry.id,
+    version: entry.version,
     employeeId: entry.employeeId,
     employeeNumber: entry.employee?.employeeId || "",
     employeeName: entry.employee?.name || "",
@@ -220,6 +221,7 @@ export async function updateProjectMemberFieldAction(input: {
 export async function deleteProjectMemberAction(input: {
   userId: number;
   recordId: number;
+  expectedVersion: number | undefined;
 }): Promise<DomainServiceResult<{ success: true }>> {
   if (!Number.isInteger(input.recordId)) return serviceError("ID 无效");
   const command = await validateProjectMemberDeleteCommand(input.userId, input.recordId);
@@ -228,6 +230,7 @@ export async function deleteProjectMemberAction(input: {
     entityType: "EmployeeProject",
     modelKey: "employeeProject",
     id: command.data.recordId,
+    expectedVersion: input.expectedVersion,
     userId: input.userId,
     actionLabel: "删除项目成员",
     deleteMode: "hard",
