@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:14.751Z",
+  "generatedAt": "2026-07-16T13:29:28.008Z",
   "productKey": "allopurinol",
   "productName": "别嘌醇片",
   "document": {
@@ -26541,31 +26541,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_han_liang",
-                    "label": "称样/杂质A-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x25",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -26596,7 +26572,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x26",
+                    "alias": "x25",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26623,7 +26599,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x27",
+                    "alias": "x26",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26635,7 +26611,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_jing_zhong",
                     "label": "称样/杂质A-净重",
-                    "formulaText": "x26 - x27",
+                    "formulaText": "x25 - x26",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_pi_zhong"
@@ -26688,31 +26664,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_han_liang",
-                    "label": "称样/杂质B-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x28",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -26743,7 +26695,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x29",
+                    "alias": "x27",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26770,7 +26722,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x30",
+                    "alias": "x28",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26782,7 +26734,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_jing_zhong",
                     "label": "称样/杂质B-净重",
-                    "formulaText": "x29 - x30",
+                    "formulaText": "x27 - x28",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_pi_zhong"
@@ -26835,31 +26787,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_han_liang",
-                    "label": "称样/杂质C-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x31",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -26890,7 +26818,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x32",
+                    "alias": "x29",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26917,7 +26845,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x33",
+                    "alias": "x30",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -26929,7 +26857,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_jing_zhong",
                     "label": "称样/杂质C-净重",
-                    "formulaText": "x32 - x33",
+                    "formulaText": "x29 - x30",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_pi_zhong"
@@ -26982,31 +26910,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_han_liang",
-                    "label": "称样/杂质D-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x34",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -27037,7 +26941,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x35",
+                    "alias": "x31",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27064,7 +26968,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x36",
+                    "alias": "x32",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27076,7 +26980,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_jing_zhong",
                     "label": "称样/杂质D-净重",
-                    "formulaText": "x35 - x36",
+                    "formulaText": "x31 - x32",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_pi_zhong"
@@ -27129,31 +27033,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_han_liang",
-                    "label": "称样/杂质E-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x37",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -27184,7 +27064,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x38",
+                    "alias": "x33",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27211,7 +27091,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x39",
+                    "alias": "x34",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27223,7 +27103,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_jing_zhong",
                     "label": "称样/杂质E-净重",
-                    "formulaText": "x38 - x39",
+                    "formulaText": "x33 - x34",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_pi_zhong"
@@ -27276,31 +27156,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_han_liang",
-                    "label": "称样/别嘌醇对照-含量",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x40",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -27331,7 +27187,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x41",
+                    "alias": "x35",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27358,7 +27214,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x42",
+                    "alias": "x36",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27370,7 +27226,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_jing_zhong",
                     "label": "称样/别嘌醇对照-净重",
-                    "formulaText": "x41 - x42",
+                    "formulaText": "x35 - x36",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_pi_zhong"
@@ -27460,7 +27316,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x43",
+                    "alias": "x37",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27487,7 +27343,7 @@
                       }
                     },
                     "slotKind": "variable",
-                    "alias": "x44",
+                    "alias": "x38",
                     "valueType": "number",
                     "numberFormat": "plain"
                   },
@@ -27499,7 +27355,7 @@
                     "type": "formulaSlot",
                     "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_gong_shi_pin_jing_zhong",
                     "label": "称样/供试品-净重",
-                    "formulaText": "x43 - x44",
+                    "formulaText": "x37 - x38",
                     "dependencyFieldKeys": [
                       "finished/related_substances/allopurinol_hplc/cheng_yang_gong_shi_pin_mao_zhong",
                       "finished/related_substances/allopurinol_hplc/cheng_yang_gong_shi_pin_pi_zhong"
@@ -27656,64 +27512,14 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_1",
-                    "label": "系统适用性-1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x45",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_1_shi_fou_fu_he",
-                    "label": "系统适用性-1是否符合",
-                    "formulaText": "x45 >= 1.5",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y8",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -27737,64 +27543,14 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2",
-                    "label": "系统适用性-2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x46",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2_shi_fou_fu_he",
-                    "label": "系统适用性-2是否符合",
-                    "formulaText": "x46 <= 1.5",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y9",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -27900,159 +27656,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_1",
-                    "label": "对照/杂质A/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x47",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_2",
-                    "label": "对照/杂质A/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x48",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_3",
-                    "label": "对照/杂质A/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x49",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r",
-                    "label": "对照/杂质A/Ar",
-                    "formulaText": "AVG(x47, x48, x49)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y10",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_r_s_d",
-                    "label": "对照/杂质A/RSD",
-                    "formulaText": "RSD(x47, x48, x49)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y11",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -28076,159 +27708,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_1",
-                    "label": "对照/杂质C/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x50",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_2",
-                    "label": "对照/杂质C/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x51",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_3",
-                    "label": "对照/杂质C/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x52",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r",
-                    "label": "对照/杂质C/Ar",
-                    "formulaText": "AVG(x50, x51, x52)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y12",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_r_s_d",
-                    "label": "对照/杂质C/RSD",
-                    "formulaText": "RSD(x50, x51, x52)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y13",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -28252,159 +27760,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_1",
-                    "label": "对照/杂质B/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x53",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_2",
-                    "label": "对照/杂质B/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x54",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_3",
-                    "label": "对照/杂质B/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x55",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r",
-                    "label": "对照/杂质B/Ar",
-                    "formulaText": "AVG(x53, x54, x55)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y14",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_r_s_d",
-                    "label": "对照/杂质B/RSD",
-                    "formulaText": "RSD(x53, x54, x55)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y15",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -28428,159 +27812,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_1",
-                    "label": "对照/别嘌醇对照/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x56",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_2",
-                    "label": "对照/别嘌醇对照/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x57",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_3",
-                    "label": "对照/别嘌醇对照/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x58",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r",
-                    "label": "对照/别嘌醇对照/Ar",
-                    "formulaText": "AVG(x56, x57, x58)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y16",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_r_s_d",
-                    "label": "对照/别嘌醇对照/RSD",
-                    "formulaText": "RSD(x56, x57, x58)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y17",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -28604,159 +27864,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_1",
-                    "label": "对照/杂质D/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x59",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_2",
-                    "label": "对照/杂质D/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x60",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_3",
-                    "label": "对照/杂质D/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x61",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r",
-                    "label": "对照/杂质D/Ar",
-                    "formulaText": "AVG(x59, x60, x61)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y18",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_r_s_d",
-                    "label": "对照/杂质D/RSD",
-                    "formulaText": "RSD(x59, x60, x61)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y19",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -28780,159 +27916,35 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_1",
-                    "label": "对照/杂质E/Ar1",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x62",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_2",
-                    "label": "对照/杂质E/Ar2",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x63",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_3",
-                    "label": "对照/杂质E/Ar3",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x64",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r",
-                    "label": "对照/杂质E/Ar",
-                    "formulaText": "AVG(x62, x63, x64)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y20",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_r_s_d",
-                    "label": "对照/杂质E/RSD",
-                    "formulaText": "RSD(x62, x63, x64)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y21",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29115,217 +28127,49 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_a_a_r",
-                    "label": "供试品/杂质A-Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x65",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_b_a_r",
-                    "label": "供试品/杂质B-Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x66",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_c_a_r",
-                    "label": "供试品/杂质C-Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x67",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_d_a_r",
-                    "label": "供试品/杂质D-Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x68",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_e_a_r",
-                    "label": "供试品/杂质E-Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x69",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_wei_zhi_dan_ge_a_r",
-                    "label": "供试品/未知单个Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x70",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "fieldSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_wei_zhi_zong_a_r",
-                    "label": "供试品/未知总Ar",
-                    "inputType": "text",
-                    "readonlyDisplay": false,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "slotKind": "variable",
-                    "alias": "x71",
-                    "valueType": "number",
-                    "numberFormat": "plain"
-                  }
-                ],
+                "parts": [],
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29349,33 +28193,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_a",
-                    "label": "结果/杂质A",
-                    "formulaText": "x65 * z2 * x25 * 6 * 10 * 100 / (y10 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y22",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29399,33 +28217,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_b",
-                    "label": "结果/杂质B",
-                    "formulaText": "x66 * z3 * x28 * 3 * 10 * 100 / (y14 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y23",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29449,33 +28241,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_c",
-                    "label": "结果/杂质C",
-                    "formulaText": "x67 * z4 * x31 * 3 * 10 * 100 / (y12 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y24",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29499,33 +28265,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_d",
-                    "label": "结果/杂质D",
-                    "formulaText": "x68 * z5 * x34 * 3 * 10 * 100 / (y18 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y25",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29549,33 +28289,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_e",
-                    "label": "结果/杂质E",
-                    "formulaText": "x69 * z6 * x37 * 3 * 10 * 100 / (y20 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y26",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29599,33 +28313,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_dan_za",
-                    "label": "结果/单杂",
-                    "formulaText": "x70 * z7 * x40 * 3 * 10 * 100 / (y16 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y27",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -29649,33 +28337,7 @@
                 "bold": false
               },
               {
-                "parts": [
-                  {
-                    "type": "formulaSlot",
-                    "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_zong_za",
-                    "label": "结果/总杂",
-                    "formulaText": "y22 + y23 + y24 + y25 + y26 + x71 * z7 * x40 * 3 * 10 * 100 / (y16 * z1 * 100 * 100 * 100)",
-                    "dependencyFieldKeys": [],
-                    "slotKind": "formula",
-                    "readonlyDisplay": true,
-                    "width": "3rem",
-                    "metadata": {
-                      "source": {
-                        "productKey": "allopurinol",
-                        "productName": "别嘌醇片",
-                        "stageKey": "finished",
-                        "stageLabel": "成品",
-                        "testKey": "related_substances",
-                        "testName": "有关物质",
-                        "sequence": "2.3"
-                      }
-                    },
-                    "alias": "y28",
-                    "valueType": "number",
-                    "numberFormat": "round_half_even",
-                    "precision": 4
-                  }
-                ],
+                "parts": [],
                 "colspan": 7,
                 "rowspan": 1,
                 "isEmpty": false,
@@ -32099,7 +30761,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32142,7 +30804,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32185,7 +30847,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -32232,7 +30894,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32275,7 +30937,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -32318,7 +30980,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -39064,7 +37726,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -39195,7 +37857,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -63535,6 +62197,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -63545,8 +62208,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x25",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63569,7 +62230,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x26",
+        "alias": "x25",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63592,7 +62253,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x27",
+        "alias": "x26",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63631,6 +62292,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -63641,8 +62303,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x28",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63665,7 +62325,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x29",
+        "alias": "x27",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63688,7 +62348,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x30",
+        "alias": "x28",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63727,6 +62387,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -63737,8 +62398,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x31",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63761,7 +62420,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x32",
+        "alias": "x29",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63784,7 +62443,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x33",
+        "alias": "x30",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63823,6 +62482,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -63833,8 +62493,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x34",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63857,7 +62515,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x35",
+        "alias": "x31",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63880,7 +62538,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x36",
+        "alias": "x32",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63919,6 +62577,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -63929,8 +62588,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x37",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63953,7 +62610,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x38",
+        "alias": "x33",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -63976,7 +62633,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x39",
+        "alias": "x34",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64015,6 +62672,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "allopurinol",
@@ -64025,8 +62683,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x40",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64049,7 +62705,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x41",
+        "alias": "x35",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64072,7 +62728,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x42",
+        "alias": "x36",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64122,7 +62778,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x43",
+        "alias": "x37",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64145,7 +62801,7 @@
           "sequence": "2.3"
         },
         "slotKind": "variable",
-        "alias": "x44",
+        "alias": "x38",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64605,8 +63261,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x45",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64627,8 +63281,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x46",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64637,7 +63289,7 @@
         "name": "系统适用性-1是否符合",
         "group": "别嘌醇片成品有关物质",
         "valueType": "boolean",
-        "inputType": "field",
+        "inputType": "boolean",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -64649,16 +63301,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y8"
+        }
       },
       "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2_shi_fou_fu_he": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2_shi_fou_fu_he",
         "name": "系统适用性-2是否符合",
         "group": "别嘌醇片成品有关物质",
         "valueType": "boolean",
-        "inputType": "field",
+        "inputType": "boolean",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -64670,9 +63320,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y9"
+        }
       },
       "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_shi_fou_fu_he": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_shi_fou_fu_he",
@@ -64710,8 +63358,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x47",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64732,8 +63378,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x48",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64754,8 +63398,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x49",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64764,7 +63406,7 @@
         "name": "对照/杂质A/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -64776,16 +63418,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y10"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_r_s_d",
         "name": "对照/杂质A/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -64798,9 +63438,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y11"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_1": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_1",
@@ -64819,8 +63457,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x53",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64841,8 +63477,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x54",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64863,8 +63497,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x55",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64873,7 +63505,7 @@
         "name": "对照/杂质B/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -64885,16 +63517,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y14"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_r_s_d",
         "name": "对照/杂质B/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -64907,9 +63537,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y15"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_1": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_1",
@@ -64928,8 +63556,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x50",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64950,8 +63576,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x51",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64972,8 +63596,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x52",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -64982,7 +63604,7 @@
         "name": "对照/杂质C/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -64994,16 +63616,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y12"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_r_s_d",
         "name": "对照/杂质C/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65016,9 +63636,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y13"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_1": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_1",
@@ -65037,8 +63655,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x59",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65059,8 +63675,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x60",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65081,8 +63695,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x61",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65091,7 +63703,7 @@
         "name": "对照/杂质D/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -65103,16 +63715,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y18"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_r_s_d",
         "name": "对照/杂质D/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65125,9 +63735,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y19"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_1": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_1",
@@ -65146,8 +63754,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x62",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65168,8 +63774,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x63",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65190,8 +63794,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x64",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65200,7 +63802,7 @@
         "name": "对照/杂质E/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -65212,16 +63814,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y20"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_r_s_d",
         "name": "对照/杂质E/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65234,9 +63834,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y21"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_1": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_1",
@@ -65255,8 +63853,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x56",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65277,8 +63873,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x57",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65299,8 +63893,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x58",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65309,7 +63901,7 @@
         "name": "对照/别嘌醇对照/Ar",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "options": [],
         "readonlyDisplay": true,
@@ -65321,16 +63913,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y16"
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_r_s_d",
         "name": "对照/别嘌醇对照/RSD",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65343,9 +63933,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y17"
+        }
       },
       "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_a_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/gong_shi_pin_za_zhi_a_a_r",
@@ -65364,8 +63952,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x65",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65386,8 +63972,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x66",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65408,8 +63992,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x67",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65430,8 +64012,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x68",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65452,8 +64032,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x69",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65474,8 +64052,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x70",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65496,8 +64072,6 @@
           "testName": "有关物质",
           "sequence": "2.3"
         },
-        "slotKind": "variable",
-        "alias": "x71",
         "type": "number",
         "numberFormat": "plain"
       },
@@ -65506,7 +64080,7 @@
         "name": "结果/杂质A",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65519,16 +64093,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y22"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_b": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_b",
         "name": "结果/杂质B",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65541,16 +64113,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y23"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_c": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_c",
         "name": "结果/杂质C",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65563,16 +64133,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y24"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_d",
         "name": "结果/杂质D",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65585,16 +64153,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y25"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_e": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_e",
         "name": "结果/杂质E",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65607,16 +64173,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y26"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_dan_za": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_dan_za",
         "name": "结果/单杂",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65629,16 +64193,14 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y27"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_zong_za": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_zong_za",
         "name": "结果/总杂",
         "group": "别嘌醇片成品有关物质",
         "valueType": "number",
-        "inputType": "field",
+        "inputType": "number",
         "attr": "calculated",
         "unit": "%",
         "options": [],
@@ -65651,9 +64213,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "slotKind": "formula",
-        "alias": "y28"
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_ce_ding_shi_fou_fu_he_gui_ding": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_ce_ding_shi_fou_fu_he_gui_ding",
@@ -70216,7 +68776,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x26 - x27"
+        "formulaText": "x25 - x26"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_jing_zhong",
@@ -70251,7 +68811,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x29 - x30"
+        "formulaText": "x27 - x28"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_jing_zhong",
@@ -70286,7 +68846,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x32 - x33"
+        "formulaText": "x29 - x30"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_jing_zhong",
@@ -70321,7 +68881,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x35 - x36"
+        "formulaText": "x31 - x32"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_jing_zhong",
@@ -70356,7 +68916,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x38 - x39"
+        "formulaText": "x33 - x34"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_jing_zhong",
@@ -70391,7 +68951,7 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x41 - x42"
+        "formulaText": "x35 - x36"
       },
       "finished/related_substances/allopurinol_hplc/cheng_yang_gong_shi_pin_jing_zhong": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/cheng_yang_gong_shi_pin_jing_zhong",
@@ -70426,11 +68986,10 @@
         "valueType": "number",
         "numberFormat": "round_half_even",
         "precision": 4,
-        "formulaText": "x43 - x44"
+        "formulaText": "x37 - x38"
       },
       "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_1_shi_fou_fu_he": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_1_shi_fou_fu_he",
-        "formulaText": "x45 >= 1.5",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_1"
         ],
@@ -70443,27 +69002,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y8",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2_shi_fou_fu_he": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2_shi_fou_fu_he",
-        "formulaText": "x46 <= 1.5",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_2"
         ],
@@ -70476,23 +69018,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y9",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_shi_fou_fu_he": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/xi_tong_shi_yong_xing_shi_fou_fu_he",
@@ -70515,7 +69041,6 @@
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r",
-        "formulaText": "AVG(x47, x48, x49)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_2",
@@ -70530,27 +69055,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y10",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_r_s_d",
-        "formulaText": "RSD(x47, x48, x49)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_a_a_r_2",
@@ -70566,27 +69074,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y11",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r",
-        "formulaText": "AVG(x53, x54, x55)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_2",
@@ -70601,27 +69092,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y14",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_r_s_d",
-        "formulaText": "RSD(x53, x54, x55)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_b_a_r_2",
@@ -70637,27 +69111,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y15",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r",
-        "formulaText": "AVG(x50, x51, x52)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_2",
@@ -70672,27 +69129,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y12",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_r_s_d",
-        "formulaText": "RSD(x50, x51, x52)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_c_a_r_2",
@@ -70708,27 +69148,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y13",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r",
-        "formulaText": "AVG(x59, x60, x61)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_2",
@@ -70743,27 +69166,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y18",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_r_s_d",
-        "formulaText": "RSD(x59, x60, x61)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_d_a_r_2",
@@ -70779,27 +69185,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y19",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r",
-        "formulaText": "AVG(x62, x63, x64)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_2",
@@ -70814,27 +69203,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y20",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_r_s_d",
-        "formulaText": "RSD(x62, x63, x64)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_za_zhi_e_a_r_2",
@@ -70850,27 +69222,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y21",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r",
-        "formulaText": "AVG(x56, x57, x58)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_2",
@@ -70885,27 +69240,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y16",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_r_s_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_r_s_d",
-        "formulaText": "RSD(x56, x57, x58)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_1",
           "finished/related_substances/allopurinol_hplc/dui_zhao_bie_piao_chun_dui_zhao_a_r_2",
@@ -70921,27 +69259,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y17",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_a": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_a",
-        "formulaText": "x65 * z2 * x25 * 6 * 10 * 100 / (y10 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_a_jing_zhong",
@@ -70958,27 +69279,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y22",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_b": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_b",
-        "formulaText": "x66 * z3 * x28 * 3 * 10 * 100 / (y14 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_b_jing_zhong",
@@ -70995,27 +69299,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y23",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_c": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_c",
-        "formulaText": "x67 * z4 * x31 * 3 * 10 * 100 / (y12 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_c_jing_zhong",
@@ -71032,27 +69319,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y24",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_d": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_d",
-        "formulaText": "x68 * z5 * x34 * 3 * 10 * 100 / (y18 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_d_jing_zhong",
@@ -71069,27 +69339,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y25",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_e": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_za_zhi_e",
-        "formulaText": "x69 * z6 * x37 * 3 * 10 * 100 / (y20 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_za_zhi_e_jing_zhong",
@@ -71106,27 +69359,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y26",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_dan_za": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_dan_za",
-        "formulaText": "x70 * z7 * x40 * 3 * 10 * 100 / (y16 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_jing_zhong",
@@ -71143,27 +69379,10 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y27",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_zong_za": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_zong_za",
-        "formulaText": "y22 + y23 + y24 + y25 + y26 + x71 * z7 * x40 * 3 * 10 * 100 / (y16 * z1 * 100 * 100 * 100)",
         "dependencyFieldKeys": [
           "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_han_liang",
           "finished/related_substances/allopurinol_hplc/cheng_yang_bie_piao_chun_dui_zhao_jing_zhong",
@@ -71185,23 +69404,7 @@
           "testKey": "related_substances",
           "testName": "有关物质",
           "sequence": "2.3"
-        },
-        "metadata": {
-          "source": {
-            "productKey": "allopurinol",
-            "productName": "别嘌醇片",
-            "stageKey": "finished",
-            "stageLabel": "成品",
-            "testKey": "related_substances",
-            "testName": "有关物质",
-            "sequence": "2.3"
-          }
-        },
-        "slotKind": "formula",
-        "alias": "y28",
-        "valueType": "number",
-        "numberFormat": "round_half_even",
-        "precision": 4
+        }
       },
       "finished/related_substances/allopurinol_hplc/jie_guo_ce_ding_shi_fou_fu_he_gui_ding": {
         "fieldKey": "finished/related_substances/allopurinol_hplc/jie_guo_ce_ding_shi_fou_fu_he_gui_ding",
@@ -71978,7 +70181,7 @@
   "audit": {
     "productKey": "allopurinol",
     "productName": "别嘌醇片",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/allopurinol.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/allopurinol.json",
     "stages": 3,
     "experimentItems": 9,
     "tables": 104,
@@ -72024,7 +70227,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/别嘌醇片.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/别嘌醇片.md",
         "exists": true,
         "headings": [
           {
@@ -72699,12 +70902,12 @@
           "inlineNotPromoted": []
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/allopurinol.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/allopurinol.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/allopurinol_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/allopurinol_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/allopurinol_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/allopurinol_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/allopurinol_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/allopurinol_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

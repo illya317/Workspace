@@ -119,6 +119,8 @@ export interface EditorSlotInline {
   inputType?: string;
   valueType?: string;
   numberFormat?: string;
+  numberDisplayMode?: "plain" | "percent";
+  formulaInputMode?: "percent";
   precision?: number;
   options?: string[];
   placeholder?: string;
@@ -151,6 +153,7 @@ export interface FieldDefinition {
   valueType?: string;
   inputType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   attr?: string;
   unit?: string;

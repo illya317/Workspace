@@ -7,17 +7,17 @@
 - **框架**: Next.js 16 + React + TypeScript + Tailwind CSS
 - **数据库**: Prisma ORM + PostgreSQL 15+（PrismaPg adapter）
 - **认证**: JWT Cookie + Open API Bearer Client
-- **CI/CD**: GitHub Actions 只负责公开 CI 和 E2E；CNB 从自己的 release injection 构建 standalone 并部署到 CVM
+- **CI/CD**: GitHub Actions 负责 PR/合并质量与按风险选择的 E2E；生产发布由本地精确 tree 的一次全量 CI 凭证放行，CNB 只构建 Linux standalone 并部署，CVM 不构建源码
 
 ## 2. 部署与运行态同步
 
-`origin`（GitHub）承载 PR、canonical 源码和公开 CI；`cnb` 承载 `cnb-release` 注入提交、构建和 CD。部署链不读取 GitHub。历史 `codeup` 远端已废弃，不再配置或同步。
+`origin`（GitHub）继续承载协作、PR 和公开 CI；生产部署真源是本地已提交 source SHA/tree 生成的 CNB `cnb-release` request。历史 `codeup` 远端已废弃，不再配置或同步。
 
 - 普通候选不直接 push `main`。Git 跟踪的 `ops/publish.sh push` 先跑自适应本地 gate，再更新稳定 staging ref；受信任的 GitHub workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上触发 CI。桌面 ops 的同名脚本只是加载私有 `.env` 后转交此脚本。
-- 不把 `cnb/main` 当部署入口。正式发布时，底层脚本在本地 main 的单一 child commit 中只注入 `.cnb.yml` 和 `.cnb-release.json`，推送 `cnb-release` 并触发 `api_trigger_manual`。
+- 不把 `cnb/main` 当发布源码入口。正式发布时，底层脚本在当前已提交 source 的 child commit 中只注入由 Git 跟踪 `ops/cnb-release.yml` 产生的 `.cnb.yml` 与 `.cnb-deploy-request.json`，然后触发 `cnb-release` 的 `api_trigger_manual`。
 - 生产维护尽量在本地完成代码、migration、文档和检查，再通过 CNB 部署过去。服务器 SSH 只做只读诊断、日志/状态确认和部署后验证；不要在服务器上手改源码、生成物或数据库结构来替代正式提交。
-- 正式发布必须先 commit，并由 `publish.sh deploy` 取得当前 Git tree 的本地全量 CI 凭证；不要求先完成 GitHub PR、合并或远端 CI。
-- CNB 在 injection commit 上执行 `npm ci` 和 standalone build，绑定 parent source SHA/tree，随后由 `./ops/deploy.sh` 校验本地 manifest/artifact hash 并上传服务器；服务器不构建源码。
+- 正式发布必须先 commit 且工作区干净；GitHub PR/CI 可以继续用于协作质量，但 `deploy` 不调用 GitHub API、Actions、Release 或 GitHub token。
+- `publish.sh deploy` 对精确 source tree 运行或复用一次 `npm run check:ci` 并把凭证写入 release request；CNB 校验 request/tree/凭证后运行 `build-standalone-artifact.sh`，复核 manifest/digest 并上传服务器，不重复 Node/类型/Next 全量门禁；服务器不执行源码构建。
 - 服务器运行态只来自 `REMOTE_WORKSPACE_CONFIG_DIR`，包括 `.env`、文档/资料/QC 文件、`public/company`、`public/assets/agent/avatar/` 等，不随构建产物覆盖；每次部署会先做 PostgreSQL `pg_dump` 并备份该目录。
 - `data/` 中的文件型运行态以服务器为准：本地 `data/` 不上传覆盖服务器；业务关系数据只存 PostgreSQL。
 - 项目根不要创建 `data -> 外部目录` 软链；Next/Turbopack 构建会追踪项目根 data 软链并可能因指向项目外而失败。代码通过 `.env` 中的 `DATABASE_URL` / `DIRECT_URL` 连接 PostgreSQL，通过 `WORKSPACE_CONFIG_DIR` 定位文件型运行态。
@@ -35,13 +35,13 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh push
 
 生产发布流程：
 
-1. 确认本地 `main` 已提交且工作区干净，然后运行私有发布入口；入口会运行或复用当前 tree 的一次本地全量 CI：
+1. 确认当前 HEAD 是要发布的已提交版本、分支为 `main` 且工作区干净，然后运行私有发布入口；deploy 不要求或查询 GitHub 状态：
 
 ```bash
 OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 ```
 
-2. `publish.sh deploy` 把本地全量 CI 凭证写入 CNB release metadata，触发 CNB、记录 SN，并等待服务器 `deployed-release.json`、health 和版本端点确认。它不查询 GitHub，也不创建 GitHub Deployment。诊断时使用同一个 SN 拉日志，不要额外 push 制造第二条部署记录。
+2. `publish.sh deploy` 将当前已提交 source SHA/tree、本地全量 CI 凭证和可选的一次性 production bootstrap context 写入 CNB release request，触发 CNB 后轮询同一个 SN；CNB 只做 Linux 打包、digest 校验和部署。成功后本地复验 schema-v2 `deployed-release.json` 的 source/CNB/artifact、PM2、health 与版本。诊断时使用同一个 SN 拉日志，不要额外 push 制造第二条部署记录。
 
 生产服务器地址、SSH 密钥路径和 `CNB_REPO` 在桌面私有 ops `.env` 中维护。本机只读诊断时使用私有 ops `.env` 中的 `KEY`，只引用路径，不打印、不复制、不提交密钥内容。部署流水线使用 CNB 加密变量 `KEY_CONTENT`，不要改成本地私钥直传。
 

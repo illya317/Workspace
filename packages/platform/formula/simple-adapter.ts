@@ -7,6 +7,7 @@ import {
   validateFormulaFunctionArguments,
 } from "./parser";
 import { durationUnit, evaluateDateDifferenceExpression, validateDateDifferenceExpression } from "./date-difference";
+import { createInitialFormulaValues } from "./initial-values";
 import type {
   FormulaEngineAdapter,
   FormulaEvaluationError,
@@ -24,7 +25,7 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
     const catalog = createReferenceCatalog(fields);
     const fieldByKey = new Map(fields.map((field) => [field.fieldKey, field]));
     const expressions = new Map<string, ReturnType<typeof parseFormulaExpression>>();
-    const values = createInitialValues(fields, input.values);
+    const values = createInitialFormulaValues(fields, input.values);
     const errors: FormulaEvaluationError[] = [];
     const erroredFields = new Set<string>();
 
@@ -103,17 +104,6 @@ export class SimpleFormulaAdapter implements FormulaEngineAdapter {
 
     return { adapter: this.kind, ok: errors.length === 0, values, errors: dedupeErrors(errors) };
   }
-}
-
-function createInitialValues(fields: FormulaField[], overrides?: Record<string, FormulaValue | undefined>) {
-  const values: Record<string, FormulaValue> = {};
-  for (const field of fields) {
-    if (field.value !== undefined) values[field.fieldKey] = field.value;
-  }
-  for (const [fieldKey, value] of Object.entries(overrides ?? {})) {
-    if (value !== undefined) values[fieldKey] = value;
-  }
-  return values;
 }
 
 function isInputReference(reference: string, catalog: ReturnType<typeof createReferenceCatalog>, fieldByKey: Map<string, FormulaField>, context?: string) {

@@ -9,8 +9,10 @@ import type {
   DocsEditorTemplateRow,
 } from "./db";
 import {
+  readTemplateContent,
   writeTemplateContentJson,
 } from "./content-store";
+import { upgradeGeneratedQcUserContent } from "./generated-qc-content-upgrade";
 import { normalizeDocumentTemplatePayload } from "./domain/document-template-validation";
 import {
   QC_OFFICIAL_TEMPLATE_PRODUCT_KEYS,
@@ -110,6 +112,7 @@ export async function syncGeneratedQcTemplates(input: {
           data: { spaceId: input.space.id },
         });
       }
+      await upgradeUserEditedGeneratedQcTemplate(input.db, input.space, entry, existing);
       continue;
     }
     if (!isGeneratedQcTemplateMetadataCurrent(input.space, entry, existing)) {
@@ -129,6 +132,35 @@ export async function syncGeneratedQcTemplates(input: {
     await upsertGeneratedQcTemplate(input.db, input.space, payload, existing ?? null);
   }
   syncedSnapshotBySpaceId.set(input.space.id, snapshotKey);
+}
+
+async function upgradeUserEditedGeneratedQcTemplate(
+  db: DocsEditorDb,
+  space: DocsEditorSpaceRow,
+  entry: GeneratedQcIndexEntry,
+  existing: GeneratedQcExistingTemplate,
+) {
+  const payload = await readGeneratedQcPayload(entry.filePath);
+  if (!payload) return;
+  const content = await readTemplateContent(existing);
+  const upgraded = upgradeGeneratedQcUserContent({
+    productKey: entry.productKey,
+    document: content.document,
+    fieldModel: content.fieldModel,
+    sourceFieldModel: payload.fieldModel,
+  });
+  if (!upgraded.changed) return;
+  const contentMetadata = await writeTemplateContentJson({
+    template: { ...existing, type: "qc", status: "published", ownerUserId: null },
+    space,
+    documentJson: JSON.stringify(upgraded.document),
+    fieldModelJson: JSON.stringify(upgraded.fieldModel),
+    mode: "version",
+  });
+  await db.documentTemplate.update({
+    where: { id: existing.id },
+    data: { ...contentMetadata, version: { increment: 1 } },
+  });
 }
 
 export function getGeneratedQcTemplateMetrics(productKey: string | null | undefined): GeneratedQcMetrics | null {

@@ -69,6 +69,7 @@ function flattenFields(group: string, value: unknown): MethodFieldDraft[] {
       type: asString(field.type) || undefined,
       attr: asString(field.attr) || undefined,
       unit: asString(field.unit) || undefined,
+      formulaInputMode: field.formula_input_mode === "percent" || field.formulaInputMode === "percent" ? "percent" : undefined,
       formula: asString(field.formula) || undefined,
       rule: asString(field.rule) || undefined,
       options: asArray(field.options).map((option) => asString(option)).filter(Boolean),

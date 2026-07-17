@@ -9,6 +9,7 @@ export interface EditorInlinePartBase {
   slotKind?: "person" | "date" | "choice" | "plain" | "variable" | "parameter" | "formula" | "reference";
   valueType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   metadata?: JsonObject;
 }
@@ -25,6 +26,7 @@ export interface EditorFieldSlotPart extends EditorInlinePartBase {
   inputType?: string;
   valueType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   options?: string[];
   defaultValue?: string;
@@ -46,6 +48,7 @@ export interface EditorFormulaSlotPart extends EditorInlinePartBase {
   valueSource?: JsonObject;
   valueType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   width?: string;
 }
@@ -150,6 +153,7 @@ export interface EditorFieldDefinition {
   valueType?: string;
   inputType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   attr?: string;
   unit?: string;

@@ -26,12 +26,6 @@ test("Workspace assistant grants stay outside the Agent management resource", ()
     byEmployeeId.get("AI0004")?.workspaceResourceGrants,
     MANAGED_WORKSPACE_RESOURCE_GRANTS,
   );
-  assert.equal(
-    byEmployeeId.get("AI0004")?.workspaceResourceGrants.some(
-      (grant) => grant.resourceKey === "agent.config",
-    ),
-    false,
-  );
 });
 
 test("workforce lifecycle uses the inclusive Shanghai business date", () => {

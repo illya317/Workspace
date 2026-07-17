@@ -126,6 +126,8 @@ export function createSlotExtension(name: EditorSlotType) {
         inputType: { default: null },
         valueType: { default: null },
         numberFormat: { default: null },
+        numberDisplayMode: { default: null },
+        formulaInputMode: { default: null },
         precision: { default: null },
         options: { default: null },
         placeholder: { default: null },

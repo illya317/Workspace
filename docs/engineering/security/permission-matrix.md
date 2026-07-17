@@ -62,14 +62,11 @@
 | `settings.ui` | docs | `entry`, `read`, `grant` |
 | `settings.account.apiAccess` | capability | `entry`, `read`, `revise`, `grant` |
 | `settings.api.manage` | capability | `entry`, `read`, `create`, `update`, `revise`, `grant` |
-| `agent` | container | `entry`, `read`, `grant` |
-| `agent.config` | business | `entry`, `read`, `configure`, `grant` |
-| `agent.usage` | business | `entry`, `read`, `audit`, `grant` |
-| `agent.reports` | business | `entry`, `read`, `audit`, `grant` |
+| `agent` | headless | `entry`, `read`, `submit`, `grant` |
 | `agent.assistant` | capability | `entry`, `read`, `submit`, `grant` |
 | `agent.source` | capability | `read`, `submit`, `grant` |
 
-`agent` 及三个 L2 只对应受限管理中心：配置、使用分析、任务汇报。普通员工工具栏与 `/api/agent/**` 只认 `agent.assistant`；其 owner 是 `settings.account`，`runtimeParentKey=agent` 仅控制模块停用，不继承管理中心权限。源码检索与 CNB PR 提案另需显式 `agent.source.read/submit`，其 owner 是 `agent.assistant`，因此双方需要助手入口但不需要 `agent.config.entry`。虚拟员工模式还要求所选 profile、actor 岗位权限和工具白名单同时通过；当前只有 AI0004 获得 Workspace source grants，且这些 profile-only 工具不会暴露给本人助手。AI0001-AI0003 不承担 Workspace 对话，本地代码开发、直接提交和部署仍在外部运行时完成。
+`agent` 是无页面的运行态模块。普通员工工具栏与 `/api/agent/**` 只认 `agent.assistant`；其 owner 是 `settings.account`，`runtimeParentKey=agent` 仅控制模块停用。源码检索与 CNB PR 提案另需显式 `agent.source.read/submit`，其 owner 是 `agent.assistant`。虚拟员工模式还要求所选 profile、actor 岗位权限和工具白名单同时通过；当前只有 AI0004 获得 Workspace source grants，且这些 profile-only 工具不会暴露给本人助手。AI0001-AI0003 不承担 Workspace 对话，本地代码开发、直接提交和部署仍在外部运行时完成。
 
 ## 空间派生资源
 
