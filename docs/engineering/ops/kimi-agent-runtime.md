@@ -10,7 +10,7 @@ Workspace 继续通过 SDK 的 `thinking: true` 让 CLI 负责供应商参数映
 - 每次运行在 `AgentRun` 中保存 runtime binding ID，以及当时职责 instructions、能力清单的不可变 JSON/SHA-256 快照；后续修改运行配置不会改写历史审计证据。
 - 自定义 Kimi agent 的 `tools` 和 `subagents` 均为空。CLI 内置 Shell、文件、MCP、插件、后台任务和子 Agent 不进入模型工具集；Wire `PreToolUse` 还会阻断所有非本轮 Workspace allowlist 工具。
 - 写工具只能生成 proposal。SDK 不注册 proposal confirm executor；请求人确认由独立 Workspace API 固定原 profile/actor、原子抢占状态并重新鉴权后执行。抢占记录带执行 token 与租约；进程中断后的陈旧执行只能落为“结果未知、需人工核对”，不得自动重放。源码 PR proposal 还固定完整 patch、SHA-256、远端仓库、base commit/branch 和确定性 proposal branch，执行前再次验证目标与实际暂存文件集。确定性分支使用 create-only push；校验、缺 token、clone/apply 等 dispatch 前失败保持“结果已知”，只有首次 push dispatch 后的异常才标记远端结果未知并要求人工 reconciliation。
-- SDK 会继承父进程环境，因此生产 executable 必须是 `kimi-agent-sandbox-runner.sh`。runner 的 shebang 在 Bash 启动前清空环境，再通过 Bubblewrap 二次 `--clearenv`，只挂载专用 runtime、空 workdir 和 Kimi 凭据目录；应用 `.env`、数据库、源码和服务器 home 不可见。
+- SDK 会继承父进程环境，因此生产 executable 必须是 `kimi-agent-sandbox-runner.sh`。runner 的 shebang 在 Bash 启动前清空环境，再通过 Bubblewrap 二次 `--clearenv`，只挂载专用 runtime、空 workdir、Kimi 凭据目录和经过校验的本轮只读 agent config；应用 `.env`、数据库、源码和服务器 home 不可见。
 - Web 和企业微信共用 3 个活跃 turn 槽位；这是 Workspace 自身的硬上限，不因选择 OAuth 或 API Key 而放宽。
 
 ## 流式传输

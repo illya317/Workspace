@@ -24,15 +24,19 @@ require_under_root "$SHARE_DIR" "share directory"
 require_under_root "$HOME_DIR" "home directory"
 
 WORK_DIR=""
+AGENT_FILE=""
 previous=""
 for argument in "$@"; do
   if [ "$previous" = "--work-dir" ]; then
     WORK_DIR="$argument"
-    break
+  elif [ "$previous" = "--agent-file" ]; then
+    AGENT_FILE="$argument"
+  else
+    case "$argument" in
+      --work-dir=*) WORK_DIR="${argument#--work-dir=}" ;;
+      --agent-file=*) AGENT_FILE="${argument#--agent-file=}" ;;
+    esac
   fi
-  case "$argument" in
-    --work-dir=*) WORK_DIR="${argument#--work-dir=}"; break ;;
-  esac
   previous="$argument"
 done
 
@@ -41,6 +45,20 @@ if [ -z "$WORK_DIR" ]; then
   exit 64
 fi
 require_under_root "$WORK_DIR" "work directory"
+
+AGENT_CONFIG_DIR=""
+if [ -n "$AGENT_FILE" ]; then
+  RESOLVED_AGENT_FILE="$(readlink -f "$AGENT_FILE" 2>/dev/null || true)"
+  if [ "$RESOLVED_AGENT_FILE" != "$AGENT_FILE" ] || [ ! -f "$AGENT_FILE" ]; then
+    echo "[kimi-sandbox] agent file must be an existing canonical file" >&2
+    exit 64
+  fi
+  case "$AGENT_FILE" in
+    "$ROOT"/turns/*/config/agent.yaml) ;;
+    *) echo "[kimi-sandbox] agent file must be a per-turn Workspace config" >&2; exit 64 ;;
+  esac
+  AGENT_CONFIG_DIR="$(dirname "$AGENT_FILE")"
+fi
 
 if [ ! -x "$BWRAP_EXECUTABLE" ]; then
   echo "[kimi-sandbox] dedicated bubblewrap is required: $BWRAP_EXECUTABLE" >&2
@@ -75,6 +93,10 @@ args=(
   --setenv LANG "${LANG:-C.UTF-8}"
   --setenv LC_ALL "${LC_ALL:-C.UTF-8}"
 )
+
+if [ -n "$AGENT_CONFIG_DIR" ]; then
+  args+=(--ro-bind "$AGENT_CONFIG_DIR" "$AGENT_CONFIG_DIR")
+fi
 
 for system_dir in /bin /lib /lib64; do
   if [ -e "$system_dir" ]; then

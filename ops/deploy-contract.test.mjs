@@ -6,6 +6,7 @@ import { join } from "node:path";
 import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
 
 function assertOrdered(source, needles) {
   let previous = -1;
@@ -105,6 +106,13 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
     deploy,
     /if \[ "\$order_action" = "noop" \]; then[\s\S]*?run_healthcheck[\s\S]*?exit 0/,
   );
+});
+
+test("Kimi sandbox mounts only the validated per-turn agent config", () => {
+  assert.match(kimiSandboxRunner, /--agent-file=/);
+  assert.match(kimiSandboxRunner, /\"\$ROOT\"\/turns\/\*\/config\/agent\.yaml/);
+  assert.match(kimiSandboxRunner, /RESOLVED_AGENT_FILE/);
+  assert.match(kimiSandboxRunner, /args\+=\(--ro-bind \"\$AGENT_CONFIG_DIR\" \"\$AGENT_CONFIG_DIR\"\)/);
 });
 
 test("all embedded deployment Node programs are syntactically executable", () => {
