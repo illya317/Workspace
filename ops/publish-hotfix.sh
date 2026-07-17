@@ -76,8 +76,10 @@ done
 TMP_DIR="$(mktemp -d)"
 TMP_KEY=""
 cleanup() {
+  local exit_status=$?
   rm -rf "$TMP_DIR"
-  rm -f "${TMP_KEY:-}"
+  [ -z "${TMP_KEY:-}" ] || rm -f "$TMP_KEY"
+  return "$exit_status"
 }
 trap cleanup EXIT
 
@@ -159,7 +161,7 @@ node scripts/ci/classify-risk.mjs \
   --head "$SOURCE_SHA" \
   --diff-mode three-dot > "$CLASSIFICATION_FILE"
 HOTFIX_RISK_CLASS="$(node -e 'const x=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8")); process.stdout.write(x.riskClass)' "$CLASSIFICATION_FILE")"
-echo "==> hotfix 风险分类: $HOTFIX_RISK_CLASS（scope policy: $HOTFIX_SCOPE_POLICY）"
+echo "==> hotfix 风险分类: ${HOTFIX_RISK_CLASS}（scope policy: ${HOTFIX_SCOPE_POLICY}）"
 if [ "$HOTFIX_SCOPE_POLICY" = "restricted" ]; then
   case ",$HOTFIX_ALLOWED_RISK_CLASSES," in
     *",$HOTFIX_RISK_CLASS,"*) ;;

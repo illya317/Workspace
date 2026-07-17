@@ -11,7 +11,7 @@ const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
-  for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
+  for (const [name, source] of Object.entries({ publish, publishCnb, publishHotfix, releaseToCnb, deploy })) {
     assert.doesNotMatch(source, /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]/u, name);
   }
 });
@@ -36,6 +36,8 @@ test("SSH hotfix keeps scope open but preserves exact-source and cutover safety"
   assert.match(publishHotfix, /RELEASE_TRANSPORT=ssh-hotfix/);
   assert.match(publishHotfix, /bash "\$SCRIPT_DIR\/deploy\.sh"/);
   assert.doesNotMatch(publishHotfix, /cnb build|release-to-cnb|publish-cnb/);
+  assert.match(publishHotfix, /cleanup\(\) \{\s+local exit_status=\$\?/);
+  assert.match(publishHotfix, /return "\$exit_status"/);
 });
 
 test("SSH hotfix builds exact source in a resource-capped Node 24 Linux container", () => {
