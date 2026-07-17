@@ -101,7 +101,7 @@ export async function commitHrPerformanceApprovedPayload(input: {
   const { actorUserId, request } = input;
   if (!(await canApproveHrPerformance(actorUserId))) return serviceError("无权限归档绩效记录", 403);
   const payload = request.latestPayload;
-  const snapshot = await buildEmployeeOkrSnapshot(payload.employeeId, payload.okrCycleId);
+  const snapshot = await buildEmployeeWorkEvidenceSnapshot(payload.employeeId, payload.okrCycleId);
   const command = await buildHrPerformanceReviewArchiveCommand({
     employeeId: payload.employeeId,
     okrCycleId: payload.okrCycleId,
@@ -113,7 +113,7 @@ export async function commitHrPerformanceApprovedPayload(input: {
     finalScore: payload.data.finalScore,
     finalGrade: payload.data.finalGrade,
     hrComment: payload.data.hrComment,
-    okrSnapshotJson: JSON.stringify(snapshot),
+    workEvidenceSnapshotJson: JSON.stringify(snapshot),
     archivedByUserId: actorUserId,
   });
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
@@ -748,9 +748,9 @@ async function listHrPerformanceApproverUserIds(excludeUserId: number | null) {
   return allowed.filter((id): id is number => id !== null);
 }
 
-async function buildEmployeeOkrSnapshot(employeeId: number, okrCycleId: number) {
+async function buildEmployeeWorkEvidenceSnapshot(employeeId: number, okrCycleId: number) {
   const employee = await getHrPerformanceEmployeeIdentity(employeeId);
-  if (!employee) return { employeeId, okrCycleId, plans: [], personalPlans: [], contributions: [], summary: emptyOkrSummary() };
+  if (!employee) return { schemaVersion: 2, employeeId, okrCycleId, work: { plans: [], personalPlans: [], contributions: [], summary: emptyOkrSummary() }, kpi: { results: [], weightedScore: null } };
   const plans = await prisma.workPlan.findMany({
     where: {
       okrCycleId,
@@ -781,16 +781,72 @@ async function buildEmployeeOkrSnapshot(employeeId: number, okrCycleId: number) 
       completion: krCompletion(item.krStartValue, item.krTargetValue, item.krCurrentValue),
     })),
   }));
-  const contributions = await buildEmployeeContributionSnapshot(employeeId, okrCycleId);
+  const [contributions, kpi] = await Promise.all([
+    buildEmployeeContributionSnapshot(employeeId, okrCycleId),
+    buildEmployeeKpiSnapshot(employeeId, okrCycleId),
+  ]);
   return {
+    schemaVersion: 2,
     employee,
     okrCycleId,
     capturedAt: new Date().toISOString(),
-    summary: summarizePlanSnapshots(planSnapshots),
-    plans: planSnapshots,
-    personalPlans: planSnapshots,
-    contributions,
+    work: {
+      summary: summarizePlanSnapshots(planSnapshots),
+      plans: planSnapshots,
+      personalPlans: planSnapshots,
+      contributions,
+    },
+    kpi,
   };
+}
+
+async function buildEmployeeKpiSnapshot(employeeId: number, okrCycleId: number) {
+  const rows = await prisma.workKpiResultSnapshot.findMany({
+    where: { assignment: { ownerEmployeeId: employeeId, workPlan: { okrCycleId } } },
+    orderBy: [{ assignmentId: "asc" }, { version: "desc" }],
+    select: {
+      id: true,
+      assignmentId: true,
+      workReportId: true,
+      version: true,
+      actualValue: true,
+      scoreBeforeAdjustment: true,
+      confirmedScore: true,
+      adjustmentReason: true,
+      definitionSnapshotJson: true,
+      assignmentSnapshotJson: true,
+      scoringRuleSnapshotJson: true,
+      evidenceSnapshotJson: true,
+      approvedByUserId: true,
+      approvedAt: true,
+    },
+  });
+  const seen = new Set<number>();
+  const latest = rows.filter((row) => {
+    if (seen.has(row.assignmentId)) return false;
+    seen.add(row.assignmentId);
+    return true;
+  }).map((row) => ({
+    id: row.id,
+    assignmentId: row.assignmentId,
+    workReportId: row.workReportId,
+    version: row.version,
+    actualValue: Number(row.actualValue.toString()),
+    scoreBeforeAdjustment: Number(row.scoreBeforeAdjustment.toString()),
+    confirmedScore: Number(row.confirmedScore.toString()),
+    adjustmentReason: row.adjustmentReason,
+    definition: parseJson(row.definitionSnapshotJson),
+    assignment: parseJson(row.assignmentSnapshotJson),
+    scoringRule: parseJson(row.scoringRuleSnapshotJson),
+    evidence: parseJson(row.evidenceSnapshotJson),
+    approvedByUserId: row.approvedByUserId,
+    approvedAt: row.approvedAt.toISOString(),
+  }));
+  const weightedScore = latest.length ? roundScore(latest.reduce((sum, result) => {
+    const weight = Number((result.assignment as { weight?: unknown }).weight);
+    return sum + result.confirmedScore * (Number.isFinite(weight) ? weight : 0) / 100;
+  }, 0)) : null;
+  return { results: latest, weightedScore };
 }
 
 function toAttendanceRow(employee: HrPerformanceAudienceEmployee) {
@@ -855,7 +911,7 @@ function toReviewDetail(review: Prisma.HrPerformanceReviewGetPayload<{ include: 
     selfComment: review.selfComment,
     managerComment: review.managerComment,
     hrComment: review.hrComment,
-    okrSnapshot: parseJson(review.okrSnapshotJson),
+    workEvidenceSnapshot: parseJson(review.workEvidenceSnapshotJson),
     createdAt: review.createdAt.toISOString(),
     updatedAt: review.updatedAt.toISOString(),
   };
@@ -976,6 +1032,10 @@ function summarizePlanSnapshots(plans: Array<{ objectives: unknown[]; keyResults
 
 function emptyOkrSummary() {
   return { planCount: 0, objectiveCount: 0, keyResultCount: 0, completionRate: null };
+}
+
+function roundScore(value: number) {
+  return Math.round(value * 1_000_000) / 1_000_000;
 }
 
 function parseJson(value: string) {

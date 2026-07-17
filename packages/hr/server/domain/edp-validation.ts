@@ -3,7 +3,7 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { validateEdpReportTo } from "../edp-report-to";
 import { isValidDateValue, parseWorkPercent } from "../field-validation";

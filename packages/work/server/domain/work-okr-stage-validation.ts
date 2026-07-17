@@ -1,13 +1,13 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 
 const WORK_OKR_STAGE_ACTIONS = [
-  "syncDueKrReviewsForTarget",
-  "syncDueKrReviewForPlan",
   "submitObjectiveReview",
   "approveObjectiveReview",
+  "recordDirectObjectiveConfirmation",
   "rejectObjectiveReview",
   "submitKrReview",
   "approveKrReview",
+  "recordDirectKrConfirmation",
   "rejectKrReview",
 ] as const;
 

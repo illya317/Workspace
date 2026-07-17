@@ -52,6 +52,7 @@ export type RelationTargetKind =
   | "user"
   | "departmentCollaboration"
   | "workItem"
+  | "workKpiAssignment"
   | "workPlan"
   | "workOkrCycle";
 
@@ -130,6 +131,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
   },
   workItem: {
     target: { entity: "WorkItem", label: "工作节点" },
+    search: async () => [],
+    resolve: async () => null,
+  },
+  workKpiAssignment: {
+    target: { entity: "WorkKpiAssignment", label: "KPI 分配" },
     search: async () => [],
     resolve: async () => null,
   },

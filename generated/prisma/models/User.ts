@@ -351,6 +351,9 @@ export type UserWhereInput = {
   meetingParticipations?: Prisma.MeetingParticipantListRelationFilter
   meetingVotes?: Prisma.MeetingVoteListRelationFilter
   mutationImpactBatches?: Prisma.MutationImpactBatchListRelationFilter
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentListRelationFilter
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -413,6 +416,9 @@ export type UserOrderByWithRelationInput = {
   meetingParticipations?: Prisma.MeetingParticipantOrderByRelationAggregateInput
   meetingVotes?: Prisma.MeetingVoteOrderByRelationAggregateInput
   mutationImpactBatches?: Prisma.MutationImpactBatchOrderByRelationAggregateInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionOrderByRelationAggregateInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentOrderByRelationAggregateInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -478,6 +484,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   meetingParticipations?: Prisma.MeetingParticipantListRelationFilter
   meetingVotes?: Prisma.MeetingVoteListRelationFilter
   mutationImpactBatches?: Prisma.MutationImpactBatchListRelationFilter
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionListRelationFilter
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentListRelationFilter
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotListRelationFilter
 }, "id" | "wxUserId" | "username" | "apiKeyHash">
 
 export type UserOrderByWithAggregationInput = {
@@ -585,6 +594,9 @@ export type UserCreateInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -647,6 +659,9 @@ export type UserUncheckedCreateInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUpdateInput = {
@@ -708,6 +723,9 @@ export type UserUpdateInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -770,6 +788,9 @@ export type UserUncheckedUpdateInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1465,6 +1486,48 @@ export type UserUpdateOneWithoutDepartmentCollaborationResponsesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutDepartmentCollaborationResponsesInput, Prisma.UserUpdateWithoutDepartmentCollaborationResponsesInput>, Prisma.UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput>
 }
 
+export type UserCreateNestedOneWithoutCreatedKpiDefinitionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedCreateWithoutCreatedKpiDefinitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedKpiDefinitionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCreatedKpiDefinitionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedCreateWithoutCreatedKpiDefinitionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCreatedKpiDefinitionsInput
+  upsert?: Prisma.UserUpsertWithoutCreatedKpiDefinitionsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCreatedKpiDefinitionsInput, Prisma.UserUpdateWithoutCreatedKpiDefinitionsInput>, Prisma.UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput>
+}
+
+export type UserCreateNestedOneWithoutUpdatedKpiAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedKpiAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutUpdatedKpiAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutUpdatedKpiAssignmentsInput
+  upsert?: Prisma.UserUpsertWithoutUpdatedKpiAssignmentsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutUpdatedKpiAssignmentsInput, Prisma.UserUpdateWithoutUpdatedKpiAssignmentsInput>, Prisma.UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput>
+}
+
+export type UserCreateNestedOneWithoutApprovedKpiResultSnapshotsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApprovedKpiResultSnapshotsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutApprovedKpiResultSnapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutApprovedKpiResultSnapshotsInput
+  upsert?: Prisma.UserUpsertWithoutApprovedKpiResultSnapshotsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUpdateWithoutApprovedKpiResultSnapshotsInput>, Prisma.UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput>
+}
+
 export type UserCreateNestedOneWithoutOwnedMeetingsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutOwnedMeetingsInput, Prisma.UserUncheckedCreateWithoutOwnedMeetingsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutOwnedMeetingsInput
@@ -1625,6 +1688,9 @@ export type UserCreateWithoutAgentProfileInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutAgentProfileInput = {
@@ -1686,6 +1752,9 @@ export type UserUncheckedCreateWithoutAgentProfileInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutAgentProfileInput = {
@@ -1762,6 +1831,9 @@ export type UserUpdateWithoutAgentProfileInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAgentProfileInput = {
@@ -1823,6 +1895,9 @@ export type UserUncheckedUpdateWithoutAgentProfileInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutSubmittedApprovalRequestsInput = {
@@ -1883,6 +1958,9 @@ export type UserCreateWithoutSubmittedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
@@ -1944,6 +2022,9 @@ export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSubmittedApprovalRequestsInput = {
@@ -2009,6 +2090,9 @@ export type UserCreateWithoutResolvedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
@@ -2070,6 +2154,9 @@ export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutResolvedApprovalRequestsInput = {
@@ -2146,6 +2233,9 @@ export type UserUpdateWithoutSubmittedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
@@ -2207,6 +2297,9 @@ export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutResolvedApprovalRequestsInput = {
@@ -2278,6 +2371,9 @@ export type UserUpdateWithoutResolvedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
@@ -2339,6 +2435,9 @@ export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutApprovalEventsInput = {
@@ -2399,6 +2498,9 @@ export type UserCreateWithoutApprovalEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovalEventsInput = {
@@ -2460,6 +2562,9 @@ export type UserUncheckedCreateWithoutApprovalEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovalEventsInput = {
@@ -2536,6 +2641,9 @@ export type UserUpdateWithoutApprovalEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovalEventsInput = {
@@ -2597,6 +2705,9 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutResourceActionGrantsInput = {
@@ -2657,6 +2768,9 @@ export type UserCreateWithoutResourceActionGrantsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
@@ -2718,6 +2832,9 @@ export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutResourceActionGrantsInput = {
@@ -2794,6 +2911,9 @@ export type UserUpdateWithoutResourceActionGrantsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
@@ -2855,6 +2975,9 @@ export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
@@ -2915,6 +3038,9 @@ export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
@@ -2976,6 +3102,9 @@ export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutPermissionGrantLedgerEventsInput = {
@@ -3052,6 +3181,9 @@ export type UserUpdateWithoutPermissionGrantLedgerEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
@@ -3113,6 +3245,9 @@ export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -3173,6 +3308,9 @@ export type UserCreateWithoutNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -3234,6 +3372,9 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -3299,6 +3440,9 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
@@ -3360,6 +3504,9 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedNotificationsInput = {
@@ -3436,6 +3583,9 @@ export type UserUpdateWithoutNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -3497,6 +3647,9 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedNotificationsInput = {
@@ -3568,6 +3721,9 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
@@ -3629,6 +3785,9 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedContractsInput = {
@@ -3689,6 +3848,9 @@ export type UserCreateWithoutEditedContractsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedContractsInput = {
@@ -3750,6 +3912,9 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedContractsInput = {
@@ -3826,6 +3991,9 @@ export type UserUpdateWithoutEditedContractsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedContractsInput = {
@@ -3887,6 +4055,9 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutLedgerImportsInput = {
@@ -3947,6 +4118,9 @@ export type UserCreateWithoutLedgerImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutLedgerImportsInput = {
@@ -4008,6 +4182,9 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutLedgerImportsInput = {
@@ -4084,6 +4261,9 @@ export type UserUpdateWithoutLedgerImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLedgerImportsInput = {
@@ -4145,6 +4325,9 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceAccountsInput = {
@@ -4205,6 +4388,9 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
@@ -4266,6 +4452,9 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceAccountsInput = {
@@ -4342,6 +4531,9 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
@@ -4403,6 +4595,9 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceVouchersInput = {
@@ -4463,6 +4658,9 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
@@ -4524,6 +4722,9 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceVouchersInput = {
@@ -4600,6 +4801,9 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
@@ -4661,6 +4865,9 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutSnapshotImportsInput = {
@@ -4721,6 +4928,9 @@ export type UserCreateWithoutSnapshotImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotImportsInput = {
@@ -4782,6 +4992,9 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotImportsInput = {
@@ -4847,6 +5060,9 @@ export type UserCreateWithoutSnapshotEditsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotEditsInput = {
@@ -4908,6 +5124,9 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotEditsInput = {
@@ -4984,6 +5203,9 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
@@ -5045,6 +5267,9 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutSnapshotEditsInput = {
@@ -5116,6 +5341,9 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
@@ -5177,6 +5405,9 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutConfirmedReclassRulesInput = {
@@ -5237,6 +5468,9 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
@@ -5298,6 +5532,9 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutConfirmedReclassRulesInput = {
@@ -5374,6 +5611,9 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
@@ -5435,6 +5675,9 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutReviewedReclassResultsInput = {
@@ -5495,6 +5738,9 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
@@ -5556,6 +5802,9 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReclassResultsInput = {
@@ -5632,6 +5881,9 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
@@ -5693,6 +5945,9 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedWorkpapersInput = {
@@ -5753,6 +6008,9 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
@@ -5814,6 +6072,9 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedWorkpapersInput = {
@@ -5890,6 +6151,9 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
@@ -5951,6 +6215,9 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEmployeesInput = {
@@ -6011,6 +6278,9 @@ export type UserCreateWithoutEmployeesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEmployeesInput = {
@@ -6072,6 +6342,9 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEmployeesInput = {
@@ -6148,6 +6421,9 @@ export type UserUpdateWithoutEmployeesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeesInput = {
@@ -6209,6 +6485,9 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditHistoriesInput = {
@@ -6269,6 +6548,9 @@ export type UserCreateWithoutEditHistoriesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditHistoriesInput = {
@@ -6330,6 +6612,9 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditHistoriesInput = {
@@ -6406,6 +6691,9 @@ export type UserUpdateWithoutEditHistoriesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditHistoriesInput = {
@@ -6467,6 +6755,9 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockRawMaterialsInput = {
@@ -6527,6 +6818,9 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
@@ -6588,6 +6882,9 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockRawMaterialsInput = {
@@ -6664,6 +6961,9 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
@@ -6725,6 +7025,9 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockPackagingsInput = {
@@ -6785,6 +7088,9 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
@@ -6846,6 +7152,9 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockPackagingsInput = {
@@ -6922,6 +7231,9 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
@@ -6983,6 +7295,9 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockFinishedGoodsInput = {
@@ -7043,6 +7358,9 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
@@ -7104,6 +7422,9 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockFinishedGoodsInput = {
@@ -7180,6 +7501,9 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
@@ -7241,6 +7565,9 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutStockOperationsInput = {
@@ -7301,6 +7628,9 @@ export type UserCreateWithoutStockOperationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutStockOperationsInput = {
@@ -7362,6 +7692,9 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutStockOperationsInput = {
@@ -7438,6 +7771,9 @@ export type UserUpdateWithoutStockOperationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockOperationsInput = {
@@ -7499,6 +7835,9 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
@@ -7559,6 +7898,9 @@ export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
@@ -7620,6 +7962,9 @@ export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryTagCandidatesInput = {
@@ -7696,6 +8041,9 @@ export type UserUpdateWithoutReviewedLibraryTagCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
@@ -7757,6 +8105,9 @@ export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -7817,6 +8168,9 @@ export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -7878,6 +8232,9 @@ export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -7954,6 +8311,9 @@ export type UserUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -8015,6 +8375,9 @@ export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -8075,6 +8438,9 @@ export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -8136,6 +8502,9 @@ export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryEvaluationCasesInput = {
@@ -8201,6 +8570,9 @@ export type UserCreateWithoutReviewedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
@@ -8262,6 +8634,9 @@ export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryEvaluationCasesInput = {
@@ -8338,6 +8713,9 @@ export type UserUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -8399,6 +8777,9 @@ export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutReviewedLibraryEvaluationCasesInput = {
@@ -8470,6 +8851,9 @@ export type UserUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
@@ -8531,6 +8915,9 @@ export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutRequestedLibraryExportsInput = {
@@ -8591,6 +8978,9 @@ export type UserCreateWithoutRequestedLibraryExportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
@@ -8652,6 +9042,9 @@ export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutRequestedLibraryExportsInput = {
@@ -8728,6 +9121,9 @@ export type UserUpdateWithoutRequestedLibraryExportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
@@ -8789,6 +9185,9 @@ export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutEditedLibraryDocumentsInput = {
@@ -8849,6 +9248,9 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
@@ -8910,6 +9312,9 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedLibraryDocumentsInput = {
@@ -8975,6 +9380,9 @@ export type UserCreateWithoutOwnedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
@@ -9036,6 +9444,9 @@ export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutOwnedLibraryDocumentsInput = {
@@ -9101,6 +9512,9 @@ export type UserCreateWithoutReviewedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
@@ -9162,6 +9576,9 @@ export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryDocumentsInput = {
@@ -9238,6 +9655,9 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
@@ -9299,6 +9719,9 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutOwnedLibraryDocumentsInput = {
@@ -9370,6 +9793,9 @@ export type UserUpdateWithoutOwnedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
@@ -9431,6 +9857,9 @@ export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutReviewedLibraryDocumentsInput = {
@@ -9502,6 +9931,9 @@ export type UserUpdateWithoutReviewedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
@@ -9563,6 +9995,9 @@ export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryVersionsInput = {
@@ -9623,6 +10058,9 @@ export type UserCreateWithoutCreatedLibraryVersionsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
@@ -9684,6 +10122,9 @@ export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryVersionsInput = {
@@ -9760,6 +10201,9 @@ export type UserUpdateWithoutCreatedLibraryVersionsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
@@ -9821,6 +10265,9 @@ export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
@@ -9881,6 +10328,9 @@ export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
@@ -9942,6 +10392,9 @@ export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryDocumentTagsInput = {
@@ -10018,6 +10471,9 @@ export type UserUpdateWithoutCreatedLibraryDocumentTagsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
@@ -10079,6 +10535,9 @@ export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutMutationImpactBatchesInput = {
@@ -10139,6 +10598,9 @@ export type UserCreateWithoutMutationImpactBatchesInput = {
   secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
@@ -10200,6 +10662,9 @@ export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutMutationImpactBatchesInput = {
@@ -10276,6 +10741,9 @@ export type UserUpdateWithoutMutationImpactBatchesInput = {
   secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
@@ -10337,6 +10805,9 @@ export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
@@ -10397,6 +10868,9 @@ export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
@@ -10458,6 +10932,9 @@ export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedDepartmentCollaborationsInput = {
@@ -10534,6 +11011,9 @@ export type UserUpdateWithoutCreatedDepartmentCollaborationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
@@ -10595,6 +11075,9 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
@@ -10655,6 +11138,9 @@ export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
@@ -10716,6 +11202,9 @@ export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentCollaborationResponsesInput = {
@@ -10792,6 +11281,9 @@ export type UserUpdateWithoutDepartmentCollaborationResponsesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
@@ -10853,6 +11345,819 @@ export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+}
+
+export type UserCreateWithoutCreatedKpiDefinitionsInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
+}
+
+export type UserUncheckedCreateWithoutCreatedKpiDefinitionsInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
+}
+
+export type UserCreateOrConnectWithoutCreatedKpiDefinitionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedCreateWithoutCreatedKpiDefinitionsInput>
+}
+
+export type UserUpsertWithoutCreatedKpiDefinitionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedCreateWithoutCreatedKpiDefinitionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCreatedKpiDefinitionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCreatedKpiDefinitionsInput, Prisma.UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput>
+}
+
+export type UserUpdateWithoutCreatedKpiDefinitionsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+}
+
+export type UserCreateWithoutUpdatedKpiAssignmentsInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
+}
+
+export type UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
+}
+
+export type UserCreateOrConnectWithoutUpdatedKpiAssignmentsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput>
+}
+
+export type UserUpsertWithoutUpdatedKpiAssignmentsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutUpdatedKpiAssignmentsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutUpdatedKpiAssignmentsInput, Prisma.UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput>
+}
+
+export type UserUpdateWithoutUpdatedKpiAssignmentsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+}
+
+export type UserCreateWithoutApprovedKpiResultSnapshotsInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+}
+
+export type UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+}
+
+export type UserCreateOrConnectWithoutApprovedKpiResultSnapshotsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput>
+}
+
+export type UserUpsertWithoutApprovedKpiResultSnapshotsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutApprovedKpiResultSnapshotsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutApprovedKpiResultSnapshotsInput, Prisma.UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput>
+}
+
+export type UserUpdateWithoutApprovedKpiResultSnapshotsInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
 }
 
 export type UserCreateWithoutOwnedMeetingsInput = {
@@ -10913,6 +12218,9 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
@@ -10974,6 +12282,9 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutOwnedMeetingsInput = {
@@ -11039,6 +12350,9 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
@@ -11100,6 +12414,9 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutSecretariedMeetingsInput = {
@@ -11176,6 +12493,9 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
@@ -11237,6 +12557,9 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUpsertWithoutSecretariedMeetingsInput = {
@@ -11308,6 +12631,9 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
@@ -11369,6 +12695,9 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutMeetingParticipationsInput = {
@@ -11429,6 +12758,9 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
@@ -11490,6 +12822,9 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutMeetingParticipationsInput = {
@@ -11566,6 +12901,9 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
@@ -11627,6 +12965,9 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutMeetingVotesInput = {
@@ -11687,6 +13028,9 @@ export type UserCreateWithoutMeetingVotesInput = {
   secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutMeetingVotesInput = {
@@ -11748,6 +13092,9 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutMeetingVotesInput = {
@@ -11824,6 +13171,9 @@ export type UserUpdateWithoutMeetingVotesInput = {
   secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMeetingVotesInput = {
@@ -11885,6 +13235,9 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutWorkReportsInput = {
@@ -11945,6 +13298,9 @@ export type UserCreateWithoutWorkReportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkReportsInput = {
@@ -12006,6 +13362,9 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkReportsInput = {
@@ -12082,6 +13441,9 @@ export type UserUpdateWithoutWorkReportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkReportsInput = {
@@ -12143,6 +13505,9 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutDepartmentAssigneesInput = {
@@ -12203,6 +13568,9 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
@@ -12264,6 +13632,9 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentAssigneesInput = {
@@ -12340,6 +13711,9 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
@@ -12401,6 +13775,9 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserCreateWithoutProjectAssigneesInput = {
@@ -12461,6 +13838,9 @@ export type UserCreateWithoutProjectAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectAssigneesInput = {
@@ -12522,6 +13902,9 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
   meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectAssigneesInput = {
@@ -12598,6 +13981,9 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -12659,6 +14045,9 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
   meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
   mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
 }
 
 
@@ -12709,6 +14098,9 @@ export type UserCountOutputType = {
   meetingParticipations: number
   meetingVotes: number
   mutationImpactBatches: number
+  createdKpiDefinitions: number
+  updatedKpiAssignments: number
+  approvedKpiResultSnapshots: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -12754,6 +14146,9 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   meetingParticipations?: boolean | UserCountOutputTypeCountMeetingParticipationsArgs
   meetingVotes?: boolean | UserCountOutputTypeCountMeetingVotesArgs
   mutationImpactBatches?: boolean | UserCountOutputTypeCountMutationImpactBatchesArgs
+  createdKpiDefinitions?: boolean | UserCountOutputTypeCountCreatedKpiDefinitionsArgs
+  updatedKpiAssignments?: boolean | UserCountOutputTypeCountUpdatedKpiAssignmentsArgs
+  approvedKpiResultSnapshots?: boolean | UserCountOutputTypeCountApprovedKpiResultSnapshotsArgs
 }
 
 /**
@@ -13060,6 +14455,27 @@ export type UserCountOutputTypeCountMutationImpactBatchesArgs<ExtArgs extends ru
   where?: Prisma.MutationImpactBatchWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCreatedKpiDefinitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkKpiDefinitionWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountUpdatedKpiAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkKpiAssignmentWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountApprovedKpiResultSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkKpiResultSnapshotWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -13121,6 +14537,9 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   meetingParticipations?: boolean | Prisma.User$meetingParticipationsArgs<ExtArgs>
   meetingVotes?: boolean | Prisma.User$meetingVotesArgs<ExtArgs>
   mutationImpactBatches?: boolean | Prisma.User$mutationImpactBatchesArgs<ExtArgs>
+  createdKpiDefinitions?: boolean | Prisma.User$createdKpiDefinitionsArgs<ExtArgs>
+  updatedKpiAssignments?: boolean | Prisma.User$updatedKpiAssignmentsArgs<ExtArgs>
+  approvedKpiResultSnapshots?: boolean | Prisma.User$approvedKpiResultSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -13226,6 +14645,9 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   meetingParticipations?: boolean | Prisma.User$meetingParticipationsArgs<ExtArgs>
   meetingVotes?: boolean | Prisma.User$meetingVotesArgs<ExtArgs>
   mutationImpactBatches?: boolean | Prisma.User$mutationImpactBatchesArgs<ExtArgs>
+  createdKpiDefinitions?: boolean | Prisma.User$createdKpiDefinitionsArgs<ExtArgs>
+  updatedKpiAssignments?: boolean | Prisma.User$updatedKpiAssignmentsArgs<ExtArgs>
+  approvedKpiResultSnapshots?: boolean | Prisma.User$approvedKpiResultSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -13277,6 +14699,9 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     meetingParticipations: Prisma.$MeetingParticipantPayload<ExtArgs>[]
     meetingVotes: Prisma.$MeetingVotePayload<ExtArgs>[]
     mutationImpactBatches: Prisma.$MutationImpactBatchPayload<ExtArgs>[]
+    createdKpiDefinitions: Prisma.$WorkKpiDefinitionPayload<ExtArgs>[]
+    updatedKpiAssignments: Prisma.$WorkKpiAssignmentPayload<ExtArgs>[]
+    approvedKpiResultSnapshots: Prisma.$WorkKpiResultSnapshotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -13732,6 +15157,9 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   meetingParticipations<T extends Prisma.User$meetingParticipationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$meetingParticipationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingParticipantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   meetingVotes<T extends Prisma.User$meetingVotesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$meetingVotesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingVotePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   mutationImpactBatches<T extends Prisma.User$mutationImpactBatchesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$mutationImpactBatchesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MutationImpactBatchPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  createdKpiDefinitions<T extends Prisma.User$createdKpiDefinitionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdKpiDefinitionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiDefinitionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  updatedKpiAssignments<T extends Prisma.User$updatedKpiAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$updatedKpiAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  approvedKpiResultSnapshots<T extends Prisma.User$approvedKpiResultSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$approvedKpiResultSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiResultSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -15194,6 +16622,78 @@ export type User$mutationImpactBatchesArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.MutationImpactBatchScalarFieldEnum | Prisma.MutationImpactBatchScalarFieldEnum[]
+}
+
+/**
+ * User.createdKpiDefinitions
+ */
+export type User$createdKpiDefinitionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkKpiDefinition
+   */
+  select?: Prisma.WorkKpiDefinitionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkKpiDefinition
+   */
+  omit?: Prisma.WorkKpiDefinitionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkKpiDefinitionInclude<ExtArgs> | null
+  where?: Prisma.WorkKpiDefinitionWhereInput
+  orderBy?: Prisma.WorkKpiDefinitionOrderByWithRelationInput | Prisma.WorkKpiDefinitionOrderByWithRelationInput[]
+  cursor?: Prisma.WorkKpiDefinitionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkKpiDefinitionScalarFieldEnum | Prisma.WorkKpiDefinitionScalarFieldEnum[]
+}
+
+/**
+ * User.updatedKpiAssignments
+ */
+export type User$updatedKpiAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkKpiAssignment
+   */
+  select?: Prisma.WorkKpiAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkKpiAssignment
+   */
+  omit?: Prisma.WorkKpiAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkKpiAssignmentInclude<ExtArgs> | null
+  where?: Prisma.WorkKpiAssignmentWhereInput
+  orderBy?: Prisma.WorkKpiAssignmentOrderByWithRelationInput | Prisma.WorkKpiAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.WorkKpiAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkKpiAssignmentScalarFieldEnum | Prisma.WorkKpiAssignmentScalarFieldEnum[]
+}
+
+/**
+ * User.approvedKpiResultSnapshots
+ */
+export type User$approvedKpiResultSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkKpiResultSnapshot
+   */
+  select?: Prisma.WorkKpiResultSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkKpiResultSnapshot
+   */
+  omit?: Prisma.WorkKpiResultSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkKpiResultSnapshotInclude<ExtArgs> | null
+  where?: Prisma.WorkKpiResultSnapshotWhereInput
+  orderBy?: Prisma.WorkKpiResultSnapshotOrderByWithRelationInput | Prisma.WorkKpiResultSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.WorkKpiResultSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkKpiResultSnapshotScalarFieldEnum | Prisma.WorkKpiResultSnapshotScalarFieldEnum[]
 }
 
 /**

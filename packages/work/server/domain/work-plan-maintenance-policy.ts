@@ -19,25 +19,17 @@ export function resolveWorkPlanMaintenance(input: {
   stage: string;
   status: string;
   isArchived: boolean;
-  timeControlEnabled: boolean;
 }): WorkPlanMaintenance {
-  if (input.status === "done" || input.isArchived || (input.kind === "okr" && input.stage === "closed")) {
-    return LOCKED_MAINTENANCE;
-  }
+  if (input.isArchived) return LOCKED_MAINTENANCE;
   if (input.kind === "routine") {
     return { ...LOCKED_MAINTENANCE, task: true };
   }
   if (input.kind !== "okr") return LOCKED_MAINTENANCE;
-  if (!input.timeControlEnabled) {
-    return { plan: true, objective: true, task: true, keyResult: true };
-  }
-  const objectiveOpen = input.stage === "objective_draft";
-  const executionOpen = input.stage === "executing" || input.stage === "kr_open";
   return {
-    plan: objectiveOpen,
-    objective: objectiveOpen,
-    task: executionOpen,
-    keyResult: executionOpen,
+    plan: true,
+    objective: true,
+    task: true,
+    keyResult: true,
   };
 }
 
@@ -48,16 +40,31 @@ export function canMaintainWorkItem(maintenance: WorkPlanMaintenance, itemType: 
   return false;
 }
 
+export type WorkItemMutationFacet = "target" | "execution" | "result";
+
+export function workItemMutationFacets(
+  itemType: string,
+  input: { changesKrCurrentValue?: boolean } = {},
+): WorkItemMutationFacet[] {
+  if (itemType === "objective") return ["target"];
+  if (itemType === "task") return ["execution"];
+  if (itemType === "key_result") {
+    return input.changesKrCurrentValue ? ["target", "result"] : ["target"];
+  }
+  return [];
+}
+
 export function validateWorkPlanReopenTransition(input: {
   kind: string;
   currentStatus: string;
   requestedStatus: unknown;
   updateGuard: unknown;
+  directTargetRevision?: boolean;
 }): DomainValidationResult<{ reopening: boolean }> {
   const reopening = input.kind === "okr"
     && input.currentStatus === "done"
     && input.requestedStatus === "active";
-  if (reopening && input.updateGuard !== "workflow-approved") {
+  if (reopening && input.updateGuard !== "workflow-approved" && input.directTargetRevision !== true) {
     return failCommand("已完成 OKR 计划必须通过修订入口保存或提交", 409);
   }
   return okCommand({ reopening });

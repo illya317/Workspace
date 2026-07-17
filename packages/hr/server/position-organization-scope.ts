@@ -8,7 +8,7 @@ import {
   matchesFkKeyword,
   type FkOption,
   type LifecycleScope,
-} from "@workspace/platform/server/fk-registry";
+} from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { formatDepartmentPath } from "@workspace/hr/utils/department-path";
 

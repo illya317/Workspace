@@ -12,6 +12,7 @@ import {
 } from "@workspace/platform/server/mutation-impact-ledger";
 import { Prisma } from "@workspace/platform/server/prisma";
 import { validateWorkPlanItemCascade } from "./domain/work-mutation-impact-validation";
+import { workKpiMutationImpactAdapters } from "./work-kpi-mutation-impact-adapters";
 import {
   resolveWorkMutationImpactPolicy,
   WorkImpactConcurrencyError,
@@ -486,6 +487,7 @@ function workMutationImpactAdapters(): MutationImpactAdapter<WorkMutationImpactC
     workItemReferenceBlocker({ relationKey: "work.tasks.previous.item", field: "previousPeriodWorkItemId", reason: "工作项仍被后续周期事项引用" }),
     workItemEvidenceBlocker({ relationKey: "work.tasks.kr-evidence.kr", field: "krWorkItemId", reason: "工作项仍有 KR 证据关系" }),
     workItemEvidenceBlocker({ relationKey: "work.tasks.kr-evidence.task", field: "taskWorkItemId", reason: "工作项仍被 KR 引用为证据" }),
+    ...workKpiMutationImpactAdapters(),
     ...workPilotInboundImpactAdapters(),
     ...projectMutationImpactAdapters({ workItemRevision }),
     restoreProvenanceAdapter(),

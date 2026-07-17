@@ -11,7 +11,7 @@ import { validateWorkItemRelations } from "./domain/work-item-relation-validatio
 import { effectiveWorkItemRelationInput, sourcePatchTouched } from "./domain/work-item-relation-state";
 import { normalizeEvidenceTaskIds, replaceKrEvidenceTasks, WorkKrEvidenceValidationError } from "./work-kr-evidence";
 import { toWorkItemDto, workItemInclude } from "./work-item-dto";
-import { assertWorkItemStageAllowed, syncDueKrReviewForPlan } from "./work-okr-stage";
+import { assertWorkItemStageAllowed } from "./work-okr-stage";
 import { replaceWorkResponsibilityReference } from "./work-responsibility-references";
 import { buildStatusPatch, validateWorkItemPeriodPatch, validateWorkItemResponsibility } from "./work-item-service-helpers";
 import { validateWorkItemPeriodRelations } from "./work-period-relations";
@@ -45,7 +45,6 @@ export async function getWorkItems(opts: {
   periodStart?: string | null;
   includeArchived?: boolean;
 }) {
-  if (opts.planId) await syncDueKrReviewForPlan(opts.planId);
   const where: { planId?: number; targetType: string; targetId: number; category?: string; periodType?: string | null; periodStart?: Date; isArchived?: boolean } = {
     targetType: opts.targetType,
     targetId: opts.targetId,
@@ -90,6 +89,8 @@ export async function createWorkItem(opts: WorkItemServiceCreateInput): Promise<
     action: "create",
     planId: command.data.planId,
     itemType: command.data.itemType,
+    actorUserId: opts.actorUserId,
+    changesKrCurrentValue: command.data.itemType === "key_result" && command.data.krCurrentValue !== null,
   });
   if (!stageGuard.ok) return stageGuard;
   const evidenceTaskIds = normalizeEvidenceTaskIds(opts.evidenceTaskIds);
@@ -271,7 +272,7 @@ export async function updateWorkItem(
       ownerEmployeeId: true,
       collaborationId: true,
       status: true, completedAt: true,
-      content: true, isArchived: true, updatedAt: true,
+      content: true, isArchived: true, updatedAt: true, krCurrentValue: true,
       isMilestone: true,
       milestoneDate: true,
     },
@@ -331,6 +332,10 @@ export async function updateWorkItem(
     action: "update",
     planId: effective.planId,
     itemType: effective.itemType,
+    actorUserId,
+    changesKrCurrentValue: effective.itemType === "key_result"
+      && command.data.data.krCurrentValue !== undefined
+      && command.data.data.krCurrentValue !== existing.krCurrentValue,
   });
   if (!stageGuard.ok) return stageGuard;
   const evidenceTaskIds = normalizeEvidenceTaskIds(opts.evidenceTaskIds);
@@ -484,7 +489,7 @@ export async function deleteWorkItem(workId: number, actorUserId: number): Promi
     select: { planId: true, itemType: true },
   });
   if (!existing) return { ok: false, error: "工作项不存在", status: 404 };
-  const stageGuard = await assertWorkItemStageAllowed({ action: "delete", planId: existing.planId, itemType: existing.itemType });
+  const stageGuard = await assertWorkItemStageAllowed({ action: "delete", planId: existing.planId, itemType: existing.itemType, actorUserId });
   if (!stageGuard.ok) return stageGuard;
   const deleteResult = await deleteWorkItemRecord(command.data.workId, actorUserId);
   if (!deleteResult.ok) return deleteResult;

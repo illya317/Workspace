@@ -9,6 +9,7 @@ const defaultRoot = path.resolve(import.meta.dirname, "../..");
 
 const workPlanGovernanceTests = new Set([
   "packages/work/server/domain/work-okr-control-scope.test.ts",
+  "packages/work/server/domain/work-okr-governance-policy.test.ts",
   "packages/work/server/domain/work-plan-governance-validation.test.ts",
   "packages/work/server/domain/work-plan-item-state.test.ts",
   "packages/work/server/domain/work-plan-maintenance-policy.test.ts",

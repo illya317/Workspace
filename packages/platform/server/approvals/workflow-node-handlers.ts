@@ -2,7 +2,7 @@ import "server-only";
 
 import type { ApprovalHandlerSource, ApprovalRequestRecord } from "./types";
 import { isRootAdminUser } from "../auth/root";
-import { currentOpenEndedDateWhere } from "../fk-registry";
+import { currentOpenEndedDateWhere } from "../relation-registry";
 import { prisma } from "../prisma";
 import { findWorkflowApprovalTarget } from "../workflow-policy-nodes";
 

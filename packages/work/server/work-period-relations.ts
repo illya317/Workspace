@@ -1,4 +1,4 @@
-import { matchesFkKeyword, type FkOption, type FkTargetRecord } from "@workspace/platform/server/fk-registry";
+import { matchesFkKeyword, type FkOption, type FkTargetRecord } from "@workspace/platform/server/relation-registry";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { isAssignedWorkItemAlignmentSource, validateAssignedTaskAlignmentSource } from "./work-assigned-alignment-options";
 type PeriodRelationKind = "parent" | "previous";

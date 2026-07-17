@@ -1,6 +1,6 @@
 import { Prisma, prisma } from "./prisma";
 import { ensureEditHistoryBaseline, snapshotHistory } from "./history";
-import type { FkTargetPolicy } from "./fk-registry";
+import type { FkTargetPolicy } from "./relation-registry";
 
 type PrismaModelKey = keyof typeof prisma;
 type PrismaTx = Prisma.TransactionClient;

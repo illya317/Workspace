@@ -2,7 +2,7 @@ import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform
 import {
   getOperatingCommitteeDepartmentContext,
 } from "@workspace/platform/server/business-space-permissions";
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { listStandardOrganizationSpaceSeeds } from "./standard-space-seeds";
 import { filterReadableWorkDepartmentSpaces } from "./department-space-access";

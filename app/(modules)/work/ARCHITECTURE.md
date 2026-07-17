@@ -19,4 +19,7 @@ Work 是工作管理业务域，覆盖项目管理、工作计划，并预留会
 | 项目管理 | `app/(modules)/work/project/page.tsx` | `packages/work/ui/tabs/project/*` |
 | 部门主页 | `app/(modules)/work/department/[departmentId]/page.tsx` | `packages/work/ui/home/*` |
 | 工作空间 | `app/(modules)/work/me/page.tsx`, `app/(modules)/work/department/[departmentId]/space/page.tsx`, `app/(modules)/work/project/[projectId]/space/page.tsx` | `packages/work/ui/works/*` |
+| KPI 指标库与计分卡 | 工作空间内“指标计分卡”和“OKR 设置 / 指标库”视图；`app/api/modules/work/tasks/kpi/**`, `app/api/modules/work/tasks/plans/[id]/kpi-*` | `packages/work/server/work-kpi-*`, `packages/work/ui/works/WorkKpi*` |
 | 会议管理 | `app/(modules)/work/meeting/page.tsx` | `packages/work/ui/meetings/*` |
+
+KPI 的指标定义、周期分配、实际值、评分与结果快照均由 Work 拥有。HR 绩效归档只读取已确认 `WorkKpiResultSnapshot` 并固化到 `workEvidenceSnapshotJson`，不得在 HR 包复制评分规则或实时回算。

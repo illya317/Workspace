@@ -2,7 +2,7 @@ import "server-only";
 import { Prisma, prisma } from "./prisma";
 import { serviceError, serviceOk } from "./api";
 import { failCommand, okCommand, type DomainValidationResult } from "./domain-validation";
-import { currentOpenEndedDateWhere } from "./fk-registry";
+import { currentOpenEndedDateWhere } from "./relation-registry";
 import { snapshotHistory } from "./history";
 
 type GovernanceOrganizationInput = {

@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { authenticate, authorize } from "./auth";
 import type { AuthPayload } from "./auth-token";
-import { normalizeLifecycleScope, searchFkOptions, type FkRegistry, type FkSearchParams } from "./fk-registry";
+import { normalizeLifecycleScope, searchFkOptions, type FkSearchParams, type SelectorRelationRegistry } from "./relation-registry";
 import { jsonErrorResponse } from "./api";
 
 export const referenceOptionsQuerySchema = z.object({
@@ -18,7 +18,7 @@ export function createReferenceOptionsRoute({
   scope,
   validate,
 }: {
-  registry: FkRegistry;
+  registry: SelectorRelationRegistry;
   scope: string;
   validate: (input: unknown) => { success: true; data: ReferenceOptionsQuery } | { success: false };
 }) {

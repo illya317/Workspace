@@ -68,17 +68,17 @@ export function useWorkPlanCommands({
     if (!activePlan || !planDraft.title.trim()) return null;
     setPlanSaving(true);
     try {
-      const saveDraft = activePlan.status === "done"
-        ? { ...planDraft, status: "active" as const, actualEndDate: null }
-        : planDraft;
-      if (!activePlan.objectiveApprovedAt && activePlan.status !== "done") {
-        const data = await updateWorkPlan(activePlan.id, saveDraft);
+      const usesObjectiveRevision = activePlan.governance
+        ? activePlan.governance.facets.target.action?.kind === "objective_revise"
+        : Boolean(activePlan.objectiveApprovedAt || activePlan.status === "done");
+      if (!usesObjectiveRevision) {
+        const data = await updateWorkPlan(activePlan.id, planDraft);
         await Promise.all([loadSpaces(), loadPlans()]);
         setActivePlanId(data.plan.id);
         showToast(`${getWorkPlanKindLabel(planDraft.kind)}已保存`, "success");
         return "committed" as const;
       }
-      const created = await saveWorkPlanRevisionSubmissionDraft(activePlan, saveDraft, activePlan.id);
+      const created = await saveWorkPlanRevisionSubmissionDraft(activePlan, planDraft, activePlan.id);
       if (created.executionMode === "direct") {
         await Promise.all([loadSpaces(), loadPlans()]);
         setActivePlanId(activePlan.id);

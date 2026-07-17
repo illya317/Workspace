@@ -1,4 +1,4 @@
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { guardActiveReferences } from "@workspace/platform/server/reference-guards";
 

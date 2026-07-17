@@ -6,7 +6,7 @@ import {
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { getAuditLogDates, getAuditLogEntries } from "@workspace/platform/server/audit-log";
 import { authorize, checkHRRead, isSuperAdmin } from "@workspace/platform/server/auth";
-import { normalizeLifecycleScope, searchFkOptions, type FkSearchParams } from "@workspace/platform/server/fk-registry";
+import { normalizeLifecycleScope, searchFkOptions, type FkSearchParams } from "@workspace/platform/server/relation-registry";
 import { isHrAuditEntityType } from "./audit-entities";
 import { searchHrAutocomplete } from "./autocomplete";
 import { createEmployeeWithAccount } from "./employees";

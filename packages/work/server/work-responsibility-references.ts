@@ -1,6 +1,6 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
-import { matchesFkKeyword, type FkOption } from "@workspace/platform/server/fk-registry";
+import { matchesFkKeyword, type FkOption } from "@workspace/platform/server/relation-registry";
 import { validateWorkResponsibilityReferenceReplaceCommand } from "./domain/work-responsibility-reference-validation";
 import { workOwnerDepartmentScopeIds } from "./work-owner-scopes";
 

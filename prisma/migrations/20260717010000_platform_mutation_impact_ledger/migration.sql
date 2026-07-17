@@ -1,3 +1,4 @@
+-- workspace:migration-mode=expand
 -- CreateTable
 CREATE TABLE "MutationImpactBatch" (
     "id" TEXT NOT NULL,

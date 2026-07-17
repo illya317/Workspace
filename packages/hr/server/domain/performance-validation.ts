@@ -12,7 +12,7 @@ export interface HrPerformanceReviewArchiveInput {
   finalScore?: number | null;
   finalGrade?: string | null;
   hrComment?: string | null;
-  okrSnapshotJson: string;
+  workEvidenceSnapshotJson: string;
   archivedByUserId: number;
 }
 
@@ -50,7 +50,7 @@ export async function buildHrPerformanceReviewArchiveCommand(input: HrPerformanc
       finalScore: input.finalScore,
       finalGrade,
       hrComment: String(input.hrComment || ""),
-      okrSnapshotJson: input.okrSnapshotJson,
+      workEvidenceSnapshotJson: input.workEvidenceSnapshotJson,
       archivedByUserId: input.archivedByUserId,
       editedBy: input.archivedByUserId,
       editedAt: new Date(),

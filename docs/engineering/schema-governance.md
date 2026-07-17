@@ -15,6 +15,7 @@
 | `system.prisma` | 系统 | SystemConfig, LoginAttempt |
 | `mutation-impact.prisma` | Platform 变更影响治理 | MutationImpactBatch, MutationImpactEffect |
 | `works.prisma` | 工作计划 | WorkItem, WorkParticipant, DepartmentWorkAssignee, ProjectWorkAssignee |
+| `work-kpi.prisma` | Work KPI | WorkKpiDefinition, WorkKpiAssignment, WorkKpiResultSnapshot |
 | `hr.prisma` | 人事行政 | Employee, Employment, Company, CompanyRelation, Department, Position, EDP, EditHistory |
 | `hr-documents.prisma` | 人事说明书 | DepartmentDescription, PositionDescription |
 | `hr-performance.prisma` | HR 绩效 | HrPerformanceReview |

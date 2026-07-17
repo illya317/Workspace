@@ -45,12 +45,23 @@ export interface WorkTaskActionPermissions {
   canManagePermissions: boolean;
 }
 
+type WorkActionRuntime = import("@workspace/platform/workflow-action-runtime").ActionRuntime;
+export type WorkOkrActionRuntimes = {
+  objectiveSubmit: WorkActionRuntime; objectiveRevise: WorkActionRuntime;
+  reportSubmit: WorkActionRuntime; reportCorrect: WorkActionRuntime;
+  planRevision: WorkActionRuntime;
+};
+
 export interface WorkTaskSpace extends WorkTarget {
   name: string;
   subtitle: string | null;
   lifecycleStatus?: "active" | "archived" | "inactive";
   actionPermissions: WorkTaskActionPermissions;
-  actionRuntimes: { itemCreate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; itemUpdate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planCreate: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planSave: import("@workspace/platform/workflow-action-runtime").ActionRuntime; objectiveSubmit: import("@workspace/platform/workflow-action-runtime").ActionRuntime; planRevision: import("@workspace/platform/workflow-action-runtime").ActionRuntime; collaboration: import("@workspace/platform/workflow-action-runtime").ActionRuntime };
+  actionRuntimes: WorkOkrActionRuntimes & {
+    itemCreate: WorkActionRuntime; itemUpdate: WorkActionRuntime;
+    planCreate: WorkActionRuntime; planSave: WorkActionRuntime;
+    collaboration: WorkActionRuntime;
+  };
   counts: {
     objective: number;
     keyResult: number;
@@ -91,10 +102,8 @@ export interface WorkPlan extends WorkTarget {
   governanceOkrControlVersion: number | null;
   governanceBindingSource: "created" | "system_generated" | "explicit_migration" | "legacy_inferred";
   governanceBoundAt: string | null;
-  actionRuntimes?: {
-    objectiveSubmit: import("@workspace/platform/workflow-action-runtime").ActionRuntime;
-    planRevision: import("@workspace/platform/workflow-action-runtime").ActionRuntime;
-  } | null;
+  governance: WorkOkrGovernanceProjection | null;
+  actionRuntimes?: WorkOkrActionRuntimes | null;
   sourcePlanId: number | null; sourcePlanTitle: string | null; sourcePlanCycleLabel: string | null;
   parentPeriodPlanId: number | null; parentPeriodPlanTitle: string | null; parentPeriodPlanCycleLabel: string | null;
   alignmentSourceType: WorkPlanAlignmentSourceType | null;
@@ -139,6 +148,25 @@ export interface WorkPlan extends WorkTarget {
 }
 
 export type WorkPlanMaintenance = { plan: boolean; objective: boolean; task: boolean; keyResult: boolean };
+export type WorkOkrGovernanceProjection = {
+  mode: "free_edit" | "workflow" | "unavailable";
+  lifecycleStatus: string;
+  badges: ReadonlyArray<{
+    key: "free_edit" | "workflow" | "unavailable" | "readonly" | "archived";
+    label: string;
+  }>;
+  facets: Record<"target" | "execution" | "result", {
+    facet: "target" | "execution" | "result";
+    editable: boolean;
+    lockReason: "archived" | "permission_required" | "request_in_flight" | "action_unavailable" | null;
+    lockRequestId: number | string | null;
+    action: {
+      kind: "objective_submit" | "objective_revise" | "report_submit" | "report_correct";
+      runtime: Pick<import("@workspace/platform/workflow-action-runtime").ActionRuntime, "businessActionKey" | "executionMode" | "editability" | "requestId" | "status">;
+    } | null;
+    submissionWindow: { enforced: boolean; open: boolean };
+  }>;
+};
 export interface WorkPlanDraft {
   id: number | null;
   kind: WorkPlanKind;

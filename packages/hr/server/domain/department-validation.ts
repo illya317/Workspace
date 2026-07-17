@@ -4,7 +4,7 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { HR_FK_REGISTRY } from "../fk-registry";
 import { getManagerPositionScopeDepartmentIds } from "../department-manager-positions";

@@ -1,10 +1,9 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { isBoundWorkOkrTimeControlEnabled } from "./domain/work-okr-bound-control";
 import { validateWorkOkrStageCommand } from "./domain/work-okr-stage-validation";
-import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
-import { resolveWorkOkrKrReviewOpensAt } from "./work-okr-control";
-import { assertWorkPlanCanComplete, WorkCompletionBlockedError } from "./domain/work-plan-item-state";
+import { canMaintainWorkItem, resolveWorkPlanMaintenance, workItemMutationFacets } from "./domain/work-plan-maintenance-policy";
+import { workOkrFacetMutationIssue } from "./domain/work-okr-governance-policy";
+import { getWorkPlanOkrGovernance } from "./work-plan-governance";
 
 export const WORK_OKR_STAGES = [
   "objective_draft",
@@ -38,12 +37,16 @@ type PlanStageRow = {
   krReviewOpensAt: Date | null;
   status: string;
   isArchived: boolean;
+  objectiveApprovedAt: Date | null;
+  krApprovedAt: Date | null;
 };
 
 type WorkItemStageInput = {
   action: WorkOkrAction;
   planId?: number | null;
   itemType: string;
+  actorUserId?: number | null;
+  changesKrCurrentValue?: boolean;
 };
 
 const planStageSelect = {
@@ -64,6 +67,8 @@ const planStageSelect = {
   krReviewOpensAt: true,
   status: true,
   isArchived: true,
+  objectiveApprovedAt: true,
+  krApprovedAt: true,
 } as const;
 
 export function normalizeWorkOkrStage(value: unknown): WorkOkrStage {
@@ -79,53 +84,11 @@ export function workOkrStageLabel(stage: WorkOkrStage) {
   return "已关闭";
 }
 
-export function effectiveWorkOkrStage(plan: Pick<PlanStageRow, "okrStage" | "krReviewOpensAt" | "status" | "isArchived">, now = new Date()): WorkOkrStage {
-  const stage = normalizeWorkOkrStage(plan.okrStage);
-  if (plan.status === "done" || plan.isArchived || stage === "closed") return "closed";
-  if (stage === "executing" && plan.krReviewOpensAt && plan.krReviewOpensAt <= now) return "kr_open";
-  return stage;
-}
-
-async function syncPlanKrReviewState(plan: PlanStageRow, now: Date) {
-  if (plan.okrStage !== "executing" && plan.okrStage !== "kr_open") return;
-  const opensAt = await resolveWorkOkrKrReviewOpensAt(plan);
-  if (!opensAt) return;
-  const nextStage = opensAt <= now ? "kr_open" : "executing";
-  if (plan.okrStage === nextStage && plan.krReviewOpensAt?.getTime() === opensAt.getTime()) return;
-  await prisma.workPlan.update({
-    where: { id: plan.id },
-    data: { okrStage: nextStage, krReviewOpensAt: opensAt },
-  });
-}
-
-export async function syncDueKrReviewsForTarget(input: {
-  targetType: string;
-  targetId: number;
-  now?: Date;
-}) {
-  const command = validateWorkOkrStageCommand("syncDueKrReviewsForTarget");
-  if (!command.ok) throw new Error(command.issue.message);
-  const now = input.now ?? new Date();
-  const plans = await prisma.workPlan.findMany({
-    where: {
-      targetType: input.targetType,
-      targetId: input.targetId,
-      okrStage: { in: ["executing", "kr_open"] },
-    },
-    select: planStageSelect,
-  });
-  await Promise.all(plans.map((plan) => syncPlanKrReviewState(plan, now)));
-}
-
-export async function syncDueKrReviewForPlan(planId: number, now = new Date()) {
-  const command = validateWorkOkrStageCommand("syncDueKrReviewForPlan");
-  if (!command.ok) throw new Error(command.issue.message);
-  const plan = await prisma.workPlan.findUnique({ where: { id: planId }, select: planStageSelect });
-  if (plan) await syncPlanKrReviewState(plan, now);
+export function effectiveWorkOkrStage(plan: Pick<PlanStageRow, "okrStage">): WorkOkrStage {
+  return normalizeWorkOkrStage(plan.okrStage);
 }
 
 export async function getWorkPlanStage(planId: number) {
-  await syncDueKrReviewForPlan(planId);
   const plan = await prisma.workPlan.findUnique({
     where: { id: planId },
     select: planStageSelect,
@@ -137,18 +100,32 @@ export async function getWorkPlanStage(planId: number) {
   };
 }
 
-export async function assertWorkPlanHeaderStageAllowed(planId: number): Promise<DomainServiceResult<{ stage: WorkOkrStage }>> {
+export async function assertWorkPlanHeaderStageAllowed(
+  planId: number,
+  actorUserId?: number | null,
+): Promise<DomainServiceResult<{ stage: WorkOkrStage }>> {
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
+  if (actorUserId) {
+    const runtime = await getWorkPlanOkrGovernance({ planId, actorUserId });
+    if (runtime) {
+      const issue = workOkrFacetMutationIssue(runtime.governance.facets.target, "目标定义");
+      if (issue) return { ok: false, error: issue.message, status: issue.status };
+      return { ok: true, data: { stage: plan.okrStage } };
+    }
+  }
   const maintenance = resolveWorkPlanMaintenance({
     kind: plan.kind,
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
-    timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson),
   });
   if (!maintenance.plan) {
-    return { ok: false, error: `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，目标审查后计划头已锁定`, status: 409 };
+    return {
+      ok: false,
+      error: plan.isArchived ? "已归档的工作计划不能维护计划信息" : "该计划不支持维护计划信息",
+      status: 409,
+    };
   }
   return { ok: true, data: { stage: plan.okrStage } };
 }
@@ -157,19 +134,36 @@ export async function assertWorkItemStageAllowed(input: WorkItemStageInput): Pro
   if (!input.planId) return { ok: false, error: "必须选择 OKR 计划", status: 400 };
   const plan = await getWorkPlanStage(input.planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
+  if (input.actorUserId) {
+    const runtime = await getWorkPlanOkrGovernance({ planId: input.planId, actorUserId: input.actorUserId });
+    const facets = runtime?.governance.facets;
+    if (runtime && facets) {
+      const requiredFacets = workItemMutationFacets(input.itemType, input);
+      if (requiredFacets.length === 0) {
+        return { ok: false, error: "该计划不支持维护此类节点", status: 409 };
+      }
+      for (const facet of requiredFacets) {
+        const issue = workOkrFacetMutationIssue(
+          facets[facet],
+          facet === "target" ? "目标定义" : facet === "result" ? "结果事实" : "执行事实",
+        );
+        if (issue) return { ok: false, error: issue.message, status: issue.status };
+      }
+      return { ok: true, data: { stage: plan.okrStage } };
+    }
+  }
   const maintenance = resolveWorkPlanMaintenance({
     kind: plan.kind,
     stage: plan.okrStage,
     status: plan.status,
     isArchived: plan.isArchived,
-    timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson),
   });
   if (!canMaintainWorkItem(maintenance, input.itemType)) {
     return {
       ok: false,
-      error: plan.isArchived || plan.status === "done" || plan.okrStage === "closed"
-        ? "已关闭或归档的工作计划不能维护节点"
-        : `当前阶段为「${workOkrStageLabel(plan.okrStage)}」，不能维护该类型节点`,
+      error: plan.isArchived
+        ? "已归档的工作计划不能维护节点"
+        : "该计划不支持维护此类节点",
       status: 409,
     };
   }
@@ -181,12 +175,12 @@ export async function submitObjectiveReview(planId: number): Promise<DomainServi
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.okrStage !== "objective_draft") return { ok: false, error: "只有目标草稿阶段可以提交目标审查", status: 409 };
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能提交目标", status: 409 };
   await prisma.workPlan.update({
     where: { id: planId },
-    data: { okrStage: "objective_submitted", objectiveSubmittedAt: new Date() },
+    data: { objectiveSubmittedAt: new Date() },
   });
-  return { ok: true, data: { okrStage: "objective_submitted" } };
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 export async function approveObjectiveReview(planId: number, actorUserId: number, approvalSnapshot?: unknown): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
@@ -194,32 +188,53 @@ export async function approveObjectiveReview(planId: number, actorUserId: number
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.okrStage !== "objective_submitted") return { ok: false, error: "只有目标待审阶段可以通过目标审查", status: 409 };
-  const krReviewOpensAt = await resolveWorkOkrKrReviewOpensAt(plan);
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能确认目标", status: 409 };
   const snapshotJson = serializeApprovalSnapshot(approvalSnapshot);
   await prisma.workPlan.update({
     where: { id: planId },
     data: {
-      okrStage: "executing",
-      status: "active",
       objectiveApprovedAt: new Date(),
       objectiveApprovedByUserId: actorUserId,
-      krReviewOpensAt,
+      objectiveSubmittedAt: null,
       ...(snapshotJson === undefined ? {} : { objectiveApprovalSnapshotJson: snapshotJson }),
     },
   });
-  await syncDueKrReviewForPlan(planId);
-  return { ok: true, data: { okrStage: "executing" } };
+  return { ok: true, data: { okrStage: plan.okrStage } };
+}
+
+export async function recordDirectObjectiveConfirmation(
+  planId: number,
+  actorUserId: number,
+  approvalSnapshot?: unknown,
+): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
+  const command = validateWorkOkrStageCommand("recordDirectObjectiveConfirmation");
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  const plan = await getWorkPlanStage(planId);
+  if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能确认目标", status: 409 };
+  const snapshotJson = serializeApprovalSnapshot(approvalSnapshot);
+  await prisma.workPlan.update({
+    where: { id: planId },
+    data: {
+      objectiveApprovedAt: new Date(),
+      objectiveApprovedByUserId: actorUserId,
+      objectiveSubmittedAt: null,
+      ...(snapshotJson === undefined ? {} : { objectiveApprovalSnapshotJson: snapshotJson }),
+    },
+  });
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 export async function rejectObjectiveReview(planId: number): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
   const command = validateWorkOkrStageCommand("rejectObjectiveReview");
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  const plan = await getWorkPlanStage(planId);
+  if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
   await prisma.workPlan.update({
     where: { id: planId },
-    data: { okrStage: "objective_draft", objectiveSubmittedAt: null },
+    data: { objectiveSubmittedAt: null },
   });
-  return { ok: true, data: { okrStage: "objective_draft" } };
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 export async function submitKrReview(planId: number): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
@@ -227,12 +242,12 @@ export async function submitKrReview(planId: number): Promise<DomainServiceResul
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.okrStage !== "kr_open") return { ok: false, error: "只有考核结果开放阶段可以提交考核结果", status: 409 };
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能提交结果", status: 409 };
   await prisma.workPlan.update({
     where: { id: planId },
-    data: { okrStage: "kr_submitted", krSubmittedAt: new Date() },
+    data: { krSubmittedAt: new Date() },
   });
-  return { ok: true, data: { okrStage: "kr_submitted" } };
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 export async function approveKrReview(planId: number, actorUserId: number, approvalSnapshot?: unknown): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
@@ -240,37 +255,53 @@ export async function approveKrReview(planId: number, actorUserId: number, appro
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const plan = await getWorkPlanStage(planId);
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
-  if (plan.okrStage !== "kr_submitted") return { ok: false, error: "只有 KR 待核查阶段可以通过核查", status: 409 };
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能确认结果", status: 409 };
   const snapshotJson = serializeApprovalSnapshot(approvalSnapshot);
-  try {
-    await prisma.$transaction(async (tx) => {
-      await assertWorkPlanCanComplete(tx, planId);
-      await tx.workPlan.update({
-        where: { id: planId },
-        data: {
-          okrStage: "closed",
-          status: "done",
-          krApprovedAt: new Date(),
-          krApprovedByUserId: actorUserId,
-          ...(snapshotJson === undefined ? {} : { krApprovalSnapshotJson: snapshotJson }),
-        },
-      });
-    });
-  } catch (error) {
-    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
-    throw error;
-  }
-  return { ok: true, data: { okrStage: "closed" } };
+  await prisma.workPlan.update({
+    where: { id: planId },
+    data: {
+      krApprovedAt: new Date(),
+      krApprovedByUserId: actorUserId,
+      krSubmittedAt: null,
+      ...(snapshotJson === undefined ? {} : { krApprovalSnapshotJson: snapshotJson }),
+    },
+  });
+  return { ok: true, data: { okrStage: plan.okrStage } };
+}
+
+export async function recordDirectKrConfirmation(
+  planId: number,
+  actorUserId: number,
+  approvalSnapshot?: unknown,
+): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
+  const command = validateWorkOkrStageCommand("recordDirectKrConfirmation");
+  if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  const plan = await getWorkPlanStage(planId);
+  if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
+  if (plan.isArchived) return { ok: false, error: "已归档计划不能确认结果", status: 409 };
+  const snapshotJson = serializeApprovalSnapshot(approvalSnapshot);
+  await prisma.workPlan.update({
+    where: { id: planId },
+    data: {
+      krApprovedAt: new Date(),
+      krApprovedByUserId: actorUserId,
+      krSubmittedAt: null,
+      ...(snapshotJson === undefined ? {} : { krApprovalSnapshotJson: snapshotJson }),
+    },
+  });
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 export async function rejectKrReview(planId: number): Promise<DomainServiceResult<{ okrStage: WorkOkrStage }>> {
   const command = validateWorkOkrStageCommand("rejectKrReview");
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
+  const plan = await getWorkPlanStage(planId);
+  if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
   await prisma.workPlan.update({
     where: { id: planId },
-    data: { okrStage: "kr_open", krSubmittedAt: null },
+    data: { krSubmittedAt: null },
   });
-  return { ok: true, data: { okrStage: "kr_open" } };
+  return { ok: true, data: { okrStage: plan.okrStage } };
 }
 
 function serializeApprovalSnapshot(snapshot: unknown) {

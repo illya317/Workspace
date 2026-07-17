@@ -7,8 +7,6 @@ import { validateSingleOkrPlanPerCycle } from "./domain/work-plan-cycle-validati
 import { normalizeSourceType } from "./domain/work-item-source-validation";
 import {
   assertWorkPlanHeaderStageAllowed,
-  syncDueKrReviewForPlan,
-  syncDueKrReviewsForTarget,
 } from "./work-okr-stage";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureSystemOkrPeriodPlans, isWorkPlanVisibleInCurrentWindow, resolveDefaultPlanOwnerEmployeeId, standardOkrPlanTitle } from "./work-plan-system-periods";
@@ -25,12 +23,16 @@ import { toWorkPlanDto, workPlanInclude, type WorkPlanRow } from "./work-plan-dt
 import {
   listWorkPlanItemStatusCounts,
 } from "./domain/work-plan-item-state";
-import { validateWorkPlanReopenTransition } from "./domain/work-plan-maintenance-policy";
+import {
+  validateWorkPlanReopenTransition,
+} from "./domain/work-plan-maintenance-policy";
 import type { WorkPlanCommandInput } from "./domain/work-plan-command-input";
 import { getEffectiveWorkTaskActionPermissions } from "./access";
 import {
   buildWorkPlanGovernanceBinding,
-  resolveWorkPlanActionRuntime,
+  getWorkPlanOkrGovernance,
+  listWorkPlanActionRuntimeRequests,
+  resolveWorkPlanOkrGovernance,
   type WorkPlanGovernanceRow,
 } from "./work-plan-governance";
 import {
@@ -136,7 +138,6 @@ export async function listWorkPlans(opts: {
   kind?: string;
   includeArchived?: boolean;
 }) {
-  await syncDueKrReviewsForTarget({ targetType: opts.targetType, targetId: opts.targetId });
   if (!opts.kind || opts.kind === "routine") {
     await ensureRoutineWorkPlan(opts.targetType, opts.targetId);
   }
@@ -156,35 +157,31 @@ export async function listWorkPlans(opts: {
   });
   const visibleRows = normalizeRoutinePlanRows(rows)
     .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds));
-  const [itemStatusCounts, permissions] = await Promise.all([
+  const [itemStatusCounts, permissions, requestsByPlanId] = await Promise.all([
     listWorkPlanItemStatusCounts(prisma, visibleRows.map((row) => row.id)),
     getEffectiveWorkTaskActionPermissions(opts.actorUserId, opts.targetType, opts.targetId),
+    listWorkPlanActionRuntimeRequests(visibleRows.filter((row) => row.kind === "okr") as WorkPlanGovernanceRow[]),
   ]);
-  return Promise.all(visibleRows.map(async (row) => ({
-    ...toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(row.id) }),
-    actionRuntimes: row.kind === "okr" ? {
-      objectiveSubmit: await resolveWorkPlanActionRuntime({
-        plan: row as WorkPlanGovernanceRow,
-        kind: "objective_submit",
-        actor: {
-          userId: opts.actorUserId,
-          canDirectWrite: permissions.canUpdate,
-          canStartWorkflow: permissions.canSubmit,
-          canProcessWorkflow: permissions.canApprove,
-        },
-      }),
-      planRevision: await resolveWorkPlanActionRuntime({
-        plan: row as WorkPlanGovernanceRow,
-        kind: "objective_revise",
-        actor: {
-          userId: opts.actorUserId,
-          canDirectWrite: permissions.canUpdate,
-          canStartWorkflow: permissions.canSubmit,
-          canProcessWorkflow: permissions.canApprove,
-        },
-      }),
-    } : null,
-  })));
+  const actor = {
+    userId: opts.actorUserId,
+    canDirectWrite: permissions.canUpdate,
+    canStartWorkflow: permissions.canSubmit,
+    canProcessWorkflow: permissions.canApprove,
+  };
+  return Promise.all(visibleRows.map(async (row) => {
+    const dto = toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(row.id) });
+    if (row.kind !== "okr") return { ...dto, governance: null, actionRuntimes: null };
+    const runtime = await resolveWorkPlanOkrGovernance({
+      plan: row as WorkPlanGovernanceRow,
+      actor,
+      requests: requestsByPlanId.get(row.id),
+    });
+    return {
+      ...dto,
+      governance: runtime.governance,
+      actionRuntimes: runtime.actionRuntimes,
+    };
+  }));
 }
 
 async function ensureRoutineWorkPlan(targetType: string, targetId: number) {
@@ -233,7 +230,6 @@ function normalizeRoutinePlanRows(rows: WorkPlanRow[]) {
 }
 
 export async function getWorkPlanTargetMetadata(planId: number) {
-  await syncDueKrReviewForPlan(planId);
   return prisma.workPlan.findUnique({
     where: { id: planId },
     select: { targetType: true, targetId: true, status: true, okrStage: true, okrCycleId: true, okrControlScopeType: true, okrControlScopeId: true, krReviewOpensAt: true },
@@ -338,11 +334,16 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (opts.status !== undefined && !isCompletedStatus(opts.status) && opts.actualEndDate) {
     return { ok: false, error: "请先选择已完成，再填写实际结束", status: 400 };
   }
+  const reopeningRuntime = existing.kind === "okr" && existing.status === "done" && opts.status === "active" && opts.actorUserId
+    ? await getWorkPlanOkrGovernance({ planId: id, actorUserId: opts.actorUserId })
+    : null;
   const reopenTransition = validateWorkPlanReopenTransition({
     kind: existing.kind,
     currentStatus: existing.status,
     requestedStatus: opts.status,
     updateGuard: opts.updateGuard,
+    directTargetRevision: reopeningRuntime?.governance.facets.target.editable === true
+      && reopeningRuntime.governance.facets.target.action?.runtime.executionMode === "direct",
   });
   if (!reopenTransition.ok) {
     return { ok: false, error: reopenTransition.issue.message, status: reopenTransition.issue.status };
@@ -358,7 +359,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (!command.ok) return { ok: false, error: command.error, status: 400 };
   const nextKind = String(command.data.kind ?? existing.kind);
   if (nextKind === "okr" && opts.updateGuard !== "workflow-approved" && !reopeningCompletedPlan) {
-    const stageGuard = await assertWorkPlanHeaderStageAllowed(id);
+    const stageGuard = await assertWorkPlanHeaderStageAllowed(id, opts.actorUserId);
     if (!stageGuard.ok) return stageGuard;
   }
   const relationError = await validateWorkPlanRelations({
@@ -381,7 +382,6 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
     alignment: command.alignment,
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
-  const updateData = reopeningCompletedPlan && existing.kind === "okr" ? { ...command.data, okrStage: "executing" } : command.data;
   const completingPlan = existing.status !== "done" && command.data.status === "done";
   let row: WorkPlanRow;
   try {
@@ -389,7 +389,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
       const commit = async () => {
         await tx.workPlan.update({
           where: { id, updatedAt: existing.updatedAt },
-          data: updateData,
+          data: command.data,
         });
         await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
         return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });

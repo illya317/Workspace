@@ -1,5 +1,5 @@
-import type { FkDefinition } from "./fk-registry";
-import { WORKSPACE_FK_REGISTRY } from "./fk-registrations";
+import type { SelectorRelationDefinition } from "./relation-registry";
+import { WORKSPACE_RELATION_REGISTRY } from "./relation-registrations";
 
 export interface ResolveFkOptions {
   entityType?: string;
@@ -13,15 +13,15 @@ function fallbackDisplayKey(field: string, value: number) {
   return `field:${field}:${value}`;
 }
 
-function definitionsForField(field: string, entityType?: string): FkDefinition[] {
-  const definitions = WORKSPACE_FK_REGISTRY.keys()
-    .map((key) => WORKSPACE_FK_REGISTRY.require(key))
+function definitionsForField(field: string, entityType?: string): SelectorRelationDefinition[] {
+  const definitions = WORKSPACE_RELATION_REGISTRY.keys()
+    .map((key) => WORKSPACE_RELATION_REGISTRY.require(key))
     .filter((definition) => definition.source.field === field && (definition.source.valueKind ?? "id") === "id");
   if (!entityType) return definitions;
   return definitions.filter((definition) => definition.source.entity === entityType || definition.source.entity === "Any");
 }
 
-function hasSingleTarget(definitions: FkDefinition[]) {
+function hasSingleTarget(definitions: SelectorRelationDefinition[]) {
   return new Set(definitions.map((definition) => definition.target.entity)).size === 1;
 }
 

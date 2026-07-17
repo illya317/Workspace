@@ -76,6 +76,7 @@ model WorkPlan {
   items                           WorkItem[]
   meetingActionCandidates         MeetingActionCandidate[]  @relation("MeetingActionCandidateWorkPlan")
   reportItems                     WorkReportItem[]
+  kpiAssignments                 WorkKpiAssignment[]
   governanceEvents                WorkPlanGovernanceEvent[]
 
   @@index([targetType, targetId, kind, status, isArchived])
@@ -176,6 +177,7 @@ model WorkItem {
   krEvidenceTasks                WorkKrEvidence[]              @relation("WorkKrEvidenceKr")
   taskEvidenceForKrs             WorkKrEvidence[]              @relation("WorkKrEvidenceTask")
   responsibilityReferences       WorkResponsibilityReference[]
+  kpiAssignment                  WorkKpiAssignment?
 
   @@index([planId, parentWorkItemId, itemType])
   @@index([planId, itemType, isArchived])

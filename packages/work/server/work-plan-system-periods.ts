@@ -1,7 +1,7 @@
 import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { validateWorkPlanCommand } from "./domain/work-plan-validation";
-import { getWorkOkrCyclePlanningWindow, resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
+import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureWorkOkrCyclesForYears } from "./work-okr-cycles";
 import type { WorkPlanRow } from "./work-plan-dto";
 import { buildWorkPlanGovernanceBinding } from "./work-plan-governance";
@@ -28,7 +28,7 @@ export async function ensureSystemOkrPeriodPlans(targetType: string, targetId: n
   if (targetType === "personal" && !await resolvePersonalOwnerEmployeeId(normalizedTargetId)) return new Set<number>();
   const now = startOfUtcDay(new Date());
   await ensureWorkOkrCyclesForYears(planningCycleYears(now));
-  const cycles = await listVisibleSystemOkrCycles(now, targetType);
+  const cycles = await listVisibleSystemOkrCycles(now);
   if (!cycles.length) return new Set<number>();
   const cycleIds = cycles.map((cycle) => cycle.id);
   const existingRows = await prisma.workPlan.findMany({
@@ -166,7 +166,7 @@ export function isWorkPlanVisibleInCurrentWindow(row: WorkPlanRow, visibleOkrCyc
   return startDate >= SYSTEM_OKR_PLAN_START && startDate <= startOfUtcDay(new Date());
 }
 
-async function listVisibleSystemOkrCycles(now: Date, targetType: string) {
+async function listVisibleSystemOkrCycles(now: Date) {
   const rows = await prisma.workOkrCycle.findMany({
     where: { startDate: { gte: SYSTEM_OKR_PLAN_START }, periodType: { not: "weekly" } },
     select: { id: true, periodType: true, code: true, label: true, year: true, sequence: true, startDate: true, endDate: true },
@@ -175,13 +175,10 @@ async function listVisibleSystemOkrCycles(now: Date, targetType: string) {
   const currentOrPast: SystemOkrCycle[] = [];
   const futureByType = new Map<string, SystemOkrCycle>();
   for (const row of rows) {
-    const planningWindow = await getWorkOkrCyclePlanningWindow(row, targetType);
-    if (!planningWindow.enabled) continue;
     if (startOfUtcDay(row.startDate) <= now) {
       currentOrPast.push(row);
       continue;
     }
-    if (!planningWindow.opensAt || startOfUtcDay(planningWindow.opensAt) > now) continue;
     const current = futureByType.get(row.periodType);
     if (!current || row.startDate < current.startDate) futureByType.set(row.periodType, row);
   }

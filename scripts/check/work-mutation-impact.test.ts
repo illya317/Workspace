@@ -136,6 +136,55 @@ test("Project delete separates owned technical rows from blocking Work reference
   ]);
 });
 
+test("WorkItem delete exposes a KPI assignment as a business blocker", async () => {
+  const context = fakeContext(() => []);
+  const assignmentStore = context.tx.workKpiAssignment as unknown as {
+    findUnique: () => Promise<{ id: number; version: number; workItem: { content: string } } | null>;
+  };
+  assignmentStore.findUnique = async () => ({
+    id: 41,
+    version: 2,
+    workItem: { content: "KPI 工作项" },
+  });
+  const impact = await engine().plan({
+    context,
+    actorKey: "user:7",
+    scopeKey: "personal:7",
+    root: { entity: "WorkItem", id: "8", label: "目标", intent: "delete", expectedVersion: "v1" },
+  });
+
+  assert.deepEqual(impact.blockers.map((group) => group.relationKey), ["work.tasks.kpi-assignment.item"]);
+});
+
+test("WorkPlan delete confirms owned KPI assignments and blocks their result snapshots", async () => {
+  const context = fakeContext(() => []);
+  const assignmentStore = context.tx.workKpiAssignment as unknown as {
+    findMany: (input: { where: Record<string, unknown> }) => Promise<Array<{
+      id: number; version: number; workItem: { content: string };
+    }>>;
+  };
+  assignmentStore.findMany = async (input) => (
+    "sourceAssignmentId" in input.where
+      ? []
+      : "workPlanId" in input.where
+        ? [{ id: 42, version: 3, workItem: { content: "销售达成" } }]
+        : []
+  );
+  const resultStore = context.tx.workKpiResultSnapshot as unknown as {
+    findMany: () => Promise<Array<{ id: number; version: number }>>;
+  };
+  resultStore.findMany = async () => [{ id: 51, version: 1 }];
+  const impact = await engine().plan({
+    context,
+    actorKey: "user:7",
+    scopeKey: "personal:7",
+    root: { entity: "WorkPlan", id: "9", label: "年度计划", intent: "delete", expectedVersion: "v1" },
+  });
+
+  assert.deepEqual(impact.confirmableEffects.map((group) => group.relationKey), ["work.plan.kpi-assignments"]);
+  assert.deepEqual(impact.blockers.map((group) => group.relationKey), ["work.kpi.assignment.results"]);
+});
+
 function engine() {
   return buildWorkMutationImpactEngine({ secret: "work-impact-test-secret" });
 }
@@ -152,6 +201,8 @@ function fakeContext(
       workItem: { findMany: async (input: { where: Record<string, unknown> }) => findItems(input) },
       workKrEvidence: { findMany: async (input: { where: Record<string, unknown> }) => findEvidence(input) },
       workPlan: { findMany: async () => [] },
+      workKpiAssignment: { findMany: async () => [], findUnique: async () => null },
+      workKpiResultSnapshot: { findMany: async () => [] },
       meetingActionCandidate: { findMany: async () => [] },
       workPlanAlignment: { findMany: async () => [] },
       workParticipant: { findMany: async () => [] },

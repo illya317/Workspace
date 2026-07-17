@@ -1,4 +1,4 @@
-/// 员工周期绩效评审事实表（来源于 HR 绩效流程归档；OKR/工作数据以快照 JSON 固化）
+/// 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
 model HrPerformanceReview {
   id                Int       @id @default(autoincrement())
   employeeId        Int
@@ -11,7 +11,7 @@ model HrPerformanceReview {
   finalScore        Int
   finalGrade        String
   hrComment         String    @default("")
-  okrSnapshotJson   String    @default("{}")
+  workEvidenceSnapshotJson String @default("{}")
   archivedByUserId  Int?
   archivedAt        DateTime  @default(now())
   editedBy          Int?

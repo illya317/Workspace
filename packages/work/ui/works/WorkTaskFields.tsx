@@ -17,7 +17,7 @@ import { useWorkResponsibilityFields } from "./work-responsibility-fields";
 export function WorkTaskForm({
   draft,
   works,
-  disabled,
+  disabled, resultDisabled,
   excludedWorkId,
   allowedItemTypes,
   target,
@@ -25,8 +25,7 @@ export function WorkTaskForm({
   onChange,
 }: {
   draft: WorkItemDraft;
-  works: WorkItem[];
-  disabled: boolean;
+  works: WorkItem[]; disabled: boolean; resultDisabled?: boolean;
   excludedWorkId: number | null;
   allowedItemTypes?: WorkItemType[];
   target?: WorkTarget | null;
@@ -37,6 +36,7 @@ export function WorkTaskForm({
     draft,
     works,
     disabled,
+    resultDisabled,
     excludedWorkId,
     allowedItemTypes,
     target,
@@ -48,7 +48,7 @@ export function WorkTaskForm({
 export function useWorkTaskFormSurface({
   draft,
   works,
-  disabled,
+  disabled, resultDisabled = disabled,
   excludedWorkId,
   allowedItemTypes,
   target,
@@ -57,7 +57,7 @@ export function useWorkTaskFormSurface({
 }: {
   draft: WorkItemDraft;
   works: WorkItem[];
-  disabled: boolean;
+  disabled: boolean; resultDisabled?: boolean;
   excludedWorkId: number | null;
   allowedItemTypes?: WorkItemType[];
   target?: WorkTarget | null;
@@ -224,7 +224,7 @@ export function useWorkTaskFormSurface({
     ] satisfies FormSurfaceFieldSpec[] : []),
     ...(isKr ? [
       { key: "krStartValue", label: "指标起点", spec: { valueType: "number", control: "number", state: disabled ? "disabled" : "normal" }, value: numberValue(draft.krStartValue), onChange: patchNumber("krStartValue") },
-      { key: "krCurrentValue", label: "当前值", spec: { valueType: "number", control: "number", state: disabled ? "disabled" : "normal" }, value: numberValue(draft.krCurrentValue), onChange: patchNumber("krCurrentValue") },
+      { key: "krCurrentValue", label: "当前值", spec: { valueType: "number", control: "number", state: disabled || resultDisabled ? "disabled" : "normal" }, value: numberValue(draft.krCurrentValue), onChange: patchNumber("krCurrentValue") },
       { key: "krTargetValue", label: "目标值", spec: { valueType: "number", control: "number", state: disabled ? "disabled" : "normal" }, value: numberValue(draft.krTargetValue), onChange: patchNumber("krTargetValue") },
       { key: "krUnit", label: "单位", spec: { valueType: "string", control: "text", state: disabled ? "disabled" : "normal" }, value: draft.krUnit, placeholder: "万元、项、%", onChange: (value: unknown) => patch({ krUnit: String(value ?? "") }) },
       { key: "evidenceTaskIds", label: "任务证据", span: "wide", spec: { valueType: "array", control: "choice", multiple: true, options: { source: "static", items: evidenceOptions, visibleCount: 6 }, state: disabled || evidenceOptions.length === 0 ? "disabled" : "normal" }, value: draft.evidenceTaskIds.map(String), placeholder: "选择同一目标下的任务", onChange: (value: unknown) => {

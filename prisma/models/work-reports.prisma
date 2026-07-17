@@ -13,6 +13,7 @@ model WorkReport {
   updatedAt   DateTime         @default(now()) @updatedAt
   submitter   User             @relation("WorkReportSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade)
   items       WorkReportItem[]
+  kpiResultSnapshots WorkKpiResultSnapshot[]
 
   @@unique([targetType, targetId, periodType, periodStart, reportStage])
   @@index([submittedBy])

@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model HrPerformanceReview
- * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；OKR/工作数据以快照 JSON 固化）
+ * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
  */
 export type HrPerformanceReviewModel = runtime.Types.Result.DefaultSelection<Prisma.$HrPerformanceReviewPayload>
 
@@ -64,7 +64,7 @@ export type HrPerformanceReviewMinAggregateOutputType = {
   finalScore: number | null
   finalGrade: string | null
   hrComment: string | null
-  okrSnapshotJson: string | null
+  workEvidenceSnapshotJson: string | null
   archivedByUserId: number | null
   archivedAt: Date | null
   editedBy: number | null
@@ -86,7 +86,7 @@ export type HrPerformanceReviewMaxAggregateOutputType = {
   finalScore: number | null
   finalGrade: string | null
   hrComment: string | null
-  okrSnapshotJson: string | null
+  workEvidenceSnapshotJson: string | null
   archivedByUserId: number | null
   archivedAt: Date | null
   editedBy: number | null
@@ -108,7 +108,7 @@ export type HrPerformanceReviewCountAggregateOutputType = {
   finalScore: number
   finalGrade: number
   hrComment: number
-  okrSnapshotJson: number
+  workEvidenceSnapshotJson: number
   archivedByUserId: number
   archivedAt: number
   editedBy: number
@@ -158,7 +158,7 @@ export type HrPerformanceReviewMinAggregateInputType = {
   finalScore?: true
   finalGrade?: true
   hrComment?: true
-  okrSnapshotJson?: true
+  workEvidenceSnapshotJson?: true
   archivedByUserId?: true
   archivedAt?: true
   editedBy?: true
@@ -180,7 +180,7 @@ export type HrPerformanceReviewMaxAggregateInputType = {
   finalScore?: true
   finalGrade?: true
   hrComment?: true
-  okrSnapshotJson?: true
+  workEvidenceSnapshotJson?: true
   archivedByUserId?: true
   archivedAt?: true
   editedBy?: true
@@ -202,7 +202,7 @@ export type HrPerformanceReviewCountAggregateInputType = {
   finalScore?: true
   finalGrade?: true
   hrComment?: true
-  okrSnapshotJson?: true
+  workEvidenceSnapshotJson?: true
   archivedByUserId?: true
   archivedAt?: true
   editedBy?: true
@@ -311,7 +311,7 @@ export type HrPerformanceReviewGroupByOutputType = {
   finalScore: number
   finalGrade: string
   hrComment: string
-  okrSnapshotJson: string
+  workEvidenceSnapshotJson: string
   archivedByUserId: number | null
   archivedAt: Date
   editedBy: number | null
@@ -356,7 +356,7 @@ export type HrPerformanceReviewWhereInput = {
   finalScore?: Prisma.IntFilter<"HrPerformanceReview"> | number
   finalGrade?: Prisma.StringFilter<"HrPerformanceReview"> | string
   hrComment?: Prisma.StringFilter<"HrPerformanceReview"> | string
-  okrSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
+  workEvidenceSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
   archivedByUserId?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
   archivedAt?: Prisma.DateTimeFilter<"HrPerformanceReview"> | Date | string
   editedBy?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
@@ -379,7 +379,7 @@ export type HrPerformanceReviewOrderByWithRelationInput = {
   finalScore?: Prisma.SortOrder
   finalGrade?: Prisma.SortOrder
   hrComment?: Prisma.SortOrder
-  okrSnapshotJson?: Prisma.SortOrder
+  workEvidenceSnapshotJson?: Prisma.SortOrder
   archivedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -406,7 +406,7 @@ export type HrPerformanceReviewWhereUniqueInput = Prisma.AtLeast<{
   finalScore?: Prisma.IntFilter<"HrPerformanceReview"> | number
   finalGrade?: Prisma.StringFilter<"HrPerformanceReview"> | string
   hrComment?: Prisma.StringFilter<"HrPerformanceReview"> | string
-  okrSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
+  workEvidenceSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
   archivedByUserId?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
   archivedAt?: Prisma.DateTimeFilter<"HrPerformanceReview"> | Date | string
   editedBy?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
@@ -429,7 +429,7 @@ export type HrPerformanceReviewOrderByWithAggregationInput = {
   finalScore?: Prisma.SortOrder
   finalGrade?: Prisma.SortOrder
   hrComment?: Prisma.SortOrder
-  okrSnapshotJson?: Prisma.SortOrder
+  workEvidenceSnapshotJson?: Prisma.SortOrder
   archivedByUserId?: Prisma.SortOrderInput | Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -459,7 +459,7 @@ export type HrPerformanceReviewScalarWhereWithAggregatesInput = {
   finalScore?: Prisma.IntWithAggregatesFilter<"HrPerformanceReview"> | number
   finalGrade?: Prisma.StringWithAggregatesFilter<"HrPerformanceReview"> | string
   hrComment?: Prisma.StringWithAggregatesFilter<"HrPerformanceReview"> | string
-  okrSnapshotJson?: Prisma.StringWithAggregatesFilter<"HrPerformanceReview"> | string
+  workEvidenceSnapshotJson?: Prisma.StringWithAggregatesFilter<"HrPerformanceReview"> | string
   archivedByUserId?: Prisma.IntNullableWithAggregatesFilter<"HrPerformanceReview"> | number | null
   archivedAt?: Prisma.DateTimeWithAggregatesFilter<"HrPerformanceReview"> | Date | string
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"HrPerformanceReview"> | number | null
@@ -479,7 +479,7 @@ export type HrPerformanceReviewCreateInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -502,7 +502,7 @@ export type HrPerformanceReviewUncheckedCreateInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -522,7 +522,7 @@ export type HrPerformanceReviewUpdateInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -545,7 +545,7 @@ export type HrPerformanceReviewUncheckedUpdateInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -567,7 +567,7 @@ export type HrPerformanceReviewCreateManyInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -587,7 +587,7 @@ export type HrPerformanceReviewUpdateManyMutationInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -609,7 +609,7 @@ export type HrPerformanceReviewUncheckedUpdateManyInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -636,7 +636,7 @@ export type HrPerformanceReviewCountOrderByAggregateInput = {
   finalScore?: Prisma.SortOrder
   finalGrade?: Prisma.SortOrder
   hrComment?: Prisma.SortOrder
-  okrSnapshotJson?: Prisma.SortOrder
+  workEvidenceSnapshotJson?: Prisma.SortOrder
   archivedByUserId?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -671,7 +671,7 @@ export type HrPerformanceReviewMaxOrderByAggregateInput = {
   finalScore?: Prisma.SortOrder
   finalGrade?: Prisma.SortOrder
   hrComment?: Prisma.SortOrder
-  okrSnapshotJson?: Prisma.SortOrder
+  workEvidenceSnapshotJson?: Prisma.SortOrder
   archivedByUserId?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -693,7 +693,7 @@ export type HrPerformanceReviewMinOrderByAggregateInput = {
   finalScore?: Prisma.SortOrder
   finalGrade?: Prisma.SortOrder
   hrComment?: Prisma.SortOrder
-  okrSnapshotJson?: Prisma.SortOrder
+  workEvidenceSnapshotJson?: Prisma.SortOrder
   archivedByUserId?: Prisma.SortOrder
   archivedAt?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
@@ -778,7 +778,7 @@ export type HrPerformanceReviewCreateWithoutEmployeeInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -799,7 +799,7 @@ export type HrPerformanceReviewUncheckedCreateWithoutEmployeeInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -850,7 +850,7 @@ export type HrPerformanceReviewScalarWhereInput = {
   finalScore?: Prisma.IntFilter<"HrPerformanceReview"> | number
   finalGrade?: Prisma.StringFilter<"HrPerformanceReview"> | string
   hrComment?: Prisma.StringFilter<"HrPerformanceReview"> | string
-  okrSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
+  workEvidenceSnapshotJson?: Prisma.StringFilter<"HrPerformanceReview"> | string
   archivedByUserId?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
   archivedAt?: Prisma.DateTimeFilter<"HrPerformanceReview"> | Date | string
   editedBy?: Prisma.IntNullableFilter<"HrPerformanceReview"> | number | null
@@ -871,7 +871,7 @@ export type HrPerformanceReviewCreateManyEmployeeInput = {
   finalScore: number
   finalGrade: string
   hrComment?: string
-  okrSnapshotJson?: string
+  workEvidenceSnapshotJson?: string
   archivedByUserId?: number | null
   archivedAt?: Date | string
   editedBy?: number | null
@@ -891,7 +891,7 @@ export type HrPerformanceReviewUpdateWithoutEmployeeInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -912,7 +912,7 @@ export type HrPerformanceReviewUncheckedUpdateWithoutEmployeeInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -933,7 +933,7 @@ export type HrPerformanceReviewUncheckedUpdateManyWithoutEmployeeInput = {
   finalScore?: Prisma.IntFieldUpdateOperationsInput | number
   finalGrade?: Prisma.StringFieldUpdateOperationsInput | string
   hrComment?: Prisma.StringFieldUpdateOperationsInput | string
-  okrSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  workEvidenceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
   archivedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   archivedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -957,7 +957,7 @@ export type HrPerformanceReviewSelect<ExtArgs extends runtime.Types.Extensions.I
   finalScore?: boolean
   finalGrade?: boolean
   hrComment?: boolean
-  okrSnapshotJson?: boolean
+  workEvidenceSnapshotJson?: boolean
   archivedByUserId?: boolean
   archivedAt?: boolean
   editedBy?: boolean
@@ -980,7 +980,7 @@ export type HrPerformanceReviewSelectCreateManyAndReturn<ExtArgs extends runtime
   finalScore?: boolean
   finalGrade?: boolean
   hrComment?: boolean
-  okrSnapshotJson?: boolean
+  workEvidenceSnapshotJson?: boolean
   archivedByUserId?: boolean
   archivedAt?: boolean
   editedBy?: boolean
@@ -1003,7 +1003,7 @@ export type HrPerformanceReviewSelectUpdateManyAndReturn<ExtArgs extends runtime
   finalScore?: boolean
   finalGrade?: boolean
   hrComment?: boolean
-  okrSnapshotJson?: boolean
+  workEvidenceSnapshotJson?: boolean
   archivedByUserId?: boolean
   archivedAt?: boolean
   editedBy?: boolean
@@ -1026,7 +1026,7 @@ export type HrPerformanceReviewSelectScalar = {
   finalScore?: boolean
   finalGrade?: boolean
   hrComment?: boolean
-  okrSnapshotJson?: boolean
+  workEvidenceSnapshotJson?: boolean
   archivedByUserId?: boolean
   archivedAt?: boolean
   editedBy?: boolean
@@ -1036,7 +1036,7 @@ export type HrPerformanceReviewSelectScalar = {
   updatedAt?: boolean
 }
 
-export type HrPerformanceReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "okrCycleId" | "approvalRequestId" | "selfScore" | "selfComment" | "managerScore" | "managerComment" | "finalScore" | "finalGrade" | "hrComment" | "okrSnapshotJson" | "archivedByUserId" | "archivedAt" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["hrPerformanceReview"]>
+export type HrPerformanceReviewOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "employeeId" | "okrCycleId" | "approvalRequestId" | "selfScore" | "selfComment" | "managerScore" | "managerComment" | "finalScore" | "finalGrade" | "hrComment" | "workEvidenceSnapshotJson" | "archivedByUserId" | "archivedAt" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["hrPerformanceReview"]>
 export type HrPerformanceReviewInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   employee?: boolean | Prisma.EmployeeDefaultArgs<ExtArgs>
 }
@@ -1064,7 +1064,7 @@ export type $HrPerformanceReviewPayload<ExtArgs extends runtime.Types.Extensions
     finalScore: number
     finalGrade: string
     hrComment: string
-    okrSnapshotJson: string
+    workEvidenceSnapshotJson: string
     archivedByUserId: number | null
     archivedAt: Date
     editedBy: number | null
@@ -1507,7 +1507,7 @@ export interface HrPerformanceReviewFieldRefs {
   readonly finalScore: Prisma.FieldRef<"HrPerformanceReview", 'Int'>
   readonly finalGrade: Prisma.FieldRef<"HrPerformanceReview", 'String'>
   readonly hrComment: Prisma.FieldRef<"HrPerformanceReview", 'String'>
-  readonly okrSnapshotJson: Prisma.FieldRef<"HrPerformanceReview", 'String'>
+  readonly workEvidenceSnapshotJson: Prisma.FieldRef<"HrPerformanceReview", 'String'>
   readonly archivedByUserId: Prisma.FieldRef<"HrPerformanceReview", 'Int'>
   readonly archivedAt: Prisma.FieldRef<"HrPerformanceReview", 'DateTime'>
   readonly editedBy: Prisma.FieldRef<"HrPerformanceReview", 'Int'>

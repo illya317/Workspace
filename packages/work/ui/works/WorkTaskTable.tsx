@@ -34,6 +34,7 @@ export type WorkTaskTableProps = {
   editingId: number | null;
   editDraft: WorkItemDraft | null;
   editFormActions?: FormSurfaceActionSpec[];
+  resultDisabled?: boolean;
   target?: WorkTarget | null;
   showOwnerColumn?: boolean;
   workflowRequests: WorkTaskApprovalRequest[];
@@ -82,6 +83,7 @@ export function useWorkTaskTableSection({
   editingId,
   editDraft,
   editFormActions,
+  resultDisabled,
   target = null,
   showOwnerColumn,
   statusFilter,
@@ -118,6 +120,7 @@ export function useWorkTaskTableSection({
     draft: editDraft ?? emptyEditDraft,
     works: formWorks,
     disabled: saving,
+    resultDisabled: saving || resultDisabled,
     excludedWorkId: editingId,
     allowedItemTypes: editDraft ? [editDraft.itemType] : undefined,
     target,

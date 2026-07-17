@@ -1,6 +1,6 @@
 import { isValidDateValue, rejectInvalidDateField } from "@workspace/platform/server/api";
 import { getOperatingCommitteeDepartmentContext } from "@workspace/platform/server/business-space-permissions";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { isActualDateAfterToday } from "@workspace/platform/completion-date-policy";
 import { WORK_FK_REGISTRY } from "./fk-registry";

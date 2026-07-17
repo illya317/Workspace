@@ -18,6 +18,9 @@ export const WORK_TASKS_COLLABORATION_VIEW_KEY = "collaboration";
 export const WORK_REPORTS_NAVIGATION_KEY = "reports";
 export const WORK_REPORTING_NAVIGATION_KEY = "work-reporting";
 export const WORK_GANTT_NAVIGATION_KEY = "gantt";
+export const WORK_KPI_NAVIGATION_KEY = "kpi";
+export const WORK_OKR_GOVERNANCE_VIEW_KEY = "governance";
+export const WORK_KPI_DEFINITIONS_VIEW_KEY = "kpi-definitions";
 
 export type WorkTasksChildView = typeof WORK_TASKS_OWNED_VIEW_KEY | typeof WORK_TASKS_ASSIGNED_VIEW_KEY | typeof WORK_TASKS_COLLABORATION_VIEW_KEY;
 
@@ -31,11 +34,15 @@ export const WORK_TASK_VIEW_NAVIGATION_ITEMS = [
     { key: "weekly", label: "周报" },
     { key: "monthly", label: "月报" },
   ] },
+  { key: WORK_KPI_NAVIGATION_KEY, label: "指标计分卡" },
   { key: WORK_REPORTS_NAVIGATION_KEY, label: "目标考核", children: WORK_REPORT_STAGE_OPTIONS.map((option) => ({ key: option.value, label: option.label })) },
   { key: WORK_GANTT_NAVIGATION_KEY, label: "甘特图" },
 ];
 
-export const WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM = { key: WORK_OKR_SETTINGS_VIEW_NAVIGATION_KEY, label: "OKR 设置" };
+export const WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM = { key: WORK_OKR_SETTINGS_VIEW_NAVIGATION_KEY, label: "OKR 设置", children: [
+  { key: WORK_OKR_GOVERNANCE_VIEW_KEY, label: "管控规则" },
+  { key: WORK_KPI_DEFINITIONS_VIEW_KEY, label: "指标库" },
+] };
 
 export function workViewNavigationItemsForSpace(
   items: ReadonlyArray<{ key: string; label: string; children?: ReadonlyArray<{ key: string; label: string }> }>,

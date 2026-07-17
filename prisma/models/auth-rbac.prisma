@@ -59,6 +59,9 @@ model User {
   meetingParticipations             MeetingParticipant[]                @relation("MeetingParticipantUser")
   meetingVotes                      MeetingVote[]                       @relation("MeetingVoteUser")
   mutationImpactBatches             MutationImpactBatch[]               @relation("MutationImpactBatchActor")
+  createdKpiDefinitions            WorkKpiDefinition[]                  @relation("WorkKpiDefinitionCreator")
+  updatedKpiAssignments            WorkKpiAssignment[]                  @relation("WorkKpiAssignmentUpdater")
+  approvedKpiResultSnapshots       WorkKpiResultSnapshot[]              @relation("WorkKpiResultSnapshotApprover")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

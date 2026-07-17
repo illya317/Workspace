@@ -1,6 +1,6 @@
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { checkHRUpdate } from "@workspace/platform/server/auth";

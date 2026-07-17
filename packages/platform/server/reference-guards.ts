@@ -1,7 +1,7 @@
 import {
   formatReferenceBlockMessage,
   type ReferenceBlock,
-} from "./fk-registry";
+} from "./relation-registry";
 
 export interface ReferenceCount {
   label: string;

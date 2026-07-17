@@ -125,7 +125,7 @@ export async function closeOkrPlanIfAllItemsComplete(
 
   await store.workPlan.update({
     where: { id: planId },
-    data: { status: "done", okrStage: "closed" },
+    data: { status: "done" },
   });
   return true;
 }

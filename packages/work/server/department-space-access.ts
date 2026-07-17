@@ -6,7 +6,7 @@ import {
   getOperatingCommitteeNaturalSpaceActionProfile,
   listDepartmentIdsManagedByUserPosition,
 } from "@workspace/platform/server/business-space-permissions";
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import type { PermissionResourceProjectionKind } from "@workspace/platform/server/rbac/resource-projection";
 import { getWorkTaskPermissionProjection, getWorkTaskPermissionResourceKey } from "./access";

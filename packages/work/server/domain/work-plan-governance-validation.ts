@@ -14,26 +14,15 @@ export type WorkOkrSettingsMutationInput = {
   [key: string]: unknown;
 };
 
-type WorkOkrSettingsMutationCommand =
-  | { kind: "control_settings"; input: WorkOkrSettingsMutationInput }
-  | { kind: "governance_migration"; migration: WorkPlanGovernanceMigrationCommand };
+type WorkOkrSettingsMutationCommand = { kind: "control_settings"; input: WorkOkrSettingsMutationInput };
 
 export function validateWorkOkrSettingsMutation(
   input: WorkOkrSettingsMutationInput,
 ): DomainValidationResult<WorkOkrSettingsMutationCommand> {
-  if (input.governanceMigration === undefined) return okCommand({ kind: "control_settings", input });
-  if (input.settings !== undefined || input.exception !== undefined) {
-    return failCommand("治理规则迁移不能和 OKR 时间设置同时提交");
+  if (input.governanceMigration !== undefined) {
+    return failCommand("存量计划治理迁移已停用；流程策略按当前配置直接生效");
   }
-  const source = plainRecord(input.governanceMigration);
-  if (!source) return failCommand("治理规则迁移参数无效");
-  const migration = validateWorkPlanGovernanceMigrationCommand({
-    planIds: source.planIds,
-    actorUserId: input.actorUserId,
-    reason: source.reason,
-  });
-  if (!migration.ok) return migration;
-  return okCommand({ kind: "governance_migration", migration: migration.data });
+  return okCommand({ kind: "control_settings", input });
 }
 
 export function validateWorkPlanGovernanceMigrationCommand(input: {
