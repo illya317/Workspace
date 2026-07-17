@@ -39,6 +39,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 默认入口是 `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy`；它不触发 GitHub 或 CNB。`ops/publish.sh hotfix` 保留为含义相同的显式别名。
 - 当前 `HOTFIX_SCOPE_POLICY=off`，C0–C3 都只记录不按范围拦截；`restricted` 机制已预留，未经明确决定不得开启。范围放开不等于关闭 blockers、migration policy 或 typecheck。
 - 入口只接受干净工作区的已提交 HEAD，且 HEAD 必须是当前运行 source 的后代。它上传 exact Git bundle，在服务器受管目录中用 digest-pinned Node 24 Linux 容器限额构建，然后进入正式部署器。
+- 构建缓存只作为加速输入：依赖层严格绑定 `package.json`、`package-lock.json` 与 Node image digest，Next cache 只继承当前 runtime source；不得复用生产 release 的 `node_modules`。OCR/PDF 与 Qwen runtime 的部署脚本指纹不变时完全跳过安装和模型复验。
 - `deployed-release.json` 同时记录当前运行 source 和上一个 canonical CNB source。之后任何合法的正式 CNB 发布都以 canonical source 排序并覆盖活跃热修，包括正式 source 没有吸收该热修的情况。
 - 代码和 artifact 可以被正式发布覆盖；已执行的 migration 或已写入的业务数据不会自动回退。涉及持久化状态时，正式 source 必须吸收兼容契约或提供明确的向前修正。
 

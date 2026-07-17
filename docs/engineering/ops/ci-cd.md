@@ -121,7 +121,8 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 
 - `deploy` 默认是 hotfix，`publish.sh hotfix` 仅保留为显式别名。该路径不经 GitHub 或 CNB，但也不手改生产 `current`。入口要求干净工作区的已提交 HEAD，HEAD 必须是当前运行 source 的后代，上传内容是带当前运行 source prerequisite 的 exact Git bundle。只有用户明确使用 `publish.sh deploy --full` 才进入 CNB。
 - 当前 `HOTFIX_SCOPE_POLICY=off`，C0–C3 都会分类和记录，但不按范围拦截。`restricted` 和 `HOTFIX_ALLOWED_RISK_CLASSES` 是长期预留开关，目前不开启。默认仍强制 `check:blockers`、该区间 migration policy 和 quick typecheck。
-- 服务器只在 `$REMOTE_DIR/.hotfix-builds` 下建临时 detached worktree，用 Node 24 Linux 容器限制 CPU/内存并把镜像解析到 registry digest。构建后立即移除带 `node_modules` 的 worktree，只保留受管 artifact/manifest 和 npm 下载缓存，避免再次把数 GiB 构建垃圾带入 runtime backup。
+- 服务器只在 `$REMOTE_DIR/.hotfix-builds` 下建临时 detached worktree，用 Node 24 Linux 容器限制 CPU/内存并把镜像解析到 registry digest。构建后立即移除带 `node_modules` 的 worktree，只保留受管 artifact/manifest 和 Hotfix 专用缓存，避免再次把数 GiB 构建垃圾带入 runtime backup。依赖缓存严格绑定 `package.json`、`package-lock.json` 与解析后的 Node image digest，不信任生产 release 的 `node_modules`；Next build cache 只从当前 runtime source 继承并按新 source 保存。缓存只提供加速输入，每次仍对 exact HEAD 生成并校验完整 artifact。
+- OCR/PDF 与 Qwen runtime 以安装脚本、requirements 和 smoke 脚本的联合 SHA-256 为指纹；指纹未变时完全跳过安装与模型复验，指纹变化时成功安装后再原子更新 marker。
 - artifact 后续复用正式部署器的 manifest/digest/migration 校验、互斥锁、PostgreSQL/runtime 备份、不可变 release 目录、PM2 切换、健康检查和回滚。`deployed-release.json` 区分当前 `runtime source` 与最后 `canonical source`。
 - 后续正式 CNB 始终权威：它以 canonical source 做 ancestry 判定，不要求包含 hotfix，且即使 source 相同也会重新部署 canonical artifact 并将 transport 改回 `cnb`。
 - 这种覆盖只能替换代码/artifact。已执行 migration 和已写入业务数据不会被下一次正式部署自动回退；有持久化变化时，正式 source 必须吸收兼容契约或给出明确的向前修正。

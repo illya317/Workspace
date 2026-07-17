@@ -59,6 +59,28 @@ test("SSH hotfix builds exact source in a resource-capped Node 24 Linux containe
   assert.doesNotMatch(hotfixRemoteBuild, /current/);
 });
 
+test("SSH hotfix caches only exact dependency inputs and the previous source Next cache", () => {
+  assert.match(hotfixRemoteBuild, /package_json_sha=.*sha256sum "\$worktree\/package\.json"/);
+  assert.match(hotfixRemoteBuild, /package_lock_sha=.*sha256sum "\$worktree\/package-lock\.json"/);
+  assert.match(
+    hotfixRemoteBuild,
+    /dependency_key=.*"\$resolved_image" "\$package_json_sha" "\$package_lock_sha".*sha256sum/,
+  );
+  assert.match(hotfixRemoteBuild, /HOTFIX_DEPENDENCY_CACHE="\$dependency_cache"/);
+  assert.match(
+    hotfixRemoteBuild,
+    /HOTFIX_DEPENDENCY_CACHE\/\.complete[\s\S]*?npm ci[\s\S]*?dependency_tmp=.*\.tmp\.\$\$[\s\S]*?mv "\$dependency_tmp" "\$HOTFIX_DEPENDENCY_CACHE"/,
+  );
+  assert.match(hotfixRemoteBuild, /next_cache_from="\$next_cache_root\/\$BASE_SHA"/);
+  assert.match(hotfixRemoteBuild, /next_cache_to="\$next_cache_root\/\$SOURCE_SHA"/);
+  assert.match(
+    hotfixRemoteBuild,
+    /HOTFIX_NEXT_CACHE_FROM[\s\S]*?mkdir -p \.next\/cache[\s\S]*?HOTFIX_NEXT_CACHE_TO/,
+  );
+  assert.match(hotfixRemoteBuild, /-v "\$REMOTE_HOTFIX_CACHE_ROOT:\$REMOTE_HOTFIX_CACHE_ROOT"/);
+  assert.doesNotMatch(hotfixRemoteBuild, /releases\/.*node_modules|current\/.*node_modules/);
+});
+
 test("CNB deployment path contains no GitHub transport or deployment API", () => {
   for (const [name, source] of Object.entries({ publishCnb, releaseToCnb, deploy })) {
     assert.doesNotMatch(source, /\bgh\b|api\.github\.com|github\.com|GITHUB_TOKEN|GH_TOKEN|production-deployment|release-evidence/i, name);

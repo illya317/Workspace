@@ -134,6 +134,28 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
 });
 
+test("library OCR/PDF and Qwen runtime reinstall only when their source fingerprint changes", () => {
+  const runtimeDeps = deploy.slice(
+    deploy.indexOf("ensure_remote_library_runtime_deps()"),
+    deploy.indexOf("ensure_remote_kimi_agent_runtime()"),
+  );
+  assert.match(
+    runtimeDeps,
+    /runtime_digest=.*sha256sum[\s\S]*?install-library-runtime-deps\.sh[\s\S]*?install-library-embedding-model\.sh[\s\S]*?library-worker-requirements\.txt[\s\S]*?library-runtime-smoke\.py[\s\S]*?sha256sum/,
+  );
+  assert.match(runtimeDeps, /runtime_marker=.*\.installed-source\.sha256/);
+  assert.match(
+    runtimeDeps,
+    /if \[ -f .*runtime_marker[\s\S]*?指纹未变化，完全跳过安装和模型复验[\s\S]*?install-library-runtime-deps\.sh' --server[\s\S]*?install-library-embedding-model\.sh'/,
+  );
+  assertOrdered(runtimeDeps, [
+    "marker_tmp=",
+    "printf '%s\\\\n'",
+    "chmod 600",
+    "mv ",
+  ]);
+});
+
 test("Kimi sandbox mounts only the validated per-turn agent config", () => {
   assert.match(kimiSandboxRunner, /--agent-file=/);
   assert.match(kimiSandboxRunner, /\"\$ROOT\"\/turns\/\*\/config\/agent\.yaml/);

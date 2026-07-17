@@ -40,6 +40,7 @@ esac
 command -v docker >/dev/null
 command -v git >/dev/null
 command -v flock >/dev/null
+command -v sha256sum >/dev/null
 test -d "$REMOTE_AGENT_SOURCE_DIR/.git"
 test -f "$BUNDLE_PATH"
 git -C "$REMOTE_AGENT_SOURCE_DIR" cat-file -e "${BASE_SHA}^{commit}"
@@ -48,12 +49,14 @@ git -C "$REMOTE_AGENT_SOURCE_DIR" bundle verify "$BUNDLE_PATH"
 build_root="$REMOTE_HOTFIX_BUILD_ROOT/$SOURCE_SHA"
 worktree="$build_root/source"
 npm_cache="$REMOTE_HOTFIX_CACHE_ROOT/npm"
+dependency_cache_root="$REMOTE_HOTFIX_CACHE_ROOT/dependencies"
+next_cache_root="$REMOTE_HOTFIX_CACHE_ROOT/next"
 result_file="$build_root/build-result.env"
 artifact_path="$build_root/workspace-standalone.tgz"
 manifest_path="$build_root/workspace-standalone.manifest.json"
 hotfix_ref="refs/workspace-hotfix/$SOURCE_SHA"
 
-mkdir -p "$build_root" "$npm_cache"
+mkdir -p "$build_root" "$npm_cache" "$dependency_cache_root" "$next_cache_root"
 exec 9> "$build_root/.build.lock"
 if ! flock -n 9; then
   echo "[错误] 同一 source 的 SSH hotfix 已在构建"
@@ -95,6 +98,19 @@ case "$resolved_image" in
   *) echo "[错误] 无法把 HOTFIX_NODE_IMAGE 固定到 registry digest"; exit 1 ;;
 esac
 
+package_json_sha="$(sha256sum "$worktree/package.json" | awk '{print $1}')"
+package_lock_sha="$(sha256sum "$worktree/package-lock.json" | awk '{print $1}')"
+dependency_key="$(printf '%s\n%s\n%s\n' "$resolved_image" "$package_json_sha" "$package_lock_sha" | sha256sum | awk '{print $1}')"
+printf '%s' "$dependency_key" | grep -Eq '^[0-9a-f]{64}$' || {
+  echo "[错误] 无法生成 Hotfix 依赖缓存指纹"
+  exit 1
+}
+dependency_cache="$dependency_cache_root/$dependency_key"
+next_cache_from="$next_cache_root/$BASE_SHA"
+next_cache_to="$next_cache_root/$SOURCE_SHA"
+exec 8> "$dependency_cache_root/$dependency_key.lock"
+flock 8
+
 host_uid="$(id -u)"
 host_gid="$(id -g)"
 echo "==> 在服务器隔离容器构建 source ${SOURCE_SHA:0:12}..."
@@ -107,6 +123,10 @@ docker run --rm \
   -e CI=true \
   -e HOME=/tmp/workspace-hotfix-home \
   -e NPM_CONFIG_CACHE="$npm_cache" \
+  -e HOTFIX_DEPENDENCY_KEY="$dependency_key" \
+  -e HOTFIX_DEPENDENCY_CACHE="$dependency_cache" \
+  -e HOTFIX_NEXT_CACHE_FROM="$next_cache_from" \
+  -e HOTFIX_NEXT_CACHE_TO="$next_cache_to" \
   -e NEXTAUTH_SECRET=hotfix-build-only-secret-2026 \
   -e DATABASE_URL=postgresql://workspace:workspace@127.0.0.1:5432/workspace_hotfix_build \
   -e DIRECT_URL=postgresql://workspace:workspace@127.0.0.1:5432/workspace_hotfix_build \
@@ -115,7 +135,7 @@ docker run --rm \
   -e RELEASE_SOURCE_TREE="$SOURCE_TREE" \
   -v "$REMOTE_AGENT_SOURCE_DIR:$REMOTE_AGENT_SOURCE_DIR:ro" \
   -v "$worktree:$worktree" \
-  -v "$npm_cache:$npm_cache" \
+  -v "$REMOTE_HOTFIX_CACHE_ROOT:$REMOTE_HOTFIX_CACHE_ROOT" \
   -w "$worktree" \
   "$resolved_image" \
   bash -lc '
@@ -124,8 +144,33 @@ docker run --rm \
     command -v git >/dev/null
     command -v make >/dev/null
     command -v g++ >/dev/null
-    npm ci --no-audit --fund=false --loglevel=error
+    if [ -f "$HOTFIX_DEPENDENCY_CACHE/.complete" ] \
+      && [ "$(cat "$HOTFIX_DEPENDENCY_CACHE/.complete")" = "$HOTFIX_DEPENDENCY_KEY" ] \
+      && [ -x "$HOTFIX_DEPENDENCY_CACHE/node_modules/.bin/next" ]; then
+      echo "==> 复用 package manifest + Node image digest 依赖缓存"
+      cp -a "$HOTFIX_DEPENDENCY_CACHE/node_modules" ./node_modules
+    else
+      npm ci --no-audit --fund=false --loglevel=error
+      dependency_tmp="${HOTFIX_DEPENDENCY_CACHE}.tmp.$$"
+      rm -rf "$dependency_tmp" "$HOTFIX_DEPENDENCY_CACHE"
+      mkdir -p "$dependency_tmp"
+      cp -a node_modules "$dependency_tmp/node_modules"
+      printf "%s\n" "$HOTFIX_DEPENDENCY_KEY" > "$dependency_tmp/.complete"
+      mv "$dependency_tmp" "$HOTFIX_DEPENDENCY_CACHE"
+    fi
+    if [ -d "$HOTFIX_NEXT_CACHE_FROM" ]; then
+      echo "==> 复用上一 runtime source 的 Next build cache"
+      mkdir -p .next/cache
+      cp -a "$HOTFIX_NEXT_CACHE_FROM/." .next/cache/
+    fi
     bash ./ops/build-standalone-artifact.sh
+    if [ -d .next/cache ]; then
+      next_tmp="${HOTFIX_NEXT_CACHE_TO}.tmp.$$"
+      rm -rf "$next_tmp" "$HOTFIX_NEXT_CACHE_TO"
+      mkdir -p "$(dirname "$HOTFIX_NEXT_CACHE_TO")"
+      cp -a .next/cache "$next_tmp"
+      mv "$next_tmp" "$HOTFIX_NEXT_CACHE_TO"
+    fi
   '
 
 cp "$worktree/.next/workspace-standalone.tgz" "$artifact_path"
@@ -143,4 +188,6 @@ chmod 600 "$result_file"
 cleanup
 trap - EXIT
 find "$REMOTE_HOTFIX_BUILD_ROOT" -mindepth 1 -maxdepth 1 -type d -mtime +7 -exec rm -rf {} +
+find "$dependency_cache_root" -mindepth 1 -maxdepth 1 -type d -mtime +30 -exec rm -rf {} +
+find "$next_cache_root" -mindepth 1 -maxdepth 1 -type d -mtime +14 -exec rm -rf {} +
 echo "==> SSH hotfix standalone 已生成: $artifact_path"

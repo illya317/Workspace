@@ -131,7 +131,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 canonical build；E2E 是独立 job，只下载并启动同一个 standalone 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 默认走受治理 SSH hotfix：当前 scope policy 为 `off`/只记录，但仍运行 blockers、migration policy 和 quick type，并在受管 Node 24 容器中生成 exact-source artifact，禁止手改 `current`。只有显式 `ops/publish.sh deploy --full` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 默认走受治理 SSH hotfix：当前 scope policy 为 `off`/只记录，但仍运行 blockers、migration policy 和 quick type，并在受管 Node 24 容器中生成 exact-source artifact，禁止手改 `current`。Hotfix 依赖/Next cache 只能加速构建，不能替代完整 artifact 和 digest 校验。只有显式 `ops/publish.sh deploy --full` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。
 
 ### scalability contract 与真实容量
 

@@ -1094,7 +1094,26 @@ ensure_remote_library_runtime_deps() {
     ops/library-worker-requirements.txt \
     ops/library-runtime-smoke.py \
     "$SERVER:$remote_tool_dir/"
-  ssh_cmd "chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py' && '$remote_tool_dir/install-library-runtime-deps.sh' --server && '$remote_tool_dir/install-library-embedding-model.sh'"
+  ssh_cmd "
+    set -e
+    chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py'
+    runtime_digest=\$(sha256sum \
+      '$remote_tool_dir/install-library-runtime-deps.sh' \
+      '$remote_tool_dir/install-library-embedding-model.sh' \
+      '$remote_tool_dir/library-worker-requirements.txt' \
+      '$remote_tool_dir/library-runtime-smoke.py' | sha256sum | awk '{print \$1}')
+    runtime_marker='$remote_tool_dir/.installed-source.sha256'
+    if [ -f \"\$runtime_marker\" ] && [ \"\$(cat \"\$runtime_marker\")\" = \"\$runtime_digest\" ]; then
+      echo '==> OCR/PDF 与 Qwen runtime 指纹未变化，完全跳过安装和模型复验'
+    else
+      '$remote_tool_dir/install-library-runtime-deps.sh' --server
+      '$remote_tool_dir/install-library-embedding-model.sh'
+      marker_tmp=\"\$runtime_marker.tmp.\$\$\"
+      printf '%s\\n' \"\$runtime_digest\" > \"\$marker_tmp\"
+      chmod 600 \"\$marker_tmp\"
+      mv \"\$marker_tmp\" \"\$runtime_marker\"
+    fi
+  "
 }
 
 ensure_remote_kimi_agent_runtime() {
