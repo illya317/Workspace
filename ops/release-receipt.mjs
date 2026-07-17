@@ -7,7 +7,8 @@ import { pathToFileURL } from "node:url";
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
 const DIGEST_PATTERN = /^[0-9a-f]{64}$/;
-const TRANSPORTS = new Set(["cnb", "ssh-hotfix"]);
+const CNB_TRANSPORT = "cnb";
+const RETIRED_TRANSPORT_OPTIONS = ["transport", "scope_policy", "risk_class", "build_image"];
 
 function requireString(value, label) {
   if (typeof value !== "string" || value.length === 0) throw new Error(`${label} is required`);
@@ -54,32 +55,26 @@ export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
   }
 
   let injectionSha;
-  let transport;
   let canonicalSource;
   let migrationSetSha256 = null;
-  let transportMetadata = {};
   if (schemaVersion === 1 && !("releaseCommitSha" in (record.cnb ?? {}))) {
     injectionSha = requireSha(record.cnb?.injectionSha, "CNB injection SHA");
-    transport = "cnb";
     canonicalSource = runtimeSource;
   } else if (schemaVersion === 2 && !("injectionSha" in (record.cnb ?? {}))) {
     injectionSha = requireSha(record.cnb?.releaseCommitSha, "legacy CNB release SHA");
-    transport = "cnb";
     canonicalSource = runtimeSource;
   } else if (schemaVersion === 3) {
     injectionSha = requireSha(record.cnb?.injectionSha, "CNB injection SHA");
-    transport = requireString(record.transport?.kind, "release transport");
-    if (!TRANSPORTS.has(transport)) throw new Error(`unsupported release transport: ${transport}`);
+    const transport = requireString(record.transport?.kind, "release transport");
+    if (transport !== CNB_TRANSPORT) throw new Error(`unsupported release transport: ${transport}`);
     canonicalSource = {
       commitSha: requireSha(record.canonicalSource?.commitSha, "canonical source SHA"),
       treeSha: requireSha(record.canonicalSource?.treeSha, "canonical tree SHA"),
     };
     runtimeSource.treeSha = requireSha(runtimeSource.treeSha, "runtime tree SHA");
     migrationSetSha256 = requireDigest(record.migration?.setSha256, "migration-set digest");
-    transportMetadata = record.transport;
-    if (transport === "cnb"
-      && (runtimeSource.commitSha !== canonicalSource.commitSha
-        || runtimeSource.treeSha !== canonicalSource.treeSha)) {
+    if (runtimeSource.commitSha !== canonicalSource.commitSha
+      || runtimeSource.treeSha !== canonicalSource.treeSha) {
       throw new Error("canonical CNB receipt must bind runtime and canonical source equally");
     }
   } else {
@@ -92,8 +87,7 @@ export function normalizeDeployedRelease(record, { expectedRepository } = {}) {
     canonicalSource,
     artifact,
     migrationSetSha256,
-    transport,
-    transportMetadata,
+    transport: CNB_TRANSPORT,
     cnb: {
       repository,
       sourceBranch: record.cnb?.sourceBranch ?? "",
@@ -127,6 +121,11 @@ function requireOption(options, key) {
   return requireString(options[key], `--${key.replaceAll("_", "-")}`);
 }
 
+function rejectRetiredTransportOptions(options) {
+  const retired = RETIRED_TRANSPORT_OPTIONS.find((key) => options[key] !== undefined);
+  if (retired) throw new Error(`--${retired.replaceAll("_", "-")} is no longer supported`);
+}
+
 function inspectReceipt(options) {
   const receipt = readDeployedRelease(requireOption(options, "file"), {
     expectedRepository: options.expected_repository,
@@ -146,12 +145,12 @@ function inspectReceipt(options) {
     receipt.artifact.sha256,
     receipt.cnb.repository,
     receipt.cnb.sourceBranch,
-    receipt.transport,
     receipt.migrationSetSha256 ?? "",
   ].join("\t") + "\n");
 }
 
 function assertReceipt(options) {
+  rejectRetiredTransportOptions(options);
   const receipt = readDeployedRelease(requireOption(options, "file"), {
     expectedRepository: options.expected_repository,
   });
@@ -163,7 +162,6 @@ function assertReceipt(options) {
     ["artifact digest", receipt.artifact.sha256, options.artifact_sha],
     ["manifest digest", receipt.artifact.manifestSha256, options.manifest_sha],
     ["CNB injection", receipt.cnb.injectionSha, options.cnb_injection],
-    ["transport", receipt.transport, options.transport],
     ["release directory", receipt.deployment.releaseDir, options.release_dir],
   ];
   for (const [label, actual, expected] of comparisons) {
@@ -175,9 +173,8 @@ function assertReceipt(options) {
 }
 
 function writeReceipt(options) {
+  rejectRetiredTransportOptions(options);
   const file = resolve(requireOption(options, "file"));
-  const transport = requireOption(options, "transport");
-  if (!TRANSPORTS.has(transport)) throw new Error(`unsupported release transport: ${transport}`);
   const runtimeSource = {
     commitSha: requireSha(requireOption(options, "runtime_source"), "runtime source SHA"),
     treeSha: requireSha(requireOption(options, "runtime_tree"), "runtime tree SHA"),
@@ -186,9 +183,8 @@ function writeReceipt(options) {
     commitSha: requireSha(requireOption(options, "canonical_source"), "canonical source SHA"),
     treeSha: requireSha(requireOption(options, "canonical_tree"), "canonical tree SHA"),
   };
-  if (transport === "cnb"
-    && (runtimeSource.commitSha !== canonicalSource.commitSha
-      || runtimeSource.treeSha !== canonicalSource.treeSha)) {
+  if (runtimeSource.commitSha !== canonicalSource.commitSha
+    || runtimeSource.treeSha !== canonicalSource.treeSha) {
     throw new Error("canonical CNB receipt must bind runtime and canonical source equally");
   }
   const record = {
@@ -202,14 +198,7 @@ function writeReceipt(options) {
     migration: {
       setSha256: requireDigest(requireOption(options, "migration_set"), "migration-set digest"),
     },
-    transport: transport === "ssh-hotfix"
-      ? {
-          kind: transport,
-          scopePolicy: options.scope_policy ?? "off",
-          riskClass: options.risk_class || null,
-          buildImage: options.build_image || null,
-        }
-      : { kind: transport },
+    transport: { kind: CNB_TRANSPORT },
     cnb: {
       repository: requireOption(options, "cnb_repository"),
       sourceBranch: requireOption(options, "cnb_branch"),

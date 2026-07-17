@@ -2,8 +2,6 @@
 set -euo pipefail
 
 cd "$(dirname "$0")/.."
-DEPLOY_STARTED_SECONDS="$SECONDS"
-PUBLISH_STARTED_EPOCH_SECONDS="${PUBLISH_STARTED_EPOCH_SECONDS:-}"
 
 SERVER="${SERVER:-}"
 REMOTE_DIR="${REMOTE_DIR:-}"
@@ -25,17 +23,9 @@ LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
 INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
 INSTALL_KIMI_AGENT_RUNTIME_DEPS="${INSTALL_KIMI_AGENT_RUNTIME_DEPS:-1}"
 INSTALL_ONLYOFFICE_RUNTIME="${INSTALL_ONLYOFFICE_RUNTIME:-1}"
-RELEASE_TRANSPORT="${RELEASE_TRANSPORT:-cnb}"
 RELEASE_METADATA_FILE="${RELEASE_METADATA_FILE:-.cnb-release.json}"
 RELEASE_SOURCE_BRANCH="${RELEASE_SOURCE_BRANCH:-main}"
 EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-illya317/Workspace}"
-REMOTE_STANDALONE_ARTIFACT_PATH="${REMOTE_STANDALONE_ARTIFACT_PATH:-}"
-REMOTE_STANDALONE_MANIFEST_PATH="${REMOTE_STANDALONE_MANIFEST_PATH:-}"
-HOTFIX_SCOPE_POLICY="${HOTFIX_SCOPE_POLICY:-off}"
-HOTFIX_RISK_CLASS="${HOTFIX_RISK_CLASS:-}"
-HOTFIX_BUILD_IMAGE="${HOTFIX_BUILD_IMAGE:-}"
-REMOTE_HOTFIX_BUILD_ROOT="${REMOTE_HOTFIX_BUILD_ROOT:-$REMOTE_DIR/.hotfix-builds}"
-REMOTE_HOTFIX_CACHE_ROOT="${REMOTE_HOTFIX_CACHE_ROOT:-$REMOTE_DIR/.hotfix-cache}"
 REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
@@ -86,16 +76,6 @@ fi
 REMOTE_RUNTIME_SNAPSHOT_DIR="$REMOTE_BACKUP_DIR/workspace-runtime-snapshots"
 REMOTE_DEPLOY_TOOL_DIR="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/deploy-tools"
 REMOTE_RELEASE_RECEIPT_TOOL="$REMOTE_DEPLOY_TOOL_DIR/release-receipt.mjs"
-
-case "$RELEASE_TRANSPORT" in
-  cnb|ssh-hotfix) ;;
-  *) echo "[错误] RELEASE_TRANSPORT 必须是 cnb 或 ssh-hotfix"; exit 1 ;;
-esac
-if [ "$REMOTE_HOTFIX_BUILD_ROOT" != "$REMOTE_DIR/.hotfix-builds" ] \
-  || [ "$REMOTE_HOTFIX_CACHE_ROOT" != "$REMOTE_DIR/.hotfix-cache" ]; then
-  echo "[错误] hotfix build/cache 目录必须是 $REMOTE_DIR 下的固定受管目录"
-  exit 1
-fi
 
 case "$BACKUP_RETENTION_DAYS" in
   ''|*[!0-9]*) echo "[错误] BACKUP_RETENTION_DAYS 必须是非负整数"; exit 1 ;;
@@ -713,7 +693,6 @@ verify_release_order() {
     DEPLOYED_ARTIFACT_SHA \
     deployed_repository \
     DEPLOYED_CNB_BRANCH \
-    DEPLOYED_TRANSPORT \
     DEPLOYED_MIGRATION_SET_SHA <<< "$remote_state"
   case "$record_kind" in
     MISSING)
@@ -721,7 +700,6 @@ verify_release_order() {
       DEPLOYED_SOURCE_TREE=""
       DEPLOYED_CANONICAL_SOURCE_SHA=""
       DEPLOYED_CANONICAL_SOURCE_TREE=""
-      DEPLOYED_TRANSPORT=""
       DEPLOYED_CNB_INJECTION_SHA=""
       DEPLOYED_ARTIFACT_SHA=""
       if [ -z "$RELEASE_BOOTSTRAP_BASE" ]; then
@@ -740,10 +718,6 @@ verify_release_order() {
       if [ -z "$DEPLOYED_CANONICAL_SOURCE_TREE" ]; then
         DEPLOYED_CANONICAL_SOURCE_TREE="$(git rev-parse "${DEPLOYED_CANONICAL_SOURCE_SHA}^{tree}")"
       fi
-      if [ "$RELEASE_TRANSPORT" = "ssh-hotfix" ]; then
-        RELEASE_CNB_INJECTION_SHA="$DEPLOYED_CNB_INJECTION_SHA"
-        RELEASE_CNB_BRANCH="${DEPLOYED_CNB_BRANCH:-$RELEASE_SOURCE_BRANCH}"
-      fi
       ;;
     *) echo "[错误] 服务器 deployed-release.json 无法证明当前生产版本"; exit 1 ;;
   esac
@@ -751,22 +725,13 @@ verify_release_order() {
   args=(
     --candidate "$RELEASE_SOURCE_SHA"
     --current-head "$RELEASE_SOURCE_SHA"
-    --candidate-transport "$RELEASE_TRANSPORT"
   )
   if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
     args+=(--bootstrap-base "$RELEASE_BOOTSTRAP_BASE")
     comparison_base="$RELEASE_BOOTSTRAP_BASE"
   elif [ -n "$DEPLOYED_SOURCE_SHA" ]; then
-    args+=(
-      --deployed "$DEPLOYED_SOURCE_SHA"
-      --deployed-canonical "$DEPLOYED_CANONICAL_SOURCE_SHA"
-      --deployed-transport "$DEPLOYED_TRANSPORT"
-    )
-    if [ "$RELEASE_TRANSPORT" = "cnb" ]; then
-      comparison_base="$DEPLOYED_CANONICAL_SOURCE_SHA"
-    else
-      comparison_base="$DEPLOYED_SOURCE_SHA"
-    fi
+    args+=(--deployed "$DEPLOYED_SOURCE_SHA")
+    comparison_base="$DEPLOYED_SOURCE_SHA"
     if [ "$comparison_base" = "$RELEASE_SOURCE_SHA" ]; then
       comparison_base=""
     fi
@@ -796,7 +761,7 @@ verify_release_order() {
   fi
   order_action="$(node ops/verify-deploy-order.mjs "${args[@]}")"
   if [ "$order_action" = "noop" ]; then
-    echo "==> 生产记录已是 ${RELEASE_TRANSPORT} source ${RELEASE_SOURCE_SHA:0:12}；锁内复验实时健康与版本。"
+    echo "==> 生产记录已是 CNB source ${RELEASE_SOURCE_SHA:0:12}；锁内复验实时健康与版本。"
     run_healthcheck
     echo "==> 实时生产健康且版本一致，跳过重复部署。"
     exit 0
@@ -806,14 +771,9 @@ verify_release_order() {
     exit 1
   fi
   verify_bootstrap_production_state
-  if [ "$RELEASE_TRANSPORT" = "cnb" ]; then
-    RELEASE_CANONICAL_SOURCE_SHA="$RELEASE_SOURCE_SHA"
-    RELEASE_CANONICAL_SOURCE_TREE="$RELEASE_SOURCE_TREE"
-  else
-    RELEASE_CANONICAL_SOURCE_SHA="$DEPLOYED_CANONICAL_SOURCE_SHA"
-    RELEASE_CANONICAL_SOURCE_TREE="$DEPLOYED_CANONICAL_SOURCE_TREE"
-  fi
-  echo "==> 锁内已证明 ${RELEASE_TRANSPORT} 候选顺序有效；正式 CNB 可覆盖临时 hotfix。"
+  RELEASE_CANONICAL_SOURCE_SHA="$RELEASE_SOURCE_SHA"
+  RELEASE_CANONICAL_SOURCE_TREE="$RELEASE_SOURCE_TREE"
+  echo "==> 锁内已证明 CNB 候选顺序有效。"
 }
 
 require_local_cmd() {
@@ -838,26 +798,6 @@ resolve_release_metadata() {
   RELEASE_BOOTSTRAP_CNB_REPOSITORY=""
   RELEASE_BOOTSTRAP_MIGRATION_COUNT=""
   RELEASE_BOOTSTRAP_MIGRATION_DIGEST=""
-
-  if [ "$RELEASE_TRANSPORT" = "ssh-hotfix" ]; then
-    RELEASE_SOURCE_SHA="${RELEASE_SOURCE_SHA:-$(git rev-parse HEAD)}"
-    RELEASE_SOURCE_TREE="${RELEASE_SOURCE_TREE:-$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")}"
-    if ! printf '%s' "$RELEASE_SOURCE_SHA" | grep -Eq '^[0-9a-f]{40}$' \
-      || ! printf '%s' "$RELEASE_SOURCE_TREE" | grep -Eq '^[0-9a-f]{40}$'; then
-      echo "[错误] SSH hotfix source/tree identity 无效"
-      exit 1
-    fi
-    if [ "$(git rev-parse HEAD)" != "$RELEASE_SOURCE_SHA" ] \
-      || [ "$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")" != "$RELEASE_SOURCE_TREE" ]; then
-      echo "[错误] SSH hotfix 必须从当前精确提交构建"
-      exit 1
-    fi
-    RELEASE_CNB_REPOSITORY="$EXPECTED_CNB_REPOSITORY"
-    RELEASE_CNB_BRANCH="$RELEASE_SOURCE_BRANCH"
-    RELEASE_CNB_INJECTION_SHA=""
-    echo "==> 已验证 SSH hotfix source: ${RELEASE_SOURCE_SHA:0:12}"
-    return
-  fi
 
   if [ "$RELEASE_METADATA_FILE" != ".cnb-release.json" ]; then
     echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
@@ -952,30 +892,10 @@ run_local_checks() {
 build_artifact() {
   ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
   ARTIFACT_MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
-  echo "==> 校验 ${RELEASE_TRANSPORT} 本次构建的 standalone 与 manifest..."
+  echo "==> 校验 CNB 本次构建的 standalone 与 manifest..."
   test -s "$ARTIFACT_MANIFEST_PATH"
-  if [ -n "$REMOTE_STANDALONE_ARTIFACT_PATH" ] || [ -n "$REMOTE_STANDALONE_MANIFEST_PATH" ]; then
-    case "$REMOTE_STANDALONE_ARTIFACT_PATH:$REMOTE_STANDALONE_MANIFEST_PATH" in
-      "$REMOTE_HOTFIX_BUILD_ROOT"/*:"$REMOTE_HOTFIX_BUILD_ROOT"/*) ;;
-      *) echo "[错误] 预构建 SSH 产物必须位于受管 hotfix-builds 目录"; exit 1 ;;
-    esac
-    ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" <<'NODE'
-const fs = require('node:fs');
-const [manifestPath, sourceSha, sourceTree] = process.argv.slice(2);
-const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-if (manifest.schemaVersion !== 1
-  || manifest.source?.commitSha !== sourceSha
-  || manifest.source?.treeSha !== sourceTree
-  || manifest.build?.buildId !== sourceSha
-  || !/^[0-9a-f]{64}$/.test(manifest.artifact?.sha256 ?? '')) {
-  throw new Error('pre-staged SSH standalone identity or digest is invalid');
-}
-process.stdout.write(manifest.artifact.sha256);
-NODE
-)"
-  else
-    test -s "$ARTIFACT_PATH"
-    ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" <<'NODE'
+  test -s "$ARTIFACT_PATH"
+  ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" <<'NODE'
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const [manifestPath, artifactPath, sourceSha, sourceTree] = process.argv.slice(2);
@@ -991,7 +911,6 @@ if (manifest.schemaVersion !== 1
 process.stdout.write(artifactSha);
 NODE
 )"
-  fi
   RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
   ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
 }
@@ -1225,17 +1144,10 @@ sync_remote_agent_source() {
       git -C '$REMOTE_AGENT_SOURCE_DIR' init
       git -C '$REMOTE_AGENT_SOURCE_DIR' remote add origin '$REMOTE_AGENT_SOURCE_REPO_URL'
     fi
-    if [ '$RELEASE_TRANSPORT' = 'ssh-hotfix' ]; then
-      if ! git -C '$REMOTE_AGENT_SOURCE_DIR' cat-file -e '${RELEASE_SOURCE_SHA}^{commit}'; then
-        echo '[错误] 页面助手源码仓库缺少 SSH hotfix commit object'
-        exit 1
-      fi
-    else
-      git -C '$REMOTE_AGENT_SOURCE_DIR' fetch --no-tags --depth=1 origin '$RELEASE_SOURCE_SHA'
-      if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse FETCH_HEAD)\" != '$RELEASE_SOURCE_SHA' ]; then
-        echo '[错误] 页面助手源码 fetch 未得到 runtime source SHA'
-        exit 1
-      fi
+    git -C '$REMOTE_AGENT_SOURCE_DIR' fetch --no-tags --depth=1 origin '$RELEASE_SOURCE_SHA'
+    if [ \"\$(git -C '$REMOTE_AGENT_SOURCE_DIR' rev-parse FETCH_HEAD)\" != '$RELEASE_SOURCE_SHA' ]; then
+      echo '[错误] 页面助手源码 fetch 未得到 runtime source SHA'
+      exit 1
     fi
     git -C '$REMOTE_AGENT_SOURCE_DIR' reset --hard '$RELEASE_SOURCE_SHA'
     git -C '$REMOTE_AGENT_SOURCE_DIR' clean -ffdx
@@ -1490,22 +1402,14 @@ deploy_remote_artifact() {
   local release_id
   local remote_tar
   local remote_manifest
-  local preserve_remote_artifact=0
   release_id="$(date +%Y%m%d%H%M%S)-${RELEASE_SOURCE_SHA:0:8}"
-  if [ -n "$REMOTE_STANDALONE_ARTIFACT_PATH" ]; then
-    remote_tar="$REMOTE_STANDALONE_ARTIFACT_PATH"
-    remote_manifest="$REMOTE_STANDALONE_MANIFEST_PATH"
-    preserve_remote_artifact=1
-    echo "==> 使用服务器隔离构建的 SSH hotfix 产物..."
-  else
-    remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
-    remote_manifest="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.manifest.json"
-    echo "==> 上传 CNB 构建产物到服务器..."
-    rsync -av -e "$RSYNC_SSH_COMMAND" \
-      "$ARTIFACT_PATH" "$SERVER:$remote_tar"
-    rsync -av -e "$RSYNC_SSH_COMMAND" \
-      "$ARTIFACT_MANIFEST_PATH" "$SERVER:$remote_manifest"
-  fi
+  remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
+  remote_manifest="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.manifest.json"
+  echo "==> 上传 CNB 构建产物到服务器..."
+  rsync -av -e "$RSYNC_SSH_COMMAND" \
+    "$ARTIFACT_PATH" "$SERVER:$remote_tar"
+  rsync -av -e "$RSYNC_SSH_COMMAND" \
+    "$ARTIFACT_MANIFEST_PATH" "$SERVER:$remote_manifest"
   echo "==> cutover 前再次确认 release metadata 与部署顺序..."
   verify_release_order
 
@@ -1541,15 +1445,13 @@ if (manifest.schemaVersion !== 1
 NODE
     mkdir -p '$REMOTE_DIR/releases'
     old_release=\$(readlink -f '$REMOTE_DIR/current' 2>/dev/null || true)
-    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups ! -name .hotfix-builds ! -name .hotfix-cache ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
+    find '$REMOTE_DIR' -mindepth 1 -maxdepth 1 ! -name current ! -name releases ! -name .workspace ! -name .workspace.backups ! -name '$REMOTE_AGENT_SOURCE_ROOT_NAME' -exec rm -rf {} +
     release_dir='$REMOTE_DIR/releases/$release_id'
     rm -rf \"\$release_dir\"
     mkdir -p \"\$release_dir\"
     tar -xzf '$remote_tar' -C \"\$release_dir\"
     cp '$remote_manifest' \"\$release_dir/.release-manifest.json\"
-    if [ '$preserve_remote_artifact' != '1' ]; then
-      rm -f '$remote_tar' '$remote_manifest'
-    fi
+    rm -f '$remote_tar' '$remote_manifest'
 
     server_entry=\$(cat \"\$release_dir/.server-entry\" 2>/dev/null || printf 'server.js')
     app_dir=\$(dirname \"\$release_dir/\$server_entry\")
@@ -1766,8 +1668,7 @@ PY
           --runtime-tree '$RELEASE_SOURCE_TREE' \
           --cnb-injection '$RELEASE_CNB_INJECTION_SHA' \
           --artifact-sha '$ARTIFACT_SHA' \
-          --release-dir \"\$release_dir\" \
-          --transport '$RELEASE_TRANSPORT'
+          --release-dir \"\$release_dir\"
         then
           release_committed=1
           echo '==> deployed-release 原子记录已绑定当前 candidate；将其视为 commit point，不执行旧版本回滚'
@@ -2220,7 +2121,6 @@ PY
     pm2 save
     node '$REMOTE_RELEASE_RECEIPT_TOOL' write \
       --file '$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
-      --transport '$RELEASE_TRANSPORT' \
       --runtime-source '$RELEASE_SOURCE_SHA' \
       --runtime-tree '$RELEASE_SOURCE_TREE' \
       --canonical-source '$RELEASE_CANONICAL_SOURCE_SHA' \
@@ -2232,10 +2132,7 @@ PY
       --cnb-branch '$RELEASE_CNB_BRANCH' \
       --cnb-injection '$RELEASE_CNB_INJECTION_SHA' \
       --release-id '$release_id' \
-      --release-dir '$REMOTE_DIR/releases/$release_id' \
-      --scope-policy '$HOTFIX_SCOPE_POLICY' \
-      --risk-class '$HOTFIX_RISK_CLASS' \
-      --build-image '$HOTFIX_BUILD_IMAGE'
+      --release-dir '$REMOTE_DIR/releases/$release_id'
     release_committed=1
     rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/maintenance-deploy'
     rm -f '$REMOTE_WORKSPACE_CONFIG_DIR/production-bootstrap-in-progress.json'
@@ -2260,30 +2157,24 @@ NODE
 }
 
 notify_workspace_bot_deploy() {
-  local started_epoch="$PUBLISH_STARTED_EPOCH_SECONDS"
+  local started_epoch
   local duration_seconds
   local package_version
-  if [ -z "$started_epoch" ] && [ "$RELEASE_TRANSPORT" = "cnb" ]; then
-    started_epoch="$(node -p "require('./$RELEASE_METADATA_FILE').deployment.startedAtEpochSeconds")"
-  fi
-  if [ -n "$started_epoch" ]; then
-    case "$started_epoch" in
-      ''|*[!0-9]*) echo "[错误] 发布入口开始时间无效"; exit 1 ;;
-    esac
-    duration_seconds="$(($(date +%s) - started_epoch))"
-    if [ "$duration_seconds" -lt 0 ]; then
-      echo "[错误] 发布入口开始时间晚于通知时间"
-      exit 1
-    fi
-  else
-    duration_seconds="$((SECONDS - DEPLOY_STARTED_SECONDS))"
+  started_epoch="$(node -p "require('./$RELEASE_METADATA_FILE').deployment.startedAtEpochSeconds")"
+  case "$started_epoch" in
+    ''|*[!0-9]*) echo "[错误] 发布入口开始时间无效"; exit 1 ;;
+  esac
+  duration_seconds="$(($(date +%s) - started_epoch))"
+  if [ "$duration_seconds" -lt 0 ]; then
+    echo "[错误] 发布入口开始时间晚于通知时间"
+    exit 1
   fi
   package_version="$(node -p "require('./package.json').version")"
   case "$package_version" in
     ''|*[!0-9A-Za-z.+-]*) echo "[错误] package version 无效"; exit 1 ;;
   esac
   echo "==> 记录 Workspace 更新通知..."
-  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_PACKAGE_VERSION='$package_version' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
+  ssh_cmd "REMOTE_DIR='$REMOTE_DIR' DEPLOY_PACKAGE_VERSION='$package_version' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
 import datetime
 import json
 import os
@@ -2299,16 +2190,13 @@ build = os.environ['DEPLOY_SOURCE_SHA']
 if not re.fullmatch(r'[0-9a-f]{40}', build):
     raise SystemExit('deploy source SHA is invalid')
 release = release_path.name
-transport = os.environ['RELEASE_TRANSPORT']
-if transport not in {'cnb', 'ssh-hotfix'}:
-    raise SystemExit(f'unsupported release transport: {transport}')
 duration_seconds = int(os.environ['DEPLOY_DURATION_SECONDS'])
 if duration_seconds < 0:
     raise SystemExit('deploy duration must be non-negative')
 
 payload = {
     'id': f'{release}:{build}',
-    'transport': transport,
+    'transport': 'cnb',
     'package': str(package),
     'build': str(build),
     'release': release,
@@ -2377,4 +2265,4 @@ run_healthcheck
 notify_workspace_bot_deploy
 
 echo ""
-echo "==> ${RELEASE_TRANSPORT} 产物部署完成"
+echo "==> CNB 产物部署完成"

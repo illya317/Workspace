@@ -11,7 +11,6 @@ const entries = [
   ".githooks/pre-push",
   "ops/publish.sh",
   "ops/publish-cnb.sh",
-  "ops/publish-hotfix.sh",
   "ops/release-to-cnb.sh",
 ];
 

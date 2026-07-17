@@ -42,33 +42,28 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' inspect/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' assert/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write/);
-  assert.match(deploy, /--deployed-canonical "\$DEPLOYED_CANONICAL_SOURCE_SHA"/);
-  assert.match(deploy, /--deployed-transport "\$DEPLOYED_TRANSPORT"/);
+  assert.doesNotMatch(deploy, /--deployed-canonical|--deployed-transport|--candidate-transport/);
   const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
 test("deployment notification records exact source and end-to-end publish duration", () => {
-  assert.match(deploy, /DEPLOY_STARTED_SECONDS="\$SECONDS"/);
-  assert.match(deploy, /local started_epoch="\$PUBLISH_STARTED_EPOCH_SECONDS"/);
+  assert.match(deploy, /local started_epoch/);
   assert.match(deploy, /require\('\.\/\$RELEASE_METADATA_FILE'\)\.deployment\.startedAtEpochSeconds/);
   assert.match(deploy, /duration_seconds="\$\(\(\$\(date \+%s\) - started_epoch\)\)"/);
-  assert.match(deploy, /duration_seconds="\$\(\(SECONDS - DEPLOY_STARTED_SECONDS\)\)"/);
+  assert.doesNotMatch(deploy, /DEPLOY_STARTED_SECONDS|PUBLISH_STARTED_EPOCH_SECONDS/);
   assert.match(deploy, /package_version="\$\(node -p "require\('\.\/package\.json'\)\.version"\)"/);
   assert.match(
     deploy,
-    /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' DEPLOY_PACKAGE_VERSION='\$package_version' DEPLOY_SOURCE_SHA='\$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
+    /REMOTE_DIR='\$REMOTE_DIR' DEPLOY_PACKAGE_VERSION='\$package_version' DEPLOY_SOURCE_SHA='\$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
   );
-  assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
-  assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
   assert.match(deploy, /package = os\.environ\['DEPLOY_PACKAGE_VERSION'\]/);
   assert.match(deploy, /build = os\.environ\['DEPLOY_SOURCE_SHA'\]/);
   assert.match(deploy, /re\.fullmatch\(r'\[0-9a-f\]\{40\}', build\)/);
   assert.match(deploy, /duration_seconds = int\(os\.environ\['DEPLOY_DURATION_SECONDS'\]\)/);
   assert.match(deploy, /'durationSeconds': duration_seconds/);
-  assert.match(deploy, /'transport': transport/);
+  assert.match(deploy, /'transport': 'cnb'/);
   assertOrdered(deploy, [
-    'DEPLOY_STARTED_SECONDS="$SECONDS"',
     "run_healthcheck",
     "notify_workspace_bot_deploy",
     "build = os.environ['DEPLOY_SOURCE_SHA']",
@@ -88,7 +83,6 @@ test("deployment notification program writes a complete event at runtime", () =>
     const result = runPython(program, {
       HOME: root,
       REMOTE_DIR: remoteDir,
-      RELEASE_TRANSPORT: "cnb",
       DEPLOY_PACKAGE_VERSION: "0.1.2",
       DEPLOY_SOURCE_SHA: "a".repeat(40),
       DEPLOY_DURATION_SECONDS: "123",
@@ -178,7 +172,7 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
   assert.match(
     deploy,
-    /REMOTE_STANDALONE_ARTIFACT_PATH[\s\S]*?rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?cutover 前再次确认 release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    /ARTIFACT_PATH[\s\S]*?rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?cutover 前再次确认 release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
   );
   assert.match(
     deploy,
@@ -205,13 +199,14 @@ test("Library, Qwen, and ONLYOFFICE reuse verified runtime installations", () =>
   assert.doesNotMatch(quickCheck, /SentenceTransformer|model\.encode/);
 });
 
-test("SSH hotfix artifacts survive cutover for exact-source retries", () => {
+test("CNB artifacts are uploaded, verified, and removed after extraction", () => {
   const remoteDeploy = deploy.slice(
     deploy.indexOf("deploy_remote_artifact()"),
     deploy.indexOf("run_healthcheck()"),
   );
-  assert.match(remoteDeploy, /preserve_remote_artifact=1/);
-  assert.match(remoteDeploy, /if \[ '\$preserve_remote_artifact' != '1' \]; then[\s\S]*?rm -f '\$remote_tar' '\$remote_manifest'/);
+  assert.match(remoteDeploy, /rsync -av[\s\S]*?\$ARTIFACT_PATH[\s\S]*?\$ARTIFACT_MANIFEST_PATH/);
+  assert.match(remoteDeploy, /rm -f '\$remote_tar' '\$remote_manifest'/);
+  assert.doesNotMatch(remoteDeploy, /preserve_remote_artifact|REMOTE_STANDALONE/);
 });
 
 test("Kimi sandbox mounts only the validated per-turn agent config", () => {

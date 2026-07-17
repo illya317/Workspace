@@ -57,34 +57,31 @@ export function preflightProductionDeploy({
   }
 
   requireExactCommit(repositoryRoot, candidate, "candidate SHA");
-  requireExactCommit(repositoryRoot, receipt.canonicalSource.commitSha, "production canonical SHA");
+  requireExactCommit(repositoryRoot, receipt.runtimeSource.commitSha, "deployed production SHA");
   const actualCandidateTree = runGit(repositoryRoot, ["rev-parse", `${candidate}^{tree}`]);
   if (actualCandidateTree !== candidateTree) {
     throw new Error(`candidate tree changed: expected ${candidateTree}, received ${actualCandidateTree}`);
   }
-  const actualCanonicalTree = runGit(repositoryRoot, [
+  const actualDeployedTree = runGit(repositoryRoot, [
     "rev-parse",
-    `${receipt.canonicalSource.commitSha}^{tree}`,
+    `${receipt.runtimeSource.commitSha}^{tree}`,
   ]);
-  if (actualCanonicalTree !== receipt.canonicalSource.treeSha) {
+  if (actualDeployedTree !== receipt.runtimeSource.treeSha) {
     throw new Error(
-      `production canonical tree changed: expected ${receipt.canonicalSource.treeSha}, received ${actualCanonicalTree}`,
+      `deployed production tree changed: expected ${receipt.runtimeSource.treeSha}, received ${actualDeployedTree}`,
     );
   }
 
-  const comparison = buildComparison(repositoryRoot, receipt.canonicalSource.commitSha, candidate);
+  const comparison = buildComparison(repositoryRoot, receipt.runtimeSource.commitSha, candidate);
   const order = validateDeployOrder({
     candidateSha: candidate,
     currentHeadSha: candidate,
     deployedSha: receipt.runtimeSource.commitSha,
-    deployedCanonicalSha: receipt.canonicalSource.commitSha,
-    deployedTransport: receipt.transport,
-    candidateTransport: "cnb",
     comparison,
   });
   const migration = checkMigrationPolicy({
     cwd: repositoryRoot,
-    baseSha: receipt.canonicalSource.commitSha,
+    baseSha: receipt.runtimeSource.commitSha,
     headSha: candidate,
     diffMode: "two-dot",
   });
@@ -92,9 +89,7 @@ export function preflightProductionDeploy({
   return {
     schemaVersion: 1,
     production: {
-      runtimeSha: receipt.runtimeSource.commitSha,
-      canonicalSha: receipt.canonicalSource.commitSha,
-      transport: receipt.transport,
+      deployedSha: receipt.runtimeSource.commitSha,
     },
     candidate: { commitSha: candidate, treeSha: candidateTree },
     order,

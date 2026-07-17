@@ -185,7 +185,7 @@ if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
     const result = require(process.argv[1]);
     const migrations = result.migration.changedMigrations.length;
     const mode = result.migration.requiresMaintenance ? "maintenance" : "expand/none";
-    console.log(`==> 生产预检通过: canonical ${result.production.canonicalSha.slice(0, 12)} -> candidate ${result.candidate.commitSha.slice(0, 12)}; migrations ${migrations} (${mode})`);
+    console.log(`==> 生产预检通过: deployed ${result.production.deployedSha.slice(0, 12)} -> candidate ${result.candidate.commitSha.slice(0, 12)}; migrations ${migrations} (${mode})`);
   ' "$PREFLIGHT_RESULT_FILE"
 fi
 

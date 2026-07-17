@@ -72,7 +72,7 @@ test("production preflight accepts a canonical descendant and reports cumulative
   });
 
   assert.equal(result.order.action, "deploy");
-  assert.equal(result.production.canonicalSha, fixture.production.sha);
+  assert.equal(result.production.deployedSha, fixture.production.sha);
   assert.equal(result.migration.diffMode, "two-dot");
   assert.equal(result.migration.requiresMaintenance, true);
 });
