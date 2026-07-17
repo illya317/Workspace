@@ -7,6 +7,7 @@ import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
+const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
 
 function assertOrdered(source, needles) {
   let previous = -1;
@@ -160,6 +161,15 @@ test("Kimi sandbox mounts only the validated per-turn agent config", () => {
   assert.match(kimiSandboxRunner, /\"\$ROOT\"\/turns\/\*\/config\/agent\.yaml/);
   assert.match(kimiSandboxRunner, /RESOLVED_AGENT_FILE/);
   assert.match(kimiSandboxRunner, /args\+=\(--ro-bind \"\$AGENT_CONFIG_DIR\" \"\$AGENT_CONFIG_DIR\"\)/);
+});
+
+test("ONLYOFFICE derives a public origin only from validated runtime origins", () => {
+  assert.match(onlyOfficeInstaller, /hint="\$\{WECHAT_REDIRECT_ORIGIN:-\}"/);
+  assert.match(onlyOfficeInstaller, /127\\\.0\\\.0\\\.1\|localhost/);
+  assertOrdered(onlyOfficeInstaller, [
+    "ensure_secret\nload_environment",
+    "ensure_public_origin\nload_environment",
+  ]);
 });
 
 test("all embedded deployment Node programs are syntactically executable", () => {

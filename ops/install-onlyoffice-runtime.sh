@@ -45,6 +45,9 @@ ensure_public_origin() {
   fi
   local hint="${WORKSPACE_PUBLIC_ORIGIN_HINT:-}"
   if [[ ! "$hint" =~ ^https?://[^/[:space:]]+$ ]] || [[ "$hint" =~ ^https?://(127\.0\.0\.1|localhost)(:|$) ]]; then
+    hint="${WECHAT_REDIRECT_ORIGIN:-}"
+  fi
+  if [[ ! "$hint" =~ ^https?://[^/[:space:]]+$ ]] || [[ "$hint" =~ ^https?://(127\.0\.0\.1|localhost)(:|$) ]]; then
     echo "[错误] WORKSPACE_PUBLIC_ORIGIN 未配置，且部署未提供可用的公网 origin" >&2
     exit 1
   fi
@@ -150,6 +153,7 @@ check_runtime() {
 }
 
 ensure_secret
+load_environment
 ensure_public_origin
 load_environment
 if [ "$CHECK_ONLY" = "1" ]; then
