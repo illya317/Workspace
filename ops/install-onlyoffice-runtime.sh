@@ -68,6 +68,16 @@ load_environment() {
   export ONLYOFFICE_PORT="${ONLYOFFICE_PORT:-8082}"
 }
 
+relocate_legacy_nginx_backups() {
+  local backup archive_dir
+  archive_dir="/var/backups/workspace/nginx"
+  for backup in /etc/nginx/sites-enabled/*.workspace-onlyoffice.bak; do
+    [ -e "$backup" ] || continue
+    sudo install -d -m 0755 "$archive_dir"
+    sudo mv "$backup" "$archive_dir/$(basename "$backup").$(date +%s)"
+  done
+}
+
 resolve_nginx_site() {
   if [ -n "${ONLYOFFICE_NGINX_SITE:-}" ]; then
     readlink -f "$ONLYOFFICE_NGINX_SITE"
@@ -90,8 +100,9 @@ install_nginx_location() {
   if sudo grep -q '# BEGIN workspace-onlyoffice' "$site"; then
     return
   fi
-  local temporary
+  local temporary backup
   temporary="$(mktemp)"
+  backup="$(mktemp)"
   SITE_PATH="$site" ONLYOFFICE_PROXY_PORT="$ONLYOFFICE_PORT" python3 - "$temporary" <<'PY'
 import os
 from pathlib import Path
@@ -125,21 +136,24 @@ block = f'''{indent}# BEGIN workspace-onlyoffice
 '''
 target.write_text(text[:match.start()] + block + text[match.start():], encoding="utf-8")
 PY
-  sudo cp "$site" "$site.workspace-onlyoffice.bak"
+  sudo cp "$site" "$backup"
   sudo install -m 0644 "$temporary" "$site"
   rm -f "$temporary"
   if ! sudo nginx -t; then
-    sudo cp "$site.workspace-onlyoffice.bak" "$site"
+    sudo cp "$backup" "$site"
+    rm -f "$backup"
     echo "[错误] Nginx 配置校验失败，已恢复备份" >&2
     exit 1
   fi
   if ! sudo systemctl reload nginx; then
-    sudo cp "$site.workspace-onlyoffice.bak" "$site"
+    sudo cp "$backup" "$site"
+    rm -f "$backup"
     sudo nginx -t >/dev/null || true
     sudo systemctl reload nginx || true
     echo "[错误] Nginx reload 失败，已恢复备份" >&2
     exit 1
   fi
+  rm -f "$backup"
 }
 
 check_runtime() {
@@ -165,6 +179,7 @@ fi
 command -v docker >/dev/null
 command -v openssl >/dev/null
 docker compose --env-file "$ENV_FILE" -f "$COMPOSE_FILE" up -d
+relocate_legacy_nginx_backups
 install_nginx_location
 for _ in $(seq 1 24); do
   if check_runtime; then

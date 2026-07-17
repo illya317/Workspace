@@ -172,6 +172,16 @@ test("ONLYOFFICE derives a public origin only from validated runtime origins", (
   ]);
 });
 
+test("ONLYOFFICE keeps Nginx rollback copies outside enabled site paths", () => {
+  assert.match(onlyOfficeInstaller, /backup="\$\(mktemp\)"/);
+  assert.match(onlyOfficeInstaller, /sudo cp "\$site" "\$backup"/);
+  assert.equal(onlyOfficeInstaller.includes("$site.workspace-onlyoffice.bak"), false);
+  assert.match(onlyOfficeInstaller, /\/var\/backups\/workspace\/nginx/);
+  assertOrdered(onlyOfficeInstaller, [
+    "relocate_legacy_nginx_backups\ninstall_nginx_location",
+  ]);
+});
+
 test("all embedded deployment Node programs are syntactically executable", () => {
   const programs = embeddedPrograms("node", "NODE");
   assert.ok(programs.length >= 8, "expected embedded Node deployment programs");
