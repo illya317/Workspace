@@ -182,6 +182,14 @@ test("ONLYOFFICE keeps Nginx rollback copies outside enabled site paths", () => 
   ]);
 });
 
+test("migration receipt checks embed only the previously validated migration name", () => {
+  assert.equal(deploy.includes(":'migration_name'"), false);
+  assertOrdered(deploy, [
+    "grep -Eq '^[0-9]{14}_[a-z0-9_]+$'",
+    "WHERE migration_name = '\\$migration_name'",
+  ]);
+});
+
 test("all embedded deployment Node programs are syntactically executable", () => {
   const programs = embeddedPrograms("node", "NODE");
   assert.ok(programs.length >= 8, "expected embedded Node deployment programs");

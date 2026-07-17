@@ -1860,7 +1860,7 @@ NODE
           echo \"[错误] migration 名称不安全: \$migration_name\"
           exit 1
         fi
-        migration_applied=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -v migration_name=\"\$migration_name\" -Atc \"SELECT CASE WHEN EXISTS (SELECT 1 FROM \\\"_prisma_migrations\\\" WHERE migration_name = :'migration_name' AND finished_at IS NOT NULL AND rolled_back_at IS NULL) THEN '1' ELSE '0' END\")
+        migration_applied=\$(psql \"\$DIRECT_URL\" -v ON_ERROR_STOP=1 -Atc \"SELECT CASE WHEN EXISTS (SELECT 1 FROM \\\"_prisma_migrations\\\" WHERE migration_name = '\$migration_name' AND finished_at IS NOT NULL AND rolled_back_at IS NULL) THEN '1' ELSE '0' END\")
         [ \"\$migration_applied\" = '1' ] && continue
         migration_mode=\$(node \"\$release_dir/scripts/ci/check-migration-policy.mjs\" --file \"\$migration_file\" --print-mode)
         if [ -n '$RELEASE_BOOTSTRAP_BASE' ]; then
