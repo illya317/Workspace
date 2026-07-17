@@ -32,6 +32,53 @@ function runPython(program, env = {}) {
   });
 }
 
+test("deployed release reader accepts only current receipts or the exact legacy CNB receipt", (context) => {
+  const program = embeddedPrograms("python3", "PY")
+    .find((candidate) => candidate.includes("unsupported deployed-release schema"));
+  assert.ok(program, "deployed release reader must be present");
+  const root = mkdtempSync(join(tmpdir(), "workspace-deployed-release-"));
+  context.after(() => rmSync(root, { recursive: true, force: true }));
+  const recordPath = join(root, "deployed-release.json");
+  const base = {
+    source: { commitSha: "a".repeat(40) },
+    artifact: { sha256: "b".repeat(64) },
+    cnb: { repository: "illya317/Workspace" },
+  };
+  const run = (record) => {
+    writeFileSync(recordPath, JSON.stringify(record));
+    return runPython(program, {
+      REMOTE_WORKSPACE_CONFIG_DIR: root,
+      EXPECTED_REPOSITORY: "illya317/Workspace",
+    });
+  };
+
+  const current = run({
+    ...base,
+    schemaVersion: 1,
+    cnb: { ...base.cnb, injectionSha: "c".repeat(40) },
+  });
+  assert.equal(current.status, 0);
+  assert.match(current.stdout, /^RECORD\ta{40}\tc{40}\tb{64}\tillya317\/Workspace$/m);
+
+  const legacy = run({
+    ...base,
+    schemaVersion: 2,
+    cnb: { ...base.cnb, releaseCommitSha: "d".repeat(40) },
+  });
+  assert.equal(legacy.status, 0);
+  assert.match(legacy.stdout, /^RECORD\ta{40}\td{40}\tb{64}\tillya317\/Workspace$/m);
+
+  for (const ambiguous of [
+    { ...base, schemaVersion: 1, cnb: { ...base.cnb, injectionSha: "c".repeat(40), releaseCommitSha: "d".repeat(40) } },
+    { ...base, schemaVersion: 2, cnb: { ...base.cnb, injectionSha: "c".repeat(40), releaseCommitSha: "d".repeat(40) } },
+    { ...base, schemaVersion: 3, cnb: { ...base.cnb, injectionSha: "c".repeat(40) } },
+  ]) {
+    const result = run(ambiguous);
+    assert.equal(result.status, 0);
+    assert.equal(result.stdout.trim(), "INVALID");
+  }
+});
+
 test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {
   assert.match(deploy, /public_process_stopped=0/);
   assert.match(deploy, /release_committed=0/);

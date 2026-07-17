@@ -667,7 +667,16 @@ else:
         record = json.loads(path.read_text(encoding='utf-8'))
         value = record['source']['commitSha']
         repository = record['cnb']['repository']
-        injection_sha = record['cnb']['injectionSha']
+        schema_version = record['schemaVersion']
+        cnb = record['cnb']
+        if schema_version == 1 and 'releaseCommitSha' not in cnb:
+            injection_sha = cnb['injectionSha']
+        elif schema_version == 2 and 'injectionSha' not in cnb:
+            # One-way compatibility for the production receipt written by the
+            # previous CNB deployer. A successful release replaces it with v1.
+            injection_sha = cnb['releaseCommitSha']
+        else:
+            raise ValueError('unsupported deployed-release schema')
         artifact_sha = record['artifact']['sha256']
     except Exception:
         print('INVALID')
@@ -1520,8 +1529,13 @@ NODE
         EXPECTED_REPOSITORY='$RELEASE_CNB_REPOSITORY' node - <<'NODE'
 const fs = require('fs');
 const record = JSON.parse(fs.readFileSync(process.env.DEPLOYED_RECORD, 'utf8'));
+const receiptSha = record?.schemaVersion === 1 && !('releaseCommitSha' in (record?.cnb ?? {}))
+  ? record?.cnb?.injectionSha
+  : record?.schemaVersion === 2 && !('injectionSha' in (record?.cnb ?? {}))
+    ? record?.cnb?.releaseCommitSha
+    : undefined;
 if (record?.source?.commitSha !== process.env.EXPECTED_SHA
-  || record?.cnb?.injectionSha !== process.env.EXPECTED_INJECTION_SHA
+  || receiptSha !== process.env.EXPECTED_INJECTION_SHA
   || record?.artifact?.sha256 !== process.env.EXPECTED_ARTIFACT_SHA
   || record?.cnb?.repository !== process.env.EXPECTED_REPOSITORY) {
   throw new Error('deployed-release record changed during deployment');
