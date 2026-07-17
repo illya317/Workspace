@@ -19,6 +19,10 @@ export function findFocusedTests(source) {
   return findings;
 }
 
+export function existingTestFiles(root, files) {
+  return files.filter((file) => fs.existsSync(path.join(root, file)));
+}
+
 function trackedTestFiles(cwd) {
   const result = spawnSync("git", ["ls-files", "-z"], { cwd, encoding: "buffer" });
   if (result.status !== 0) throw new Error(result.stderr.toString("utf8").trim() || "git ls-files failed");
@@ -28,7 +32,7 @@ function trackedTestFiles(cwd) {
 export function checkTestFocus(cwd = process.cwd()) {
   const root = path.resolve(cwd);
   const findings = [];
-  const files = trackedTestFiles(root);
+  const files = existingTestFiles(root, trackedTestFiles(root));
   for (const file of files) {
     const source = fs.readFileSync(path.join(root, file), "utf8");
     for (const finding of findFocusedTests(source)) findings.push({ file, ...finding });

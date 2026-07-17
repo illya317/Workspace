@@ -3,15 +3,27 @@
 # Use PRE_COMMIT_FULL=1 git commit ... to mirror GitHub CI locally.
 
 if [ "${PRE_COMMIT_FULL:-0}" = "1" ]; then
+  assert_index_snapshot_only() {
+    if ! git diff --quiet --ignore-submodules -- \
+      || [ -n "$(git ls-files --others --exclude-standard)" ]; then
+      echo "✗ PRE_COMMIT_FULL requires no unstaged or untracked files so the checked tree is exact."
+      exit 1
+    fi
+  }
+
+  assert_index_snapshot_only
   echo "→ Running full CI checks before commit..."
   npm run check:ci || {
     echo "✗ CI checks failed. Commit aborted."
     exit 1
   }
+  assert_index_snapshot_only
 
   ci_tree="$(git write-tree)"
   ci_stamp="$(git rev-parse --git-path workspace-check-ci-ok)"
   printf '%s\n' "$ci_tree" > "$ci_stamp"
+  ci_receipt="$(git rev-parse --git-path workspace-local-full-ci.json)"
+  node scripts/ci/local-full-ci-receipt.mjs create --tree "$ci_tree" --output "$ci_receipt"
 
   echo "✓ Pre-commit full CI checks passed."
   exit 0

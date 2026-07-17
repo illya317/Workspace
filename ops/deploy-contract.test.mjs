@@ -32,7 +32,7 @@ function runPython(program, env = {}) {
   });
 }
 
-test("ordinary PostgreSQL releases restore the previous application until evidence is committed", () => {
+test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {
   assert.match(deploy, /public_process_stopped=0/);
   assert.match(deploy, /release_committed=0/);
   assert.match(deploy, /pm2 delete '\$PM2_NAME'[\s\S]*?public_process_stopped=1/);
@@ -99,7 +99,7 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
   assert.match(
     deploy,
-    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认发布证据与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    /rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?上传后再次确认 CNB release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
   );
   assert.match(
     deploy,
@@ -129,8 +129,8 @@ test("all embedded deployment Python programs are syntactically executable", () 
   }
 });
 
-test("deployment uses committed evidence without a CNB or server GitHub token", () => {
-  assert.match(deploy, /--candidate-artifact-digest "\$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"/);
+test("deployment uses CNB metadata and local history without any GitHub token", () => {
+  assert.match(deploy, /--candidate "\$RELEASE_SOURCE_SHA"/);
   assert.match(deploy, /--current-head "\$RELEASE_SOURCE_SHA"/);
   assert.match(deploy, /git merge-base --is-ancestor "\$comparison_base" "\$RELEASE_SOURCE_SHA"/);
   assert.equal(deploy.includes("GITHUB_TOKEN"), false);

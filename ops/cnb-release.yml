@@ -4,20 +4,25 @@ cnb-release:
   api_trigger_manual:
     - name: deploy-prod
       docker:
-        image: node:22-bookworm
+        image: node:24-bookworm
       imports:
         - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml
       env:
-        # GitHub protected-main CI builds and tests the canonical artifact once.
-        # CNB verifies digest-bound release evidence and deploys those exact bytes without rebuilding.
-        USE_GITHUB_RELEASE_ARTIFACTS: "1"
+        # GitHub only runs CI. CNB builds and deploys from its own release injection.
         RUN_LOCAL_CHECKS: "0"
         RELEASE_SOURCE_BRANCH: main
       stages:
         - name: install-deploy-tools
           script: |
             apt-get update
-            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar
+            DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar python3 make g++
+        - name: build-standalone
+          script: |
+            export RELEASE_SOURCE_SHA="$(git rev-parse HEAD^)"
+            export RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")"
+            export ALLOW_CNB_RELEASE_INJECTION=1
+            npm ci --no-audit --fund=false --loglevel=error
+            bash ./ops/build-standalone-artifact.sh
         - name: deploy-to-server
           imports:
             - https://cnb.cool/illya317/env/-/blob/main/server-prod.yaml

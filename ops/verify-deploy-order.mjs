@@ -3,44 +3,27 @@
 import { pathToFileURL } from "node:url";
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
-const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
 
 function requireSha(value, label) {
   if (!SHA_PATTERN.test(value ?? "")) throw new Error(`${label} must be a full lowercase Git SHA`);
   return value;
 }
 
-function requireRunId(value, label) {
-  if (!Number.isInteger(Number(value)) || Number(value) < 1) {
-    throw new Error(`${label} must be a positive integer`);
-  }
-  return Number(value);
-}
-
 export function validateDeployOrder({
   candidateSha,
-  candidateRunId,
-  candidateRunAttempt,
-  candidateArtifactDigest,
   currentHeadSha,
   bootstrapBase,
   deployedSha,
-  deployedRunId,
-  deployedRunAttempt,
-  deployedArtifactDigest,
   comparison,
 }) {
   requireSha(candidateSha, "candidate SHA");
-  const normalizedCandidateRunId = requireRunId(candidateRunId, "candidate run id");
-  const normalizedCandidateRunAttempt = requireRunId(candidateRunAttempt, "candidate run attempt");
-  if (!DIGEST_PATTERN.test(candidateArtifactDigest ?? "")) throw new Error("candidate artifact digest is invalid");
-  requireSha(currentHeadSha, "current protected-main SHA");
+  requireSha(currentHeadSha, "current CNB source SHA");
   if (candidateSha !== currentHeadSha) {
-    throw new Error(`candidate ${candidateSha} is stale; protected main is ${currentHeadSha}`);
+    throw new Error(`candidate ${candidateSha} is stale; CNB source is ${currentHeadSha}`);
   }
   if (bootstrapBase) {
     requireSha(bootstrapBase, "production bootstrap baseline");
-    if (deployedSha) throw new Error("production bootstrap evidence is forbidden after a deployed record exists");
+    if (deployedSha) throw new Error("production bootstrap metadata is forbidden after a deployed record exists");
     if (!comparison
       || !["ahead", "identical"].includes(comparison.status)
       || comparison.base_commit?.sha !== bootstrapBase
@@ -52,25 +35,10 @@ export function validateDeployOrder({
     }
     return { action: "deploy", reason: "audited-production-bootstrap" };
   }
-  if (!deployedSha) throw new Error("initial deployment requires audited production bootstrap evidence");
+  if (!deployedSha) throw new Error("initial deployment requires audited production bootstrap metadata");
   requireSha(deployedSha, "deployed SHA");
-  const normalizedDeployedRunId = requireRunId(deployedRunId, "deployed run id");
-  const normalizedDeployedRunAttempt = requireRunId(deployedRunAttempt, "deployed run attempt");
-  if (!DIGEST_PATTERN.test(deployedArtifactDigest ?? "")) throw new Error("deployed artifact digest is invalid");
   if (deployedSha === candidateSha) {
-    if (normalizedCandidateRunId === normalizedDeployedRunId
-      && normalizedCandidateRunAttempt === normalizedDeployedRunAttempt) {
-      if (candidateArtifactDigest !== deployedArtifactDigest) {
-        throw new Error("same source/run record has a different artifact digest");
-      }
-      return { action: "noop", reason: "exact-artifact-already-deployed" };
-    }
-    if (normalizedCandidateRunId > normalizedDeployedRunId
-      || (normalizedCandidateRunId === normalizedDeployedRunId
-        && normalizedCandidateRunAttempt > normalizedDeployedRunAttempt)) {
-      return { action: "deploy", reason: "newer-run-attempt-for-same-source" };
-    }
-    throw new Error(`candidate run ${normalizedCandidateRunId}/${normalizedCandidateRunAttempt} is older than deployed run ${normalizedDeployedRunId}/${normalizedDeployedRunAttempt} for ${candidateSha}`);
+    return { action: "noop", reason: "source-already-deployed" };
   }
   if (!comparison || comparison.status !== "ahead"
     || comparison.base_commit?.sha !== deployedSha
@@ -107,15 +75,9 @@ export async function main(argv = process.argv.slice(2)) {
   }
   const result = validateDeployOrder({
     candidateSha: options.candidate,
-    candidateRunId: options.candidate_run_id,
-    candidateRunAttempt: options.candidate_run_attempt,
-    candidateArtifactDigest: options.candidate_artifact_digest,
     currentHeadSha: options.current_head,
     bootstrapBase: options.bootstrap_base,
     deployedSha: options.deployed,
-    deployedRunId: options.deployed_run_id,
-    deployedRunAttempt: options.deployed_run_attempt,
-    deployedArtifactDigest: options.deployed_artifact_digest,
     comparison,
   });
   process.stdout.write(`${result.action}\n`);

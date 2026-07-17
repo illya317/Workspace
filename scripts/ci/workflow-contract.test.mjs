@@ -8,6 +8,7 @@ const promotionWorkflow = fs.readFileSync(
   "utf8",
 );
 const packageJson = JSON.parse(fs.readFileSync(new URL("../../package.json", import.meta.url), "utf8"));
+const preCommit = fs.readFileSync(new URL("../../.githooks/pre-commit", import.meta.url), "utf8");
 const prePush = fs.readFileSync(new URL("../../.githooks/pre-push", import.meta.url), "utf8");
 const codeowners = fs.readFileSync(new URL("../../.github/CODEOWNERS", import.meta.url), "utf8");
 const packager = fs.readFileSync(new URL("../../ops/build-standalone-artifact.sh", import.meta.url), "utf8");
@@ -39,18 +40,17 @@ test("continuous owner pushes reuse one bot candidate and cancel stale CI", () =
   assert.match(workflow, /cancel-in-progress: true/);
 });
 
-test("workflow exposes forced exact-SHA dispatch and stable required evidence", () => {
+test("workflow exposes forced exact-SHA CI and no deployment responsibilities", () => {
   assert.match(workflow, /workflow_dispatch:/);
   assert.match(workflow, /target_sha:/);
   assert.match(workflow, /force_full:/);
   assert.match(workflow, /publish_artifact:/);
   assert.match(workflow, /name: CI \/ required/);
   assert.match(workflow, /name: workspace-standalone-\$\{\{ needs\.classify\.outputs\.source_sha \}\}-run-\$\{\{ github\.run_id \}\}-attempt-\$\{\{ github\.run_attempt \}\}/);
-  assert.match(workflow, /ci-artifact-\$\{SOURCE_SHA\}-run-\$\{GITHUB_RUN_ID\}-attempt-\$\{GITHUB_RUN_ATTEMPT\}/);
   assert.match(workflow, /CI_CLASSIFICATION_JSON:/);
   assert.match(workflow, /CI_REQUIRED_SUITES_JSON:/);
   assert.match(workflow, /CI_E2E_SPECS_JSON:/);
-  assert.match(workflow, /name: Keep recent artifacts and every active deployment\n\s+continue-on-error: true/);
+  assert.doesNotMatch(workflow, /gh release|production deployment|CI \/ release evidence|CI \/ artifact retention/i);
 });
 
 test("adaptive diff and hidden canonical artifacts remain usable on GitHub runners", () => {
@@ -62,7 +62,6 @@ test("adaptive diff and hidden canonical artifacts remain usable on GitHub runne
     ),
   );
   assert.match(workflow, /name: Upload canonical standalone artifact[\s\S]*?include-hidden-files: true/);
-  assert.match(workflow, /name: Retain structured release evidence[\s\S]*?include-hidden-files: true/);
   assert.match(workflow, /name: Enforce canonical npm install input\n\s+run: test ! -e npm-shrinkwrap\.json/);
 });
 
@@ -149,4 +148,11 @@ test("local push and E2E tier scripts remain wired", () => {
   assert.match(packageJson.scripts["test:e2e:latency"], /--grep @latency/);
   assert.match(prePush, /npm run check:push/);
   assert.match(prePush, /ci_tree:\$ci_base:/);
+});
+
+test("full pre-commit records only the exact staged tree", () => {
+  assert.match(preCommit, /PRE_COMMIT_FULL/);
+  assert.match(preCommit, /git diff --quiet --ignore-submodules/);
+  assert.match(preCommit, /git ls-files --others --exclude-standard/);
+  assert.match(preCommit, /local-full-ci-receipt\.mjs create --tree "\$ci_tree"/);
 });

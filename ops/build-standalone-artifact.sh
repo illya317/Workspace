@@ -4,6 +4,7 @@ set -euo pipefail
 cd "$(dirname "$0")/.."
 
 ALLOW_NON_LINUX_BUILD="${ALLOW_NON_LINUX_BUILD:-0}"
+ALLOW_CNB_RELEASE_INJECTION="${ALLOW_CNB_RELEASE_INJECTION:-0}"
 STANDALONE_SKIP_NEXT_BUILD="${STANDALONE_SKIP_NEXT_BUILD:-0}"
 ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
 MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
@@ -23,8 +24,13 @@ if [ "$(git rev-parse "${SOURCE_SHA}^{tree}")" != "$SOURCE_TREE" ]; then
   exit 1
 fi
 if [ "$(git rev-parse HEAD)" != "$SOURCE_SHA" ]; then
-  echo "[错误] standalone 构建 checkout 必须恰好位于 RELEASE_SOURCE_SHA"
-  exit 1
+  injection_files="$(git diff-tree --no-commit-id --name-only -r HEAD | LC_ALL=C sort)"
+  if [ "$ALLOW_CNB_RELEASE_INJECTION" != "1" ] \
+    || [ "$(git rev-parse HEAD^)" != "$SOURCE_SHA" ] \
+    || [ "$injection_files" != $'.cnb-release.json\n.cnb.yml' ]; then
+    echo "[错误] standalone 构建必须位于 source SHA 或其精确 CNB release injection"
+    exit 1
+  fi
 fi
 if [ "$(uname -s)" != "Linux" ] && [ "$ALLOW_NON_LINUX_BUILD" != "1" ]; then
   echo "[错误] standalone 产物必须在 Linux 构建；仅本地诊断可显式设置 ALLOW_NON_LINUX_BUILD=1"
@@ -215,7 +221,7 @@ cp -r .next/static "$standalone_app_dir/.next/static"
 rm -rf "$standalone_app_dir/public"
 cp -R public "$standalone_app_dir/public"
 # Runtime branding and avatar links point outside the repository. They must never enter the
-# public GitHub artifact; production relinks them from REMOTE_WORKSPACE_CONFIG_DIR after extract.
+# portable standalone artifact; production relinks them from REMOTE_WORKSPACE_CONFIG_DIR after extract.
 for runtime_asset in \
   "$standalone_app_dir/public/company" \
   "$standalone_app_dir/public/assets/agent/avatar" \

@@ -3,31 +3,46 @@ import { readFileSync } from "node:fs";
 import test from "node:test";
 
 const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
+const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "utf8");
+const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
+const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
-  for (const name of ["publish.sh", "release-to-cnb.sh", "deploy.sh"]) {
-    const source = readFileSync(new URL(`./${name}`, import.meta.url), "utf8");
+  for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
     assert.doesNotMatch(source, /\$[A-Za-z_][A-Za-z0-9_]*[^\x00-\x7F]/u, name);
   }
 });
 
-test("same-SHA reconciliation requires live health and exact version", () => {
-  assert.match(
-    publish,
-    /if \[ "\$last_deployed_sha" = "\$head_sha" \][\s\S]*?verify_server_runtime[\s\S]*?reconcile-success/,
-  );
+test("deploy dispatches to CNB before GitHub-only push setup", () => {
+  const dispatch = publish.indexOf('if [ "${1:-}" = "deploy" ]');
+  const githubSetup = publish.indexOf('GITHUB_REMOTE_NAME=');
+  assert.ok(dispatch >= 0 && dispatch < githubSetup);
+  assert.match(publish, /exec "\$SCRIPT_DIR\/publish-cnb\.sh" "\$@"/);
 });
 
-test("a freshly observed deployed record is not reconciled before live runtime verification", () => {
-  assert.match(
-    publish,
-    /if \[ "\$observed_run_id" != "\$deployment_run_id" \][\s\S]*?if ! verify_server_runtime; then[\s\S]*?PRODUCTION_CONFIRMED=1[\s\S]*?reconcile-success/,
-  );
+test("CNB deployment path contains no GitHub transport or deployment API", () => {
+  for (const [name, source] of Object.entries({ publishCnb, releaseToCnb, deploy })) {
+    assert.doesNotMatch(source, /\bgh\b|api\.github\.com|github\.com|GITHUB_TOKEN|GH_TOKEN|production-deployment|release-evidence/i, name);
+  }
 });
 
-test("runtime verification binds health and version to protected main", () => {
-  assert.match(publish, /curl -fsS '\$HEALTHCHECK_URL'/);
-  assert.match(publish, /local expected_sha="\$\{1:-\$head_sha\}"/);
-  assert.match(publish, /EXPECTED_VERSION='\$expected_sha'/);
-  assert.match(publish, /payload\.version !== process\.env\.EXPECTED_VERSION/);
+test("CNB release identity is source parent plus exact injection files", () => {
+  assert.match(releaseToCnb, /\.cnb-release\.json\\n\.cnb\.yml/);
+  assert.match(releaseToCnb, /git rev-parse HEAD\^/);
+  assert.match(deploy, /\.cnb-release\.json\\n\.cnb\.yml/);
+  assert.match(deploy, /RELEASE_CNB_INJECTION_SHA/);
+});
+
+test("CNB deployment requires one exact-tree local full CI receipt", () => {
+  assert.match(publishCnb, /local-full-ci-receipt\.mjs verify/);
+  assert.match(publishCnb, /npm run check:ci/);
+  assert.match(publishCnb, /local-full-ci-receipt\.mjs create/);
+  assert.ok(
+    publishCnb.indexOf("local-full-ci-receipt.mjs verify")
+      < publishCnb.indexOf('METADATA_FILE="$TMP_DIR/cnb-release.json"'),
+  );
+  for (const source of [releaseToCnb, deploy]) {
+    assert.match(source, /metadata\.localFullCi\?\.treeSha !== tree/);
+    assert.match(source, /metadata\.localFullCi\?\.command !== 'npm run check:ci'/);
+  }
 });

@@ -1,10 +1,13 @@
 # Deployment
 
 Production release orchestration and its reviewable control plane live in this repository:
-`ops/publish.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, `ops/deploy.sh`, and the CI/release
-evidence scripts. The private operations workspace contains secrets, runtime targets, environment
+`ops/publish.sh`, `ops/publish-cnb.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, and
+`ops/deploy.sh`. The private operations workspace contains secrets, runtime targets, environment
 values, and thin wrappers that load `.env` before executing these tracked scripts; it is not a
 second source of release logic.
+
+Production release requires an exact-tree local full-CI receipt, then goes directly to CNB. GitHub
+PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
 
 Repository-owned runtime dependency contracts:
 

@@ -24,7 +24,7 @@ on:
         default: true
         type: boolean
       publish_artifact:
-        description: Republish the canonical main-HEAD prerelease after full verification
+        description: Upload a canonical standalone artifact for this CI run after full verification
         required: true
         default: false
         type: boolean
@@ -558,99 +558,3 @@ jobs:
           git show "${TRUSTED_SHA}:scripts/ci/verify-ci-results.mjs" > "$verifier" 2>/dev/null \
             || cp scripts/ci/verify-ci-results.mjs "$verifier"
           node "$verifier"
-
-  publish:
-    name: CI / release evidence
-    needs: [classify, build, required]
-    if: ${{ always() && needs.classify.outputs.publish_artifact == 'true' && needs.build.result == 'success' && needs.required.result == 'success' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Download verified canonical artifact
-        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
-        with:
-          name: workspace-standalone-${{ needs.classify.outputs.source_sha }}-run-${{ github.run_id }}-attempt-${{ github.run_attempt }}
-          path: .release
-      - name: Reverify exact source and dispatch evidence
-        env:
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          EVENT_NAME: ${{ github.event_name }}
-        run: |
-          args=(
-            --artifact .release/workspace-standalone.tgz
-            --manifest .release/workspace-standalone.manifest.json
-            --expected-sha "$SOURCE_SHA"
-            --expected-tree "$(git rev-parse "${SOURCE_SHA}^{tree}")"
-            --expected-event "$EVENT_NAME"
-            --expected-run-id "${{ github.run_id }}"
-            --expected-run-attempt "${{ github.run_attempt }}"
-          )
-          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then args+=(--require-full-dispatch); fi
-          node scripts/ci/verify-artifact-manifest.mjs "${args[@]}"
-      - name: Publish or replace immutable-SHA prerelease assets
-        env:
-          GH_TOKEN: ${{ github.token }}
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-        run: |
-          set -euo pipefail
-          tag="ci-artifact-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}"
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            tag_sha="$(gh api "repos/${GITHUB_REPOSITORY}/git/ref/tags/${tag}" --jq .object.sha)"
-            test "$tag_sha" = "$SOURCE_SHA"
-            gh release upload "$tag" \
-              .release/workspace-standalone.tgz \
-              .release/workspace-standalone.manifest.json \
-              --clobber --repo "$GITHUB_REPOSITORY"
-            gh release edit "$tag" --prerelease --title "CI artifact ${SOURCE_SHA} run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}" --repo "$GITHUB_REPOSITORY"
-          else
-            gh release create "$tag" \
-              .release/workspace-standalone.tgz \
-              .release/workspace-standalone.manifest.json \
-              --target "$SOURCE_SHA" \
-              --prerelease \
-              --title "CI artifact ${SOURCE_SHA} run ${GITHUB_RUN_ID}/${GITHUB_RUN_ATTEMPT}" \
-              --notes "Canonical standalone artifact from GitHub Actions run ${GITHUB_RUN_ID}, attempt ${GITHUB_RUN_ATTEMPT}." \
-              --repo "$GITHUB_REPOSITORY"
-          fi
-          gh api "repos/${GITHUB_REPOSITORY}/releases/tags/${tag}" > .release/release-evidence.json
-      - name: Retain structured release evidence
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: release-evidence-${{ needs.classify.outputs.source_sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            .release/workspace-standalone.manifest.json
-            .release/release-evidence.json
-          if-no-files-found: error
-          include-hidden-files: true
-          retention-days: 30
-
-  retention:
-    name: CI / artifact retention
-    needs: [classify, required, publish]
-    if: >-
-      ${{ always() && needs.required.result == 'success' &&
-      (github.event_name == 'schedule' ||
-      (needs.classify.outputs.publish_artifact == 'true' && needs.publish.result == 'success') ||
-      (github.event_name == 'push' && needs.classify.outputs.publish_artifact == 'false')) }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-      deployments: read
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-      - name: Keep recent artifacts and every active deployment
-        continue-on-error: true
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
-          SOURCE_SHA: ${{ needs.classify.outputs.source_sha }}
-          PUBLISH_RESULT: ${{ needs.publish.result }}
-        run: |
-          args=(--repository "$GITHUB_REPOSITORY" --keep 10 --minimum-age-hours 24 --apply)
-          if [ "$PUBLISH_RESULT" = "success" ]; then
-            args+=(--protect-tag "ci-artifact-${SOURCE_SHA}-run-${GITHUB_RUN_ID}-attempt-${GITHUB_RUN_ATTEMPT}")
-          fi
-          node scripts/ci/cleanup-prereleases.mjs "${args[@]}"

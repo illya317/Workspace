@@ -22,17 +22,10 @@ BACKUP_RETENTION_COUNT="${BACKUP_RETENTION_COUNT:-5}"
 LIBRARY_SYNC_SOURCE="${LIBRARY_SYNC_SOURCE:-}"
 INSTALL_LIBRARY_RUNTIME_DEPS="${INSTALL_LIBRARY_RUNTIME_DEPS:-1}"
 INSTALL_KIMI_AGENT_RUNTIME_DEPS="${INSTALL_KIMI_AGENT_RUNTIME_DEPS:-1}"
-RELEASE_EVIDENCE_FILE="${RELEASE_EVIDENCE_FILE:-.cnb-release-evidence.json}"
+INSTALL_ONLYOFFICE_RUNTIME="${INSTALL_ONLYOFFICE_RUNTIME:-1}"
+RELEASE_METADATA_FILE="${RELEASE_METADATA_FILE:-.cnb-release.json}"
 RELEASE_SOURCE_BRANCH="${RELEASE_SOURCE_BRANCH:-main}"
-USE_GITHUB_RELEASE_ARTIFACTS="${USE_GITHUB_RELEASE_ARTIFACTS:-1}"
-EXPECTED_GITHUB_REPOSITORY="${EXPECTED_GITHUB_REPOSITORY:-illya317/Workspace}"
-EXPECTED_GITHUB_WORKFLOW_NAME="${EXPECTED_GITHUB_WORKFLOW_NAME:-CI}"
-EXPECTED_GITHUB_WORKFLOW_PATH="${EXPECTED_GITHUB_WORKFLOW_PATH:-.github/workflows/ci.yml}"
-EXPECTED_GITHUB_REQUIRED_JOB="${EXPECTED_GITHUB_REQUIRED_JOB:-CI / required}"
-EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX="${EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX:-workspace-standalone-}"
-EXPECTED_GITHUB_RELEASE_TAG_PREFIX="${EXPECTED_GITHUB_RELEASE_TAG_PREFIX:-ci-artifact-}"
-EXPECTED_RELEASE_ARTIFACT_NAME="${EXPECTED_RELEASE_ARTIFACT_NAME:-workspace-standalone.tgz}"
-EXPECTED_RELEASE_MANIFEST_NAME="${EXPECTED_RELEASE_MANIFEST_NAME:-workspace-standalone.manifest.json}"
+EXPECTED_CNB_REPOSITORY="${EXPECTED_CNB_REPOSITORY:-illya317/Workspace}"
 REMOTE_AGENT_SOURCE_ROOT_NAME="$(basename "$REMOTE_AGENT_SOURCE_ROOT")"
 if [ -n "$ENV_CONTENT" ]; then
   ENV_CONTENT_B64="$(printf '%s' "$ENV_CONTENT" | base64 | tr -d '\n')"
@@ -127,9 +120,8 @@ REMOTE_DEPLOY_LOCK_PID=""
 REMOTE_DEPLOY_LOCK_TOKEN=""
 REMOTE_DEPLOY_LOCK_HELD=0
 DEPLOYED_SOURCE_SHA=""
-DEPLOYED_RUN_ID=""
-DEPLOYED_RUN_ATTEMPT=""
-DEPLOYED_ARTIFACT_DIGEST=""
+DEPLOYED_CNB_INJECTION_SHA=""
+DEPLOYED_ARTIFACT_SHA=""
 
 release_remote_deploy_lock() {
   if [ "$REMOTE_DEPLOY_LOCK_HELD" != "1" ]; then
@@ -655,7 +647,6 @@ verify_release_order() {
   local remote_state
   local record_kind=""
   local deployed_repository=""
-  local deployed_branch=""
   local order_action
   local args
   local comparison_base=""
@@ -663,7 +654,7 @@ verify_release_order() {
   local comparison_ahead
   local comparison_json=""
 
-  remote_state="$(ssh_cmd "REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' EXPECTED_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' EXPECTED_BRANCH='$RELEASE_GITHUB_BRANCH' python3 - <<'PY'
+  remote_state="$(ssh_cmd "REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' EXPECTED_REPOSITORY='$RELEASE_CNB_REPOSITORY' python3 - <<'PY'
 import json
 import os
 from pathlib import Path
@@ -675,11 +666,9 @@ else:
     try:
         record = json.loads(path.read_text(encoding='utf-8'))
         value = record['source']['commitSha']
-        repository = record['github']['repository']
-        branch = record['github']['branch']
-        run_id = record['github']['runId']
-        run_attempt = record['github']['runAttempt']
-        artifact_digest = record['github']['actionsArtifactDigest']
+        repository = record['cnb']['repository']
+        injection_sha = record['cnb']['injectionSha']
+        artifact_sha = record['artifact']['sha256']
     except Exception:
         print('INVALID')
     else:
@@ -687,30 +676,25 @@ else:
             isinstance(value, str)
             and len(value) == 40
             and all(char in '0123456789abcdef' for char in value)
-            and isinstance(run_id, int)
-            and run_id > 0
-            and isinstance(run_attempt, int)
-            and run_attempt > 0
             and isinstance(repository, str)
             and repository == os.environ.get('EXPECTED_REPOSITORY')
-            and isinstance(branch, str)
-            and branch == os.environ.get('EXPECTED_BRANCH')
-            and isinstance(artifact_digest, str)
-            and len(artifact_digest) == 71
-            and artifact_digest.startswith('sha256:')
-            and all(char in '0123456789abcdef' for char in artifact_digest[7:])
+            and isinstance(injection_sha, str)
+            and len(injection_sha) == 40
+            and all(char in '0123456789abcdef' for char in injection_sha)
+            and isinstance(artifact_sha, str)
+            and len(artifact_sha) == 64
+            and all(char in '0123456789abcdef' for char in artifact_sha)
         ):
-            print('\t'.join(['RECORD', value, str(run_id), str(run_attempt), artifact_digest, repository, branch]))
+            print('\t'.join(['RECORD', value, injection_sha, artifact_sha, repository]))
         else:
             print('INVALID')
 PY")"
-  IFS=$'\t' read -r record_kind DEPLOYED_SOURCE_SHA DEPLOYED_RUN_ID DEPLOYED_RUN_ATTEMPT DEPLOYED_ARTIFACT_DIGEST deployed_repository deployed_branch <<< "$remote_state"
+  IFS=$'\t' read -r record_kind DEPLOYED_SOURCE_SHA DEPLOYED_CNB_INJECTION_SHA DEPLOYED_ARTIFACT_SHA deployed_repository <<< "$remote_state"
   case "$record_kind" in
     MISSING)
       DEPLOYED_SOURCE_SHA=""
-      DEPLOYED_RUN_ID=""
-      DEPLOYED_RUN_ATTEMPT=""
-      DEPLOYED_ARTIFACT_DIGEST=""
+      DEPLOYED_CNB_INJECTION_SHA=""
+      DEPLOYED_ARTIFACT_SHA=""
       if [ -z "$RELEASE_BOOTSTRAP_BASE" ]; then
         echo "[错误] 生产部署记录缺失；只有经审计的一次性 production bootstrap 凭证可接管"
         exit 1
@@ -727,9 +711,6 @@ PY")"
 
   args=(
     --candidate "$RELEASE_SOURCE_SHA"
-    --candidate-run-id "$RELEASE_GITHUB_RUN_ID"
-    --candidate-run-attempt "$RELEASE_GITHUB_RUN_ATTEMPT"
-    --candidate-artifact-digest "$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST"
     --current-head "$RELEASE_SOURCE_SHA"
   )
   if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
@@ -738,9 +719,6 @@ PY")"
   elif [ -n "$DEPLOYED_SOURCE_SHA" ]; then
     args+=(
       --deployed "$DEPLOYED_SOURCE_SHA"
-      --deployed-run-id "$DEPLOYED_RUN_ID"
-      --deployed-run-attempt "$DEPLOYED_RUN_ATTEMPT"
-      --deployed-artifact-digest "$DEPLOYED_ARTIFACT_DIGEST"
     )
     if [ "$DEPLOYED_SOURCE_SHA" != "$RELEASE_SOURCE_SHA" ]; then
       comparison_base="$DEPLOYED_SOURCE_SHA"
@@ -771,7 +749,7 @@ PY")"
   fi
   order_action="$(node ops/verify-deploy-order.mjs "${args[@]}")"
   if [ "$order_action" = "noop" ]; then
-    echo "==> 生产记录已是 ${RELEASE_SOURCE_SHA:0:12} 的同一 CI run；锁内复验实时健康与版本。"
+    echo "==> 生产记录已是 CNB source ${RELEASE_SOURCE_SHA:0:12}；锁内复验实时健康与版本。"
     run_healthcheck
     echo "==> 实时生产健康且版本一致，跳过重复部署。"
     exit 0
@@ -781,7 +759,7 @@ PY")"
     exit 1
   fi
   verify_bootstrap_production_state
-  echo "==> 锁内已证明候选与已提交发布证据一致，且不会回滚当前生产版本。"
+  echo "==> 锁内已证明候选与 CNB release metadata 一致，且不会回滚当前生产版本。"
 }
 
 require_local_cmd() {
@@ -792,23 +770,16 @@ require_local_cmd() {
   fi
 }
 
-resolve_release_evidence() {
+resolve_release_metadata() {
   local release_head
   local release_parent_count
   local injection_files
-  local evidence_values
-  local line_count
 
-  if [ "$RELEASE_EVIDENCE_FILE" != ".cnb-release-evidence.json" ]; then
-    echo "[错误] RELEASE_EVIDENCE_FILE 必须是 .cnb-release-evidence.json"
+  if [ "$RELEASE_METADATA_FILE" != ".cnb-release.json" ]; then
+    echo "[错误] RELEASE_METADATA_FILE 必须是 .cnb-release.json"
     exit 1
   fi
-  case "$USE_GITHUB_RELEASE_ARTIFACTS" in
-    1) ;;
-    *) echo "[错误] 生产部署只接受 GitHub required CI 的 build-once 产物（USE_GITHUB_RELEASE_ARTIFACTS=1）"; exit 1 ;;
-  esac
-  test -f "$RELEASE_EVIDENCE_FILE"
-  test -f ops/release-evidence.mjs
+  test -f "$RELEASE_METADATA_FILE"
 
   release_head="$(git rev-parse HEAD)"
   release_parent_count="$(git rev-list --parents -n 1 "$release_head" | awk '{print NF - 1}')"
@@ -822,52 +793,50 @@ resolve_release_evidence() {
   }
   RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")"
   injection_files="$(git diff-tree --no-commit-id --name-only -r "$release_head" | LC_ALL=C sort)"
-  if [ "$injection_files" != $'.cnb-release-evidence.json\n.cnb.yml' ]; then
-    echo "[错误] CNB injection commit 只能修改 .cnb.yml 与 .cnb-release-evidence.json"
+  if [ "$injection_files" != $'.cnb-release.json\n.cnb.yml' ]; then
+    echo "[错误] CNB injection commit 只能修改 .cnb.yml 与 .cnb-release.json"
     printf '%s\n' "$injection_files"
     exit 1
   fi
 
-  evidence_values="$(mktemp)"
-  if ! node ops/release-evidence.mjs validate-file \
-    --file "$RELEASE_EVIDENCE_FILE" \
-    --sha "$RELEASE_SOURCE_SHA" \
-    --tree "$RELEASE_SOURCE_TREE" \
-    --repository "$EXPECTED_GITHUB_REPOSITORY" \
-    --branch "$RELEASE_SOURCE_BRANCH" \
-    --workflow-name "$EXPECTED_GITHUB_WORKFLOW_NAME" \
-    --workflow-path "$EXPECTED_GITHUB_WORKFLOW_PATH" \
-    --required-job "$EXPECTED_GITHUB_REQUIRED_JOB" \
-    --artifact-name-prefix "${EXPECTED_GITHUB_ACTIONS_ARTIFACT_PREFIX}${RELEASE_SOURCE_SHA}-run-" \
-    --release-tag-prefix "${EXPECTED_GITHUB_RELEASE_TAG_PREFIX}${RELEASE_SOURCE_SHA}-run-" \
-    --release-artifact-name "$EXPECTED_RELEASE_ARTIFACT_NAME" \
-    --release-manifest-name "$EXPECTED_RELEASE_MANIFEST_NAME" \
-    --format lines > "$evidence_values"; then
-    rm -f "$evidence_values"
-    exit 1
-  fi
-  line_count="$(wc -l < "$evidence_values" | tr -d '[:space:]')"
-  if [ "$line_count" != "16" ]; then
-    rm -f "$evidence_values"
-    echo "[错误] release evidence 输出字段数量异常"
-    exit 1
-  fi
-  RELEASE_GITHUB_REPOSITORY="$(sed -n '3p' "$evidence_values")"
-  RELEASE_GITHUB_BRANCH="$(sed -n '4p' "$evidence_values")"
-  RELEASE_GITHUB_EVENT="$(sed -n '5p' "$evidence_values")"
-  RELEASE_GITHUB_RUN_ID="$(sed -n '6p' "$evidence_values")"
-  RELEASE_GITHUB_RUN_ATTEMPT="$(sed -n '7p' "$evidence_values")"
-  RELEASE_GITHUB_JOB_ID="$(sed -n '8p' "$evidence_values")"
-  RELEASE_GITHUB_CHECK_APP_ID="$(sed -n '9p' "$evidence_values")"
-  RELEASE_GITHUB_ACTIONS_ARTIFACT="$(sed -n '10p' "$evidence_values")"
-  RELEASE_GITHUB_ACTIONS_ARTIFACT_ID="$(sed -n '11p' "$evidence_values")"
-  RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST="$(sed -n '12p' "$evidence_values")"
-  RELEASE_GITHUB_RELEASE_ID="$(sed -n '13p' "$evidence_values")"
-  RELEASE_GITHUB_RELEASE_TAG="$(sed -n '14p' "$evidence_values")"
-  RELEASE_GITHUB_RELEASE_ARTIFACT_DIGEST="$(sed -n '15p' "$evidence_values")"
-  RELEASE_GITHUB_RELEASE_MANIFEST_DIGEST="$(sed -n '16p' "$evidence_values")"
-  rm -f "$evidence_values"
-  RELEASE_BOOTSTRAP_BASE="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap?.baselineSha ?? "");' "$RELEASE_EVIDENCE_FILE")"
+  metadata_values="$(node - "$RELEASE_METADATA_FILE" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" "$EXPECTED_CNB_REPOSITORY" "$RELEASE_SOURCE_BRANCH" "$release_head" <<'NODE'
+const fs = require('node:fs');
+const [file, sha, tree, repository, branch, injectionSha] = process.argv.slice(2);
+const metadata = JSON.parse(fs.readFileSync(file, 'utf8'));
+if (metadata.schemaVersion !== 1
+  || metadata.source?.commitSha !== sha
+  || metadata.source?.treeSha !== tree
+  || metadata.localFullCi?.schemaVersion !== 1
+  || metadata.localFullCi?.kind !== 'workspace-local-full-ci'
+  || metadata.localFullCi?.status !== 'passed'
+  || metadata.localFullCi?.command !== 'npm run check:ci'
+  || metadata.localFullCi?.treeSha !== tree
+  || !Number.isFinite(Date.parse(metadata.localFullCi?.completedAt ?? ''))
+  || metadata.cnb?.repository !== repository
+  || metadata.cnb?.sourceBranch !== branch) {
+  throw new Error('CNB release metadata does not match injection parent');
+}
+const bootstrap = metadata.deploymentBootstrap;
+const values = [repository, branch, injectionSha, bootstrap?.baselineSha ?? ''];
+if (bootstrap) {
+  values.push(
+    bootstrap.legacy?.cnbCommitSha ?? '',
+    bootstrap.legacy?.releaseId ?? '',
+    bootstrap.legacy?.cnbBuildSn ?? '',
+    bootstrap.legacy?.runtimeVersion ?? '',
+    bootstrap.legacy?.buildId ?? '',
+    bootstrap.legacy?.cnbRepository ?? '',
+    String(bootstrap.database?.migrationCount ?? ''),
+    bootstrap.database?.migrationSetSha256 ?? '',
+  );
+}
+process.stdout.write(values.join('\n'));
+NODE
+)"
+  RELEASE_CNB_REPOSITORY="$(printf '%s\n' "$metadata_values" | sed -n '1p')"
+  RELEASE_CNB_BRANCH="$(printf '%s\n' "$metadata_values" | sed -n '2p')"
+  RELEASE_CNB_INJECTION_SHA="$(printf '%s\n' "$metadata_values" | sed -n '3p')"
+  RELEASE_BOOTSTRAP_BASE="$(printf '%s\n' "$metadata_values" | sed -n '4p')"
   RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT=""
   RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID=""
   RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN=""
@@ -877,29 +846,20 @@ resolve_release_evidence() {
   RELEASE_BOOTSTRAP_MIGRATION_COUNT=""
   RELEASE_BOOTSTRAP_MIGRATION_DIGEST=""
   if [ -n "$RELEASE_BOOTSTRAP_BASE" ]; then
-    RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbCommitSha);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.releaseId);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbBuildSn);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.runtimeVersion);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_LEGACY_BUILD_ID="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.buildId);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_CNB_REPOSITORY="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.legacy.cnbRepository);' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_MIGRATION_COUNT="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(String(e.deploymentBootstrap.database.migrationCount));' "$RELEASE_EVIDENCE_FILE")"
-    RELEASE_BOOTSTRAP_MIGRATION_DIGEST="$(node -e 'const e=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); process.stdout.write(e.deploymentBootstrap.database.migrationSetSha256);' "$RELEASE_EVIDENCE_FILE")"
-    if [ "$RELEASE_BOOTSTRAP_CNB_REPOSITORY" != "$EXPECTED_GITHUB_REPOSITORY" ]; then
+    RELEASE_BOOTSTRAP_LEGACY_CNB_COMMIT="$(printf '%s\n' "$metadata_values" | sed -n '5p')"
+    RELEASE_BOOTSTRAP_LEGACY_RELEASE_ID="$(printf '%s\n' "$metadata_values" | sed -n '6p')"
+    RELEASE_BOOTSTRAP_LEGACY_CNB_BUILD_SN="$(printf '%s\n' "$metadata_values" | sed -n '7p')"
+    RELEASE_BOOTSTRAP_LEGACY_RUNTIME_VERSION="$(printf '%s\n' "$metadata_values" | sed -n '8p')"
+    RELEASE_BOOTSTRAP_LEGACY_BUILD_ID="$(printf '%s\n' "$metadata_values" | sed -n '9p')"
+    RELEASE_BOOTSTRAP_CNB_REPOSITORY="$(printf '%s\n' "$metadata_values" | sed -n '10p')"
+    RELEASE_BOOTSTRAP_MIGRATION_COUNT="$(printf '%s\n' "$metadata_values" | sed -n '11p')"
+    RELEASE_BOOTSTRAP_MIGRATION_DIGEST="$(printf '%s\n' "$metadata_values" | sed -n '12p')"
+    if [ "$RELEASE_BOOTSTRAP_CNB_REPOSITORY" != "$EXPECTED_CNB_REPOSITORY" ]; then
       echo "[错误] production bootstrap CNB repository 与 canonical repository 不一致"
       exit 1
     fi
   fi
-
-  if [ "$RELEASE_GITHUB_BRANCH" != "$RELEASE_SOURCE_BRANCH" ]; then
-    echo "[错误] release evidence branch 不是 $RELEASE_SOURCE_BRANCH"
-    exit 1
-  fi
-  if [ -z "$RELEASE_GITHUB_RELEASE_ID" ] || [ -z "$RELEASE_GITHUB_RELEASE_TAG" ]; then
-    echo "[错误] 已要求 build-once，但 release evidence 没有 GitHub prerelease asset"
-    exit 1
-  fi
-  echo "==> 已验证 canonical source: ${RELEASE_SOURCE_SHA:0:12} (GitHub run $RELEASE_GITHUB_RUN_ID/$RELEASE_GITHUB_RUN_ATTEMPT)"
+  echo "==> 已验证 CNB source: ${RELEASE_SOURCE_SHA:0:12} via ${RELEASE_CNB_INJECTION_SHA:0:12}"
 }
 
 run_local_checks() {
@@ -914,16 +874,25 @@ run_local_checks() {
 build_artifact() {
   ARTIFACT_PATH="${STANDALONE_ARTIFACT_PATH:-.next/workspace-standalone.tgz}"
   ARTIFACT_MANIFEST_PATH="${STANDALONE_MANIFEST_PATH:-.next/workspace-standalone.manifest.json}"
-  echo "==> 下载受 GitHub prerelease digest 约束的 build-once 产物..."
-  rm -f "$ARTIFACT_PATH" "$ARTIFACT_MANIFEST_PATH"
-  node ops/release-evidence.mjs download-asset --file "$RELEASE_EVIDENCE_FILE" --kind artifact --output "$ARTIFACT_PATH"
-  node ops/release-evidence.mjs download-asset --file "$RELEASE_EVIDENCE_FILE" --kind manifest --output "$ARTIFACT_MANIFEST_PATH"
-  ARTIFACT_SHA="$(node ops/release-evidence.mjs validate-standalone \
-    --evidence "$RELEASE_EVIDENCE_FILE" \
-    --manifest "$ARTIFACT_MANIFEST_PATH" \
-    --artifact "$ARTIFACT_PATH" \
-    --sha "$RELEASE_SOURCE_SHA" \
-    --tree "$RELEASE_SOURCE_TREE")"
+  echo "==> 校验 CNB 本次构建的 standalone 与 manifest..."
+  test -s "$ARTIFACT_PATH"
+  test -s "$ARTIFACT_MANIFEST_PATH"
+  ARTIFACT_SHA="$(node - "$ARTIFACT_MANIFEST_PATH" "$ARTIFACT_PATH" "$RELEASE_SOURCE_SHA" "$RELEASE_SOURCE_TREE" <<'NODE'
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const [manifestPath, artifactPath, sourceSha, sourceTree] = process.argv.slice(2);
+const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
+const artifactSha = crypto.createHash('sha256').update(fs.readFileSync(artifactPath)).digest('hex');
+if (manifest.schemaVersion !== 1
+  || manifest.source?.commitSha !== sourceSha
+  || manifest.source?.treeSha !== sourceTree
+  || manifest.build?.buildId !== sourceSha
+  || manifest.artifact?.sha256 !== artifactSha) {
+  throw new Error('CNB standalone identity or digest is invalid');
+}
+process.stdout.write(artifactSha);
+NODE
+)"
   RELEASE_MIGRATION_SET_SHA="$(node -e 'const m=JSON.parse(require("node:fs").readFileSync(process.argv[1], "utf8")); const value=m.inputs?.migrationSetSha256; if (!/^[0-9a-f]{64}$/.test(value ?? "")) throw new Error("standalone migration-set digest is invalid"); process.stdout.write(value);' "$ARTIFACT_MANIFEST_PATH")"
   ARTIFACT_MANIFEST_SHA="$(node -e 'const {createHash}=require("crypto"); const {readFileSync}=require("fs"); process.stdout.write(createHash("sha256").update(readFileSync(process.argv[1])).digest("hex"))' "$ARTIFACT_MANIFEST_PATH")"
 }
@@ -1067,6 +1036,29 @@ ensure_remote_kimi_agent_runtime() {
   "
 }
 
+ensure_remote_onlyoffice_runtime() {
+  if [ "$INSTALL_ONLYOFFICE_RUNTIME" != "1" ]; then
+    echo "==> 跳过 ONLYOFFICE 运行时安装（INSTALL_ONLYOFFICE_RUNTIME=${INSTALL_ONLYOFFICE_RUNTIME}）"
+    return
+  fi
+
+  local remote_tool_dir="$REMOTE_WORKSPACE_CONFIG_DIR/runtime/onlyoffice-bootstrap"
+  echo "==> 同步并校验 ONLYOFFICE 只读预览运行时..."
+  ssh_cmd "mkdir -p '$remote_tool_dir/onlyoffice'"
+  rsync -az -e "$RSYNC_SSH_COMMAND" \
+    ops/install-onlyoffice-runtime.sh \
+    "$SERVER:$remote_tool_dir/"
+  rsync -az -e "$RSYNC_SSH_COMMAND" \
+    ops/onlyoffice/docker-compose.yml \
+    "$SERVER:$remote_tool_dir/onlyoffice/"
+  ssh_cmd "
+    set -e
+    chmod +x '$remote_tool_dir/install-onlyoffice-runtime.sh'
+    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-onlyoffice-runtime.sh'
+    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
+  "
+}
+
 sync_remote_agent_source() {
   echo "==> 同步服务器页面助手源码到 canonical SHA: ${RELEASE_SOURCE_SHA:0:12} -> $REMOTE_AGENT_SOURCE_DIR"
   ssh_cmd "
@@ -1115,11 +1107,17 @@ validate_remote_runtime() {
     grep -q '^AGENT_SOURCE_WORKTREE=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_SOURCE_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
+      grep -q '^ONLYOFFICE_JWT_SECRET=.' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    fi
     if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
       echo '[错误] 服务器仍包含已废弃的自研 Agent provider 配置'
       exit 1
     fi
     WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
+    if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/onlyoffice-bootstrap/install-onlyoffice-runtime.sh' --check
+    fi
     test -d '$REMOTE_AGENT_SOURCE_DIR/.git'
     python3 - <<'PY'
 from pathlib import Path
@@ -1344,7 +1342,7 @@ deploy_remote_artifact() {
     "$ARTIFACT_PATH" "$SERVER:$remote_tar"
   rsync -av -e "$RSYNC_SSH_COMMAND" \
     "$ARTIFACT_MANIFEST_PATH" "$SERVER:$remote_manifest"
-  echo "==> 上传后再次确认发布证据与部署顺序..."
+  echo "==> 上传后再次确认 CNB release metadata 与部署顺序..."
   verify_release_order
 
   echo "==> 服务器复验产物与 manifest 后解包并重启服务..."
@@ -1517,19 +1515,15 @@ NODE
         test -f \"\$deployed_record\"
         DEPLOYED_RECORD=\"\$deployed_record\" \
         EXPECTED_SHA='$DEPLOYED_SOURCE_SHA' \
-        EXPECTED_RUN_ID='$DEPLOYED_RUN_ID' \
-        EXPECTED_RUN_ATTEMPT='$DEPLOYED_RUN_ATTEMPT' \
-        EXPECTED_ARTIFACT_DIGEST='$DEPLOYED_ARTIFACT_DIGEST' \
-        EXPECTED_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' \
-        EXPECTED_BRANCH='$RELEASE_GITHUB_BRANCH' node - <<'NODE'
+        EXPECTED_INJECTION_SHA='$DEPLOYED_CNB_INJECTION_SHA' \
+        EXPECTED_ARTIFACT_SHA='$DEPLOYED_ARTIFACT_SHA' \
+        EXPECTED_REPOSITORY='$RELEASE_CNB_REPOSITORY' node - <<'NODE'
 const fs = require('fs');
 const record = JSON.parse(fs.readFileSync(process.env.DEPLOYED_RECORD, 'utf8'));
 if (record?.source?.commitSha !== process.env.EXPECTED_SHA
-  || String(record?.github?.runId) !== process.env.EXPECTED_RUN_ID
-  || String(record?.github?.runAttempt) !== process.env.EXPECTED_RUN_ATTEMPT
-  || record?.github?.actionsArtifactDigest !== process.env.EXPECTED_ARTIFACT_DIGEST
-  || record?.github?.repository !== process.env.EXPECTED_REPOSITORY
-  || record?.github?.branch !== process.env.EXPECTED_BRANCH) {
+  || record?.cnb?.injectionSha !== process.env.EXPECTED_INJECTION_SHA
+  || record?.artifact?.sha256 !== process.env.EXPECTED_ARTIFACT_SHA
+  || record?.cnb?.repository !== process.env.EXPECTED_REPOSITORY) {
   throw new Error('deployed-release record changed during deployment');
 }
 NODE
@@ -1609,17 +1603,15 @@ PY
         if DEPLOYED_RECORD='$REMOTE_WORKSPACE_CONFIG_DIR/deployed-release.json' \
           EXPECTED_SOURCE='$RELEASE_SOURCE_SHA' \
           EXPECTED_TREE='$RELEASE_SOURCE_TREE' \
-          EXPECTED_RUN_ID='$RELEASE_GITHUB_RUN_ID' \
-          EXPECTED_RUN_ATTEMPT='$RELEASE_GITHUB_RUN_ATTEMPT' \
-          EXPECTED_ARTIFACT_DIGEST='$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST' \
+          EXPECTED_INJECTION_SHA='$RELEASE_CNB_INJECTION_SHA' \
+          EXPECTED_ARTIFACT_SHA='$ARTIFACT_SHA' \
           EXPECTED_RELEASE_DIR="\$release_dir" node - <<'NODE'
 const fs = require('fs');
 const record = JSON.parse(fs.readFileSync(process.env.DEPLOYED_RECORD, 'utf8'));
 if (record?.source?.commitSha !== process.env.EXPECTED_SOURCE
   || record?.source?.treeSha !== process.env.EXPECTED_TREE
-  || String(record?.github?.runId) !== process.env.EXPECTED_RUN_ID
-  || String(record?.github?.runAttempt) !== process.env.EXPECTED_RUN_ATTEMPT
-  || record?.github?.actionsArtifactDigest !== process.env.EXPECTED_ARTIFACT_DIGEST
+  || record?.cnb?.injectionSha !== process.env.EXPECTED_INJECTION_SHA
+  || record?.artifact?.sha256 !== process.env.EXPECTED_ARTIFACT_SHA
   || record?.deployment?.releaseDir !== process.env.EXPECTED_RELEASE_DIR) {
   process.exit(1);
 }
@@ -2078,18 +2070,9 @@ PY
     DEPLOY_SOURCE_TREE='$RELEASE_SOURCE_TREE' \
     DEPLOY_ARTIFACT_SHA='$ARTIFACT_SHA' \
     DEPLOY_MANIFEST_SHA='$ARTIFACT_MANIFEST_SHA' \
-    DEPLOY_GITHUB_REPOSITORY='$RELEASE_GITHUB_REPOSITORY' \
-    DEPLOY_GITHUB_BRANCH='$RELEASE_GITHUB_BRANCH' \
-    DEPLOY_GITHUB_EVENT='$RELEASE_GITHUB_EVENT' \
-    DEPLOY_GITHUB_RUN_ID='$RELEASE_GITHUB_RUN_ID' \
-    DEPLOY_GITHUB_RUN_ATTEMPT='$RELEASE_GITHUB_RUN_ATTEMPT' \
-    DEPLOY_GITHUB_JOB_ID='$RELEASE_GITHUB_JOB_ID' \
-    DEPLOY_GITHUB_CHECK_APP_ID='$RELEASE_GITHUB_CHECK_APP_ID' \
-    DEPLOY_GITHUB_ARTIFACT_NAME='$RELEASE_GITHUB_ACTIONS_ARTIFACT' \
-    DEPLOY_GITHUB_ARTIFACT_ID='$RELEASE_GITHUB_ACTIONS_ARTIFACT_ID' \
-    DEPLOY_GITHUB_ARTIFACT_DIGEST='$RELEASE_GITHUB_ACTIONS_ARTIFACT_DIGEST' \
-    DEPLOY_GITHUB_RELEASE_ID='$RELEASE_GITHUB_RELEASE_ID' \
-    DEPLOY_GITHUB_RELEASE_TAG='$RELEASE_GITHUB_RELEASE_TAG' \
+    DEPLOY_CNB_REPOSITORY='$RELEASE_CNB_REPOSITORY' \
+    DEPLOY_CNB_BRANCH='$RELEASE_CNB_BRANCH' \
+    DEPLOY_CNB_INJECTION_SHA='$RELEASE_CNB_INJECTION_SHA' \
     DEPLOY_RELEASE_ID='$release_id' \
     DEPLOY_RELEASE_DIR='$REMOTE_DIR/releases/$release_id' \
     REMOTE_WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' \
@@ -2110,19 +2093,10 @@ record = {
         'sha256': os.environ['DEPLOY_ARTIFACT_SHA'],
         'manifestSha256': os.environ['DEPLOY_MANIFEST_SHA'],
     },
-    'github': {
-        'repository': os.environ['DEPLOY_GITHUB_REPOSITORY'],
-        'branch': os.environ['DEPLOY_GITHUB_BRANCH'],
-        'event': os.environ['DEPLOY_GITHUB_EVENT'],
-        'runId': int(os.environ['DEPLOY_GITHUB_RUN_ID']),
-        'runAttempt': int(os.environ['DEPLOY_GITHUB_RUN_ATTEMPT']),
-        'requiredJobId': int(os.environ['DEPLOY_GITHUB_JOB_ID']),
-        'requiredCheckAppId': int(os.environ['DEPLOY_GITHUB_CHECK_APP_ID']),
-        'actionsArtifactName': os.environ['DEPLOY_GITHUB_ARTIFACT_NAME'],
-        'actionsArtifactId': int(os.environ['DEPLOY_GITHUB_ARTIFACT_ID']),
-        'actionsArtifactDigest': os.environ['DEPLOY_GITHUB_ARTIFACT_DIGEST'],
-        'releaseId': int(os.environ['DEPLOY_GITHUB_RELEASE_ID']),
-        'releaseTag': os.environ['DEPLOY_GITHUB_RELEASE_TAG'],
+    'cnb': {
+        'repository': os.environ['DEPLOY_CNB_REPOSITORY'],
+        'sourceBranch': os.environ['DEPLOY_CNB_BRANCH'],
+        'injectionSha': os.environ['DEPLOY_CNB_INJECTION_SHA'],
     },
     'deployment': {
         'releaseId': os.environ['DEPLOY_RELEASE_ID'],
@@ -2212,8 +2186,8 @@ require_local_cmd tar
 echo "==> ssh: $(command -v ssh)"
 echo "==> rsync: $(command -v rsync)"
 
-echo "==> 校验远端 CI 与 canonical source 证据..."
-resolve_release_evidence
+echo "==> 校验 CNB release metadata 与 canonical source..."
+resolve_release_metadata
 
 if [ "$RUN_LOCAL_CHECKS" = "1" ]; then
   run_local_checks
@@ -2240,6 +2214,7 @@ verify_release_order
 prepare_remote_runtime
 ensure_remote_library_runtime_deps
 ensure_remote_kimi_agent_runtime
+ensure_remote_onlyoffice_runtime
 sync_remote_library_source
 sync_remote_agent_source
 validate_remote_runtime
