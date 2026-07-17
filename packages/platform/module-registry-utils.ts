@@ -43,6 +43,7 @@ export function systemApiRoutes(): ApiRouteRegistration[] {
     { method: "GET", pathPrefix: "/api/integrations/wecom/agent/artifacts", access: "internal", notes: "HMAC-authenticated artifact stream for the WeCom worker; signed claims and Library permissions are rechecked." },
     { method: "POST", pathPrefix: "/api/integrations/wecom/agent/artifacts/cleanup", access: "internal", notes: "HMAC-authenticated maintenance call removes expired generated packages while retaining their audit rows." },
     { method: "GET", pathPrefix: "/api/integrations/wecom/download", access: "public", notes: "Short-lived user-bound artifact link; requires a matching Workspace or WeCom-authenticated session before download." },
+    { method: "GET", pathPrefix: "/api/integrations/onlyoffice/library-documents", access: "internal", notes: "Short-lived JWT binds DocumentServer reads to one immutable Library document version and checksum; no browser session is accepted." },
     { method: "GET", pathPrefix: "/api/auth/dev-login-bypass", access: "dev", notes: "Development-only bypass helper; unavailable as a production business capability." },
     { method: "GET", pathPrefix: "/api/settings/account/week-info", access: "public", notes: "Calendar week metadata endpoint; returns no user or business-resource data." },
   ];

@@ -33,11 +33,7 @@ type PreviewResult = {
   warnings: string[];
 };
 
-const PREVIEWABLE_EXTENSIONS = new Set([
-  "pdf", "png", "jpg", "jpeg", "tif", "tiff", "webp",
-  "doc", "docx", "xls", "xlsx", "ppt", "pptx", "odt", "ods", "odp",
-  "rtf", "csv", "tsv", "txt", "md", "html", "htm",
-]);
+const PREVIEWABLE_EXTENSIONS = new Set(["pdf"]);
 
 export function supportsLibraryPreview(extension: string | null | undefined) {
   return PREVIEWABLE_EXTENSIONS.has(extension?.toLowerCase() || "");

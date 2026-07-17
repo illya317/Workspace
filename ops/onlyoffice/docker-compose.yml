@@ -1,0 +1,16 @@
+services:
+  documentserver:
+    image: ${ONLYOFFICE_IMAGE:-onlyoffice/documentserver:9.4.0}
+    container_name: workspace-onlyoffice-documentserver
+    restart: unless-stopped
+    stop_grace_period: 5m
+    ports:
+      - "127.0.0.1:${ONLYOFFICE_PORT:-8082}:80"
+    environment:
+      JWT_ENABLED: "true"
+      JWT_SECRET: ${ONLYOFFICE_JWT_SECRET}
+      JWT_HEADER: AuthorizationJwt
+      JWT_IN_BODY: "true"
+      WOPI_ENABLED: "false"
+      EXAMPLE_ENABLED: "false"
+      GENERATE_FONTS: "true"

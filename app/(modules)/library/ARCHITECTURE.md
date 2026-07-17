@@ -15,7 +15,7 @@
 ```
 app/(modules)/library/
   page.tsx                    # 薄路由壳：鉴权并挂载 package UI
-  basic-info/documents/[id]/page.tsx # 独立资料阅读页薄壳：左侧信息，右侧 PDF 预览
+  basic-info/documents/[id]/page.tsx # 独立资料阅读页薄壳：左侧信息，右侧 PDF/Office 原生预览
   ARCHITECTURE.md             # 本文件
 
 packages/library/ui/
@@ -23,7 +23,7 @@ packages/library/ui/
   components/DocumentsTab.tsx # 资料筛选、目录选择、Toolbar 上传和资料表；行点击进入独立阅读页
   components/library-upload-modal.ts # 首版上传表单：文件、逻辑文件夹、标签和待复核元数据
   components/LibraryDocumentReader.tsx # 资料信息编辑与自适应文档预览分栏
-  hooks/useLibraryDocuments.ts         # 版本列表、所选版本 PDF 加载与对象 URL 生命周期
+  hooks/useLibraryDocuments.ts         # 版本列表、所选 PDF 对象 URL 生命周期与 Office 阅读器路由选择
   hooks/                      # useLibraryDocuments, useLibraryFilters, useLibraryDirectories
 
 app/api/modules/library/basic-info/
@@ -34,11 +34,15 @@ app/api/modules/library/basic-info/
   documents/[id]/delete/route.ts # POST configure 权限下永久删除资料与受管运行态文件
   documents/[id]/preview/route.ts # GET 当前不可变版本的已验证 PDF 预览产物
   documents/[id]/versions/[versionId]/preview/route.ts # GET 指定历史版本的已验证 PDF 预览产物
+  documents/[id]/versions/[versionId]/office-viewer/route.ts # GET 登录态、权限校验后的 ONLYOFFICE 只读宿主页
   documents/[id]/review/route.ts  # POST 人工确认待复核资料入库
   documents/[id]/versions/route.ts  # GET 版本列表 / POST multipart 上传新版本
   documents/[id]/versions/[versionId]/download/route.ts # GET 指定历史版本
   generated-sources/route.ts            # GET 已启用生成来源列表（Phase 6）
   generated-sources/[key]/generate/route.ts # POST 执行生成并入库（Phase 6）
+
+app/api/integrations/onlyoffice/
+  library-documents/[id]/versions/[versionId]/route.ts # GET 短时 JWT 绑定的原始 Office 版本文件流（无浏览器会话）
 
 packages/library/server/
   config.ts                   # 配置 + 路径安全 + readDirectory + buildTree（保留）
@@ -47,7 +51,8 @@ packages/library/server/
   classification.ts           # 目录和业务分类规范化
   permissions.ts              # 保密等级过滤 + 权限校验（Phase 2）
   versions.ts                 # 版本管理（Phase 2）
-  uploads.ts                  # 首版上传、Markdown/PDF 处理编排和 Review 确认
+  uploads.ts                  # 首版上传、原文件 Markdown 抽取、PDF-only 预览编排和 Review 确认
+  office-preview.ts           # ONLYOFFICE 配置签名、源文件短时授权和只读响应
   version-storage.ts          # 隐藏托管版本区的不可变文件写入和旧版本固化
   deletion.ts                 # 永久删除的引用保护、运行态文件暂存/恢复与 DB 删除
   generators/                 # 文档生成器（Phase 6）
@@ -94,6 +99,8 @@ Pilot 固定 30 个版本，金标问题目标 50-100 条。每个 approved case
 | `LIBRARY_ROOT` | 可写运行态根（绝对路径）；生产固定在 `WORKSPACE_CONFIG_DIR/library`，随运行态一起备份 | 无（不配置则不显示任何文件） |
 | `LIBRARY_LABEL` | 页面标题和面包屑根节点名称 | `资料库` |
 | `LIBRARY_UPLOAD_MAX_BYTES` | 单次版本上传最大字节数 | `104857600`（100 MiB） |
+| `ONLYOFFICE_JWT_SECRET` | 应用与 DocumentServer 共用的 ONLYOFFICE 配置签名密钥 | 无（Office 在线预览必填） |
+| `WORKSPACE_PUBLIC_ORIGIN` | DocumentServer 拉取签名源文件使用的站点 origin；生产必填，避免 Host/转发头影响签名文件去向 | 开发环境请求 origin |
 
 生产首次收敛旧资料库时，通过部署变量 `LIBRARY_SYNC_SOURCE=<本地权威资料目录>` 把源文件同步到 `LIBRARY_ROOT/originals`；扫描器只读该目录，逐版校验 size/hash、写入 `.versions` 并更新引用。源文件缺失、冲突或 active 版本不可读都会在 PM2 切换前终止发布。
 
@@ -180,7 +187,7 @@ Phase 6 自动生成接口配置表。每个来源定义：
 - `configure`：保密等级字段级配置，仍在资料详情弹窗内，不单独放全局设置按钮。
 - `archive`：资料状态只能通过 Library lifecycle command 归档或恢复；元数据 PATCH 不接受 `status`，不得只靠 `update` 修改生命周期。
 - `delete`：永久删除与归档分离，仅 `configure` 可执行；有评测证据引用时拒绝。删除前把 `.versions/<documentUid>`、`artifacts/<documentUid>` 和生成资料自有的 `generated/...` 文件暂存到运行态回收区，数据库失败则恢复，成功后清理；扫描源永不删除。
-- `import`：扫描入库、生成文档、首版上传、确认入库和上传资料新版本都属于资料入库。首版上传先选择文件夹并填写标签/待复核元数据，service 创建待确认的 `LibraryDocument + V1`，随后自动调用 Markdown 提取和 PDF 优化处理；用户进入独立资料页调整信息并显式“确认入库”。已有资料的新版本上传仍只允许作用于 `active` 资料。文件形状先由 API Zod 校验，再由 domain validator 校验，最后由 service 写文件和事务推进版本。
+- `import`：扫描入库、生成文档、首版上传、确认入库和上传资料新版本都属于资料入库。首版上传先选择文件夹并填写标签/待复核元数据，service 创建待确认的 `LibraryDocument + V1`，随后直接从不可变原文件提取 Markdown；只有 PDF 进入 PDF 优化处理，Office 文件不生成 PDF。用户进入独立资料页调整信息并显式“确认入库”。已有资料的新版本上传仍只允许作用于 `active` 资料。文件形状先由 API Zod 校验，再由 domain validator 校验，最后由 service 写文件和事务推进版本。
 - `export`：当前版本和指定历史版本下载都使用 `export`，并在 service 层重新校验资料状态和保密等级。
 
 ## 安全
@@ -237,16 +244,16 @@ Phase 6 自动生成接口配置表。每个来源定义：
 ## 未来扩展方向
 
 1. **远程适配器**：将 `readDirectory` / `readFile` 抽象为接口，实现 S3/OSS adapter
-2. **预览**：图片/PDF 内嵌预览而非直接下载
+2. **预览**：补充图片等非 Office、非 PDF 格式的受控内嵌预览
 3. **多根目录**：`getLibraryRoots()` 已支持逗号分隔的多路径，前端可加根目录切换
 4. **生成器扩展**：接入真实业务数据（如财务科目余额、项目信息）替代 mock 内容
 
 ## 当前检索、预览与资料包能力
 
 - `GET /api/modules/library/basic-info/search?query=...` 在召回前执行 `library.basicInfo:read` 和密级过滤；PostgreSQL 先在可见、active、具备当前版本的资料上根据 metadata/tag 与正文命中存在性做粗相关排序并统计真实匹配总数，再只 hydrate 前 100 个候选。自然问句通过 `Intl.Segmenter`、中文相邻单字/双字 fallback、停用词和完整 Latin/编号候选生成确定性 terms；每个版本只读取有限候选及最多 1800 字符的逐字 match window，按原问句、term、heading/section 相关性排序后取前三条 evidence，返回 locator、窗口位置以及不可变 `documentUid/versionUid` selection。禁止把无界 chunk 正文读入 Node 后再过滤权限或截断。
-- 独立资料阅读页左侧承载可折叠的资料信息和不可变版本选择，右侧通过 Core `DocumentSurface kind="viewer"` 按当前视口剩余空间自适应承载阅读器；工具栏提供返回列表和侧栏展开/收起，下载跟随所选版本。当前 PDF 使用受控对象 URL；未来 ONLYOFFICE 由 Library/Platform 适配页负责配置签名、源文件权限与保存回调，Core 不感知具体文档提供方。
+- 独立资料阅读页左侧承载可折叠的资料信息和不可变版本选择，右侧通过 Core `DocumentSurface kind="viewer"` 按当前视口剩余空间自适应承载阅读器；工具栏提供返回列表和侧栏展开/收起，下载跟随所选版本。PDF 使用受控对象 URL；DOC/DOCX、XLS/XLSX、PPT/PPTX 与对应 OpenDocument 格式进入 Library 自有的 ONLYOFFICE 只读适配页。适配页先按登录用户执行 read/密级校验，再签发 10 分钟、绑定 document/version/checksum 的源文件 JWT；DocumentServer 只能凭该 token 拉取校验匹配的原始版本。编辑、下载、复制和打印权限均关闭，Core 不感知具体提供方。
 - Workspace Agent 通过 Kimi SDK Wire 注册 `library.searchDocuments`，生成带证据回答；工具的完整 `data` 保留 resource-set presentation、打开/下载和 selection 资料包能力，另给模型提供最多 24000 字符的 lean `modelContext`。该投影只包含 query、候选/省略数量、正式资料身份、不可变版本、locator 和逐字 evidence window，并优先高相关证据；pending tag/metadata candidate 可参与召回，但不得进入模型上下文充当正式事实。不让模型决定权限或文件路径，也不依赖 runtime 对完整 UI data 的尾部硬截断。
 - `POST /api/modules/library/basic-info/exports` 接收最多 100 个不可变版本选择，按分类生成 UTF-8 ZIP、`manifest.json` 和 `SHA256SUMS`；下载时再次校验 requester、export 权限与密级。生成 ZIP 的实体只保留 30 分钟，过期后删除整个 `exports/<exportUid>` 目录、清空 job 的 `storagePath` 并保留 `LibraryExportJob` 审计行。
-- 首版上传会自动调用现有处理服务：所有受支持格式生成供检索/RAG 使用的 Markdown、locator-rich layout JSON 和正文 chunks；PDF 另外进入 `v2-compressed`，生成唯一的尺寸优化 `preview-pdf`。压缩候选通过 qpdf、页数、视觉 RMS 和至少 10% 节省后发布。原始不可变版本始终保留，不被 Markdown 或预览产物覆盖/删除。DOC/DOCX、XLS/XLSX、PPT/PPTX 等 Office 文件保留原格式，未来由 ONLYOFFICE 适配器查看。
+- 首版上传会自动调用现有处理服务：所有受支持格式直接从原文件生成供检索/RAG 使用的 Markdown、locator-rich layout JSON 和正文 chunks；只有 PDF 进入 `v2-compressed`，生成唯一的尺寸优化 `preview-pdf`。压缩候选通过 qpdf、页数、视觉 RMS 和至少 10% 节省后发布。原始不可变版本始终保留，不被 Markdown 或预览产物覆盖/删除。DOC/DOCX、XLS/XLSX、PPT/PPTX 等 Office 文件保留原格式并由 ONLYOFFICE 只读查看，禁止经过 LibreOffice 转成 PDF 作为预览。
 - 上传步骤中的标签由用户选择/填写并在最终 Review 中确认。模型自动打标仍必须写 `LibraryTagCandidate` 并经过 taxonomy 与人工批准；在真实 provider-backed classifier 接入前，不伪装成自动标签能力。
 - 当前 `.eddx` 没有开源转换器，记录为 `unsupported_type`，需使用亿图导出 PDF 后作为新版本入库。

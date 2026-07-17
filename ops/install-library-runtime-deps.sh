@@ -98,10 +98,6 @@ install_macos_packages() {
     echo "==> Installing Homebrew OCR/PDF formulae: ${missing[*]}"
     HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 NONINTERACTIVE=1 brew install "${missing[@]}"
   fi
-  if ! command -v soffice >/dev/null 2>&1 && [ ! -x /Applications/LibreOffice.app/Contents/MacOS/soffice ]; then
-    echo "==> Installing LibreOffice for legacy DOC/PPT conversion"
-    HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1 NONINTERACTIVE=1 brew install --cask libreoffice
-  fi
 }
 
 install_linux_packages() {
@@ -113,7 +109,7 @@ install_linux_packages() {
     python3 python3-venv python3-pip ccache
     tesseract-ocr tesseract-ocr-eng tesseract-ocr-chi-sim tesseract-ocr-chi-tra
     ocrmypdf qpdf ghostscript poppler-utils unpaper
-    libreoffice-nogui fonts-noto-cjk fonts-noto-core
+    fonts-noto-cjk fonts-noto-core
     libgl1 libgomp1 libsm6 libxext6 libxrender1
   )
   local missing=()
@@ -143,16 +139,6 @@ resolve_python() {
     command -v python3.12
   else
     command -v python3
-  fi
-}
-
-resolve_soffice() {
-  if command -v soffice >/dev/null 2>&1; then
-    command -v soffice
-  elif [ -x /Applications/LibreOffice.app/Contents/MacOS/soffice ]; then
-    printf '%s\n' /Applications/LibreOffice.app/Contents/MacOS/soffice
-  else
-    return 1
   fi
 }
 
@@ -193,14 +179,6 @@ check_runtime() {
       missing=1
     fi
   done
-
-  local soffice_path
-  if soffice_path="$(resolve_soffice)"; then
-    echo "soffice=$soffice_path"
-  else
-    echo "[error] missing command: soffice"
-    missing=1
-  fi
 
   if command -v tesseract >/dev/null 2>&1; then
     local languages

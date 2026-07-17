@@ -54,6 +54,7 @@ esac
 case "$HEALTHCHECK_URL" in
   *"'"*) echo "[错误] HEALTHCHECK_URL 不能包含单引号"; exit 1 ;;
 esac
+WORKSPACE_PUBLIC_ORIGIN_HINT="$(HEALTHCHECK_URL="$HEALTHCHECK_URL" node -e 'process.stdout.write(new URL(process.env.HEALTHCHECK_URL).origin)')"
 
 if [ -z "$REMOTE_WORKSPACE_CONFIG_DIR" ]; then
   REMOTE_WORKSPACE_CONFIG_DIR="$REMOTE_DIR/.workspace"
@@ -1054,8 +1055,8 @@ ensure_remote_onlyoffice_runtime() {
   ssh_cmd "
     set -e
     chmod +x '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
+    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh'
+    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
   "
 }
 
@@ -1109,6 +1110,7 @@ validate_remote_runtime() {
     grep -q '^LIBRARY_ROOT=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
       grep -q '^ONLYOFFICE_JWT_SECRET=.' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+      grep -Eq '^WORKSPACE_PUBLIC_ORIGIN=https?://[^[:space:]]+' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
     fi
     if grep -Eq '^(AGENT_MODEL_PROVIDER|KIMI_API_KEY|KIMI_BASE_URL|KIMI_MODEL|KIMI_MAX_TOKENS|DEEPSEEK_API_KEY|DEEPSEEK_BASE_URL|DEEPSEEK_MODEL)=' '$REMOTE_WORKSPACE_CONFIG_DIR/.env'; then
       echo '[错误] 服务器仍包含已废弃的自研 Agent provider 配置'
@@ -1116,7 +1118,7 @@ validate_remote_runtime() {
     fi
     WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/kimi-agent-bootstrap/install-kimi-agent-runtime.sh' --check
     if [ '$INSTALL_ONLYOFFICE_RUNTIME' = '1' ]; then
-      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/onlyoffice-bootstrap/install-onlyoffice-runtime.sh' --check
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$REMOTE_WORKSPACE_CONFIG_DIR/runtime/onlyoffice-bootstrap/install-onlyoffice-runtime.sh' --check
     fi
     test -d '$REMOTE_AGENT_SOURCE_DIR/.git'
     python3 - <<'PY'

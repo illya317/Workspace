@@ -3,6 +3,9 @@ export interface LibraryDocumentVersionItem {
   versionNo: number;
   versionLabel?: string | null;
   fileName?: string;
+  extension?: string | null;
+  mimeType?: string | null;
+  fileSizeBytes?: number | null;
   createdAt: string;
 }
 

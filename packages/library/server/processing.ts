@@ -89,7 +89,7 @@ export async function processLibraryVersion(input: { versionUid: string; pipelin
   const validated = buildProcessLibraryVersionCommand(input);
   if (!validated.ok) throw new Error(validated.issue.message);
   const command = validated.data;
-  const resolved = await resolveLibraryVersionProcessingInput(command.versionUid, { preferRuntimeContent: true });
+  const resolved = await resolveLibraryVersionProcessingInput(command.versionUid);
   const { version } = resolved;
   if (version.document.status === "archived") throw new Error("Archived Library documents are not processed");
   const runtimeRoot = getDefaultRoot();

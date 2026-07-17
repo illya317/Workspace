@@ -42,19 +42,12 @@ function pipelineResult(result: PromiseSettledResult<unknown>) {
 
 export async function runUploadedLibraryDocumentPipeline(versionUid: string, fileExtension: string | null) {
   const previewable = supportsLibraryPreview(fileExtension);
-  if (!previewable) {
-    return {
-      markdown: { status: "skipped" as const },
-      preview: { status: "skipped" as const },
-      compact: null,
-    };
-  }
-  const [preview] = await Promise.allSettled([previewLibraryVersion({ versionUid })]);
-  const [markdown] = preview.status === "fulfilled"
-    ? await Promise.allSettled([processLibraryVersion({ versionUid })])
-    : [{ status: "rejected" as const, reason: new Error("预览生成失败，未开始 Markdown 提取") }];
+  const [markdown, preview] = await Promise.allSettled([
+    processLibraryVersion({ versionUid }),
+    previewable ? previewLibraryVersion({ versionUid }) : Promise.resolve(null),
+  ]);
   let compact: Awaited<ReturnType<typeof promoteLibraryVersionToCompactRuntime>> | null = null;
-  if (markdown.status === "fulfilled" && preview.status === "fulfilled") {
+  if (previewable && markdown.status === "fulfilled" && preview.status === "fulfilled") {
     const version = await prisma.libraryDocumentVersion.findUnique({
       where: { versionUid },
       select: { id: true },
@@ -63,7 +56,7 @@ export async function runUploadedLibraryDocumentPipeline(versionUid: string, fil
   }
   return {
     markdown: pipelineResult(markdown),
-    preview: pipelineResult(preview),
+    preview: previewable ? pipelineResult(preview) : { status: "skipped" as const },
     compact,
   };
 }

@@ -69,31 +69,10 @@ def artifact(path: Path, kind: str, mime_type: str, page_count: int | None = Non
     }
 
 
-def to_pdf(input_path: Path, work_dir: Path) -> Path:
-    suffix = input_path.suffix.lower()
-    if suffix == ".pdf":
-        return input_path
-    if suffix in {".png", ".jpg", ".jpeg", ".tif", ".tiff", ".webp"}:
-        from PIL import Image
-
-        output = work_dir / "source-converted.pdf"
-        with Image.open(input_path) as image:
-            image.convert("RGB").save(output, "PDF", resolution=150.0)
-        return output
-    office_input = input_path
-    if suffix == ".md":
-        office_input = work_dir / f"{input_path.stem}.txt"
-        office_input.write_text(input_path.read_text(encoding="utf-8", errors="replace"), encoding="utf-8")
-        suffix = ".txt"
-    if suffix in {".doc", ".docx", ".xls", ".xlsx", ".ppt", ".pptx", ".odt", ".ods", ".odp", ".rtf", ".csv", ".tsv", ".txt", ".html", ".htm"}:
-        converted_dir = work_dir / "libreoffice"
-        converted_dir.mkdir()
-        run(["soffice", "--headless", "--convert-to", "pdf", "--outdir", str(converted_dir), str(office_input)])
-        candidates = list(converted_dir.glob("*.pdf"))
-        if len(candidates) != 1:
-            raise RuntimeError("LibreOffice did not produce exactly one PDF")
-        return candidates[0]
-    raise ValueError(f"preview unsupported for extension: {suffix or '(none)'}")
+def require_pdf(input_path: Path) -> Path:
+    if input_path.suffix.lower() != ".pdf":
+        raise ValueError(f"preview unsupported for extension: {input_path.suffix.lower() or '(none)'}")
+    return input_path
 
 
 def page_count(pdf_path: Path) -> int:
@@ -147,7 +126,7 @@ def main() -> None:
     output_dir.parent.mkdir(parents=True, exist_ok=True)
     temporary_dir = Path(tempfile.mkdtemp(prefix=f".{output_dir.name}-", dir=output_dir.parent))
     try:
-        source_pdf = to_pdf(input_path, temporary_dir)
+        source_pdf = require_pdf(input_path)
         preview_path = temporary_dir / "preview.pdf"
         linearize_warning = qpdf_linearize(source_pdf, preview_path)
         preview_warning = qpdf_check(preview_path) or linearize_warning
@@ -187,10 +166,6 @@ def main() -> None:
         elif candidate_path.exists():
             candidate_path.unlink(missing_ok=True)
             warnings.append("compression_not_retained")
-
-        if source_pdf != input_path and source_pdf != preview_path:
-            source_pdf.unlink(missing_ok=True)
-        shutil.rmtree(temporary_dir / "libreoffice", ignore_errors=True)
 
         artifacts = [artifact(preview_path, "preview-pdf", "application/pdf", pages)]
         if not args.skip_thumbnail:

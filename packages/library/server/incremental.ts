@@ -1,5 +1,7 @@
+import { prisma } from "@workspace/platform/server/prisma";
+
 import { buildRunLibraryIncrementalCommand } from "./domain/incremental-validation";
-import { previewLibraryVersion } from "./preview";
+import { previewLibraryVersion, supportsLibraryPreview } from "./preview";
 import { scanLibrary } from "./scan";
 
 export async function runLibraryIncremental(input: {
@@ -18,6 +20,14 @@ export async function runLibraryIncremental(input: {
   if (validated.data.preview) {
     for (const versionUid of scan.changedVersionUids.slice(0, validated.data.maxPreviews)) {
       try {
+        const version = await prisma.libraryDocumentVersion.findUnique({
+          where: { versionUid },
+          select: { extension: true },
+        });
+        if (!supportsLibraryPreview(version?.extension)) {
+          previews.push({ versionUid, status: "skipped" as const, reused: false });
+          continue;
+        }
         const result = await previewLibraryVersion({ versionUid });
         previews.push({ versionUid, status: result.status, reused: result.reused });
       } catch (error) {

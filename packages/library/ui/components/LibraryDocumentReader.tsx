@@ -20,6 +20,7 @@ import type {
   SurfaceToolbarActionGroupActionSpec,
   SurfaceToolbarItems,
 } from "@workspace/core/ui";
+import { isLibraryOfficeExtension } from "@workspace/library/constants";
 import type { LibraryDocumentItem } from "@workspace/library/types";
 
 import { archiveDocument, deleteDocumentPermanently, reviewDocument, updateDocument, uploadDocumentVersion, useDocumentDetail, useLibraryDocumentVersions, useLibraryPdfPreview } from "../hooks/useLibraryDocuments";
@@ -29,6 +30,11 @@ import {
   LIBRARY_DOCUMENT_STATUS_OPTIONS,
 } from "./library-document-options";
 import { createLibraryVersionUploadModal } from "./library-version-upload-modal";
+
+function fileExtension(fileName: string | undefined) {
+  const extension = fileName?.split(".").pop()?.toLowerCase();
+  return extension && extension !== fileName?.toLowerCase() ? extension : null;
+}
 
 interface Props {
   documentId: number;
@@ -88,7 +94,13 @@ export default function LibraryDocumentReader({
   const [selectedVersionId, setSelectedVersionId] = useState<number | null>(null);
   const selectedVersion = versions.find((version) => version.id === selectedVersionId) ?? versions[0];
   const activeVersionId = selectedVersion?.id ?? null;
-  const { previewUrl, loading: previewLoading, error: previewError } = useLibraryPdfPreview(documentId, activeVersionId);
+  const activeExtension = (selectedVersion?.extension || fileExtension(selectedVersion?.fileName) || doc?.extension || "").toLowerCase();
+  const isPdf = activeExtension === "pdf";
+  const isOffice = isLibraryOfficeExtension(activeExtension);
+  const { previewUrl, loading: previewLoading, error: previewError } = useLibraryPdfPreview(isPdf ? documentId : null, activeVersionId);
+  const officeViewerUrl = isOffice && activeVersionId
+    ? workspacePath(`/api/modules/library/basic-info/documents/${documentId}/versions/${activeVersionId}/office-viewer`)
+    : null;
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [archiving, setArchiving] = useState(false);
@@ -226,7 +238,7 @@ export default function LibraryDocumentReader({
       setVersionUploadOpen(false);
       setVersionFile(null);
       setVersionChangeNote("");
-      feedback.success(`${result.version.versionLabel || `V${result.version.versionNo}`} 已上传，正在处理预览`);
+      feedback.success(`${result.version.versionLabel || `V${result.version.versionNo}`} 已上传，正在处理资料内容`);
     } catch (error) {
       feedback.error(error instanceof Error ? error.message : "上传新版本失败");
     } finally {
@@ -388,17 +400,26 @@ export default function LibraryDocumentReader({
     ...(lifecycleActions.length > 0 ? [{ kind: "action-group" as const, key: "document-lifecycle", actions: lifecycleActions, joined: true }] : []),
   ];
 
-  const previewSection = previewLoading
-    ? createStatusSection("library-preview-loading", { kind: "loading", content: "正在加载 PDF 预览…" })
-    : previewUrl
-      ? createDocumentSection("library-pdf-preview", {
+  const previewSection = versionsLoading
+    ? createStatusSection("library-preview-loading", { kind: "loading", content: "正在加载文件版本…" })
+    : officeViewerUrl
+      ? createDocumentSection("library-office-preview", {
           kind: "viewer",
-          viewer: { src: previewUrl, title: `${doc?.title || doc?.fileName || "资料"} PDF 预览` },
+          viewer: { src: officeViewerUrl, title: `${doc?.title || doc?.fileName || "资料"} Office 只读预览` },
         })
-      : createStatusSection("library-preview-empty", {
-          kind: "empty",
-          content: previewError || "所选版本还没有生成 PDF 预览。",
-        });
+      : isPdf && previewLoading
+        ? createStatusSection("library-preview-loading", { kind: "loading", content: "正在加载 PDF 预览…" })
+        : isPdf && previewUrl
+          ? createDocumentSection("library-pdf-preview", {
+              kind: "viewer",
+              viewer: { src: previewUrl, title: `${doc?.title || doc?.fileName || "资料"} PDF 预览` },
+            })
+          : createStatusSection("library-preview-empty", {
+              kind: "empty",
+              content: isPdf
+                ? previewError || "所选版本还没有生成 PDF 预览。"
+                : "该文件格式暂不支持在线预览，请下载原文件查看。",
+            });
   const versionUploadModal = createLibraryVersionUploadModal({
     open: versionUploadOpen,
     saving: versionUploading,
