@@ -28,7 +28,6 @@ interface NonBusinessWriteRouteClassification {
 const workflowLifecycle = (reason: string): NonBusinessWriteRouteClassification => ({ kind: "workflow_request_lifecycle", reason });
 
 const EXPLICIT_NON_BUSINESS_WRITE_ROUTES = new Map<string, NonBusinessWriteRouteClassification>([
-  ["PUT /api/modules/agent/config/permission-grants", { kind: "permission_delegation", reason: "Manages Agent capability RBAC grants after per-resource authorization; it does not mutate Agent configuration or business records." }],
   ["PUT /api/modules/docs/editor/spaces/:spaceId/permissions", { kind: "permission_delegation", reason: "Manages scoped Docs grants, not document content." }],
   ["POST /api/modules/docs/editor/submissions", workflowLifecycle("Creates a Docs approval request; its selected BusinessAction owns the eventual mutation.")],
   ["PUT /api/modules/docs/editor/submissions/:id", workflowLifecycle("Revises a Docs approval request payload.")],
