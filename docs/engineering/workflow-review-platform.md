@@ -31,7 +31,7 @@
 
 首批注册覆盖 Work tasks、Docs editor templates、Production QC、HR roster，并给 Finance 关键校对/导入动作提供种子项。流程设置页只展示已适配的保存类入口；未适配或不适用的资源不在树里宣传为可选流程。
 
-检查脚本：`npx tsx scripts/check/check-business-action-registry.ts`。
+检查脚本：`node --import tsx scripts/check/check-business-action-registry.ts`。
 
 脚本已接入 domain gate 并强制未登记写 API 与 workflow readiness 缺口为零。真正不落库的 POST/DELETE 必须以 method + route 精确声明理由；permission management、submission/workflow event 和 internal cache 等系统路由继续按受控路径族排除。
 
@@ -67,7 +67,7 @@ readiness V1 只维护 warning/展示所需事实：
 - Finance statement review 的保存类动作是 `partial` / `ui_status_only`：有状态展示，但没有通用流程 adapter、直写 guard、批准后落库路径或通用流程台账。
 - 删除、归档、导出、发布确认、审批处理、系统维护类动作默认 `not_applicable`，不进入流程设置。
 
-检查脚本 `npx tsx scripts/check/check-business-action-registry.ts` 同时校验 route 覆盖和 readiness，任何 default-flow/opt-in readiness gap 都会阻断 domain gate。QC 原生复核通过 ActionContract 声明 `native_business_state` 证据；不得只改 readiness 常量绕过 contract。
+检查脚本 `node --import tsx scripts/check/check-business-action-registry.ts` 同时校验 route 覆盖和 readiness，任何 default-flow/opt-in readiness gap 都会阻断 domain gate。QC 原生复核通过 ActionContract 声明 `native_business_state` 证据；不得只改 readiness 常量绕过 contract。
 
 ## Workflow node tree
 

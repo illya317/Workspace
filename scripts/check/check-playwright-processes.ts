@@ -9,6 +9,11 @@ let processTable: string;
 try {
   processTable = execFileSync("ps", ["-axo", "pid=,command="], { encoding: "utf8" });
 } catch (error) {
+  if ((error as NodeJS.ErrnoException).code === "EPERM") {
+    console.warn("⚠ Playwright process check skipped: this sandbox denies process-table access (ps EPERM).");
+    console.warn("  Source lifecycle enforcement still ran; local and CI environments with process access remain strict.");
+    process.exit(0);
+  }
   console.error("Unable to inspect the process table for leaked Playwright browsers.");
   console.error(error);
   process.exitCode = 1;

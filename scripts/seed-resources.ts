@@ -1,6 +1,6 @@
 /**
  * 补全资源树。幂等运行。
- * 运行: npx tsx scripts/seed-resources.ts
+ * 运行: node --import tsx scripts/seed-resources.ts
  */
 import "dotenv/config";
 import { PrismaClient } from "../generated/prisma/client";

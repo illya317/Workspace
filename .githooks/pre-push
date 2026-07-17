@@ -1,6 +1,11 @@
 #!/bin/sh
 # Pre-push hook: run the local risk-selected CI subset before publishing.
 
+if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
+  repository_root="$(cd "$(dirname "$0")/.." && pwd)"
+  exec "$repository_root/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
+fi
+
 ci_tree="$(git rev-parse HEAD^{tree})"
 if ci_upstream="$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null)"; then
   ci_base="$(git merge-base HEAD "$ci_upstream")"

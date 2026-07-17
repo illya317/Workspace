@@ -12,7 +12,7 @@ const prisma = new PrismaClient({ adapter });
 // 通用配置：给别的公司用时改这里即可
 // ==========================================
 const CONFIG = {
-  // Excel 文件路径（也可通过命令行参数覆盖：npx tsx scripts/import-users.ts /path/to/file.xlsx）
+  // Excel 文件路径（也可通过命令行参数覆盖：node --import tsx scripts/import-users.ts /path/to/file.xlsx）
   excelPath: process.argv[2] || process.env.USER_IMPORT_EXCEL || path.join(process.cwd(), "prisma/seed-data/合并花名册.xlsx"),
 
   // 公司名统一规则：

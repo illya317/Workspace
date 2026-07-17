@@ -1,6 +1,6 @@
 /**
  * 全公司科目表 + 序时账导入 (2024-2025)
- * 用法: npx tsx scripts/import/import-all-accounts-vouchers.ts [--dry-run]
+ * 用法: node --import tsx scripts/import/import-all-accounts-vouchers.ts [--dry-run]
  */
 import "dotenv/config";
 import * as fs from "fs";

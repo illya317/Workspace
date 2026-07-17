@@ -37,7 +37,7 @@
 | Core UI PageSurface 迁移债 | `npm run arch:surface-page-adoption` | 检查业务侧是否还在用 PageSurface 顶层兼容 props；由 `check:hygiene:warn` 提示，清零后再收紧。 |
 | Core UI 可视化迁移债 | `npm run arch:surface-visualization-adoption` | 检查复杂可视化是否还把 React 组件塞进 VisualizationSurface；由 `check:hygiene:warn` 提示。 |
 | Playwright 生命周期 | `npm run playwright:lifecycle:check` | 阻断仓库内直接启动 Playwright Browser；手动 Browser 只能经过统一生命周期 helper。 |
-| Playwright 残留进程 | `npm run playwright:processes:check` | 检查本机是否残留 `playwright_*dev_profile` headless 进程；用于 agent/test 收尾。 |
+| Playwright 残留进程 | `npm run playwright:processes:check` | 检查本机是否残留 `playwright_*dev_profile` headless 进程；用于 agent/test 收尾。仅当受限沙箱明确以 `EPERM` 禁止读取进程表时提示并跳过，其他读取失败及本机/CI 真实残留仍阻断。 |
 | Action registry | `npm run action-registry:check` | 检查新动作注册表：重复 key、permission icon 唯一、implies 指向存在，旧权限 bundle 不再注册。 |
 | Business action registry | `npm run business-action-registry:check` | 强制业务写 API 登记为 BusinessAction，并阻断 workflow readiness 证据缺口、未知 readiness key 和未登记 write API candidate。只读 POST 等例外必须逐 route 声明理由。 |
 | Action contract 覆盖 | `npm run action-contract:check` | 强制每个 BusinessAction 具备唯一 `ActionContract`，校验 domain 符号可导出、API 引用存在真实 handler，并双向约束 BusinessAction route 与 Contract command/direct route；允许 direct override 的流程必须同时声明 active persistence 与 direct form mode。Contract 按 `write/lifecycle/governance/workflow/exchange` 声明；mutation/import 必须有 persistence，纯 export 明确声明输出且不得伪造 persistence。 |
@@ -130,7 +130,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 canonical build；E2E 是独立 job，只下载并启动同一个 standalone 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。`ops/publish.sh deploy` 要求干净的本地 `main` 和仓库要求的 Node 主版本；同一 tree 已有 `.git/workspace-local-full-ci.json` 凭证时直接复用，否则只运行一次 `npm run check:ci` 并生成凭证。CNB 只再做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署，不重复本地全量检查。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 仍要求干净的本地 `main`；同一 tree 已有 `.git/workspace-local-full-ci.json` 凭证时直接复用，否则只运行一次 `npm run check:ci` 并生成凭证。CNB 只再做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署，不重复本地全量检查。
 
 ### scalability contract 与真实容量
 

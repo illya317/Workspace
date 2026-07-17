@@ -19,7 +19,7 @@ function isDomainRelevant(file) {
 }
 
 function runDomainValidation(cwd, scriptPath) {
-  return spawnSync("npx", ["tsx", scriptPath], {
+  return spawnSync(process.execPath, ["--import", "tsx", scriptPath], {
     cwd,
     stdio: "inherit",
     env: process.env,

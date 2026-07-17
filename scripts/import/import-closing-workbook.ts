@@ -11,7 +11,7 @@ async function main() {
   const year = Number(option("year"));
   const month = Number(option("month"));
   if (!sourcePath || !companyCode || !Number.isInteger(year) || !Number.isInteger(month) || month < 1 || month > 12) {
-    throw new Error("用法: npx tsx scripts/import/import-closing-workbook.ts <workbook.xlsx> --company=<code> --year=<yyyy> --month=<1-12> [--execute]");
+    throw new Error("用法: node --import tsx scripts/import/import-closing-workbook.ts <workbook.xlsx> --company=<code> --year=<yyyy> --month=<1-12> [--execute]");
   }
   const buffer = await fs.readFile(path.resolve(sourcePath));
   const parsed = parseAssetWorkbook(buffer);

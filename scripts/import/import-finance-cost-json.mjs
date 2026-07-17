@@ -2,8 +2,8 @@
 /**
  * 导入 finance cost normalized JSON 到数据库
  * Usage:
- *   npx tsx scripts/import/import-finance-cost-json.mjs --dry-run
- *   npx tsx scripts/import/import-finance-cost-json.mjs
+ *   node --import tsx scripts/import/import-finance-cost-json.mjs --dry-run
+ *   node --import tsx scripts/import/import-finance-cost-json.mjs
  */
 
 import "dotenv/config";

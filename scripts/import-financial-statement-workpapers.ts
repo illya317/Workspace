@@ -2,8 +2,8 @@
  * Import statutory balance sheet, income statement, and cash flow workpapers.
  *
  * Usage:
- *   npx tsx scripts/import-financial-statement-workpapers.ts --source-dir=/path/to/files
- *   npx tsx scripts/import-financial-statement-workpapers.ts --source-dir=/path/to/files --execute
+ *   node --import tsx scripts/import-financial-statement-workpapers.ts --source-dir=/path/to/files
+ *   node --import tsx scripts/import-financial-statement-workpapers.ts --source-dir=/path/to/files --execute
  */
 import "dotenv/config";
 import { readdir } from "node:fs/promises";

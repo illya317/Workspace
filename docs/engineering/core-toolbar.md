@@ -165,6 +165,6 @@ rg 'toolbar=\{' packages app -g '*.tsx' -n
 rg 'toolbar\?: ReactNode' packages/core packages/*/ui -n
 rg 'content:\s*ReactNode|expandedRowContent|cell:\s*\(.*\).*ReactNode|renderItem|renderOption' packages/core/ui -n
 rg --files packages | rg '/ui/.*Toolbar\.tsx$'
-npx tsx scripts/arch/form-surface-actions.ts
+node --import tsx scripts/arch/form-surface-actions.ts
 npm run gate:ui
 ```

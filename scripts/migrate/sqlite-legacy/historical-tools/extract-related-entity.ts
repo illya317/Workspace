@@ -14,8 +14,8 @@
  * 幂等: 读取和写入均限制 relatedEntity IS NULL OR ''
  *
  * 运行:
- *   npx tsx scripts/extract-related-entity.ts --dry-run    # 预览
- *   npx tsx scripts/extract-related-entity.ts              # 实际写入
+ *   node --import tsx scripts/extract-related-entity.ts --dry-run    # 预览
+ *   node --import tsx scripts/extract-related-entity.ts              # 实际写入
  */
 
 import "dotenv/config";
@@ -196,7 +196,7 @@ async function main() {
 
   // 6. 写入
   if (DRY_RUN) {
-    console.log(`\n🔍 DRY-RUN 完成。执行写入: npx tsx scripts/extract-related-entity.ts`);
+    console.log(`\n🔍 DRY-RUN 完成。执行写入: node --import tsx scripts/extract-related-entity.ts`);
     return;
   }
 

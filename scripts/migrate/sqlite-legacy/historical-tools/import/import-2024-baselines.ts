@@ -1,7 +1,7 @@
 /**
  * 导入 2024 年度余额表作为所有公司的 active baseline snapshot。
  *
- * 用法: npx tsx scripts/import/import-2024-baselines.ts [--dry-run]
+ * 用法: node --import tsx scripts/import/import-2024-baselines.ts [--dry-run]
  */
 
 import "dotenv/config";

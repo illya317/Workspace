@@ -232,7 +232,7 @@ export async function executeListCostImportsCommand(command: { page?: number; pa
 }
 
 export function executeUnsupportedCostImportCommand() {
-  return serviceError("请使用导入脚本: npx tsx scripts/import/import-finance-cost-json.mjs", 400);
+  return serviceError("请使用导入脚本: node --import tsx scripts/import/import-finance-cost-json.mjs", 400);
 }
 
 export function buildListReclassResultsCommand(input: Parameters<typeof listReclassResults>[0]) {

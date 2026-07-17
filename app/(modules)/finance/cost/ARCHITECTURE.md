@@ -56,8 +56,8 @@
 ## 4. 导入脚本
 
 ```bash
-npx tsx scripts/import/import-finance-cost-json.mjs --dry-run
-npx tsx scripts/import/import-finance-cost-json.mjs
+node --import tsx scripts/import/import-finance-cost-json.mjs --dry-run
+node --import tsx scripts/import/import-finance-cost-json.mjs
 ```
 
 逻辑：

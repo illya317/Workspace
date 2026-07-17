@@ -166,7 +166,7 @@ NODE
 
 copy_resource_seed_files() {
   echo "==> 打包 RBAC resource manifest..."
-  npx tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
+  node --import tsx scripts/write-resource-manifest.ts .next/standalone/resource-defs.json
   cp scripts/seed-resources-runtime.mjs .next/standalone/seed-resources-runtime.mjs
   mkdir -p .next/standalone/scripts
   cp scripts/provision-agent-workforce.mjs .next/standalone/scripts/provision-agent-workforce.mjs

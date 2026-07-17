@@ -19,8 +19,13 @@ import {
 
 async function unusedPort() {
   const server = createServer();
-  server.listen(0, "127.0.0.1");
-  await once(server, "listening");
+  try {
+    server.listen(0, "127.0.0.1");
+    await once(server, "listening");
+  } catch (error) {
+    if (error?.code === "EPERM") return null;
+    throw error;
+  }
   const address = server.address();
   assert.ok(address && typeof address === "object");
   const port = address.port;
@@ -151,6 +156,10 @@ for (const signal of ["SIGINT", "SIGTERM"]) {
   }));
 
   const port = await unusedPort();
+  if (port === null) {
+    context.skip("sandbox denies localhost listeners (listen EPERM)");
+    return;
+  }
   const before = extractedRuntimeDirectories();
   const runner = spawn(process.execPath, [
     fileURLToPath(new URL("./e2e-standalone.mjs", import.meta.url)),

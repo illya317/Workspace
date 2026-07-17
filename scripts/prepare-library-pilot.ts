@@ -30,7 +30,7 @@ const indexDir = valueAfter("--index-dir")?.trim();
 const checkOnly = args.includes("--check");
 
 if (!indexDir) {
-  throw new Error("Usage: npx tsx scripts/prepare-library-pilot.ts --index-dir <资料库索引> [--check]");
+  throw new Error("Usage: node --import tsx scripts/prepare-library-pilot.ts --index-dir <资料库索引> [--check]");
 }
 
 const repoRoot = process.cwd();

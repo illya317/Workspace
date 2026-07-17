@@ -2,6 +2,10 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
+  exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
+fi
 OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 # shellcheck source=/dev/null
 source "$OPS_ENV_FILE"

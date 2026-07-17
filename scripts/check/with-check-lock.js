@@ -52,6 +52,12 @@ function commandFingerprint() {
   return [command, ...commandRest].join("\0");
 }
 
+function runsTypeScriptLoader() {
+  return command === "tsx" ||
+    (command === "npx" && commandRest[0] === "tsx") ||
+    (command === "node" && commandRest.includes("--import") && commandRest.includes("tsx"));
+}
+
 function checkCacheKind() {
   const joined = commandString();
   const scriptPath = commandRest[commandRest.length - 1] ?? "";
@@ -61,7 +67,7 @@ function checkCacheKind() {
   if (command === "npx" && commandRest[0] === "tsc") return "typecheck";
 
   if (
-    (command === "tsx" || command === "npx") &&
+    runsTypeScriptLoader() &&
     joined.includes("scripts/arch/") &&
     (
       joined.includes("gate.ts") ||
@@ -85,7 +91,7 @@ function checkCacheKind() {
   }
 
   if (
-    (command === "tsx" || command === "npx") &&
+    runsTypeScriptLoader() &&
     (
       joined.includes("scripts/check/check-action-registry.ts") ||
       joined.includes("scripts/check/check-business-action-registry.ts") ||

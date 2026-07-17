@@ -6,8 +6,8 @@
  * with importedAmount = source amount.
  *
  * Usage:
- *   npx tsx scripts/import-cash-flow-workpapers.ts          # dry-run
- *   npx tsx scripts/import-cash-flow-workpapers.ts --execute  # write to DB
+ *   node --import tsx scripts/import-cash-flow-workpapers.ts          # dry-run
+ *   node --import tsx scripts/import-cash-flow-workpapers.ts --execute  # write to DB
  */
 
 import "dotenv/config";

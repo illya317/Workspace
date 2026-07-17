@@ -100,11 +100,11 @@ npm run test:e2e:latency
 
 ## 从提交到发布
 
-1. pre-commit 继续只检查 staged/changed 范围；显式设置 `PRE_COMMIT_FULL=1` 会运行全量并为 staged tree 写入发布可复用凭证。
+1. pre-commit 继续只检查 staged/changed 范围；hook 会先按 `.node-version` 自动选择 Node，并把一般运行时临时目录固定到工作区 `.cache/runtime-tmp`。TypeScript 检查通过 `node --import tsx` 加载，不启动 `tsx` CLI IPC server。显式设置 `PRE_COMMIT_FULL=1` 会运行全量并为 staged tree 写入发布可复用凭证。
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 的 standalone artifact 只在同一 CI run 内交给 E2E，不发布 prerelease，也不参与部署。
-5. `publish.sh deploy` 要求本地在干净的 `main` 和仓库 Node 主版本上运行。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
+5. `publish.sh deploy` 要求本地在干净的 `main` 上运行；发布入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
 6. Git 跟踪的 `ops/cnb-release.yml` 是 CNB CD 配置真源；私有目录只保留逐字一致副本和 `.env`。`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 7. CNB 在 injection checkout 中安装依赖并构建 standalone。packager 绑定 parent source SHA/tree 和 BUILD_ID，生成 manifest/tgz；`deploy.sh` 在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
 8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准：candidate 必须是 bootstrap baseline 或已部署 source 的后代；同 source 是 no-op，回退或分叉直接阻断。

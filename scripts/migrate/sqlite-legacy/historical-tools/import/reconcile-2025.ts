@@ -1,6 +1,6 @@
 /**
  * 五家公司 2025 年度余额表核对
- * 用法: npx tsx scripts/import/reconcile-2025.ts
+ * 用法: node --import tsx scripts/import/reconcile-2025.ts
  */
 import "dotenv/config";
 import * as fs from "fs";

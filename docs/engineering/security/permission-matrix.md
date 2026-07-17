@@ -137,7 +137,7 @@ API 权限不再从 HTTP method 粗暴推旧动作。当前规则：
 
 ```bash
 npm run action-registry:check
-npx tsx scripts/check/check-permission-actions.ts
+node --import tsx scripts/check/check-permission-actions.ts
 npm run typecheck:quick
 ```
 
