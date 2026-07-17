@@ -105,11 +105,11 @@ npm run test:e2e:latency
 2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
 3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
 4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 的 standalone artifact 只在同一 CI run 内交给 E2E，不发布 prerelease，也不参与部署。
-5. 只有显式 `publish.sh deploy --full` 才进入正式 CNB 发布。它要求本地在干净的 `main` 上运行；入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
+5. 只有显式 `publish.sh deploy --full` 才进入正式 CNB 发布。它要求本地在干净的 `main` 上运行；入口会自动选择仓库 Node 主版本并使用工作区内的运行时临时目录。普通发布先只读生产 schema-v3 receipt 和恢复 marker，以 canonical source 检查 candidate lineage，并对 `last_deployed..candidate` 执行累计 migration policy；这些检查必须早于本地 full CI 和 CNB trigger。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
 6. Git 跟踪的 `ops/cnb-release.yml` 是 CNB CD 配置真源；私有目录只保留逐字一致副本和 `.env`。`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
 7. CNB 在 injection checkout 中安装依赖并构建 standalone。packager 绑定 parent source SHA/tree 和 BUILD_ID，生成 manifest/tgz；`deploy.sh` 在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
 8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准。没有活跃 hotfix 时，candidate 必须是 bootstrap baseline 或已部署 source 的后代，同 source 是 no-op，回退或分叉直接阻断。有活跃 hotfix 时，正式 CNB 以最后的 canonical source 排序，并始终真实覆盖 hotfix artifact。
-9. `publish.sh` 记录 CNB trigger SN、轮询 CNB 终态，并通过 SSH 等待服务器记录、health 与 `/workspace/api/settings/version` 精确等于目标 SHA。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
+9. `publish.sh` 记录 CNB trigger SN、轮询 CNB 终态，并通过 SSH 等待服务器记录、health 与 `/workspace/api/settings/version` 精确等于目标 SHA。正式部署计时从 CNB release trigger 前开始，到生产版本和健康检查确认后结束；成功时输出开始、结束和总秒数，本地 preflight/full CI 不计入服务器部署耗时。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
 
 生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
 

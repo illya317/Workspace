@@ -115,6 +115,34 @@ test("CNB deployment requires one exact-tree local full CI receipt", () => {
   }
 });
 
+test("CNB production preflight fails before full CI and release trigger", () => {
+  assert.match(publishCnb, /production-deploy-preflight\.mjs/);
+  assert.match(publishCnb, /maintenance-deploy/);
+  assert.match(publishCnb, /production-bootstrap-in-progress\.json/);
+  assert.ok(
+    publishCnb.indexOf("production-deploy-preflight.mjs")
+      < publishCnb.indexOf("local-full-ci-receipt.mjs verify"),
+  );
+  assert.ok(
+    publishCnb.indexOf("production-deploy-preflight.mjs")
+      < publishCnb.indexOf('release_args=(--metadata "$METADATA_FILE"'),
+  );
+});
+
+test("CNB reports formal deployment timing from trigger through production verification", () => {
+  assert.match(publishCnb, /正式部署计时开始/);
+  assert.match(publishCnb, /正式部署计时结束/);
+  assert.match(publishCnb, /正式部署总耗时/);
+  assert.ok(
+    publishCnb.indexOf("FORMAL_DEPLOY_STARTED_EPOCH")
+      < publishCnb.indexOf('release-to-cnb.sh" "${release_args[@]}"'),
+  );
+  assert.ok(
+    publishCnb.indexOf("CNB-native 生产部署完成")
+      < publishCnb.indexOf("正式部署总耗时"),
+  );
+});
+
 test("CNB Linux build has non-production Prisma generation inputs", () => {
   const buildStage = cnbRelease.slice(
     cnbRelease.indexOf("- name: build-standalone"),
