@@ -8,14 +8,12 @@ import {
   OPTIONAL_ROUTINE_RECURRENCE_TYPE_OPTIONS,
   ROUTINE_MONTH_OPTIONS,
   ROUTINE_WEEKDAY_OPTIONS,
-  STANDING_RESPONSIBILITY_STATUS_OPTIONS,
   WORK_ITEM_TYPE_OPTIONS,
-  WORK_STATUS_OPTIONS,
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import type { RoutineRecurrenceType, WorkItem, WorkItemDraft, WorkItemType, WorkTarget } from "./types";
+import { workItemStatusOptions } from "./work-completion-options";
 import { useWorkResponsibilityFields } from "./work-responsibility-fields";
-
 export function WorkTaskForm({
   draft,
   works,
@@ -79,7 +77,7 @@ export function useWorkTaskFormSurface({
   const showResponsibilityFields = isStandingResponsibility;
   const showScheduleFields = isObjective || (isTask && !isStandingResponsibility);
   const responsibilityIsRequired = isStandingResponsibility;
-  const statusOptions = isStandingResponsibility ? STANDING_RESPONSIBILITY_STATUS_OPTIONS : WORK_STATUS_OPTIONS;
+  const statusOptions = workItemStatusOptions({ draft, works, excludedWorkId, isStandingResponsibility });
   const itemTypeOptions = useMemo(
     () => WORK_ITEM_TYPE_OPTIONS.filter((option) => !allowedItemTypes || allowedItemTypes.includes(option.value)),
     [allowedItemTypes],

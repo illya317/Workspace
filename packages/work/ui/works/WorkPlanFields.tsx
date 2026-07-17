@@ -1,37 +1,41 @@
 "use client";
 
-import { type ReactNode, useCallback } from "react";
+import { type ReactNode, useCallback, useMemo } from "react";
 import { createFormSection, createPageBody, type FormSurfaceFieldSpec, type FormSurfaceItemSpec, type FormSurfaceProps, BodySurface } from "@workspace/core/ui";
 import { actualEndDateForStatus, canEditActualEndDate, todayDateString } from "@workspace/platform/completion-date-policy";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./api";
 import { OKR_PLAN_PERIOD_TYPE_OPTIONS } from "./model";
-import type { WorkPlanAlignmentSourceType, WorkPlanDraft, WorkTarget } from "./types";
+import type { WorkItem, WorkPlanAlignmentSourceType, WorkPlanDraft, WorkTarget } from "./types";
 
 export function WorkPlanForm({
   draft,
+  works = [],
   disabled,
   autoFocusTitle = true,
   target,
   onChange,
 }: {
   draft: WorkPlanDraft;
+  works?: WorkItem[];
   disabled: boolean;
   autoFocusTitle?: boolean;
   target?: WorkTarget | null;
   onChange: (draft: WorkPlanDraft) => void;
 }) {
-  const surface = useWorkPlanFormSurface({ draft, disabled, autoFocusTitle, target, onChange });
+  const surface = useWorkPlanFormSurface({ draft, works, disabled, autoFocusTitle, target, onChange });
   return <BodySurface {...createPageBody([createFormSection("work-plan-form", surface)])} />;
 }
 
 export function useWorkPlanFormSurface({
   draft,
+  works = [],
   disabled,
   autoFocusTitle = false,
   target,
   onChange,
 }: {
   draft: WorkPlanDraft;
+  works?: WorkItem[];
   disabled: boolean;
   autoFocusTitle?: boolean;
   target?: WorkTarget | null;
@@ -48,6 +52,21 @@ export function useWorkPlanFormSurface({
   const collaborationField = workPlanCollaborationField({ draft, disabled, target, patch });
   const titleLocked = disabled || isRoutinePlan || (isOkrPlan && draft.isSystemGenerated);
   const systemGeneratedPlanLocked = disabled || (isOkrPlan && draft.isSystemGenerated);
+  const completionBlockers = useMemo(
+    () => draft.status === "done" ? [] : works.filter((work) => !work.isArchived && work.status !== "done"),
+    [draft.status, works],
+  );
+  const planStatusOptions = useMemo(() => [
+    { value: "active", label: "进行中" },
+    {
+      value: "done",
+      label: "已完成",
+      disabled: completionBlockers.length > 0,
+      description: completionBlockers.length > 0
+        ? `${completionBlockers.slice(0, 3).map((work) => `${workItemTypeLabel(work.itemType)}「${work.content}」`).join("、")}尚未完成`
+        : undefined,
+    },
+  ], [completionBlockers]);
   const titleValue = isOkrPlan
     ? draft.isSystemGenerated ? standardOkrPlanTitleFromDraft(draft) || draft.title : draft.title
     : draft.title || (isRoutinePlan ? "日常工作" : "");
@@ -62,7 +81,7 @@ export function useWorkPlanFormSurface({
       ...fixedCycleFields,
       { key: "plannedStartDate", label: "计划开始", required: true, spec: { valueType: "date", control: "temporal", precision: "date", state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.plannedStartDate, placeholder: "请选择", onChange: (value: unknown) => patch({ plannedStartDate: normalizeDateValue(value) }) },
       { key: "plannedEndDate", label: "计划结束", required: true, spec: { valueType: "date", control: "temporal", precision: "date", state: systemGeneratedPlanLocked ? "disabled" : "normal" }, value: draft.plannedEndDate, placeholder: "请选择", onChange: (value: unknown) => patch({ plannedEndDate: normalizeDateValue(value) }) },
-      { key: "status", label: "状态", spec: { valueType: "string", control: "choice", options: { source: "static", items: [{ value: "active", label: "进行中" }, { value: "done", label: "已完成" }] }, state: disabled ? "disabled" : "normal" }, value: draft.status, onChange: (value: unknown) => {
+      { key: "status", label: "状态", spec: { valueType: "string", control: "choice", options: { source: "static", items: planStatusOptions }, state: disabled ? "disabled" : "normal" }, value: draft.status, onChange: (value: unknown) => {
         const status = value === "done" ? "done" : "active";
         patch({ status, actualEndDate: actualEndDateForStatus(status, draft.actualEndDate) });
       } },
@@ -175,6 +194,12 @@ function standardOkrPlanTitleFromDraft(draft: Pick<WorkPlanDraft, "title" | "okr
     name: draft.okrCycleLabel,
     startDate: draft.actualStartDate || "",
   });
+}
+
+function workItemTypeLabel(itemType: WorkItem["itemType"]) {
+  if (itemType === "objective") return "目标";
+  if (itemType === "key_result") return "KR";
+  return "任务";
 }
 
 function standardOkrPlanTitleFromCycle(cycle: { periodType: string | null | undefined; name: string; startDate: string }) {

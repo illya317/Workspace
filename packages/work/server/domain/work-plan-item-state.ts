@@ -15,6 +15,19 @@ export function shouldRecalculateOkrPlanCompletion(
 
 type WorkPlanItemStateStore = Pick<Prisma.TransactionClient, "workItem" | "workPlan">;
 
+export type WorkCompletionBlocker = {
+  id: number;
+  itemType: string;
+  content: string;
+};
+
+export class WorkCompletionBlockedError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "WorkCompletionBlockedError";
+  }
+}
+
 export async function listWorkPlanItemStatusCounts(
   store: Pick<WorkPlanItemStateStore, "workItem">,
   planIds: number[],
@@ -37,31 +50,60 @@ export async function listWorkPlanItemStatusCounts(
   return result;
 }
 
-export async function applyWorkPlanItemLifecycle(
+export async function archiveWorkPlanItems(
   store: Pick<WorkPlanItemStateStore, "workItem">,
   planId: number,
-  lifecycle: "done" | "archived",
-  now = new Date(),
 ) {
-  if (lifecycle === "archived") {
-    return store.workItem.updateMany({
-      where: { planId, isArchived: false },
-      data: { isArchived: true },
-    });
-  }
   return store.workItem.updateMany({
+    where: { planId, isArchived: false },
+    data: { isArchived: true },
+  });
+}
+
+export async function assertWorkItemCanComplete(
+  store: Pick<WorkPlanItemStateStore, "workItem">,
+  workItemId: number,
+) {
+  const blockers = await store.workItem.findMany({
+    where: {
+      isArchived: false,
+      OR: [{ status: null }, { status: { not: "done" } }],
+      AND: [{
+        OR: [
+          { parentWorkItemId: workItemId },
+          { taskEvidenceForKrs: { some: { krWorkItemId: workItemId } } },
+        ],
+      }],
+    },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    select: { id: true, itemType: true, content: true },
+  });
+  if (blockers.length > 0) {
+    throw new WorkCompletionBlockedError(completionBlockedMessage("当前工作项", blockers));
+  }
+}
+
+export async function assertWorkPlanCanComplete(
+  store: Pick<WorkPlanItemStateStore, "workItem">,
+  planId: number,
+) {
+  const blockers = await store.workItem.findMany({
     where: {
       planId,
+      isArchived: false,
       OR: [{ status: null }, { status: { not: "done" } }],
     },
-    data: { status: "done", completedAt: now },
+    orderBy: [{ sortOrder: "asc" }, { id: "asc" }],
+    select: { id: true, itemType: true, content: true },
   });
+  if (blockers.length > 0) {
+    throw new WorkCompletionBlockedError(completionBlockedMessage("计划", blockers));
+  }
 }
 
 export async function closeOkrPlanIfAllItemsComplete(
   store: WorkPlanItemStateStore,
   planId: number,
-  now = new Date(),
 ) {
   const plan = await store.workPlan.findUnique({
     where: { id: planId },
@@ -81,12 +123,29 @@ export async function closeOkrPlanIfAllItemsComplete(
   ]);
   if (totalItems === 0 || incompleteItems > 0) return false;
 
-  await applyWorkPlanItemLifecycle(store, planId, "done", now);
   await store.workPlan.update({
     where: { id: planId },
     data: { status: "done", okrStage: "closed" },
   });
   return true;
+}
+
+function completionBlockedMessage(subject: string, blockers: WorkCompletionBlocker[]) {
+  const visible = blockers.slice(0, 5).map((blocker) => `${workItemTypeLabel(blocker.itemType)}「${truncateContent(blocker.content)}」`);
+  const remainder = blockers.length - visible.length;
+  const blockerText = remainder > 0 ? `${visible.join("、")}等 ${blockers.length} 项` : visible.join("、");
+  return `还有 ${blockers.length} 个下级节点尚未完成：${blockerText}；请先完成后再完成${subject}`;
+}
+
+function workItemTypeLabel(itemType: string) {
+  if (itemType === "objective") return "目标";
+  if (itemType === "key_result") return "KR";
+  return "任务";
+}
+
+function truncateContent(content: string) {
+  const normalized = content.trim() || "未命名";
+  return normalized.length > 24 ? `${normalized.slice(0, 24)}…` : normalized;
 }
 
 function itemStatusCategory(input: { status: string | null; isArchived: boolean }): keyof WorkPlanItemStatusCounts {

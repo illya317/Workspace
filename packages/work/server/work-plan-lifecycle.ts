@@ -1,7 +1,7 @@
 import { guardedDelete } from "@workspace/platform/server/delete-guard";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
-import { applyWorkPlanItemLifecycle } from "./domain/work-plan-item-state";
+import { archiveWorkPlanItems } from "./domain/work-plan-item-state";
 import { validateWorkPlanCommand } from "./domain/work-plan-validation";
 
 function positiveId(value: unknown) {
@@ -26,7 +26,7 @@ export async function archiveWorkPlan(planId: number, actorUserId: number): Prom
     actionLabel: "归档工作计划", deleteMode: "archive",
     archiveField: { field: "isArchived", value: true }, referencePolicy: "retained",
     onBeforeDelete: async (_id, { tx }) => {
-      await applyWorkPlanItemLifecycle(tx, id, "archived");
+      await archiveWorkPlanItems(tx, id);
       return { ok: true };
     },
   });

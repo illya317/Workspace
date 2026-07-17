@@ -82,7 +82,8 @@ export async function listReportWorkItems(
 
   const reportingPeriod = isLightReportPeriod(options.periodType) ? nextLightReportPeriod(period, options.periodType) : null;
   const selectionPeriod = reportingPeriod ? { startDate: period.startDate, endDate: reportingPeriod.endDate } : period;
-  const activePlans = plans.filter((plan) => plan.kind === "routine" || planOverlapsReportPeriod(plan, selectionPeriod));
+  const includeAllTaskPlans = Boolean(reportingPeriod && stage !== "kr");
+  const activePlans = plans.filter((plan) => plan.kind === "routine" || includeAllTaskPlans || planOverlapsReportPeriod(plan, selectionPeriod));
   const ownItems = activePlans.flatMap((plan) => plan.kind === "routine"
     ? stage === "kr" ? [] : reportRoutineItems(plan, period, reportingPeriod)
     : reportOkrItems(plan, period, stage, options.periodType, reportingPeriod));
@@ -177,7 +178,7 @@ function reportOkrItems(
   if (isLightReportPeriod(periodType) && stage !== "kr" && nextPeriod) {
     return tasks
       .sort(sortReportPlanItem)
-      .flatMap((item) => lightReportTaskKinds(item, period, nextPeriod)
+      .flatMap((item) => lightReportTaskKinds(item, period)
         .map((kind) => taskReportItem(plan, item, period, itemsById, kind)));
   }
   return objectives
@@ -283,11 +284,11 @@ async function listAssignedDepartmentReportItems(
   });
   return rows
     .filter((item) => item.plan)
-    .filter((item) => planOverlapsReportPeriod(item.plan!, selectionPeriod))
+    .filter((item) => Boolean(reportingPeriod) || planOverlapsReportPeriod(item.plan!, selectionPeriod))
     .flatMap((item) => {
       const plan = { id: item.plan!.id, kind: item.plan!.kind, title: item.plan!.title, sortOrder: item.plan!.sortOrder };
       if (reportingPeriod) {
-        return lightReportTaskKinds(item, period, reportingPeriod)
+        return lightReportTaskKinds(item, period)
           .map((kind) => taskReportItem(plan, item, period, new Map(), kind));
       }
       return item.itemType === "key_result" || taskHasStarted(item.actualStartDate, period.endDate)
@@ -486,20 +487,11 @@ function nextLightReportPeriod(period: { startDate: Date; endDate: Date }, perio
 }
 
 export function lightReportTaskKinds(
-  item: Pick<ReportPlanItem, "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate">,
+  item: Pick<ReportPlanItem, "status" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate">,
   period: { startDate: Date; endDate: Date },
-  nextPeriod: { startDate: Date; endDate: Date },
 ): Array<"current" | "next"> {
-  if (item.actualStartDate) {
-    if (item.actualEndDate && item.actualEndDate < period.startDate) return [];
-    if (item.actualStartDate >= nextPeriod.startDate) return ["next"];
-    return !item.actualEndDate || item.actualEndDate < nextPeriod.startDate ? ["current"] : ["next"];
-  }
-  const kinds: Array<"current" | "next"> = [];
-  if (dateInRange(item.plannedEndDate, period.startDate, period.endDate)
-    || dateInRange(item.actualEndDate, period.startDate, period.endDate)) kinds.push("current");
-  if (!item.actualEndDate && dateInRange(item.plannedStartDate, nextPeriod.startDate, nextPeriod.endDate)) kinds.push("next");
-  return kinds;
+  if (item.status !== "done") return ["next"];
+  return dateInRange(item.actualEndDate, period.startDate, period.endDate) ? ["current"] : [];
 }
 
 function routineReportingTaskKinds(
@@ -507,7 +499,7 @@ function routineReportingTaskKinds(
   period: { startDate: Date; endDate: Date },
   nextPeriod: { startDate: Date; endDate: Date },
 ) {
-  const kinds = lightReportTaskKinds(item, period, nextPeriod);
+  const kinds = lightReportTaskKinds(item, period);
   if (item.actualStartDate || !item.routineRecurrenceType) return kinds;
   if (routineTaskVisibleInPeriod(item, period) && !kinds.includes("current")) kinds.push("current");
   if (item.status !== "done" && routineTaskVisibleInPeriod(item, nextPeriod) && !kinds.includes("next")) kinds.push("next");

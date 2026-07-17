@@ -25,10 +25,7 @@ import {
 import { validateWorkItemPeriodRelations } from "./work-period-relations";
 import { archiveWorkItem, restoreArchivedWorkItem, workItemHierarchyReferences } from "./work-item-archive";
 import { assertWorkItemMutationCommitAllowed, type WorkItemMutationAuthorization } from "./work-item-mutation-guard";
-import {
-  closeOkrPlanIfAllItemsComplete,
-  shouldRecalculateOkrPlanCompletion,
-} from "./domain/work-plan-item-state";
+import { assertWorkItemCanComplete, closeOkrPlanIfAllItemsComplete, shouldRecalculateOkrPlanCompletion, WorkCompletionBlockedError } from "./domain/work-plan-item-state";
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
@@ -475,6 +472,8 @@ export async function updateWorkItem(
     };
   }
   try {
+    const nextStatus = command.data.data.status === undefined ? existing.status : command.data.data.status;
+    const completingWorkItem = shouldRecalculateOkrPlanCompletion(existing.status, nextStatus);
     const work = await prisma.$transaction(async (tx) => {
       await tx.workItem.update({
         where: { id: command.data.workId },
@@ -487,6 +486,7 @@ export async function updateWorkItem(
         evidenceTaskIds,
       });
       if (evidenceError) throw new WorkKrEvidenceValidationError(evidenceError);
+      if (completingWorkItem) await assertWorkItemCanComplete(tx, command.data.workId);
       if (responsibilityTouched) {
         await replaceWorkResponsibilityReference(tx, {
           targetKind: "work_item",
@@ -503,13 +503,11 @@ export async function updateWorkItem(
         include: workItemInclude,
       });
     });
-    const nextStatus = command.data.data.status === undefined ? existing.status : command.data.data.status;
-    if (shouldRecalculateOkrPlanCompletion(existing.status, nextStatus)) {
-      await closeOkrPlanIfComplete(effective.planId);
-    }
+    if (completingWorkItem) await closeOkrPlanIfComplete(effective.planId);
     return { ok: true, data: toWorkItemDto(work) };
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
+    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
     throw error;
   }
 }

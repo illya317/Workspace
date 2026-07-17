@@ -21,8 +21,9 @@ import { validateWorkOwnerAssignment } from "./work-owner-eligibility";
 import { validateWorkCollaborationReference } from "./work-collaboration-references";
 import { toWorkPlanDto, workPlanInclude, type WorkPlanRow } from "./work-plan-dto";
 import {
-  applyWorkPlanItemLifecycle,
+  assertWorkPlanCanComplete,
   listWorkPlanItemStatusCounts,
+  WorkCompletionBlockedError,
 } from "./domain/work-plan-item-state";
 import { validateWorkPlanReopenTransition } from "./domain/work-plan-maintenance-policy";
 import type { WorkPlanCommandInput } from "./domain/work-plan-command-input";
@@ -374,16 +375,22 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
   const updateData = reopeningCompletedPlan && existing.kind === "okr" ? { ...command.data, okrStage: "executing" } : command.data;
-  const enforceCompletedPlan = existing.kind === "okr" && command.data.status === "done";
-  const row = await prisma.$transaction(async (tx) => {
-    await tx.workPlan.update({
-      where: { id },
-      data: updateData,
+  const completingPlan = existing.kind === "okr" && existing.status !== "done" && command.data.status === "done";
+  let row: WorkPlanRow;
+  try {
+    row = await prisma.$transaction(async (tx) => {
+      if (completingPlan) await assertWorkPlanCanComplete(tx, id);
+      await tx.workPlan.update({
+        where: { id },
+        data: updateData,
+      });
+      await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
+      return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
     });
-    if (enforceCompletedPlan) await applyWorkPlanItemLifecycle(tx, id, "done");
-    await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
-    return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
-  });
+  } catch (error) {
+    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
+    throw error;
+  }
   const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, [id]);
   return { ok: true, data: toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(id) }) };
 }

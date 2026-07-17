@@ -57,6 +57,7 @@ export function useWorkOkrPlanSurface({
   const readonly = editability === "readonly";
   const planFormSurface = useWorkPlanFormSurface({
     draft: planDraft,
+    works,
     disabled: readonly || formDisabled,
     autoFocusTitle: autoFocusPlanTitle,
     target,

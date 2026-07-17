@@ -4,6 +4,7 @@ import { isBoundWorkOkrTimeControlEnabled } from "./domain/work-okr-bound-contro
 import { validateWorkOkrStageCommand } from "./domain/work-okr-stage-validation";
 import { canMaintainWorkItem, resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
 import { resolveWorkOkrKrReviewOpensAt } from "./work-okr-control";
+import { assertWorkPlanCanComplete, WorkCompletionBlockedError } from "./domain/work-plan-item-state";
 
 export const WORK_OKR_STAGES = [
   "objective_draft",
@@ -241,16 +242,24 @@ export async function approveKrReview(planId: number, actorUserId: number, appro
   if (!plan) return { ok: false, error: "OKR 计划不存在", status: 404 };
   if (plan.okrStage !== "kr_submitted") return { ok: false, error: "只有 KR 待核查阶段可以通过核查", status: 409 };
   const snapshotJson = serializeApprovalSnapshot(approvalSnapshot);
-  await prisma.workPlan.update({
-    where: { id: planId },
-    data: {
-      okrStage: "closed",
-      status: "done",
-      krApprovedAt: new Date(),
-      krApprovedByUserId: actorUserId,
-      ...(snapshotJson === undefined ? {} : { krApprovalSnapshotJson: snapshotJson }),
-    },
-  });
+  try {
+    await prisma.$transaction(async (tx) => {
+      await assertWorkPlanCanComplete(tx, planId);
+      await tx.workPlan.update({
+        where: { id: planId },
+        data: {
+          okrStage: "closed",
+          status: "done",
+          krApprovedAt: new Date(),
+          krApprovedByUserId: actorUserId,
+          ...(snapshotJson === undefined ? {} : { krApprovalSnapshotJson: snapshotJson }),
+        },
+      });
+    });
+  } catch (error) {
+    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
+    throw error;
+  }
   return { ok: true, data: { okrStage: "closed" } };
 }
 
