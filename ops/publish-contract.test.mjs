@@ -6,6 +6,7 @@ const publish = readFileSync(new URL("./publish.sh", import.meta.url), "utf8");
 const publishCnb = readFileSync(new URL("./publish-cnb.sh", import.meta.url), "utf8");
 const releaseToCnb = readFileSync(new URL("./release-to-cnb.sh", import.meta.url), "utf8");
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
+const cnbRelease = readFileSync(new URL("./cnb-release.yml", import.meta.url), "utf8");
 
 test("shell variables next to non-ASCII punctuation use explicit braces", () => {
   for (const [name, source] of Object.entries({ publish, publishCnb, releaseToCnb, deploy })) {
@@ -45,4 +46,15 @@ test("CNB deployment requires one exact-tree local full CI receipt", () => {
     assert.match(source, /metadata\.localFullCi\?\.treeSha !== tree/);
     assert.match(source, /metadata\.localFullCi\?\.command !== 'npm run check:ci'/);
   }
+});
+
+test("CNB Linux build has non-production Prisma generation inputs", () => {
+  const buildStage = cnbRelease.slice(
+    cnbRelease.indexOf("- name: build-standalone"),
+    cnbRelease.indexOf("- name: deploy-to-server"),
+  );
+  assert.match(buildStage, /NEXTAUTH_SECRET: cnb-build-only-secret-2026/);
+  assert.match(buildStage, /DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+  assert.match(buildStage, /DIRECT_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci/);
+  assert.match(buildStage, /SHADOW_DATABASE_URL: postgresql:\/\/workspace:workspace@127\.0\.0\.1:5432\/workspace_ci_shadow/);
 });

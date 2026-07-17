@@ -17,6 +17,12 @@ cnb-release:
             apt-get update
             DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends openssh-client rsync ca-certificates git tar python3 make g++
         - name: build-standalone
+          env:
+            CI: "true"
+            NEXTAUTH_SECRET: cnb-build-only-secret-2026
+            DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+            DIRECT_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci
+            SHADOW_DATABASE_URL: postgresql://workspace:workspace@127.0.0.1:5432/workspace_ci_shadow
           script: |
             export RELEASE_SOURCE_SHA="$(git rev-parse HEAD^)"
             export RELEASE_SOURCE_TREE="$(git rev-parse "${RELEASE_SOURCE_SHA}^{tree}")"
