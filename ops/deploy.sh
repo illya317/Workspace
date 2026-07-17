@@ -2285,6 +2285,7 @@ notify_workspace_bot_deploy() {
   echo "==> 记录 Workspace 更新通知..."
   ssh_cmd "REMOTE_DIR='$REMOTE_DIR' RELEASE_TRANSPORT='$RELEASE_TRANSPORT' DEPLOY_PACKAGE_VERSION='$package_version' DEPLOY_SOURCE_SHA='$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='$duration_seconds' python3 - <<'PY'
 import datetime
+import json
 import os
 import re
 from pathlib import Path

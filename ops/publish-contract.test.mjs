@@ -151,6 +151,19 @@ test("CNB and SSH hotfix bind end-to-end publish timing to the success event", (
   );
 });
 
+test("CNB full reports success only after both terminal build success and exact production cutover", () => {
+  assert.match(publishCnb, /cnb_state="unknown"/);
+  assert.match(publishCnb, /\[ "\$cnb_state" != "failure" \]/);
+  assert.match(
+    publishCnb,
+    /if \[ "\$deployed_sha" = "\$SOURCE_SHA" \] && \[ "\$cnb_state" = "success" \]; then/,
+  );
+  assert.ok(
+    publishCnb.indexOf('[ "$cnb_state" != "failure" ]')
+      < publishCnb.indexOf('if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then'),
+  );
+});
+
 test("CNB Linux build has non-production Prisma generation inputs", () => {
   const buildStage = cnbRelease.slice(
     cnbRelease.indexOf("- name: build-standalone"),

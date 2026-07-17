@@ -287,14 +287,15 @@ echo "==> 等待 CNB $CNB_SN 与生产版本 ${SOURCE_SHA:0:12}（最长 ${DEPLO
 
 deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
 while [ "$(date +%s)" -le "$deadline" ]; do
+  cnb_state="unknown"
   status_file="$TMP_DIR/cnb-status.json"
   if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$CNB_SN" --verbose > "$status_file" 2>/dev/null; then
-    state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
-    [ "$state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
+    cnb_state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
+    [ "$cnb_state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
   fi
   deployed_sha="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
     "python3 -c \"import json; from pathlib import Path; p=Path('$REMOTE_DIR/.workspace/deployed-release.json'); print(json.loads(p.read_text())['source']['commitSha'] if p.exists() else '')\"" 2>/dev/null || true)"
-  if [ "$deployed_sha" = "$SOURCE_SHA" ]; then
+  if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then
     ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
       "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_SHA'"
     echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"

@@ -76,6 +76,34 @@ test("deployment notification records exact source and end-to-end publish durati
   ]);
 });
 
+test("deployment notification program writes a complete event at runtime", () => {
+  const embeddedProgram = embeddedPrograms("python3", "PY")
+    .find((candidate) => candidate.includes("Workspace deploy event recorded"));
+  assert.ok(embeddedProgram, "deployment notification Python program must exist");
+  const program = embeddedProgram.replaceAll('\\"', '"');
+  const root = mkdtempSync(join(tmpdir(), "workspace-deploy-event-"));
+  const remoteDir = join(root, "remote");
+  mkdirSync(remoteDir, { recursive: true });
+  try {
+    const result = runPython(program, {
+      HOME: root,
+      REMOTE_DIR: remoteDir,
+      RELEASE_TRANSPORT: "cnb",
+      DEPLOY_PACKAGE_VERSION: "0.1.2",
+      DEPLOY_SOURCE_SHA: "a".repeat(40),
+      DEPLOY_DURATION_SECONDS: "123",
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const event = JSON.parse(readFileSync(join(root, ".finance-bot-deploy-event.json"), "utf8"));
+    assert.equal(event.transport, "cnb");
+    assert.equal(event.package, "0.1.2");
+    assert.equal(event.build, "a".repeat(40));
+    assert.equal(event.durationSeconds, 123);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
 test("remote verification messages cannot become local shell redirects", () => {
   assert.equal(deploy.includes('echo "[错误] \\$verification_phase:'), false);
   assert.equal(deploy.includes('echo "==> \\$verification_phase:'), false);
