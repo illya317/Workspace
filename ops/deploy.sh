@@ -126,7 +126,6 @@ DEPLOYED_SOURCE_SHA=""
 DEPLOYED_SOURCE_TREE=""
 DEPLOYED_CANONICAL_SOURCE_SHA=""
 DEPLOYED_CANONICAL_SOURCE_TREE=""
-DEPLOYED_TRANSPORT=""
 DEPLOYED_CNB_INJECTION_SHA=""
 DEPLOYED_ARTIFACT_SHA=""
 DEPLOYED_CNB_BRANCH=""
@@ -1586,8 +1585,7 @@ NODE
           --expected-repository '$RELEASE_CNB_REPOSITORY' \
           --runtime-source '$DEPLOYED_SOURCE_SHA' \
           --cnb-injection '$DEPLOYED_CNB_INJECTION_SHA' \
-          --artifact-sha '$DEPLOYED_ARTIFACT_SHA' \
-          --transport '$DEPLOYED_TRANSPORT'
+          --artifact-sha '$DEPLOYED_ARTIFACT_SHA'
       fi
       echo \"==> \$verification_phase: 生产部署记录未被并发修改\"
     }
