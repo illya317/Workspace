@@ -7,6 +7,8 @@ import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
+const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-deps.sh", import.meta.url), "utf8");
+const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
 
 function assertOrdered(source, needles) {
@@ -126,6 +128,34 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
     deploy,
     /if \[ "\$order_action" = "noop" \]; then[\s\S]*?run_healthcheck[\s\S]*?exit 0/,
   );
+});
+
+test("Library, Qwen, and ONLYOFFICE reuse verified runtime installations", () => {
+  assert.match(
+    deploy,
+    /Library\/Qwen 运行时 source\/version 未变化，跳过网络安装和模型加载/,
+  );
+  assert.match(deploy, /install-library-runtime-deps\.sh' --server --quick-check/);
+  assert.match(deploy, /install-library-embedding-model\.sh' --quick-check/);
+  assert.match(deploy, /ONLYOFFICE source\/version 未变化且健康，跳过 compose reconcile/);
+  assert.match(libraryRuntimeInstaller, /--quick-check/);
+  assert.match(libraryRuntimeInstaller, /LIBRARY_QUICK_CHECK/);
+  assert.match(embeddingInstaller, /workspace-embedding-model\.json/);
+  assert.match(embeddingInstaller, /"mode": "quick-check"/);
+  const quickCheck = embeddingInstaller.slice(
+    embeddingInstaller.indexOf('if [ "$MODE" = "quick-check" ]'),
+    embeddingInstaller.indexOf('echo "==> Checking Qwen embedding model on CPU"'),
+  );
+  assert.doesNotMatch(quickCheck, /SentenceTransformer|model\.encode/);
+});
+
+test("SSH hotfix artifacts survive cutover for exact-source retries", () => {
+  const remoteDeploy = deploy.slice(
+    deploy.indexOf("deploy_remote_artifact()"),
+    deploy.indexOf("run_healthcheck()"),
+  );
+  assert.match(remoteDeploy, /preserve_remote_artifact=1/);
+  assert.match(remoteDeploy, /if \[ '\$preserve_remote_artifact' != '1' \]; then[\s\S]*?rm -f '\$remote_tar' '\$remote_manifest'/);
 });
 
 test("Kimi sandbox mounts only the validated per-turn agent config", () => {

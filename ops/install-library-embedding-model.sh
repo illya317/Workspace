@@ -9,16 +9,18 @@ MODE="install"
 
 usage() {
   cat <<'EOF'
-Usage: ops/install-library-embedding-model.sh [--check] [--venv DIR] [--model-dir DIR]
+Usage: ops/install-library-embedding-model.sh [--check|--quick-check] [--venv DIR] [--model-dir DIR]
 
 Installs the pinned Qwen3 embedding runtime and model, then runs a Chinese
-semantic-similarity smoke test. Re-running the command reuses existing files.
+semantic-similarity smoke test. Quick check verifies the completed install
+marker, pinned packages, and required model files without loading the model.
 EOF
 }
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --check) MODE="check" ;;
+    --quick-check) MODE="quick-check" ;;
     --venv) shift; VENV_DIR="${1:?--venv requires a directory}" ;;
     --model-dir) shift; MODEL_DIR="${1:?--model-dir requires a directory}" ;;
     -h|--help) usage; exit 0 ;;
@@ -27,6 +29,7 @@ while [ "$#" -gt 0 ]; do
   shift
 done
 
+MODEL_MARKER="$MODEL_DIR/.workspace-embedding-model.json"
 PYTHON="$VENV_DIR/bin/python"
 if [ ! -x "$PYTHON" ]; then
   echo "[error] missing library worker venv: $VENV_DIR"
@@ -51,6 +54,51 @@ snapshot_download(
     local_dir=os.environ["MODEL_DIR"],
 )
 PY
+fi
+
+if [ "$MODE" = "quick-check" ]; then
+  MODEL_ID="$MODEL_ID" MODEL_REVISION="$MODEL_REVISION" MODEL_DIR="$MODEL_DIR" MODEL_MARKER="$MODEL_MARKER" \
+    "$PYTHON" - <<'PY'
+import importlib.metadata
+import json
+import os
+from pathlib import Path
+
+expected_packages = {
+    "sentence-transformers": "5.6.0",
+    "modelscope": "1.38.1",
+}
+for distribution, expected in expected_packages.items():
+    actual = importlib.metadata.version(distribution)
+    if actual != expected:
+        raise RuntimeError(f"{distribution} expected {expected}, got {actual}")
+
+model_dir = Path(os.environ["MODEL_DIR"])
+marker_path = Path(os.environ["MODEL_MARKER"])
+if not marker_path.is_file():
+    raise RuntimeError(f"embedding install marker is missing: {marker_path}")
+marker = json.loads(marker_path.read_text(encoding="utf-8"))
+expected_marker = {
+    "model": os.environ["MODEL_ID"],
+    "revision": os.environ["MODEL_REVISION"],
+    "dimensions": 1024,
+}
+if marker != expected_marker:
+    raise RuntimeError(f"embedding install marker is stale: {marker}")
+if not (model_dir / "config.json").is_file():
+    raise RuntimeError("embedding model config.json is missing")
+weight_files = [
+    *model_dir.glob("*.safetensors"),
+    *model_dir.glob("*.bin"),
+    *model_dir.glob("*.safetensors.index.json"),
+    *model_dir.glob("*.bin.index.json"),
+]
+if not any(path.is_file() for path in weight_files):
+    raise RuntimeError("embedding model weights are missing")
+print(json.dumps({**expected_marker, "mode": "quick-check"}, ensure_ascii=False))
+PY
+  du -sh "$MODEL_DIR"
+  exit 0
 fi
 
 echo "==> Checking Qwen embedding model on CPU"
@@ -86,5 +134,23 @@ print(json.dumps({
     "irrelevant_score": round(float(scores[1]), 4),
 }, ensure_ascii=False))
 PY
+
+if [ "$MODE" = "install" ]; then
+  MODEL_ID="$MODEL_ID" MODEL_REVISION="$MODEL_REVISION" MODEL_MARKER="$MODEL_MARKER" \
+    "$PYTHON" - <<'PY'
+import json
+import os
+from pathlib import Path
+
+marker = Path(os.environ["MODEL_MARKER"])
+temporary = marker.with_suffix(marker.suffix + ".tmp")
+temporary.write_text(json.dumps({
+    "model": os.environ["MODEL_ID"],
+    "revision": os.environ["MODEL_REVISION"],
+    "dimensions": 1024,
+}, ensure_ascii=False, sort_keys=True) + "\n", encoding="utf-8")
+temporary.replace(marker)
+PY
+fi
 
 du -sh "$MODEL_DIR"

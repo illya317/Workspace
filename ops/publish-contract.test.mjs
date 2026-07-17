@@ -43,7 +43,7 @@ test("SSH hotfix keeps scope open but preserves exact-source and cutover safety"
 test("SSH hotfix builds exact source in a resource-capped Node 24 Linux container", () => {
   assert.match(hotfixRemoteBuild, /git -C "\$REMOTE_AGENT_SOURCE_DIR" bundle verify/);
   assert.match(hotfixRemoteBuild, /worktree add --detach "\$worktree" "\$SOURCE_SHA"/);
-  assert.match(hotfixRemoteBuild, /docker pull "\$HOTFIX_NODE_IMAGE"/);
+  assert.match(hotfixRemoteBuild, /docker image inspect "\$HOTFIX_NODE_IMAGE"[\s\S]*?docker pull "\$HOTFIX_NODE_IMAGE"/);
   assert.match(hotfixRemoteBuild, /RepoDigests/);
   assert.match(hotfixRemoteBuild, /--cpus "\$HOTFIX_BUILD_CPUS"/);
   assert.match(hotfixRemoteBuild, /--memory "\$HOTFIX_BUILD_MEMORY"/);
@@ -57,6 +57,35 @@ test("SSH hotfix builds exact source in a resource-capped Node 24 Linux containe
   assert.match(hotfixRemoteBuild, /trap cleanup EXIT/);
   assert.match(hotfixRemoteBuild, /cleanup[\s\S]*?trap - EXIT[\s\S]*?find "\$REMOTE_HOTFIX_BUILD_ROOT"/);
   assert.doesNotMatch(hotfixRemoteBuild, /current/);
+});
+
+test("SSH hotfix reuses only verified exact-source artifacts", () => {
+  assert.match(hotfixRemoteBuild, /validate_cached_artifact\(\)/);
+  assert.match(hotfixRemoteBuild, /cached_build_image_request[\s\S]*?HOTFIX_NODE_IMAGE/);
+  assert.match(hotfixRemoteBuild, /manifest\.source\?\.commitSha !== sourceSha/);
+  assert.match(hotfixRemoteBuild, /manifest\.source\?\.treeSha !== sourceTree/);
+  assert.match(hotfixRemoteBuild, /manifest\.build\?\.buildId !== sourceSha/);
+  assert.match(hotfixRemoteBuild, /manifest\.artifact\?\.sha256 !== artifactSha/);
+  assert.ok(
+    hotfixRemoteBuild.indexOf("if validate_cached_artifact; then")
+      < hotfixRemoteBuild.indexOf('docker image inspect "$HOTFIX_NODE_IMAGE"'),
+  );
+  assert.match(hotfixRemoteBuild, /已有完整校验产物，跳过重复 install\/build/);
+  assert.match(hotfixRemoteBuild, /BUILD_IMAGE_REQUEST=%s/);
+});
+
+test("SSH hotfix dependency cache is input-derived, atomic, and read-only during build", () => {
+  assert.match(hotfixRemoteBuild, /dependency_cache_root="\$REMOTE_HOTFIX_CACHE_ROOT\/node-modules"/);
+  assert.match(hotfixRemoteBuild, /build-image=%s/);
+  assert.match(hotfixRemoteBuild, /build-platform=%s/);
+  for (const input of ["package.json", "package-lock.json", ".node-version", ".npmrc"]) {
+    assert.match(hotfixRemoteBuild, new RegExp(input.replaceAll(".", "\\.")));
+  }
+  assert.equal(hotfixRemoteBuild.match(/npm ci --no-audit/g)?.length, 1);
+  assert.match(hotfixRemoteBuild, /exec 8> "\$dependency_lock"[\s\S]*?flock 8/);
+  assert.match(hotfixRemoteBuild, /dependency_cache_tmp[\s\S]*?\.complete[\s\S]*?mv "\$dependency_cache_tmp" "\$dependency_cache"/);
+  assert.match(hotfixRemoteBuild, /\$dependency_cache\/node_modules:\$worktree\/node_modules:ro/);
+  assert.match(hotfixRemoteBuild, /DEPENDENCY_CACHE_KEY=%s/);
 });
 
 test("CNB deployment path contains no GitHub transport or deployment API", () => {

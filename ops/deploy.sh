@@ -1094,7 +1094,28 @@ ensure_remote_library_runtime_deps() {
     ops/library-worker-requirements.txt \
     ops/library-runtime-smoke.py \
     "$SERVER:$remote_tool_dir/"
-  ssh_cmd "chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py' && '$remote_tool_dir/install-library-runtime-deps.sh' --server && '$remote_tool_dir/install-library-embedding-model.sh'"
+  ssh_cmd "
+    set -e
+    chmod +x '$remote_tool_dir/install-library-runtime-deps.sh' '$remote_tool_dir/install-library-embedding-model.sh' '$remote_tool_dir/library-runtime-smoke.py'
+    runtime_digest=\$(sha256sum \
+      '$remote_tool_dir/install-library-runtime-deps.sh' \
+      '$remote_tool_dir/install-library-embedding-model.sh' \
+      '$remote_tool_dir/library-worker-requirements.txt' \
+      '$remote_tool_dir/library-runtime-smoke.py' | sha256sum | awk '{print \$1}')
+    runtime_marker='$remote_tool_dir/.installed-source.sha256'
+    if [ -f \"\$runtime_marker\" ] \
+      && [ \"\$(cat \"\$runtime_marker\")\" = \"\$runtime_digest\" ] \
+      && '$remote_tool_dir/install-library-runtime-deps.sh' --server --quick-check \
+      && '$remote_tool_dir/install-library-embedding-model.sh' --quick-check; then
+      echo '==> Library/Qwen 运行时 source/version 未变化，跳过网络安装和模型加载'
+    else
+      '$remote_tool_dir/install-library-runtime-deps.sh' --server
+      '$remote_tool_dir/install-library-embedding-model.sh'
+      printf '%s\\n' \"\$runtime_digest\" > \"\$runtime_marker.tmp\"
+      chmod 600 \"\$runtime_marker.tmp\"
+      mv \"\$runtime_marker.tmp\" \"\$runtime_marker\"
+    fi
+  "
 }
 
 ensure_remote_kimi_agent_runtime() {
@@ -1149,8 +1170,37 @@ ensure_remote_onlyoffice_runtime() {
   ssh_cmd "
     set -e
     chmod +x '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh'
-    WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
+    set -a
+    . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+    set +a
+    calculate_runtime_digest() {
+      {
+        sha256sum \
+          '$remote_tool_dir/install-onlyoffice-runtime.sh' \
+          '$remote_tool_dir/onlyoffice/docker-compose.yml'
+        printf 'ONLYOFFICE_IMAGE=%s\\n' \"\${ONLYOFFICE_IMAGE:-onlyoffice/documentserver:9.4.0}\"
+        printf 'ONLYOFFICE_PORT=%s\\n' \"\${ONLYOFFICE_PORT:-8082}\"
+        printf 'ONLYOFFICE_NGINX_SITE=%s\\n' \"\${ONLYOFFICE_NGINX_SITE:-auto}\"
+        printf '%s' \"\${ONLYOFFICE_JWT_SECRET:-missing}\" | sha256sum
+      } | sha256sum | awk '{print \$1}'
+    }
+    runtime_digest=\$(calculate_runtime_digest)
+    runtime_marker='$remote_tool_dir/.installed-source.sha256'
+    if [ -f \"\$runtime_marker\" ] \
+      && [ \"\$(cat \"\$runtime_marker\")\" = \"\$runtime_digest\" ] \
+      && WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check; then
+      echo '==> ONLYOFFICE source/version 未变化且健康，跳过 compose reconcile'
+    else
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh'
+      WORKSPACE_CONFIG_DIR='$REMOTE_WORKSPACE_CONFIG_DIR' WORKSPACE_PUBLIC_ORIGIN_HINT='$WORKSPACE_PUBLIC_ORIGIN_HINT' '$remote_tool_dir/install-onlyoffice-runtime.sh' --check
+      set -a
+      . '$REMOTE_WORKSPACE_CONFIG_DIR/.env'
+      set +a
+      runtime_digest=\$(calculate_runtime_digest)
+      printf '%s\\n' \"\$runtime_digest\" > \"\$runtime_marker.tmp\"
+      chmod 600 \"\$runtime_marker.tmp\"
+      mv \"\$runtime_marker.tmp\" \"\$runtime_marker\"
+    fi
   "
 }
 
@@ -1436,10 +1486,12 @@ deploy_remote_artifact() {
   local release_id
   local remote_tar
   local remote_manifest
+  local preserve_remote_artifact=0
   release_id="$(date +%Y%m%d%H%M%S)-${RELEASE_SOURCE_SHA:0:8}"
   if [ -n "$REMOTE_STANDALONE_ARTIFACT_PATH" ]; then
     remote_tar="$REMOTE_STANDALONE_ARTIFACT_PATH"
     remote_manifest="$REMOTE_STANDALONE_MANIFEST_PATH"
+    preserve_remote_artifact=1
     echo "==> 使用服务器隔离构建的 SSH hotfix 产物..."
   else
     remote_tar="$REMOTE_WORKSPACE_CONFIG_DIR/deploy-workspace-standalone-$release_id.tgz"
@@ -1491,7 +1543,9 @@ NODE
     mkdir -p \"\$release_dir\"
     tar -xzf '$remote_tar' -C \"\$release_dir\"
     cp '$remote_manifest' \"\$release_dir/.release-manifest.json\"
-    rm -f '$remote_tar' '$remote_manifest'
+    if [ '$preserve_remote_artifact' != '1' ]; then
+      rm -f '$remote_tar' '$remote_manifest'
+    fi
 
     server_entry=\$(cat \"\$release_dir/.server-entry\" 2>/dev/null || printf 'server.js')
     app_dir=\$(dirname \"\$release_dir/\$server_entry\")

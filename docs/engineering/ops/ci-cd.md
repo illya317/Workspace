@@ -47,12 +47,12 @@ classify
 所有预期结果 -> CI / required
 
 formal: local full CI receipt -> CNB release injection -> Linux build -> artifact validation -> production
-hotfix: local fast gates -> exact Git bundle -> server Node 24 container build -> same deployer -> production
+hotfix: local fast gates -> exact Git bundle -> verified dependency/artifact cache -> server Node 24 container build -> same deployer -> production
 ```
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
 
-缓存只加速输入：npm 下载缓存、quick type build info 和 `.next/cache`。`node_modules` 不跨 job 复用，Playwright 浏览器不缓存。standalone tgz 是带 manifest/digest 的发布 artifact，不是缓存。
+CI 缓存只加速输入：npm 下载缓存、quick type build info 和 `.next/cache`。CI job 之间不复用 `node_modules`，Playwright 浏览器不缓存。SSH hotfix 的服务器构建是例外：它把一次真实 `npm ci` 的结果按 build image digest、`package.json`、`package-lock.json`、`.node-version` 和可选 `.npmrc` 摘要缓存，并在后续构建中只读挂载；任何输入变化都会重新安装。standalone tgz 是带 manifest/digest 的发布 artifact，不是普通构建缓存。
 
 ## 测试内容与当前缺口
 
@@ -121,7 +121,8 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy
 
 - `deploy` 默认是 hotfix，`publish.sh hotfix` 仅保留为显式别名。该路径不经 GitHub 或 CNB，但也不手改生产 `current`。入口要求干净工作区的已提交 HEAD，HEAD 必须是当前运行 source 的后代，上传内容是带当前运行 source prerequisite 的 exact Git bundle。只有用户明确使用 `publish.sh deploy --full` 才进入 CNB。
 - 当前 `HOTFIX_SCOPE_POLICY=off`，C0–C3 都会分类和记录，但不按范围拦截。`restricted` 和 `HOTFIX_ALLOWED_RISK_CLASSES` 是长期预留开关，目前不开启。默认仍强制 `check:blockers`、该区间 migration policy 和 quick typecheck。
-- 服务器只在 `$REMOTE_DIR/.hotfix-builds` 下建临时 detached worktree，用 Node 24 Linux 容器限制 CPU/内存并把镜像解析到 registry digest。构建后立即移除带 `node_modules` 的 worktree，只保留受管 artifact/manifest 和 npm 下载缓存，避免再次把数 GiB 构建垃圾带入 runtime backup。
+- 服务器只在 `$REMOTE_DIR/.hotfix-builds` 下建临时 detached worktree，用 Node 24 Linux 容器限制 CPU/内存并把镜像解析到 registry digest。依赖缓存只接受完成 marker，对同一 cache key 加锁并原子生成，构建时只读挂载；worktree 在构建后立即移除。相同 source SHA 的 cutover 重试只有在重新核对 bundle source/tree、固定路径、build image digest、BUILD_ID、manifest 与 artifact SHA-256 后才复用受管产物。
+- Library/OCR、Qwen embedding 和 ONLYOFFICE provisioning 采用 source/config digest marker。marker 命中后仍运行轻量版本/文件/健康检查；检查失败、脚本或配置变化时自动回退到完整安装，Qwen 的完整 CPU semantic smoke 仍由首次安装或输入变化触发。
 - artifact 后续复用正式部署器的 manifest/digest/migration 校验、互斥锁、PostgreSQL/runtime 备份、不可变 release 目录、PM2 切换、健康检查和回滚。`deployed-release.json` 区分当前 `runtime source` 与最后 `canonical source`。
 - 后续正式 CNB 始终权威：它以 canonical source 做 ancestry 判定，不要求包含 hotfix，且即使 source 相同也会重新部署 canonical artifact 并将 transport 改回 `cnb`。
 - 这种覆盖只能替换代码/artifact。已执行 migration 和已写入业务数据不会被下一次正式部署自动回退；有持久化变化时，正式 source 必须吸收兼容契约或给出明确的向前修正。

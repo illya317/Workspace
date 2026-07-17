@@ -28,7 +28,7 @@
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint/notification capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
 | 本地全量/完整生产发布门禁 | `npm run check:ci` | 串行执行静态门禁、全部 Node 测试、full type 和 production build；只有显式 `ops/publish.sh deploy --full` 才对当前 Git tree 生成或复用凭证并进入 CNB。 |
-| 默认受治理 SSH 热修 | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` | 对干净、已提交且从当前运行 source 单调向前的 HEAD 运行 blockers、migration policy 和 quick type，在服务器 Node 24 Linux 容器构建后复用正式 cutover；不经 CNB。`ops/publish.sh hotfix` 为显式别名。 |
+| 默认受治理 SSH 热修 | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` | 对干净、已提交且从当前运行 source 单调向前的 HEAD 运行 blockers、migration policy 和 quick type；服务器按锁文件与 build image digest 复用只读依赖层，并只对已复验的相同 SHA artifact 跳过重复构建，再复用正式 cutover；不经 CNB。`ops/publish.sh hotfix` 为显式别名。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
@@ -131,7 +131,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 canonical build；E2E 是独立 job，只下载并启动同一个 standalone 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 默认走受治理 SSH hotfix：当前 scope policy 为 `off`/只记录，但仍运行 blockers、migration policy 和 quick type，并在受管 Node 24 容器中生成 exact-source artifact，禁止手改 `current`。只有显式 `ops/publish.sh deploy --full` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 默认走受治理 SSH hotfix：当前 scope policy 为 `off`/只记录，但仍运行 blockers、migration policy 和 quick type，并在受管 Node 24 容器中生成 exact-source artifact，禁止手改 `current`。依赖层按输入 digest 原子缓存并只读挂载；相同 SHA artifact 复用和 Library/Qwen/ONLYOFFICE runtime 快速路径都必须先通过 identity/version/health 复验。只有显式 `ops/publish.sh deploy --full` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。
 
 ### scalability contract 与真实容量
 
