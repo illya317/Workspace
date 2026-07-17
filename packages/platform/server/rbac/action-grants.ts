@@ -272,13 +272,13 @@ async function acquireGrantMutationLocks(
   for (const resourceKey of domainResourceKeys) {
     const lockKey = `permission-action-grant-domain-v1:${resourceKey}`;
     await tx.$queryRaw(
-      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))::text AS lock_result`,
     );
   }
   const tupleLockKeys = [...new Set(changes.map(grantMutationTupleLockKey))].sort();
   for (const lockKey of tupleLockKeys) {
     await tx.$queryRaw(
-      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))`,
+      Prisma.sql`SELECT pg_advisory_xact_lock(hashtextextended(${lockKey}, 0))::text AS lock_result`,
     );
   }
 }

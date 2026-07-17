@@ -296,6 +296,7 @@ test("batch locks authorization domains and parameterized tuples before tx-only 
   const firstPostLock = txOperations.findIndex((operation) => operation.type !== "lock");
   assert.ok(txOperations.findLastIndex((operation) => operation.type === "lock") < firstPostLock);
   assert.equal(lockQueries.every((query) => query.values.length === 1), true);
+  assert.equal(lockQueries.every((query) => query.strings.join("").includes("::text AS lock_result")), true);
   assert.equal(lockQueries.some((query) => query.strings.join("").includes("agent.source")), false);
 });
 
