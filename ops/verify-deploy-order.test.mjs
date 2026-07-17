@@ -6,49 +6,90 @@ import { validateDeployOrder } from "./verify-deploy-order.mjs";
 const a = "a".repeat(40);
 const b = "b".repeat(40);
 const c = "c".repeat(40);
+const digestA = `sha256:${"1".repeat(64)}`;
+const digestB = `sha256:${"2".repeat(64)}`;
 
-test("missing deployed state requires an audited production bootstrap", () => {
-  assert.throws(() => validateDeployOrder({ candidateSha: b, currentHeadSha: b }), /requires audited production bootstrap/);
-});
-
-test("audited production bootstrap allows only the baseline or a descendant", () => {
-  for (const [bootstrapBase, comparison] of [
-    [b, { status: "identical", ahead_by: 0, base_commit: { sha: b }, merge_base_commit: { sha: b }, head_commit: { sha: b } }],
-    [a, { status: "ahead", ahead_by: 2, base_commit: { sha: a }, merge_base_commit: { sha: a }, head_commit: { sha: b } }],
-  ]) {
-    assert.deepEqual(validateDeployOrder({ candidateSha: b, currentHeadSha: b, bootstrapBase, comparison }), {
-      action: "deploy",
-      reason: "audited-production-bootstrap",
-    });
-  }
-
+test("missing deployed state requires audited production bootstrap evidence", () => {
   assert.throws(() => validateDeployOrder({
     candidateSha: b,
+    candidateArtifactDigest: digestB,
+    currentHeadSha: b,
+  }), /requires audited production bootstrap evidence/);
+});
+
+test("audited production bootstrap allows identical or ahead candidates only", () => {
+  assert.equal(validateDeployOrder({
+    candidateSha: b,
+    candidateArtifactDigest: digestB,
     currentHeadSha: b,
     bootstrapBase: a,
-    comparison: { status: "diverged", ahead_by: 1, base_commit: { sha: a }, merge_base_commit: { sha: c }, head_commit: { sha: b } },
-  }), /not proven to descend from bootstrap baseline/);
-});
-
-test("a proven descendant of the deployed source is allowed", () => {
-  assert.deepEqual(validateDeployOrder({
-    candidateSha: b,
-    currentHeadSha: b,
-    deployedSha: a,
-    comparison: { status: "ahead", ahead_by: 2, base_commit: { sha: a }, merge_base_commit: { sha: a }, head_commit: { sha: b } },
-  }), { action: "deploy", reason: "monotonic-upgrade" });
-});
-
-test("same source is a no-op and stale or divergent candidates are rejected", () => {
-  assert.deepEqual(validateDeployOrder({ candidateSha: b, currentHeadSha: b, deployedSha: b }), {
-    action: "noop",
-    reason: "source-already-deployed",
-  });
-  assert.throws(() => validateDeployOrder({ candidateSha: a, currentHeadSha: b, deployedSha: b }), /stale/);
+    comparison: {
+      status: "ahead",
+      ahead_by: 2,
+      base_commit: { sha: a },
+      merge_base_commit: { sha: a },
+      head_commit: { sha: b },
+    },
+  }).action, "deploy");
   assert.throws(() => validateDeployOrder({
     candidateSha: b,
+    candidateArtifactDigest: digestB,
+    currentHeadSha: b,
+    bootstrapBase: a,
+    comparison: {
+      status: "diverged",
+      ahead_by: 1,
+      base_commit: { sha: a },
+      merge_base_commit: { sha: c },
+      head_commit: { sha: b },
+    },
+  }), /not proven to descend/);
+});
+
+test("a proven descendant deploys and the same source is a no-op", () => {
+  assert.equal(validateDeployOrder({
+    candidateSha: b,
+    candidateArtifactDigest: digestB,
+    currentHeadSha: b,
+    deployedSha: a,
+    deployedArtifactDigest: digestA,
+    comparison: {
+      status: "ahead",
+      ahead_by: 2,
+      base_commit: { sha: a },
+      merge_base_commit: { sha: a },
+      head_commit: { sha: b },
+    },
+  }).action, "deploy");
+  assert.equal(validateDeployOrder({
+    candidateSha: b,
+    candidateArtifactDigest: digestB,
+    currentHeadSha: b,
+    deployedSha: b,
+    deployedArtifactDigest: digestA,
+  }).action, "noop");
+});
+
+test("late or diverged candidates cannot roll production back", () => {
+  assert.throws(() => validateDeployOrder({
+    candidateSha: a,
+    candidateArtifactDigest: digestA,
+    currentHeadSha: b,
+    deployedSha: b,
+    deployedArtifactDigest: digestB,
+  }), /stale/);
+  assert.throws(() => validateDeployOrder({
+    candidateSha: b,
+    candidateArtifactDigest: digestB,
     currentHeadSha: b,
     deployedSha: c,
-    comparison: { status: "diverged", ahead_by: 1, base_commit: { sha: c }, merge_base_commit: { sha: a }, head_commit: { sha: b } },
+    deployedArtifactDigest: digestA,
+    comparison: {
+      status: "diverged",
+      ahead_by: 1,
+      base_commit: { sha: c },
+      merge_base_commit: { sha: a },
+      head_commit: { sha: b },
+    },
   }), /not a proven descendant/);
 });

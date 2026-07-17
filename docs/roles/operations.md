@@ -18,7 +18,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 - 区分 PR CI 和 deploy/runtime 检查；真实 DB、workspace manifest、ops env 和部署后验证不进入普通 PR CI。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
-- 生产维护遵循本地优先：代码、migration、文档和检查在本地完成；当前 Git tree 的本地 `check:ci` 通过后生成精确凭证，CNB 从该 source parent 完成 Linux standalone 构建和部署。GitHub PR/CI 是协作入口，不是生产发布依赖。服务器 SSH 只用于只读诊断、日志/状态确认和部署后验证。
+- 生产维护遵循本地优先：代码、migration、文档和检查在本地完成并提交；`publish.sh deploy` 对精确 source tree 运行或复用一次本地全量 CI 凭证，再交给 CNB 完成 Linux standalone 构建、digest 校验和部署。CNB 不重复本地全量门禁，部署运行时不得依赖 GitHub API、Actions、Release 或 GitHub token。服务器 SSH 只用于只读诊断、日志/状态确认和部署后验证。
 
 ## 禁止
 
@@ -41,4 +41,4 @@ npm run check:push
 npm run check:ci
 ```
 
-日常候选优先用自适应 `check:push`；CI/CD、schema、认证/RBAC、共享边界、未知覆盖或明确全量收口使用 `check:ci`。远端是否允许合并仍由 `CI / required` 决定；生产发布由 `ops/publish.sh deploy` 强制取得当前 tree 的本地全量 CI 凭证，再触发 CNB 构建 digest-pinned standalone。
+日常候选优先用自适应 `check:push`；CI/CD、schema、认证/RBAC、共享边界、未知覆盖或明确全量收口使用 `check:ci`。GitHub `CI / required` 只决定 GitHub 合并质量；生产只接受 CNB 对 release request 中精确 source SHA/tree 构建并复验的 digest-pinned standalone。

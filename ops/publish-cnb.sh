@@ -10,9 +10,6 @@ source "$OPS_ENV_FILE"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
 : "${CNB_REMOTE:?CNB_REMOTE not set in $OPS_ENV_FILE}"
 : "${CNB_REPO:?CNB_REPO not set in $OPS_ENV_FILE}"
-: "${SERVER:?SERVER not set in $OPS_ENV_FILE}"
-: "${REMOTE_DIR:?REMOTE_DIR not set in $OPS_ENV_FILE}"
-: "${HEALTHCHECK_URL:?HEALTHCHECK_URL not set in $OPS_ENV_FILE}"
 
 BOOTSTRAP_PRODUCTION_BASE=""
 BOOTSTRAP_LEGACY_CNB_COMMIT=""
@@ -25,24 +22,6 @@ DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
 TMP_DIR=""
 TMP_KEY=""
 
-usage() {
-  cat <<'EOF'
-用法:
-  OPS_ENV_FILE=/path/to/ops/.env publish-cnb.sh [选项]
-
-部署只使用本地已确认提交、CNB 仓库/流水线和生产服务器；不会连接 GitHub。
-
-选项:
-  --bootstrap-production-base SHA
-  --bootstrap-legacy-cnb-commit SHA
-  --bootstrap-legacy-release-id ID
-  --bootstrap-legacy-cnb-build-sn SN
-  --bootstrap-legacy-runtime-version VERSION
-  --bootstrap-legacy-build-id BUILD_ID
-  --print-command
-EOF
-}
-
 cleanup() {
   rm -rf "${TMP_DIR:-}"
   rm -f "${TMP_KEY:-}"
@@ -51,6 +30,7 @@ trap cleanup EXIT
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    deploy) ;;
     --bootstrap-production-base) shift; BOOTSTRAP_PRODUCTION_BASE="${1:-}" ;;
     --bootstrap-legacy-cnb-commit) shift; BOOTSTRAP_LEGACY_CNB_COMMIT="${1:-}" ;;
     --bootstrap-legacy-release-id) shift; BOOTSTRAP_LEGACY_RELEASE_ID="${1:-}" ;;
@@ -58,8 +38,11 @@ while [ "$#" -gt 0 ]; do
     --bootstrap-legacy-runtime-version) shift; BOOTSTRAP_LEGACY_RUNTIME_VERSION="${1:-}" ;;
     --bootstrap-legacy-build-id) shift; BOOTSTRAP_LEGACY_BUILD_ID="${1:-}" ;;
     --print-command) PRINT_COMMAND_ONLY=1 ;;
-    -h|--help) usage; exit 0 ;;
-    *) echo "[错误] 未知参数: $1"; usage; exit 1 ;;
+    -h|--help)
+      "$SCRIPT_DIR/release-to-cnb.sh" --help
+      exit 0
+      ;;
+    *) echo "[错误] CNB deploy 不支持参数: $1"; exit 1 ;;
   esac
   shift
 done
@@ -69,168 +52,152 @@ case "$DEPLOY_WAIT_SECONDS" in
 esac
 [ "$DEPLOY_WAIT_SECONDS" -ge 1 ] || { echo "[错误] DEPLOY_WAIT_SECONDS 必须至少为 1"; exit 1; }
 
+bootstrap_values=(
+  "$BOOTSTRAP_LEGACY_CNB_COMMIT"
+  "$BOOTSTRAP_LEGACY_RELEASE_ID"
+  "$BOOTSTRAP_LEGACY_CNB_BUILD_SN"
+  "$BOOTSTRAP_LEGACY_RUNTIME_VERSION"
+  "$BOOTSTRAP_LEGACY_BUILD_ID"
+)
 bootstrap_count=0
-for value in "$BOOTSTRAP_LEGACY_CNB_COMMIT" "$BOOTSTRAP_LEGACY_RELEASE_ID" "$BOOTSTRAP_LEGACY_CNB_BUILD_SN" "$BOOTSTRAP_LEGACY_RUNTIME_VERSION" "$BOOTSTRAP_LEGACY_BUILD_ID"; do
-  [ -z "$value" ] || bootstrap_count=$((bootstrap_count + 1))
-done
-if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
-  [ "$bootstrap_count" = "5" ] || { echo "[错误] production bootstrap 必须提供完整 legacy receipt"; exit 1; }
-  [ "$PRINT_COMMAND_ONLY" = "0" ] || { echo "[错误] production bootstrap 禁止 --print-command"; exit 1; }
-else
-  [ "$bootstrap_count" = "0" ] || { echo "[错误] legacy receipt 只能与 production bootstrap 同时使用"; exit 1; }
+for value in "${bootstrap_values[@]}"; do [ -n "$value" ] && bootstrap_count=$((bootstrap_count + 1)); done
+if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ] && [ "$bootstrap_count" != "5" ]; then
+  echo "[错误] production bootstrap 必须提供完整 legacy receipt"
+  exit 1
 fi
-
-for pair in \
-  "$BOOTSTRAP_PRODUCTION_BASE:production bootstrap SHA" \
-  "$BOOTSTRAP_LEGACY_CNB_COMMIT:legacy CNB commit"; do
-  value="${pair%%:*}"
-  label="${pair#*:}"
-  if [ -n "$value" ] && ! printf '%s' "$value" | grep -Eq '^[0-9a-f]{40}$'; then
-    echo "[错误] $label 必须是 40 位小写 Git SHA"
-    exit 1
-  fi
-done
-if [ -n "$BOOTSTRAP_LEGACY_RELEASE_ID" ] && ! printf '%s' "$BOOTSTRAP_LEGACY_RELEASE_ID" | grep -Eq '^[0-9]{14}-[0-9a-f]{8}$'; then
-  echo "[错误] legacy release id 格式无效"; exit 1
+if [ -z "$BOOTSTRAP_PRODUCTION_BASE" ] && [ "$bootstrap_count" != "0" ]; then
+  echo "[错误] legacy bootstrap 参数只能与 --bootstrap-production-base 同时使用"
+  exit 1
 fi
-if [ -n "$BOOTSTRAP_LEGACY_CNB_BUILD_SN" ] && ! printf '%s' "$BOOTSTRAP_LEGACY_CNB_BUILD_SN" | grep -Eq '^cnb-[a-z0-9]+(-[a-z0-9]+)*$'; then
-  echo "[错误] legacy CNB build SN 格式无效"; exit 1
+if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ] && [ "$PRINT_COMMAND_ONLY" = "1" ]; then
+  echo "[错误] production bootstrap 禁止 --print-command"
+  exit 1
 fi
 
 cd "$SOURCE_DIR"
-[ "$(git rev-parse --abbrev-ref HEAD)" = "$RELEASE_BRANCH" ] || { echo "[错误] deploy 只能从本地 $RELEASE_BRANCH 执行"; exit 1; }
-[ -z "$(git status --short)" ] || { echo "[错误] 工作区存在未提交改动"; git status --short; exit 1; }
-
-SOURCE_SHA="$(git rev-parse HEAD)"
-SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
-EXPECTED_NODE_MAJOR="$(tr -d '[:space:]' < .node-version)"
-ACTUAL_NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
-if [ "$ACTUAL_NODE_MAJOR" != "$EXPECTED_NODE_MAJOR" ]; then
-  echo "[错误] 本地全量 CI 必须使用 Node ${EXPECTED_NODE_MAJOR}；当前是 $(node --version)"
+dirty_status="$(git status --short)"
+if [ -n "$dirty_status" ]; then
+  echo "[错误] 工作区存在未提交改动，请先提交："
+  echo "$dirty_status"
   exit 1
 fi
-if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
-  git merge-base --is-ancestor "$BOOTSTRAP_PRODUCTION_BASE" "$SOURCE_SHA" || {
-    echo "[错误] 候选不是 production bootstrap baseline 的后代"; exit 1;
-  }
+current_branch="$(git rev-parse --abbrev-ref HEAD)"
+[ "$current_branch" = "$RELEASE_BRANCH" ] || { echo "[错误] deploy 只能从 $RELEASE_BRANCH 执行"; exit 1; }
+head_sha="$(git rev-parse HEAD)"
+head_tree="$(git rev-parse 'HEAD^{tree}')"
+expected_node_major="$(tr -d '[:space:]' < .node-version)"
+actual_node_major="$(node -p 'process.versions.node.split(".")[0]')"
+if [ "$actual_node_major" != "$expected_node_major" ]; then
+  echo "[错误] 本地全量 CI 必须使用 Node ${expected_node_major}；当前是 $(node --version)"
+  exit 1
 fi
 
-LOCAL_CI_RECEIPT_FILE="$(git rev-parse --git-path workspace-local-full-ci.json)"
+local_ci_receipt="$(git rev-parse --git-path workspace-local-full-ci.json)"
 if node scripts/ci/local-full-ci-receipt.mjs verify \
-  --tree "$SOURCE_TREE" \
-  --file "$LOCAL_CI_RECEIPT_FILE" >/dev/null 2>&1; then
-  echo "==> 复用当前 tree 的本地全量 CI 凭证: ${SOURCE_TREE:0:12}"
+  --tree "$head_tree" \
+  --file "$local_ci_receipt" >/dev/null 2>&1; then
+  echo "==> 复用当前 tree 的本地全量 CI 凭证: ${head_tree:0:12}"
 else
   echo "==> 当前 tree 尚无有效全量凭证；运行一次本地全量 CI..."
   npm run check:ci
-  if [ -n "$(git status --short)" ]; then
-    echo "[错误] 本地全量 CI 后工作区发生变化，拒绝生成发布凭证"
+  if [ -n "$(git status --short)" ] || [ "$(git rev-parse 'HEAD^{tree}')" != "$head_tree" ]; then
+    echo "[错误] 本地全量 CI 后工作区或 Git tree 发生变化，拒绝生成发布凭证"
     git status --short
     exit 1
   fi
-  test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
   node scripts/ci/local-full-ci-receipt.mjs create \
-    --tree "$SOURCE_TREE" \
-    --output "$LOCAL_CI_RECEIPT_FILE"
-  echo "==> 本地全量 CI 已通过并绑定 tree: ${SOURCE_TREE:0:12}"
+    --tree "$head_tree" \
+    --output "$local_ci_receipt"
+  echo "==> 本地全量 CI 已通过并绑定 tree: ${head_tree:0:12}"
 fi
 
 TMP_DIR="$(mktemp -d)"
-METADATA_FILE="$TMP_DIR/cnb-release.json"
-RESULT_FILE="$TMP_DIR/cnb-trigger.json"
-BASELINE_MIGRATION_COUNT=""
-BASELINE_MIGRATION_DIGEST=""
+result_file="$TMP_DIR/cnb-trigger.json"
+release_args=(--local-ci-receipt "$local_ci_receipt" --result-file "$result_file")
+if [ "$PRINT_COMMAND_ONLY" = "1" ]; then release_args=(--local-ci-receipt "$local_ci_receipt" --print-command); fi
+
 if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
-  baseline_values="$(BASELINE_SHA="$BOOTSTRAP_PRODUCTION_BASE" node <<'NODE'
-const { execFileSync } = require('node:child_process');
-const { createHash } = require('node:crypto');
-const baseline = process.env.BASELINE_SHA;
-const files = execFileSync('git', ['ls-tree', '-r', '--name-only', baseline, '--', 'prisma/migrations'], { encoding: 'utf8' })
-  .split('\n')
-  .filter((file) => /^prisma\/migrations\/[0-9]{14}_[a-z0-9_]+\/migration\.sql$/.test(file))
-  .sort();
-if (files.length === 0) throw new Error('bootstrap baseline has no active migrations');
-const rows = files.map((file) => {
-  const body = execFileSync('git', ['show', `${baseline}:${file}`]);
-  return `${file.split('/')[2]}\t${createHash('sha256').update(body).digest('hex')}\n`;
-});
-process.stdout.write(`${files.length}\n${createHash('sha256').update(rows.join('')).digest('hex')}\n`);
-NODE
-)"
-  BASELINE_MIGRATION_COUNT="$(printf '%s\n' "$baseline_values" | sed -n '1p')"
-  BASELINE_MIGRATION_DIGEST="$(printf '%s\n' "$baseline_values" | sed -n '2p')"
+  bootstrap_context="$TMP_DIR/production-bootstrap.json"
+  bootstrap_tag="refs/tags/workspace-production-bootstrap-${BOOTSTRAP_PRODUCTION_BASE:0:12}"
+  echo "==> 从 CNB 不可变 anchor 获取 legacy 生产接管凭证..."
+  git fetch --no-tags "$CNB_REMOTE" "$bootstrap_tag"
+  [ "$(git rev-parse FETCH_HEAD)" = "$BOOTSTRAP_LEGACY_CNB_COMMIT" ] || {
+    echo "[错误] legacy CNB anchor 与 receipt 不一致"
+    exit 1
+  }
+  node scripts/ci/production-bootstrap-receipt.mjs create \
+    --cwd "$SOURCE_DIR" \
+    --baseline "$BOOTSTRAP_PRODUCTION_BASE" \
+    --candidate "$head_sha" \
+    --legacy-cnb-commit "$BOOTSTRAP_LEGACY_CNB_COMMIT" \
+    --legacy-release-id "$BOOTSTRAP_LEGACY_RELEASE_ID" \
+    --legacy-cnb-build-sn "$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
+    --legacy-runtime-version "$BOOTSTRAP_LEGACY_RUNTIME_VERSION" \
+    --legacy-build-id "$BOOTSTRAP_LEGACY_BUILD_ID" \
+    --legacy-cnb-repository "$CNB_REPO" \
+    --output "$bootstrap_context"
+  release_args+=(--bootstrap-context "$bootstrap_context")
 fi
 
-SOURCE_SHA="$SOURCE_SHA" SOURCE_TREE="$SOURCE_TREE" CNB_REPO="$CNB_REPO" RELEASE_BRANCH="$RELEASE_BRANCH" \
-BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMMIT="$BOOTSTRAP_LEGACY_CNB_COMMIT" \
-BOOTSTRAP_LEGACY_RELEASE_ID="$BOOTSTRAP_LEGACY_RELEASE_ID" BOOTSTRAP_LEGACY_CNB_BUILD_SN="$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
-BOOTSTRAP_LEGACY_RUNTIME_VERSION="$BOOTSTRAP_LEGACY_RUNTIME_VERSION" BOOTSTRAP_LEGACY_BUILD_ID="$BOOTSTRAP_LEGACY_BUILD_ID" \
-BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="$BASELINE_MIGRATION_DIGEST" \
-LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" node <<'NODE'
-const fs = require('node:fs');
-const localFullCi = JSON.parse(fs.readFileSync(process.env.LOCAL_CI_RECEIPT_FILE, 'utf8'));
-const metadata = {
-  schemaVersion: 1,
-  source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
-  localFullCi,
-  cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
-};
-if (process.env.BOOTSTRAP_PRODUCTION_BASE) {
-  metadata.deploymentBootstrap = {
-    baselineSha: process.env.BOOTSTRAP_PRODUCTION_BASE,
-    legacy: {
-      cnbCommitSha: process.env.BOOTSTRAP_LEGACY_CNB_COMMIT,
-      releaseId: process.env.BOOTSTRAP_LEGACY_RELEASE_ID,
-      cnbBuildSn: process.env.BOOTSTRAP_LEGACY_CNB_BUILD_SN,
-      runtimeVersion: process.env.BOOTSTRAP_LEGACY_RUNTIME_VERSION,
-      buildId: process.env.BOOTSTRAP_LEGACY_BUILD_ID,
-      cnbRepository: process.env.CNB_REPO,
-    },
-    database: {
-      migrationCount: Number(process.env.BASELINE_MIGRATION_COUNT),
-      migrationSetSha256: process.env.BASELINE_MIGRATION_DIGEST,
-    },
-  };
-}
-fs.writeFileSync(process.env.METADATA_FILE, `${JSON.stringify(metadata, null, 2)}\n`, { mode: 0o600 });
-NODE
+OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/release-to-cnb.sh" "${release_args[@]}"
+if [ "$PRINT_COMMAND_ONLY" = "1" ]; then exit 0; fi
 
-release_args=(--metadata "$METADATA_FILE" --result-file "$RESULT_FILE")
-[ "$PRINT_COMMAND_ONLY" = "0" ] || release_args+=(--print-command)
-env -u CNB_TOKEN OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/release-to-cnb.sh" "${release_args[@]}"
-[ "$PRINT_COMMAND_ONLY" = "0" ] || exit 0
-
-CNB_SN="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.sn);' "$RESULT_FILE")"
-echo "==> 等待 CNB $CNB_SN 与生产版本 ${SOURCE_SHA:0:12}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
+cnb_sn="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.sn)' "$result_file")"
+echo "==> 等待 CNB native build/deploy ${cnb_sn}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
+deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
+status_file="$TMP_DIR/cnb-status.json"
+while [ "$(date +%s)" -le "$deadline" ]; do
+  if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$cnb_sn" --verbose > "$status_file"; then
+    state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file")"
+    if [ "$state" = "success" ]; then break; fi
+    if [ "$state" = "failure" ]; then
+      cat "$status_file"
+      echo "[错误] CNB build $cnb_sn 失败"
+      exit 1
+    fi
+  fi
+  sleep 10
+done
+if [ "${state:-unknown}" != "success" ]; then
+  echo "[错误] 等待 CNB build $cnb_sn 超时"
+  exit 1
+fi
 
 if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
-  SERVER_READ_KEY="$KEY"
+  read_key="$KEY"
 elif [ -n "${KEY_CONTENT:-}" ]; then
   TMP_KEY="$(mktemp)"
   printf '%s\n' "$KEY_CONTENT" > "$TMP_KEY"
   chmod 600 "$TMP_KEY"
-  SERVER_READ_KEY="$TMP_KEY"
+  read_key="$TMP_KEY"
 else
-  echo "[错误] 缺少生产只读验证所需 KEY/KEY_CONTENT"; exit 1
+  echo "[错误] 缺少生产只读验证 KEY/KEY_CONTENT"
+  exit 1
 fi
 
-deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
-while [ "$(date +%s)" -le "$deadline" ]; do
-  status_file="$TMP_DIR/cnb-status.json"
-  if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$CNB_SN" --verbose > "$status_file" 2>/dev/null; then
-    state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
-    [ "$state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
-  fi
-  deployed_sha="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-    "python3 -c \"import json; from pathlib import Path; p=Path('$REMOTE_DIR/.workspace/deployed-release.json'); print(json.loads(p.read_text())['source']['commitSha'] if p.exists() else '')\"" 2>/dev/null || true)"
-  if [ "$deployed_sha" = "$SOURCE_SHA" ]; then
-    ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
-      "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_SHA'"
-    echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
-    exit 0
-  fi
-  sleep 10
-done
+echo "==> 复验生产记录、PM2、健康与版本..."
+ssh -o BatchMode=yes -o ConnectTimeout=15 -o StrictHostKeyChecking=accept-new -i "$read_key" "${SERVER:?SERVER not set}" \
+  "EXPECTED_SHA='$head_sha' EXPECTED_REPOSITORY='$CNB_REPO' HEALTHCHECK_URL='${HEALTHCHECK_URL:?HEALTHCHECK_URL not set}' REMOTE_WORKSPACE_CONFIG_DIR='${REMOTE_WORKSPACE_CONFIG_DIR:?REMOTE_WORKSPACE_CONFIG_DIR not set}' node - <<'NODE'
+const fs = require('fs');
+const { execFileSync } = require('child_process');
+const path = require('path');
+const record = JSON.parse(fs.readFileSync(path.join(process.env.REMOTE_WORKSPACE_CONFIG_DIR, 'deployed-release.json'), 'utf8'));
+if (record?.schemaVersion !== 2
+  || record?.source?.commitSha !== process.env.EXPECTED_SHA
+  || record?.cnb?.repository !== process.env.EXPECTED_REPOSITORY
+  || !/^sha256:[0-9a-f]{64}$/.test(record?.artifact?.digest ?? '')) {
+  throw new Error('production deployed-release does not match CNB source identity');
+}
+const processes = JSON.parse(execFileSync('pm2', ['jlist'], { encoding: 'utf8' }));
+for (const name of ['workspace', 'workspace-wecom-agent']) {
+  const process = processes.find((item) => item.name === name);
+  if (!process || process.pm2_env?.status !== 'online') throw new Error(name + ' is not online');
+}
+const health = execFileSync('curl', ['-fsS', process.env.HEALTHCHECK_URL], { encoding: 'utf8' });
+void health;
+const version = JSON.parse(execFileSync('curl', ['-fsS', 'http://127.0.0.1:3000/workspace/api/settings/version'], { encoding: 'utf8' }));
+if (version?.version !== process.env.EXPECTED_SHA) throw new Error('production version does not match deployed SHA');
+console.log(JSON.stringify({ source: record.source.commitSha, release: record.deployment.releaseId, artifact: record.artifact.digest }));
+NODE"
 
-echo "[错误] 等待 CNB/生产部署超时: $CNB_SN"
-exit 1
+echo "==> CNB-only deploy 完成: ${head_sha:0:12}"

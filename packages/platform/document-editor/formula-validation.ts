@@ -4,6 +4,7 @@ import {
   parseFormulaExpression,
   validateFormulaFunctionArguments,
 } from "../formula/parser";
+import { SUPPORTED_FUNCTIONS, type SupportedFormulaFunction } from "../formula/expression";
 import { durationUnit, isFormulaAlias, validateDateDifferenceExpression } from "../formula/date-difference";
 import { normalizeFormulaDisplayText } from "./formula-display";
 import { slotContextLabel } from "./slot-numbering";
@@ -153,6 +154,21 @@ function replaceOutsideReferences(formulaText: string, mappings: Map<string, str
     if (/^(?:\{[^}]*\}|\[[^\]]*\])$/.test(part)) return part;
     return [...mappings.entries()]
       .sort(([left], [right]) => right.length - left.length)
-      .reduce((text, [label, alias]) => text.replace(new RegExp(escapeRegExp(label), "g"), alias), part);
+      .reduce((text, [label, alias]) => replaceFormulaLabel(text, label, alias), part);
   }).join("");
+}
+
+function replaceFormulaLabel(formulaText: string, label: string, alias: string) {
+  const identifier = /^[A-Za-z_][A-Za-z0-9_]*$/.test(label);
+  const pattern = new RegExp(
+    identifier
+      ? `(?<![A-Za-z0-9_])${escapeRegExp(label)}(?![A-Za-z0-9_])`
+      : escapeRegExp(label),
+    "g",
+  );
+  const supportedFunction = SUPPORTED_FUNCTIONS.has(label.toUpperCase() as SupportedFormulaFunction);
+  return formulaText.replace(pattern, (match, offset: number, source: string) => {
+    if (supportedFunction && /^\s*\(/.test(source.slice(offset + match.length))) return match;
+    return alias;
+  });
 }

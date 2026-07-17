@@ -47,3 +47,23 @@ test("local full CI receipt rejects forged command or status fields", () => {
     /contract is invalid/,
   );
 });
+
+test("cross-platform verification keeps the exact tree and receipt contract", () => {
+  const receipt = createLocalFullCiReceipt({
+    treeSha: tree,
+    nodeVersion: "v24.14.0",
+    platform: "darwin",
+    architecture: "arm64",
+  });
+  assert.equal(validateLocalFullCiReceipt(receipt, {
+    treeSha: tree,
+    requireRuntimeMatch: false,
+  }), receipt);
+  assert.throws(
+    () => validateLocalFullCiReceipt({ ...receipt, runtime: {} }, {
+      treeSha: tree,
+      requireRuntimeMatch: false,
+    }),
+    /runtime is invalid/,
+  );
+});

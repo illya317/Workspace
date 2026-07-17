@@ -72,28 +72,6 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
       "packages/platform/server/agent/cnb-pr.executeCnbPullRequestProposal",
     ),
   },
-  registeredGovernance({
-    key: "agent.config.save",
-    activeEntity: "AgentProfile",
-    subject: "configuration",
-    scope: "system",
-    auditPolicy: "history",
-    domain: d(
-      "packages/platform/server/agent/domain/configuration-validation.validateAgentConfigurationUpdate",
-      "packages/platform/server/agent/configuration-service.executeAgentConfigurationUpdateCommand",
-    ),
-  }),
-  registeredGovernance({
-    key: "agent.config.actionCeiling.configure",
-    activeEntity: "SystemConfig",
-    subject: "policy",
-    scope: "system",
-    auditPolicy: "history",
-    domain: d(
-      "packages/platform/server/agent/domain/permission-management-validation.validateAgentActionCeilingUpdate",
-      "packages/platform/server/agent/permission-management-service.executeAgentActionCeilingUpdateCommand",
-    ),
-  }),
   {
     ...registeredActionFacts("docs.editor.template.draft.save"),
     kind: "write",

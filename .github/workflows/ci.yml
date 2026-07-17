@@ -23,11 +23,6 @@ on:
         required: true
         default: true
         type: boolean
-      publish_artifact:
-        description: Upload a canonical standalone artifact for this CI run after full verification
-        required: true
-        default: false
-        type: boolean
   schedule:
     - cron: "17 18 * * *"
 
@@ -68,7 +63,6 @@ jobs:
       e2e_specs_json: ${{ steps.risk.outputs.e2e_specs_json || '[]' }}
       required_suites_json: ${{ steps.risk.outputs.required_suites_json || '[]' }}
       classification_json: ${{ steps.risk.outputs.classification_json || '{"schemaVersion":1,"riskClass":"C3","e2eMode":"full","requiredSuites":[],"e2eSpecs":[],"reasonCodes":["trusted-classifier-bootstrap"]}' }}
-      publish_artifact: ${{ steps.risk.outputs.publish_artifact || steps.refs.outputs.publish_requested }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
@@ -80,7 +74,6 @@ jobs:
         env:
           EVENT_NAME: ${{ github.event_name }}
           EVENT_SHA: ${{ github.sha }}
-          EVENT_REF: ${{ github.ref }}
           PUSH_BEFORE: ${{ github.event.before }}
           PR_BASE_SHA: ${{ github.event.pull_request.base.sha }}
           PR_HEAD_SHA: ${{ github.event.pull_request.head.sha }}
@@ -91,13 +84,11 @@ jobs:
           INPUT_TARGET_SHA: ${{ inputs.target_sha }}
           INPUT_BASE_SHA: ${{ inputs.base_sha }}
           INPUT_FORCE_FULL: ${{ inputs.force_full }}
-          INPUT_PUBLISH_ARTIFACT: ${{ inputs.publish_artifact }}
         run: |
           set -euo pipefail
           full_sha='^[0-9a-f]{40}$'
           force_full=false
           final_candidate=true
-          publish_requested=false
           source_sha="$EVENT_SHA"
 
           case "$EVENT_NAME" in
@@ -119,7 +110,6 @@ jobs:
                 trusted_sha="$head_sha"
                 force_full=true
               fi
-              if [ "$EVENT_REF" = "refs/heads/main" ]; then publish_requested=true; fi
               ;;
             merge_group)
               base_sha="$MERGE_BASE_SHA"
@@ -158,23 +148,6 @@ jobs:
                 trusted_sha="$head_sha"
               fi
               force_full="${INPUT_FORCE_FULL:-true}"
-              publish_requested="${INPUT_PUBLISH_ARTIFACT:-false}"
-              if [ "$publish_requested" = "true" ]; then
-                if [ "$force_full" != "true" ]; then
-                  echo "workflow_dispatch publishing requires force_full=true" >&2
-                  exit 1
-                fi
-                if [ "$EVENT_REF" != "refs/heads/main" ]; then
-                  echo "workflow_dispatch publishing is restricted to refs/heads/main" >&2
-                  exit 1
-                fi
-                git fetch --no-tags origin main
-                canonical_main="$(git rev-parse refs/remotes/origin/main)"
-                if [ "$head_sha" != "$canonical_main" ]; then
-                  echo "publish target $head_sha is not canonical main HEAD $canonical_main" >&2
-                  exit 1
-                fi
-              fi
               ;;
             schedule)
               head_sha="$EVENT_SHA"
@@ -202,7 +175,6 @@ jobs:
             echo "source_sha=$source_sha"
             echo "force_full=$force_full"
             echo "final_candidate=$final_candidate"
-            echo "publish_requested=$publish_requested"
           } >> "$GITHUB_OUTPUT"
 
       - name: Classify the complete trusted-base diff
@@ -214,7 +186,6 @@ jobs:
           TRUSTED_SHA: ${{ steps.refs.outputs.trusted_sha }}
           FORCE_FULL: ${{ steps.refs.outputs.force_full }}
           FINAL_CANDIDATE: ${{ steps.refs.outputs.final_candidate }}
-          PUBLISH_REQUESTED: ${{ steps.refs.outputs.publish_requested }}
           EVENT_NAME: ${{ github.event_name }}
         run: |
           set -euo pipefail
@@ -233,7 +204,6 @@ jobs:
           )
           if [ "$FORCE_FULL" = "true" ]; then args+=(--force-full); fi
           if [ "$FINAL_CANDIDATE" = "true" ]; then args+=(--final-candidate); fi
-          if [ "$PUBLISH_REQUESTED" = "true" ]; then args+=(--publish-requested); fi
           node "$trusted_classifier" "${args[@]}"
 
   static:
@@ -275,6 +245,9 @@ jobs:
           node -e 'const p=require("./.ci/migration-policy.json"); process.stdout.write("Migration maintenance required: " + p.requiresMaintenance + "\n")' \
             >> "$GITHUB_STEP_SUMMARY"
       - run: npm ci --no-audit --fund=false
+      - name: Ensure ShellCheck for ops lint
+        if: ${{ needs.classify.outputs.risk_class != 'C0' }}
+        run: command -v shellcheck >/dev/null || { sudo apt-get update && sudo apt-get install -y shellcheck; }
       - name: Documentation consistency
         run: npm run docs:check
       - name: Static gates and data contracts
@@ -451,9 +424,6 @@ jobs:
             --expected-run-id "${{ github.run_id }}"
             --expected-run-attempt "${{ github.run_attempt }}"
           )
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ needs.classify.outputs.publish_artifact }}" = "true" ]; then
-            args+=(--require-full-dispatch)
-          fi
           node scripts/ci/verify-artifact-manifest.mjs "${args[@]}"
       - name: Upload canonical standalone artifact
         id: upload

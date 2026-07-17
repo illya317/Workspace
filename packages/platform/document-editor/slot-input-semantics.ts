@@ -47,6 +47,33 @@ export function numberFormatOptions() {
   ];
 }
 
+export function numberDisplayOptions() {
+  return [
+    { value: "plain", label: "普通数字" },
+    { value: "percent", label: "百分比" },
+  ];
+}
+
+export function numberDisplay(attrs: EditorSlotInline, field?: FieldDefinition) {
+  if (attrs.numberDisplayMode === "plain" || attrs.numberDisplayMode === "percent") return attrs.numberDisplayMode;
+  return attrs.unit === "%" || field?.unit === "%" ? "percent" : "plain";
+}
+
+export function numberDisplayPatch(value: string, attrs: EditorSlotInline, type: EditorSlotType): SlotPatch {
+  if (value === "percent") {
+    return {
+      numberDisplayMode: "percent",
+      unit: "%",
+      formulaInputMode: isFormulaOutput(attrs, type) ? null : "percent",
+    };
+  }
+  return {
+    numberDisplayMode: "plain",
+    unit: attrs.unit === "%" ? null : attrs.unit,
+    formulaInputMode: null,
+  };
+}
+
 export function inputMethod(attrs: EditorSlotInline, field?: FieldDefinition): InputMethod {
   if (attrs.slotKind === "parameter") return "text";
   const raw = attrs.inputType ?? field?.inputType;
@@ -64,14 +91,14 @@ export function inputMethod(attrs: EditorSlotInline, field?: FieldDefinition): I
 export function inputMethodPatch(value: string, attrs: EditorSlotInline, field?: FieldDefinition): SlotPatch {
   const semantic = textLikeValueType(attrs, field);
   const options = effectiveOptions(attrs, field);
-  if (value === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
-  if (value === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
-  if (value === "textarea") return { inputType: "textarea", withTime: null, valueType: "text", options: null, placeholder: attrs.placeholder, numberFormat: null, precision: null };
+  if (value === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, placeholder: attrs.placeholder, numberFormat: null, formulaInputMode: null, precision: null };
+  if (value === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, placeholder: attrs.placeholder, numberFormat: null, formulaInputMode: null, precision: null };
+  if (value === "textarea") return { inputType: "textarea", withTime: null, valueType: "text", options: null, placeholder: attrs.placeholder, numberFormat: null, formulaInputMode: null, precision: null };
   if (value === "radio" || value === "select") {
     const nextOptions = options.length ? options : defaultOptions(value);
-    return { inputType: value, withTime: null, valueType: inferChoiceValueType(nextOptions, value), options: nextOptions, placeholder: null, numberFormat: null, precision: null };
+    return { inputType: value, withTime: null, valueType: inferChoiceValueType(nextOptions, value), options: nextOptions, placeholder: null, numberFormat: null, formulaInputMode: null, precision: null };
   }
-  if (value === "checkbox") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, precision: null };
+  if (value === "checkbox") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, formulaInputMode: null, precision: null };
   return {
     inputType: "text",
     withTime: null,
@@ -119,10 +146,10 @@ export function slotValueType(attrs: EditorSlotInline, field?: FieldDefinition):
 export function valueTypePatch(value: string, attrs: EditorSlotInline, field?: FieldDefinition): SlotPatch {
   const next = normalizeValueType(value) ?? "text";
   const options = effectiveOptions(attrs, field);
-  if (next === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, numberFormat: null, precision: null };
-  if (next === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, numberFormat: null, precision: null };
-  if (next === "boolean") return { inputType: "radio", withTime: null, valueType: "boolean", options: booleanOptions(options), placeholder: null, numberFormat: null, precision: null };
-  if (next === "array") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, precision: null };
+  if (next === "date") return { inputType: "date", withTime: null, valueType: "date", options: null, numberFormat: null, formulaInputMode: null, precision: null };
+  if (next === "datetime") return { inputType: "date", withTime: true, valueType: "datetime", options: null, numberFormat: null, formulaInputMode: null, precision: null };
+  if (next === "boolean") return { inputType: "radio", withTime: null, valueType: "boolean", options: booleanOptions(options), placeholder: null, numberFormat: null, formulaInputMode: null, precision: null };
+  if (next === "array") return { inputType: "checkbox", withTime: null, valueType: "array", options: options.length ? options : defaultOptions("checkbox"), placeholder: null, numberFormat: null, formulaInputMode: null, precision: null };
   const method = inputMethod(attrs, field);
   const inputType = method === "date" || method === "datetime" || method === "checkbox" || attrs.inputType === "number" || attrs.inputType === "field" ? "text" : attrs.inputType;
   return {

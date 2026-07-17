@@ -25,6 +25,7 @@ import type {
   FormulaField,
   FormulaValue,
 } from "./types";
+import { createInitialFormulaValues } from "./initial-values";
 
 let formulaPluginsRegistered = false;
 
@@ -141,7 +142,7 @@ export class HyperFormulaAdapter implements FormulaEngineAdapter {
     }
     const catalog = createReferenceCatalog(fields);
     const fieldByKey = new Map(fields.map((field) => [field.fieldKey, field]));
-    const values = createInitialValues(fields, input.values);
+    const values = createInitialFormulaValues(fields, input.values);
     const cellByFieldKey = createTemporaryCellMap(fields);
     const errors: FormulaEvaluationError[] = [];
     const sheet = fields.map((field) => {
@@ -234,17 +235,6 @@ function isInputReference(reference: string, catalog: ReturnType<typeof createRe
   if (!field) return false;
   if (field.slotKind === "variable" || field.slotKind === "parameter") return true;
   return field.attr === "fillable" && (field.valueType === "number" || field.inputType === "number" || field.inputType === "field");
-}
-
-function createInitialValues(fields: FormulaField[], overrides?: Record<string, FormulaValue | undefined>) {
-  const values: Record<string, FormulaValue> = {};
-  for (const field of fields) {
-    if (field.value !== undefined) values[field.fieldKey] = field.value;
-  }
-  for (const [fieldKey, value] of Object.entries(overrides ?? {})) {
-    if (value !== undefined) values[fieldKey] = value;
-  }
-  return values;
 }
 
 function normalizeHyperFormulaValue(value: unknown): FormulaValue {

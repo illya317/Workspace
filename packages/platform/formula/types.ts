@@ -19,6 +19,7 @@ export interface FormulaField {
   valueType?: string;
   inputType?: string;
   numberFormat?: string;
+  formulaInputMode?: "percent";
   precision?: number;
   attr?: string;
 }

@@ -7,8 +7,8 @@
 - 分类器读取完整 base..head diff，不读取提交信息，也不把代码里的“纯文案”当成可证明的文案变更。
 - 条件 job 只有在分类器明确允许时才能跳过；`CI / required` 会同时校验应成功和应跳过的 job。
 - 分类器、CI runner、Playwright runner、影响映射、公开 contract 或测试删除本身都按 C3 处理。
-- 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）仍是 GitHub 合并门禁，但不参与生产发布判定。
-- 生产门禁是当前 Git tree 的本地 `npm run check:ci` 凭证。CNB 从该 source parent 在 Linux 构建一次 canonical standalone；服务器不构建源码。
+- 启用分支保护后，受保护 `main` 的精确 `CI / required`（GitHub Actions App）是 GitHub PR/合并质量门禁，不是生产部署的运行时依赖。当前远端是否已经启用见“分支保护初始化”，不能仅凭仓库中存在配置脚本就宣称保护生效。
+- 生产部署由本地全量 CI 凭证和 CNB 共同承担：release request 绑定精确 source SHA/tree 与 `npm run check:ci` 凭证，CNB 校验后只运行 Linux standalone 构建并复验 manifest/digest 后部署。部署链路不调用 GitHub API、Actions、Release，也不需要 GitHub token；CNB 不重复全量门禁，服务器不重建。
 
 ## 风险等级
 
@@ -29,7 +29,7 @@
 - 单个展示资源 blob 超过 2 MiB、展示资源 blob 总变化超过 5 MiB，或展示资源超过 20 个文件；文本和二进制都计入；
 - 任意非展示二进制文件变化；这类产物无法用行数证明影响范围，直接全量；
 - base/head、生产基线或远端证据不能被严格证明；
-- 人工 `force_full`，用于指定 SHA 的完整 CI 诊断。
+- 人工 `force_full`。
 
 阈值只负责升级，不负责降级。一行 migration 仍是 C3；大量生成文件不会单独把普通变更误判成大改。
 
@@ -44,9 +44,8 @@ classify
 └── build        C2/C3，以及 ready/main C1：standalone tgz + manifest + SHA-256
       └── E2E    C2 映射 suite 或 C3：下载并启动同一个 tgz
 
-所有预期结果 -> CI / required
-
-local full CI receipt -> CNB release injection -> Linux build -> artifact/manifest validation -> production
+GitHub PR/merge -> CI / required（协作质量）
+本地已提交 source -> 本地全量 CI receipt -> CNB release request -> CNB Linux build -> digest-pinned deploy
 ```
 
 同一 event + 稳定 ref（或同一 PR）的连续 push/触发会取消旧 CI，只保留最新 SHA 的运行。候选过程固定复用 `codex/staging-main`、`codex/candidate-main` 和同一个 bot PR，因此第二次 push 会更新同一 ref/PR 并取消旧候选 CI。不同 PR、main push 与手工任务不会互相取消。已经进入生产 backup/migration/switch 临界区的部署不使用这组可取消 concurrency；服务器互斥锁保证一次只有一个部署。
@@ -100,17 +99,16 @@ npm run test:e2e:latency
 
 ## 从提交到发布
 
-1. pre-commit 继续只检查 staged/changed 范围；显式设置 `PRE_COMMIT_FULL=1` 会运行全量并为 staged tree 写入发布可复用凭证。
-2. Git 跟踪的 `ops/publish.sh push`（桌面私有目录只保留加载 `.env` 的薄 wrapper）以 `origin/main..HEAD` 运行自适应本地 gate，把 staging SHA 交给受信任的 `Promote candidate` workflow；workflow 创建或更新同一个 bot-authored candidate PR，并在精确 SHA 上显式触发 CI，不直推 `main` 或 CNB。
-3. 对命中 CODEOWNERS 的质量策略路径，由 repository owner 审批 bot-authored PR；这解决单 owner 对自己所开 PR 无法批准的问题，但不虚构“独立第二人”审查。旧批准会在后续 push 后失效；配置未要求通用批准数或 last-push 第二人批准。
-4. PR/merge-group 按受保护 base 分类并由 `CI / required` 聚合。GitHub Actions 的 standalone artifact 只在同一 CI run 内交给 E2E，不发布 prerelease，也不参与部署。
-5. `publish.sh deploy` 要求本地在干净的 `main` 和仓库 Node 主版本上运行。当前 tree 没有有效凭证时只运行一次 `npm run check:ci`，已有同 runtime/tree 凭证时直接复用；随后生成绑定 source SHA/tree、本地全量凭证与可选 bootstrap receipt 的 `.cnb-release.json`。发布脚本不读取 GitHub。
-6. Git 跟踪的 `ops/cnb-release.yml` 是 CNB CD 配置真源；私有目录只保留逐字一致副本和 `.env`。`cnb-release` 注入提交只能增加 `.cnb.yml` 与 `.cnb-release.json`，其唯一 parent 必须是 source SHA。
-7. CNB 在 injection checkout 中安装依赖并构建 standalone。packager 绑定 parent source SHA/tree 和 BUILD_ID，生成 manifest/tgz；`deploy.sh` 在上传前校验 manifest、artifact hash、migration set 和注入身份，全程不访问 GitHub。
-8. 发布顺序以 CNB checkout 的 Git ancestry 与服务器 `deployed-release.json` 为准：candidate 必须是 bootstrap baseline 或已部署 source 的后代；同 source 是 no-op，回退或分叉直接阻断。
-9. `publish.sh` 记录 CNB trigger SN、轮询 CNB 终态，并通过 SSH 等待服务器记录、health 与 `/workspace/api/settings/version` 精确等于目标 SHA。生产记录保存 CNB repository/injection SHA 和 artifact SHA-256，不创建 GitHub Deployment。
+1. pre-commit 继续只检查 staged/changed 范围；需要本地全量时显式设置 `PRE_COMMIT_FULL=1`。
+2. Git 跟踪的 `ops/publish.sh push` 仍可把候选提交交给 GitHub bot PR/CI；这是协作入口，与生产 deploy 解耦。
+3. `publish.sh deploy` 要求当前分支是发布分支、工作区干净且 HEAD 已提交。它不 fetch/查询 GitHub，而是创建 `.cnb-deploy-request.json`，绑定 source SHA/tree、CNB repository/ref 和可选的一次性 bootstrap context。
+4. `release-to-cnb.sh` 从当前 source 创建唯一 parent 的 `cnb-release` 子提交，只注入 `.cnb.yml` 与 `.cnb-deploy-request.json`，推送 CNB 后用 `api_trigger_manual` 触发一次 build，并记录返回 SN。
+5. CNB 复验 release parent、注入文件集合和 deploy request；随后 checkout source parent，运行 `deploy:preflight:ci`、`docs:check`、`test:node`，并用 `build-standalone-artifact.sh` 在 Linux 构建 artifact/manifest。manifest provenance 只记录 CNB release commit，不包含 GitHub 运行身份。
+6. `ops/deploy.sh` 是唯一外部部署入口，负责复验 source/tree、CNB provenance、artifact size/digest 和 migration-set digest；它通过私有可执行模块 `ops/deploy/runtime-provision.sh` 准备服务器运行时，再上传并执行 `ops/deploy/remote-release.sh` 完成原子发布事务。生产顺序只比较上次 source 与候选 source 的 Git ancestry。首次接管必须带一次性 bootstrap context，后续只允许单调前进；同 source 重试只做实时健康与版本复验。
+7. 服务器继续执行互斥锁、备份、maintenance writer fencing、migration、candidate warm-up、原子 current 切换和 PM2 恢复。成功后写 schema-v2 `deployed-release.json`，只包含 source、artifact、CNB release identity 和 deployment 目录。
+8. 本地 `publish-cnb.sh` 轮询同一个 CNB SN；终态成功后通过只读 SSH 复验 deployed record、Workspace/WeCom PM2、health 与 `/workspace/api/settings/version` 精确等于 source SHA。诊断失败使用同一 SN，不额外触发第二条部署。
 
-生产基线不可读、不是候选祖先、migration 区间无法证明、manifest 或 artifact hash 不匹配时一律阻断。
+生产部署不复用 GitHub CI artifact：CNB 对精确 source 重新执行部署前检查并构建产物。生产基线不可读、不是候选祖先、累计 migration 区间不可证明或证据解析失败时一律阻断。
 
 ## 分支保护初始化
 
@@ -173,13 +171,13 @@ ops/publish.sh deploy \
   --bootstrap-legacy-build-id local-1784105165133
 ```
 
-入口会验证旧 CNB anchor、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及生产 migration 的名称和 checksum 集合。锁内在首次 mutation 前写入 bootstrap marker，并只允许同一 receipt/candidate 续跑。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy` 对账同一 SHA，不要再次传 bootstrap 参数。
+入口会验证旧 CNB commit/build、release 目录、`current`、Workspace/可选 WeCom PM2 身份、运行版本、BUILD_ID，以及 17 条生产 migration 的名称和 checksum 集合；CNB 对候选重新运行发布预检、Node 测试和 Linux production build。锁内在首次 migration、seed、provision 或 PM2 变化前原子写入 schema-v2 `mutation-started` marker，并只允许同一 receipt/candidate 续跑。首次接管的所有 pending migration 都按维护窗口处理：先停并确认所有 writer，再备份、迁移和切换。正式记录成功写入后 marker 才会清除；若客户端在正式记录写入后断线，使用普通 `ops/publish.sh deploy` 对账同一 SHA，不要再次传 bootstrap 参数。
 
-CNB 和生产服务器不保存 GitHub token，也不读取 GitHub API、Actions artifact 或 release asset。它们只消费 CNB injection checkout，并在迁移和切换前确认 `deployed-release.json` 没有被并发修改。
+本地发布操作者只需要 CNB Git push、CNB build trigger/status 和生产只读验证权限；部署路径不需要 GitHub 权限。CNB 加密变量提供服务器 SSH 凭据，服务器迁移和切换前仍会确认 `deployed-release.json` 没有被并发修改。
 
 ## 速度策略、预算与观察
 
-发布提速来自删除 GitHub promotion/remote CI/artifact 等待，并按 exact tree 复用本地全量凭证。CNB 仍必须在 Linux 重新执行一次 standalone 构建；这不是第二轮全量 CI，服务器也不重建。
+GitHub CI 继续用并行 lanes、风险分级和缓存服务 PR/合并反馈；生产部署不等待或查询它。CNB 发布阶段当前固定运行发布预检、Node 测试和一次 production build，优先保证单一平台内的稳定闭环；服务器不重建。
 
 历史观测中，一次成功 CNB build 总耗时约 `405.55 s`（约 `6 分 46 秒`）；这是单次历史样本，不是中位数、p95 或当前 SLA。旧 GitHub 串行链路曾观测约 5 分 28 秒。拆分后的预算仍是 C0 约 1 分钟、局部补丁约 2 分钟获得主要反馈、C3 wall time 约 4–5 分钟；CNB 先以低于历史样本为优化方向，达到稳定 p50/p95 前不宣称 3–5 分钟已经实现。
 

@@ -47,6 +47,7 @@ export function validateLocalFullCiReceipt(receipt, {
   nodeVersion = process.version,
   platform = process.platform,
   architecture = process.arch,
+  requireRuntimeMatch = true,
 } = {}) {
   if (!receipt || typeof receipt !== "object" || Array.isArray(receipt)) {
     throw new Error("local full CI receipt must be an object");
@@ -62,9 +63,14 @@ export function validateLocalFullCiReceipt(receipt, {
     throw new Error("local full CI receipt is for a different Git tree");
   }
   requireIsoTimestamp(receipt.completedAt);
-  if (receipt.runtime?.nodeVersion !== nodeVersion
-    || receipt.runtime?.platform !== platform
-    || receipt.runtime?.architecture !== architecture) {
+  if (typeof receipt.runtime?.nodeVersion !== "string"
+    || typeof receipt.runtime?.platform !== "string"
+    || typeof receipt.runtime?.architecture !== "string") {
+    throw new Error("local full CI receipt runtime is invalid");
+  }
+  if (requireRuntimeMatch && (receipt.runtime.nodeVersion !== nodeVersion
+    || receipt.runtime.platform !== platform
+    || receipt.runtime.architecture !== architecture)) {
     throw new Error("local full CI receipt runtime does not match the current runtime");
   }
   return receipt;

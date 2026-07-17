@@ -170,6 +170,7 @@ export interface QcTemplateMethodField {
   type?: string;
   attr?: string;
   unit?: string;
+  formulaInputMode?: "percent";
   formula?: string;
   rule?: string;
   referenceFieldKey?: string;

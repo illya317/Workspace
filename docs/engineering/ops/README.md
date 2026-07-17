@@ -1,13 +1,15 @@
 # Deployment
 
 Production release orchestration and its reviewable control plane live in this repository:
-`ops/publish.sh`, `ops/publish-cnb.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, and
-`ops/deploy.sh`. The private operations workspace contains secrets, runtime targets, environment
+`ops/publish.sh`, `ops/publish-cnb.sh`, `ops/release-to-cnb.sh`, `ops/cnb-release.yml`, `ops/deploy.sh`,
+and the CNB deploy-request/order contracts. The private operations workspace contains secrets, runtime targets, environment
 values, and thin wrappers that load `.env` before executing these tracked scripts; it is not a
 second source of release logic.
 
-Production release requires an exact-tree local full-CI receipt, then goes directly to CNB. GitHub
-PR/CI remains available for collaboration but is not queried or awaited by the deploy path.
+`ops/publish.sh deploy` requires a clean committed `main`, runs or reuses one exact-tree
+`npm run check:ci` receipt, and embeds that receipt in the CNB deploy request. CNB validates
+the request and receipt, builds the Linux standalone artifact, and deploys it without repeating
+the local full quality gate.
 
 Repository-owned runtime dependency contracts:
 
@@ -19,7 +21,7 @@ Repository-owned runtime dependency contracts:
 - Local/CI also defines `SHADOW_DATABASE_URL` for a separate disposable database. Production must not point the shadow URL at the live database.
 - Active Prisma history lives in `prisma/migrations` and starts at `20260713000000_postgresql_baseline`. The old provider-specific history is audit-only under `prisma/migrations-sqlite-legacy`.
 - `prisma db push` is forbidden for shared and production databases. Deploy executes `prisma migrate deploy`, checks migration/constraint state, seeds the resource registry, then runs the read-only permission-action check.
-- After migrations and resource seeding, deploy runs `scripts/provision-agent-workforce.mjs --execute` followed by `--check`. The provisioner resolves HR identities by stable codes, holds a PostgreSQL session advisory lock before opening its fixed-snapshot transaction, and aborts the release on ambiguity or immutable-binding drift before application processes are replaced. Its default mode is rollback-only dry-run. It creates missing canonical virtual employees, positions, Agent profiles and runtime bindings. Only the Workspace-bound AI0004 receives the exact `agent.assistant` entry/read/submit and `agent.source` read/submit grant set; it receives no `agent.config` management entry. Management-center grants for `agent` and its three L2s remain separately administered. Provisioner-owned Workspace grants on external Codex/CI/server identities are revoked only while the latest ledger event still belongs to the provisioner; existing assistant grants are never copied into source grants. AI0004 is limited to source search and PR proposals; local development, direct commits, and deployment remain external runtime capabilities. The provisioner never reactivates ended employment/positions, resumes a suspended profile or runtime binding, restores an explicit RBAC revoke, or overwrites post-provision instructions and capability lists.
+- After migrations and resource seeding, deploy runs `scripts/provision-agent-workforce.mjs --execute` followed by `--check`. The provisioner resolves HR identities by stable codes, holds a PostgreSQL session advisory lock before opening its fixed-snapshot transaction, and aborts the release on ambiguity or immutable-binding drift before application processes are replaced. Its default mode is rollback-only dry-run. It creates missing canonical virtual employees, positions, Agent profiles and runtime bindings. Only the Workspace-bound AI0004 receives the exact `agent.assistant` entry/read/submit and `agent.source` read/submit grant set. Provisioner-owned Workspace grants on external Codex/CI/server identities are revoked only while the latest ledger event still belongs to the provisioner; existing assistant grants are never copied into source grants. AI0004 is limited to source search and PR proposals; local development, direct commits and deployment remain external runtime capabilities. The provisioner never reactivates ended employment/positions, resumes a suspended profile or runtime binding, restores an explicit RBAC revoke, or overwrites post-provision instructions and capability lists.
 - Each normal deployment creates a custom-format `pg_dump`, verifies it with `pg_restore --list`, writes a SHA-256 sidecar, and only then replaces the application process.
 
 ## SQLite cutover contract

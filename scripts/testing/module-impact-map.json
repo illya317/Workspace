@@ -330,7 +330,6 @@
       "id": "agent",
       "roots": {
         "prefixes": [
-          "app/(modules)/agent/",
           "app/api/agent/"
         ],
         "files": []

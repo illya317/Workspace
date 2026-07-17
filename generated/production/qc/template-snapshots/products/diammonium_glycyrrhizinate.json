@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:15.795Z",
+  "generatedAt": "2026-07-16T13:29:31.469Z",
   "productKey": "diammonium_glycyrrhizinate",
   "productName": "甘草酸二铵胶囊",
   "document": {
@@ -28536,7 +28536,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -28579,7 +28579,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -28622,7 +28622,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -28669,7 +28669,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -28712,7 +28712,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -28755,7 +28755,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -31111,7 +31111,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               },
               {
@@ -31242,7 +31242,7 @@
                 "colspan": 1,
                 "rowspan": 1,
                 "isEmpty": false,
-                "align": "left",
+                "align": "center",
                 "bold": false
               }
             ]
@@ -51942,6 +51942,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "diammonium_glycyrrhizinate",
@@ -54079,6 +54080,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "diammonium_glycyrrhizinate",
@@ -54707,6 +54709,7 @@
         "inputType": "text",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "readonlyDisplay": false,
         "source": {
           "productKey": "diammonium_glycyrrhizinate",
@@ -57437,6 +57440,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/dissolution/diammonium/dui_zhao_han_liang",
@@ -58140,6 +58144,7 @@
         "inputType": "number",
         "attr": "fillable",
         "unit": "%",
+        "formulaInputMode": "percent",
         "options": [],
         "readonlyDisplay": false,
         "referenceFieldKey": "packaging/content/diammonium/dui_zhao_han_liang",
@@ -61488,7 +61493,7 @@
   "audit": {
     "productKey": "diammonium_glycyrrhizinate",
     "productName": "甘草酸二铵胶囊",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/diammonium_glycyrrhizinate.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/diammonium_glycyrrhizinate.json",
     "stages": 3,
     "experimentItems": 7,
     "tables": 86,
@@ -61534,7 +61539,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/甘草酸二铵胶囊.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/甘草酸二铵胶囊.md",
         "exists": true,
         "headings": [
           {
@@ -62155,12 +62160,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/diammonium_glycyrrhizinate.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/diammonium_glycyrrhizinate.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/diammonium_glycyrrhizinate_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []

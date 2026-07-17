@@ -1,4 +1,5 @@
 #!/usr/bin/env -S -i /bin/bash
+# shellcheck shell=bash
 set -euo pipefail
 
 PATH="/usr/bin:/bin"

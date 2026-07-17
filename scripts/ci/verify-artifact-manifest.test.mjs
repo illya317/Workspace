@@ -58,7 +58,7 @@ function fixture() {
   return { root, artifactPath, manifestPath, manifest };
 }
 
-test("verifies artifact, repository inputs, source, and full dispatch provenance", (t) => {
+test("verifies artifact, repository inputs, source, and run identity", (t) => {
   const value = fixture();
   t.after(() => fs.rmSync(value.root, { recursive: true, force: true }));
   const result = verifyArtifactManifest({
@@ -70,7 +70,6 @@ test("verifies artifact, repository inputs, source, and full dispatch provenance
     expectedEventName: "workflow_dispatch",
     expectedRunId: "42",
     expectedRunAttempt: "2",
-    requireFullDispatch: true,
   });
   assert.equal(result.artifactSha256, sha256File(value.artifactPath));
   assert.equal(result.forceFull, true);

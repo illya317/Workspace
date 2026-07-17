@@ -17,7 +17,7 @@ function testRepository() {
   for (const relativePath of [
     "app/api/route.test.ts",
     "ops/nested/check.test.js",
-    "ops/build-standalone-artifact.test.mjs",
+    "ops/cnb-deploy-request.test.mjs",
     "packages/example/domain.test.tsx",
     "scripts/check/action-contract-runtime.test.ts",
     "scripts/check/tool.test.cjs",
@@ -33,7 +33,7 @@ test("discovers ops tests recursively and classifies them as tooling determinist
     const allTests = discoverNodeTests(repositoryRoot);
     assert.deepEqual(allTests, [
       "app/api/route.test.ts",
-      "ops/build-standalone-artifact.test.mjs",
+      "ops/cnb-deploy-request.test.mjs",
       "ops/nested/check.test.js",
       "packages/example/domain.test.tsx",
       "scripts/check/action-contract-runtime.test.ts",
@@ -41,7 +41,7 @@ test("discovers ops tests recursively and classifies them as tooling determinist
       "scripts/runtime/worker.test.mts",
     ]);
     assert.deepEqual(selectNodeTests(allTests, "tooling"), [
-      "ops/build-standalone-artifact.test.mjs",
+      "ops/cnb-deploy-request.test.mjs",
       "ops/nested/check.test.js",
       "scripts/check/tool.test.cjs",
     ]);
@@ -77,7 +77,7 @@ test("tooling main passes the exact sorted ops and scripts test contract to node
     assert.equal(invocation.command, process.execPath);
     assert.equal(invocation.options.cwd, repositoryRoot);
     assert.deepEqual(invocation.args.slice(-3), [
-      "ops/build-standalone-artifact.test.mjs",
+      "ops/cnb-deploy-request.test.mjs",
       "ops/nested/check.test.js",
       "scripts/check/tool.test.cjs",
     ]);

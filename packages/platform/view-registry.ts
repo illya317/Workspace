@@ -7,45 +7,6 @@ export type { PageStyleRouteModule, PageViewDefinition, PageViewNode };
 
 const basePageViewDefinitions: PageViewDefinition[] = [
   {
-    route: "/agent/config",
-    moduleKey: "agent",
-    label: "Agent 配置",
-    views: [
-      { key: "profiles", label: "Agent 档案" },
-      {
-        key: "permissions",
-        label: "能力与权限",
-        children: [
-          { key: "capabilities", label: "运行能力" },
-          { key: "ceiling", label: "动作上限" },
-          { key: "grants", label: "组织授权" },
-        ],
-      },
-    ],
-  },
-  {
-    route: "/agent/usage",
-    moduleKey: "agent",
-    label: "使用分析",
-    views: [
-      { key: "overview", label: "使用概览" },
-      { key: "employees", label: "员工使用" },
-      { key: "tokens", label: "Token 消耗" },
-      { key: "sessions", label: "会话明细" },
-    ],
-  },
-  {
-    route: "/agent/reports",
-    moduleKey: "agent",
-    label: "任务汇报",
-    views: [
-      { key: "overview", label: "汇报总览" },
-      { key: "agents", label: "按 Agent" },
-      { key: "runs", label: "运行记录" },
-      { key: "exceptions", label: "异常失败" },
-    ],
-  },
-  {
     route: "/hr/roster",
     moduleKey: "hr",
     label: "人事基础资料",

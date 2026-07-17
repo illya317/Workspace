@@ -3,6 +3,7 @@
 import { pathToFileURL } from "node:url";
 
 const SHA_PATTERN = /^[0-9a-f]{40}$/;
+const DIGEST_PATTERN = /^sha256:[0-9a-f]{64}$/;
 
 function requireSha(value, label) {
   if (!SHA_PATTERN.test(value ?? "")) throw new Error(`${label} must be a full lowercase Git SHA`);
@@ -11,19 +12,22 @@ function requireSha(value, label) {
 
 export function validateDeployOrder({
   candidateSha,
+  candidateArtifactDigest,
   currentHeadSha,
   bootstrapBase,
   deployedSha,
+  deployedArtifactDigest,
   comparison,
 }) {
   requireSha(candidateSha, "candidate SHA");
+  if (!DIGEST_PATTERN.test(candidateArtifactDigest ?? "")) throw new Error("candidate artifact digest is invalid");
   requireSha(currentHeadSha, "current CNB source SHA");
   if (candidateSha !== currentHeadSha) {
     throw new Error(`candidate ${candidateSha} is stale; CNB source is ${currentHeadSha}`);
   }
   if (bootstrapBase) {
     requireSha(bootstrapBase, "production bootstrap baseline");
-    if (deployedSha) throw new Error("production bootstrap metadata is forbidden after a deployed record exists");
+    if (deployedSha) throw new Error("production bootstrap evidence is forbidden after a deployed record exists");
     if (!comparison
       || !["ahead", "identical"].includes(comparison.status)
       || comparison.base_commit?.sha !== bootstrapBase
@@ -35,8 +39,9 @@ export function validateDeployOrder({
     }
     return { action: "deploy", reason: "audited-production-bootstrap" };
   }
-  if (!deployedSha) throw new Error("initial deployment requires audited production bootstrap metadata");
+  if (!deployedSha) throw new Error("initial deployment requires audited production bootstrap evidence");
   requireSha(deployedSha, "deployed SHA");
+  if (!DIGEST_PATTERN.test(deployedArtifactDigest ?? "")) throw new Error("deployed artifact digest is invalid");
   if (deployedSha === candidateSha) {
     return { action: "noop", reason: "source-already-deployed" };
   }
@@ -75,9 +80,11 @@ export async function main(argv = process.argv.slice(2)) {
   }
   const result = validateDeployOrder({
     candidateSha: options.candidate,
+    candidateArtifactDigest: options.candidate_artifact_digest,
     currentHeadSha: options.current_head,
     bootstrapBase: options.bootstrap_base,
     deployedSha: options.deployed,
+    deployedArtifactDigest: options.deployed_artifact_digest,
     comparison,
   });
   process.stdout.write(`${result.action}\n`);

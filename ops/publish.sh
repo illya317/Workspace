@@ -2,14 +2,54 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+usage() {
+  cat <<'EOF'
+用法:
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh push
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [选项]
+
+模式:
+  push     更新 GitHub staging ref，由受信任 workflow 创建或更新候选 PR
+  deploy   将当前已提交源码交给 CNB 独立检查、构建、打包和部署
+
+说明:
+  push 不直推 main 或 CNB，也不参与生产部署。
+  deploy 不调用 GitHub；详细选项使用 publish.sh deploy --help 查看。
+EOF
+}
+
+mode="${1:-}"
+case "$mode" in
+  deploy)
+    exec "$SCRIPT_DIR/publish-cnb.sh" "$@"
+    ;;
+  push)
+    shift
+    if [ "$#" -ne 0 ]; then
+      echo "[错误] push 模式不接受额外参数: $*"
+      exit 1
+    fi
+    ;;
+  -h|--help)
+    usage
+    exit 0
+    ;;
+  '')
+    echo "[错误] 请指定模式: push 或 deploy"
+    usage
+    exit 1
+    ;;
+  *)
+    echo "[错误] 未知模式: $mode"
+    usage
+    exit 1
+    ;;
+esac
+
 OPS_ENV_FILE="${OPS_ENV_FILE:-$SCRIPT_DIR/.env}"
 # shellcheck source=/dev/null
 source "$OPS_ENV_FILE"
-
-if [ "${1:-}" = "deploy" ]; then
-  shift
-  exec "$SCRIPT_DIR/publish-cnb.sh" "$@"
-fi
 
 : "${SOURCE_DIR:?SOURCE_DIR not set in $OPS_ENV_FILE}"
 : "${RELEASE_BRANCH:?RELEASE_BRANCH not set in $OPS_ENV_FILE}"
@@ -26,34 +66,16 @@ with_github_proxy() {
   fi
 }
 
-usage() {
-  cat <<'EOF'
-用法:
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh push
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [CNB 部署选项]
-
-模式:
-  push     对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR
-  deploy   转交 CNB-native 发布入口；部署链不读取 GitHub
-
-说明:
-  GitHub 只负责 PR 与 CI。CNB 从自己的 cnb-release 注入提交构建并部署。
-EOF
-}
-
-case "${1:-}" in
-  push) shift ;;
-  -h|--help) usage; exit 0 ;;
-  *) echo "[错误] 请指定模式: push 或 deploy"; usage; exit 1 ;;
-esac
-[ "$#" = "0" ] || { echo "[错误] push 不接受额外参数"; exit 1; }
-
 case "$PROMOTION_WAIT_SECONDS" in
   ''|*[!0-9]*) echo "[错误] PROMOTION_WAIT_SECONDS 必须是正整数"; exit 1 ;;
 esac
-[ "$PROMOTION_WAIT_SECONDS" -ge 1 ] || { echo "[错误] PROMOTION_WAIT_SECONDS 必须至少为 1"; exit 1; }
+if [ "$PROMOTION_WAIT_SECONDS" -lt 1 ]; then
+  echo "[错误] PROMOTION_WAIT_SECONDS 必须至少为 1"
+  exit 1
+fi
 
 cd "$SOURCE_DIR"
+
 dirty_status="$(git status --short)"
 if [ -n "$dirty_status" ]; then
   echo "[错误] 工作区存在未提交改动，请先提交或清理："
@@ -61,7 +83,10 @@ if [ -n "$dirty_status" ]; then
   exit 1
 fi
 
-command -v gh >/dev/null 2>&1 || { echo "[错误] 未找到 gh CLI；push 需要 GitHub PR/CI 能力"; exit 1; }
+command -v gh >/dev/null 2>&1 || {
+  echo "[错误] 未找到 gh CLI；push 模式需要 GitHub PR 能力"
+  exit 1
+}
 
 echo "==> 拉取 GitHub $RELEASE_BRANCH..."
 with_github_proxy git fetch "$GITHUB_REMOTE_NAME" "$RELEASE_BRANCH"
@@ -101,10 +126,13 @@ while [ "$(date +%s)" -le "$promotion_deadline" ]; do
   promotion_run_id="$(with_github_proxy gh api \
     "repos/${github_repository}/actions/workflows/promote-candidate.yml/runs?branch=${RELEASE_BRANCH}&event=workflow_dispatch&per_page=100" \
     --jq "[.workflow_runs[] | select(.id > $minimum_promotion_run_id and .head_sha == \"$remote_main_sha\")] | sort_by(.id) | last | .id // empty")"
-  [ -z "$promotion_run_id" ] || break
+  if [ -n "$promotion_run_id" ]; then break; fi
   sleep 2
 done
-[ -n "$promotion_run_id" ] || { echo "[错误] 等待 Promote candidate workflow 启动超时"; exit 1; }
+if [ -z "$promotion_run_id" ]; then
+  echo "[错误] 等待 Promote candidate workflow 启动超时"
+  exit 1
+fi
 
 with_github_proxy gh run watch "$promotion_run_id" --repo "$github_repository" --exit-status --interval 5
 pr_url="$(with_github_proxy gh pr view "$candidate_branch" --repo "$github_repository" --json url --jq .url)"

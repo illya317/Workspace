@@ -349,6 +349,21 @@ if (classification && (classification.riskClass !== riskClass
   throw new Error("CI classification fields are inconsistent");
 }
 
+let provenance = { provider: "local" };
+if (process.env.CI_PROVIDER === "cnb") {
+  if (!/^[0-9a-f]{40}$/.test(process.env.CNB_RELEASE_SHA ?? "")) {
+    throw new Error("CNB_RELEASE_SHA must identify the CNB release commit");
+  }
+  provenance = { provider: "cnb", releaseCommitSha: process.env.CNB_RELEASE_SHA };
+} else if (process.env.GITHUB_RUN_ID) {
+  provenance = {
+    provider: "github",
+    runId: process.env.GITHUB_RUN_ID,
+    runAttempt: process.env.GITHUB_RUN_ATTEMPT || null,
+    eventName: process.env.GITHUB_EVENT_NAME || null,
+  };
+}
+
 const manifest = {
   schemaVersion: 1,
   source: {
@@ -373,9 +388,12 @@ const manifest = {
     platform: process.platform,
     architecture: process.arch,
     command: "ops/build-standalone-artifact.sh",
-    githubRunId: process.env.GITHUB_RUN_ID || null,
-    githubRunAttempt: process.env.GITHUB_RUN_ATTEMPT || null,
-    githubEventName: process.env.GITHUB_EVENT_NAME || null,
+    provenance,
+    ...(provenance.provider === "github" ? {
+      githubRunId: provenance.runId,
+      githubRunAttempt: provenance.runAttempt,
+      githubEventName: provenance.eventName,
+    } : {}),
     riskClass,
     e2eMode,
     forceFull: process.env.CI_FORCE_FULL === "true",

@@ -263,6 +263,8 @@ function tiptapNodeToInline(node: TiptapNode): EditorInline | null {
       inputType: stringValue(attrs.inputType),
       valueType: stringValue(attrs.valueType),
       numberFormat: stringValue(attrs.numberFormat),
+      numberDisplayMode: attrs.numberDisplayMode === "plain" || attrs.numberDisplayMode === "percent" ? attrs.numberDisplayMode : undefined,
+      formulaInputMode: attrs.formulaInputMode === "percent" ? "percent" : undefined,
       precision: numberValue(attrs.precision),
       options: Array.isArray(attrs.options) ? attrs.options.map(String) : undefined,
       placeholder: stringValue(attrs.placeholder),

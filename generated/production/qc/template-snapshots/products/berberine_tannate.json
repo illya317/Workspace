@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "kind": "qc-doc-editor-product-template",
-  "generatedAt": "2026-07-11T05:17:15.301Z",
+  "generatedAt": "2026-07-16T13:29:29.753Z",
   "productKey": "berberine_tannate",
   "productName": "鞣酸小檗碱片",
   "document": {
@@ -60820,7 +60820,7 @@
   "audit": {
     "productKey": "berberine_tannate",
     "productName": "鞣酸小檗碱片",
-    "outputFile": "/Users/koito/Project/workspace/workspace/generated/production/qc/template-snapshots/products/berberine_tannate.json",
+    "outputFile": "/Users/koito/.codex/worktrees/577c/workspace/generated/production/qc/template-snapshots/products/berberine_tannate.json",
     "stages": 3,
     "experimentItems": 8,
     "tables": 91,
@@ -60866,7 +60866,7 @@
     },
     "source": {
       "canonicalMd": {
-        "path": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/鞣酸小檗碱片.md",
+        "path": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/source/source_docs/schema/md_canonical/鞣酸小檗碱片.md",
         "exists": true,
         "headings": [
           {
@@ -61544,12 +61544,12 @@
           ]
         }
       },
-      "recordPath": "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/records/berberine_tannate.json",
+      "recordPath": "/Users/koito/Project/workspace/.workspace/config/pharma-qc/records/berberine_tannate.json",
       "recordExists": true,
       "fullPaths": [
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/berberine_tannate_intermediate_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/berberine_tannate_packaging_full.json",
-        "/Users/koito/Desktop/workspace/.workspace/config/pharma-qc/full/berberine_tannate_finished_full.json"
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/berberine_tannate_intermediate_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/berberine_tannate_packaging_full.json",
+        "/Users/koito/Project/workspace/.workspace/config/pharma-qc/full/berberine_tannate_finished_full.json"
       ],
       "missingFullStageFiles": [],
       "warnings": []
