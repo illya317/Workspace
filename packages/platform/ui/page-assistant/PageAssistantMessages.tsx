@@ -104,21 +104,25 @@ export function PageAssistantMessages({
   settleProposal,
 }: Props) {
   return (
-    <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50 px-4 py-3">
+    <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50 px-3 py-4 sm:px-4 sm:py-3">
       {messages.length === 0 ? (
-        <div className="rounded-md border border-dashed border-slate-300 bg-white px-3 py-3 text-sm text-slate-500">
-          当前会话为空。
+        <div className="grid min-h-full place-items-center px-8 text-center">
+          <div>
+            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><ActionGlyph kind="assistant" className="size-6" /></div>
+            <div className="text-sm font-semibold text-slate-800">开始和页面助手对话</div>
+            <div className="mt-1 text-xs leading-5 text-slate-500">它会结合当前页面和栏目理解你的问题。</div>
+          </div>
         </div>
       ) : null}
       {messages.map((message) => (
         <article key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
           <div
-            className={`max-w-[88%] rounded-lg px-3 py-2 text-sm leading-6 shadow-sm ${
+            className={`${message.role === "user" ? "max-w-[86%]" : "w-full sm:max-w-[88%]"} rounded-lg px-3 py-2 text-sm leading-6 ${
               message.role === "user"
-                ? "bg-emerald-600 text-white"
+                ? "bg-emerald-600 text-white shadow-sm"
                 : message.responseType === "error"
                   ? "border border-red-200 bg-red-50 text-red-800"
-                  : "border border-slate-200 bg-white text-slate-800"
+                  : "bg-transparent text-slate-800 sm:border sm:border-slate-200 sm:bg-white sm:shadow-sm"
             }`}
           >
             <div className="whitespace-pre-wrap">{message.content}</div>

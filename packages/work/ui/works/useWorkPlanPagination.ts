@@ -5,17 +5,21 @@ import type { SurfaceToolbarItem } from "@workspace/core/ui";
 import { sameTarget } from "./works-client-helpers";
 import { workSpaceKey } from "./WorkSpaceSidebar";
 import type { WorkPlan, WorkTaskSpace } from "./types";
-
-const PLAN_PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
+import {
+  DEFAULT_WORK_PLAN_PAGE_SIZE,
+  normalizeWorkPlanPageSize,
+  WORK_PLAN_PAGE_SIZE_OPTIONS,
+} from "./work-plan-pagination";
 
 export function useWorkPlanPagination(activePlan: WorkPlan | null, plans: WorkPlan[]) {
-  const [planPageSize, setPlanPageSize] = useState(50);
+  const [planPageSize, setPlanPageSize] = useState(DEFAULT_WORK_PLAN_PAGE_SIZE);
   const [planPageBySpace, setPlanPageBySpace] = useState<Map<string, number>>(() => new Map());
 
   useEffect(() => {
     if (!activePlan) return;
-    const page = Math.floor(plans.filter((plan) => sameTarget(plan, activePlan)).findIndex((plan) => plan.id === activePlan.id) / planPageSize);
-    if (page < 0) return;
+    const planIndex = plans.filter((plan) => sameTarget(plan, activePlan)).findIndex((plan) => plan.id === activePlan.id);
+    if (planIndex < 0) return;
+    const page = Math.floor(planIndex / normalizeWorkPlanPageSize(planPageSize));
     setPlanPageBySpace((current) => new Map(current).set(workSpaceKey(activePlan), page));
   }, [activePlan, plans, planPageSize]);
 
@@ -24,9 +28,9 @@ export function useWorkPlanPagination(activePlan: WorkPlan | null, plans: WorkPl
     key: "plan-page-size",
     label: "工作计划",
     value: String(planPageSize),
-    options: PLAN_PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size}条/页` })),
+    options: WORK_PLAN_PAGE_SIZE_OPTIONS.map((size) => ({ value: String(size), label: `${size}条/页` })),
     onChange: (value: string) => {
-      setPlanPageSize(Number(value));
+      setPlanPageSize(normalizeWorkPlanPageSize(value));
       setPlanPageBySpace(new Map());
     },
   }), [planPageSize]);

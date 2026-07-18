@@ -198,6 +198,7 @@ function MobileToolbarControl({
     return <div className="rounded-2xl bg-slate-50 px-4 py-3 text-sm leading-6 text-slate-600">{item.content}</div>;
   }
   if (item.kind === "menu") return <MobileToolbarMenu item={item} onClose={onClose} />;
+  if (item.kind === "page-size") return <MobilePageSizeControl item={item} />;
 
   const label = getControlLabel(item);
   return (
@@ -213,6 +214,36 @@ function MobileToolbarControl({
         <ToolbarItemRenderer item={item} size={size} />
       </div>
     </div>
+  );
+}
+
+function MobilePageSizeControl({ item }: { item: Extract<ToolbarItem, { kind: "page-size" }> }) {
+  const label = item.label && item.label !== "每页条数" ? `${item.label} · 每页条数` : "每页条数";
+  return (
+    <fieldset className="min-w-0" data-mobile-toolbar-control="page-size">
+      <legend className="mb-2 px-1 text-xs font-semibold text-slate-500">{label}</legend>
+      <div className="grid grid-flow-col auto-cols-fr gap-1 rounded-2xl bg-slate-100 p-1" role="radiogroup" aria-label={label}>
+        {item.options.map((option) => {
+          const selected = option.value === item.value;
+          return (
+            <button
+              key={option.value}
+              type="button"
+              role="radio"
+              aria-checked={selected}
+              disabled={option.disabled}
+              onClick={() => item.onChange(option.value)}
+              className={joinClassNames(
+                "min-h-11 min-w-0 rounded-xl px-2 text-sm font-semibold transition disabled:cursor-not-allowed disabled:opacity-45",
+                selected ? "bg-white text-emerald-700 shadow-sm" : "text-slate-600 active:bg-white/70",
+              )}
+            >
+              <span className="block truncate">{option.label ?? option.value}</span>
+            </button>
+          );
+        })}
+      </div>
+    </fieldset>
   );
 }
 

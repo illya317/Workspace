@@ -9,11 +9,18 @@ test.use({
 test.describe.configure({ mode: "serial", retries: 0 });
 
 for (const width of [360, 375, 390]) {
-  test(`${width}px：工作视图可完整切换，工具栏纯图标，周报矩阵转为可操作卡片`, async ({ page }) => {
+  test(`${width}px：工作视图可完整切换，工具栏纯图标，周报矩阵进入横屏工作台`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await mockWorkReports(page);
 
     await page.goto("/workspace/work/me");
+
+    await expect(page.getByAltText("Logo")).toBeHidden();
+    const mobileBack = page.locator('nav button[aria-label="返回"]:visible');
+    await expect(mobileBack).toBeVisible();
+    const mobileBackBox = await mobileBack.boundingBox();
+    expect(mobileBackBox?.x).toBeLessThanOrEqual(16);
+    expect(mobileBackBox?.width).toBeGreaterThanOrEqual(44);
 
     await expectIconOnlyActions(page, ["新增", "筛选", "更多"]);
     const commandDock = page.locator('[data-mobile-toolbar-command-dock="true"]');
@@ -45,6 +52,10 @@ for (const width of [360, 375, 390]) {
     const actionRows = toolbarSheet.locator('[data-mobile-toolbar-action-row="true"]');
     const settingsControl = toolbarSheet.locator('[data-mobile-toolbar-control="page-size"]');
     await expect(settingsControl).toBeVisible();
+    await expect(settingsControl.getByRole("textbox")).toHaveCount(0);
+    await expect(settingsControl.getByRole("radio", { name: "10条/页", exact: true })).toBeVisible();
+    await expect(settingsControl.getByRole("radio", { name: "20条/页", exact: true })).toBeVisible();
+    await expect(settingsControl.getByRole("radio", { name: "50条/页", exact: true })).toBeVisible();
     const actionLabels = await actionRows.allInnerTexts();
     expect(actionLabels.every((label) => label.trim().length > 0)).toBe(true);
     const sheetScroll = toolbarSheet.locator('[data-mobile-toolbar-sheet-scroll="true"]');
@@ -84,13 +95,17 @@ for (const width of [360, 375, 390]) {
     await page.getByRole("button", { name: "07-13 周 当前 2026-07-13 - 2026-07-19", exact: true }).click();
     await expect(page.getByRole("heading", { name: "周度工作汇报", exact: true })).toBeVisible();
 
+    await expect(page.getByRole("heading", { name: "横屏使用数据矩阵", exact: true })).toBeVisible();
+    await expect(page.getByRole("button", { name: "进入横屏工作台", exact: true })).toBeVisible();
+    await page.setViewportSize({ width: 844, height: width });
+
     await expect(page.getByText("提高移动端信息可读性", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("本周完成情况", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("关键结果", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("修复栏目文字裁切", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("下周计划", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("验证 360–390px 触控流程", { exact: true }).first()).toBeVisible();
-    await expect(page.locator("table:visible")).toHaveCount(0);
+    await expect(page.locator("table:visible")).toHaveCount(1);
     const saveAction = page.getByRole("button", { name: "保存快照", exact: true });
     await expect(saveAction).toBeEnabled();
     await saveAction.click();
@@ -104,34 +119,14 @@ for (const width of [360, 375, 390]) {
     expect(viewport.scrollWidth).toBe(viewport.clientWidth);
   });
 
-  test(`${width}px：分栏按列表到详情全屏推进，长章节按目录逐节进入`, async ({ page }) => {
+  test(`${width}px：开发治理页明确提示手机端不提供入口`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await page.goto("/workspace/settings/ui");
 
-    const listPane = page.locator('[data-mobile-split-pane="list"]');
-    await expect(listPane).toBeVisible();
-    await expect(page.locator('[data-mobile-split-pane="detail"]')).toBeHidden();
-
-    const bodySurfaceEntry = listPane.getByText("BodySurface", { exact: true });
-    await expect(bodySurfaceEntry).toBeVisible();
-    await bodySurfaceEntry.click();
-
-    const detailPane = page.locator('[data-mobile-split-pane="detail"]');
-    await expect(detailPane).toBeVisible();
-    await expect(page.getByRole("button", { name: "返回声明目录", exact: true })).toBeVisible();
-    await page.waitForTimeout(250);
-    await expect(detailPane).toBeVisible();
-
-    const sectionDirectory = detailPane.locator('[data-mobile-section-view="directory"]');
-    await expect(sectionDirectory).toBeVisible();
-    await sectionDirectory.getByRole("button", { name: "1 kind", exact: true }).click();
-    await expect(detailPane.locator('[data-mobile-section-view="detail"]')).toBeVisible();
-    await expect(detailPane.getByRole("heading", { name: "kind", exact: true })).toBeVisible();
-
-    await detailPane.getByRole("button", { name: "返回章节目录", exact: true }).click();
-    await expect(sectionDirectory).toBeVisible();
-    await page.getByRole("button", { name: "返回声明目录", exact: true }).click();
-    await expect(listPane).toBeVisible();
+    await expect(page.getByRole("heading", { name: "手机端暂不提供UI 组件库", exact: true })).toBeVisible();
+    await expect(page.getByText("组件注册表是开发与治理工具，手机端不提供入口。", { exact: true })).toBeVisible();
+    await expect(page.locator('[data-mobile-experience="unavailable"]').getByRole("button", { name: "返回", exact: true })).toBeVisible();
+    await expect(page.locator('[data-mobile-split-pane]:visible')).toHaveCount(0);
 
     const viewport = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
@@ -161,6 +156,25 @@ test("移动端更多操作把即时动作与显示设置分组呈现", async ({
   expect((await actionRows.allInnerTexts()).every((label) => label.trim().length > 0)).toBe(true);
   await expect(toolbarSheet.locator('[data-mobile-toolbar-control="column-toggle"]')).toBeVisible();
   await expect(toolbarSheet.locator('[data-mobile-toolbar-control="page-size"]')).toBeVisible();
+});
+
+test("移动端页面助手使用全屏会话而不是悬浮卡片", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/workspace/work/me");
+
+  await page.getByRole("button", { name: "页面助手", exact: true }).click();
+  const assistant = page.getByRole("region", { name: "页面助手", exact: true });
+  await expect(assistant).toBeVisible();
+  const assistantBox = await assistant.boundingBox();
+  expect(Math.round(assistantBox?.x ?? -1)).toBe(0);
+  expect(Math.round(assistantBox?.y ?? -1)).toBe(0);
+  expect(Math.round(assistantBox?.width ?? -1)).toBe(390);
+  expect(Math.round(assistantBox?.height ?? -1)).toBe(844);
+
+  const close = page.getByRole("button", { name: "关闭页面助手", exact: true });
+  const closeBox = await close.boundingBox();
+  expect(closeBox?.x).toBeLessThanOrEqual(16);
+  expect(closeBox?.width).toBeGreaterThanOrEqual(44);
 });
 
 async function mockWorkReports(page: import("@playwright/test").Page) {

@@ -44,7 +44,7 @@ export function PageAssistantComposer({
   }
 
   return (
-    <form onSubmit={(event) => void submitMessage(event)} className="border-t border-slate-200 bg-white p-3">
+    <form onSubmit={(event) => void submitMessage(event)} className="border-t border-slate-200 bg-white px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 sm:p-3">
       <label className="sr-only" htmlFor="page-assistant-input">输入问题</label>
       <PendingAttachments attachments={attachments} removeAttachment={removeAttachment} />
       <div className="flex items-end gap-2">
@@ -62,7 +62,7 @@ export function PageAssistantComposer({
               void submitMessage();
             }
           }}
-          className="min-h-16 flex-1 resize-none rounded-md border border-slate-300 px-3 py-2 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
+          className="min-h-12 max-h-32 flex-1 resize-none rounded-2xl border border-slate-300 px-3 py-2.5 text-sm text-slate-900 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 sm:min-h-16 sm:rounded-md sm:py-2"
         />
         {sending ? (
           <button
@@ -70,7 +70,7 @@ export function PageAssistantComposer({
             title="中止"
             aria-label="中止当前请求"
             onClick={stopRequest}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-slate-800 text-white shadow-sm hover:bg-slate-700"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-slate-800 text-white shadow-sm hover:bg-slate-700 sm:size-10 sm:rounded-md"
           >
             <ActionGlyph kind="stop" className="h-4 w-4" />
           </button>
@@ -80,7 +80,7 @@ export function PageAssistantComposer({
             title="发送"
             aria-label="发送"
             disabled={!draft.trim() && attachments.length === 0}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+            className="flex size-12 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-white shadow-sm hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 sm:size-10 sm:rounded-md"
           >
             <ActionGlyph kind="send" className="h-4 w-4" />
           </button>
@@ -117,7 +117,7 @@ function PendingAttachments({
             title="移除图片"
             aria-label={`移除图片 ${attachment.name}`}
             onClick={() => removeAttachment(attachment.id)}
-            className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded bg-slate-900/70 text-white opacity-0 transition-opacity group-hover:opacity-100"
+            className="absolute right-1 top-1 flex h-6 w-6 items-center justify-center rounded bg-slate-900/70 text-white opacity-100 transition-opacity sm:opacity-0 sm:group-hover:opacity-100"
           >
             <ActionGlyph kind="x" className="h-3.5 w-3.5" />
           </button>

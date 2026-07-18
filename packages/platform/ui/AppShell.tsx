@@ -77,10 +77,20 @@ export default function AppShell({
     <div className="min-h-screen bg-slate-50 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0">
       <nav className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur-xl">
         <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4">
+          {backHref && (
+            <button
+              type="button"
+              aria-label={backLabel ?? "返回"}
+              onClick={() => void navigate(backHref)}
+              className="grid size-11 shrink-0 place-items-center rounded-xl text-gray-600 transition active:bg-gray-100 sm:hidden"
+            >
+              <ArrowLeft aria-hidden="true" className="size-6" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => void navigate("/portal")}
-            className="flex flex-shrink-0 items-center border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
+            className="hidden flex-shrink-0 items-center border-0 bg-transparent p-0 shadow-none hover:bg-transparent sm:flex"
           >
             <Image
               src={workspacePath("/company/logo.png")}
@@ -116,10 +126,9 @@ export default function AppShell({
               type="button"
               aria-label={backLabel ?? "返回"}
               onClick={() => void navigate(backHref)}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5"
+              className="hidden shrink-0 items-center justify-center rounded-md px-2.5 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 sm:inline-flex"
             >
-              <ArrowLeft aria-hidden="true" className="h-4 w-4 sm:hidden" />
-              <span className="hidden sm:inline">{backLabel ?? "返回"}</span>
+              <span>{backLabel ?? "返回"}</span>
             </button>
           )}
           <div className="flex-1" />

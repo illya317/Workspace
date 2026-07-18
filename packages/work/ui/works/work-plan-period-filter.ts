@@ -6,6 +6,7 @@ export type WorkPlanPeriodFilter = "all" | WorkPeriodType | "routine";
 export type WorkOwnedPeriodType = "yearly" | "half_year" | "quarterly" | "monthly";
 
 export const WORK_PLAN_PERIOD_FILTER_OPTIONS: Array<{ value: WorkPlanPeriodFilter; label: string }> = [
+  { value: "all", label: "全部" },
   { value: "routine", label: "日常" },
   { value: "monthly", label: "月" },
   { value: "quarterly", label: "季度" },

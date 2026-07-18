@@ -13,6 +13,7 @@ import SearchableOptionInput from "../input/SearchableOptionInput";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
+import ToolbarPageSizeControl from "./ToolbarPageSizeControlParts";
 import type { ToolbarActionGlyphKind, ToolbarActionKind, ToolbarItem } from "./Toolbar.types";
 
 export function ToolbarDivider() {
@@ -310,12 +311,12 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
     }
     case "page-size":
       return (
-        <SearchableOptionInput
+        <ToolbarPageSizeControl
           value={item.value}
           options={item.options}
-          onChange={(next) => item.onChange(next ?? "")}
-          placeholder={item.label}
-          inputClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
+          onChange={item.onChange}
+          label={item.label}
+          triggerClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
         />
       );
     case "period":

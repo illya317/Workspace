@@ -72,7 +72,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const [periodScheduleCreateContext, setPeriodScheduleCreateContext] = useState<WorkPeriodScheduleCreateContext | null>(null);
   const [periodScheduleCreateDraft, setPeriodScheduleCreateDraft] = useState<WorkPeriodScheduleCreateDraft | null>(null);
   const [periodScheduleCollapsedSourceIds, setPeriodScheduleCollapsedSourceIds] = useState<Set<number>>(() => new Set());
-  const [planPeriodFilter, setPlanPeriodFilter] = useState<WorkPlanPeriodFilter>("routine");
+  const [planPeriodFilter, setPlanPeriodFilter] = useState<WorkPlanPeriodFilter>("all");
   const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
