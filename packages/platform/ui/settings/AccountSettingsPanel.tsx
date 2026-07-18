@@ -250,6 +250,7 @@ export default function AccountSettingsPanel({
       description: entry?.desc ?? (index < MAX_PRIMARY_PORTAL_SLOTS ? "选择桌面入口" : "选择移动端快捷入口"),
       icon: entry?.icon ?? <ActionGlyph kind="add" />,
       color: entry?.color ?? "emerald",
+      badge: index >= MAX_PRIMARY_PORTAL_SLOTS ? "快捷" : undefined,
       onClick: () => openPortalSlotPicker(index),
     };
   });

@@ -29,6 +29,7 @@ import type {
   BodySurfaceSectionGridColumns,
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
+  BodySurfaceSectionVisibility,
   BodySurfaceSplitSectionProps,
 } from "./BodySurface.types";
 
@@ -42,6 +43,12 @@ function renderBodyList(list?: BodySurfaceListSpec) {
 }
 
 const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrome => section.chrome ?? (section.framed === false ? "plain" : "card");
+
+function sectionVisibilityClassName(visibility: BodySurfaceSectionVisibility | undefined) {
+  if (visibility === "mobile") return "sm:hidden";
+  if (visibility === "desktop") return "max-sm:hidden";
+  return "";
+}
 
 function renderSectionHeader(
   section: BodySurfaceSectionSpec,
@@ -125,7 +132,13 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
     stretchClassName,
   );
   return (
-    <BodySurfaceSectionFrame key={section.key} revealKey={section.key} itemRef={section.itemRef} className={stretchClassName}>
+    <BodySurfaceSectionFrame
+      key={section.key}
+      revealKey={section.key}
+      itemRef={section.itemRef}
+      className={joinClassNames(stretchClassName, sectionVisibilityClassName(section.visibility))}
+      visibility={section.visibility}
+    >
       <section className={sectionClassName}>
         {renderSectionHeader(section, chrome, renderedCreate)}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}

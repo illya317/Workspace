@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, type ReactNode, type Ref } from "react";
+import type { BodySurfaceSectionVisibility } from "../../BodySurface.types";
 import { useBodySurfaceRevealToken } from "./BodySurfaceRevealContext";
 
 export function BodySurfaceSectionFrame({
@@ -8,11 +9,13 @@ export function BodySurfaceSectionFrame({
   className,
   itemRef,
   revealKey,
+  visibility,
 }: {
   children: ReactNode;
   className?: string;
   itemRef?: Ref<HTMLDivElement>;
   revealKey: string;
+  visibility?: BodySurfaceSectionVisibility;
 }) {
   const internalRef = useRef<HTMLDivElement | null>(null);
   const revealToken = useBodySurfaceRevealToken(revealKey);
@@ -27,7 +30,7 @@ export function BodySurfaceSectionFrame({
     });
     return () => cancelAnimationFrame(frame);
   }, [revealToken]);
-  return <div ref={setRef} className={className}>{children}</div>;
+  return <div ref={setRef} className={className} data-surface-visibility={visibility}>{children}</div>;
 }
 
 function assignRef(ref: Ref<HTMLDivElement> | undefined, node: HTMLDivElement | null) {

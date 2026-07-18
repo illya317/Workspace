@@ -51,7 +51,16 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       onFocus={field.onFocus}
       autoFocus={field.autoFocus}
       inputRef={field.inputRef}
+      readOnly={field.readOnly}
+      ariaLabel={field.ariaLabel}
+      dataFieldKey={field.dataFieldKey}
+      title={field.title}
+      textAlign={field.textAlign}
+      visualState={field.visualState}
+      choiceType={field.choiceType}
+      choiceName={field.choiceName}
       accept={field.accept}
+      multiple={field.multiple}
       fileVariant={field.fileVariant}
       resetOnChange={field.resetOnChange}
       showFileName={field.showFileName}

@@ -15,6 +15,7 @@ export type BodySurfaceActionSize = "sm" | "md" | "lg" | "xl";
 export type BodySurfaceSectionChrome = "card" | "divider" | "plain";
 export type BodySurfaceSectionLayout = "stack" | "grid" | "split";
 export type BodySurfaceSectionGridColumns = 2 | 3;
+export type BodySurfaceSectionVisibility = "always" | "mobile" | "desktop";
 
 export interface BodySurfaceCommandSpec {
   key: string;
@@ -175,6 +176,7 @@ export type BodySurfaceSectionProps = BodySurfaceComposedSectionProps | BodySurf
 export interface BodySurfaceSectionSpec {
   key: string;
   label?: ReactNode;
+  visibility?: BodySurfaceSectionVisibility;
   header?: BodySurfaceSectionHeaderSpec;
   disclosure?: BodySurfaceSectionDisclosureSpec;
   chrome?: BodySurfaceSectionChrome;

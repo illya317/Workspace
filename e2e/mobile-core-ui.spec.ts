@@ -16,6 +16,60 @@ for (const width of [360, 375, 390]) {
     await page.goto("/workspace/work/me");
 
     await expectIconOnlyActions(page, ["新增", "筛选", "更多"]);
+    const commandDock = page.locator('[data-mobile-toolbar-command-dock="true"]');
+    const commandDockMetrics = await commandDock.evaluate((node) => ({
+      clientWidth: node.clientWidth,
+      scrollWidth: node.scrollWidth,
+      actions: node.querySelectorAll("button").length,
+    }));
+    expect(commandDockMetrics.scrollWidth).toBe(commandDockMetrics.clientWidth);
+    expect(commandDockMetrics.actions).toBeLessThanOrEqual(5);
+
+    await page.getByRole("button", { name: "更多", exact: true }).click();
+    const toolbarSheet = page.locator('[data-mobile-toolbar-sheet="true"]');
+    await expect(toolbarSheet).toBeVisible();
+    await expect(toolbarSheet.getByRole("heading", { name: "更多操作", exact: true })).toBeVisible();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("hidden");
+    const sheetMetrics = await toolbarSheet.evaluate((node) => {
+      const rect = node.getBoundingClientRect();
+      return {
+        bottom: Math.round(rect.bottom),
+        height: Math.round(rect.height),
+        parentIsBody: node.parentElement === document.body,
+        viewportHeight: window.innerHeight,
+      };
+    });
+    expect(sheetMetrics.parentIsBody).toBe(true);
+    expect(sheetMetrics.height).toBe(sheetMetrics.viewportHeight);
+    expect(sheetMetrics.bottom).toBe(sheetMetrics.viewportHeight);
+    const actionRows = toolbarSheet.locator('[data-mobile-toolbar-action-row="true"]');
+    const settingsControl = toolbarSheet.locator('[data-mobile-toolbar-control="page-size"]');
+    await expect(settingsControl).toBeVisible();
+    const actionLabels = await actionRows.allInnerTexts();
+    expect(actionLabels.every((label) => label.trim().length > 0)).toBe(true);
+    const sheetScroll = toolbarSheet.locator('[data-mobile-toolbar-sheet-scroll="true"]');
+    await sheetScroll.evaluate((node) => { node.scrollTop = node.scrollHeight; });
+    await expect(toolbarSheet.getByRole("button", { name: "关闭更多操作", exact: true })).toBeVisible();
+    await toolbarSheet.getByRole("button", { name: "关闭更多操作", exact: true }).click();
+    await expect(toolbarSheet).toBeHidden();
+    await expect.poll(() => page.evaluate(() => document.body.style.overflow)).toBe("");
+
+    await page.getByRole("button", { name: "筛选", exact: true }).click();
+    const filterSheet = page.locator('[data-mobile-toolbar-sheet="true"]');
+    const filterHeading = filterSheet.getByRole("heading", { name: "筛选条件", exact: true });
+    const firstFilterControl = filterSheet.locator('[data-mobile-toolbar-control]').first();
+    await expect(filterHeading).toBeVisible();
+    await expect(firstFilterControl).toBeVisible();
+    const filterGap = await filterSheet.evaluate((sheet) => {
+      const heading = sheet.querySelector("h2");
+      const control = sheet.querySelector<HTMLElement>('[data-mobile-toolbar-control]');
+      if (!heading || !control) return Number.POSITIVE_INFINITY;
+      const headingRect = heading.getBoundingClientRect();
+      const controlRect = control.getBoundingClientRect();
+      return Math.round(controlRect.top - headingRect.bottom);
+    });
+    expect(filterGap).toBeLessThanOrEqual(32);
+    await filterSheet.getByRole("button", { name: "关闭筛选条件", exact: true }).click();
 
     const selector = page.getByRole("button", { name: /当前栏目.*切换/ });
     await expect(selector).toContainText("工作计划");
@@ -93,6 +147,20 @@ test("桌面工具栏操作保持纯图标", async ({ page }) => {
   await page.goto("/workspace/work/me");
 
   await expectIconOnlyActions(page, ["新增", "隐藏工作计划", "页面助手"]);
+});
+
+test("移动端更多操作把即时动作与显示设置分组呈现", async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 844 });
+  await page.goto("/workspace/administration/contracts");
+
+  await page.getByRole("button", { name: "更多", exact: true }).click();
+  const toolbarSheet = page.locator('[data-mobile-toolbar-sheet="true"]');
+  await expect(toolbarSheet.getByRole("heading", { name: "更多操作", exact: true })).toBeVisible();
+  const actionRows = toolbarSheet.locator('[data-mobile-toolbar-action-row="true"]');
+  await expect(actionRows.first()).toBeVisible();
+  expect((await actionRows.allInnerTexts()).every((label) => label.trim().length > 0)).toBe(true);
+  await expect(toolbarSheet.locator('[data-mobile-toolbar-control="column-toggle"]')).toBeVisible();
+  await expect(toolbarSheet.locator('[data-mobile-toolbar-control="page-size"]')).toBeVisible();
 });
 
 async function mockWorkReports(page: import("@playwright/test").Page) {

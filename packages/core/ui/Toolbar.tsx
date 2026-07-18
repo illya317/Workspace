@@ -86,7 +86,7 @@ export function Toolbar({
   const content = (
     <div ref={containerRef} className="relative w-full min-w-0 overflow-visible">
       <div className="sm:hidden">
-        <MobileToolbarContent grouped={grouped} size={size} />
+        <MobileToolbarContent grouped={grouped} size={size} onSubmit={onSubmit} />
       </div>
       <div className="hidden sm:block">
         {renderToolbarContent(grouped, resolvedLayoutMode, size, gapClass)}

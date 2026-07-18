@@ -20,6 +20,8 @@ for (const width of [360, 375, 390]) {
       .locator("xpath=ancestor::section[1]");
     await expect(cardsSection.getByRole("button")).toHaveCount(12);
     await expect(shortcutSection.getByRole("button")).toHaveCount(2);
+    await expect(cardsSection.locator('[title="快捷"]')).toHaveCount(0);
+    await expect(shortcutSection.locator('[title="快捷"]')).toHaveCount(2);
     for (const fixedLabel of ["桌面", "消息", "我的"]) {
       await expect(shortcutSection.getByText(fixedLabel, { exact: true })).toBeVisible();
     }
@@ -54,6 +56,7 @@ for (const width of [360, 375, 390]) {
     const bottomNavigation = page.getByRole("navigation", { name: "移动端主导航", exact: true });
     await expect(bottomNavigation.getByRole("button")).toHaveCount(5);
     await expect(page.locator("main a")).toHaveCount(2);
+    await expect(page.locator("main").getByText("快捷", { exact: true })).toHaveCount(0);
     await expectGridColumns(page, 4);
 
     await page.getByRole("button", { name: "切换到默认桌面", exact: true }).click();
@@ -83,6 +86,7 @@ test("桌面端使用三列并同样只渲染所选卡片", async ({ page }) => 
   await preferencesLoaded;
 
   await expect(page.locator("main a")).toHaveCount(2);
+  await expect(page.locator("main").getByText("快捷", { exact: true })).toHaveCount(0);
   await expectGridColumns(page, 3);
 });
 
