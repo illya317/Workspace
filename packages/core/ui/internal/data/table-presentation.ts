@@ -112,11 +112,11 @@ export function resolveTableRowStateClass(state: DataSurfaceRowState = "normal")
 
 export function resolveSurfaceFrameClass(frame: DataSurfaceFrame = "plain", scroll?: DataSurfaceScrollSpec) {
   const maxHeight = scroll?.maxHeight === "sm"
-    ? "max-h-64"
+    ? "max-h-64 max-sm:max-h-none"
     : scroll?.maxHeight === "md"
-      ? "max-h-96"
+      ? "max-h-96 max-sm:max-h-none"
       : scroll?.maxHeight === "lg"
-        ? "max-h-[36rem]"
+        ? "max-h-[36rem] max-sm:max-h-none"
         : "";
   return joinClassNames(
     scroll?.x === false ? "overflow-x-hidden" : "overflow-x-auto",

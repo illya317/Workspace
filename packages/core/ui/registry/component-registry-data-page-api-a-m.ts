@@ -59,7 +59,7 @@ export const page_api_registry_entries = [
         children: [
           {
             name: "table",
-            description: "行列数据表；长表默认在 Core 滚动区内锁定表头。",
+            description: "行列数据表；桌面长表锁定表头，移动端普通业务表转主次分明的记录卡片，矩阵保留横向浏览与首列锚定。",
             children: [
               { name: "rows", description: "表格数据行。" },
               { name: "columns", description: "表格列和单元格声明。" },
@@ -75,7 +75,7 @@ export const page_api_registry_entries = [
           },
           {
             name: "structured",
-            description: "结构化表格。",
+            description: "结构化表格；简单行在移动端转记录卡片，复杂跨行跨列表格保留可横向浏览的二维结构。",
             children: [
               { name: "rows", description: "结构化单元格矩阵。" },
               { name: "frame", description: "结构化表格边框。" },

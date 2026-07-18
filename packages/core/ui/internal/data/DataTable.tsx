@@ -5,7 +5,7 @@ import { ActionButton } from "../action/ActionControls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
 import type { DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
-import { FieldContextProvider } from "../input/field-context";
+import { FieldContextProvider, type FieldContextValue } from "../input/field-context";
 import { resolveTableColumnClass, resolveTablePresentation, resolveTableRowStateClass } from "./table-presentation";
 
 export type {
@@ -182,10 +182,15 @@ export default function DataTable<T>({
     },
     resolvedPresentation?.density,
   );
-  const tableClassName = `${tablePresentation.table} ${matrixColWidths.length ? "table-fixed w-full" : ""}`;
+  const tableClassName = `${tablePresentation.table} ${matrixColWidths.length ? "table-fixed min-w-max w-full" : ""}`;
   const fieldContext = tablePresentation.density === "compact"
     ? { size: "sm" as const, density: "compact" as const }
     : { size: "md" as const, density: "normal" as const };
+  const mobileContentColumns = visible.filter((column) => !hasActions || column.key !== actionsKey);
+  const mobileTitleColumn = mobileContentColumns[0];
+  const mobileSummaryColumns = mobileContentColumns.slice(1, 4);
+  const mobileDetailColumns = mobileContentColumns.slice(4);
+  const mobileActionsColumn = hasActions ? visible.find((column) => column.key === actionsKey) : undefined;
 
   const desktopTable = (
     <table className={tableClassName}>
@@ -196,11 +201,11 @@ export default function DataTable<T>({
       ) : null}
       <thead className={tablePresentation.head}>
         <tr>
-          {visible.map((col) => (
+          {visible.map((col, columnIndex) => (
             <th
               key={col.key}
               onClick={col.onHeaderClick}
-              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
+              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, true, matrixColWidths.length > 0)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
             >
               {col.label}
             </th>
@@ -218,13 +223,13 @@ export default function DataTable<T>({
           return (
             <Fragment key={key}>
               <tr
-                className={`${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
+                className={`group ${matrixColWidths.length ? "bg-white" : ""} ${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
                 onClick={() => onRowClick?.(row)}
               >
-                {visible.map((col) => (
+                {visible.map((col, columnIndex) => (
                   <td
                     key={col.key}
-                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)}`}
+                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrixColWidths.length > 0)}`}
                   >
                     <div className={tablePresentation.cellContent}>
                       <FieldContextProvider value={fieldContext}>
@@ -258,11 +263,18 @@ export default function DataTable<T>({
     </table>
   );
 
-  if (format?.kind === "matrix") return desktopTable;
+  if (format?.kind === "matrix") {
+    return (
+      <>
+        <MobileHorizontalScrollHint />
+        {desktopTable}
+      </>
+    );
+  }
 
   return (
     <>
-      <div className="divide-y divide-slate-100 bg-white sm:hidden">
+      <div className="space-y-2.5 bg-slate-50/70 p-2.5 sm:hidden">
         {rows.map((row, index) => {
           const key = rowKey(row, index);
           const isExpanded =
@@ -274,30 +286,49 @@ export default function DataTable<T>({
           return (
             <article
               key={key}
-              className={`${stateClassName} p-3.5 ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
+              className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${stateClassName} ${onRowClick ? "cursor-pointer transition active:border-emerald-200 active:bg-emerald-50" : ""}`}
               tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? (event) => activateDataRowFromClick(event, row, onRowClick) : undefined}
               onKeyDown={onRowClick ? (event) => activateDataRowFromKeyboard(event, row, onRowClick) : undefined}
             >
-              <dl className="space-y-2.5">
-                {visible.map((col, columnIndex) => (
-                  <div
-                    key={col.key}
-                    className={columnIndex === 0
-                      ? "grid grid-cols-[4.75rem_minmax(0,1fr)] gap-3 border-b border-slate-100 pb-2.5"
-                      : "grid grid-cols-[4.75rem_minmax(0,1fr)] gap-3"}
-                  >
-                    <dt className="min-w-0 break-words text-xs font-semibold leading-6 text-slate-500">
-                      {col.label}
-                    </dt>
-                    <dd className={`${resolveTableColumnClass(col)} !w-auto !max-w-none min-w-0 whitespace-normal break-words text-sm leading-6`}>
-                      <FieldContextProvider value={fieldContext}>
-                        {col.render(row)}
-                      </FieldContextProvider>
-                    </dd>
-                  </div>
-                ))}
-              </dl>
+              <div className="min-w-0">
+                <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
+                  {mobileTitleColumn?.label ?? "记录"}
+                </span>
+                <div className="mt-1 min-w-0 break-words text-base font-bold leading-6 text-slate-900">
+                  {mobileTitleColumn
+                    ? <MobileTableValue column={mobileTitleColumn} row={row} fieldContext={fieldContext} />
+                    : `记录 ${index + 1}`}
+                </div>
+              </div>
+
+              {mobileSummaryColumns.length > 0 ? (
+                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
+                  {mobileSummaryColumns.map((column) => (
+                    <MobileTableFact key={column.key} column={column} row={row} fieldContext={fieldContext} />
+                  ))}
+                </dl>
+              ) : null}
+
+              {mobileDetailColumns.length > 0 ? (
+                <details className="group mt-3 border-t border-slate-100 pt-2">
+                  <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-lg px-1 text-xs font-semibold text-slate-500 marker:hidden">
+                    <span>更多信息</span>
+                    <span className="text-slate-400 transition group-open:rotate-180">⌄</span>
+                  </summary>
+                  <dl className="grid gap-3 px-1 pb-1 pt-2">
+                    {mobileDetailColumns.map((column) => (
+                      <MobileTableFact key={column.key} column={column} row={row} fieldContext={fieldContext} detail />
+                    ))}
+                  </dl>
+                </details>
+              ) : null}
+
+              {mobileActionsColumn ? (
+                <div className="mt-3 flex justify-end border-t border-slate-100 pt-3">
+                  <MobileTableValue column={mobileActionsColumn} row={row} fieldContext={fieldContext} />
+                </div>
+              ) : null}
               {isExpanded && renderExpandedRow ? (
                 <div className="mt-3 border-t border-slate-200 bg-slate-50 px-1 pt-3">
                   {renderExpandedRow(row)}
@@ -338,5 +369,54 @@ function activateDataRowFromKeyboard<T>(
 
 function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
   if (!(target instanceof Element) || target === row) return false;
-  return Boolean(target.closest("a,button,input,select,textarea,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
+  return Boolean(target.closest("a,button,input,select,textarea,summary,details,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
+}
+
+function MobileTableFact<T>({
+  column,
+  row,
+  fieldContext,
+  detail = false,
+}: {
+  column: DataTableColumn<T>;
+  row: T;
+  fieldContext: FieldContextValue;
+  detail?: boolean;
+}) {
+  return (
+    <div className={detail ? "grid grid-cols-[5rem_minmax(0,1fr)] gap-3" : "min-w-0"}>
+      <dt className="min-w-0 break-words text-xs font-semibold leading-5 text-slate-400">{column.label}</dt>
+      <dd className={`${detail ? "" : "mt-0.5"} ${resolveTableColumnClass(column)} !w-auto !max-w-none min-w-0 whitespace-normal break-words text-sm leading-5 text-slate-700`}>
+        <MobileTableValue column={column} row={row} fieldContext={fieldContext} />
+      </dd>
+    </div>
+  );
+}
+
+function MobileTableValue<T>({
+  column,
+  row,
+  fieldContext,
+}: {
+  column: DataTableColumn<T>;
+  row: T;
+  fieldContext: FieldContextValue;
+}) {
+  return <FieldContextProvider value={fieldContext}>{column.render(row)}</FieldContextProvider>;
+}
+
+function MobileHorizontalScrollHint() {
+  return (
+    <div className="sticky left-0 z-20 flex w-[calc(100vw-2rem)] items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 sm:hidden">
+      <span>对比表</span>
+      <span>左右滑动查看完整数据 ↔</span>
+    </div>
+  );
+}
+
+function matrixPinnedColumnClass(columnIndex: number, header: boolean, matrix: boolean) {
+  if (!matrix || columnIndex !== 0) return "";
+  return header
+    ? "sticky left-0 z-30 bg-slate-50 shadow-[8px_0_14px_-12px_rgba(15,23,42,0.55)]"
+    : "sticky left-0 z-10 bg-inherit shadow-[8px_0_14px_-12px_rgba(15,23,42,0.45)]";
 }

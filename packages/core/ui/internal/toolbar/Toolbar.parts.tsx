@@ -19,7 +19,7 @@ export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
 }
 
-type ToolbarRenderableAction = {
+export type ToolbarRenderableAction = {
   key?: string;
   label: string;
   kind: ToolbarActionKind;
@@ -37,7 +37,7 @@ function getActionGroup(action: ToolbarRenderableAction) {
   return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.subgroup ?? "unknown";
 }
 
-function getOrderedActions(actions: ToolbarRenderableAction[]) {
+export function getOrderedActions(actions: ToolbarRenderableAction[]) {
   return [...actions].sort((a, b) => getActionOrder(a) - getActionOrder(b));
 }
 
@@ -77,7 +77,7 @@ function getEditGroupActions(item: Extract<ToolbarItem, { kind: "edit-group" }>)
   return actions;
 }
 
-function getToolbarItemActions(item: ToolbarItem): ToolbarRenderableAction[] {
+export function getToolbarItemActions(item: ToolbarItem): ToolbarRenderableAction[] {
   if (item.kind === "action-group") return item.actions;
   if (item.kind === "edit-group") return getEditGroupActions(item);
   if (item.kind === "icon-button") {
@@ -125,11 +125,11 @@ function resolveToolbarSemanticAction(action: ToolbarRenderableAction) {
   return resolveActionGlyphAction({ key: action.kind, type: action.type });
 }
 
-function resolveToolbarActionIcon(action: ToolbarRenderableAction): ActionGlyphKind {
+export function resolveToolbarActionIcon(action: ToolbarRenderableAction): ActionGlyphKind {
   return resolveToolbarSemanticAction(action)?.icon ?? (action.kind as ActionGlyphKind);
 }
 
-function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
+export function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
   return action.variant ?? resolveToolbarSemanticAction(action)?.variant;
 }
 

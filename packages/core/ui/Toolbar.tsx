@@ -10,6 +10,7 @@ import {
   renderToolbarContent,
   renderCompactToolbarMeasurement,
 } from "./internal/toolbar/Toolbar.layout";
+import MobileToolbarContent from "./internal/toolbar/Toolbar.mobile";
 import { useAutoToolbarLayout } from "./internal/toolbar/Toolbar.visibility";
 
 export type {
@@ -84,7 +85,12 @@ export function Toolbar({
 
   const content = (
     <div ref={containerRef} className="relative w-full min-w-0 overflow-visible">
-      {renderToolbarContent(grouped, resolvedLayoutMode, size, gapClass)}
+      <div className="sm:hidden">
+        <MobileToolbarContent grouped={grouped} size={size} />
+      </div>
+      <div className="hidden sm:block">
+        {renderToolbarContent(grouped, resolvedLayoutMode, size, gapClass)}
+      </div>
       {layoutMode === "auto" && (
         <div
           ref={compactMeasureRef}

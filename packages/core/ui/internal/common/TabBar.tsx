@@ -1,8 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ActionButton } from "../action/ActionControls";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
+import DetailModal from "./DetailModal";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
@@ -157,6 +158,9 @@ export default function TabBar(props: TabBarProps) {
   const styles = TAB_VARIANT_STYLES[variant];
   const activeChild = accordion ? (props as TabBarAccordionProps).activeChild : undefined;
   const onChildChange = accordion ? (props as TabBarAccordionProps).onChildChange : undefined;
+  const activeTab = tabs.find((tab) => tab.key === active);
+  const activeChildTab = activeTab?.children?.find((tab) => tab.key === activeChild);
+  const compactMobileNavigation = tabs.length > 3 || tabs.some((tab) => (tab.children?.length ?? 0) > 0);
 
   const renderActions = (actions: TabBarAction[] | undefined) => {
     if (!actions || actions.length === 0) return null;
@@ -176,11 +180,11 @@ export default function TabBar(props: TabBarProps) {
     );
   };
 
-  return (
+  const desktopTabs = (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={joinClassNames(styles.nav, className)}
+      className={joinClassNames(styles.nav, "hidden sm:flex", className)}
     >
       {renderActions(leadingActions)}
       <div className="flex min-w-max items-center gap-2">
@@ -231,5 +235,142 @@ export default function TabBar(props: TabBarProps) {
 
       {renderActions(trailingActions)}
     </div>
+  );
+
+  return (
+    <>
+      <div className={joinClassNames("sm:hidden", className)}>
+        {compactMobileNavigation ? (
+          <MobileTabSelector
+            tabs={tabs}
+            active={active}
+            activeChild={activeChild}
+            activeLabel={activeChildTab?.label ?? activeTab?.label ?? "选择栏目"}
+            ariaLabel={ariaLabel}
+            onChange={onChange}
+            onChildChange={onChildChange}
+          />
+        ) : (
+          <div role="tablist" aria-label={ariaLabel} className="flex rounded-xl border border-slate-200 bg-slate-100 p-1 shadow-sm">
+            {tabs.map((tab) => {
+              const selected = active === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => onChange(tab.key)}
+                  className={joinClassNames(
+                    "min-h-11 min-w-0 flex-1 truncate rounded-lg px-3 text-sm font-semibold transition",
+                    selected ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500 active:bg-white/70",
+                  )}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {(leadingActions?.length || trailingActions?.length) ? (
+          <div className="mt-2 flex items-center justify-end gap-2 overflow-x-auto">
+            {renderActions(leadingActions)}
+            {renderActions(trailingActions)}
+          </div>
+        ) : null}
+      </div>
+      {desktopTabs}
+    </>
+  );
+}
+
+function MobileTabSelector({
+  tabs,
+  active,
+  activeChild,
+  activeLabel,
+  ariaLabel,
+  onChange,
+  onChildChange,
+}: {
+  tabs: TabDef[];
+  active: string;
+  activeChild?: string;
+  activeLabel: ReactNode;
+  ariaLabel?: string;
+  onChange: (key: string) => void;
+  onChildChange?: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 text-left shadow-sm transition active:bg-slate-50"
+      >
+        <span className="min-w-0">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">当前栏目</span>
+          <span className="mt-0.5 block truncate text-sm font-bold text-slate-900">{activeLabel}</span>
+        </span>
+        <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">切换</span>
+      </button>
+      <DetailModal open={open} title={ariaLabel ?? "切换栏目"} onClose={() => setOpen(false)} maxWidth="max-w-md">
+        <div className="grid gap-2" role="tablist" aria-label={ariaLabel}>
+          {tabs.map((tab) => {
+            const selected = active === tab.key;
+            return (
+              <div key={tab.key} className="rounded-xl border border-slate-200 bg-white p-1.5">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selected && !activeChild}
+                  onClick={() => {
+                    onChange(tab.key);
+                    setOpen(false);
+                  }}
+                  className={joinClassNames(
+                    "flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-left text-sm font-semibold transition",
+                    selected ? "bg-emerald-50 text-emerald-800" : "text-slate-700 active:bg-slate-50",
+                  )}
+                >
+                  <span className="min-w-0 truncate">{tab.label}</span>
+                  {selected && !activeChild ? <span className="text-emerald-600">✓</span> : null}
+                </button>
+                {tab.children?.length ? (
+                  <div className="mt-1 grid gap-1 border-l-2 border-slate-100 pl-2">
+                    {tab.children.map((child) => {
+                      const childSelected = selected && activeChild === child.key;
+                      return (
+                        <button
+                          key={child.key}
+                          type="button"
+                          role="tab"
+                          aria-selected={childSelected}
+                          onClick={() => {
+                            onChange(tab.key);
+                            onChildChange?.(child.key);
+                            setOpen(false);
+                          }}
+                          className={joinClassNames(
+                            "flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-left text-sm transition",
+                            childSelected ? "bg-slate-900 font-semibold text-white" : "text-slate-600 active:bg-slate-50",
+                          )}
+                        >
+                          <span className="min-w-0 truncate">{child.label}</span>
+                          {childSelected ? <span>✓</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </div>
+            );
+          })}
+        </div>
+      </DetailModal>
+    </>
   );
 }

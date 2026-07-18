@@ -30,13 +30,12 @@ type PositionedProps = {
   children?: ReactNode;
 };
 
-const LEFT_COLUMN_WIDTH = 360;
-const ROW_GRID = "grid-cols-[360px_minmax(0,1fr)]";
+const ROW_GRID = "grid-cols-[220px_minmax(560px,1fr)] sm:grid-cols-[360px_minmax(0,1fr)]";
 const ACTUAL_ON_TRACK_CLASS = "work-gantt-actual-on-track";
 const ACTUAL_DELAYED_CLASS = "work-gantt-actual-delayed";
 const BASELINE_BAR_CLASS = "work-gantt-baseline-bar bg-slate-400/75 ring-1 ring-slate-500/15";
 
-export default function VisualizationGantt({ spec }: { spec: VisualizationGanttSpec }) {
+export function VisualizationGanttCanvas({ spec }: { spec: VisualizationGanttSpec }) {
   const [hoveredTaskKey, setHoveredTaskKey] = useState<string | null>(null);
   const timelineBodyRef = useRef<HTMLDivElement | null>(null);
   const barRefs = useRef(new Map<string, HTMLSpanElement>());
@@ -76,7 +75,7 @@ export default function VisualizationGantt({ spec }: { spec: VisualizationGanttS
   }
 
   return (
-    <div className="min-w-0 max-w-full overflow-hidden">
+    <div className="min-w-[780px] max-w-full overflow-hidden sm:min-w-0">
       <div className={`grid ${ROW_GRID} border-b border-slate-100 bg-slate-50 text-sm font-semibold text-slate-500`}>
         <div className="px-4 py-3">{spec.leftHeader ?? "名称"}</div>
         <div className="relative min-w-0 overflow-hidden px-4 py-3">
@@ -96,7 +95,7 @@ export default function VisualizationGantt({ spec }: { spec: VisualizationGanttS
 
       <div ref={timelineBodyRef} className="relative">
         {todayVisible && (
-          <PositionedDiv className="pointer-events-none absolute inset-y-0 right-0 z-10 px-4" leftPx={LEFT_COLUMN_WIDTH}>
+          <PositionedDiv className="pointer-events-none absolute inset-y-0 right-0 left-[220px] z-10 px-4 sm:left-[360px]">
             <PositionedSpan className="work-gantt-today-line absolute bottom-0 top-0 w-0.5" leftPercent={todayLeft} />
           </PositionedDiv>
         )}

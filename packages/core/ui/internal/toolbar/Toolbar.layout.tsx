@@ -2,7 +2,12 @@
 
 import { joinClassNames } from "../common/card-utils";
 import type { ControlSize } from "../common/interactionTokens";
-import { getToolbarItemActionBoundary, getToolbarItemActionOrder, ToolbarDivider, ToolbarItemRenderer } from "./Toolbar.parts";
+import {
+  getToolbarItemActionBoundary,
+  getToolbarItemActionOrder,
+  ToolbarDivider,
+  ToolbarItemRenderer,
+} from "./Toolbar.parts";
 import { inferZone, resolveSection } from "./Toolbar.sections";
 import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarZoneKey } from "./Toolbar.types";
 

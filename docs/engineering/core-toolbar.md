@@ -141,7 +141,15 @@ Toolbar 承载工具、筛选、动作和元信息；TabBar 承载页面内平�
 <AnalysisBlock toolbar={<div>...</div>} />
 ```
 
-## 8. Review 清单
+## 8. 移动端自适应
+
+- 桌面端继续按 `primary -> search -> filter -> edit/action -> meta/view` 自动分区；移动端不把这些分区简单换行成长条。
+- 移动端搜索独占一行；创建和最高优先级动作保留在命令坞，筛选进入“筛选条件”底部面板，其余动作与列显隐、条/页等进入“更多操作”。
+- 业务仍只声明原有 typed item，不声明移动端位置、优先级或折叠方式；Core 根据 item 语义和 ActionGlyph 顺序自动决定。
+- `PageSurface.tabbar` 在移动端 2-3 项时使用紧凑分段切换；超过 3 项或存在 children 时改为“当前栏目 + 切换栏目”底部面板，避免长 Tab 条横向挤压。
+- 甘特等二维可视化不进入 Toolbar/TabBar；由对应 VisualizationSurface 提供横屏专注入口。
+
+## 9. Review 清单
 
 Review agent 必查：
 
@@ -157,7 +165,7 @@ Review agent 必查：
 - 是否把页面内部 tab 切换塞进 Toolbar；当前页面内部主视图切换必须用 `TabBar`，但 L1/L2 模块列表不能用 `TabBar` 承载。
 - 是否新增 Core Toolbar item 后同步 registry 和本文档。
 
-## 9. 审计命令
+## 10. 审计命令
 
 ```bash
 rg 'kind:\s*"custom"' packages app -n
