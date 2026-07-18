@@ -22,6 +22,7 @@
     "./module-overrides": "./module-overrides.ts",
     "./open-api-registry": "./open-api-registry.ts",
     "./period-dossier": "./period-dossier.ts",
+    "./portal-preferences": "./portal-preferences.ts",
     "./effective-module-registry": "./effective-module-registry.ts",
     "./document-editor": "./document-editor/index.ts",
     "./formula": "./formula/index.ts",
