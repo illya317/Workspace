@@ -13,3 +13,17 @@ export function normalizeWorkPlanPageIndex(value: unknown, totalPages: number) {
   const requested = Number.isFinite(parsed) ? Math.floor(parsed) : 0;
   return Math.max(0, Math.min(requested, Math.max(1, totalPages) - 1));
 }
+
+export function paginateWorkPlanGroup<T>(items: readonly T[], pageSize: unknown, pageIndex: unknown) {
+  const safePageSize = normalizeWorkPlanPageSize(pageSize);
+  const totalPages = Math.max(1, Math.ceil(items.length / safePageSize));
+  const page = normalizeWorkPlanPageIndex(pageIndex, totalPages);
+  const pageStart = page * safePageSize;
+  return {
+    page,
+    pageSize: safePageSize,
+    pageStart,
+    totalPages,
+    items: items.slice(pageStart, pageStart + safePageSize),
+  };
+}

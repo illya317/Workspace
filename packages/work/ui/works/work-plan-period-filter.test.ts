@@ -12,6 +12,11 @@ test("cycleless extra OKR plans belong to the daily filter", () => {
   assert.equal(planMatchesPeriodFilter(plan, "yearly"), false);
 });
 
+test("the all filter keeps monthly and quarterly plans in navigation", () => {
+  assert.equal(planMatchesPeriodFilter({ kind: "okr", periodType: "monthly" } as WorkPlan, "all"), true);
+  assert.equal(planMatchesPeriodFilter({ kind: "okr", periodType: "quarterly" } as WorkPlan, "all"), true);
+});
+
 test("extra OKR plan payloads clear fixed-cycle fields", () => {
   const draft = createEmptyWorkPlanDraft();
   draft.okrCycleId = 17;

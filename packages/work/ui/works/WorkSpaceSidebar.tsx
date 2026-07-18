@@ -4,7 +4,7 @@ import { BodySurface, type BodySurfaceSelectorProps } from "@workspace/core/ui";
 import { getStatusLabel, getWorkPeriodLabel, getWorkSourceTypeLabel } from "./model";
 import { workPlanStatusCategory, workStatusCategory, type WorkStatusFilter } from "./work-status-filter";
 import type { WorkItem, WorkPlan, WorkTarget, WorkTaskSpace } from "./types";
-import { normalizeWorkPlanPageIndex, normalizeWorkPlanPageSize } from "./work-plan-pagination";
+import { paginateWorkPlanGroup } from "./work-plan-pagination";
 
 type PlanNavItem = { kind: "plan"; key: string; group: string; plan: WorkPlan; routineTaskId?: number | null; work: WorkItem | null };
 type PagerNavItem = { kind: "pager"; key: string; group: string; space: WorkTaskSpace; label: string; range: string; page: number };
@@ -189,16 +189,14 @@ function planningGroupItems({
     .sort((left, right) => comparePlansForGroup(left, right, planningGroup.key));
   const key = targetKey(space);
   const pageKey = `${key}:${planningGroup.key}`;
-  const safePageSize = normalizeWorkPlanPageSize(planPageSize);
-  const totalPages = Math.max(1, Math.ceil(groupPlans.length / safePageSize));
-  const page = normalizeWorkPlanPageIndex(planPageBySpace.get(pageKey) ?? planPageBySpace.get(key) ?? 0, totalPages);
-  const pageStart = page * safePageSize;
-  const pagePlans = groupPlans.slice(pageStart, pageStart + safePageSize);
+  const pagination = paginateWorkPlanGroup(groupPlans, planPageSize, planPageBySpace.get(pageKey) ?? planPageBySpace.get(key) ?? 0);
   return [
-    ...pagePlans.flatMap((plan): PlanNavItem[] => plan.kind === "routine"
+    ...pagination.items.flatMap((plan): PlanNavItem[] => plan.kind === "routine"
       ? routinePlanItems(plan, planningGroup.title, plan.id === activePlanId ? routineWorks : [], statusFilter)
       : [{ kind: "plan", key: `plan:${plan.id}`, group: planningGroup.title, plan, work: null }]),
-    ...(groupPlans.length > safePageSize ? pagerItems(space, planningGroup, page, totalPages, pageStart, pagePlans.length, groupPlans.length) : []),
+    ...(groupPlans.length > pagination.pageSize
+      ? pagerItems(space, planningGroup, pagination.page, pagination.totalPages, pagination.pageStart, pagination.items.length, groupPlans.length)
+      : []),
   ];
 }
 
