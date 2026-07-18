@@ -76,6 +76,19 @@ export function buildWecomWebLoginUrl(redirectUri: string, state: string) {
   return url.toString();
 }
 
+export function buildWecomInAppLoginUrl(redirectUri: string, state: string) {
+  const { corpId, agentId } = requireWecomEnv();
+  const url = new URL("https://open.weixin.qq.com/connect/oauth2/authorize");
+  url.searchParams.set("appid", corpId);
+  url.searchParams.set("redirect_uri", redirectUri);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", "snsapi_base");
+  url.searchParams.set("agentid", agentId);
+  url.searchParams.set("state", state);
+  url.hash = "wechat_redirect";
+  return url.toString();
+}
+
 export async function getWecomAccessToken() {
   if (tokenCache && tokenCache.expiresAt > Date.now() + 60_000) {
     return tokenCache.token;

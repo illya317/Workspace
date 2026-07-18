@@ -120,6 +120,7 @@
     "./server/workflows": "./server/workflows.ts",
     "./server/users": "./server/users.ts",
     "./server/week-info": "./server/week-info.ts",
+    "./server/wecom-login-handoff": "./server/wecom-login-handoff.ts",
     "./types": "./types/index.ts",
     "./ui/docs": "./ui/docs/index.ts",
     "./ui/admin": "./ui/admin/index.ts",

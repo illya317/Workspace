@@ -223,6 +223,7 @@
 | requestedLibraryExports | LibraryExportJob[] | @relation("LibraryExportRequester") |  |
 | createdLibraryEvaluationCases | LibraryEvaluationCase[] | @relation("LibraryEvaluationCaseCreator") |  |
 | reviewedLibraryEvaluationCases | LibraryEvaluationCase[] | @relation("LibraryEvaluationCaseReviewer") |  |
+| wecomLoginHandoffs | WecomLoginHandoff[] | - |  |
 | resourceActionGrants | UserResourceActionGrant[] | - |  |
 | departmentAssignees | DepartmentWorkAssignee[] | - |  |
 | projectAssignees | ProjectWorkAssignee[] | - |  |
@@ -247,6 +248,24 @@
 | createdKpiDefinitions | WorkKpiDefinition[] | @relation("WorkKpiDefinitionCreator") |  |
 | updatedKpiAssignments | WorkKpiAssignment[] | @relation("WorkKpiAssignmentUpdater") |  |
 | approvedKpiResultSnapshots | WorkKpiResultSnapshot[] | @relation("WorkKpiResultSnapshotApprover") |  |
+
+### WecomLoginHandoff
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id |  |
+| browserSecretHash | String | - |  |
+| oauthStateHash | String | @unique |  |
+| returnTokenHash | String? | - |  |
+| verificationHash | String? | - |  |
+| nextPath | String | - |  |
+| userId | Int? | - |  |
+| failedAttempts | Int | @default(0) |  |
+| expiresAt | DateTime | - |  |
+| approvedAt | DateTime? | - |  |
+| consumedAt | DateTime? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| user | User? | @relation(fields: [userId], references: [id], onDelete: Cascade) |  |
 
 ### Resource
 

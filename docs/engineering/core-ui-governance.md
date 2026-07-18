@@ -35,7 +35,7 @@ Core UI 是整个产品的公共视觉和交互接口。业务页、Platform 页
 - 发现现有 Page API 不够用时，先停下来写清缺口；由 Architecture/Core UI 任务补公开接口，再回业务页替换。
 - Platform runtime 使用 Core UI 时同样只能走公共 runtime 入口、根级 `FeedbackProvider` 和纯非组件事件能力；系统专有菜单、系统壳和账号入口由 Platform 自己封装，不再保留 `PageShell` / `DropdownMenu` 直引例外。Agent L1 使用公开的 `PageSurface` / `BodySurface` contract，不建立专用 Core kind。
 - 纯数据 helper 不拥有可见 UI 或流程决策。UI agent 可以维护显式类型的结构声明函数：它可以一次声明完整的 section、表单组、表格、selector、展开工作区或深模块 cell，并拥有该结构内的语义文案、状态与动作；非标准返回类型用 `@ui-structural-declaration` 标明。禁止把声明细碎化成单个字段、普通单元格、单个 label/icon，也禁止声明颜色、间距、圆角、阴影、renderer 或动作位置/排序。结构声明不得执行 fetch/toast/confirm/router/history 等构造期副作用；事件回调中的业务动作不算构造期副作用。
-- `@ui-specialized-surface` 不是业务逃逸口，只能出现在 Gate 精确登记的深模块实现中。目前登记文档工作区、阶段流程板、Page Assistant composer/message stream、Workflow BPMN canvas/element editor 与 Production QC runtime paper。业务页面不得自行声明。QC 纸面字段统一走 Core `PaperInputSurface`；Page Assistant 两个 seam 分别只拥有消息输入行为与消息/提案渲染；BPMN 两个 seam 分别只拥有第三方画布适配与图元素编辑。新增或扩大范围必须再次通过 UI/Architecture 评审。未声明的 JSX `content`、JSX cell、`expandedRowContent`、`renderItem/renderOption` 会被 `gate:ui` 直接阻断。
+- `@ui-specialized-surface` 不是业务逃逸口，只能出现在 Gate 精确登记的深模块实现中。目前登记文档工作区、阶段流程板、企业微信登录面板、Page Assistant composer/message stream、Workflow BPMN canvas/element editor 与 Production QC runtime paper。业务页面不得自行声明。企业微信登录 seam 只拥有官方第三方 iframe，以及移动端 App 登录交接 UI 与生命周期；QC 纸面字段统一走 Core `PaperInputSurface`；Page Assistant 两个 seam 分别只拥有消息输入行为与消息/提案渲染；BPMN 两个 seam 分别只拥有第三方画布适配与图元素编辑。新增或扩大范围必须再次通过 UI/Architecture 评审。未声明的 JSX `content`、JSX cell、`expandedRowContent`、`renderItem/renderOption` 会被 `gate:ui` 直接阻断。
 
 Architecture/Core UI agent：
 

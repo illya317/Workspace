@@ -60,6 +60,7 @@ export const ModelName = {
   ApprovalEvent: 'ApprovalEvent',
   WorkflowPolicy: 'WorkflowPolicy',
   User: 'User',
+  WecomLoginHandoff: 'WecomLoginHandoff',
   Resource: 'Resource',
   PermissionActionNormalization: 'PermissionActionNormalization',
   UserResourceActionGrant: 'UserResourceActionGrant',
@@ -457,6 +458,24 @@ export const UserScalarFieldEnum = {
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
+
+
+export const WecomLoginHandoffScalarFieldEnum = {
+  id: 'id',
+  browserSecretHash: 'browserSecretHash',
+  oauthStateHash: 'oauthStateHash',
+  returnTokenHash: 'returnTokenHash',
+  verificationHash: 'verificationHash',
+  nextPath: 'nextPath',
+  userId: 'userId',
+  failedAttempts: 'failedAttempts',
+  expiresAt: 'expiresAt',
+  approvedAt: 'approvedAt',
+  consumedAt: 'consumedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WecomLoginHandoffScalarFieldEnum = (typeof WecomLoginHandoffScalarFieldEnum)[keyof typeof WecomLoginHandoffScalarFieldEnum]
 
 
 export const ResourceScalarFieldEnum = {

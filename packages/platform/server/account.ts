@@ -40,6 +40,13 @@ export type WecomLoginResult =
   | { success: true; token: string }
   | { success: false; error: string };
 
+export type WecomAuthenticationResult =
+  | {
+      success: true;
+      user: { id: number; wxUserId: string | null; sessionVersion: number };
+    }
+  | { success: false; error: string };
+
 export type DevUserLoginResult =
   | { success: true; token: string; message: string }
   | { success: false; status: number; error: string };
@@ -195,7 +202,7 @@ export async function loginWithApiKey(
   };
 }
 
-export async function loginWithWecomCode(code: string): Promise<WecomLoginResult> {
+export async function authenticateWithWecomCode(code: string): Promise<WecomAuthenticationResult> {
   const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
   const user = await prisma.user.findUnique({
     where: { wxUserId },
@@ -214,6 +221,14 @@ export async function loginWithWecomCode(code: string): Promise<WecomLoginResult
       console.error("Sync WeCom user detail failed", error);
     }
   }
+
+  return { success: true, user };
+}
+
+export async function loginWithWecomCode(code: string): Promise<WecomLoginResult> {
+  const authentication = await authenticateWithWecomCode(code);
+  if (!authentication.success) return authentication;
+  const { user } = authentication;
 
   const token = await createToken({
     userId: user.id,

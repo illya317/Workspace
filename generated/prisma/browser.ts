@@ -65,6 +65,11 @@ export type WorkflowPolicy = Prisma.WorkflowPolicyModel
  */
 export type User = Prisma.UserModel
 /**
+ * Model WecomLoginHandoff
+ * 企业微信移动端登录的一次性交接记录（临时事实表，由外部浏览器发起并在企业微信 OAuth 后领取）
+ */
+export type WecomLoginHandoff = Prisma.WecomLoginHandoffModel
+/**
  * Model Resource
  * RBAC 资源定义，详见 docs/rbac.md
  */
