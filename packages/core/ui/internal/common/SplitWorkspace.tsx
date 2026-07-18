@@ -70,7 +70,7 @@ export default function SplitWorkspace({
 
   return (
     <>
-      <MobileSplitWorkspace key={sideLabel} sideLabel={sideLabel} renderSide={renderSide}>{children}</MobileSplitWorkspace>
+      <MobileSplitWorkspace sideLabel={sideLabel} renderSide={renderSide}>{children}</MobileSplitWorkspace>
 
       <div
         className={`hidden gap-5 lg:grid ${sideOpen ? desktopColumns : "grid-cols-1"}`}

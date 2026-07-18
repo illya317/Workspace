@@ -65,6 +65,8 @@ for (const width of [360, 375, 390]) {
     const detailPane = page.locator('[data-mobile-split-pane="detail"]');
     await expect(detailPane).toBeVisible();
     await expect(page.getByRole("button", { name: "返回声明目录", exact: true })).toBeVisible();
+    await page.waitForTimeout(250);
+    await expect(detailPane).toBeVisible();
 
     const sectionDirectory = detailPane.locator('[data-mobile-section-view="directory"]');
     await expect(sectionDirectory).toBeVisible();

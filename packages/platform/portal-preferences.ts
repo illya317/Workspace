@@ -1,8 +1,11 @@
 import type { ReactNode } from "react";
 
-export const MAX_PRIMARY_PORTAL_SLOTS = 9;
+export const MAX_PRIMARY_PORTAL_SLOTS = 12;
 export const MAX_PINNED_PORTAL_SLOTS = 2;
 export const MAX_PORTAL_SLOTS = MAX_PRIMARY_PORTAL_SLOTS + MAX_PINNED_PORTAL_SLOTS;
+
+const PREVIOUS_PRIMARY_PORTAL_SLOTS = 9;
+const PREVIOUS_PORTAL_SLOTS = PREVIOUS_PRIMARY_PORTAL_SLOTS + MAX_PINNED_PORTAL_SLOTS;
 
 export interface PortalSlot {
   key: string | null;
@@ -103,18 +106,29 @@ function normalizeLegacyPortalSlots(rawItems: unknown[], validKeys?: ReadonlySet
   const seenShortcuts = new Set<string>();
   const primaryKeys: string[] = [];
   const shortcutKeys: string[] = [];
-  for (const item of rawItems) {
+  const separatedGroups = rawItems.length === PREVIOUS_PORTAL_SLOTS;
+  const primaryItems = separatedGroups ? rawItems.slice(0, PREVIOUS_PRIMARY_PORTAL_SLOTS) : rawItems;
+  const shortcutItems = separatedGroups
+    ? rawItems.slice(PREVIOUS_PRIMARY_PORTAL_SLOTS)
+    : rawItems.filter((item) => Boolean(item && typeof item === "object" && "pinned" in item && (item as { pinned?: unknown }).pinned));
+  for (const item of primaryItems) {
     const rawKey = item && typeof item === "object" && "key" in item
       ? (item as { key?: unknown }).key
       : item;
     const key = normalizeSlotKey(rawKey);
     if (!key || (validKeys && !validKeys.has(key))) continue;
-    const pinned = Boolean(item && typeof item === "object" && "pinned" in item && (item as { pinned?: unknown }).pinned);
     if (!seenPrimary.has(key) && primaryKeys.length < MAX_PRIMARY_PORTAL_SLOTS) {
       primaryKeys.push(key);
       seenPrimary.add(key);
     }
-    if (pinned && !seenShortcuts.has(key) && shortcutKeys.length < MAX_PINNED_PORTAL_SLOTS) {
+  }
+  for (const item of shortcutItems) {
+    const rawKey = item && typeof item === "object" && "key" in item
+      ? (item as { key?: unknown }).key
+      : item;
+    const key = normalizeSlotKey(rawKey);
+    if (!key || (validKeys && !validKeys.has(key))) continue;
+    if (!seenShortcuts.has(key) && shortcutKeys.length < MAX_PINNED_PORTAL_SLOTS) {
       shortcutKeys.push(key);
       seenShortcuts.add(key);
     }
@@ -132,10 +146,7 @@ function normalizeLegacyPortalSlots(rawItems: unknown[], validKeys?: ReadonlySet
 }
 
 export function defaultPortalSlots(entries: readonly PortalEntry[]): PortalSlot[] {
-  const preferred = [
-    ...entries.filter((entry) => entry.level === 1),
-    ...entries.filter((entry) => entry.level === 2),
-  ].slice(0, MAX_PRIMARY_PORTAL_SLOTS);
+  const preferred = entries.filter((entry) => entry.level === 1).slice(0, MAX_PRIMARY_PORTAL_SLOTS);
   const shortcuts = preferred.slice(0, MAX_PINNED_PORTAL_SLOTS);
   return [
     ...Array.from({ length: MAX_PRIMARY_PORTAL_SLOTS }, (_, index) => ({
@@ -162,17 +173,10 @@ export function effectivePortalSlots(slots: readonly PortalSlot[], entries: read
   const shortcutKeys = normalized.slice(MAX_PRIMARY_PORTAL_SLOTS)
     .map((slot) => slot.key)
     .filter((key): key is string => Boolean(key));
-  const prioritizedKeys = primaryKeys;
-  const prioritizedKeySet = new Set(prioritizedKeys);
-  const byKey = new Map(entries.map((entry) => [entry.key, entry]));
-  const orderedEntries = [
-    ...prioritizedKeys.map((key) => byKey.get(key)).filter((entry): entry is PortalEntry => Boolean(entry)),
-    ...entries.filter((entry) => !prioritizedKeySet.has(entry.key)),
-  ];
   const shortcutKeySet = new Set(shortcutKeys);
-  return orderedEntries.map((entry) => ({
-    key: entry.key,
-    pinned: shortcutKeySet.has(entry.key),
+  return primaryKeys.map((key) => ({
+    key,
+    pinned: shortcutKeySet.has(key),
   }));
 }
 

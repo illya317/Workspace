@@ -9,6 +9,7 @@ import type { SessionUser } from "../types";
 import type { PortalSlot } from "../portal-preferences";
 import {
   defaultPortalCardsForUser,
+  defaultSlotsForUser,
   fetchPortalSlotSettings,
   portalCardsForUser,
 } from "./portal-preferences";
@@ -28,7 +29,7 @@ function PortalContentFromUrl({ user }: { user: SessionUser }) {
 }
 
 function PortalContent({ user, desktopMode }: { user: SessionUser; desktopMode: "personalized" | "default" }) {
-  const [slots, setSlots] = useState<PortalSlot[]>([]);
+  const [slots, setSlots] = useState<PortalSlot[]>(() => defaultSlotsForUser(user));
   const entries = desktopMode === "default" ? defaultPortalCardsForUser(user) : portalCardsForUser(user, slots);
 
   useEffect(() => {
