@@ -57,14 +57,6 @@ export function ModuleCardBody({
     <div className="flex w-full min-w-0 flex-col items-center justify-center text-center">
       <div className={joinClassNames("relative mb-2 flex h-13 w-13 items-center justify-center rounded-2xl shadow-sm ring-1 ring-white/80 [&>svg]:h-6 [&>svg]:w-6 sm:mb-3 sm:h-12 sm:w-12 sm:rounded-full sm:shadow-none sm:ring-0", colorClass.icon)}>
         {icon}
-        {badge && (
-          <span
-            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-amber-400 ring-2 ring-white sm:hidden"
-            title={badge}
-          >
-            <span className="sr-only">{badge}</span>
-          </span>
-        )}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">
         <h3 className="line-clamp-2 min-h-10 text-[13px] font-medium leading-5 text-slate-800 sm:min-h-0 sm:text-base sm:font-semibold sm:text-gray-800">{title}</h3>

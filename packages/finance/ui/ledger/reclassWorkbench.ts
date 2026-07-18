@@ -1,8 +1,7 @@
 import { matchText } from "@workspace/core/search";
 import type { DataSurfaceColumnSpec } from "@workspace/core/ui";
 
-import type { ReclassEntry } from "../../server/schedules/reclassify";
-import type { RuleCandidate } from "../../server/ledger/reclass-rules";
+import type { ReclassEntry, RuleCandidate } from "@workspace/finance/types";
 import { formatFinanceAmount } from "../formatters";
 
 export type ReclassWorkbenchFilter = "attention" | "processed" | "exempt" | "historical" | "all";

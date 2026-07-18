@@ -191,6 +191,21 @@ function walk(dir, files = []) {
   return files;
 }
 
+for (const packageEntry of fs.readdirSync(rel("packages"), { withFileTypes: true })) {
+  if (!packageEntry.isDirectory()) continue;
+  const uiRoot = rel("packages", packageEntry.name, "ui");
+  for (const file of walk(uiRoot)) {
+    if (![".ts", ".tsx", ".js", ".jsx"].includes(path.extname(file))) continue;
+    const relativePath = path.relative(ROOT, file);
+    const source = readText(relativePath);
+    if (/from\s+["']@workspace\/[^"']+\/server(?:\/[^"']*)?["']/.test(source)
+      || /from\s+["'](?:\.\.\/)+server(?:\/[^"']*)?["']/.test(source)
+      || /from\s+["']@prisma\/client["']/.test(source)) {
+      fail(`${relativePath} must consume DTO/types or API contracts; presentation UI cannot import server or Prisma modules.`);
+    }
+  }
+}
+
 for (const budget of lineBudgets) {
   const files = walk(rel(budget.dir));
   for (const file of files) {

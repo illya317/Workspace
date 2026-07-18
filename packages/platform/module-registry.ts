@@ -98,9 +98,9 @@ export const registeredModuleDefinitions = [
       resourceKey: "work",
       resourceSortOrder: 0,
       children: [
-        { key: "tasks", label: "工作空间", desc: "个人、部门和项目空间里的计划与执行", href: "/work/me", iconKey: "tasks", color: "emerald", resourceKey: "work.tasks", apiPrefixes: ["/api/modules/work/tasks"] },
-        { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/project", iconKey: "projects", color: "emerald", resourceKey: "work.projects", apiPrefixes: ["/api/modules/work/projects"] },
-        { key: "meetings", label: "会议管理", desc: "会议、纪要、表决和决议依据", href: "/work/meeting", iconKey: "meetings", color: "emerald", resourceKey: "work.meetings", apiPrefixes: ["/api/modules/work/meetings"] },
+        { key: "tasks", label: "工作空间", desc: "个人、部门和项目空间里的计划与执行", href: "/work/me", iconKey: "tasks", color: "emerald", resourceKey: "work.tasks", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/work/tasks"] },
+        { key: "projects", label: "项目管理", desc: "组织项目、角色分工、预算和风险", href: "/work/project", iconKey: "projects", color: "emerald", resourceKey: "work.projects", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/work/projects"] },
+        { key: "meetings", label: "会议管理", desc: "会议、纪要、表决和决议依据", href: "/work/meeting", iconKey: "meetings", color: "emerald", resourceKey: "work.meetings", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/work/meetings"] },
       ],
     },
     routes: [
@@ -170,9 +170,9 @@ export const registeredModuleDefinitions = [
       resourceKey: "hr",
       resourceSortOrder: 1,
       children: [
-        { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP", href: "/hr/roster", iconKey: "roster", color: "blue", resourceKey: "hr.roster", apiPrefixes: ["/api/modules/hr/roster"] },
-        { key: "performance", label: "绩效管理", desc: "按个人、部门和项目查看绩效材料与流程", href: "/hr/performance", iconKey: "performance", color: "blue", resourceKey: "hr.performance", apiPrefixes: ["/api/modules/hr/performance"] },
-        { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", iconKey: "analytics", color: "blue", resourceKey: "hr.analytics", noApiReason: "当前分析数据由 roster DTO 派生，暂无独立 API 前缀" },
+        { key: "roster", label: "人事基础资料", desc: "员工、雇佣、合同、部门、岗位、EDP", href: "/hr/roster", iconKey: "roster", color: "blue", resourceKey: "hr.roster", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/hr/roster"] },
+        { key: "performance", label: "绩效管理", desc: "按个人、部门和项目查看绩效材料与流程", href: "/hr/performance", iconKey: "performance", color: "blue", resourceKey: "hr.performance", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/hr/performance"] },
+        { key: "analytics", label: "人力分析", desc: "员工结构、部门架构、岗位分析、人员流动", href: "/hr/analytics", iconKey: "analytics", color: "blue", resourceKey: "hr.analytics", mobileExperience: { strategy: "native" }, noApiReason: "当前分析数据由 roster DTO 派生，暂无独立 API 前缀" },
       ],
     },
     resourceDefs: [
@@ -219,6 +219,7 @@ export const registeredModuleDefinitions = [
           iconKey: "contracts",
           color: "indigo",
           resourceKey: "administration.contracts",
+          mobileExperience: { strategy: "native" },
           apiPrefixes: ["/api/modules/administration/contracts"],
         },
       ],
@@ -240,14 +241,14 @@ export const registeredModuleDefinitions = [
       resourceKey: "finance",
       resourceSortOrder: 3,
       children: [
-        { key: "ledger", label: "总账会计", desc: "科目、凭证、期间、余额、结账、重分类", href: "/finance/ledger", iconKey: "ledger", color: "amber", resourceKey: "finance.ledger", apiPrefixes: ["/api/modules/finance/ledger"] },
-        { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表、项目配置、科目映射与余额校对", href: "/finance/statements", iconKey: "statements", color: "amber", resourceKey: "finance.statements", apiPrefixes: ["/api/modules/finance/statements"] },
-        { key: "analysis", label: "管理会计", desc: "经营分析、部门利润、产品客户维度、预算执行分析", href: "/finance/analysis", iconKey: "analysis", color: "amber", resourceKey: "finance.analysis", apiPrefixes: ["/api/modules/finance/analysis"] },
-        { key: "budget", label: "预算管理", desc: "预算版本、部门预算、研发预算、调整、执行", href: "/finance/budget", iconKey: "budget", color: "amber", resourceKey: "finance.budget", apiPrefixes: ["/api/modules/finance/budget"] },
-        { key: "cost", label: "成本管理", desc: "发货、成本结构、成本分析、车间工分、销售工资", href: "/finance/cost", iconKey: "cost", color: "amber", resourceKey: "finance.cost", apiPrefixes: ["/api/modules/finance/cost"] },
-        { key: "tax", label: "税务管理", desc: "销项/进项、税负分析、发票（规划中）", href: "/finance/tax", iconKey: "tax", color: "amber", resourceKey: "finance.tax", noApiReason: "规划中页面，暂无业务 API" },
-        { key: "treasury", label: "司库管理", desc: "银行账户、资金日报、收付款、现金流（规划中）", href: "/finance/treasury", iconKey: "treasury", color: "amber", resourceKey: "finance.treasury", noApiReason: "规划中页面，暂无业务 API" },
-        { key: "import", label: "数据导入与治理", desc: "科目/凭证/余额/预算/成本导入，校验与异常", href: "/finance/import", iconKey: "import", color: "amber", resourceKey: "finance.import", apiPrefixes: ["/api/modules/finance/import"] },
+        { key: "ledger", label: "总账会计", desc: "科目、凭证、期间、余额、结账、重分类", href: "/finance/ledger", iconKey: "ledger", color: "amber", resourceKey: "finance.ledger", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/finance/ledger"] },
+        { key: "statements", label: "财务报表", desc: "资产负债表、利润表、现金流量表、项目配置、科目映射与余额校对", href: "/finance/statements", iconKey: "statements", color: "amber", resourceKey: "finance.statements", mobileExperience: { strategy: "landscape", reason: "报表需要同时保留科目层级、期间和金额列，横屏工作台比拆成卡片更易核对。" }, apiPrefixes: ["/api/modules/finance/statements"] },
+        { key: "analysis", label: "管理会计", desc: "经营分析、部门利润、产品客户维度、预算执行分析", href: "/finance/analysis", iconKey: "analysis", color: "amber", resourceKey: "finance.analysis", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/finance/analysis"] },
+        { key: "budget", label: "预算管理", desc: "预算版本、部门预算、研发预算、调整、执行", href: "/finance/budget", iconKey: "budget", color: "amber", resourceKey: "finance.budget", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/finance/budget"] },
+        { key: "cost", label: "成本管理", desc: "发货、成本结构、成本分析、车间工分、销售工资", href: "/finance/cost", iconKey: "cost", color: "amber", resourceKey: "finance.cost", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/finance/cost"] },
+        { key: "tax", label: "税务管理", desc: "销项/进项、税负分析、发票（规划中）", href: "/finance/tax", iconKey: "tax", color: "amber", resourceKey: "finance.tax", mobileExperience: { strategy: "native" }, noApiReason: "规划中页面，暂无业务 API" },
+        { key: "treasury", label: "司库管理", desc: "银行账户、资金日报、收付款、现金流（规划中）", href: "/finance/treasury", iconKey: "treasury", color: "amber", resourceKey: "finance.treasury", mobileExperience: { strategy: "native" }, noApiReason: "规划中页面，暂无业务 API" },
+        { key: "import", label: "数据导入与治理", desc: "科目/凭证/余额/预算/成本导入，校验与异常", href: "/finance/import", iconKey: "import", color: "amber", resourceKey: "finance.import", mobileExperience: { strategy: "unavailable", reason: "批量文件选择、字段映射和异常核对属于桌面治理任务，手机端不提供入口。" }, apiPrefixes: ["/api/modules/finance/import"] },
       ],
     },
     relationRegistrations: FINANCE_RELATION_REGISTRATIONS,
@@ -273,7 +274,7 @@ export const registeredModuleDefinitions = [
       resourceKey: "production",
       resourceSortOrder: 4,
       children: [
-        { key: "qc", label: "批次检验", desc: "批次创建、检验记录填写、提交复核", href: "/production/qc", iconKey: "qc", color: "cyan", resourceKey: "production.qc", apiPrefixes: ["/api/modules/production/qc"] },
+        { key: "qc", label: "批次检验", desc: "批次创建、检验记录填写、提交复核", href: "/production/qc", iconKey: "qc", color: "cyan", resourceKey: "production.qc", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/production/qc"] },
       ],
     },
     routes: [
@@ -300,7 +301,7 @@ export const registeredModuleDefinitions = [
       resourceKey: "inventory",
       resourceSortOrder: 5,
       children: [
-        { key: "operations", label: "库存运营", desc: "物料卡片、批次流水、盘点、导入与成本结转", href: "/inventory/operations", iconKey: "ledger", color: "cyan", resourceKey: "inventory.operations", apiPrefixes: ["/api/modules/inventory/operations"] },
+        { key: "operations", label: "库存运营", desc: "物料卡片、批次流水、盘点、导入与成本结转", href: "/inventory/operations", iconKey: "ledger", color: "cyan", resourceKey: "inventory.operations", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/inventory/operations"] },
       ],
     },
     apiGuards: [
@@ -321,8 +322,8 @@ export const registeredModuleDefinitions = [
       resourceSortOrder: 5,
       lifecycleStatus: "workspace-owned",
       children: [
-        { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
-        { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
+        { key: "customers", label: "客户管理", desc: "单位与个人客户的主体、联系和结算信息", href: "/external/customers", iconKey: "users", color: "orange", resourceKey: "external.customers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/customers"] },
+        { key: "suppliers", label: "供应商管理", desc: "单位与个人供应商的主体、联系和结算信息", href: "/external/suppliers", iconKey: "suppliers", color: "orange", resourceKey: "external.suppliers", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", apiPrefixes: ["/api/modules/external/suppliers"] },
       ],
     },
     apiGuards: [
@@ -344,8 +345,8 @@ export const registeredModuleDefinitions = [
       resourceSortOrder: 6,
       lifecycleStatus: "workspace-owned",
       children: [
-        { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/capital-securities/investors", iconKey: "investors", color: "amber", resourceKey: "capitalSecurities.investors", lifecycleStatus: "workspace-owned", noApiReason: "当前仅提供页面入口，暂无独立 API" },
-        { key: "governance", label: "治理架构", desc: "G 线组织架构与负责人维护", href: "/capital-securities/governance", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.governance", apiPrefixes: ["/api/modules/capitalSecurities/governance"] },
+        { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/capital-securities/investors", iconKey: "investors", color: "amber", resourceKey: "capitalSecurities.investors", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", noApiReason: "当前仅提供页面入口，暂无独立 API" },
+        { key: "governance", label: "治理架构", desc: "G 线组织架构与负责人维护", href: "/capital-securities/governance", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.governance", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/capitalSecurities/governance"] },
       ],
     },
     apiGuards: [
@@ -368,9 +369,9 @@ export const registeredModuleDefinitions = [
       resourceSortOrder: 7,
       apiPrefixes: ["/api/modules/docs"],
       children: [
-        { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", iconKey: "company", color: "purple", resourceKey: "docs.company", noApiReason: "静态文档页面，无独立业务 API" },
-        { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", iconKey: "expense", color: "purple", resourceKey: "docs.expense", noApiReason: "静态文档页面，无独立业务 API" },
-        { key: "editor", label: "模板编辑器", desc: "模板空间、纸面编辑、字段公式和 DOCX 导出", href: "/docs/editor", iconKey: "docs", color: "purple", resourceKey: "docs.editor", apiPrefixes: ["/api/modules/docs/editor"] },
+        { key: "company", label: "公司管理", desc: "员工手册、管理手册", href: "/docs/company", iconKey: "company", color: "purple", resourceKey: "docs.company", mobileExperience: { strategy: "native" }, noApiReason: "静态文档页面，无独立业务 API" },
+        { key: "expense", label: "报销规范", desc: "报销流程与标准", href: "/docs/expense", iconKey: "expense", color: "purple", resourceKey: "docs.expense", mobileExperience: { strategy: "native" }, noApiReason: "静态文档页面，无独立业务 API" },
+        { key: "editor", label: "模板编辑器", desc: "模板空间、纸面编辑、字段公式和 DOCX 导出", href: "/docs/editor", iconKey: "docs", color: "purple", resourceKey: "docs.editor", mobileExperience: { strategy: "native", overrides: [{ pathPrefix: "/docs/editor/templates", strategy: "landscape", reason: "模板画布需要同时保留结构、字段和纸面预览，详情编辑采用横屏工作台。" }] }, apiPrefixes: ["/api/modules/docs/editor"] },
       ],
     },
     routes: ["/docs/editor/templates/[templateId]"],
@@ -415,7 +416,7 @@ export const registeredModuleDefinitions = [
       resourceKey: "library",
       resourceSortOrder: 8,
       children: [
-        { key: "basicInfo", label: "基本资料", desc: "资料目录、文件、生成文档和保密等级", href: "/library/basic-info", iconKey: "basicInfo", color: "orange", resourceKey: "library.basicInfo", apiPrefixes: ["/api/modules/library/basic-info"] },
+        { key: "basicInfo", label: "基本资料", desc: "资料目录、文件、生成文档和保密等级", href: "/library/basic-info", iconKey: "basicInfo", color: "orange", resourceKey: "library.basicInfo", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/library/basic-info"] },
       ],
     },
     routes: ["/library/basic-info/documents/[id]"],
@@ -448,10 +449,10 @@ export const registeredModuleDefinitions = [
       resourceKey: "settings",
       resourceSortOrder: 100,
       children: [
-        { key: "account", label: "账号与接入", desc: "账号资料、头像和个人 API 接入", href: "/settings/account", iconKey: "account", color: "blue", resourceKey: "settings.account", apiPrefixes: ["/api/settings/account"] },
-        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", iconKey: "shieldCheck", color: "indigo", resourceKey: "settings.admin", pageAccess: "adminManage", apiPrefixes: ["/api/settings/admin"] },
-        { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", iconKey: "api", color: "purple", resourceKey: "settings.api", apiPrefixes: ["/api/settings/api"] },
-        { key: "ui", label: "UI 组件库", desc: "查看核心 UI 组件注册表", href: "/settings/ui", iconKey: "ui", color: "emerald", resourceKey: "settings.ui", noApiReason: "纯客户端组件浏览页面，无服务端 API" },
+        { key: "account", label: "账号与接入", desc: "账号资料、头像和个人 API 接入", href: "/settings/account", iconKey: "account", color: "blue", resourceKey: "settings.account", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/account"] },
+        { key: "admin", label: "系统管理", desc: "用户、权限、资源和管理员配置", href: "/settings/admin", iconKey: "shieldCheck", color: "indigo", resourceKey: "settings.admin", mobileExperience: { strategy: "native" }, pageAccess: "adminManage", apiPrefixes: ["/api/settings/admin"] },
+        { key: "api", label: "API 接入", desc: "Open API Client、Scope 授权和调用日志", href: "/settings/api", iconKey: "api", color: "purple", resourceKey: "settings.api", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/settings/api"] },
+        { key: "ui", label: "UI 组件库", desc: "查看核心 UI 组件注册表", href: "/settings/ui", iconKey: "ui", color: "emerald", resourceKey: "settings.ui", mobileExperience: { strategy: "unavailable", reason: "组件注册表是开发与治理工具，手机端不提供入口。" }, noApiReason: "纯客户端组件浏览页面，无服务端 API" },
       ],
     },
     resourceDefs: [

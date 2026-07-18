@@ -3,14 +3,14 @@ import { joinClassNames } from "../common/card-utils";
 export type BodySectionStackPosition = "single" | "first" | "middle" | "last";
 
 export function sectionCardClassName(position?: BodySectionStackPosition) {
-  if (!position || position === "single") return "space-y-4 rounded-md border border-slate-200 bg-white p-3 shadow-sm sm:p-4";
+  if (!position || position === "single") return "space-y-4 overflow-hidden rounded-xl border border-slate-200 bg-white p-3 sm:rounded-md sm:p-4 sm:shadow-sm";
   const roundedClass =
     position === "first"
       ? "rounded-t-md rounded-b-none"
       : position === "last"
         ? "-mt-px rounded-b-md rounded-t-none"
         : "-mt-px rounded-none";
-  return joinClassNames("space-y-4 border border-slate-200 bg-white p-3 shadow-sm sm:p-4", roundedClass);
+  return joinClassNames("space-y-4 overflow-hidden border border-slate-200 bg-white p-3 sm:p-4", roundedClass);
 }
 
 export function sectionStackPosition(previousIsCard: boolean, nextIsCard: boolean): BodySectionStackPosition {

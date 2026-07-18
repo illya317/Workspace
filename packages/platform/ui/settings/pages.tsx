@@ -5,7 +5,6 @@ import SettingsClient from "./SettingsClient";
 import SettingsApiClient from "./SettingsApiClient";
 import UiComponentsShowcase from "@workspace/core/showcase/UiComponentsShowcase";
 import { type ApiAccessModuleRow } from "./ApiAccessClient";
-import ModuleHomePage from "../ModuleHomePage";
 
 function buildApiAccessModules(): ApiAccessModuleRow[] {
   const modules: ApiAccessModuleRow[] = activeModuleDefinitions
@@ -29,10 +28,6 @@ function buildApiAccessModules(): ApiAccessModuleRow[] {
     });
 
   return modules;
-}
-
-export function SettingsHomePage() {
-  return ModuleHomePage({ moduleKey: "settings" });
 }
 
 export function SettingsAccountPage({ user }: { user: SessionUser }) {

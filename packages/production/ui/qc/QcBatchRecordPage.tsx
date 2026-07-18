@@ -2,7 +2,7 @@
 
 import { createPageBody, PageSurface, type BodySurfaceSectionSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { EditorBlock } from "@workspace/platform/document-editor";
-import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/types";
 import { createQcEditorRuntimePaperSection } from "./QcEditorRuntimePaper";
 import { createQcEditorRuntimeMobileSection } from "./QcEditorRuntimeMobile";
 import { qcBatchStagePath, qcBatchTestPath } from "./qc-routes";

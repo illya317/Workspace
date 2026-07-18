@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type CSSProperties, type ReactNode } from "react";
+import { useEffect, useState, type CSSProperties, type ReactNode } from "react";
 import { ActionGlyph } from "../action/ActionGlyphs";
 
 export type SplitWorkspaceMode = "desktop" | "mobile";
@@ -12,14 +12,22 @@ export interface SplitWorkspaceProps {
   children: ReactNode;
   splitRatio?: readonly [number, number];
   desktopPresentation?: "ratio" | "fixed-sidebar";
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
 }
 
 function MobileSplitWorkspace({
   sideLabel,
   renderSide,
   children,
-}: Pick<SplitWorkspaceProps, "sideLabel" | "renderSide" | "children">) {
-  const [pane, setPane] = useState<"list" | "detail">("list");
+  mobileDetailActive,
+  onMobileNavigateToList,
+}: Pick<SplitWorkspaceProps, "sideLabel" | "renderSide" | "children" | "mobileDetailActive" | "onMobileNavigateToList">) {
+  const [pane, setPane] = useState<"list" | "detail">(mobileDetailActive ? "detail" : "list");
+
+  useEffect(() => {
+    if (mobileDetailActive !== undefined) setPane(mobileDetailActive ? "detail" : "list");
+  }, [mobileDetailActive]);
 
   if (pane === "list") {
     return (
@@ -36,7 +44,10 @@ function MobileSplitWorkspace({
           type="button"
           aria-label={`返回${sideLabel}`}
           title={`返回${sideLabel}`}
-          onClick={() => setPane("list")}
+          onClick={() => {
+            setPane("list");
+            onMobileNavigateToList?.();
+          }}
           className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
         >
           <ActionGlyph kind="back" className="size-5" />
@@ -58,6 +69,8 @@ export default function SplitWorkspace({
   children,
   splitRatio = [3, 7],
   desktopPresentation = "ratio",
+  mobileDetailActive,
+  onMobileNavigateToList,
 }: SplitWorkspaceProps) {
   const [sideFr, contentFr] = splitRatio;
   const splitStyle = {
@@ -70,7 +83,14 @@ export default function SplitWorkspace({
 
   return (
     <>
-      <MobileSplitWorkspace sideLabel={sideLabel} renderSide={renderSide}>{children}</MobileSplitWorkspace>
+      <MobileSplitWorkspace
+        sideLabel={sideLabel}
+        renderSide={renderSide}
+        mobileDetailActive={mobileDetailActive}
+        onMobileNavigateToList={onMobileNavigateToList}
+      >
+        {children}
+      </MobileSplitWorkspace>
 
       <div
         className={`hidden gap-5 lg:grid ${sideOpen ? desktopColumns : "grid-cols-1"}`}

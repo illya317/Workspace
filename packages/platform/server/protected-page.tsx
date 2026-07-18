@@ -1,11 +1,11 @@
 import type { ReactNode } from "react";
 import { redirect } from "next/navigation";
-import { getCurrentUser, requireRouteAccess } from "../server/auth";
+import { getCurrentUser, requireRouteAccess } from "./auth";
 import type { SessionUser } from "../types";
 import {
   renderAppShellPage,
   type AppShellNavLink,
-} from "./app-shell-page";
+} from "../ui/app-shell-page";
 
 interface PageRenderContext {
   user: SessionUser;

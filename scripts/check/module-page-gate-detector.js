@@ -1,8 +1,8 @@
 const ts = require("typescript");
 
 const AUTH_SOURCE = "@workspace/platform/server/auth";
-const PROTECTED_PAGE_SOURCE = "@workspace/platform/ui/protected-page";
-const MODULE_HOME_SOURCE = "@workspace/platform/ui/ModuleHomePage";
+const PROTECTED_PAGE_SOURCE = "@workspace/platform/server/protected-page";
+const MODULE_HOME_SOURCE = "@workspace/platform/server/module-home-page";
 const PERMISSION_ACTION_KEYS = new Set([
   "entry", "read", "create", "update", "delete",
   "archive", "revise", "reverse", "lock", "unlock",

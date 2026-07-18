@@ -6,7 +6,7 @@ import { ArrowLeft, Home } from "lucide-react";
 import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
-import { ActionGlyph, NavigationContextSelector, useFeedback, type NavigationSurfaceSelectorSpec } from "@workspace/core/ui";
+import { ActionGlyph, MobileExperienceBoundary, NavigationContextSelector, useFeedback, type NavigationSurfaceSelectorSpec } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import type { PortalSlot } from "../portal-preferences";
@@ -15,6 +15,7 @@ import {
   defaultSlotsForUser,
   headerShortcutsForUser,
 } from "./portal-preferences";
+import { resolveMobileExperience } from "../mobile-experience";
 interface NavLinkDef {
   label: string;
   href: string;
@@ -55,6 +56,7 @@ export default function AppShell({
     ? pathname.slice(workspaceBasePath.length)
     : pathname;
   const showDesktopModeSwitch = currentPath === "/portal" || currentPath === "/settings" || currentPath.startsWith("/settings/");
+  const mobileExperience = resolveMobileExperience(currentPath);
   const activeDesktopMode = "personalized";
   async function navigate(href: string) {
     if (!(await feedback.confirmLeave())) return;
@@ -154,7 +156,14 @@ export default function AppShell({
         ) : null}
       </nav>
 
-      {children}
+      <MobileExperienceBoundary
+        strategy={mobileExperience.strategy}
+        title={mobileExperience.label ?? title}
+        reason={mobileExperience.reason}
+        onBack={() => void navigate(backHref ?? "/portal")}
+      >
+        {children}
+      </MobileExperienceBoundary>
 
       <nav
         aria-label="移动端主导航"

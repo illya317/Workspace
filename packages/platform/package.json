@@ -80,6 +80,8 @@
     "./server/history": "./server/history.ts",
     "./server/history-policy-registry": "./server/history-policy-registry.ts",
     "./server/module-runtime": "./server/module-runtime.ts",
+    "./server/module-home-page": "./server/module-home-page.tsx",
+    "./server/protected-page": "./server/protected-page.tsx",
     "./server/module-management": "./server/module-management.ts",
     "./server/mutation-impact": "./server/mutation-impact/index.ts",
     "./server/mutation-impact-ledger": "./server/mutation-impact-ledger.ts",

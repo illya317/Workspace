@@ -170,6 +170,8 @@ export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   sideLabel: string;
   showSideControls?: boolean;
   splitRatio?: readonly [number, number];
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
 };
 
 export type BodySurfaceSectionProps = BodySurfaceComposedSectionProps | BodySurfaceSplitSectionProps;

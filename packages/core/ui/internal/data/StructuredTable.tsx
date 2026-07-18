@@ -7,6 +7,7 @@ import {
 import type {
   DataSurfaceAlign,
   DataSurfaceEmphasis,
+  DataSurfaceMobilePresentation,
   DataSurfaceRowHeight,
   DataSurfaceStructuredDimension,
   DataSurfaceStructuredCellRole,
@@ -34,6 +35,7 @@ export interface StructuredTableProps {
   colWidths?: Array<DataSurfaceStructuredDimension | null>;
   rowHeights?: Array<DataSurfaceStructuredDimension | undefined>;
   presentation?: DataTablePresentation;
+  mobilePresentation?: DataSurfaceMobilePresentation;
 }
 
 export default function StructuredTable({
@@ -42,6 +44,7 @@ export default function StructuredTable({
   colWidths,
   rowHeights,
   presentation,
+  mobilePresentation = "list",
 }: StructuredTableProps) {
   const tablePresentation = resolveTablePresentation(presentation, presentation?.density);
   const tableClassName = `${tablePresentation.table} ${colWidths?.length ? "table-fixed min-w-max w-full" : ""}`;
@@ -50,17 +53,17 @@ export default function StructuredTable({
 
   return (
     <>
-      {mobileHeaders ? (
-        <div className="space-y-2.5 bg-slate-50/70 p-2.5 sm:hidden">
+      {mobileHeaders && mobilePresentation === "list" ? (
+        <div className="divide-y divide-slate-100 bg-white sm:hidden" role="list" data-mobile-table-presentation="list">
           {rows.slice(1).map((row, mobileRowIndex) => {
             const rowIndex = mobileRowIndex + 1;
             const interaction = rowInteractions?.[rowIndex] ?? null;
             const titleCell = row[0];
-            const summaryCells = row.slice(1, 4);
-            const detailCells = row.slice(4);
+            const summaryCells = row.slice(1, 3);
+            const detailCells = row.slice(3);
             if (row.length === 1 && row[0]?.colSpan) {
               return (
-                <div key={rowIndex} className="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500 shadow-sm">
+                <div key={rowIndex} className="px-4 py-10 text-center text-sm text-slate-500">
                   {row[0].content}
                 </div>
               );
@@ -68,20 +71,24 @@ export default function StructuredTable({
             return (
               <article
                 key={rowIndex}
-                className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${interaction ? "cursor-pointer transition active:border-emerald-200 active:bg-emerald-50" : ""}`}
+                role="listitem"
+                className={`relative px-4 py-4 ${interaction ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
                 tabIndex={interaction ? 0 : undefined}
                 aria-label={interaction?.ariaLabel}
                 onClick={interaction ? (event) => activateRowFromClick(event, interaction) : undefined}
                 onKeyDown={interaction ? (event) => activateRowFromKeyboard(event, interaction) : undefined}
               >
-                <div className="min-w-0">
-                  <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">{mobileHeaders[0].content}</span>
-                  <div className={`mt-1 min-w-0 break-words text-base font-bold leading-6 text-slate-900 ${resolveStructuredCellClass(titleCell)}`}>
-                    {titleCell.content}
+                <div className="flex min-w-0 items-start gap-3">
+                  <div className="min-w-0 flex-1">
+                    <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">{mobileHeaders[0].content}</span>
+                    <div className={`mt-0.5 min-w-0 break-words text-[15px] font-bold leading-6 text-slate-900 ${resolveStructuredCellClass(titleCell)}`}>
+                      {titleCell.content}
+                    </div>
                   </div>
+                  {interaction ? <span aria-hidden="true" className="mt-4 shrink-0 text-xl leading-none text-slate-300">›</span> : null}
                 </div>
                 {summaryCells.length > 0 ? (
-                  <dl className="mt-3 grid gap-3 border-t border-slate-100 pt-3">
+                  <dl className="mt-2 grid gap-2 min-[400px]:grid-cols-2">
                     {summaryCells.map((cell, summaryIndex) => (
                       <div key={`${rowIndex}-summary-${summaryIndex}`} className="min-w-0">
                         <dt className="text-xs font-semibold leading-5 text-slate-400">{mobileHeaders[summaryIndex + 1].content}</dt>
@@ -91,15 +98,15 @@ export default function StructuredTable({
                   </dl>
                 ) : null}
                 {detailCells.length > 0 ? (
-                  <details className="group mt-3 border-t border-slate-100 pt-2">
-                    <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-lg px-1 text-xs font-semibold text-slate-500 marker:hidden">
+                  <details className="group mt-2 border-t border-slate-100 pt-1">
+                    <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between text-xs font-semibold text-slate-500 marker:hidden">
                       <span>更多信息</span>
                       <span className="text-slate-400 transition group-open:rotate-180">⌄</span>
                     </summary>
-                    <dl className="grid gap-3 px-1 pb-1 pt-2">
+                    <dl className="grid gap-3 pb-1 pt-2">
                       {detailCells.map((cell, detailIndex) => (
                         <div key={`${rowIndex}-detail-${detailIndex}`} className="grid grid-cols-[5rem_minmax(0,1fr)] gap-3">
-                          <dt className="text-xs font-semibold leading-5 text-slate-400">{mobileHeaders[detailIndex + 4].content}</dt>
+                          <dt className="text-xs font-semibold leading-5 text-slate-400">{mobileHeaders[detailIndex + 3].content}</dt>
                           <dd className={`min-w-0 break-words text-sm leading-5 text-slate-700 ${resolveStructuredCellClass(cell)}`}>{cell.content}</dd>
                         </div>
                       ))}
@@ -111,7 +118,7 @@ export default function StructuredTable({
           })}
         </div>
       ) : null}
-      <div className={mobileHeaders ? "hidden sm:block" : undefined}>
+      <div className={mobileHeaders ? (mobilePresentation === "landscape" ? "hidden sm:block landscape:max-sm:block" : "hidden sm:block") : undefined} data-desktop-table="true">
         {colWidths?.length ? <MobileHorizontalScrollHint /> : null}
         <table className={tableClassName}>
           {colWidths?.length ? (

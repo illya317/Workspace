@@ -4,6 +4,7 @@ import type {
   DataSurfaceEmphasis,
   DataSurfaceFont,
   DataSurfaceFrame,
+  DataSurfaceMobilePresentation,
   DataSurfaceRowState,
   DataSurfaceScrollSpec,
   DataSurfaceTableFormatSpec,
@@ -78,6 +79,7 @@ export interface DataTableProps<T> {
   /** 可见列 key 列表。未提供时自动使用 required / defaultVisible 列。 */
   visibleColumns?: string[];
   format?: DataSurfaceTableFormatSpec;
+  mobilePresentation?: DataSurfaceMobilePresentation;
   presentation?: DataTablePresentation;
   loading?: boolean;
   emptyText?: string;

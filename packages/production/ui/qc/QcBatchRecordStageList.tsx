@@ -1,7 +1,7 @@
 import { BodySurface, type BodySurfaceProps } from "@workspace/core/ui";
 import { createStageFlowBody, type StageFlowStageSpec, type StageFlowStateSpec } from "@workspace/platform/ui";
 import type { QcBatchSummary } from "@workspace/production/types";
-import type { QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import type { QcEditorRuntimeTemplate } from "@workspace/production/types";
 import {
   buildQcBatchWorkflow,
   qcBatchReviewWorkflowStatus,

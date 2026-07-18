@@ -18,6 +18,8 @@ export type {
   DataSurfaceFrame,
   DataSurfaceKind,
   DataSurfaceLooseRow,
+  DataSurfaceMobilePresentation,
+  DataSurfaceMobileSpec,
   DataSurfaceRowState,
   DataSurfaceScrollSpec,
   DataSurfaceActionsColumnSpec,

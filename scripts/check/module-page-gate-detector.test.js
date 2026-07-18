@@ -39,11 +39,11 @@ test("rejects swallowed or raced guard promises and imported-binding shadows", (
 
 test("keeps awaited route access and direct protected-page exports", () => {
   assert.equal(hasRouteAccessGate(page('await requireRouteAccess("/agent/config");\nreturn null;'), "/agent/config"), true);
-  assert.equal(hasRouteAccessGate('import { createProtectedModulePage } from "@workspace/platform/ui/protected-page";\nexport default createProtectedModulePage({ route: "/agent/config" })', "/agent/config"), true);
+  assert.equal(hasRouteAccessGate('import { createProtectedModulePage } from "@workspace/platform/server/protected-page";\nexport default createProtectedModulePage({ route: "/agent/config" })', "/agent/config"), true);
 });
 
 test("requires the real ModuleHomePage import on the default return path", () => {
-  assert.equal(hasModuleHomePage('import ModuleHomePage from "@workspace/platform/ui/ModuleHomePage";\nexport default function Page() { return <ModuleHomePage moduleKey="agent" />; }', "agent"), true);
+  assert.equal(hasModuleHomePage('import ModuleHomePage from "@workspace/platform/server/module-home-page";\nexport default function Page() { return <ModuleHomePage moduleKey="agent" />; }', "agent"), true);
   assert.equal(hasModuleHomePage('const fake = `<ModuleHomePage moduleKey="agent" />`', "agent"), false);
   assert.equal(hasModuleHomePage('function ModuleHomePage() {}\nexport default function Page() { return <ModuleHomePage moduleKey="agent" />; }', "agent"), false);
 });

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { PageSurface, createFixedSidebarBody, createPageBody, createStatusSection, useFeedback } from "@workspace/core/ui";
 import type { BodySurfaceProps, BodySurfaceSelectorProps, FormSurfaceItemSpec, SelectorSurfaceStatusSpec, SurfaceToolbarItems } from "@workspace/core/ui";
-import type { QcBatchSummary, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeTemplate } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import { QC_BATCH_PAGE_SIZE_OPTIONS, QC_BATCH_STATUS_OPTIONS } from "./qc-options";
 import { createQcBatchRecordStageBody } from "./QcBatchRecordStageList";

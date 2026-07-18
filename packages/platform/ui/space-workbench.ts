@@ -287,6 +287,8 @@ export function createSpaceWorkbenchBody({
   onDrawerOpenChange,
   ratio = [0.28, 0.72],
   showControls = true,
+  mobileDetailActive,
+  onMobileNavigateToList,
 }: {
   left: BodySurfaceSelectorProps;
   right: BodySurfaceProps;
@@ -297,11 +299,15 @@ export function createSpaceWorkbenchBody({
   onDrawerOpenChange: (open: boolean) => void;
   ratio?: [number, number];
   showControls?: boolean;
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
 }): BodySurfaceProps {
   return createBodySplitSection({
     left,
     drawerLeft: left,
     right,
+    mobileDetailActive,
+    onMobileNavigateToList,
     side: {
       label,
       open,

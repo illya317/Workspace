@@ -125,6 +125,7 @@ export default function DataTable<T>({
   columns,
   visibleColumns,
   format,
+  mobilePresentation,
   presentation,
   loading,
   emptyText,
@@ -188,9 +189,11 @@ export default function DataTable<T>({
     : { size: "md" as const, density: "normal" as const };
   const mobileContentColumns = visible.filter((column) => !hasActions || column.key !== actionsKey);
   const mobileTitleColumn = mobileContentColumns[0];
-  const mobileSummaryColumns = mobileContentColumns.slice(1, 4);
-  const mobileDetailColumns = mobileContentColumns.slice(4);
+  const mobileSummaryColumns = mobileContentColumns.slice(1, 3);
+  const mobileDetailColumns = mobileContentColumns.slice(3);
   const mobileActionsColumn = hasActions ? visible.find((column) => column.key === actionsKey) : undefined;
+  const resolvedMobilePresentation = mobilePresentation ?? (format?.kind === "matrix" ? "landscape" : "list");
+  const showMobileList = resolvedMobilePresentation === "list";
 
   const desktopTable = (
     <table className={tableClassName}>
@@ -265,7 +268,7 @@ export default function DataTable<T>({
 
   return (
     <>
-      <div className="space-y-2.5 bg-slate-50/70 p-2.5 sm:hidden">
+      {showMobileList ? <div className="divide-y divide-slate-100 bg-white sm:hidden" role="list" data-mobile-table-presentation="list">
         {rows.map((row, index) => {
           const key = rowKey(row, index);
           const isExpanded =
@@ -277,24 +280,28 @@ export default function DataTable<T>({
           return (
             <article
               key={key}
-              className={`rounded-2xl border border-slate-200 bg-white p-4 shadow-sm ${stateClassName} ${onRowClick ? "cursor-pointer transition active:border-emerald-200 active:bg-emerald-50" : ""}`}
+              role="listitem"
+              className={`relative px-4 py-4 ${stateClassName} ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
               tabIndex={onRowClick ? 0 : undefined}
               onClick={onRowClick ? (event) => activateDataRowFromClick(event, row, onRowClick) : undefined}
               onKeyDown={onRowClick ? (event) => activateDataRowFromKeyboard(event, row, onRowClick) : undefined}
             >
-              <div className="min-w-0">
-                <span className="block text-[11px] font-semibold uppercase tracking-[0.1em] text-slate-400">
-                  {mobileTitleColumn?.label ?? "记录"}
-                </span>
-                <div className="mt-1 min-w-0 break-words text-base font-bold leading-6 text-slate-900">
-                  {mobileTitleColumn
-                    ? <MobileTableValue column={mobileTitleColumn} row={row} fieldContext={fieldContext} />
-                    : `记录 ${index + 1}`}
+              <div className="flex min-w-0 items-start gap-3">
+                <div className="min-w-0 flex-1">
+                  <span className="block text-[11px] font-semibold uppercase tracking-[0.08em] text-slate-400">
+                    {mobileTitleColumn?.label ?? "记录"}
+                  </span>
+                  <div className="mt-0.5 min-w-0 break-words text-[15px] font-bold leading-6 text-slate-900">
+                    {mobileTitleColumn
+                      ? <MobileTableValue column={mobileTitleColumn} row={row} fieldContext={fieldContext} />
+                      : `记录 ${index + 1}`}
+                  </div>
                 </div>
+                {onRowClick ? <span aria-hidden="true" className="mt-4 shrink-0 text-xl leading-none text-slate-300">›</span> : null}
               </div>
 
               {mobileSummaryColumns.length > 0 ? (
-                <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 border-t border-slate-100 pt-3 min-[400px]:grid-cols-2">
+                <dl className="mt-2 grid grid-cols-1 gap-x-4 gap-y-2 min-[400px]:grid-cols-2">
                   {mobileSummaryColumns.map((column) => (
                     <MobileTableFact key={column.key} column={column} row={row} fieldContext={fieldContext} />
                   ))}
@@ -302,12 +309,12 @@ export default function DataTable<T>({
               ) : null}
 
               {mobileDetailColumns.length > 0 ? (
-                <details className="group mt-3 border-t border-slate-100 pt-2">
-                  <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between rounded-lg px-1 text-xs font-semibold text-slate-500 marker:hidden">
+                <details className="group mt-2 border-t border-slate-100 pt-1">
+                  <summary className="flex min-h-10 cursor-pointer list-none items-center justify-between text-xs font-semibold text-slate-500 marker:hidden">
                     <span>更多信息</span>
                     <span className="text-slate-400 transition group-open:rotate-180">⌄</span>
                   </summary>
-                  <dl className="grid gap-3 px-1 pb-1 pt-2">
+                  <dl className="grid gap-3 pb-1 pt-2">
                     {mobileDetailColumns.map((column) => (
                       <MobileTableFact key={column.key} column={column} row={row} fieldContext={fieldContext} detail />
                     ))}
@@ -316,12 +323,12 @@ export default function DataTable<T>({
               ) : null}
 
               {mobileActionsColumn ? (
-                <div className="mt-3 flex justify-end border-t border-slate-100 pt-3">
+                <div className="mt-2 flex justify-end gap-2 border-t border-slate-100 pt-2">
                   <MobileTableValue column={mobileActionsColumn} row={row} fieldContext={fieldContext} />
                 </div>
               ) : null}
               {isExpanded && renderExpandedRow ? (
-                <div className="mt-3 border-t border-slate-200 bg-slate-50 px-1 pt-3">
+                <div className="mt-3 border-t border-slate-100 pt-3">
                   {renderExpandedRow(row)}
                 </div>
               ) : null}
@@ -333,8 +340,8 @@ export default function DataTable<T>({
             {emptyText ?? "暂无数据"}
           </div>
         ) : null}
-      </div>
-      <div className="hidden sm:block">{desktopTable}</div>
+      </div> : null}
+      <div className={resolvedMobilePresentation === "landscape" ? "hidden sm:block landscape:max-sm:block" : "hidden sm:block"} data-desktop-table="true">{desktopTable}</div>
     </>
   );
 }

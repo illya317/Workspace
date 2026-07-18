@@ -1,4 +1,8 @@
-import type { ModuleDef, ModuleRegistration, SubModuleDef } from "@workspace/core";
+import type {
+  ModuleDef,
+  ModuleRegistration,
+  SubModuleDef,
+} from "@workspace/core";
 import type { SessionUser } from "./types";
 import { moduleIcons } from "./icons";
 import { workspacePackages } from "./modules";

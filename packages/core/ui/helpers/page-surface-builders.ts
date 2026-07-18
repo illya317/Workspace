@@ -62,6 +62,8 @@ export type BodySplitSectionOptions = {
   left: BodySurfaceProps;
   drawerLeft?: BodySurfaceProps;
   right: BodySurfaceProps;
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
   side: {
     label: string;
     open: boolean;
@@ -108,6 +110,8 @@ export function createBodySplitSection(options: BodySplitSectionOptions): BodySu
     onDrawerOpenChange: options.side.onDrawerOpenChange,
     showSideControls: options.side.showControls,
     splitRatio: options.layout?.ratio,
+    mobileDetailActive: options.mobileDetailActive,
+    onMobileNavigateToList: options.onMobileNavigateToList,
   };
 }
 

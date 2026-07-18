@@ -12,6 +12,11 @@ export const page_frame_registry_entries = [
     composes: ["PageContent"],
   },
   {
+    name: "MobileExperienceBoundary",
+    description: "移动端原生、横屏工作台和不开放三种产品级呈现边界",
+    composes: ["ActionGlyph"],
+  },
+  {
     name: "TemplateWorkbenchFrame",
     description: "可配置工作台骨架",
     composes: [

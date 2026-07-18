@@ -126,11 +126,16 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
     ? { ...declaredCreate, anchor: `body-section-create:${declaredCreate.id}` }
     : declaredCreate;
   const createAnchor = renderedCreate?.presentation === "block" ? renderedCreate.anchor ?? null : null;
+  const mobileFlushData = chrome === "card"
+    && section.body.kind === "data"
+    && (section.body.data.kind === "table" || section.body.data.kind === "structured");
   const sectionClassName = joinClassNames(
     chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4",
     chrome === "plain" && section.header?.title ? "pt-2" : "",
+    mobileFlushData ? "max-sm:!space-y-0 max-sm:!p-0" : "",
     stretchClassName,
   );
+  const header = renderSectionHeader(section, chrome, renderedCreate);
   return (
     <BodySurfaceSectionFrame
       key={section.key}
@@ -140,7 +145,7 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       visibility={section.visibility}
     >
       <section className={sectionClassName}>
-        {renderSectionHeader(section, chrome, renderedCreate)}
+        {mobileFlushData && header ? <div className="px-3 pb-3 pt-3">{header}</div> : header}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
         {!section.disclosure || section.disclosure.expanded ? <BodySurface {...section.body} /> : null}
       </section>
@@ -291,6 +296,8 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
           sideLabel={props.sideLabel || "列表"}
           renderSide={(mode, onNavigateToDetail) => renderSplitSide(props, mode, onNavigateToDetail)}
           desktopPresentation="fixed-sidebar"
+          mobileDetailActive={props.mobileDetailActive}
+          onMobileNavigateToList={props.onMobileNavigateToList}
         >
           <BodySurface {...props.right} />
         </SplitWorkspace>
@@ -303,6 +310,8 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
           sideLabel={props.sideLabel}
           renderSide={(mode, onNavigateToDetail) => renderSplitSide(props, mode, onNavigateToDetail)}
           splitRatio={props.splitRatio}
+          mobileDetailActive={props.mobileDetailActive}
+          onMobileNavigateToList={props.onMobileNavigateToList}
         >
           <BodySurface {...props.right} />
         </SplitWorkspace>

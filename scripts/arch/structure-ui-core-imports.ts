@@ -90,6 +90,7 @@ const CORE_UI_ALLOWED_RUNTIME_IMPORTS = new Set([
   "InputSurface",
   "ModuleCard",
   "ModuleGridPage",
+  "MobileExperienceBoundary",
   "NavigationContextSelector",
   "PageAssistantProvider",
   "PageSurface",

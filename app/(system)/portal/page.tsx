@@ -1,4 +1,4 @@
-import { createAuthenticatedAppShellPage } from "@workspace/platform/ui/protected-page";
+import { createAuthenticatedAppShellPage } from "@workspace/platform/server/protected-page";
 import { renderPortalPage } from "@workspace/platform/ui";
 
 export default createAuthenticatedAppShellPage({
