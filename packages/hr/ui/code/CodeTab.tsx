@@ -31,8 +31,8 @@ export function CodesTab({
   }, [selectedCompany]);
 
   return (
-    <div className="flex gap-6">
-      <div className="w-1/2">
+    <div className="flex flex-col gap-4 lg:flex-row lg:gap-6">
+      <div className="w-full lg:w-1/2">
         <CodeTab
           user={user}
           type="department"
@@ -46,7 +46,7 @@ export function CodesTab({
           selectedCode={selectedDept || undefined}
         />
       </div>
-      <div className="w-1/2">
+      <div className="w-full lg:w-1/2">
         <CodeTab
           user={user}
           type="position"

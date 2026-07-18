@@ -192,7 +192,7 @@ export function OrganizationModePanel({
         {organizationHeaderDepartment.name}
       </span>
       <span className="shrink-0 font-mono text-sm text-slate-400">{organizationHeaderDepartment.code}</span>
-      <span className="flex min-w-0 w-72 items-center gap-2">
+      <span className="flex w-full min-w-0 items-center gap-2 sm:w-72">
         <span className="shrink-0 text-xs font-semibold text-slate-500">负责人</span>
         <span className="min-w-0 flex-1 truncate text-sm font-medium text-slate-700" title={organizationHeaderDepartment.managerName || "未设置"}>
           {organizationHeaderDepartment.managerName || "未设置"}

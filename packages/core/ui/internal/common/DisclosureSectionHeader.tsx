@@ -22,7 +22,7 @@ export default function DisclosureSectionHeader({
       type="button"
       onClick={onToggle}
       aria-expanded={expanded}
-      className={joinClassNames("mb-3 flex items-center gap-2 text-base font-semibold text-gray-800", className)}
+      className={joinClassNames("mb-3 flex min-h-11 items-center gap-2 text-base font-semibold text-gray-800 sm:min-h-0", className)}
     >
       <span className={joinClassNames("text-xs transition-transform", expanded && "rotate-90")}>▶</span>
       <span>{title}</span>

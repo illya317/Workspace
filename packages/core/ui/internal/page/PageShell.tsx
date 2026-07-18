@@ -29,10 +29,10 @@ export default function PageShell({
   return (
     <div className="min-h-screen bg-gray-50">
       <nav className="sticky top-0 z-30 bg-white shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4">
           {leading}
-          {leading && <span className="text-gray-300">|</span>}
-          <span className="text-sm font-medium text-gray-700">{title}</span>
+          {leading && <span className="hidden text-gray-300 sm:inline">|</span>}
+          <span className="min-w-0 truncate text-sm font-medium text-gray-700">{title}</span>
           <div className="flex-1" />
 
           {actions.map((action) => (
@@ -40,7 +40,7 @@ export default function PageShell({
               key={action.label}
               type="button"
               onClick={action.onClick}
-              className="rounded-md px-3 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+              className="hidden rounded-md px-3 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 sm:inline-flex"
             >
               {action.label}
             </button>
@@ -50,7 +50,7 @@ export default function PageShell({
             <button
               type="button"
               onClick={onBack}
-              className="rounded-md px-3 py-1.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-800"
+              className="h-10 shrink-0 rounded-md px-2.5 text-sm text-gray-600 transition hover:bg-gray-100 hover:text-gray-800 sm:h-auto sm:px-3 sm:py-1.5"
             >
               {backLabel}
             </button>

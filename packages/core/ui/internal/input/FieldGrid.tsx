@@ -61,8 +61,8 @@ export interface FieldGridCellProps {
 
 function fieldGridSpanClass(span: FieldGridCellProps["span"]) {
   if (span === "wide" || span === "full") return "col-span-full";
-  if (span === 2) return "col-span-2";
-  if (span === 3) return "col-span-3";
+  if (span === 2) return "col-span-full sm:col-span-2";
+  if (span === 3) return "col-span-full lg:col-span-3";
   return "";
 }
 

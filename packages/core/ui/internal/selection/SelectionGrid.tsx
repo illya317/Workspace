@@ -50,8 +50,8 @@ function resolveMinItemWidth(minItemWidth: SelectionGridMinItemWidth = "md") {
 function columnsClass(columns: SelectionGridProps["columns"] = 3) {
   if (columns === 1) return "grid-cols-1";
   if (columns === 2) return "grid-cols-2";
-  if (columns === 4) return "grid-cols-4";
-  return "grid-cols-3";
+  if (columns === 4) return "grid-cols-2 sm:grid-cols-4";
+  return "grid-cols-2 sm:grid-cols-3";
 }
 
 function itemClasses(
@@ -68,7 +68,7 @@ function itemClasses(
     ].filter(Boolean).join(" ");
   }
   return [
-    "flex items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition",
+    "flex min-h-11 items-center gap-2 rounded-md border px-3 py-2 text-left text-sm transition",
     selected
       ? "border-emerald-600 bg-emerald-50 text-emerald-700"
       : "border-slate-200 bg-white text-slate-700",

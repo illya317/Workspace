@@ -105,7 +105,7 @@ export function renderModuleGrid(moduleGrid?: BodySurfaceModuleGridLike) {
           {moduleGrid.summary ? <p className="mt-1 text-center text-sm text-gray-500">{moduleGrid.summary}</p> : null}
         </div>
       )}
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid w-full max-w-4xl grid-cols-4 gap-x-2 gap-y-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
         {moduleGrid.items.map((item) => {
           const { key, ...props } = item;
           return <ModuleCard key={key} {...props} />;

@@ -40,11 +40,11 @@ export default function FormField({
 
   if (inline) {
     return (
-      <div className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-sm leading-none", className)}>
-        <span data-field-label="true" className={joinClassNames("inline-flex h-10 shrink-0 items-center whitespace-nowrap leading-none", getFieldLabelClassName())}>
+      <div className={joinClassNames("inline-flex h-10 min-w-0 items-center gap-1.5 text-sm leading-none max-sm:grid max-sm:h-auto max-sm:w-full max-sm:grid-cols-[4.5rem_minmax(0,1fr)] max-sm:gap-2", className)}>
+        <span data-field-label="true" className={joinClassNames("inline-flex h-10 shrink-0 items-center whitespace-nowrap leading-none max-sm:h-11", getFieldLabelClassName())}>
           {labelNode}
         </span>
-        <span data-field-control="true" className="inline-flex h-10 min-w-0 items-center text-sm leading-none [&_button]:text-sm [&_input]:font-sans [&_input]:text-sm [&_input]:leading-none [&_input]:tabular-nums">
+        <span data-field-control="true" className="inline-flex h-10 min-w-0 items-center text-sm leading-none max-sm:h-11 max-sm:w-full max-sm:[&>*]:w-full max-sm:[&_button]:text-base max-sm:[&_input]:text-base [&_button]:text-sm [&_input]:font-sans [&_input]:text-sm [&_input]:leading-none [&_input]:tabular-nums">
           {children}
         </span>
         {hint && !error && <span className={getFieldHelperClassName()}>{hint}</span>}

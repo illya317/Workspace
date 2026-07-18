@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
+import { ArrowLeft, BriefcaseBusiness, Home } from "lucide-react";
 import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
@@ -54,6 +55,7 @@ export default function AppShell({
     : pathname;
   const showDesktopModeSwitch = currentPath === "/portal" || currentPath === "/settings" || currentPath.startsWith("/settings/");
   const activeDesktopMode = "personalized";
+  const canEnterWork = Boolean(user.isSuperAdmin || user.visibleResourceKeys?.some((key) => key === "work" || key.startsWith("work.")));
   async function navigate(href: string) {
     if (!(await feedback.confirmLeave())) return;
     router.push(href);
@@ -70,13 +72,13 @@ export default function AppShell({
     };
   }, []);
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="sticky top-0 z-30 bg-white shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-2">
+    <div className="min-h-screen bg-slate-50 pb-[calc(5.25rem+env(safe-area-inset-bottom))] sm:pb-0">
+      <nav className="sticky top-0 z-30 border-b border-slate-200/70 bg-white/95 pt-[env(safe-area-inset-top)] shadow-sm backdrop-blur-xl">
+        <div className="mx-auto flex max-w-7xl items-center gap-2 px-3 py-2 sm:gap-3 sm:px-4">
           <button
             type="button"
             onClick={() => void navigate("/portal")}
-            className="flex-shrink-0 border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
+            className="flex flex-shrink-0 items-center border-0 bg-transparent p-0 shadow-none hover:bg-transparent"
           >
             <Image
               src={workspacePath("/company/logo.png")}
@@ -84,14 +86,14 @@ export default function AppShell({
               width={76}
               height={28}
               loading="eager"
-              className="h-7 w-auto object-contain"
+              className="object-contain"
             />
           </button>
-          <span className="text-gray-300">|</span>
+          <span className="hidden text-gray-300 sm:inline">|</span>
           {headerSelector ? (
-            <NavigationContextSelector selector={headerSelector} />
+            <div className="min-w-0 max-w-[7.5rem] sm:max-w-none"><NavigationContextSelector selector={headerSelector} /></div>
           ) : null}
-          {title ? <span className="text-sm font-medium text-gray-700">{title}</span> : null}
+          {title ? <span className="min-w-0 max-w-24 truncate text-sm font-medium text-gray-700 sm:max-w-none">{title}</span> : null}
           {showDesktopModeSwitch && (
             <Suspense fallback={<DesktopModeSwitchFallback activeMode={activeDesktopMode} />}>
               <DesktopModeSwitch onNavigate={navigate} activePathMode={activeDesktopMode} />
@@ -110,10 +112,12 @@ export default function AppShell({
           {backHref && (
             <button
               type="button"
+              aria-label={backLabel ?? "返回"}
               onClick={() => void navigate(backHref)}
-              className="rounded-md px-2.5 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-800"
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 sm:h-auto sm:w-auto sm:px-2.5 sm:py-1.5"
             >
-              {backLabel ?? "返回"}
+              <ArrowLeft aria-hidden="true" className="h-4 w-4 sm:hidden" />
+              <span className="hidden sm:inline">{backLabel ?? "返回"}</span>
             </button>
           )}
           <div className="flex-1" />
@@ -123,21 +127,85 @@ export default function AppShell({
               key={link.label}
               type="button"
               onClick={() => void navigate(link.href)}
-              className="rounded-md px-3 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-700"
+              className="hidden rounded-md px-3 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-700 sm:inline-flex"
             >
               {link.label}
             </button>
           ))}
 
-          <div className="flex items-center gap-2">
+          <div className="hidden shrink-0 items-center gap-2 sm:flex">
             <NotificationBell onBeforeNavigate={() => feedback.confirmLeave()} />
             <UserMenu user={user} onBeforeNavigate={() => feedback.confirmLeave()} />
           </div>
         </div>
+        {navLinks?.length ? (
+          <div className="mx-auto flex max-w-7xl gap-2 overflow-x-auto px-3 pb-2 sm:hidden">
+            {navLinks.map((link) => (
+              <button
+                key={link.label}
+                type="button"
+                onClick={() => void navigate(link.href)}
+                className="h-9 shrink-0 rounded-full border border-slate-200 bg-white px-4 text-sm font-medium text-slate-600 shadow-sm"
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+        ) : null}
       </nav>
 
       {children}
+
+      <nav
+        aria-label="移动端主导航"
+        className="fixed inset-x-0 bottom-0 z-40 border-t border-slate-200/80 bg-white/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_30px_rgba(15,23,42,0.08)] backdrop-blur-xl sm:hidden"
+      >
+        <div className="mx-auto grid h-16 max-w-lg grid-flow-col auto-cols-fr items-stretch px-2">
+          <MobileNavButton
+            label="桌面"
+            active={currentPath === "/portal"}
+            onClick={() => void navigate("/portal")}
+            icon={<Home aria-hidden="true" className="h-5 w-5" />}
+          />
+          {canEnterWork ? (
+            <MobileNavButton
+              label="工作"
+              active={currentPath === "/work" || currentPath.startsWith("/work/")}
+              onClick={() => void navigate("/work")}
+              icon={<BriefcaseBusiness aria-hidden="true" className="h-5 w-5" />}
+            />
+          ) : null}
+          <NotificationBell variant="nav" onBeforeNavigate={() => feedback.confirmLeave()} />
+          <UserMenu variant="nav" user={user} onBeforeNavigate={() => feedback.confirmLeave()} />
+        </div>
+      </nav>
     </div>
+  );
+}
+
+function MobileNavButton({
+  label,
+  icon,
+  active,
+  onClick,
+}: {
+  label: string;
+  icon: ReactNode;
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "page" : undefined}
+      className={`flex min-w-0 flex-col items-center justify-center gap-1 text-[11px] font-medium transition ${active ? "text-emerald-700" : "text-slate-500 active:text-slate-900"}`}
+    >
+      <span className={`flex h-7 min-w-12 items-center justify-center rounded-full px-3 transition ${active ? "bg-emerald-50" : ""}`}>
+        {icon}
+      </span>
+      <span>{label}</span>
+    </button>
   );
 }
 

@@ -159,7 +159,7 @@ function renderLoginBody(props: PageSurfaceProps) {
   if (props.kind !== "login") return null;
   return (
     <main className="grid min-h-screen place-items-center px-4 py-6">
-      <div className="mx-auto w-full max-w-[480px] rounded-lg border border-slate-200 bg-white px-8 py-8 shadow-sm">
+      <div className="mx-auto w-full max-w-[480px] rounded-2xl border border-slate-200 bg-white px-5 py-6 shadow-sm sm:rounded-lg sm:px-8 sm:py-8">
         <div className="mx-auto w-full max-w-[360px]">
           <div className="mb-6 text-center">
             {props.brand.logo ? (

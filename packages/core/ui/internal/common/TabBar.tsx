@@ -45,9 +45,9 @@ interface VariantStyle {
 
 export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
   large: {
-    nav: "flex flex-wrap items-center w-full gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm",
+    nav: "flex w-full items-center gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:flex-wrap sm:gap-3",
     button: {
-      base: "h-11 rounded-lg px-6 text-sm font-semibold transition",
+      base: "h-10 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition sm:h-11 sm:px-6",
       active: "bg-emerald-600 text-white shadow-sm",
       inactive: "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
     },
@@ -61,7 +61,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   lineLarge: {
-    nav: "flex flex-wrap items-center w-full gap-3 border-b border-slate-200 bg-transparent p-0 pb-2 shadow-none",
+    nav: "flex w-full items-center gap-2 overflow-x-auto border-b border-slate-200 bg-transparent p-0 pb-2 shadow-none sm:flex-wrap sm:gap-3",
     button: {
       base: "h-11 rounded-lg px-6 text-sm font-semibold transition",
       active: "bg-emerald-600 text-white shadow-sm",
@@ -77,7 +77,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   small: {
-    nav: "flex flex-wrap items-center w-fit gap-2 rounded-lg border-0 bg-transparent p-0 shadow-none",
+    nav: "flex max-w-full items-center gap-2 overflow-x-auto rounded-lg border-0 bg-transparent p-0 shadow-none sm:w-fit sm:flex-wrap",
     button: {
       base: "h-10 rounded-lg px-4 text-sm font-semibold transition",
       active: "bg-emerald-600 text-white shadow-sm",
@@ -93,7 +93,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   micro: {
-    nav: "flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5",
+    nav: "flex max-w-full overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-0.5 sm:w-fit",
     button: {
       base: "min-w-10 rounded px-3 py-1.5 text-xs font-semibold transition",
       active: "bg-white text-emerald-700 shadow-sm",
@@ -183,7 +183,7 @@ export default function TabBar(props: TabBarProps) {
       className={joinClassNames(styles.nav, className)}
     >
       {renderActions(leadingActions)}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-max items-center gap-2">
         {tabs.map((tab) => {
           const selected = active === tab.key;
           const children = tab.children ?? [];

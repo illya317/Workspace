@@ -376,7 +376,7 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
 function renderSummary(props: DataSurfaceSummaryProps) {
   if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {props.metrics.map((metric) => (
         <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} />
       ))}
@@ -408,6 +408,7 @@ function renderRecord(props: DataSurfaceRecordProps) {
 export function renderData<T>(props: DataSurfaceProps<T>) {
   if (props.kind === "table") return renderTable(props);
   if (props.kind === "structured") {
+    if (props.rows.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无数据"}</EmptyStateCard>;
     const colWidths = props.colWidths ?? structuredFormatColWidths(props.rows, props.format);
     const rowHeights = props.rowHeights ?? structuredFormatRowHeights(props.rows.length, props.format);
     const table = (

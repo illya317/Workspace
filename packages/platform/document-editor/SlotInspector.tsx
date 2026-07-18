@@ -93,7 +93,7 @@ export function SlotInspector({
   });
   return (
     <aside
-      className="absolute z-50 w-[320px] overflow-visible rounded-lg border border-slate-200 bg-white text-xs shadow-2xl"
+      className="absolute z-50 w-[320px] overflow-visible rounded-lg border border-slate-200 bg-white text-xs shadow-2xl max-sm:!bottom-[calc(5rem+env(safe-area-inset-bottom))] max-sm:!left-3 max-sm:!right-3 max-sm:!top-auto max-sm:!w-auto"
       style={{ top: selectedSlot.anchor.top, left: selectedSlot.anchor.left }}
     >
       <div className="flex items-start justify-between gap-3 border-b border-slate-200 bg-slate-50 px-4 py-3">
@@ -104,10 +104,10 @@ export function SlotInspector({
           <span className="truncate text-sm font-semibold text-slate-900">{slotTypeLabel(draft, selectedType)}</span>
         </div>
         <div className="flex items-center gap-1">
-          <button type="button" aria-label="保存" title="保存" disabled={!editable} className="inline-flex h-8 w-8 items-center justify-center rounded-md text-emerald-600 transition hover:bg-white disabled:text-slate-300" onClick={save}>
+          <button type="button" aria-label="保存" title="保存" disabled={!editable} className="inline-flex h-11 w-11 items-center justify-center rounded-md text-emerald-600 transition hover:bg-white disabled:text-slate-300 sm:h-8 sm:w-8" onClick={save}>
             <Check size={16} strokeWidth={2} />
           </button>
-          <button type="button" aria-label="取消" title="取消" className="inline-flex h-8 w-8 items-center justify-center rounded-md text-slate-400 transition hover:bg-white hover:text-slate-700" onClick={cancel}>
+          <button type="button" aria-label="取消" title="取消" className="inline-flex h-11 w-11 items-center justify-center rounded-md text-slate-400 transition hover:bg-white hover:text-slate-700 sm:h-8 sm:w-8" onClick={cancel}>
             <X size={16} strokeWidth={2} />
           </button>
         </div>

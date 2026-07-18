@@ -425,7 +425,7 @@ function PageAssistantPanel({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-5 sm:w-[420px]">
+    <div className="fixed inset-x-3 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-50 sm:inset-x-auto sm:bottom-3 sm:right-5 sm:w-[420px]">
       <section
         aria-label="页面助手"
         className="flex h-[min(620px,calc(100vh-7rem))] min-h-[420px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl"

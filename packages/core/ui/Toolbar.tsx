@@ -89,7 +89,7 @@ export function Toolbar({
         <div
           ref={compactMeasureRef}
           aria-hidden="true"
-          className="invisible pointer-events-none absolute left-0 top-0 w-max"
+          className="invisible pointer-events-none absolute left-0 top-0 max-w-full overflow-hidden"
         >
           {renderCompactToolbarMeasurement(grouped, size, gapClass)}
         </div>
@@ -98,7 +98,7 @@ export function Toolbar({
   );
 
   const barClassName = joinClassNames(
-    "relative z-20 flex min-h-14 items-center overflow-visible rounded-lg border border-slate-200 bg-white p-3 shadow-sm",
+    "relative z-20 flex min-h-14 items-center overflow-visible rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm sm:rounded-lg sm:p-3",
   );
 
   if (onSubmit) {

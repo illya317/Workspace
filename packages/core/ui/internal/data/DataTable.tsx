@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment } from "react";
+import { Fragment, type KeyboardEvent, type MouseEvent } from "react";
 import { ActionButton } from "../action/ActionControls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
@@ -187,7 +187,7 @@ export default function DataTable<T>({
     ? { size: "sm" as const, density: "compact" as const }
     : { size: "md" as const, density: "normal" as const };
 
-  return (
+  const desktopTable = (
     <table className={tableClassName}>
       {matrixColWidths.length ? (
         <colgroup>
@@ -257,4 +257,86 @@ export default function DataTable<T>({
       </tbody>
     </table>
   );
+
+  if (format?.kind === "matrix") return desktopTable;
+
+  return (
+    <>
+      <div className="divide-y divide-slate-100 bg-white sm:hidden">
+        {rows.map((row, index) => {
+          const key = rowKey(row, index);
+          const isExpanded =
+            (expandedRowKey != null && expandedRowKey === key)
+            || (expandedRowKeys instanceof Set
+              ? expandedRowKeys.has(key)
+              : Array.isArray(expandedRowKeys) && expandedRowKeys.includes(key));
+          const stateClassName = resolveTableRowStateClass(rowState?.(row));
+          return (
+            <article
+              key={key}
+              className={`${stateClassName} p-3.5 ${onRowClick ? "cursor-pointer transition active:bg-emerald-50" : ""}`}
+              tabIndex={onRowClick ? 0 : undefined}
+              onClick={onRowClick ? (event) => activateDataRowFromClick(event, row, onRowClick) : undefined}
+              onKeyDown={onRowClick ? (event) => activateDataRowFromKeyboard(event, row, onRowClick) : undefined}
+            >
+              <dl className="space-y-2.5">
+                {visible.map((col, columnIndex) => (
+                  <div
+                    key={col.key}
+                    className={columnIndex === 0
+                      ? "grid grid-cols-[4.75rem_minmax(0,1fr)] gap-3 border-b border-slate-100 pb-2.5"
+                      : "grid grid-cols-[4.75rem_minmax(0,1fr)] gap-3"}
+                  >
+                    <dt className="min-w-0 break-words text-xs font-semibold leading-6 text-slate-500">
+                      {col.label}
+                    </dt>
+                    <dd className={`${resolveTableColumnClass(col)} !w-auto !max-w-none min-w-0 whitespace-normal break-words text-sm leading-6`}>
+                      <FieldContextProvider value={fieldContext}>
+                        {col.render(row)}
+                      </FieldContextProvider>
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+              {isExpanded && renderExpandedRow ? (
+                <div className="mt-3 border-t border-slate-200 bg-slate-50 px-1 pt-3">
+                  {renderExpandedRow(row)}
+                </div>
+              ) : null}
+            </article>
+          );
+        })}
+        {rows.length === 0 ? (
+          <div className="px-4 py-12 text-center text-sm text-slate-400">
+            {emptyText ?? "暂无数据"}
+          </div>
+        ) : null}
+      </div>
+      <div className="hidden sm:block">{desktopTable}</div>
+    </>
+  );
+}
+
+function activateDataRowFromClick<T>(
+  event: MouseEvent<HTMLElement>,
+  row: T,
+  onRowClick: (row: T) => void,
+) {
+  if (isNestedInteractiveTarget(event.target, event.currentTarget)) return;
+  onRowClick(row);
+}
+
+function activateDataRowFromKeyboard<T>(
+  event: KeyboardEvent<HTMLElement>,
+  row: T,
+  onRowClick: (row: T) => void,
+) {
+  if (event.target !== event.currentTarget || (event.key !== "Enter" && event.key !== " ")) return;
+  event.preventDefault();
+  onRowClick(row);
+}
+
+function isNestedInteractiveTarget(target: EventTarget | null, row: Element) {
+  if (!(target instanceof Element) || target === row) return false;
+  return Boolean(target.closest("a,button,input,select,textarea,[role='button'],[role='link'],[contenteditable='true'],[data-row-interaction-stop]"));
 }

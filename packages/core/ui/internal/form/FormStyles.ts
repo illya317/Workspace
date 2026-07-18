@@ -116,6 +116,7 @@ export function getFieldShellClassName(options: FieldShellClassOptions = {}): st
   return [
     layoutClass,
     heightClass,
+    isTags ? "max-sm:min-h-11" : "max-sm:h-11 max-sm:min-h-11",
     "w-full min-w-0",
     tokens.radius,
     "border",
@@ -164,7 +165,7 @@ export function getFieldHelperClassName(className = "") {
 
 export function getFieldInputClassName(className = "") {
   return [
-    `${FIELD_CONTROL_HEIGHT_CLASS} w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-0 font-sans ${FIELD_CONTROL_TEXT_CLASS} text-slate-800 shadow-sm tabular-nums`,
+    `${FIELD_CONTROL_HEIGHT_CLASS} w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-0 font-sans ${FIELD_CONTROL_TEXT_CLASS} text-slate-800 shadow-sm tabular-nums max-sm:h-11 max-sm:text-base`,
     FIELD_FOCUS_RING_CLASS,
     FIELD_DISABLED_CLASS,
     className,
@@ -173,7 +174,7 @@ export function getFieldInputClassName(className = "") {
 
 export function getTextareaInputClassName(className = "") {
   return [
-    `min-h-9 w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-2 font-sans ${FIELD_CONTROL_TEXT_CLASS} leading-6 text-slate-800 shadow-sm`,
+    `min-h-9 w-full rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-3 py-2 font-sans ${FIELD_CONTROL_TEXT_CLASS} leading-6 text-slate-800 shadow-sm max-sm:min-h-24 max-sm:text-base`,
     FIELD_FOCUS_RING_CLASS,
     FIELD_DISABLED_CLASS,
     className,
@@ -182,14 +183,14 @@ export function getTextareaInputClassName(className = "") {
 
 export function getReadOnlyFieldClassName(className = "") {
   return [
-    `flex ${FIELD_CONTROL_HEIGHT_CLASS} w-full items-center rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-slate-50 px-3 py-0 font-sans ${FIELD_CONTROL_TEXT_CLASS} text-slate-600 shadow-sm tabular-nums`,
+    `flex ${FIELD_CONTROL_HEIGHT_CLASS} w-full items-center rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-slate-50 px-3 py-0 font-sans ${FIELD_CONTROL_TEXT_CLASS} text-slate-600 shadow-sm tabular-nums max-sm:h-11 max-sm:text-base`,
     className,
   ].filter(Boolean).join(" ");
 }
 
 export function getTagInputShellClassName(className = "") {
   return [
-    `flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-2 py-1 ${FIELD_CONTROL_TEXT_CLASS} text-slate-800 shadow-sm`,
+    `flex min-h-9 w-full flex-wrap items-center gap-1.5 rounded-md border ${FIELD_BORDER_COLOR_CLASS} bg-white px-2 py-1 ${FIELD_CONTROL_TEXT_CLASS} text-slate-800 shadow-sm max-sm:min-h-11 max-sm:text-base`,
     "focus-within:border-sky-500 focus-within:ring-1 focus-within:ring-sky-500",
     "disabled:bg-slate-100",
     className,
@@ -212,7 +213,7 @@ export function getTagInlineInputClassName(className = "") {
 
 export function getFieldGridCellClassName(className = "") {
   return [
-    "flex flex-col px-3 py-1.5",
+    "flex flex-col px-0 py-1.5 sm:px-3",
     className,
   ].filter(Boolean).join(" ");
 }
@@ -220,15 +221,15 @@ export function getFieldGridCellClassName(className = "") {
 export function getFieldGridMainRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
   return [
     mode === "detail"
-      ? "grid min-h-11 grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-2"
-      : "grid min-h-11 grid-cols-[5.5rem_minmax(0,1fr)] items-center gap-2",
+      ? "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:items-center sm:gap-2"
+      : "grid min-h-11 grid-cols-1 items-start gap-1 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:items-center sm:gap-2",
     className,
   ].filter(Boolean).join(" ");
 }
 
 export function getFieldGridLabelClassName(className = "") {
   return [
-    `min-w-0 truncate ${FIELD_LABEL_TEXT_CLASS}`,
+    `min-w-0 break-words sm:truncate ${FIELD_LABEL_TEXT_CLASS}`,
     className,
   ].filter(Boolean).join(" ");
 }
@@ -237,7 +238,7 @@ export function getFieldGridLabelClassName(className = "") {
 // 后续应收窄为只作用于直接 field control，或让控件通过 props/className 自行声明嵌入式样式。
 export function getFieldGridValueClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
   return [
-    "min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full",
+    "min-w-0 [&>*]:w-full [&_input]:w-full [&_textarea]:w-full max-sm:[&_button]:text-base max-sm:[&_input]:text-base max-sm:[&_textarea]:text-base",
     mode === "detail" ? "" : "",
     className,
   ].filter(Boolean).join(" ");
@@ -245,7 +246,7 @@ export function getFieldGridValueClassName(className = "", mode?: "view" | "edit
 
 export function getFieldGridHelperRowClassName(className = "", mode?: "view" | "edit" | "mixed" | "detail" | "control") {
   return [
-    "grid grid-cols-[5.5rem_minmax(0,1fr)] items-start gap-2",
+    "grid grid-cols-1 items-start gap-1 sm:grid-cols-[5.5rem_minmax(0,1fr)] sm:gap-2",
     mode === "detail" ? "" : "",
     className,
   ].filter(Boolean).join(" ");
@@ -253,10 +254,10 @@ export function getFieldGridHelperRowClassName(className = "", mode?: "view" | "
 
 export function fieldGridColumnsClass(columns: 1 | 2 | 3 | 4 | 6 = 3) {
   if (columns === 1) return "grid-cols-1";
-  if (columns === 2) return "grid-cols-2";
-  if (columns === 4) return "grid-cols-4";
-  if (columns === 6) return "grid-cols-6";
-  return "grid-cols-3";
+  if (columns === 2) return "grid-cols-1 sm:grid-cols-2";
+  if (columns === 4) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-4";
+  if (columns === 6) return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6";
+  return "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
 }
 
 export function getFieldGroupTitleClassName(className = "") {

@@ -42,7 +42,7 @@ export default function ConfirmModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/45 px-4 backdrop-blur-[1px]"
+      className="fixed inset-0 z-50 flex items-end justify-center bg-slate-950/45 backdrop-blur-[1px] sm:items-center sm:px-4"
       role="presentation"
       onMouseDown={() => {
         if (!busy) onCancel();
@@ -52,7 +52,7 @@ export default function ConfirmModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="confirm-modal-title"
-        className="w-full max-w-md rounded-lg border border-slate-200 bg-white p-5 shadow-2xl"
+        className="w-full max-w-md rounded-t-2xl border border-slate-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-lg sm:p-5"
         onMouseDown={(event) => event.stopPropagation()}
       >
         <div className="mb-4 flex items-start gap-3">
@@ -70,13 +70,13 @@ export default function ConfirmModal({
             <div className="mt-1 text-sm leading-6 text-slate-600">{message}</div>
           </div>
         </div>
-        <div className="flex justify-end gap-3">
+        <div className="flex gap-3 sm:justify-end">
           {showCancel && (
             <button
               type="button"
               onClick={onCancel}
               disabled={busy}
-              className={joinClassNames(getToolbarActionClassName("secondary"), "!h-9 !px-4 !py-2 !text-sm")}
+              className={joinClassNames(getToolbarActionClassName("secondary"), "!h-11 flex-1 !px-4 !py-2 !text-sm sm:!h-9 sm:flex-none")}
             >
               {cancelLabel}
             </button>
@@ -85,7 +85,7 @@ export default function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={busy}
-            className={joinClassNames(getToolbarActionClassName(confirmDanger ? "danger" : "primary"), "!h-9 !px-4 !py-2 !text-sm")}
+            className={joinClassNames(getToolbarActionClassName(confirmDanger ? "danger" : "primary"), "!h-11 flex-1 !px-4 !py-2 !text-sm sm:!h-9 sm:flex-none")}
           >
             {busy ? "处理中..." : confirmLabel}
           </button>
