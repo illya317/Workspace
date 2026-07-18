@@ -263,14 +263,6 @@ export function useWorkflowPoliciesTab({ enabled, showToast }: UseWorkflowPolici
   const toolbarItems: SurfaceToolbarItem[] = [
     {
       kind: "panel-toggle",
-      key: "workflow-policy-side-drawer",
-      icon: "panel-open",
-      label: "显示左栏",
-      onClick: () => setDrawerOpen(true),
-      visibility: "mobile",
-    },
-    {
-      kind: "panel-toggle",
       key: "workflow-policy-side-toggle",
       icon: sideOpen ? "panel-close" : "panel-open",
       label: sideOpen ? "隐藏左栏" : "显示左栏",

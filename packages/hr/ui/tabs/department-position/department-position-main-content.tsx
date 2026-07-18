@@ -69,7 +69,6 @@ export function DepartmentPositionMainContent({
       onSearchChange("");
     },
     onSideOpenChange,
-    onDrawerOpenChange,
     assistantAction: surface?.assistantAction,
   });
   const workspaceBlocks = useDepartmentPositionDetailSections({

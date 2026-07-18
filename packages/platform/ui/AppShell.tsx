@@ -2,16 +2,17 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ArrowLeft, BriefcaseBusiness, Home } from "lucide-react";
+import { ArrowLeft, Home } from "lucide-react";
 import { workspaceBasePath, workspacePath } from "@workspace/core/routing";
 import UserMenu from "./UserMenu";
 import NotificationBell from "./NotificationBell";
-import { NavigationContextSelector, useFeedback, type NavigationSurfaceSelectorSpec } from "@workspace/core/ui";
+import { ActionGlyph, NavigationContextSelector, useFeedback, type NavigationSurfaceSelectorSpec } from "@workspace/core/ui";
 import type { SessionUser } from "../types";
 import { Suspense, useEffect, useState, type ReactNode } from "react";
 import type { PortalSlot } from "../portal-preferences";
 import {
   fetchPortalSlotSettings,
+  defaultSlotsForUser,
   headerShortcutsForUser,
 } from "./portal-preferences";
 interface NavLinkDef {
@@ -48,14 +49,13 @@ export default function AppShell({
   const router = useRouter();
   const pathname = usePathname();
   const feedback = useFeedback({ unsavedChanges: hasUnsavedChanges });
-  const [portalSlots, setPortalSlots] = useState<PortalSlot[]>([]);
+  const [portalSlots, setPortalSlots] = useState<PortalSlot[]>(() => defaultSlotsForUser(user));
   const headerShortcuts = headerShortcutsForUser(user, portalSlots);
   const currentPath = workspaceBasePath && pathname.startsWith(`${workspaceBasePath}/`)
     ? pathname.slice(workspaceBasePath.length)
     : pathname;
   const showDesktopModeSwitch = currentPath === "/portal" || currentPath === "/settings" || currentPath.startsWith("/settings/");
   const activeDesktopMode = "personalized";
-  const canEnterWork = Boolean(user.isSuperAdmin || user.visibleResourceKeys?.some((key) => key === "work" || key.startsWith("work.")));
   async function navigate(href: string) {
     if (!(await feedback.confirmLeave())) return;
     router.push(href);
@@ -167,14 +167,24 @@ export default function AppShell({
             onClick={() => void navigate("/portal")}
             icon={<Home aria-hidden="true" className="h-5 w-5" />}
           />
-          {canEnterWork ? (
+          {headerShortcuts.map(({ entry }) => (
             <MobileNavButton
-              label="工作"
-              active={currentPath === "/work" || currentPath.startsWith("/work/")}
-              onClick={() => void navigate("/work")}
-              icon={<BriefcaseBusiness aria-hidden="true" className="h-5 w-5" />}
+              key={entry.key}
+              label={entry.label}
+              active={currentPath === entry.href || currentPath.startsWith(`${entry.href}/`)}
+              onClick={() => void navigate(entry.href)}
+              icon={entry.icon ?? <ActionGlyph kind="link" className="h-5 w-5" />}
             />
-          ) : null}
+          ))}
+          {Array.from({ length: Math.max(0, 2 - headerShortcuts.length) }, (_, index) => (
+            <MobileNavButton
+              key={`empty-shortcut-${index}`}
+              label="设置快捷"
+              active={false}
+              onClick={() => void navigate("/settings/account")}
+              icon={<ActionGlyph kind="add" className="h-5 w-5" />}
+            />
+          ))}
           <NotificationBell variant="nav" onBeforeNavigate={() => feedback.confirmLeave()} />
           <UserMenu variant="nav" user={user} onBeforeNavigate={() => feedback.confirmLeave()} />
         </div>
@@ -212,7 +222,7 @@ function MobileNavButton({
 function DesktopModeSwitchFallback({ activeMode }: { activeMode: string }) {
   const target = desktopModeTarget(activeMode);
   return (
-    <span className="hidden rounded-md px-2.5 py-1.5 text-sm text-gray-500 lg:inline-flex">
+    <span className="inline-flex shrink-0 rounded-full bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 sm:text-sm">
       {target.label}
     </span>
   );
@@ -231,8 +241,9 @@ function DesktopModeSwitch({
   return (
     <button
       type="button"
+      aria-label={`切换到${target.label}`}
       onClick={() => void onNavigate(target.href)}
-      className="hidden rounded-md px-2.5 py-1.5 text-sm text-gray-500 transition hover:bg-gray-100 hover:text-gray-800 lg:inline-flex"
+      className="inline-flex shrink-0 rounded-full bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-200 hover:text-slate-900 sm:text-sm"
     >
       {target.label}
     </button>

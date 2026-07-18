@@ -339,6 +339,8 @@ export function createSectionShellSection({
   return createSectionSection(key, {
     title: headerTitle ?? "",
     actions,
+    chrome: "plain",
+    mobilePresentation: "drilldown",
     sections,
 
   });

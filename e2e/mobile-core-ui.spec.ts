@@ -15,7 +15,7 @@ for (const width of [360, 375, 390]) {
 
     await page.goto("/workspace/work/me");
 
-    await expectIconOnlyActions(page, ["新增", "显示工作计划", "筛选", "更多"]);
+    await expectIconOnlyActions(page, ["新增", "筛选", "更多"]);
 
     const selector = page.getByRole("button", { name: /当前栏目.*切换/ });
     await expect(selector).toContainText("工作计划");
@@ -27,21 +27,55 @@ for (const width of [360, 375, 390]) {
     }
 
     await page.getByRole("tab", { name: "周报", exact: true }).click();
+    await page.getByRole("button", { name: "07-13 周 当前 2026-07-13 - 2026-07-19", exact: true }).click();
     await expect(page.getByRole("heading", { name: "周度工作汇报", exact: true })).toBeVisible();
 
-    const reportCard = page.locator("article").filter({ hasText: "提高移动端信息可读性" });
-    await expect(reportCard).toBeVisible();
-    await expect(reportCard.getByText("本周完成情况", { exact: true })).toBeVisible();
-    await expect(reportCard.getByText("下周计划", { exact: true })).toBeVisible();
-    await expect(reportCard.getByText("关键结果", { exact: true })).toBeVisible();
-    await expect(reportCard.getByText("修复栏目文字裁切", { exact: true })).toBeVisible();
-    await expect(reportCard.getByText("验证 360–390px 触控流程", { exact: true })).toBeVisible();
-    await expect(page.locator("table")).toBeHidden();
+    await expect(page.getByText("提高移动端信息可读性", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("本周完成情况", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("关键结果", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("修复栏目文字裁切", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("下周计划", { exact: true }).first()).toBeVisible();
+    await expect(page.getByText("验证 360–390px 触控流程", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("table:visible")).toHaveCount(0);
     const saveAction = page.getByRole("button", { name: "保存快照", exact: true });
     await expect(saveAction).toBeEnabled();
     await saveAction.click();
     await expect(page.getByText("工作汇报快照已保存", { exact: true })).toBeVisible();
     await expect(saveAction).toBeDisabled();
+
+    const viewport = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(viewport.scrollWidth).toBe(viewport.clientWidth);
+  });
+
+  test(`${width}px：分栏按列表到详情全屏推进，长章节按目录逐节进入`, async ({ page }) => {
+    await page.setViewportSize({ width, height: 844 });
+    await page.goto("/workspace/settings/ui");
+
+    const listPane = page.locator('[data-mobile-split-pane="list"]');
+    await expect(listPane).toBeVisible();
+    await expect(page.locator('[data-mobile-split-pane="detail"]')).toBeHidden();
+
+    const bodySurfaceEntry = listPane.getByText("BodySurface", { exact: true });
+    await expect(bodySurfaceEntry).toBeVisible();
+    await bodySurfaceEntry.click();
+
+    const detailPane = page.locator('[data-mobile-split-pane="detail"]');
+    await expect(detailPane).toBeVisible();
+    await expect(page.getByRole("button", { name: "返回声明目录", exact: true })).toBeVisible();
+
+    const sectionDirectory = detailPane.locator('[data-mobile-section-view="directory"]');
+    await expect(sectionDirectory).toBeVisible();
+    await sectionDirectory.getByRole("button", { name: "1 kind", exact: true }).click();
+    await expect(detailPane.locator('[data-mobile-section-view="detail"]')).toBeVisible();
+    await expect(detailPane.getByRole("heading", { name: "kind", exact: true })).toBeVisible();
+
+    await detailPane.getByRole("button", { name: "返回章节目录", exact: true }).click();
+    await expect(sectionDirectory).toBeVisible();
+    await page.getByRole("button", { name: "返回声明目录", exact: true }).click();
+    await expect(listPane).toBeVisible();
 
     const viewport = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,

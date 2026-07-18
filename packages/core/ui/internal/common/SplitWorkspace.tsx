@@ -1,57 +1,83 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
+import { ActionGlyph } from "../action/ActionGlyphs";
 
-export type SplitWorkspaceMode = "desktop" | "drawer";
+export type SplitWorkspaceMode = "desktop" | "mobile";
 
 export interface SplitWorkspaceProps {
   sideOpen: boolean;
-  drawerOpen: boolean;
-  onDrawerOpenChange: (open: boolean) => void;
-  renderSide: (mode: SplitWorkspaceMode) => ReactNode;
+  sideLabel: string;
+  renderSide: (mode: SplitWorkspaceMode, onNavigateToDetail?: () => void) => ReactNode;
   children: ReactNode;
   splitRatio?: readonly [number, number];
+  desktopPresentation?: "ratio" | "fixed-sidebar";
+}
+
+function MobileSplitWorkspace({
+  sideLabel,
+  renderSide,
+  children,
+}: Pick<SplitWorkspaceProps, "sideLabel" | "renderSide" | "children">) {
+  const [pane, setPane] = useState<"list" | "detail">("list");
+
+  if (pane === "list") {
+    return (
+      <div className="lg:hidden" data-mobile-split-pane="list">
+        {renderSide("mobile", () => setPane("detail"))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-w-0 lg:hidden" data-mobile-split-pane="detail">
+      <div className="mb-3 flex min-h-12 items-center gap-3 rounded-xl border border-slate-200 bg-white px-2 shadow-sm">
+        <button
+          type="button"
+          aria-label={`返回${sideLabel}`}
+          title={`返回${sideLabel}`}
+          onClick={() => setPane("list")}
+          className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+        >
+          <ActionGlyph kind="back" className="size-5" />
+        </button>
+        <div className="min-w-0">
+          <div className="text-xs font-medium text-slate-400">详情</div>
+          <div className="truncate text-sm font-semibold text-slate-900">{sideLabel}</div>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
 }
 
 export default function SplitWorkspace({
   sideOpen,
-  drawerOpen,
-  onDrawerOpenChange,
+  sideLabel,
   renderSide,
   children,
   splitRatio = [3, 7],
+  desktopPresentation = "ratio",
 }: SplitWorkspaceProps) {
-  const contentClassName = sideOpen
-    ? "min-w-0 max-lg:mx-auto max-lg:w-full max-lg:max-w-[680px] lg:max-w-none"
-    : "min-w-0";
   const [sideFr, contentFr] = splitRatio;
   const splitStyle = {
     "--split-side-fr": `${sideFr}fr`,
     "--split-content-fr": `${contentFr}fr`,
   } as CSSProperties;
+  const desktopColumns = desktopPresentation === "fixed-sidebar"
+    ? "lg:grid-cols-[25rem_minmax(0,1fr)]"
+    : "lg:grid-cols-[minmax(0,var(--split-side-fr))_minmax(0,var(--split-content-fr))]";
 
   return (
     <>
-      {drawerOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <button
-            type="button"
-            aria-label="关闭侧栏"
-            onClick={() => onDrawerOpenChange(false)}
-            className="absolute inset-0 bg-slate-900/25"
-          />
-          <div className="absolute inset-y-0 left-0 w-[min(380px,calc(100vw-32px))] bg-white p-3 shadow-2xl">
-            {renderSide("drawer")}
-          </div>
-        </div>
-      )}
+      <MobileSplitWorkspace key={sideLabel} sideLabel={sideLabel} renderSide={renderSide}>{children}</MobileSplitWorkspace>
 
       <div
-        className={`grid grid-cols-1 gap-5 ${sideOpen ? "lg:grid-cols-[minmax(0,var(--split-side-fr))_minmax(0,var(--split-content-fr))]" : ""}`}
+        className={`hidden gap-5 lg:grid ${sideOpen ? desktopColumns : "grid-cols-1"}`}
         style={splitStyle}
       >
-        {sideOpen && <div className="hidden min-w-0 lg:block">{renderSide("desktop")}</div>}
-        <div className={contentClassName}>{children}</div>
+        {sideOpen && <div className="min-w-0">{renderSide("desktop")}</div>}
+        <div className="min-w-0">{children}</div>
       </div>
     </>
   );

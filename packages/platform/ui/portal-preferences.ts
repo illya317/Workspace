@@ -52,7 +52,7 @@ export function portalCardsForUser(user: SessionUser, slots: readonly PortalSlot
 
 export function defaultPortalCardsForUser(user: SessionUser) {
   const entries = accessiblePortalEntries(user);
-  return portalSlotEntries(defaultPortalSlots(entries), entries);
+  return portalSlotEntries(effectivePortalSlots([], entries), entries);
 }
 
 export function headerShortcutsForUser(user: SessionUser, slots: readonly PortalSlot[]) {
@@ -64,7 +64,7 @@ export function headerShortcutsForUser(user: SessionUser, slots: readonly Portal
 
 export function fetchPortalSlotSettings() {
   return requestJson<PortalSlotSettings>(PORTAL_SLOTS_ENDPOINT, {
-    fallbackMessage: "加载桌面卡槽失败",
+    fallbackMessage: "加载个性化桌面失败",
   });
 }
 
@@ -72,6 +72,6 @@ export function savePortalSlots(slots: PortalSlot[]) {
   return putJson<{ success: true; slots: PortalSlot[] }>(
     PORTAL_SLOTS_ENDPOINT,
     { slots },
-    "保存桌面卡槽失败",
+    "保存个性化桌面失败",
   );
 }

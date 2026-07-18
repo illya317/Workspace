@@ -69,13 +69,14 @@ function PortalContent({ user, desktopMode }: { user: SessionUser; desktopMode: 
       )}
       contentClassName="min-h-[calc(100dvh-4rem)]"
     >
-      {entries.map(({ entry }) => (
+      {entries.map(({ entry, slot }) => (
         <ModuleCard
           key={entry.key}
           title={entry.label}
           description={entry.desc}
           icon={entry.icon}
           color={entry.color}
+          badge={slot.pinned ? "快捷" : undefined}
           href={workspacePath(entry.href)}
         />
       ))}

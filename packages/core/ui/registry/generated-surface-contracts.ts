@@ -7017,6 +7017,24 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：boolean。",
                 },
                 {
+                  name: "columns",
+                  description: "可选值：3 / 4 / 5。",
+                  children: [
+                    {
+                      name: "3",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "4",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "5",
+                      description: "字面量取值。",
+                    },
+                  ],
+                },
+                {
                   name: "items",
                   description: "类型：BodySurfaceModuleGridItemSpec[]。",
                   children: [
@@ -7158,6 +7176,20 @@ export const generatedCoreUiSurfaceContracts = {
                 },
                 {
                   name: "3",
+                  description: "字面量取值。",
+                },
+              ],
+            },
+            {
+              name: "mobilePresentation",
+              description: "可选值：drilldown / stack。",
+              children: [
+                {
+                  name: "drilldown",
+                  description: "字面量取值。",
+                },
+                {
+                  name: "stack",
                   description: "字面量取值。",
                 },
               ],
@@ -8093,6 +8125,24 @@ export const generatedCoreUiSurfaceContracts = {
                 {
                   name: "centered",
                   description: "类型：boolean。",
+                },
+                {
+                  name: "columns",
+                  description: "可选值：3 / 4 / 5。",
+                  children: [
+                    {
+                      name: "3",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "4",
+                      description: "字面量取值。",
+                    },
+                    {
+                      name: "5",
+                      description: "字面量取值。",
+                    },
+                  ],
                 },
                 {
                   name: "items",
@@ -15253,6 +15303,24 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：boolean。",
                             },
                             {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "items",
                               description: "类型：BodySurfaceModuleGridItemSpec[]。",
                               children: [
@@ -15394,6 +15462,20 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "3",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "mobilePresentation",
+                          description: "可选值：drilldown / stack。",
+                          children: [
+                            {
+                              name: "drilldown",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "stack",
                               description: "字面量取值。",
                             },
                           ],
@@ -16329,6 +16411,24 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "centered",
                               description: "类型：boolean。",
+                            },
+                            {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "items",
@@ -24853,6 +24953,24 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：boolean。",
                             },
                             {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "items",
                               description: "类型：BodySurfaceModuleGridItemSpec[]。",
                               children: [
@@ -24994,6 +25112,20 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "3",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "mobilePresentation",
+                          description: "可选值：drilldown / stack。",
+                          children: [
+                            {
+                              name: "drilldown",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "stack",
                               description: "字面量取值。",
                             },
                           ],
@@ -25929,6 +26061,24 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "centered",
                               description: "类型：boolean。",
+                            },
+                            {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "items",
@@ -34453,6 +34603,24 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：boolean。",
                             },
                             {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "items",
                               description: "类型：BodySurfaceModuleGridItemSpec[]。",
                               children: [
@@ -34594,6 +34762,20 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "3",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "mobilePresentation",
+                          description: "可选值：drilldown / stack。",
+                          children: [
+                            {
+                              name: "drilldown",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "stack",
                               description: "字面量取值。",
                             },
                           ],
@@ -35529,6 +35711,24 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "centered",
                               description: "类型：boolean。",
+                            },
+                            {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "items",
@@ -64395,6 +64595,24 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：boolean。",
                             },
                             {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
                               name: "items",
                               description: "类型：BodySurfaceModuleGridItemSpec[]。",
                               children: [
@@ -64536,6 +64754,20 @@ export const generatedCoreUiSurfaceContracts = {
                             },
                             {
                               name: "3",
+                              description: "字面量取值。",
+                            },
+                          ],
+                        },
+                        {
+                          name: "mobilePresentation",
+                          description: "可选值：drilldown / stack。",
+                          children: [
+                            {
+                              name: "drilldown",
+                              description: "字面量取值。",
+                            },
+                            {
+                              name: "stack",
                               description: "字面量取值。",
                             },
                           ],
@@ -65471,6 +65703,24 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "centered",
                               description: "类型：boolean。",
+                            },
+                            {
+                              name: "columns",
+                              description: "可选值：3 / 4 / 5。",
+                              children: [
+                                {
+                                  name: "3",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "4",
+                                  description: "字面量取值。",
+                                },
+                                {
+                                  name: "5",
+                                  description: "字面量取值。",
+                                },
+                              ],
                             },
                             {
                               name: "items",
@@ -72631,6 +72881,24 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：boolean。",
                                         },
                                         {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "items",
                                           description: "类型：BodySurfaceModuleGridItemSpec[]。",
                                           children: [
@@ -72772,6 +73040,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "3",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "mobilePresentation",
+                                      description: "可选值：drilldown / stack。",
+                                      children: [
+                                        {
+                                          name: "drilldown",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -73707,6 +73989,24 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "centered",
                                           description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
                                         },
                                         {
                                           name: "items",
@@ -82231,6 +82531,24 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：boolean。",
                                         },
                                         {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "items",
                                           description: "类型：BodySurfaceModuleGridItemSpec[]。",
                                           children: [
@@ -82372,6 +82690,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "3",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "mobilePresentation",
+                                      description: "可选值：drilldown / stack。",
+                                      children: [
+                                        {
+                                          name: "drilldown",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -83307,6 +83639,24 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "centered",
                                           description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
                                         },
                                         {
                                           name: "items",
@@ -91831,6 +92181,24 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "类型：boolean。",
                                         },
                                         {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
                                           name: "items",
                                           description: "类型：BodySurfaceModuleGridItemSpec[]。",
                                           children: [
@@ -91972,6 +92340,20 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "3",
+                                          description: "字面量取值。",
+                                        },
+                                      ],
+                                    },
+                                    {
+                                      name: "mobilePresentation",
+                                      description: "可选值：drilldown / stack。",
+                                      children: [
+                                        {
+                                          name: "drilldown",
+                                          description: "字面量取值。",
+                                        },
+                                        {
+                                          name: "stack",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -92907,6 +93289,24 @@ export const generatedCoreUiSurfaceContracts = {
                                         {
                                           name: "centered",
                                           description: "类型：boolean。",
+                                        },
+                                        {
+                                          name: "columns",
+                                          description: "可选值：3 / 4 / 5。",
+                                          children: [
+                                            {
+                                              name: "3",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "4",
+                                              description: "字面量取值。",
+                                            },
+                                            {
+                                              name: "5",
+                                              description: "字面量取值。",
+                                            },
+                                          ],
                                         },
                                         {
                                           name: "items",

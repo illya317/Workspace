@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { EditorContent, useEditor } from "@tiptap/react";
 import { NodeSelection } from "@tiptap/pm/state";
 import {
@@ -54,9 +54,18 @@ import { editorDocumentToTiptapJson, tiptapJsonToEditorDocument } from "./adapte
 import { FormulaHelpDialog } from "./FormulaHelpDialog";
 import { PageBreakNode } from "./page-break-extension";
 import { DateSlot, FieldSlot, FormulaSlot, SignatureSlot } from "./slot-extensions";
+import {
+  DocumentEditorMobilePortraitNotice,
+  DocumentEditorToolbar,
+  GlyphIcon,
+  StackedIcon,
+  ToolbarButton,
+  ToolbarGroup,
+} from "./DocumentEditorToolbar";
 import { SlotInspector, collectFormulaDisplayTokens, collectReferenceTokens, type SelectedSlot, type SlotAnchor } from "./SlotInspector";
 import { nextAvailableSlotAlias, numberedSlotKind, slotContextLabel } from "./slot-numbering";
 import { cellHasClassName, toggleCellClassName } from "./table-cell-class";
+import { useDocumentEditorMobileLayout } from "./mobile-layout";
 import type { DocumentEditorCanvasProps, EditorSlotInline, EditorSlotType } from "./types";
 
 const DEFAULT_STICKY_HEADER_OFFSET = 44;
@@ -75,6 +84,7 @@ export default function DocumentEditorCanvas({
   const [stickyHeaderOffset, setStickyHeaderOffset] = useState(DEFAULT_STICKY_HEADER_OFFSET);
   const [selectedSlot, setSelectedSlot] = useState<SelectedSlot | null>(null);
   const [formulaHelpOpen, setFormulaHelpOpen] = useState(false);
+  const mobileLayout = useDocumentEditorMobileLayout();
   const serializedDocument = useMemo(() => JSON.stringify(editorDocumentToTiptapJson(document)), [document]);
   const referenceTokens = useMemo(() => collectReferenceTokens(document), [document]);
   const formulaTokens = useMemo(() => collectFormulaDisplayTokens(document, fieldModel), [document, fieldModel]);
@@ -181,26 +191,25 @@ export default function DocumentEditorCanvas({
   }, []);
 
   if (!editor) return null;
+  if (mobileLayout.portrait) return <DocumentEditorMobilePortraitNotice />;
 
   const getCurrentReferenceTokens = () => collectReferenceTokens(tiptapJsonToEditorDocument(editor.getJSON(), document));
 
   return (
-    <div className="space-y-3 overflow-visible bg-slate-100">
-      <div
-        className="sticky z-20 border-b border-slate-200 bg-white/95 px-3 py-2 shadow-sm backdrop-blur"
-        style={{ top: stickyHeaderOffset }}
-      >
-        <div className="flex min-h-14 flex-wrap items-center gap-3 border-b border-slate-100 pb-2">
-          {renderTableRibbon(editor, editable)}
-          {renderTextRibbon(editor, editable)}
-        </div>
-        <div className="flex min-h-14 flex-wrap items-center gap-3 pt-2">
-          {renderStyleRibbon(editor, editable)}
-          {renderInsertRibbon(editor, editable, document)}
-          {renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}
-        </div>
-      </div>
-      <div ref={editorScrollRef} className="relative overflow-auto px-4 py-5">
+    <div className="space-y-3 overflow-visible bg-slate-100" data-document-editor-mobile-state={mobileLayout.compactLandscape ? "landscape" : "desktop"}>
+      <DocumentEditorToolbar
+        compactLandscape={mobileLayout.compactLandscape}
+        stickyHeaderOffset={stickyHeaderOffset}
+        desktopTop={<>{renderTableRibbon(editor, editable)}{renderFontRibbon(editor, editable)}{renderParagraphRibbon(editor, editable)}</>}
+        desktopBottom={<>{renderStyleRibbon(editor, editable)}{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}</>}
+        mobileRibbons={{
+          text: <>{renderFontRibbon(editor, editable, true)}{renderStyleRibbon(editor, editable)}</>,
+          paragraph: renderParagraphRibbon(editor, editable),
+          insert: <>{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}</>,
+          table: renderTableRibbon(editor, editable),
+        }}
+      />
+      <div ref={editorScrollRef} className={`relative overflow-auto ${mobileLayout.compactLandscape ? "px-2 py-3" : "px-4 py-5"}`}>
         <div
           className="mx-auto min-h-[297mm] w-[210mm] min-w-[210mm] bg-white px-[16mm] py-[15mm] text-[13px] leading-7 text-slate-950 shadow-[0_0_0_1px_rgba(15,23,42,0.10),0_16px_38px_rgba(15,23,42,0.12)]"
           style={{ fontFamily: PAPER_FONT_FAMILY }}
@@ -240,20 +249,24 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
-function renderTextRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean) {
+function renderFontRibbon(editor: TiptapEditor, editable: boolean, compact = false) {
   return (
-    <>
-      <ToolbarGroup label="字体">
-        <ToolbarButton label="字体选择暂未接入" disabled><Type size={16} strokeWidth={1.9} /></ToolbarButton>
-        <ToolbarButton label="字号选择暂未接入" disabled><Pilcrow size={16} strokeWidth={1.9} /></ToolbarButton>
+    <ToolbarGroup label="字体">
+        {!compact ? <ToolbarButton label="字体选择暂未接入" disabled><Type size={16} strokeWidth={1.9} /></ToolbarButton> : null}
+        {!compact ? <ToolbarButton label="字号选择暂未接入" disabled><Pilcrow size={16} strokeWidth={1.9} /></ToolbarButton> : null}
         <ToolbarButton label="加粗" active={editor.isActive("bold")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleBold().run()}><Bold size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="斜体" active={editor.isActive("italic")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleItalic().run()}><Italic size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="下划线" active={editor.isActive("underline")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleUnderline().run()}><UnderlineIcon size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="删除线" active={editor.isActive("strike")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleStrike().run()}><Strikethrough size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="下标" active={editor.isActive("subscript")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleSubscript().run()}><Subscript size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="上标" active={editor.isActive("superscript")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleSuperscript().run()}><Superscript size={16} strokeWidth={1.9} /></ToolbarButton>
-        <ToolbarButton label="颜色暂未接入" disabled><Palette size={16} strokeWidth={1.9} /></ToolbarButton>
-      </ToolbarGroup>
+        {!compact ? <ToolbarButton label="颜色暂未接入" disabled><Palette size={16} strokeWidth={1.9} /></ToolbarButton> : null}
+    </ToolbarGroup>
+  );
+}
+
+function renderParagraphRibbon(editor: TiptapEditor, editable: boolean) {
+  return (
       <ToolbarGroup label="段落">
         <ToolbarButton label="左对齐" active={editor.isActive({ textAlign: "left" })} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setTextAlign("left").run()}><AlignLeft size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="居中" active={editor.isActive({ textAlign: "center" })} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).setTextAlign("center").run()}><AlignCenter size={16} strokeWidth={1.9} /></ToolbarButton>
@@ -262,7 +275,6 @@ function renderTextRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, edi
         <ToolbarButton label="项目符号" active={editor.isActive("bulletList")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleBulletList().run()}><List size={16} strokeWidth={1.9} /></ToolbarButton>
         <ToolbarButton label="编号列表" active={editor.isActive("orderedList")} disabled={!editable} onClick={() => editor.chain().focus(undefined, { scrollIntoView: false }).toggleOrderedList().run()}><ListOrdered size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
-    </>
   );
 }
 
@@ -335,71 +347,6 @@ function renderTableRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, ed
         <ToolbarButton label="单行对齐" active={cellHasClassName(editor, "single-line-cell")} disabled={disabled} onClick={() => toggleCellClassName(editor, "single-line-cell")}><AlignVerticalJustifyCenter size={16} strokeWidth={1.9} /></ToolbarButton>
       </ToolbarGroup>
     </>
-  );
-}
-
-function ToolbarGroup({ children, label }: { children: ReactNode; label: string }) {
-  return (
-    <div className="flex flex-col items-center gap-1 border-r border-slate-200 pr-3 last:border-r-0 last:pr-0">
-      <div className="flex items-center gap-1">{children}</div>
-      <div className="text-[10px] leading-none text-slate-400">{label}</div>
-    </div>
-  );
-}
-
-function StackedIcon({ main, badge }: { main: ReactNode; badge: ReactNode }) {
-  return (
-    <span className="relative inline-flex h-4 w-4 items-center justify-center">
-      {main}
-      <span className="absolute -bottom-1 -right-1 rounded bg-white text-slate-700">{badge}</span>
-    </span>
-  );
-}
-
-function GlyphIcon({ children, tone }: { children: ReactNode; tone?: "orange" }) {
-  return (
-    <span className={`inline-flex h-4 min-w-4 items-center justify-center font-serif text-[15px] font-semibold leading-none ${tone === "orange" ? "text-orange-700" : ""}`}>
-      {children}
-    </span>
-  );
-}
-
-function ToolbarButton({
-  active = false,
-  children,
-  disabled,
-  label,
-  onClick,
-}: {
-  active?: boolean;
-  children: ReactNode;
-  disabled?: boolean;
-  label: string;
-  onClick?: () => void;
-}) {
-  const buttonClassName = [
-    "inline-flex h-8 w-8 items-center justify-center rounded border transition",
-    active
-      ? "border-cyan-300 bg-cyan-50 text-cyan-700"
-      : "border-transparent bg-white text-slate-700 hover:border-slate-300 hover:bg-slate-50 hover:text-slate-950",
-    "disabled:cursor-not-allowed disabled:border-transparent disabled:bg-slate-100 disabled:text-slate-400",
-  ].join(" ");
-
-  return (
-    <button
-      type="button"
-      className={buttonClassName}
-      title={label}
-      aria-label={label}
-      disabled={disabled}
-      onMouseDown={(event) => event.preventDefault()}
-      onClick={(event) => {
-        event.preventDefault();
-        onClick?.();
-      }}
-    >
-      {children}
-    </button>
   );
 }
 

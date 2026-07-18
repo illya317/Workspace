@@ -141,10 +141,11 @@ export function useWorkReportsController({ target, onToast, enabled }: {
   }, [cycleOptions]);
 
   const selectPeriodRecord = useCallback((record: WorkReportPeriodRecord) => {
+    if (record.periodStart === periodStart) return;
     setDraft(null);
     setDraftSnapshot("");
     setPeriodStart(record.periodStart);
-  }, []);
+  }, [periodStart]);
 
   const toolbarItems = useMemo(() => [{
     kind: "option-group",

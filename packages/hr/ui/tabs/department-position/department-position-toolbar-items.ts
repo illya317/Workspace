@@ -13,7 +13,6 @@ export function buildDepartmentPositionToolbarItems({
   hideSideLabel,
   onSearchChange,
   onSideOpenChange,
-  onDrawerOpenChange,
   assistantAction,
 }: {
   isOrganizationMode: boolean;
@@ -25,7 +24,6 @@ export function buildDepartmentPositionToolbarItems({
   hideSideLabel: string;
   onSearchChange: (value: string) => void;
   onSideOpenChange: (open: boolean) => void;
-  onDrawerOpenChange: (open: boolean) => void;
   assistantAction?: SurfaceToolbarActionGroupActionSpec;
 }): SurfaceToolbarItems {
   const assistantItems: SurfaceToolbarItems = assistantAction
@@ -34,14 +32,6 @@ export function buildDepartmentPositionToolbarItems({
   if (isOrganizationMode || showArchived) return assistantItems;
 
   const items: SurfaceToolbarItem[] = [
-    {
-      kind: "panel-toggle",
-      key: "mobile-tree-toggle",
-      icon: "panel-open",
-      label: showSideLabel,
-      visibility: "mobile",
-      onClick: () => onDrawerOpenChange(true),
-    },
     {
       kind: "panel-toggle",
       key: "desktop-tree-toggle",

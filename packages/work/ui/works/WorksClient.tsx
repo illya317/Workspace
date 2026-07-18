@@ -787,7 +787,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     planPageToolbarItem: planPagination.toolbarItem,
     reportToolbarItems: WORK_GOAL_REPORTS_CONTENT_EMPTY ? [] : workReportingState.toolbarItems,
     settingsToolbarItems: settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY ? kpiDefinitionState.toolbarItems : settingsState.toolbarItems,
-    onOpenDrawer: () => setDrawerOpen(true),
     onToggleSide: () => setSideOpen(!sideOpen),
     onPlanPeriodFilterChange: (filter) => {
       setPlanPeriodFilter(filter);

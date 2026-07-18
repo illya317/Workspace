@@ -100,6 +100,7 @@ export interface BodySurfaceModuleGridSpec {
   afterGrid?: ReactNode;
   fullScreen?: boolean;
   centered?: boolean;
+  columns?: 3 | 4 | 5;
   items: BodySurfaceModuleGridItemSpec[];
 }
 
@@ -151,6 +152,7 @@ interface BodySurfaceSectionCommonProps {
 export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
   layout?: "stack" | "grid";
   gridColumns?: BodySurfaceSectionGridColumns;
+  mobilePresentation?: "stack" | "drilldown";
   sections?: BodySurfaceSectionSpec[];
 };
 

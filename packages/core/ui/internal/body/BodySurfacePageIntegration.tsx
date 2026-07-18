@@ -59,14 +59,6 @@ function splitPageToolbarItems(body?: BodySurfaceProps): SurfaceToolbarItems {
   return [
     {
       kind: "panel-toggle",
-      key: "mobile-side-toggle",
-      icon: "panel-open",
-      label: `显示${split.sideLabel}`,
-      onClick: () => split.onDrawerOpenChange(true),
-      visibility: "mobile",
-    },
-    {
-      kind: "panel-toggle",
       key: "desktop-side-toggle",
       icon: split.sideOpen ? "panel-close" : "panel-open",
       label: `${split.sideOpen ? "隐藏" : "显示"}${split.sideLabel}`,

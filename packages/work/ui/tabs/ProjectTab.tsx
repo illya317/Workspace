@@ -192,7 +192,6 @@ function ProjectLedgerTab({
           ...spaceWorkbenchPanelToolbarItems({
             label: "项目列表",
             open: model.projectListOpen,
-            onOpenDrawer: () => model.setProjectListDrawerOpen(true),
             onToggleSide: () => model.setProjectListOpen(!model.projectListOpen),
           }),
         ],

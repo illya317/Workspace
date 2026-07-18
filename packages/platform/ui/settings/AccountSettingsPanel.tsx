@@ -2,9 +2,10 @@
 
 import { workspacePath } from "@workspace/core/routing";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import { Home, Inbox, UserRound } from "lucide-react";
 import { ActionGlyph, createFieldsSection, createSectionsSection, createPageBody, createPageTabBar, PageSurface, type BodySurfaceSectionSpec, type FormSurfaceItemSpec, type SurfaceToolbarItem, useFeedback } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import { MAX_PINNED_PORTAL_SLOTS, normalizePortalSlots, type PortalSlot } from "../../portal-preferences";
+import { MAX_PRIMARY_PORTAL_SLOTS, normalizePortalSlots, type PortalSlot } from "../../portal-preferences";
 import {
   accessiblePortalEntries,
   defaultSlotsForUser,
@@ -93,7 +94,7 @@ export default function AccountSettingsPanel({
       })
       .catch((error) => {
         if (!cancelled) {
-          feedback.error(error instanceof Error ? error.message : "加载桌面卡槽失败");
+          feedback.error(error instanceof Error ? error.message : "加载个性化桌面失败");
         }
       });
     return () => {
@@ -151,46 +152,39 @@ export default function AccountSettingsPanel({
     return normalizePortalSlots(nextSlots, new Set(accessiblePortalEntries(user).map((entry) => entry.key)));
   }
   async function persistPortalSlots(nextSlots: PortalSlot[]) {
+    if (portalSlotsSaving) return false;
+    const previousSlots = portalSlots;
     const normalized = normalizeNextPortalSlots(nextSlots);
     setPortalSlots(normalized);
     setPortalSlotsSaving(true);
     try {
       const data = await savePortalSlots(normalized);
       setPortalSlots(data.slots);
-      feedback.success("桌面卡槽已更新");
+      feedback.success("个性化桌面已更新");
+      return true;
     } catch (error) {
-      feedback.error(error instanceof Error ? error.message : "保存桌面卡槽失败");
+      setPortalSlots(previousSlots);
+      feedback.error(error instanceof Error ? error.message : "保存个性化桌面失败");
+      return false;
     } finally {
       setPortalSlotsSaving(false);
     }
   }
-  function setPortalSlotKey(index: number, value: unknown) {
+  async function setPortalSlotKey(index: number, value: unknown) {
     const key = String(value || "").trim() || null;
     const next = portalSlots.map((slot, slotIndex) => (
-      slotIndex === index ? { ...slot, key, pinned: key ? slot.pinned : false } : slot
+      slotIndex === index ? { key, pinned: index >= MAX_PRIMARY_PORTAL_SLOTS } : slot
     ));
-    void persistPortalSlots(next);
+    if (await persistPortalSlots(next)) setEditingPortalSlotIndex(null);
   }
-  function clearPortalSlot(index: number) {
+  async function clearPortalSlot(index: number) {
     const next = portalSlots.map((slot, slotIndex) => (
-      slotIndex === index ? { ...slot, key: null, pinned: false } : slot
+      slotIndex === index ? { key: null, pinned: index >= MAX_PRIMARY_PORTAL_SLOTS } : slot
     ));
-    void persistPortalSlots(next);
+    if (await persistPortalSlots(next)) setEditingPortalSlotIndex(null);
   }
-  function togglePortalSlotPinned(index: number) {
-    const slot = portalSlots[index];
-    if (!slot?.key) {
-      feedback.error("先选择卡槽入口");
-      return;
-    }
-    if (!slot.pinned && portalSlots.filter((item) => item.pinned).length >= MAX_PINNED_PORTAL_SLOTS) {
-      feedback.error("最多设置 2 个顶部快捷入口");
-      return;
-    }
-    const next = portalSlots.map((item, slotIndex) => (
-      slotIndex === index ? { ...item, pinned: !item.pinned } : item
-    ));
-    void persistPortalSlots(next);
+  async function resetPortalSlots() {
+    if (await persistPortalSlots(defaultSlotsForUser(user))) setEditingPortalSlotIndex(null);
   }
   function switchAccountPageTab(tab: AccountPageTab) {
     setAccountPageTab(tab);
@@ -214,19 +208,27 @@ export default function AccountSettingsPanel({
   ];
   const portalEntries = accessiblePortalEntries(user);
   function portalSlotChoiceItems(index: number) {
+    const groupStart = index < MAX_PRIMARY_PORTAL_SLOTS ? 0 : MAX_PRIMARY_PORTAL_SLOTS;
+    const groupEnd = index < MAX_PRIMARY_PORTAL_SLOTS ? MAX_PRIMARY_PORTAL_SLOTS : portalSlots.length;
     const selectedElsewhere = new Set(portalSlots
-      .map((slot, slotIndex) => slotIndex === index ? null : slot.key)
+      .slice(groupStart, groupEnd)
+      .map((slot, groupIndex) => groupStart + groupIndex === index ? null : slot.key)
       .filter((key): key is string => Boolean(key)));
-    return [
-      { value: "", label: "未选择" },
-      ...portalEntries
-        .filter((entry) => !selectedElsewhere.has(entry.key))
-        .map((entry) => ({
-          value: entry.key,
-          label: entry.level === 1 ? entry.label : `${entry.parentLabel} / ${entry.label}`,
+    return portalEntries
+      .filter((entry) => !selectedElsewhere.has(entry.key))
+      .map((entry) => ({
+        key: entry.key,
+        value: entry,
+        group: entry.level === 1 ? "一级入口" : entry.parentLabel ?? "二级入口",
+        card: {
+          title: entry.label,
           subtitle: entry.desc,
-        })),
-    ];
+          code: entry.level === 1 ? "一级" : "二级",
+          codeTone: entry.level === 1 ? "success" as const : "default" as const,
+          active: portalSlots[index]?.key === entry.key,
+          size: "sm" as const,
+        },
+      }));
   }
   const portalEntryByKey = new Map(portalEntries.map((entry) => [entry.key, entry]));
   const portalSlotGridItems = portalSlots.map((slot, index) => {
@@ -234,15 +236,24 @@ export default function AccountSettingsPanel({
     return {
       key: `portal-slot-${index}`,
       title: entry?.label ?? "选择入口",
-      description: entry?.desc ?? (entry?.level === 2 ? entry.parentLabel : "点击选择 L1 / L2"),
+      description: entry?.desc ?? (index < MAX_PRIMARY_PORTAL_SLOTS ? "选择卡片排序入口" : "选择移动端快捷入口"),
       icon: entry?.icon ?? <ActionGlyph kind="add" />,
       color: entry?.color ?? "emerald",
-      badge: slot.pinned ? "快捷" : undefined,
       onClick: () => setEditingPortalSlotIndex(index),
     };
   });
   const editingPortalSlot = editingPortalSlotIndex === null ? null : portalSlots[editingPortalSlotIndex] ?? null;
-  const editingPortalEntry = editingPortalSlot?.key ? portalEntryByKey.get(editingPortalSlot.key) : null;
+  const editingPortalSlotLabel = editingPortalSlotIndex === null
+    ? null
+    : editingPortalSlotIndex < MAX_PRIMARY_PORTAL_SLOTS
+      ? `桌面卡片 ${editingPortalSlotIndex + 1}`
+      : `快捷方式 ${editingPortalSlotIndex - MAX_PRIMARY_PORTAL_SLOTS + 1}`;
+  const mobileBottomGridItems = [
+    { key: "mobile-bottom-home", title: "桌面", description: "固定入口", icon: <Home aria-hidden="true" className="h-6 w-6" />, color: "emerald" },
+    ...portalSlotGridItems.slice(MAX_PRIMARY_PORTAL_SLOTS, MAX_PRIMARY_PORTAL_SLOTS + 2),
+    { key: "mobile-bottom-inbox", title: "消息", description: "固定入口", icon: <Inbox aria-hidden="true" className="h-6 w-6" />, color: "blue" },
+    { key: "mobile-bottom-account", title: "我的", description: "固定入口", icon: <UserRound aria-hidden="true" className="h-6 w-6" />, color: "indigo" },
+  ];
   const avatarField = useAccountAvatarField({ user, username, onUserRefresh });
   const aliasTags = readAccountAliasTags(alias);
   const profileItems: FormSurfaceItemSpec<string>[] = [
@@ -343,55 +354,62 @@ export default function AccountSettingsPanel({
     ...createFieldsSection("profile-table", profileItems, { kind: "detail", layout: { columns: 3 } }),
     header: { title: "账号信息" },
   };
-  const portalSlotsSection = {
+  const portalSlotsSection: BodySurfaceSectionSpec = {
     key: "portal-slots",
-    header: { title: "桌面卡槽" },
-    body: {
-      kind: "section" as const,
-      moduleGrid: {
-        items: portalSlotGridItems,
-      },
-      modals: editingPortalSlotIndex === null ? [] : [{
-        key: "portal-slot-editor",
-        open: true,
-        title: editingPortalEntry?.label ?? "选择入口",
-        onClose: () => setEditingPortalSlotIndex(null),
-        size: "sm" as const,
-        sections: [
-          createFieldsSection("portal-slot-editor-fields", [{
-            key: "portal-slot-entry",
-            label: "入口",
-            spec: {
-              valueType: "string",
-              control: "choice",
-              state: portalSlotsSaving ? "disabled" : "normal",
-              options: { source: "static",items: portalSlotChoiceItems(editingPortalSlotIndex), visibleCount: 8 },
-            },
-            value: editingPortalSlot?.key ?? "",
-            placeholder: "选择 L1 / L2 入口",
-            onChange: (value: unknown) => setPortalSlotKey(editingPortalSlotIndex, value),
-          }], {
-            kind: "fields",
-            layout: { flow: "inline", columns: 1, density: "compact" },
-            actions: [
-              {
-                key: "pin-portal-slot",
-                action: "link",
-                label: editingPortalSlot?.pinned ? "已设快捷" : "设为快捷",
-                disabled: portalSlotsSaving || !editingPortalSlot?.key,
-                onClick: () => togglePortalSlotPinned(editingPortalSlotIndex),
-              },
-              {
-                key: "clear-portal-slot",
-                action: "remove",
-                label: "清空",
-                disabled: portalSlotsSaving || !editingPortalSlot?.key,
-                onClick: () => clearPortalSlot(editingPortalSlotIndex),
-              },
-            ],
-          }),
-        ],
+    header: editingPortalSlotIndex === null ? {
+      title: "个性化桌面",
+      actions: [{
+        key: "reset-portal-slots",
+        label: "恢复默认设置",
+        icon: "reset",
+        disabled: portalSlotsSaving,
+        onClick: () => void resetPortalSlots(),
       }],
+    } : {
+      title: `选择${editingPortalSlotLabel}`,
+      actions: [
+        {
+          key: "back-portal-slots",
+          label: "返回个性化桌面",
+          icon: "back",
+          disabled: portalSlotsSaving,
+          onClick: () => setEditingPortalSlotIndex(null),
+        },
+        {
+          key: "clear-portal-slot",
+          label: "清空当前位置",
+          icon: "delete-minus",
+          disabled: portalSlotsSaving || !editingPortalSlot?.key,
+          onClick: () => void clearPortalSlot(editingPortalSlotIndex),
+        },
+      ],
+    },
+    body: editingPortalSlotIndex === null ? {
+      kind: "section",
+      sections: [
+        {
+          key: "primary-portal-slots",
+          chrome: "plain",
+          header: { title: "桌面卡片顺序" },
+          body: { kind: "section", moduleGrid: { items: portalSlotGridItems.slice(0, MAX_PRIMARY_PORTAL_SLOTS) } },
+        },
+        {
+          key: "shortcut-portal-slots",
+          chrome: "plain",
+          header: { title: "移动端底栏" },
+          body: { kind: "section", moduleGrid: { items: mobileBottomGridItems, columns: 5 } },
+        },
+      ],
+    } : {
+      kind: "selector",
+      selector: {
+        kind: "list",
+        items: portalSlotChoiceItems(editingPortalSlotIndex),
+        selectedId: editingPortalSlot?.key ?? null,
+        emptyText: "暂无可用入口",
+        onSelect: (entry) => void setPortalSlotKey(editingPortalSlotIndex, entry.key),
+        size: "sm",
+      },
     },
   };
   const accountTopSections: BodySurfaceSectionSpec[] = [
@@ -402,7 +420,7 @@ export default function AccountSettingsPanel({
     ...(apiAccess?.toolbarItems ?? []),
   ];
   const sections: BodySurfaceSectionSpec[] = [
-    createSectionsSection("account-top", { sections: accountTopSections }),
+    createSectionsSection("account-top", { sections: accountTopSections, mobilePresentation: "drilldown" }),
   ];
   const navigation = createPageTabBar({
     items: [

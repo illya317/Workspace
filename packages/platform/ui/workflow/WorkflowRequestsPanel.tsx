@@ -292,14 +292,6 @@ function useWorkflowRequestsPageModel<TRequest extends WorkflowRequestRecordLike
       visibility: "desktop",
     },
     {
-      kind: "panel-toggle",
-      key: "workflow-list-drawer",
-      icon: "panel-open",
-      label: "显示流程列表",
-      onClick: () => setDrawerOpen(true),
-      visibility: "mobile",
-    },
-    {
       kind: "action-group",
       key: "workflow-actions",
       actions: [{

@@ -68,16 +68,10 @@ export default function UiComponentsShowcase() {
     if (selectedName !== selectedNode.name) setSelectedName(selectedNode.name);
   }, [selectedName, selectedNode]);
 
-  const toggleSideFromToolbar = useCallback(() => {
-    if (typeof window !== "undefined" && window.innerWidth < 1024) {
-      setDrawerOpen(true);
-      return;
-    }
-    setSideOpen((open) => !open);
-  }, []);
+  const toggleSideFromToolbar = useCallback(() => setSideOpen((open) => !open), []);
 
   const toolbarItems = useMemo<SurfaceToolbarItem[]>(() => [
-    { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-close" : "panel-open", label: sideOpen ? "隐藏声明目录" : "显示声明目录", variant: sideOpen ? "primary" : "secondary", onClick: toggleSideFromToolbar },
+    { kind: "panel-toggle", key: "toggle-list", icon: sideOpen ? "panel-close" : "panel-open", label: sideOpen ? "隐藏声明目录" : "显示声明目录", variant: sideOpen ? "primary" : "secondary", visibility: "desktop", onClick: toggleSideFromToolbar },
     { kind: "search", key: "search", value: query, onChange: setQuery, placeholder: "搜索声明能力..." },
     { kind: "option-group", key: "category", value: categoryValue, options: CATEGORY_OPTIONS, onChange: (value) => setCategoryValue(value as UiComponentCategoryFilter), ariaLabel: "分类" },
     { kind: "text", key: "meta", content: <>共 {filteredRoots.length} 个声明组件</> },
@@ -87,6 +81,7 @@ export default function UiComponentsShowcase() {
     kind: "section",
     title: `${selectedComponent.name} · ${coreUiDeclarationCategoryMeta[selectedNode.category].label}`,
     message: { content: selectedComponent.description, presentation: "plain" },
+    mobilePresentation: "drilldown",
     sections: selectedComponent.declares?.length
       ? declarationSections(selectedComponent.declares)
       : [{ key: "empty", body: { kind: "section", empty: { content: "这个组件没有声明字段" } } }],

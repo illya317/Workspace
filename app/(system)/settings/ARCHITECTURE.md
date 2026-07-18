@@ -17,7 +17,7 @@
 - Keep `app/(system)/settings/**/page.tsx` limited to authentication, authorization, and mounting Platform settings pages.
 - Do not add route-local components, hooks, or helper files under `app/(system)/settings`.
 - Settings screens, modals, and governance UI belong in `packages/platform/ui/settings`.
-- `/settings/account` owns account profile fields, common departments, desktop portal slots, personal API access, and inbox layout. These preferences must persist through `app/api/settings/account/**` and Platform server helpers; UI candidates for portal L1/L2 slots must be filtered by the user's visible resources, and the API must normalize saved slots against the same visibility boundary.
+- `/settings/account` owns account profile fields, common departments, personalized desktop ordering, personal API access, and inbox layout. The desktop preference stores nine ordering positions without using them as a visibility cap, so every accessible L1/L2 entry remains on both mobile and desktop. Mobile bottom navigation always has three fixed entries（桌面、消息、我的）and two user shortcut positions. These preferences must persist through `app/api/settings/account/**` and Platform server helpers; UI candidates must be filtered by the user's visible resources, and the API must normalize saved positions against the same visibility boundary.
 
 ## Permission Contract
 
