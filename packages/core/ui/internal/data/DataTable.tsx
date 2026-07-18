@@ -263,15 +263,6 @@ export default function DataTable<T>({
     </table>
   );
 
-  if (format?.kind === "matrix") {
-    return (
-      <>
-        <MobileHorizontalScrollHint />
-        {desktopTable}
-      </>
-    );
-  }
-
   return (
     <>
       <div className="space-y-2.5 bg-slate-50/70 p-2.5 sm:hidden">
@@ -303,7 +294,7 @@ export default function DataTable<T>({
               </div>
 
               {mobileSummaryColumns.length > 0 ? (
-                <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
+                <dl className="mt-3 grid grid-cols-1 gap-x-4 gap-y-3 border-t border-slate-100 pt-3 min-[400px]:grid-cols-2">
                   {mobileSummaryColumns.map((column) => (
                     <MobileTableFact key={column.key} column={column} row={row} fieldContext={fieldContext} />
                   ))}
@@ -403,15 +394,6 @@ function MobileTableValue<T>({
   fieldContext: FieldContextValue;
 }) {
   return <FieldContextProvider value={fieldContext}>{column.render(row)}</FieldContextProvider>;
-}
-
-function MobileHorizontalScrollHint() {
-  return (
-    <div className="sticky left-0 z-20 flex w-[calc(100vw-2rem)] items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-500 sm:hidden">
-      <span>对比表</span>
-      <span>左右滑动查看完整数据 ↔</span>
-    </div>
-  );
 }
 
 function matrixPinnedColumnClass(columnIndex: number, header: boolean, matrix: boolean) {

@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ActionGlyph } from "../action/ActionGlyphs";
-import { joinClassNames } from "../common/card-utils";
+import { ActionButton } from "../action/ActionControls";
 import type { ControlSize } from "../common/interactionTokens";
 import type { ToolbarGroupedItems } from "./Toolbar.layout";
 import {
@@ -91,7 +90,7 @@ export default function MobileToolbarContent({
         {sheet === "more" ? (
           <div className="grid gap-3">
             {overflowActions.length > 0 ? (
-              <div className="grid gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 {overflowActions.map((action, index) => (
                   <MobileSheetActionButton
                     key={action.key ?? `${action.kind}-${index}`}
@@ -117,35 +116,28 @@ export default function MobileToolbarContent({
 function MobileLeadItem({ item, size }: { item: ToolbarItem; size: ControlSize }) {
   if (item.kind !== "create") return <ToolbarItemRenderer item={item} size={size} />;
   return (
-    <button
-      type="button"
+    <ActionButton
+      kind="add"
+      label={item.label ?? "新增"}
       disabled={item.disabled || item.active}
       onClick={item.onClick}
-      className="inline-flex min-h-12 min-w-[4.5rem] shrink-0 items-center justify-center gap-1.5 rounded-xl bg-emerald-600 px-3 text-xs font-semibold text-white shadow-sm transition active:scale-[0.98] disabled:bg-slate-300"
-    >
-      <ActionGlyph kind="add" className="size-4" />
-      <span className="max-w-20 truncate">{item.label ?? "新建"}</span>
-    </button>
+      variant={item.active ? "secondary" : "primary"}
+      size={size}
+    />
   );
 }
 
 function MobileActionButton({ action }: { action: ToolbarRenderableAction }) {
   const variant = resolveToolbarActionVariant(action) ?? "secondary";
   return (
-    <button
+    <ActionButton
       type={action.type ?? "button"}
+      kind={resolveToolbarActionIcon(action)}
+      label={action.label}
       disabled={action.disabled}
       onClick={action.onClick}
-      className={joinClassNames(
-        "inline-flex min-h-12 min-w-[4.5rem] shrink-0 items-center justify-center gap-1.5 rounded-xl border px-3 text-xs font-semibold shadow-sm transition active:scale-[0.98] disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400",
-        variant === "primary" && "border-emerald-600 bg-emerald-600 text-white",
-        variant === "danger" && "border-red-200 bg-white text-red-600",
-        variant === "secondary" && "border-slate-200 bg-white text-slate-700",
-      )}
-    >
-      <ActionGlyph kind={resolveToolbarActionIcon(action)} className="size-4" />
-      <span className="max-w-20 truncate">{action.label}</span>
-    </button>
+      variant={variant}
+    />
   );
 }
 
@@ -161,18 +153,14 @@ function MobileCommandButton({
   onClick: () => void;
 }) {
   return (
-    <button
-      type="button"
+    <ActionButton
+      kind={icon}
+      label={label}
       aria-expanded={active}
       onClick={onClick}
-      className={joinClassNames(
-        "inline-flex min-h-12 min-w-[4.5rem] shrink-0 items-center justify-center gap-1.5 rounded-xl border px-3 text-xs font-semibold shadow-sm transition active:scale-[0.98]",
-        active ? "border-emerald-200 bg-emerald-50 text-emerald-700" : "border-slate-200 bg-white text-slate-700",
-      )}
-    >
-      <ActionGlyph kind={icon} className="size-4" />
-      {label}
-    </button>
+      variant="secondary"
+      className={active ? "!border-emerald-200 !bg-emerald-50 !text-emerald-700" : undefined}
+    />
   );
 }
 
@@ -184,20 +172,17 @@ function MobileSheetActionButton({
   onSelect: () => void;
 }) {
   return (
-    <button
+    <ActionButton
       type={action.type ?? "button"}
+      kind={resolveToolbarActionIcon(action)}
+      label={action.label}
       disabled={action.disabled}
       onClick={() => {
         action.onClick?.();
         onSelect();
       }}
-      className="flex min-h-12 w-full items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 text-left text-sm font-semibold text-slate-700 transition active:bg-slate-50 disabled:bg-slate-100 disabled:text-slate-400"
-    >
-      <span className="grid size-8 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600">
-        <ActionGlyph kind={resolveToolbarActionIcon(action)} className="size-4" />
-      </span>
-      {action.label}
-    </button>
+      variant={resolveToolbarActionVariant(action) ?? "secondary"}
+    />
   );
 }
 

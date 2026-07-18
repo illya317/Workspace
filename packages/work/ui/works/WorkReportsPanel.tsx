@@ -156,7 +156,12 @@ export function useWorkReportsController({ target, onToast, enabled }: {
     presentation: "segmented" as const,
   }] satisfies SurfaceToolbarItems, [periodType, updatePeriodType]);
 
-  const actionDisabled = loading || saving || !draft || !hasDraftChanges;
+  const hasSavableDraft = Boolean(
+    draft
+    && draft.items.length > 0
+    && (draft.report === null || hasDraftChanges),
+  );
+  const actionDisabled = loading || saving || !hasSavableDraft;
   const formActions = workflowActionSurfaceActions(actionRuntimeCommands(draft?.actionRuntime, {
     "record.save": { label: "保存快照", disabled: actionDisabled, onClick: () => void saveReportRecord() },
     "workflow.request.submit": { disabled: actionDisabled, onClick: () => void saveReportRecord() },

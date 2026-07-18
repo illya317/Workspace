@@ -25,9 +25,8 @@ type NavigationSurfaceProps =
 function toTabDef(item: PageSurfaceTabBarItemSpec): TabDef {
   return {
     key: item.key,
-    label: item.compactLabel
-      ? <><span className="-mx-2 whitespace-nowrap sm:hidden">{item.compactLabel}</span><span className="hidden whitespace-nowrap sm:inline">{item.label}</span></>
-      : item.label,
+    label: item.label,
+    compactLabel: item.compactLabel,
     children: item.children?.map(toTabDef),
   };
 }

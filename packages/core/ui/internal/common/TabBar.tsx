@@ -12,6 +12,7 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
 export interface TabDef {
   key: string;
   label: ReactNode;
+  compactLabel?: ReactNode;
   children?: TabDef[];
 }
 
@@ -160,6 +161,9 @@ export default function TabBar(props: TabBarProps) {
   const onChildChange = accordion ? (props as TabBarAccordionProps).onChildChange : undefined;
   const activeTab = tabs.find((tab) => tab.key === active);
   const activeChildTab = activeTab?.children?.find((tab) => tab.key === activeChild);
+  const activeMobileLabel = activeChildTab
+    ? <>{activeTab?.label}<span aria-hidden="true" className="text-slate-300">·</span>{activeChildTab.label}</>
+    : activeTab?.label ?? "选择栏目";
   const compactMobileNavigation = tabs.length > 3 || tabs.some((tab) => (tab.children?.length ?? 0) > 0);
 
   const renderActions = (actions: TabBarAction[] | undefined) => {
@@ -245,7 +249,7 @@ export default function TabBar(props: TabBarProps) {
             tabs={tabs}
             active={active}
             activeChild={activeChild}
-            activeLabel={activeChildTab?.label ?? activeTab?.label ?? "选择栏目"}
+            activeLabel={activeMobileLabel}
             ariaLabel={ariaLabel}
             onChange={onChange}
             onChildChange={onChildChange}
@@ -266,7 +270,7 @@ export default function TabBar(props: TabBarProps) {
                     selected ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500 active:bg-white/70",
                   )}
                 >
-                  {tab.label}
+                  {compactTabLabel(tab)}
                 </button>
               );
             })}
@@ -309,20 +313,20 @@ function MobileTabSelector({
         aria-haspopup="dialog"
         aria-expanded={open}
         onClick={() => setOpen(true)}
-        className="flex min-h-14 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 text-left shadow-sm transition active:bg-slate-50"
+        className="flex min-h-16 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition active:bg-slate-50"
       >
-        <span className="min-w-0">
+        <span className="min-w-0 flex-1">
           <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">当前栏目</span>
-          <span className="mt-0.5 block truncate text-sm font-bold text-slate-900">{activeLabel}</span>
+          <span className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-sm font-bold leading-5 text-slate-900">{activeLabel}</span>
         </span>
         <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">切换</span>
       </button>
       <DetailModal open={open} title={ariaLabel ?? "切换栏目"} onClose={() => setOpen(false)} maxWidth="max-w-md">
-        <div className="grid gap-2" role="tablist" aria-label={ariaLabel}>
+        <div className="grid gap-3" role="tablist" aria-label={ariaLabel}>
           {tabs.map((tab) => {
             const selected = active === tab.key;
             return (
-              <div key={tab.key} className="rounded-xl border border-slate-200 bg-white p-1.5">
+              <section key={tab.key} className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm">
                 <button
                   type="button"
                   role="tab"
@@ -332,15 +336,15 @@ function MobileTabSelector({
                     setOpen(false);
                   }}
                   className={joinClassNames(
-                    "flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-left text-sm font-semibold transition",
+                    "flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold transition",
                     selected ? "bg-emerald-50 text-emerald-800" : "text-slate-700 active:bg-slate-50",
                   )}
                 >
-                  <span className="min-w-0 truncate">{tab.label}</span>
+                  <span className="min-w-0 flex-1 break-words leading-5">{tab.label}</span>
                   {selected && !activeChild ? <span className="text-emerald-600">✓</span> : null}
                 </button>
                 {tab.children?.length ? (
-                  <div className="mt-1 grid gap-1 border-l-2 border-slate-100 pl-2">
+                  <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-2">
                     {tab.children.map((child) => {
                       const childSelected = selected && activeChild === child.key;
                       return (
@@ -355,22 +359,27 @@ function MobileTabSelector({
                             setOpen(false);
                           }}
                           className={joinClassNames(
-                            "flex min-h-11 w-full items-center justify-between rounded-lg px-3 text-left text-sm transition",
+                            "flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border px-3 text-left text-sm transition",
                             childSelected ? "bg-slate-900 font-semibold text-white" : "text-slate-600 active:bg-slate-50",
+                            childSelected ? "border-slate-900" : "border-slate-200 bg-white",
                           )}
                         >
-                          <span className="min-w-0 truncate">{child.label}</span>
+                          <span className="min-w-0 flex-1 break-words leading-5">{child.label}</span>
                           {childSelected ? <span>✓</span> : null}
                         </button>
                       );
                     })}
                   </div>
                 ) : null}
-              </div>
+              </section>
             );
           })}
         </div>
       </DetailModal>
     </>
   );
+}
+
+function compactTabLabel(tab?: TabDef) {
+  return tab?.compactLabel ?? tab?.label;
 }

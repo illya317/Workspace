@@ -45,7 +45,7 @@ export default function StructuredTable({
 }: StructuredTableProps) {
   const tablePresentation = resolveTablePresentation(presentation, presentation?.density);
   const tableClassName = `${tablePresentation.table} ${colWidths?.length ? "table-fixed min-w-max w-full" : ""}`;
-  const mobileHeaders = mobileCardHeaders(rows, colWidths);
+  const mobileHeaders = mobileCardHeaders(rows);
   let bodyRowIndex = 0;
 
   return (
@@ -58,6 +58,13 @@ export default function StructuredTable({
             const titleCell = row[0];
             const summaryCells = row.slice(1, 4);
             const detailCells = row.slice(4);
+            if (row.length === 1 && row[0]?.colSpan) {
+              return (
+                <div key={rowIndex} className="rounded-2xl border border-slate-200 bg-white px-4 py-10 text-center text-sm text-slate-500 shadow-sm">
+                  {row[0].content}
+                </div>
+              );
+            }
             return (
               <article
                 key={rowIndex}
@@ -74,7 +81,7 @@ export default function StructuredTable({
                   </div>
                 </div>
                 {summaryCells.length > 0 ? (
-                  <dl className="mt-3 grid grid-cols-2 gap-x-4 gap-y-3 border-t border-slate-100 pt-3">
+                  <dl className="mt-3 grid gap-3 border-t border-slate-100 pt-3">
                     {summaryCells.map((cell, summaryIndex) => (
                       <div key={`${rowIndex}-summary-${summaryIndex}`} className="min-w-0">
                         <dt className="text-xs font-semibold leading-5 text-slate-400">{mobileHeaders[summaryIndex + 1].content}</dt>
@@ -155,15 +162,14 @@ export default function StructuredTable({
 
 function mobileCardHeaders(
   rows: StructuredTableCell[][],
-  colWidths?: Array<DataSurfaceStructuredDimension | null>,
 ) {
-  if (colWidths?.length || rows.length < 2) return null;
+  if (rows.length < 2) return null;
   const headers = rows[0];
   const simpleCell = (cell: StructuredTableCell) => !cell.colSpan && !cell.rowSpan;
   if (!headers.length || !headers.every((cell) => cell.header && simpleCell(cell))) return null;
   const bodyRowsAreSimple = rows.slice(1).every((row) => (
-    row.length === headers.length
-    && row.every((cell) => !cell.header && simpleCell(cell))
+    (row.length === headers.length && row.every((cell) => !cell.header && simpleCell(cell)))
+    || (row.length === 1 && !row[0].header && row[0].colSpan === headers.length && !row[0].rowSpan)
   ));
   return bodyRowsAreSimple ? headers : null;
 }

@@ -3,7 +3,7 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    description: "PageSurface 内部统一工具栏 renderer；移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
+    description: "PageSurface 内部统一工具栏 renderer；桌面和移动动作均为纯图标，新增固定为 +，移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
     declares: [
       { name: "edit-group.dirty", description: "编辑态是否存在实际修改；显式为 false 时 Core 禁用保存动作。" },
     ],
