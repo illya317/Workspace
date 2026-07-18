@@ -330,7 +330,6 @@ export type UserWhereInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobListRelationFilter
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseListRelationFilter
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseListRelationFilter
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffListRelationFilter
   resourceActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
   departmentAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   projectAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
@@ -396,7 +395,6 @@ export type UserOrderByWithRelationInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobOrderByRelationAggregateInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseOrderByRelationAggregateInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseOrderByRelationAggregateInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffOrderByRelationAggregateInput
   resourceActionGrants?: Prisma.UserResourceActionGrantOrderByRelationAggregateInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeOrderByRelationAggregateInput
   projectAssignees?: Prisma.ProjectWorkAssigneeOrderByRelationAggregateInput
@@ -465,7 +463,6 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   requestedLibraryExports?: Prisma.LibraryExportJobListRelationFilter
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseListRelationFilter
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseListRelationFilter
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffListRelationFilter
   resourceActionGrants?: Prisma.UserResourceActionGrantListRelationFilter
   departmentAssignees?: Prisma.DepartmentWorkAssigneeListRelationFilter
   projectAssignees?: Prisma.ProjectWorkAssigneeListRelationFilter
@@ -576,7 +573,6 @@ export type UserCreateInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -642,7 +638,6 @@ export type UserUncheckedCreateInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -707,7 +702,6 @@ export type UserUpdateInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -773,7 +767,6 @@ export type UserUncheckedUpdateInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -989,22 +982,6 @@ export type UserUpdateOneRequiredWithoutApprovalEventsNestedInput = {
   upsert?: Prisma.UserUpsertWithoutApprovalEventsInput
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutApprovalEventsInput, Prisma.UserUpdateWithoutApprovalEventsInput>, Prisma.UserUncheckedUpdateWithoutApprovalEventsInput>
-}
-
-export type UserCreateNestedOneWithoutWecomLoginHandoffsInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedCreateWithoutWecomLoginHandoffsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWecomLoginHandoffsInput
-  connect?: Prisma.UserWhereUniqueInput
-}
-
-export type UserUpdateOneWithoutWecomLoginHandoffsNestedInput = {
-  create?: Prisma.XOR<Prisma.UserCreateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedCreateWithoutWecomLoginHandoffsInput>
-  connectOrCreate?: Prisma.UserCreateOrConnectWithoutWecomLoginHandoffsInput
-  upsert?: Prisma.UserUpsertWithoutWecomLoginHandoffsInput
-  disconnect?: Prisma.UserWhereInput | boolean
-  delete?: Prisma.UserWhereInput | boolean
-  connect?: Prisma.UserWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutWecomLoginHandoffsInput, Prisma.UserUpdateWithoutWecomLoginHandoffsInput>, Prisma.UserUncheckedUpdateWithoutWecomLoginHandoffsInput>
 }
 
 export type UserCreateNestedOneWithoutResourceActionGrantsInput = {
@@ -1690,7 +1667,6 @@ export type UserCreateWithoutAgentProfileInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -1755,7 +1731,6 @@ export type UserUncheckedCreateWithoutAgentProfileInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -1835,7 +1810,6 @@ export type UserUpdateWithoutAgentProfileInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -1900,7 +1874,6 @@ export type UserUncheckedUpdateWithoutAgentProfileInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -1965,7 +1938,6 @@ export type UserCreateWithoutSubmittedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -2030,7 +2002,6 @@ export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -2099,7 +2070,6 @@ export type UserCreateWithoutResolvedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -2164,7 +2134,6 @@ export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -2244,7 +2213,6 @@ export type UserUpdateWithoutSubmittedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -2309,7 +2277,6 @@ export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -2384,7 +2351,6 @@ export type UserUpdateWithoutResolvedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -2449,7 +2415,6 @@ export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -2513,7 +2478,6 @@ export type UserCreateWithoutApprovalEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -2578,7 +2542,6 @@ export type UserUncheckedCreateWithoutApprovalEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -2658,7 +2621,6 @@ export type UserUpdateWithoutApprovalEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -2723,7 +2685,6 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -2738,280 +2699,6 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
   submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
   resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
-  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
-  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
-  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
-  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
-  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
-}
-
-export type UserCreateWithoutWecomLoginHandoffsInput = {
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
-  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
-  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
-  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
-  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
-  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
-  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
-}
-
-export type UserUncheckedCreateWithoutWecomLoginHandoffsInput = {
-  id?: number
-  wxUserId?: string | null
-  username: string
-  password?: string | null
-  avatar?: string | null
-  alias?: string | null
-  phone?: string | null
-  routineItems?: string | null
-  preferredDepartmentIds?: string | null
-  preferredProjectIds?: string | null
-  portalSlots?: string | null
-  canLogin?: boolean
-  apiKeyHash?: string | null
-  employeeId?: string | null
-  createdAt?: Date | string
-  sessionVersion?: number
-  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
-  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
-  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
-  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
-  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
-  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
-  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
-  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
-  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
-  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
-  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
-  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
-  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
-  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
-  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
-  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
-}
-
-export type UserCreateOrConnectWithoutWecomLoginHandoffsInput = {
-  where: Prisma.UserWhereUniqueInput
-  create: Prisma.XOR<Prisma.UserCreateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedCreateWithoutWecomLoginHandoffsInput>
-}
-
-export type UserUpsertWithoutWecomLoginHandoffsInput = {
-  update: Prisma.XOR<Prisma.UserUpdateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedUpdateWithoutWecomLoginHandoffsInput>
-  create: Prisma.XOR<Prisma.UserCreateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedCreateWithoutWecomLoginHandoffsInput>
-  where?: Prisma.UserWhereInput
-}
-
-export type UserUpdateToOneWithWhereWithoutWecomLoginHandoffsInput = {
-  where?: Prisma.UserWhereInput
-  data: Prisma.XOR<Prisma.UserUpdateWithoutWecomLoginHandoffsInput, Prisma.UserUncheckedUpdateWithoutWecomLoginHandoffsInput>
-}
-
-export type UserUpdateWithoutWecomLoginHandoffsInput = {
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
-  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
-  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
-  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
-  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
-  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
-  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
-  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
-  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
-  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
-  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
-  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
-}
-
-export type UserUncheckedUpdateWithoutWecomLoginHandoffsInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  username?: Prisma.StringFieldUpdateOperationsInput | string
-  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
-  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
-  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
-  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
-  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
-  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
-  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
-  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
-  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
-  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
-  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
-  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
-  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
-  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
-  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
-  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
-  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
-  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
-  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
-  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
-  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
-  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
-  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
-  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
-  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
-  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
-  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
-  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
-  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
-  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
-  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
-  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
   workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
   ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
   secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
@@ -3061,7 +2748,6 @@ export type UserCreateWithoutResourceActionGrantsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
@@ -3126,7 +2812,6 @@ export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -3206,7 +2891,6 @@ export type UserUpdateWithoutResourceActionGrantsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
@@ -3271,7 +2955,6 @@ export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -3335,7 +3018,6 @@ export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -3400,7 +3082,6 @@ export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -3480,7 +3161,6 @@ export type UserUpdateWithoutPermissionGrantLedgerEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -3545,7 +3225,6 @@ export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -3609,7 +3288,6 @@ export type UserCreateWithoutNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -3674,7 +3352,6 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -3743,7 +3420,6 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -3808,7 +3484,6 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -3888,7 +3563,6 @@ export type UserUpdateWithoutNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -3953,7 +3627,6 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -4028,7 +3701,6 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -4093,7 +3765,6 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -4156,7 +3827,6 @@ export type UserCreateWithoutEditedContractsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -4221,7 +3891,6 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -4301,7 +3970,6 @@ export type UserUpdateWithoutEditedContractsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -4366,7 +4034,6 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -4431,7 +4098,6 @@ export type UserCreateWithoutLedgerImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -4496,7 +4162,6 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -4576,7 +4241,6 @@ export type UserUpdateWithoutLedgerImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -4641,7 +4305,6 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -4704,7 +4367,6 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -4769,7 +4431,6 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -4849,7 +4510,6 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -4914,7 +4574,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -4978,7 +4637,6 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -5043,7 +4701,6 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -5123,7 +4780,6 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -5188,7 +4844,6 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -5252,7 +4907,6 @@ export type UserCreateWithoutSnapshotImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -5317,7 +4971,6 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -5386,7 +5039,6 @@ export type UserCreateWithoutSnapshotEditsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -5451,7 +5103,6 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -5531,7 +5182,6 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -5596,7 +5246,6 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -5671,7 +5320,6 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -5736,7 +5384,6 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -5801,7 +5448,6 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -5866,7 +5512,6 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -5946,7 +5591,6 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -6011,7 +5655,6 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -6075,7 +5718,6 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -6140,7 +5782,6 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -6220,7 +5861,6 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -6285,7 +5925,6 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -6349,7 +5988,6 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -6414,7 +6052,6 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -6494,7 +6131,6 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -6559,7 +6195,6 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -6622,7 +6257,6 @@ export type UserCreateWithoutEmployeesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -6687,7 +6321,6 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -6767,7 +6400,6 @@ export type UserUpdateWithoutEmployeesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -6832,7 +6464,6 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -6896,7 +6527,6 @@ export type UserCreateWithoutEditHistoriesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -6961,7 +6591,6 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -7041,7 +6670,6 @@ export type UserUpdateWithoutEditHistoriesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -7106,7 +6734,6 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -7170,7 +6797,6 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -7235,7 +6861,6 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -7315,7 +6940,6 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -7380,7 +7004,6 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -7444,7 +7067,6 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -7509,7 +7131,6 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -7589,7 +7210,6 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -7654,7 +7274,6 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -7718,7 +7337,6 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -7783,7 +7401,6 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -7863,7 +7480,6 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -7928,7 +7544,6 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -7992,7 +7607,6 @@ export type UserCreateWithoutStockOperationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -8057,7 +7671,6 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -8137,7 +7750,6 @@ export type UserUpdateWithoutStockOperationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -8202,7 +7814,6 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -8266,7 +7877,6 @@ export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -8331,7 +7941,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -8411,7 +8020,6 @@ export type UserUpdateWithoutReviewedLibraryTagCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -8476,7 +8084,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -8540,7 +8147,6 @@ export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -8605,7 +8211,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -8685,7 +8290,6 @@ export type UserUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -8750,7 +8354,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -8814,7 +8417,6 @@ export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -8879,7 +8481,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -8948,7 +8549,6 @@ export type UserCreateWithoutReviewedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -9013,7 +8613,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -9093,7 +8692,6 @@ export type UserUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -9158,7 +8756,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -9233,7 +8830,6 @@ export type UserUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -9298,7 +8894,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -9362,7 +8957,6 @@ export type UserCreateWithoutRequestedLibraryExportsInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -9427,7 +9021,6 @@ export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -9507,7 +9100,6 @@ export type UserUpdateWithoutRequestedLibraryExportsInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -9572,7 +9164,6 @@ export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
   reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -9636,7 +9227,6 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -9701,7 +9291,6 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -9770,7 +9359,6 @@ export type UserCreateWithoutOwnedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -9835,7 +9423,6 @@ export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -9904,7 +9491,6 @@ export type UserCreateWithoutReviewedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -9969,7 +9555,6 @@ export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -10049,7 +9634,6 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -10114,7 +9698,6 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -10189,7 +9772,6 @@ export type UserUpdateWithoutOwnedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -10254,7 +9836,6 @@ export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -10329,7 +9910,6 @@ export type UserUpdateWithoutReviewedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -10394,7 +9974,6 @@ export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -10458,7 +10037,6 @@ export type UserCreateWithoutCreatedLibraryVersionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -10523,7 +10101,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -10603,7 +10180,6 @@ export type UserUpdateWithoutCreatedLibraryVersionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -10668,7 +10244,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -10732,7 +10307,6 @@ export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -10797,7 +10371,6 @@ export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -10877,7 +10450,6 @@ export type UserUpdateWithoutCreatedLibraryDocumentTagsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -10942,7 +10514,6 @@ export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -11007,7 +10578,6 @@ export type UserCreateWithoutMutationImpactBatchesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -11072,7 +10642,6 @@ export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -11152,7 +10721,6 @@ export type UserUpdateWithoutMutationImpactBatchesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -11217,7 +10785,6 @@ export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -11281,7 +10848,6 @@ export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -11346,7 +10912,6 @@ export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -11426,7 +10991,6 @@ export type UserUpdateWithoutCreatedDepartmentCollaborationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -11491,7 +11055,6 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -11555,7 +11118,6 @@ export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -11620,7 +11182,6 @@ export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -11700,7 +11261,6 @@ export type UserUpdateWithoutDepartmentCollaborationResponsesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -11765,7 +11325,6 @@ export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -11829,7 +11388,6 @@ export type UserCreateWithoutCreatedKpiDefinitionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -11894,7 +11452,6 @@ export type UserUncheckedCreateWithoutCreatedKpiDefinitionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -11974,7 +11531,6 @@ export type UserUpdateWithoutCreatedKpiDefinitionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -12039,7 +11595,6 @@ export type UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -12103,7 +11658,6 @@ export type UserCreateWithoutUpdatedKpiAssignmentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -12168,7 +11722,6 @@ export type UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -12248,7 +11801,6 @@ export type UserUpdateWithoutUpdatedKpiAssignmentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -12313,7 +11865,6 @@ export type UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -12377,7 +11928,6 @@ export type UserCreateWithoutApprovedKpiResultSnapshotsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -12442,7 +11992,6 @@ export type UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -12522,7 +12071,6 @@ export type UserUpdateWithoutApprovedKpiResultSnapshotsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -12587,7 +12135,6 @@ export type UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -12651,7 +12198,6 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -12716,7 +12262,6 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -12785,7 +12330,6 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -12850,7 +12394,6 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -12930,7 +12473,6 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -12995,7 +12537,6 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -13070,7 +12611,6 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -13135,7 +12675,6 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -13199,7 +12738,6 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -13264,7 +12802,6 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -13344,7 +12881,6 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -13409,7 +12945,6 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -13473,7 +13008,6 @@ export type UserCreateWithoutMeetingVotesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -13538,7 +13072,6 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -13618,7 +13151,6 @@ export type UserUpdateWithoutMeetingVotesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -13683,7 +13215,6 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -13747,7 +13278,6 @@ export type UserCreateWithoutWorkReportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
@@ -13812,7 +13342,6 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
@@ -13892,7 +13421,6 @@ export type UserUpdateWithoutWorkReportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
@@ -13957,7 +13485,6 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
@@ -14021,7 +13548,6 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
@@ -14086,7 +13612,6 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -14166,7 +13691,6 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
@@ -14231,7 +13755,6 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -14295,7 +13818,6 @@ export type UserCreateWithoutProjectAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
@@ -14360,7 +13882,6 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedCreateNestedManyWithoutUserInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
@@ -14440,7 +13961,6 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
@@ -14505,7 +14025,6 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
   createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
   reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
-  wecomLoginHandoffs?: Prisma.WecomLoginHandoffUncheckedUpdateManyWithoutUserNestedInput
   resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
   departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
   createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
@@ -14558,7 +14077,6 @@ export type UserCountOutputType = {
   requestedLibraryExports: number
   createdLibraryEvaluationCases: number
   reviewedLibraryEvaluationCases: number
-  wecomLoginHandoffs: number
   resourceActionGrants: number
   departmentAssignees: number
   projectAssignees: number
@@ -14607,7 +14125,6 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   requestedLibraryExports?: boolean | UserCountOutputTypeCountRequestedLibraryExportsArgs
   createdLibraryEvaluationCases?: boolean | UserCountOutputTypeCountCreatedLibraryEvaluationCasesArgs
   reviewedLibraryEvaluationCases?: boolean | UserCountOutputTypeCountReviewedLibraryEvaluationCasesArgs
-  wecomLoginHandoffs?: boolean | UserCountOutputTypeCountWecomLoginHandoffsArgs
   resourceActionGrants?: boolean | UserCountOutputTypeCountResourceActionGrantsArgs
   departmentAssignees?: boolean | UserCountOutputTypeCountDepartmentAssigneesArgs
   projectAssignees?: boolean | UserCountOutputTypeCountProjectAssigneesArgs
@@ -14789,13 +14306,6 @@ export type UserCountOutputTypeCountCreatedLibraryEvaluationCasesArgs<ExtArgs ex
  */
 export type UserCountOutputTypeCountReviewedLibraryEvaluationCasesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.LibraryEvaluationCaseWhereInput
-}
-
-/**
- * UserCountOutputType without action
- */
-export type UserCountOutputTypeCountWecomLoginHandoffsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.WecomLoginHandoffWhereInput
 }
 
 /**
@@ -15006,7 +14516,6 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   requestedLibraryExports?: boolean | Prisma.User$requestedLibraryExportsArgs<ExtArgs>
   createdLibraryEvaluationCases?: boolean | Prisma.User$createdLibraryEvaluationCasesArgs<ExtArgs>
   reviewedLibraryEvaluationCases?: boolean | Prisma.User$reviewedLibraryEvaluationCasesArgs<ExtArgs>
-  wecomLoginHandoffs?: boolean | Prisma.User$wecomLoginHandoffsArgs<ExtArgs>
   resourceActionGrants?: boolean | Prisma.User$resourceActionGrantsArgs<ExtArgs>
   departmentAssignees?: boolean | Prisma.User$departmentAssigneesArgs<ExtArgs>
   projectAssignees?: boolean | Prisma.User$projectAssigneesArgs<ExtArgs>
@@ -15115,7 +14624,6 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   requestedLibraryExports?: boolean | Prisma.User$requestedLibraryExportsArgs<ExtArgs>
   createdLibraryEvaluationCases?: boolean | Prisma.User$createdLibraryEvaluationCasesArgs<ExtArgs>
   reviewedLibraryEvaluationCases?: boolean | Prisma.User$reviewedLibraryEvaluationCasesArgs<ExtArgs>
-  wecomLoginHandoffs?: boolean | Prisma.User$wecomLoginHandoffsArgs<ExtArgs>
   resourceActionGrants?: boolean | Prisma.User$resourceActionGrantsArgs<ExtArgs>
   departmentAssignees?: boolean | Prisma.User$departmentAssigneesArgs<ExtArgs>
   projectAssignees?: boolean | Prisma.User$projectAssigneesArgs<ExtArgs>
@@ -15170,7 +14678,6 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     requestedLibraryExports: Prisma.$LibraryExportJobPayload<ExtArgs>[]
     createdLibraryEvaluationCases: Prisma.$LibraryEvaluationCasePayload<ExtArgs>[]
     reviewedLibraryEvaluationCases: Prisma.$LibraryEvaluationCasePayload<ExtArgs>[]
-    wecomLoginHandoffs: Prisma.$WecomLoginHandoffPayload<ExtArgs>[]
     resourceActionGrants: Prisma.$UserResourceActionGrantPayload<ExtArgs>[]
     departmentAssignees: Prisma.$DepartmentWorkAssigneePayload<ExtArgs>[]
     projectAssignees: Prisma.$ProjectWorkAssigneePayload<ExtArgs>[]
@@ -15629,7 +15136,6 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   requestedLibraryExports<T extends Prisma.User$requestedLibraryExportsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$requestedLibraryExportsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryExportJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   createdLibraryEvaluationCases<T extends Prisma.User$createdLibraryEvaluationCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$createdLibraryEvaluationCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryEvaluationCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reviewedLibraryEvaluationCases<T extends Prisma.User$reviewedLibraryEvaluationCasesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$reviewedLibraryEvaluationCasesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$LibraryEvaluationCasePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  wecomLoginHandoffs<T extends Prisma.User$wecomLoginHandoffsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$wecomLoginHandoffsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WecomLoginHandoffPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   resourceActionGrants<T extends Prisma.User$resourceActionGrantsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$resourceActionGrantsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$UserResourceActionGrantPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   departmentAssignees<T extends Prisma.User$departmentAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$departmentAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DepartmentWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   projectAssignees<T extends Prisma.User$projectAssigneesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$projectAssigneesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ProjectWorkAssigneePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -16612,30 +16118,6 @@ export type User$reviewedLibraryEvaluationCasesArgs<ExtArgs extends runtime.Type
   take?: number
   skip?: number
   distinct?: Prisma.LibraryEvaluationCaseScalarFieldEnum | Prisma.LibraryEvaluationCaseScalarFieldEnum[]
-}
-
-/**
- * User.wecomLoginHandoffs
- */
-export type User$wecomLoginHandoffsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the WecomLoginHandoff
-   */
-  select?: Prisma.WecomLoginHandoffSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the WecomLoginHandoff
-   */
-  omit?: Prisma.WecomLoginHandoffOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.WecomLoginHandoffInclude<ExtArgs> | null
-  where?: Prisma.WecomLoginHandoffWhereInput
-  orderBy?: Prisma.WecomLoginHandoffOrderByWithRelationInput | Prisma.WecomLoginHandoffOrderByWithRelationInput[]
-  cursor?: Prisma.WecomLoginHandoffWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.WecomLoginHandoffScalarFieldEnum | Prisma.WecomLoginHandoffScalarFieldEnum[]
 }
 
 /**

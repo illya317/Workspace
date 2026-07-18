@@ -3,34 +3,21 @@
 import { useEffect, useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
 import { PageSurface, type FormSurfaceItemSpec } from "@workspace/core/ui";
-import {
-  createMobileWecomLoginPanelItem,
-  createWecomHandoffResultPanelItem,
-  createWecomLoginPanelItem,
-} from "./auth/WecomLoginPanel";
+import { createWecomLoginPanelItem } from "./auth/WecomLoginPanel";
+import { resolveWecomLoginEntry } from "./auth/wecom-login-entry";
 const BASE_PATH = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const LOGIN_TIMEOUT_MS = 20000;
-type LoginMethod = "account" | "wecom-desktop" | "wecom-mobile" | "wecom-result";
+type LoginMethod = "account" | "wecom-desktop" | "wecom-mobile-help";
 function getSafeNextPath() {
   const next = new URLSearchParams(window.location.search).get("next");
   if (next && next.startsWith(`${BASE_PATH}/`) && !next.startsWith("//")) return next;
   return `${BASE_PATH}/portal`;
 }
 
-function isMobileBrowser() {
-  return /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
-    || (navigator.maxTouchPoints > 1 && window.innerWidth < 1024);
-}
-
 function clearLoginResultParams(searchParams: URLSearchParams) {
   for (const key of [
     "kicked",
     "wecom_error",
-    "wecom_handoff",
-    "wecom_handoff_error",
-    "handoff_return",
-    "handoff_code",
-    "wecom_return",
   ]) {
     searchParams.delete(key);
   }
@@ -43,33 +30,14 @@ export default function LoginClient() {
   const [loading, setLoading] = useState(false);
   const [loginMethod, setLoginMethod] = useState<LoginMethod>("account");
   const [wecomLoading, setWecomLoading] = useState(false);
-  const [handoffReturnToken, setHandoffReturnToken] = useState("");
-  const [handoffVerificationCode, setHandoffVerificationCode] = useState("");
   const [error, setError] = useState("");
   const [kickedAlert, setKickedAlert] = useState(false);
   useEffect(() => {
     const kickedCookie = document.cookie.split("; ").find(row => row.startsWith("kicked="));
     const searchParams = new URLSearchParams(window.location.search);
-    const hashParams = new URLSearchParams(window.location.hash.slice(1));
     const kickedParam = searchParams.get("kicked");
     const wecomError = searchParams.get("wecom_error");
-    const wecomHandoff = hashParams.get("wecom_handoff");
-    const wecomHandoffError = searchParams.get("wecom_handoff_error");
-    const callbackReturnToken = hashParams.get("handoff_return");
-    const callbackVerificationCode = hashParams.get("handoff_code");
-    const browserReturnToken = hashParams.get("wecom_return");
     if (wecomError) setError(wecomError);
-    if (wecomHandoff === "complete" && callbackReturnToken && callbackVerificationCode) {
-      setLoginMethod("wecom-result");
-      setHandoffReturnToken(callbackReturnToken);
-      setHandoffVerificationCode(callbackVerificationCode);
-    } else if (wecomHandoffError) {
-      setLoginMethod("wecom-result");
-      setError(wecomHandoffError);
-    } else if (browserReturnToken) {
-      setLoginMethod("wecom-mobile");
-      setHandoffReturnToken(browserReturnToken);
-    }
     if (kickedCookie || kickedParam) {
       setKickedAlert(true);
       document.cookie = "kicked=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
@@ -77,11 +45,6 @@ export default function LoginClient() {
     if (
       kickedParam
       || wecomError
-      || wecomHandoff
-      || wecomHandoffError
-      || callbackReturnToken
-      || callbackVerificationCode
-      || browserReturnToken
     ) {
       clearLoginResultParams(searchParams);
     }
@@ -117,6 +80,22 @@ export default function LoginClient() {
       setLoading(false);
     }
   }
+  function handleWecomLogin() {
+    setError("");
+    const entry = resolveWecomLoginEntry({
+      userAgent: navigator.userAgent,
+      maxTouchPoints: navigator.maxTouchPoints,
+      viewportWidth: window.innerWidth,
+    });
+    if (entry === "in-app") {
+      const url = new URL(`${BASE_PATH}/api/auth/wecom/start`, window.location.origin);
+      const next = getSafeNextPath();
+      if (next !== `${BASE_PATH}/portal`) url.searchParams.set("next", next);
+      window.location.assign(url.toString());
+      return;
+    }
+    setLoginMethod(entry === "mobile-help" ? "wecom-mobile-help" : "wecom-desktop");
+  }
   const items: FormSurfaceItemSpec[] = loginMethod === "wecom-desktop"
     ? [
       ...(error ? [{ kind: "note" as const, key: "wecom-error", content: error }] : []),
@@ -126,53 +105,35 @@ export default function LoginClient() {
         onLoadingChange: setWecomLoading,
       }),
     ]
-    : loginMethod === "wecom-mobile"
+    : loginMethod === "wecom-mobile-help"
       ? [
-        ...(error ? [{ kind: "note" as const, key: "wecom-error", content: error }] : []),
-        createMobileWecomLoginPanelItem({
-          key: "wecom-mobile-panel",
-          onError: setError,
-          onLoadingChange: setWecomLoading,
-          initialReturnToken: handoffReturnToken || undefined,
-        }),
+        {
+          kind: "note" as const,
+          key: "wecom-mobile-help",
+          content: "企业微信身份登录需要从企业微信工作台打开本应用。外部手机浏览器无法直接唤起企业微信；如需在当前浏览器继续，请返回使用账号登录。",
+        },
       ]
-      : loginMethod === "wecom-result"
-        ? [
-          ...(error ? [{ kind: "note" as const, key: "wecom-result-error", content: error }] : []),
-          ...(handoffReturnToken && handoffVerificationCode
-            ? [createWecomHandoffResultPanelItem({
-              key: "wecom-result",
-              returnToken: handoffReturnToken,
-              verificationCode: handoffVerificationCode,
-              onError: setError,
-            })]
-            : [{
-              kind: "note" as const,
-              key: "wecom-result",
-              content: "请返回刚才的手机浏览器重新发起企业微信登录。",
-            }]),
-        ]
-        : [
-          ...(kickedAlert ? [{ kind: "note" as const, key: "kicked", content: "您已在其他设备登录，当前会话已失效。如需继续，请重新登录。" }] : []),
-          {
-            key: "username",
-            label: "账号",
-            spec: { valueType: "string", control: "text" },
-            value: username,
-            placeholder: "请输入账号",
-            onChange: (value) => setUsername(String(value ?? "")),
-          },
-          {
-            key: "password",
-            label: "密码",
-            spec: { valueType: "string", control: "text" },
-            value: password,
-            type: "password",
-            placeholder: "请输入密码",
-            error: error || undefined,
-            onChange: (value) => setPassword(String(value ?? "")),
-          },
-        ];
+      : [
+        ...(kickedAlert ? [{ kind: "note" as const, key: "kicked", content: "您已在其他设备登录，当前会话已失效。如需继续，请重新登录。" }] : []),
+        {
+          key: "username",
+          label: "账号",
+          spec: { valueType: "string", control: "text" },
+          value: username,
+          placeholder: "请输入账号",
+          onChange: (value) => setUsername(String(value ?? "")),
+        },
+        {
+          key: "password",
+          label: "密码",
+          spec: { valueType: "string", control: "text" },
+          value: password,
+          type: "password",
+          placeholder: "请输入密码",
+          error: error || undefined,
+          onChange: (value) => setPassword(String(value ?? "")),
+        },
+      ];
   return (
     <PageSurface
       kind="login"
@@ -191,9 +152,7 @@ export default function LoginClient() {
           kind: "login",
           content: { items },
           submit: loginMethod === "account" ? { onSubmit: () => void handleSubmit() } : undefined,
-          actions: loginMethod === "wecom-result"
-            ? undefined
-            : loginMethod === "wecom-desktop" || loginMethod === "wecom-mobile"
+          actions: loginMethod === "wecom-desktop" || loginMethod === "wecom-mobile-help"
             ? [{
               key: "account",
               action: "open",
@@ -201,7 +160,6 @@ export default function LoginClient() {
               disabled: wecomLoading,
               onClick: () => {
                 setError("");
-                setHandoffReturnToken("");
                 setLoginMethod("account");
               },
             }]
@@ -212,10 +170,7 @@ export default function LoginClient() {
                 action: "open",
                 label: "使用企业微信登录",
                 disabled: loading,
-                onClick: () => {
-                  setError("");
-                  setLoginMethod(isMobileBrowser() ? "wecom-mobile" : "wecom-desktop");
-                },
+                onClick: handleWecomLogin,
               },
             ],
         },

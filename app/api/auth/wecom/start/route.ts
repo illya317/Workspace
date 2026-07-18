@@ -26,11 +26,12 @@ function safeNextPath(value: string | null) {
 export async function GET(request: Request) {
   const requestUrl = new URL(request.url);
   const displayPanel = requestUrl.searchParams.get("display") === WECOM_LOGIN_DISPLAY_PANEL;
+  const inApp = !displayPanel && /wxwork/i.test(request.headers.get("user-agent") || "");
 
   try {
     const nextPath = safeNextPath(requestUrl.searchParams.get("next"));
     const origin = process.env.WECHAT_REDIRECT_ORIGIN || getRequestOrigin(request);
-    const login = createWecomLoginStart(origin, BASE_PATH);
+    const login = createWecomLoginStart(origin, BASE_PATH, inApp ? "in-app" : "web");
 
     const response = displayPanel
       ? NextResponse.json(

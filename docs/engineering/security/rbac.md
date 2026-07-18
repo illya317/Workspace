@@ -127,9 +127,7 @@ space.company
 
 登录只看 `User.canLogin` 和 `sessionVersion`，不看任何 RBAC resource。
 
-企业微信登录分两条 Platform 认证链路：桌面浏览器使用官方 Web 登录面板；手机外部浏览器先创建 5 分钟 `WecomLoginHandoff`，再用 `wxwork://openurl` 进入企业微信 OAuth。原浏览器只持有 HttpOnly 浏览器密钥，企业微信确认后只产生另一份一次性返回凭证；两者同时匹配才签发本站 Cookie。返回凭证放在 URL fragment，不进入 HTTP 日志或 Referer；系统默认浏览器不是原浏览器时，使用企业微信页显示的 8 位验证码回到原浏览器领取，最多尝试 5 次。轮询只能读取 `pending / awaiting_return` 状态，不能单独换取会话。
-
-`/api/auth/wecom/handoff/start` 与 `/consume` 是登录前公开但强制同源的 POST；OAuth callback 只确认企业微信身份，不直接写企业微信 WebView 的本站 session Cookie。
+企业微信登录由 Platform 按运行环境分流：桌面浏览器使用官方 Web 登录面板；企业微信内置浏览器使用 `snsapi_base` OAuth 直接登录；手机外部浏览器不使用未公开支持的自定义 scheme 唤起，而是引导用户从企业微信工作台进入本应用。OAuth callback 校验 state 后仅为已绑定且允许登录的用户签发 HttpOnly session Cookie。
 
 默认有效入口：
 

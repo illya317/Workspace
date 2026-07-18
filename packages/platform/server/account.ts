@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 
 import {
+  buildWecomInAppLoginUrl,
   buildWecomWebLoginUrl,
   getWecomUserByCode,
   getWecomUserDetail,
@@ -40,13 +41,6 @@ export type WecomLoginResult =
   | { success: true; token: string }
   | { success: false; error: string };
 
-export type WecomAuthenticationResult =
-  | {
-      success: true;
-      user: { id: number; wxUserId: string | null; sessionVersion: number };
-    }
-  | { success: false; error: string };
-
 export type DevUserLoginResult =
   | { success: true; token: string; message: string }
   | { success: false; status: number; error: string };
@@ -70,11 +64,17 @@ export async function getCurrentSessionStatus(request: Request): Promise<Current
   return { status: "unauthenticated" };
 }
 
-export function createWecomLoginStart(origin: string, basePath: string): WecomLoginStart {
+export function createWecomLoginStart(
+  origin: string,
+  basePath: string,
+  mode: "web" | "in-app" = "web",
+): WecomLoginStart {
   const state = randomBytes(24).toString("hex");
   const redirectUri = `${origin}${basePath}/api/auth/wecom/callback`;
   return {
-    authorizeUrl: buildWecomWebLoginUrl(redirectUri, state),
+    authorizeUrl: mode === "in-app"
+      ? buildWecomInAppLoginUrl(redirectUri, state)
+      : buildWecomWebLoginUrl(redirectUri, state),
     state,
   };
 }
@@ -202,7 +202,7 @@ export async function loginWithApiKey(
   };
 }
 
-export async function authenticateWithWecomCode(code: string): Promise<WecomAuthenticationResult> {
+export async function loginWithWecomCode(code: string): Promise<WecomLoginResult> {
   const { userId: wxUserId, userTicket } = await getWecomUserByCode(code);
   const user = await prisma.user.findUnique({
     where: { wxUserId },
@@ -221,14 +221,6 @@ export async function authenticateWithWecomCode(code: string): Promise<WecomAuth
       console.error("Sync WeCom user detail failed", error);
     }
   }
-
-  return { success: true, user };
-}
-
-export async function loginWithWecomCode(code: string): Promise<WecomLoginResult> {
-  const authentication = await authenticateWithWecomCode(code);
-  if (!authentication.success) return authentication;
-  const { user } = authentication;
 
   const token = await createToken({
     userId: user.id,

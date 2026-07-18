@@ -38,7 +38,6 @@ model User {
   requestedLibraryExports           LibraryExportJob[]                  @relation("LibraryExportRequester")
   createdLibraryEvaluationCases     LibraryEvaluationCase[]             @relation("LibraryEvaluationCaseCreator")
   reviewedLibraryEvaluationCases    LibraryEvaluationCase[]             @relation("LibraryEvaluationCaseReviewer")
-  wecomLoginHandoffs                WecomLoginHandoff[]
   resourceActionGrants              UserResourceActionGrant[]
   departmentAssignees               DepartmentWorkAssignee[]
   projectAssignees                  ProjectWorkAssignee[]
@@ -63,26 +62,6 @@ model User {
   createdKpiDefinitions            WorkKpiDefinition[]                  @relation("WorkKpiDefinitionCreator")
   updatedKpiAssignments            WorkKpiAssignment[]                  @relation("WorkKpiAssignmentUpdater")
   approvedKpiResultSnapshots       WorkKpiResultSnapshot[]              @relation("WorkKpiResultSnapshotApprover")
-}
-
-/// 企业微信移动端登录的一次性交接记录（临时事实表，由外部浏览器发起并在企业微信 OAuth 后领取）
-model WecomLoginHandoff {
-  id                String    @id
-  browserSecretHash String
-  oauthStateHash    String    @unique
-  returnTokenHash   String?
-  verificationHash  String?
-  nextPath          String
-  userId            Int?
-  failedAttempts    Int       @default(0)
-  expiresAt         DateTime
-  approvedAt        DateTime?
-  consumedAt        DateTime?
-  createdAt         DateTime  @default(now())
-  user              User?     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@index([expiresAt])
-  @@index([userId, createdAt])
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md
