@@ -34,27 +34,30 @@ type WorkflowPoliciesNodesSectionInput = {
 };
 
 export function WorkflowPoliciesNodesSection(input: WorkflowPoliciesNodesSectionInput): BodySurfaceSectionSpec {
-  return createPanelSection("workflow-policy-nodes", {
-    title: "审批节点",
-    sections: [{
-      key: "workflow-policy-bpmn-designer",
-      chrome: "plain",
-      body: {
-        kind: "form",
-        form: {
-          kind: "fields",
-          content: {
-            layout: { columns: 1, density: "compact" },
-            items: [{
-              kind: "note",
-              key: "workflow-policy-bpmn-designer-body",
-              content: renderWorkflowPoliciesBpmnDesigner(input),
-            }],
+  return {
+    ...createPanelSection("workflow-policy-nodes", {
+      title: "审批节点",
+      sections: [{
+        key: "workflow-policy-bpmn-designer",
+        chrome: "plain",
+        body: {
+          kind: "form",
+          form: {
+            kind: "fields",
+            content: {
+              layout: { columns: 1, density: "compact" },
+              items: [{
+                kind: "note",
+                key: "workflow-policy-bpmn-designer-body",
+                content: renderWorkflowPoliciesBpmnDesigner(input),
+              }],
+            },
           },
         },
-      },
-    }],
-  });
+      }],
+    }),
+    visibility: "desktop",
+  };
 }
 
 function renderWorkflowPoliciesBpmnDesigner(input: WorkflowPoliciesNodesSectionInput) {

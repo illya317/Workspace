@@ -188,6 +188,7 @@ export function useWorkTaskTableSection({
       rows: tree.rows,
       columns,
       format: { kind: "matrix", columnWidths: matrixColumnWidths },
+      mobile: { presentation: "list" },
       visibleColumns,
 
       loading,

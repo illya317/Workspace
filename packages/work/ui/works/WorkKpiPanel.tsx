@@ -201,7 +201,7 @@ export function useWorkKpiScorecardController({
                   { key: "score", label: "加权得分", value: results ? { kind: "number", value: results.weightedScore, maximumFractionDigits: 2 } : { kind: "empty", content: "待计算" } },
                 ],
               }),
-              createSectionSection("kpi-scorecard-section", {
+              { ...createSectionSection("kpi-scorecard-section", {
                 title: "周期指标",
                 sections: [
                   createMessageSection("kpi-scorecard-guidance", { content: targetEditable && measurementEditable ? "目标口径与实际结果可同时维护；流程关闭时保存即生效。" : targetEditable ? "维护指标、责任人、权重和目标；权重合计 100% 后保存。" : measurementEditable ? "维护实际结果；确认后会保留不可变快照。" : "当前内容为只读。", tone: "muted" }),
@@ -211,20 +211,20 @@ export function useWorkKpiScorecardController({
                     ...scorecardActions,
                   ] })] : []),
                 ],
-              }),
-              ...(results ? [createSectionSection("kpi-results-section", {
+              }), visibility: "desktop" as const },
+              ...(results ? [{ ...createSectionSection("kpi-results-section", {
                 title: "结果预览",
                 sections: [
                   createMessageSection("kpi-result-guidance", { content: results.workReport ? `关联考核表 #${results.workReport.id}` : "尚无包含该计划的考核结果表；请先生成考核表再确认快照。", tone: "muted" }),
                   createPageDataSection("kpi-results", { kind: "structured", rows: resultRows(results, entries), frame: "bordered", presentation: { density: "compact", header: "tinted" }, structuredScroll: true, scroll: { x: true } }),
                   ...(resultActions.length ? [createFieldsSection("kpi-result-actions", [], { actions: resultActions })] : []),
                 ],
-              })] : []),
+              }), visibility: "desktop" as const }] : []),
             ];
 
   return {
     body: createPageBody(sections),
-    toolbarItems: targetEditable ? [{ kind: "action-group", key: "kpi-scorecard-create", actions: [{ key: "add-kpi", kind: "update", label: "添加指标", disabled: saving || definitions.length === 0, onClick: addEntry }] }] : [],
+    toolbarItems: targetEditable ? [{ kind: "action-group", key: "kpi-scorecard-create", visibility: "desktop", actions: [{ key: "add-kpi", kind: "update", label: "添加指标", disabled: saving || definitions.length === 0, onClick: addEntry }] }] : [],
   };
 }
 
@@ -315,6 +315,7 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
           : createPageDataSection("kpi-definitions", {
               kind: "structured",
               rows: definitionRows(definitions, canMaintain, beginRevise),
+              mobile: { presentation: "list" },
               frame: "bordered",
               presentation: { density: "compact", header: "tinted" },
               structuredScroll: true,

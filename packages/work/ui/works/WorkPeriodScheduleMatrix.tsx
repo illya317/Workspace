@@ -100,6 +100,7 @@ export function periodScheduleMatrixSectionSpec({
           : structuredRowsForMatrix({ rootPlan, collection, rows, cycles, canCreate, showOwner: ownerVisible, savingKey, createBindings, onOpenPlan, collapsedSourceIds, onToggleSource });
   return {
     key: "work-period-schedule-matrix",
+    visibility: "desktop",
     header: {
       title,
       badges: collection?.displayPeriodType ? [

@@ -19,6 +19,7 @@ export type {
   ToolbarProps,
   ToolbarZoneKey,
   ToolbarLayoutMode,
+  ToolbarVisibility,
   ToolbarIconButtonItem,
   ToolbarPanelToggleItem,
   ToolbarSearchItem,
@@ -75,7 +76,8 @@ export function Toolbar({
     ];
   }, [defaultAssistant, items, pageAssistant]);
 
-  const grouped = useMemo(() => groupToolbarItems(resolvedItems), [resolvedItems]);
+  const mobileGrouped = useMemo(() => groupToolbarItems(resolvedItems, "mobile"), [resolvedItems]);
+  const desktopGrouped = useMemo(() => groupToolbarItems(resolvedItems, "desktop"), [resolvedItems]);
   const autoMode = useAutoToolbarLayout({
     enabled: layoutMode === "auto",
     containerRef,
@@ -86,10 +88,10 @@ export function Toolbar({
   const content = (
     <div ref={containerRef} className="relative w-full min-w-0 overflow-visible">
       <div className="sm:hidden">
-        <MobileToolbarContent grouped={grouped} size={size} onSubmit={onSubmit} />
+        <MobileToolbarContent grouped={mobileGrouped} size={size} onSubmit={onSubmit} />
       </div>
       <div className="hidden sm:block">
-        {renderToolbarContent(grouped, resolvedLayoutMode, size, gapClass)}
+        {renderToolbarContent(desktopGrouped, resolvedLayoutMode, size, gapClass)}
       </div>
       {layoutMode === "auto" && (
         <div
@@ -97,7 +99,7 @@ export function Toolbar({
           aria-hidden="true"
           className="invisible pointer-events-none absolute left-0 top-0 max-w-full overflow-hidden"
         >
-          {renderCompactToolbarMeasurement(grouped, size, gapClass)}
+          {renderCompactToolbarMeasurement(desktopGrouped, size, gapClass)}
         </div>
       )}
     </div>

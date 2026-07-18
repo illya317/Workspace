@@ -205,13 +205,13 @@ export function useWorkOkrSettingsController({
         title: "目标与结果流程",
         sections: [
           createMessageSection("okr-workflow-boundary", { content: "时间窗只约束已启用流程的首次申报；流程关闭时，目标与结果按权限直接确认，不创建审批单。修订与更正不受首次申报时间窗限制。", tone: "muted" }),
-          createPageDataSection("okr-workflows", { kind: "structured", rows: okrWorkflowRows(settings.workflowActions, timeControlEnabled), frame: "bordered", presentation: { density: "compact", header: "tinted" }, structuredScroll: true, scroll: { x: true } }),
+          createPageDataSection("okr-workflows", { kind: "structured", rows: okrWorkflowRows(settings.workflowActions, timeControlEnabled), mobile: { presentation: "list" }, frame: "bordered", presentation: { density: "compact", header: "tinted" }, structuredScroll: true, scroll: { x: true } }),
         ],
       }),
-      createSectionSection("okr-period-rules-section", {
+      { ...createSectionSection("okr-period-rules-section", {
         title: "周期申报时间窗",
         sections: [createPageDataSection("okr-period-rules", { kind: "structured", rows: periodRows, frame: "bordered", presentation: { density: "compact", header: "tinted" }, structuredScroll: true, scroll: { x: true } })],
-      }),
+      }), visibility: "desktop" as const },
       createSectionSection("okr-control-exceptions-section", {
         title: "周期范围例外",
         sections: [createFormSection("okr-control-exceptions", { kind: "fields", content: { items: exceptionFields, layout: { columns: 3, density: "compact" } } })],

@@ -71,6 +71,7 @@ function reportSection(model: PeriodDossierModel, onBack: () => void) {
       kind: "structured",
       rows: rows.length ? [header, ...rows] : [[{ content: { kind: "empty", content: "当前周期暂无工作汇报" }, colSpan: 4, cellRole: "empty" }]],
       format: { kind: "matrix", columnWidths: ["12rem", null, null, "11rem"] },
+      mobile: { presentation: "list" },
       frame: "bordered",
       structuredScroll: true,
       scroll: { x: true },

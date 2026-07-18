@@ -146,6 +146,7 @@ export function useAgentPermissionPolicyTab({
       columns: AGENT_POLICY_COLUMNS,
       layout: "singleSubjectDetails",
     })),
+    visibility: "desktop" as const,
     header: {
       title: "智能体权限上限",
       badges: [
@@ -158,5 +159,14 @@ export function useAgentPermissionPolicyTab({
       ],
     },
   };
-  return { body: createPageBody([matrixSection]) };
+  return { body: createPageBody([
+    {
+      ...createStatusSection("agent-policy-mobile-boundary", {
+        kind: "empty",
+        content: "智能体权限上限需要核对完整动作矩阵，请在桌面端维护。",
+      }),
+      visibility: "mobile",
+    },
+    matrixSection,
+  ]) };
 }

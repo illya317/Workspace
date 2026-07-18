@@ -63,6 +63,12 @@ export function usePermissionsTabBody({ resources, capabilitiesByOwner, s }: Pro
           content: "加载中...",
         })]
       : []),
+    ...(s.selectedResource && !s.loading
+      ? [{ ...createMessageSection("permission-matrix-mobile-boundary", {
+          tone: "muted" as const,
+          content: "权限矩阵需要同时核对资源、主体与动作，请在桌面端维护。",
+        }), visibility: "mobile" as const }]
+      : []),
     ...(!s.loading ? [createPermissionMatrixSection({ s })] : []),
   ];
 

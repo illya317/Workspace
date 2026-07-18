@@ -96735,6 +96735,24 @@ export const generatedCoreUiSurfaceContracts = {
                   description: "类型：SurfaceToolbarItems。",
                   children: [
                     {
+                      name: "visibility",
+                      description: "可选值：always / desktop / mobile。",
+                      children: [
+                        {
+                          name: "always",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "desktop",
+                          description: "字面量取值。",
+                        },
+                        {
+                          name: "mobile",
+                          description: "字面量取值。",
+                        },
+                      ],
+                    },
+                    {
                       name: "key",
                       description: "类型：string。",
                     },
@@ -97893,24 +97911,6 @@ export const generatedCoreUiSurfaceContracts = {
                             {
                               name: "disabled",
                               description: "类型：boolean。",
-                            },
-                            {
-                              name: "visibility",
-                              description: "可选值：always / desktop / mobile。",
-                              children: [
-                                {
-                                  name: "always",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "desktop",
-                                  description: "字面量取值。",
-                                },
-                                {
-                                  name: "mobile",
-                                  description: "字面量取值。",
-                                },
-                              ],
                             },
                             {
                               name: "onClick",

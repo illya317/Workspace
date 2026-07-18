@@ -8,25 +8,26 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 
 - 每个 L2 必须在 `packages/platform/module-registry.ts` 声明 `mobileExperience.strategy`。
 - `native`：竖屏原生流程；split 由 Core 渐进为“列表全屏 -> 详情全屏 -> 返回列表”。
-- `landscape`：竖屏只展示进入横屏工作台的说明；手机横屏时内容覆盖 AppShell，保留紧凑退出栏。
+- `landscape`：竖屏只展示进入横屏工作台的说明；手机横屏时内容覆盖 AppShell，保留紧凑退出栏。只用于手机端确有完整操作价值的时间轴或画布。
 - `unavailable`：L1 的手机目录不展示入口；直接访问时只显示“手机端暂不提供”和返回动作。
+- section `visibility: "desktop"`：同一 L2 仍可在手机使用，但局部复杂 section 不提供手机入口，也不显示横屏提示；桌面数据、权限和写入协议保持不变。
 - 深路由可以用 `mobileExperience.overrides` 覆盖 L2 默认策略，例如模板列表为 `native`，模板详情编辑为 `landscape`。
 
 ## L2 audit
 
 | L1 | L2 | 策略 | 移动端任务形态 |
 |---|---|---|---|
-| 工作管理 | 工作空间 | native | 空间选择、计划列表、详情渐进 |
+| 工作管理 | 工作空间 | native | 空间选择、计划列表、详情渐进；目标/汇报表转记录列表，周期排程矩阵桌面专用 |
 | 工作管理 | 项目管理 | native | 项目列表进入单项目详情；甘特图自身进入横屏专注模式 |
 | 工作管理 | 会议管理 | native | 会议列表进入单会议详情 |
 | 人事管理 | 人事基础资料 | native | 目录、人员列表、单员工详情 |
 | 人事管理 | 绩效管理 | native | 对象选择、材料与流程详情 |
-| 人事管理 | 人力分析 | native | 指标和短列表；矩阵自动横屏 |
+| 人事管理 | 人力分析 | native | 指标、图表和短列表；交叉分析矩阵桌面专用 |
 | 行政管理 | 合同台账 | native | 合同连续列表、单合同编辑 |
 | 财务管理 | 总账会计 | native | 台账连续列表；矩阵子视图自动横屏 |
 | 财务管理 | 财务报表 | landscape | 保留科目层级、期间和金额列的横屏报表工作台 |
 | 财务管理 | 管理会计 | native | 指标、图表、短列表；矩阵自动横屏 |
-| 财务管理 | 预算管理 | native | 版本与对象渐进；月度矩阵自动横屏 |
+| 财务管理 | 预算管理 | native | 版本、筛选与汇总原生；十二个月预算矩阵桌面专用 |
 | 财务管理 | 成本管理 | native | 业务对象列表与来源追溯 |
 | 财务管理 | 税务管理 | native | 规划中入口，沿用原生信息页 |
 | 财务管理 | 司库管理 | native | 规划中入口，沿用原生信息页 |
@@ -42,19 +43,34 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 | 文档中心 | 模板编辑器 | native | 模板目录原生；`/templates/*` 详情横屏 |
 | 资料库 | 基本资料 | native | 文件连续列表进入阅读/元数据详情 |
 | 设置 | 账号与接入 | native | 分章节设置 |
-| 设置 | 系统管理 | native | 管理对象列表；权限矩阵自动横屏 |
+| 设置 | 系统管理 | native | 管理对象列表；权限矩阵与 BPMN 节点画布桌面专用 |
 | 设置 | API 接入 | native | Client/Scope 列表进入详情 |
 | 设置 | UI 组件库 | unavailable | 开发治理工具只在桌面端开放 |
 
-当前计数：26 个 L2 原生竖屏、1 个 L2 横屏、2 个 L2 手机端不开放；另有模板详情、甘特图和所有矩阵 DataSurface 的局部横屏策略。
+当前计数：26 个 L2 原生竖屏、1 个 L2 横屏、2 个 L2 手机端不开放；另有模板详情和甘特图保留局部横屏。复杂 section 独立裁剪，不再因为 DataSurface 是矩阵就默认暴露手机横屏入口。
+
+## Section-level audit
+
+| 复杂 section | 移动端策略 | 原因 |
+|---|---|---|
+| Work 目标分解、周/月汇报 | `mobile.presentation="list"` | 行本身是完整业务对象，可按标题、摘要、更多信息连续阅读 |
+| Work 周期排程矩阵 | `visibility="desktop"` | 必须同时对照目标层级、多个子周期，并在单元格内创建下级工作 |
+| Finance 十二个月预算矩阵 | `visibility="desktop"` | 需要横向核对全年 12 个月、对象维度与合计，不适合触屏逐项展开 |
+| HR 人力交叉分析矩阵 | `visibility="desktop"` | 行列维度动态变化，离开二维关系后结论失真 |
+| 系统、空间与 Agent 权限矩阵 | `visibility="desktop"` | 多资源、多动作和隐含授权状态需要同时核对，误触风险高 |
+| HR 生成花名册编辑表 | `visibility="desktop"` | 动态列、批量单元格编辑和生成预览需要桌面操作空间 |
+| Work KPI 计分卡与结果表 | `visibility="desktop"` | 多列口径、权重、目标、实际值和流程动作耦合，移动端不开放编辑 |
+| Work 周期申报规则矩阵 | `visibility="desktop"` | 周期类型与四组时间规则交叉编辑，拆成单字段会失去横向校验关系 |
+| 系统流程 BPMN 节点画布 | `visibility="desktop"` | 画布编排、分支和节点配置是桌面治理任务 |
+| QC 纸面记录 | `visibility="desktop"` | 手机使用同一 DTO 映射出的阶段目录和字段表单，纸面只用于桌面预览 |
 
 ## Table and frame rules
 
 - 普通 `DataSurface kind="table"` 在手机端使用一个连续列表容器和行分隔，不允许每行重复圆角、边框、背景和阴影。
 - 每行默认只展示第一列主标题和后两列摘要；其余字段进入“更多信息”，有 `onRowClick` 时显示 disclosure 并进入业务详情。
-- `format.kind="matrix"` 默认 `mobile.presentation="landscape"`，必须保留桌面列关系，不得转换成卡片。
+- `format.kind="matrix"` 仍默认 `mobile.presentation="landscape"` 作为安全兜底，但业务必须逐 section 判断：业务行可独立理解时显式改为 `list`；依赖二维关系且手机没有完整操作价值时在 section 上声明 `visibility="desktop"`；只有时间轴、画布等手机横屏仍可完成核心任务时保留 `landscape`。
 - 表格 section 在手机端贴合 section 边缘，外层 section 是唯一 frame；禁止 Page/Section/Table/Row 四层 frame 叠加。
-- 业务可声明 `mobile.presentation: list | landscape | unavailable`，但只决定呈现策略，不得复制数据状态或动作协议。
+- 业务可声明 `mobile.presentation: list | landscape | unavailable`，或在 section 上声明 `visibility: mobile | desktop`，但只决定呈现策略，不得复制数据状态或动作协议。
 
 ## Frontend and backend boundary
 

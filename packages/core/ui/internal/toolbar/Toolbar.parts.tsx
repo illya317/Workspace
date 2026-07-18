@@ -170,7 +170,6 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           variant={item.variant}
           disabled={item.disabled}
           onClick={item.onClick}
-          className={item.visibility === "mobile" ? "lg:!hidden" : item.visibility === "desktop" ? "!hidden lg:!inline-flex" : undefined}
           size={size}
         />
       );

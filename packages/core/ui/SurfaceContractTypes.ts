@@ -97,6 +97,7 @@ export interface SurfacePaginationSpec {
   compact?: boolean;
 }
 
+export type SurfaceToolbarVisibility = "always" | "mobile" | "desktop";
 export type SurfaceToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
 export type SurfaceToolbarActionSemanticKey =
   | "apiUse"
@@ -138,7 +139,6 @@ export interface SurfaceToolbarPanelToggleItem {
   label: string;
   variant?: "primary" | "secondary";
   disabled?: boolean;
-  visibility?: "always" | "mobile" | "desktop";
   onClick?: () => void;
 }
 
@@ -353,7 +353,9 @@ export interface SurfaceToolbarCreateItem {
   onClick: () => void;
 }
 
-export type SurfaceToolbarItem =
+export type SurfaceToolbarItem = {
+  visibility?: SurfaceToolbarVisibility;
+} & (
   | SurfaceToolbarIconButtonItem
   | SurfaceToolbarPanelToggleItem
   | SurfaceToolbarSearchItem
@@ -370,6 +372,7 @@ export type SurfaceToolbarItem =
   | SurfaceToolbarMenuItem
   | SurfaceToolbarActionGroupItem
   | SurfaceToolbarEditGroupItem
-  | SurfaceToolbarCreateItem;
+  | SurfaceToolbarCreateItem
+);
 
 export type SurfaceToolbarItems = SurfaceToolbarItem[];

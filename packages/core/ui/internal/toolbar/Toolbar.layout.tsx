@@ -9,14 +9,18 @@ import {
   ToolbarItemRenderer,
 } from "./Toolbar.parts";
 import { inferZone, resolveSection } from "./Toolbar.sections";
-import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarZoneKey } from "./Toolbar.types";
+import { filterToolbarItemsByViewport } from "./toolbar-item-visibility";
+import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarVisibility, ToolbarZoneKey } from "./Toolbar.types";
 
 export const SECTION_ORDER: ToolbarSection[] = ["primary", "search", "filter", "edit", "action", "meta", "view"];
 
 type SectionWithItems = { key: ToolbarSection; items: ToolbarItem[] };
 export type ToolbarGroupedItems = Record<ToolbarZoneKey, ToolbarItem[]>;
 
-export function groupToolbarItems(items: ToolbarItem[]): ToolbarGroupedItems {
+export function groupToolbarItems(
+  items: ToolbarItem[],
+  viewport?: Exclude<ToolbarVisibility, "always">,
+): ToolbarGroupedItems {
   const result: ToolbarGroupedItems = {
     lead: [],
     search: [],
@@ -24,7 +28,7 @@ export function groupToolbarItems(items: ToolbarItem[]): ToolbarGroupedItems {
     actions: [],
     trailing: [],
   };
-  for (const item of items) {
+  for (const item of filterToolbarItemsByViewport(items, viewport)) {
     result[inferZone(item)].push(item);
   }
   return result;

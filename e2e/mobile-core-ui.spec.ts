@@ -9,7 +9,7 @@ test.use({
 test.describe.configure({ mode: "serial", retries: 0 });
 
 for (const width of [360, 375, 390]) {
-  test(`${width}px：工作视图可完整切换，工具栏纯图标，周报矩阵进入横屏工作台`, async ({ page }) => {
+  test(`${width}px：工作视图可完整切换，工具栏纯图标，周报使用移动端记录列表`, async ({ page }) => {
     await page.setViewportSize({ width, height: 844 });
     await mockWorkReports(page);
 
@@ -95,17 +95,16 @@ for (const width of [360, 375, 390]) {
     await page.getByRole("button", { name: "07-13 周 当前 2026-07-13 - 2026-07-19", exact: true }).click();
     await expect(page.getByRole("heading", { name: "周度工作汇报", exact: true })).toBeVisible();
 
-    await expect(page.getByRole("heading", { name: "横屏使用数据矩阵", exact: true })).toBeVisible();
-    await expect(page.getByRole("button", { name: "进入横屏工作台", exact: true })).toBeVisible();
-    await page.setViewportSize({ width: 844, height: width });
-
+    await expect(page.locator('[data-mobile-experience="landscape"]')).toHaveCount(0);
+    await expect(page.locator('[data-mobile-table-presentation="list"]:visible').filter({ hasText: "提高移动端信息可读性" })).toBeVisible();
     await expect(page.getByText("提高移动端信息可读性", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("本周完成情况", { exact: true }).first()).toBeVisible();
-    await expect(page.getByText("关键结果", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("修复栏目文字裁切", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("下周计划", { exact: true }).first()).toBeVisible();
     await expect(page.getByText("验证 360–390px 触控流程", { exact: true }).first()).toBeVisible();
-    await expect(page.locator("table:visible")).toHaveCount(1);
+    await page.getByText("更多信息", { exact: true }).first().click();
+    await expect(page.getByText("关键结果", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("table:visible")).toHaveCount(0);
     const saveAction = page.getByRole("button", { name: "保存快照", exact: true });
     await expect(saveAction).toBeEnabled();
     await saveAction.click();
@@ -175,6 +174,34 @@ test("移动端页面助手使用全屏会话而不是悬浮卡片", async ({ pa
   const closeBox = await close.boundingBox();
   expect(closeBox?.x).toBeLessThanOrEqual(16);
   expect(closeBox?.width).toBeGreaterThanOrEqual(44);
+});
+
+test("desktop-only section 在触屏横屏下仍保持隐藏", async ({ browser }, testInfo) => {
+  const context = await browser.newContext({
+    baseURL: String(testInfo.project.use.baseURL),
+    hasTouch: true,
+    isMobile: true,
+    storageState: E2E_ADMIN_STORAGE_STATE,
+    viewport: { width: 844, height: 390 },
+  });
+  try {
+    const page = await context.newPage();
+    await page.goto("/workspace/login");
+    const state = await page.evaluate(() => {
+      const desktopOnly = document.createElement("div");
+      desktopOnly.className = "body-surface-desktop-only";
+      desktopOnly.textContent = "desktop only";
+      document.body.append(desktopOnly);
+      return {
+        coarse: window.matchMedia("(pointer: coarse)").matches,
+        display: getComputedStyle(desktopOnly).display,
+        landscape: window.matchMedia("(orientation: landscape)").matches,
+      };
+    });
+    expect(state).toEqual({ coarse: true, display: "none", landscape: true });
+  } finally {
+    await context.close();
+  }
 });
 
 async function mockWorkReports(page: import("@playwright/test").Page) {

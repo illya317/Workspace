@@ -61,6 +61,14 @@ textarea::placeholder {
 }
 
 @media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
+  .body-surface-desktop-only {
+    display: none;
+  }
+
+  .body-surface-mobile-only {
+    display: block;
+  }
+
   .mobile-experience-landscape-content {
     position: fixed;
     inset: 0;

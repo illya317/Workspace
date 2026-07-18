@@ -15,6 +15,7 @@ import { BodySurfaceList } from "./internal/body/BodySurfaceList";
 import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
 import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import { BodySurfaceRevealProvider } from "./internal/body/BodySurfaceRevealContext";
+import { sectionVisibilityClassName } from "./internal/body/body-surface-visibility";
 import { CreateSurfaceAnchorProvider, CreateSurfaceAnchorTarget } from "./internal/create/CreateSurfaceAnchorContext";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
 import { joinClassNames } from "./internal/common/card-utils";
@@ -29,7 +30,6 @@ import type {
   BodySurfaceSectionGridColumns,
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
-  BodySurfaceSectionVisibility,
   BodySurfaceSplitSectionProps,
 } from "./BodySurface.types";
 
@@ -43,12 +43,6 @@ function renderBodyList(list?: BodySurfaceListSpec) {
 }
 
 const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrome => section.chrome ?? (section.framed === false ? "plain" : "card");
-
-function sectionVisibilityClassName(visibility: BodySurfaceSectionVisibility | undefined) {
-  if (visibility === "mobile") return "sm:hidden";
-  if (visibility === "desktop") return "max-sm:hidden";
-  return "";
-}
 
 function renderSectionHeader(
   section: BodySurfaceSectionSpec,

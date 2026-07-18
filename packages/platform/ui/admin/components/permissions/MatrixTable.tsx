@@ -99,6 +99,7 @@ export function createPermissionMatrixSection({ s }: MatrixTableProps): BodySurf
   const subjectColumnLabel = s.subjectType === "user" ? "姓名" : s.subjectType === "position" ? "岗位" : "部门";
   return {
     key: "permission-matrix",
+    visibility: "desktop",
     body: { kind: "data", data: createPermissionActionMatrixSurface({
       subjects: s.subjects,
       subjectColumnLabel,
