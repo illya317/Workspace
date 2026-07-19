@@ -168,7 +168,7 @@ export function responsibilityFrameSectionSpec({
 }: ResponsibilityFrameSectionOptions): BodySurfaceSectionSpec {
   const key = sectionKey ?? fieldOptions.key;
   return createPanelSection(key, {
-    title: sectionTitle ?? fieldOptions.title,
+    title: sectionTitle,
     chrome,
     framed,
     sections: [

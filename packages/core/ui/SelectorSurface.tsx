@@ -202,13 +202,13 @@ function ListSelector<T>({ selector, actions }: {
       }
       groups.get(group)!.push(item);
     }
-    if (order.length === 1 && order[0] === "") return <div className="space-y-2">{renderStructuredItems(selector.items)}</div>;
+    if (order.length === 1 && order[0] === "") return <div className="space-y-2 max-sm:space-y-0 max-sm:divide-y max-sm:divide-slate-100">{renderStructuredItems(selector.items)}</div>;
     return (
       <div className="space-y-3">
         {order.map((group) => (
           <div key={group} className="space-y-2">
             {group ? <div className="px-1 text-xs font-semibold leading-5 text-slate-500">{group}</div> : null}
-            <div className="space-y-2">{renderStructuredItems(groups.get(group)!)}</div>
+            <div className="space-y-2 max-sm:space-y-0 max-sm:divide-y max-sm:divide-slate-100">{renderStructuredItems(groups.get(group)!)}</div>
           </div>
         ))}
       </div>
@@ -343,7 +343,7 @@ function TreeSelector<T>({ selector, actions }: {
       ) : selector.items.length === 0 ? (
         <EmptyStateCard compact>{selector.emptyText ?? "暂无数据"}</EmptyStateCard>
       ) : (
-        <div className="overflow-hidden rounded-lg border border-slate-200 bg-white">{renderRows(rootItems, 1)}</div>
+        <div className="overflow-hidden">{renderRows(rootItems, 1)}</div>
       )}
     </>
   );

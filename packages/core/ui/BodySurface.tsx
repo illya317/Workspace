@@ -18,6 +18,7 @@ import { BodySurfaceRevealProvider } from "./internal/body/BodySurfaceRevealCont
 import { sectionVisibilityClassName } from "./internal/body/body-surface-visibility";
 import { CreateSurfaceAnchorProvider, CreateSurfaceAnchorTarget } from "./internal/create/CreateSurfaceAnchorContext";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
+import { SurfaceFrameBoundary, useSurfaceFrameDepth } from "./internal/common/SurfaceFrameContextParts";
 import { joinClassNames } from "./internal/common/card-utils";
 import { renderCommands } from "./internal/page/PageSurface.commands";
 import { ActionGlyph } from "./internal/action/ActionGlyphs";
@@ -111,7 +112,7 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
   ));
 }
 
-function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition) {
+function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition, frameDepth = 0) {
   if (section.body.kind === "create" && section.body.create.presentation === "inline") return null;
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
@@ -123,8 +124,9 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   const mobileFlushData = chrome === "card"
     && section.body.kind === "data"
     && (section.body.data.kind === "table" || section.body.data.kind === "structured");
+  const nestedCard = chrome === "card" && frameDepth > 0;
   const sectionClassName = joinClassNames(
-    chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4",
+    chrome === "card" ? sectionCardClassName(stackPosition, nestedCard) : "space-y-4",
     chrome === "plain" && section.header?.title ? "pt-2" : "",
     mobileFlushData ? "max-sm:!space-y-0 max-sm:!p-0" : "",
     stretchClassName,
@@ -138,10 +140,14 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
       className={joinClassNames(stretchClassName, sectionVisibilityClassName(section.visibility))}
       visibility={section.visibility}
     >
-      <section className={sectionClassName}>
+      <section className={sectionClassName} data-surface-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}>
         {mobileFlushData && header ? <div className="px-3 pb-3 pt-3">{header}</div> : header}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
-        {!section.disclosure || section.disclosure.expanded ? <BodySurface {...section.body} /> : null}
+        {!section.disclosure || section.disclosure.expanded ? (
+          <SurfaceFrameBoundary framed={chrome === "card"}>
+            <BodySurface {...section.body} />
+          </SurfaceFrameBoundary>
+        ) : null}
       </section>
     </BodySurfaceSectionFrame>
   );
@@ -225,10 +231,11 @@ function MobileSectionDrilldown({ sections }: { sections: BodySurfaceSectionSpec
 }
 
 function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, leadingCardSegment = false, mobilePresentation = "stack" }: { sections?: BodySurfaceSectionSpec[]; layout?: "stack" | "grid"; gridColumns?: BodySurfaceSectionGridColumns; leadingCardSegment?: boolean; mobilePresentation?: "stack" | "drilldown" }) {
+  const frameDepth = useSurfaceFrameDepth();
   if (!sections?.length) return null;
   if (layout === "grid") {
     const gridClassName = gridColumns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2";
-    return <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true))}</div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>;
+    return <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true, undefined, frameDepth))}</div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>;
   }
   const canDrillDown = mobilePresentation === "drilldown"
     && sections.length > 1
@@ -237,7 +244,7 @@ function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, 
     <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider>
       {canDrillDown ? <MobileSectionDrilldown sections={sections} /> : null}
       <div className={`${PAGE_SURFACE_BODY_SECTION_STACK_CLASS} ${canDrillDown ? "max-sm:hidden" : ""}`}>
-        {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, leadingCardSegment)))}
+        {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, leadingCardSegment), frameDepth))}
       </div>
     </BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
   );

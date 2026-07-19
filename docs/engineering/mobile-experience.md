@@ -64,7 +64,12 @@ Workspace 的移动端不是桌面页面的缩小版。紧凑屏幕用“时间�
 | 系统流程 BPMN 节点画布 | `visibility="desktop"` | 画布编排、分支和节点配置是桌面治理任务 |
 | QC 纸面记录 | `visibility="desktop"` | 手机使用同一 DTO 映射出的阶段目录和字段表单，纸面只用于桌面预览 |
 
-## Table and frame rules
+## Surface and frame rules
+
+- 一个视觉层级只允许一个主要 frame：页面内容由顶层 Body section 承担边界；嵌套 Body/Form section 不再重复圆角、全边框、背景和阴影，改用标题、留白和相邻 section 分隔线。
+- repeatable 表单是连续编辑列表：条目之间使用分隔线，单条职责、联系人、规则等不得再套独立卡片；输入控件自身边框仍保留，用于表达可编辑性和焦点。
+- Selector 由外层目录 surface 承担边界，内部树/列表使用连续行和选中态，不再形成 `Panel/List/Row` 三层卡片。
+- Modal、横屏工作台、导航目录、可点击业务卡片和必须表达二维边界的数据矩阵可以拥有独立 frame；这些语义边界不得因“减少边框”而消失。
 
 - 普通 `DataSurface kind="table"` 在手机端使用一个连续列表容器和行分隔，不允许每行重复圆角、边框、背景和阴影。
 - 每行默认只展示第一列主标题和后两列摘要；其余字段进入“更多信息”，有 `onRowClick` 时显示 disclosure 并进入业务详情。

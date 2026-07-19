@@ -5,8 +5,9 @@ import type { BodySurfaceListItemSpec, BodySurfaceListSpec, BodySurfaceSectionSp
 import { renderBodyEmpty, renderSectionBadges } from "./BodySurfaceBlocks";
 import { joinClassNames } from "../common/card-utils";
 import { renderCommands } from "../page/PageSurface.commands";
+import { useSurfaceFrameDepth } from "../common/SurfaceFrameContextParts";
 
-function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurfaceListSpec["presentation"] = "list") {
+function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurfaceListSpec["presentation"] = "list", nestedInFrame = false) {
   const toneClass =
     item.tone === "success"
       ? "bg-emerald-50/60"
@@ -20,7 +21,7 @@ function listItemClassName(item: BodySurfaceListItemSpec, presentation: BodySurf
               ? "bg-slate-50"
               : "bg-white";
   return joinClassNames(
-    presentation === "cards" ? "rounded-lg border px-3 py-3 shadow-sm" : "px-4 py-3",
+    presentation === "cards" ? "rounded-lg border px-3 py-3 shadow-sm" : nestedInFrame ? "py-3" : "px-4 py-3",
     "transition",
     item.onClick ? "cursor-pointer hover:bg-emerald-50/40 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-emerald-100" : "",
     presentation === "cards" && item.tone !== "success" ? toneClass.replace("bg-white", "bg-white hover:border-slate-300") : toneClass,
@@ -34,6 +35,7 @@ export function BodySurfaceList({
   list: BodySurfaceListSpec;
   renderSections: (sections: BodySurfaceSectionSpec[]) => ReactNode;
 }) {
+  const nestedInFrame = useSurfaceFrameDepth() > 0;
   if (list.items.length === 0) return renderBodyEmpty(list.empty ?? { content: "暂无数据", compact: true });
   const titleClassName = (item: BodySurfaceListItemSpec) => joinClassNames(
     "min-w-0 text-left text-sm",
@@ -41,12 +43,12 @@ export function BodySurfaceList({
     item.onClick ? "hover:text-emerald-700" : "",
   );
   return (
-    <div className={list.presentation === "cards" ? "space-y-2" : "overflow-hidden rounded-md border border-slate-100 bg-white"}>
+    <div className={list.presentation === "cards" ? "space-y-2" : nestedInFrame ? "" : "overflow-hidden rounded-md border border-slate-100 bg-white"} data-body-list-frame={list.presentation === "list" ? (nestedInFrame ? "nested" : "primary") : undefined}>
       <div className={list.presentation === "cards" ? "space-y-2" : "divide-y divide-slate-100"}>
         {list.items.map((item) => (
           <div
             key={item.key}
-            className={listItemClassName(item, list.presentation)}
+            className={listItemClassName(item, list.presentation, nestedInFrame)}
             role={item.onClick ? "button" : undefined}
             tabIndex={item.onClick ? 0 : undefined}
             onClick={item.onClick}

@@ -40,6 +40,7 @@ function formSectionChrome<T>(field: FormSurfaceSectionSpec<T>): FormSurfaceSect
 function renderGridItem<T>(
   field: FormSurfaceItemSpec<T>,
   layout: ResolvedFormLayout,
+  insideFrame = false,
 ): ReactNode {
   if (field.kind === "note") {
     return <FieldGrid.Note key={field.key}>{field.content}</FieldGrid.Note>;
@@ -50,6 +51,7 @@ function renderGridItem<T>(
   if (field.kind === "section") {
     const sectionLayout = resolveLayout("fields", { ...layout, ...field.layout });
     const chrome = formSectionChrome(field);
+    const nestedCard = chrome === "card" && insideFrame;
     const header = (field.title || field.subtitle || field.actions?.length) ? (
       <div className={`flex items-start justify-between gap-3 ${chrome === "divider" ? "border-b border-slate-200 pb-3" : ""}`}>
         <div className="min-w-0">
@@ -63,12 +65,15 @@ function renderGridItem<T>(
       <section
         key={field.key}
         className={chrome === "card"
-          ? "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"
+          ? nestedCard
+            ? "col-span-full space-y-4"
+            : "col-span-full space-y-4 rounded-md border border-slate-200 bg-white p-4 shadow-sm"
           : "col-span-full space-y-4"}
+        data-form-section-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}
       >
         {header}
         <FieldGrid columns={sectionLayout.columns} mode={sectionLayout.mode}>
-          {field.items.map((item) => renderGridItem(item, sectionLayout))}
+          {field.items.map((item) => renderGridItem(item, sectionLayout, insideFrame || chrome === "card"))}
         </FieldGrid>
       </section>
     );
@@ -166,11 +171,11 @@ function RepeatableGridItem<T>({
         </div>
       )}
       {field.items.length === 0 ? (
-        <div className="rounded-md border border-dashed border-slate-200 px-3 py-4 text-center text-sm text-slate-400">{field.empty ?? "暂无数据"}</div>
+        <div className="py-4 text-center text-sm text-slate-400">{field.empty ?? "暂无数据"}</div>
       ) : (
-        <div className="space-y-3">
+        <div className="divide-y divide-slate-100" data-form-repeatable-list="true">
           {field.items.map((item, index) => (
-            <div key={item.key} ref={itemRef(item, index)} className="rounded-md border border-slate-200 p-3">
+            <div key={item.key} ref={itemRef(item, index)} className="py-4 first:pt-0 last:pb-0" data-form-repeatable-item="true">
               {(item.title || item.subtitle || item.actions?.length) && (
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div className="min-w-0">
@@ -209,7 +214,7 @@ function renderInlineItem<T>(field: FormSurfaceItemSpec<T>, layout: ResolvedForm
           </div>
         )}
         <FieldGrid columns={nestedLayout.columns} mode={nestedLayout.mode}>
-          {field.items.map((item) => renderGridItem(item, nestedLayout))}
+          {field.items.map((item) => renderGridItem(item, nestedLayout, false))}
         </FieldGrid>
       </div>
     );
@@ -261,12 +266,12 @@ function renderInlineRepeatableItems<T>(
   itemRef: (item: FormSurfaceRepeatableItemSpec<T>, index: number) => Ref<HTMLDivElement>,
 ) {
   if (field.items.length === 0) {
-    return <div className="rounded-md border border-dashed border-slate-200 px-3 py-3 text-center text-sm text-slate-400">{field.empty ?? "暂无数据"}</div>;
+    return <div className="py-3 text-center text-sm text-slate-400">{field.empty ?? "暂无数据"}</div>;
   }
   return (
-    <div className="space-y-2">
+    <div className="divide-y divide-slate-100" data-form-repeatable-list="true">
       {field.items.map((item, index) => (
-        <div key={item.key} ref={itemRef(item, index)} className="rounded-md border border-slate-200 p-3">
+        <div key={item.key} ref={itemRef(item, index)} className="py-3 first:pt-0 last:pb-0" data-form-repeatable-item="true">
           {(item.title || item.subtitle || item.actions?.length) && (
             <div className="mb-2 flex items-start justify-between gap-3">
               <div className="min-w-0">
@@ -292,7 +297,7 @@ function assignRef(ref: Ref<HTMLDivElement> | undefined, node: HTMLDivElement | 
   ref.current = node;
 }
 
-function renderItems<T>(props: FormSurfaceProps<T>, layout: ResolvedFormLayout, inlineCommands?: ReactNode) {
+function renderItems<T>(props: FormSurfaceProps<T>, layout: ResolvedFormLayout, inlineCommands?: ReactNode, insideFrame = false) {
   const items = props.content.items;
   if (!items.length && !inlineCommands) return null;
   if (layout.flow === "inline") {
@@ -312,12 +317,12 @@ function renderItems<T>(props: FormSurfaceProps<T>, layout: ResolvedFormLayout, 
   }
   return (
     <FieldGrid columns={layout.columns} mode={layout.mode}>
-      {items.map((field) => renderGridItem(field, layout))}
+      {items.map((field) => renderGridItem(field, layout, insideFrame))}
     </FieldGrid>
   );
 }
 
-export function renderContent<T>(props: FormSurfaceProps<T>) {
+export function renderContent<T>(props: FormSurfaceProps<T>, insideFrame = false) {
   const layout = resolveLayout(props.kind, props.content.layout);
   const commands = props.kind === "filters" ? renderCommands(props.commands) : null;
   const inlineCommands = layout.flow === "inline" && layout.commandPlacement === "inline" ? commands : undefined;
@@ -337,7 +342,7 @@ export function renderContent<T>(props: FormSurfaceProps<T>) {
   return (
     <div className="space-y-4">
       {header}
-      {renderItems(props, layout, inlineCommands)}
+      {renderItems(props, layout, inlineCommands, insideFrame)}
       {props.kind === "login" ? actions : null}
       {inlineCommands ? null : commands}
     </div>
