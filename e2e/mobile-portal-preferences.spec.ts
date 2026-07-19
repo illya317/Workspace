@@ -25,6 +25,10 @@ for (const width of [360, 375, 390]) {
     for (const fixedLabel of ["桌面", "消息", "我的"]) {
       await expect(shortcutSection.getByText(fixedLabel, { exact: true })).toBeVisible();
     }
+    await expect(cardsSection.getByRole("heading", { name: "人事基础资料", exact: true })).toBeVisible();
+    await expect(shortcutSection.getByRole("heading", { name: "模板编辑器", exact: true })).toBeVisible();
+    await expectModuleTitlesFit(cardsSection);
+    await expectModuleTitlesFit(shortcutSection);
 
     await cardsSection.getByRole("button").nth(2).click();
     await expect(page.getByRole("heading", { name: "选择桌面卡片 3", exact: true })).toBeVisible();
@@ -102,14 +106,21 @@ async function mockPortalSlots(page: import("@playwright/test").Page) {
       json: {
         slots: [
           { key: "work", pinned: false },
-          { key: "work.tasks", pinned: false },
+          { key: "hr.roster", pinned: false },
           ...Array.from({ length: 10 }, () => ({ key: null, pinned: false })),
-          { key: "work.tasks", pinned: true },
-          { key: "hr", pinned: true },
+          { key: "hr.roster", pinned: true },
+          { key: "docs.editor", pinned: true },
         ],
       },
     });
   });
+}
+
+async function expectModuleTitlesFit(section: import("@playwright/test").Locator) {
+  const clippedTitles = await section.locator("h3").evaluateAll((titles) => titles
+    .filter((title) => title.scrollHeight > title.clientHeight + 1 || title.scrollWidth > title.clientWidth + 1)
+    .map((title) => title.textContent?.trim() ?? ""));
+  expect(clippedTitles).toEqual([]);
 }
 
 async function expectGridColumns(page: import("@playwright/test").Page, count: number) {

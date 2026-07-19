@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import PageContent from "../page/PageContent";
 import { joinClassNames } from "./card-utils";
-import { getToolbarActionClassName } from "../toolbar/toolbar-styles";
 
 export type ModuleCardColor = "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange" | string;
 
@@ -114,7 +113,10 @@ export function ModuleCard({
       <button
         type="button"
         onClick={onClick}
-        className={[getToolbarActionClassName(), `${mergedClassName} border-0 text-inherit`].filter(Boolean).join(" ")}
+        className={joinClassNames(
+          mergedClassName,
+          "appearance-none border-0 text-inherit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2",
+        )}
       >
         {body}
       </button>
