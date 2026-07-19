@@ -1,17 +1,37 @@
 import type { NextConfig } from "next";
+import { execFileSync } from "node:child_process";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH || "/workspace";
 const projectRoot = path.dirname(fileURLToPath(import.meta.url));
 const workspaceRoot = path.dirname(projectRoot);
+
+function resolveLocalBuildVersion() {
+  try {
+    const commitSha = execFileSync("git", ["rev-parse", "HEAD"], {
+      cwd: projectRoot,
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+
+    if (/^[0-9a-f]{40}$/.test(commitSha)) {
+      return `local-${commitSha}`;
+    }
+  } catch {
+    // Source archives may not include Git metadata; keep one stable local fallback.
+  }
+
+  return "local-development";
+}
+
 const buildVersion =
   process.env.NEXT_PUBLIC_BUILD_VERSION ||
   process.env.BUILD_VERSION ||
   process.env.CNB_COMMIT_SHA ||
   process.env.GITHUB_SHA ||
   process.env.VERCEL_GIT_COMMIT_SHA ||
-  `local-${Date.now()}`;
+  resolveLocalBuildVersion();
 
 const noStoreHeaders = [
   { key: "Cache-Control", value: "no-store, no-cache, must-revalidate, proxy-revalidate" },
