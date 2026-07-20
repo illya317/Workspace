@@ -23,7 +23,6 @@ import {
   deriveActionTree,
   firstAction,
   formatDateTime,
-  matchesQuery,
   moduleDisplayName,
   type BusinessActionDto,
   type WorkflowActionTreeNode,
@@ -127,8 +126,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
 } {
   const [settings, setSettings] = useState<WorkflowPoliciesResponse | null>(null);
   const [settingsLoading, setSettingsLoading] = useState(false);
-  const [actionQuery, setActionQuery] = useState("");
-  const [requestQuery, setRequestQuery] = useState("");
+  const [query, setQuery] = useState("");
   const [moduleFilter, setModuleFilter] = useState("all");
   const [actionFilter, setActionFilter] = useState<WorkflowActionFilter>(DEFAULT_WORKFLOW_ACTION_FILTER);
   const [status, setStatus] = useState("all");
@@ -166,10 +164,9 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
   const filteredActions = useMemo(() => {
     return ledgerActions.filter((action) => {
       if (moduleFilter !== "all" && action.moduleKey !== moduleFilter) return false;
-      if (!matchesWorkflowActionFilter(action, actionFilter)) return false;
-      return !actionQuery.trim() || matchesQuery(action, actionQuery);
+      return matchesWorkflowActionFilter(action, actionFilter);
     });
-  }, [actionFilter, actionQuery, ledgerActions, moduleFilter]);
+  }, [actionFilter, ledgerActions, moduleFilter]);
 
   const selectedAction = useMemo<BusinessActionDto | null>(() => (
     filteredActions.find((action) => action.key === selectedActionKey) ?? filteredActions[0] ?? null
@@ -185,7 +182,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
 
   useEffect(() => {
     setPage(0);
-  }, [actionFilter, requestQuery, selectedAction?.key, status]);
+  }, [actionFilter, query, selectedAction?.key, status]);
 
   const ledgerNotApplicable = selectedAction?.workflowReadiness.evidence.ledgerVisibility === "not_applicable";
 
@@ -203,7 +200,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
       params.set("page", String(page));
       params.set("pageSize", String(pageSize));
       if (status !== "all") params.set("status", status);
-      if (requestQuery.trim()) params.set("query", requestQuery.trim());
+      if (query.trim()) params.set("query", query.trim());
       try {
         const response = await fetch(workspacePath(`/api/settings/admin/workflow-ledger?${params.toString()}`), { signal: controller.signal });
         if (!response.ok) {
@@ -217,7 +214,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
     }
     void loadLedger();
     return () => controller.abort();
-  }, [enabled, page, pageSize, requestQuery, selectedAction, showToast, status]);
+  }, [enabled, page, pageSize, query, selectedAction, showToast, status]);
 
   const moduleOptions = useMemo(() => {
     const modules = new Map<string, string>();
@@ -294,19 +291,11 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
   const toolbarItems: SurfaceToolbarItem[] = [
     {
       kind: "search",
-      key: "workflow-ledger-action-search",
-      value: actionQuery,
-      onChange: setActionQuery,
-      placeholder: "搜索行为/资源",
-      ariaLabel: "搜索流程行为",
-    },
-    {
-      kind: "search",
-      key: "workflow-ledger-request-search",
-      value: requestQuery,
-      onChange: setRequestQuery,
+      key: "workflow-ledger-search",
+      value: query,
+      onChange: setQuery,
       placeholder: "搜索记录",
-      ariaLabel: "搜索流程记录",
+      ariaLabel: "搜索流程台账",
     },
     {
       kind: "option-group",
@@ -316,6 +305,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
       options: moduleOptions,
       onChange: setModuleFilter,
       ariaLabel: "筛选流程台账模块",
+      presentation: "accordion",
     },
     {
       kind: "option-group",
@@ -325,6 +315,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
       options: WORKFLOW_ACTION_FILTER_OPTIONS,
       onChange: (value) => setActionFilter(value as WorkflowActionFilter),
       ariaLabel: "筛选流程台账类型",
+      presentation: "accordion",
     },
     {
       kind: "option-group",
@@ -334,6 +325,7 @@ export function useWorkflowLedgerTab({ enabled, showToast }: UseWorkflowLedgerTa
       options: ["all", "draft", "submitted", "approved", "rejected", "withdrawn", "cancelled"].map((value) => ({ value, label: STATUS_LABEL[value] ?? value })),
       onChange: setStatus,
       ariaLabel: "筛选流程状态",
+      presentation: "accordion",
     },
     {
       kind: "page-size",

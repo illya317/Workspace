@@ -37,7 +37,7 @@ export const core_internal_registry_entries = [
   },
   {
     name: "ToolbarOptionGroup",
-    description: "工具栏选项组",
+    description: "工具栏选项组；长筛选以边线完整的紧凑手风琴收口",
   },
   {
     name: "InlineCreatePanel",

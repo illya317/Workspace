@@ -21,6 +21,7 @@ export type BusinessToolbarCompositionWarning = {
     | "embedded-page-surface-toolbar"
     | "inline-form-surface-toolbar"
     | "flex-control-toolbar"
+    | "multiple-search-items"
     | "nonstandard-column-visibility-control"
     | "domain-toolbar-registration";
   detail: string;
@@ -266,6 +267,19 @@ export function findBusinessToolbarCompositionWarnings(files: SourceInfo[]) {
 
       if (ts.isJsxElement(node) && looksLikeFlexControlToolbar(node, file.sourceFile)) {
         addToolbarCompositionWarning(warnings, file, "flex-control-toolbar", node, "flex/grid container groups page controls");
+      }
+
+      if (ts.isArrayLiteralExpression(node)) {
+        const searchCount = node.elements.filter((element) => (
+          ts.isObjectLiteralExpression(element) && objectStringProperty(element, "kind") === "search"
+        )).length;
+        if (searchCount > 1) {
+          warnings.push({
+            file: file.relPath,
+            kind: "multiple-search-items",
+            detail: `Toolbar item array declares ${searchCount} search items at line ${objectLine(file.sourceFile, node)}; merge them into one page search`,
+          });
+        }
       }
 
       if (ts.isFunctionDeclaration(node) && node.name && looksLikeDomainToolbarRegistrationName(node.name.text)) {

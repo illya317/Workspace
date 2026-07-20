@@ -179,7 +179,7 @@ export function usePermissionLedgerTab({ enabled, showToast }: UsePermissionLedg
         setQuery(value);
         setPage(0);
       },
-      placeholder: "搜索对象/资源/范围",
+      placeholder: "搜索记录",
       ariaLabel: "搜索权限台账",
     },
     {
@@ -193,6 +193,7 @@ export function usePermissionLedgerTab({ enabled, showToast }: UsePermissionLedg
         setPage(0);
       },
       ariaLabel: "筛选操作",
+      presentation: "accordion",
     },
     {
       kind: "option-group",
@@ -205,6 +206,7 @@ export function usePermissionLedgerTab({ enabled, showToast }: UsePermissionLedg
         setPage(0);
       },
       ariaLabel: "筛选授权对象",
+      presentation: "accordion",
     },
     {
       kind: "page-size",

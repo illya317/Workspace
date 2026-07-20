@@ -49,7 +49,8 @@
 - Toolbar action spec 选择受控动作语义或 icon；根 `FormSurfaceActionSpec` 只声明 `key / action / label / disabled / onClick`，不允许声明 icon、variant、size、位置和排序。两者都不 runtime import `Toolbar` / `ActionButton`，也不手排顺序和分组；Core 按 `ACTION_GLYPH_ORDER.order` 自动排序。
 - 非默认动作默认从 `edit` 区开始，和编辑动作混排。`view/search/filter/meta` 只承载视图切换、搜索、筛选、字段、列显隐和计数等默认控件。
 - Toolbar 不支持 `custom` item。能表达为 `search`、`select`、`option-group`、`field-filter`、`column-toggle`、`page-size`、`text`、`create`、`action-group`、`edit-group` 的，必须使用标准 item；不够表达时扩展 Core `Toolbar` Page API。
-- Toolbar 内的 `option-group` 默认是 Toolbar 专用 micro 手风琴：默认折叠，母按钮显示字段名或当前具体值，展开后点子选项自动收起。
+- 每个 Toolbar 最多一个 `search`，且桌面端使用 Core 固定短宽度；字段级文本条件改用 `field-filter`，不得并排堆多个搜索框。
+- Toolbar 内的 `option-group` 默认是 Toolbar 专用 micro 手风琴：默认折叠，母按钮显示字段名或当前具体值，展开后点子选项自动收起；满高母按钮不得盖住父容器边线。
 - 当前页面内部视图的平级 tab 切换必须用 `TabBar`，不要塞进 Toolbar；但 L1/L2 模块列表不属于 `TabBar`，应由 route/module 层或模块入口卡片承载。Toolbar 的 `option-group` 表达筛选，不表达主视图切换。
 - 列显隐统一用 `column-toggle` 内部的 `SearchableOptionInput multiple summaryMode="count"`，触发器显示 `已选数/总数`，例如 `2/4`。
 - 标准新建只声明 `CreateSurface`：`trigger` 决定 `+` 在 Page Toolbar 或所属 Surface，`presentation` 决定 inline/block/modal，`anchor` 只决定普通 block 的跨区 target，`content` 决定单 form 或多 sections。inline 固定为 Page toolbar + 单 form + 无 anchor；`BodySurfaceSectionHeaderSpec.create` 的局部 block 不接受 anchor，Core 固定按 `section header -> create block -> section body` 排布。业务侧显式 Page toolbar、手工 Selector/Section/Data 新建入口或局部 create anchor 已禁止。

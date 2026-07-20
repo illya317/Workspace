@@ -63,6 +63,7 @@ primary -> search -> filter -> edit/action -> meta/view
 
 - `create` 自动进入 `primary`。
 - `search` 自动进入搜索区。
+- 每个 Toolbar 只允许一个 `search`；需要多条件时合并为页面级搜索，或把字段条件声明为 `field-filter` 等结构化筛选。Core runtime 与 architecture gate 都会阻断多个 `search`。
 - `select`、`grouped-select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
 - `icon-button`、`action-group`、`edit-group` 自动进入动作区。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
@@ -104,6 +105,7 @@ Micro accordion 交互规则：
 - 点母按钮会选回默认/全部，并展开或收起。
 - 展开后右侧显示子选项；点子选项后自动收起。
 - 展开和折叠时控件高度必须保持一致，不能发生上下位移。
+- `segmented` 通过容器 padding 让子按钮避开边框；`accordion` 即使使用满高母按钮也不得覆盖父容器边框，四边边线必须连续。
 - micro accordion 选中态使用白底绿字，避免数字/弱文本在绿底上看不清。
 
 普通 `ToolbarOptionGroup` 独立使用时默认仍是 `segmented`；Toolbar 内部通过 `ToolbarItem kind="option-group"` 自动在短筛选平铺和 micro accordion 之间选择。
@@ -143,7 +145,7 @@ Toolbar 承载工具、筛选、动作和元信息；TabBar 承载页面内平�
 
 ## 8. 移动端自适应
 
-- 桌面端继续按 `primary -> search -> filter -> edit/action -> meta/view` 自动分区；移动端不把这些分区简单换行成长条。
+- 桌面端继续按 `primary -> search -> filter -> edit/action -> meta/view` 自动分区；唯一搜索框固定为 180px，业务页不得拉伸或自行覆盖长度；移动端搜索才允许占满可用宽度，且不把这些分区简单换行成长条。
 - 桌面端和移动端 Toolbar 动作统一只显示 `ActionGlyph`，文案只保留为 `aria-label/title`；新增入口固定显示 `+`，不在图标旁重复显示“新增/新建”。
 - 移动端搜索独占一行；创建和最高优先级动作以纯图标保留在命令坞，筛选进入“筛选条件”底部面板，其余动作与列显隐、条/页等进入“更多操作”。
 - 移动端命令坞最多保留 3 个语义优先级最高的页面命令，再加“筛选 / 更多”入口；禁止横向滚动或换行形成第二条工具栏。面板内动作改用带明确文案的纵向命令行，Toolbar 本体仍保持纯图标。

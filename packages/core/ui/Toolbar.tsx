@@ -47,6 +47,7 @@ export function Toolbar({
   onSubmit,
   defaultAssistant,
 }: ToolbarProps) {
+  assertSingleSearchItem(items);
   const size = "md";
   const layoutMode = "auto";
   const gapClass = TOOLBAR_GAP[size];
@@ -128,4 +129,11 @@ function hasAssistantItem(items: ToolbarProps["items"]) {
     if (item.kind !== "action-group") return item.key === "assistant";
     return item.key === "assistant" || item.actions.some((action) => action.kind === "assistant" || action.key === "assistant");
   });
+}
+
+function assertSingleSearchItem(items: ToolbarProps["items"]) {
+  const searchCount = items.filter((item) => item.kind === "search").length;
+  if (searchCount > 1) {
+    throw new Error("Toolbar 只允许声明一个 search；请合并为页面级搜索或改用结构化筛选。");
+  }
 }

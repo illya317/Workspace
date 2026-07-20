@@ -140,7 +140,7 @@ export function CompactToolbarContent({
       <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
         <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} className="shrink-0" />
         {hasLead && hasSearchOrFilter && <ToolbarDivider />}
-        <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink" />
+        <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink-0" />
         <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} className="shrink" />
         {hasSearchOrFilter && hasActions && <ToolbarDivider />}
         <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
@@ -190,7 +190,7 @@ function SplitToolbarContent({
       </div>
       <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-wrap max-sm:gap-2">
         <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
-          <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink" />
+          <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink-0" />
           {hasSearch && hasActions && <ToolbarDivider />}
           <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
         </div>

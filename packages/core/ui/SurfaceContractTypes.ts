@@ -375,4 +375,5 @@ export type SurfaceToolbarItem = {
   | SurfaceToolbarCreateItem
 );
 
+/** Core runtime and architecture gates allow at most one `search` item per Toolbar. */
 export type SurfaceToolbarItems = SurfaceToolbarItem[];

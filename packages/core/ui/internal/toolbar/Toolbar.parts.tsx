@@ -135,6 +135,7 @@ export function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
 }
 
 const TOOLBAR_FIXED_CHOICE_WIDTH_CLASS = "w-full min-w-0 max-w-none sm:w-[120px] sm:min-w-[120px] sm:max-w-[120px]";
+const TOOLBAR_FIXED_SEARCH_WIDTH_CLASS = "w-full min-w-0 max-w-none sm:w-[180px] sm:min-w-[180px] sm:max-w-[180px]";
 
 function getToolbarOptionInputClassName(size: ControlSize, widthClass = CONTROL_SIZES[size].minWidth) {
   return [
@@ -187,7 +188,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           ariaLabel={ariaLabel}
           size={size}
           widthMode="fill"
-          className="w-full min-w-0 sm:w-80 sm:min-w-[18rem]"
+          className={TOOLBAR_FIXED_SEARCH_WIDTH_CLASS}
         />
       );
     }

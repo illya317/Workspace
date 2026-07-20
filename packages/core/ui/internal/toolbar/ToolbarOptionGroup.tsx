@@ -39,7 +39,7 @@ export default function ToolbarOptionGroup({
     ? joinClassNames(
         CONTROL_GROUP_SIZES[size].containerHeight,
         CONTROL_GROUP_SIZES[size].containerRadius,
-        "p-0",
+        "overflow-hidden p-0",
       )
     : getControlGroupClassName(size);
   const itemClasses = getControlGroupItemClassName(size);
