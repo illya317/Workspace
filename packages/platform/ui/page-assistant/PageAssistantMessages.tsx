@@ -1,8 +1,8 @@
 import { workspacePath } from "@workspace/core/routing";
 import { ActionGlyph } from "@workspace/core/ui";
-import { useState, type RefObject } from "react";
+import { useState, type ReactNode, type RefObject } from "react";
 
-import type { AssistantMessage } from "./types";
+import type { AgentConversationStarter, AssistantMessage } from "./types";
 import { proposalDiffText } from "./types";
 
 type ResourceItem = {
@@ -92,6 +92,7 @@ type Props = {
   sending: boolean;
   busyProposalId: number | null;
   scrollRef: RefObject<HTMLDivElement | null>;
+  emptyState?: ReactNode;
   settleProposal: (messageId: string, proposalId: number, action: "confirm" | "cancel") => void | Promise<void>;
 };
 
@@ -102,17 +103,20 @@ export function PageAssistantMessages({
   busyProposalId,
   scrollRef,
   settleProposal,
+  emptyState,
 }: Props) {
   return (
     <div ref={scrollRef} className="min-h-0 flex-1 space-y-3 overflow-y-auto bg-slate-50 px-3 py-4 sm:px-4 sm:py-3">
       {messages.length === 0 ? (
-        <div className="grid min-h-full place-items-center px-8 text-center">
-          <div>
-            <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><ActionGlyph kind="assistant" className="size-6" /></div>
-            <div className="text-sm font-semibold text-slate-800">开始和页面助手对话</div>
-            <div className="mt-1 text-xs leading-5 text-slate-500">它会结合当前页面和栏目理解你的问题。</div>
+        emptyState ?? (
+          <div className="grid min-h-full place-items-center px-8 text-center">
+            <div>
+              <div className="mx-auto mb-3 grid size-12 place-items-center rounded-2xl bg-emerald-50 text-emerald-700"><ActionGlyph kind="assistant" className="size-6" /></div>
+              <div className="text-sm font-semibold text-slate-800">开始和页面助手对话</div>
+              <div className="mt-1 text-xs leading-5 text-slate-500">它会结合当前页面和栏目理解你的问题。</div>
+            </div>
           </div>
-        </div>
+        )
       ) : null}
       {messages.map((message) => (
         <article key={message.id} className={`flex ${message.role === "user" ? "justify-end" : "justify-start"}`}>
@@ -293,6 +297,64 @@ function ProposalBlock({
           {message.proposalStatus === "confirmed" ? "已确认" : "已取消"}
         </div>
       )}
+    </div>
+  );
+}
+
+/** @ui-specialized-surface Page Assistant empty state owns reusable prompt and deep-link starters. */
+export function AgentConversationEmptyState({
+  title,
+  description,
+  starters,
+  enabled,
+  disabledMessage,
+  onPrompt,
+}: {
+  title: string;
+  description: string;
+  starters: AgentConversationStarter[];
+  enabled: boolean;
+  disabledMessage: string;
+  onPrompt: (prompt: string) => void;
+}) {
+  return (
+    <div className="mx-auto flex min-h-full w-full max-w-3xl flex-col justify-center px-4 py-8 text-left sm:px-8 sm:py-12">
+      <div className="mb-5 inline-flex size-12 items-center justify-center rounded-2xl bg-emerald-950 text-emerald-100 shadow-[0_12px_30px_rgba(6,78,59,0.24)]">
+        <ActionGlyph kind="assistant" className="size-6" />
+      </div>
+      <h3 className="max-w-xl text-2xl font-semibold tracking-tight text-slate-950 sm:text-4xl">{title}</h3>
+      <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-500 sm:text-base">{enabled ? description : disabledMessage}</p>
+      {starters.length ? (
+        <div className="mt-8 grid gap-2 sm:grid-cols-2 sm:gap-3">
+          {starters.map((starter) => starter.href ? (
+            <a
+              key={starter.key}
+              href={workspacePath(starter.href)}
+              className="group rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-lg"
+            >
+              <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                {starter.label}
+                <ActionGlyph kind="link" className="size-4 text-slate-400 transition group-hover:text-emerald-600" />
+              </div>
+              <div className="mt-1.5 text-xs leading-5 text-slate-500">{starter.description}</div>
+            </a>
+          ) : (
+            <button
+              key={starter.key}
+              type="button"
+              disabled={!enabled || !starter.prompt}
+              onClick={() => starter.prompt && onPrompt(starter.prompt)}
+              className="group rounded-xl border border-slate-200 bg-white p-4 text-left transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <div className="flex items-center justify-between gap-3 text-sm font-semibold text-slate-900">
+                {starter.label}
+                <ActionGlyph kind="send" className="size-4 text-slate-400 transition group-hover:text-emerald-600" />
+              </div>
+              <div className="mt-1.5 text-xs leading-5 text-slate-500">{starter.description}</div>
+            </button>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

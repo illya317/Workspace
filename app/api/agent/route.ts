@@ -5,6 +5,7 @@
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { libraryAgentTools } from "@workspace/library/server/agent-tools";
+import { workAgentTools } from "@workspace/work/server/agent-tools";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { handleParsedAgentMessageStreamRequest, parseAgentRequest, sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   return handleParsedAgentMessageStreamRequest(
     parsed,
     user,
-    [...sourceCodeAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools],
+    [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools],
     request.signal,
   );
 }

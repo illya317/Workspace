@@ -1,5 +1,6 @@
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
+import { workAgentTools } from "@workspace/work/server/agent-tools";
 import { libraryWecomAgentTools } from "@workspace/library/server/agent-tools";
 import { libraryDeliveryReadyData } from "@workspace/library/server/agent-delivery";
 import {
@@ -17,7 +18,7 @@ export const maxDuration = 900;
 export const POST = withWecomAgentBridgeAccess(async (request, input, user) => {
   const tools = input.chatType === "group"
     ? [wecomGroupConversationTool]
-    : [...sourceCodeAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryWecomAgentTools];
+    : [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryWecomAgentTools];
   return handleParsedAgentMessageStreamRequest(
     toParsedAgentRequest(input),
     user,

@@ -1,35 +1,13 @@
 import { workspacePath } from "@workspace/core/routing";
 import { ModuleCard, ModuleGridPage } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
-import type { ReactNode } from "react";
-
-type WorkHomeCard = {
-  key: string;
-  title: string;
-  description: string;
-  href: string;
-  resourceKey: string;
-  icon: ReactNode;
-  requiresDepartmentHome?: boolean;
-};
+import { AgentConversationSurface, type AgentConversationStarter } from "@workspace/platform/ui";
 
 const workHomeIcons = {
-  department: (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 20V8.5A2.5 2.5 0 016.5 6H10V4.5A2.5 2.5 0 0112.5 2h5A2.5 2.5 0 0120 4.5V20" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M2.5 20h19M7 10h2.5M7 14h2.5M14 6h2.5M14 10h2.5M14 14h2.5" />
-    </svg>
-  ),
   project: (
     <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5h6M9 9h6M9 13h3m-7 8h14a2 2 0 002-2V7.5a2 2 0 00-.586-1.414l-3.5-3.5A2 2 0 0015.5 2H5a2 2 0 00-2 2v15a2 2 0 002 2z" />
       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15 2v4a2 2 0 002 2h4M15 17l2 2 4-5" />
-    </svg>
-  ),
-  meeting: (
-    <svg className="h-8 w-8" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 8h10M7 12h6m-8 8h14a2 2 0 002-2V7a2 2 0 00-2-2h-2.5L14 3H10L7.5 5H5a2 2 0 00-2 2v11a2 2 0 002 2z" />
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 16l2 2 5-5" />
     </svg>
   ),
   work: (
@@ -39,42 +17,6 @@ const workHomeIcons = {
   ),
 };
 
-const WORK_HOME_CARDS: WorkHomeCard[] = [
-  {
-    key: "personal",
-    title: "工作空间",
-    description: "个人、部门和项目空间里的计划与执行",
-    href: "/work/me",
-    resourceKey: "work.tasks",
-    icon: workHomeIcons.work,
-  },
-  {
-    key: "department",
-    title: "部门主页",
-    description: "部门总览、部门甘特和部门空间入口",
-    href: "/work/department",
-    resourceKey: "work.tasks",
-    icon: workHomeIcons.department,
-    requiresDepartmentHome: true,
-  },
-  {
-    key: "project",
-    title: "项目管理",
-    description: "项目总览、项目资料和成员维护",
-    href: "/work/project",
-    resourceKey: "work.projects",
-    icon: workHomeIcons.project,
-  },
-  {
-    key: "meeting",
-    title: "会议管理",
-    description: "会议、纪要、表决和决议",
-    href: "/work/meeting",
-    resourceKey: "work.meetings",
-    icon: workHomeIcons.meeting,
-  },
-];
-
 export function WorkHomePageView({
   user,
   canEnterDepartmentHome,
@@ -82,24 +24,75 @@ export function WorkHomePageView({
   user: SessionUser;
   canEnterDepartmentHome?: boolean;
 }) {
-  const visibleCards = WORK_HOME_CARDS.filter((card) => (
-    canEnter(user, card.resourceKey) && (!card.requiresDepartmentHome || canEnterDepartmentHome)
-  ));
+  const agentEnabled = user.visibleSubmitResourceKeys?.includes("agent.assistant") ?? false;
+  const starters = workAgentStarters(user, Boolean(canEnterDepartmentHome));
 
   return (
-    <ModuleGridPage title="工作管理">
-      {visibleCards.map((card) => (
-        <ModuleCard
-          key={card.key}
-          title={card.title}
-          description={card.description}
-          icon={card.icon}
-          color="emerald"
-          href={workspacePath(card.href)}
-        />
-      ))}
-    </ModuleGridPage>
+    <AgentConversationSurface
+      open
+      enabled={agentEnabled}
+      variant="workspace"
+      title="Work Agent"
+      emptyTitle="今天，想推进什么？"
+      emptyDescription="我会先读取你有权限的工作空间、目标和绩效材料，再给出可追溯的结果；任何写入都需要你确认。"
+      disabledMessage="当前账号可以继续进入原有 Work 模块，但尚未开通 Agent 助手调用权限。"
+      context={{
+        path: "/work",
+        title: "Work Agent",
+        contextLabel: "Work 智能工作台",
+        sourceContext: { navigationLabel: "Work", activeKey: "agent", activeLabel: "Agent 试点" },
+      }}
+      starters={starters}
+    />
   );
+}
+
+function workAgentStarters(user: SessionUser, canEnterDepartmentHome: boolean): AgentConversationStarter[] {
+  const starters: AgentConversationStarter[] = [];
+  if (canEnter(user, "work.tasks")) {
+    starters.push(
+      {
+        key: "work-overview",
+        label: "梳理我的重点事项",
+        description: "汇总我当前参与的空间、计划和待推进工作",
+        prompt: "请读取我有权限的 Work 工作空间，梳理当前重点事项、临近计划和需要我推进的工作，并标明信息来源。",
+      },
+      {
+        key: "weekly-summary",
+        label: "整理本周工作",
+        description: "根据目标、任务和已完成事项生成周度总结",
+        prompt: "请结合我有权限的 Work 目标、任务和完成事实，整理本周工作总结；缺少周期或事实时先向我确认，不要编造。",
+      },
+    );
+  }
+  if (canEnter(user, "work.tasks") && canEnter(user, "hr.performance")) {
+    starters.push({
+      key: "performance",
+      label: "填写本期绩效",
+      description: "先汇总 Work 证据，再起草本人绩效自评",
+      prompt: "请读取我的当前绩效周期和 Work 贡献材料，先按事实来源整理本人绩效自评草稿；不要直接提交，先让我检查。",
+    });
+  }
+  if (canEnter(user, "work.projects")) {
+    starters.push({
+      key: "projects",
+      label: "检查项目进展",
+      description: "查看我可见的项目空间和执行事项",
+      prompt: "请读取我有权限的项目与项目工作空间，概括当前项目进展、风险和需要我跟进的事项。",
+    });
+  }
+  starters.push(...workModuleLinks(user, canEnterDepartmentHome));
+  return starters;
+}
+
+function workModuleLinks(user: SessionUser, canEnterDepartmentHome: boolean): AgentConversationStarter[] {
+  return [
+    ...(canEnter(user, "work.tasks") ? [{ key: "open-workspace", label: "工作空间", description: "查看完整计划、目标、汇报和时间设置", href: "/work/me" }] : []),
+    ...(canEnter(user, "work.tasks") && canEnterDepartmentHome ? [{ key: "open-department", label: "部门主页", description: "查看部门总览和部门空间", href: "/work/department" }] : []),
+    ...(canEnter(user, "work.projects") ? [{ key: "open-project", label: "项目管理", description: "维护项目资料、成员与项目空间", href: "/work/project" }] : []),
+    ...(canEnter(user, "work.meetings") ? [{ key: "open-meeting", label: "会议管理", description: "查看会议、纪要、表决和决议", href: "/work/meeting" }] : []),
+    ...(canEnter(user, "work.tasks") && canEnter(user, "hr.performance") ? [{ key: "open-performance", label: "绩效评审", description: "查看本人绩效材料与流程状态", href: "/work/performance" }] : []),
+  ];
 }
 
 export function WorkDepartmentEntryFallback({ message }: { message: string }) {

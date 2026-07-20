@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { financeAgentTools } from "@workspace/finance/server/agent-tools";
 import { hrAgentTools } from "@workspace/hr/server/agent-tools";
 import { libraryAgentTools } from "@workspace/library/server/agent-tools";
+import { workAgentTools } from "@workspace/work/server/agent-tools";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { listAvailableAgentProfiles } from "@workspace/platform/server/agent/profile-directory";
@@ -15,6 +16,7 @@ export async function GET(request: Request) {
 
   const profiles = await listAvailableAgentProfiles(user, [
     ...sourceCodeAgentTools,
+    ...workAgentTools,
     ...hrAgentTools,
     ...financeAgentTools,
     ...libraryAgentTools,

@@ -1,4 +1,5 @@
 export { default as LoginClient } from "./LoginClient";
+export { AgentConversationSurface, type AgentConversationStarter } from "./AgentConversationSurface";
 export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { default as PortalClient } from "./PortalClient";

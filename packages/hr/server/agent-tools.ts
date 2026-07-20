@@ -20,6 +20,7 @@ import {
 import { searchAgentEmployeeDirectory } from "./agent-employee-search";
 import { queryRawEmployees } from "./roster";
 import { updateEmployeeFieldsByEmployeeIds } from "./employee-agent-updates";
+import { performanceAgentProposalExecutors, performanceAgentTools } from "./performance-agent-tools";
 
 function normalizeAgentFieldValue(field: string, value: unknown) {
   if (field === "school") {
@@ -264,10 +265,12 @@ export const hrAgentProposalExecutors: ProposalExecutors = {
     failureMayHaveSideEffects: true,
     execute: executeHrAgentProposal,
   },
+  ...performanceAgentProposalExecutors,
 };
 
 export const hrAgentTools: AgentTool[] = [
   searchEmployeesTool,
   updateEmployeeDraftTool,
   batchUpdateEmployeeDraftTool,
+  ...performanceAgentTools,
 ];

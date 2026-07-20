@@ -2,6 +2,14 @@ import type { PageAssistantOpenInput } from "@workspace/core/ui";
 
 export type AssistantRole = "user" | "agent";
 
+export type AgentConversationStarter = {
+  key: string;
+  label: string;
+  description: string;
+  prompt?: string;
+  href?: string;
+};
+
 export type AssistantProposal = {
   id: number;
   actionKey: string;
