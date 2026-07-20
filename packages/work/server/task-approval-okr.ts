@@ -31,7 +31,7 @@ export async function commitObjectivePlanApproval(
   actorUserId: number,
   submitterUserId: number,
   payload: WorkTaskObjectivePlanApprovalPayload,
-  authorization: "direct" | "workflow-approved" = "workflow-approved",
+  authorization: "direct" | "workflow-approved",
 ) {
   if (payload.data.packageOnly) return serviceOk({ entityType: "work.package", entityId: String(payload.data.packageKey || payload.planId) });
   if (Array.isArray(payload.data.kpiScorecardEntries)) {
@@ -59,7 +59,7 @@ export async function commitObjectivePlanApproval(
 export async function commitKrReviewApproval(
   actorUserId: number,
   payload: WorkTaskKrReviewApprovalPayload,
-  authorization: "direct" | "workflow-approved" = "workflow-approved",
+  authorization: "direct" | "workflow-approved",
 ) {
   if (payload.data.packageOnly) return serviceOk({ entityType: "work.package", entityId: String(payload.data.packageKey || payload.planId) });
   let kpiResult: Awaited<ReturnType<typeof commitApprovedKpiResults>> | null = null;

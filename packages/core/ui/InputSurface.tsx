@@ -17,10 +17,10 @@ import InputSurfaceChoiceRenderer, { isInputSurfaceChoiceRenderer, type InputSur
 import {
   formatInputSurfaceValue,
   inputSurfaceOptionItems,
-  inputSurfaceStateSet,
   inputMaskEditableSegment,
   inputMaskPlaceholder,
   normalizeInputSurfaceValue,
+  resolveInputSurfaceInteractionState,
   type InputSurfaceProps,
   type InputFieldSpec,
 } from "./internal/input/InputSurfaceTypes";
@@ -120,6 +120,7 @@ export function InputSurfaceRenderer({
   onFocus,
   autoFocus,
   inputRef,
+  disabled: disabledOverride,
   readOnly,
   ariaLabel,
   dataFieldKey,
@@ -148,13 +149,17 @@ export function InputSurfaceRenderer({
   ratingMax,
   showRatingLabel,
 }: InputSurfaceRendererProps) {
-  const states = inputSurfaceStateSet(spec.state);
-  if (states.has("hidden")) {
+  const interactionState = resolveInputSurfaceInteractionState(spec.state, {
+    disabled: disabledOverride,
+    readOnly,
+  });
+  if (interactionState.hidden) {
     return <input type="hidden" data-field-key={dataFieldKey} value={normalizeInputSurfaceValue(value)} readOnly />;
   }
 
-  const disabled = states.has("disabled");
-  const required = states.has("required") || spec.validation?.required;
+  const { disabled, readOnly: resolvedReadOnly, readonlyDisplay } = interactionState;
+  const interactionDisabled = disabled || resolvedReadOnly;
+  const required = interactionState.required || spec.validation?.required;
   const fieldPlaceholder = placeholder ?? inputMaskPlaceholder(spec.mask);
   const stringValue = normalizeInputSurfaceValue(value);
   const textType = type ?? (spec.control === "number" || spec.valueType === "number" ? "number" : "text");
@@ -169,7 +174,7 @@ export function InputSurfaceRenderer({
       type={textType}
       value={stringValue}
       disabled={disabled}
-      readOnly={readOnly}
+      readOnly={resolvedReadOnly}
       required={required}
       autoFocus={autoFocus}
       min={spec.validation?.min}
@@ -195,7 +200,7 @@ export function InputSurfaceRenderer({
     />
   );
 
-  if (states.has("readonly")) {
+  if (readonlyDisplay) {
     return (
       <ReadOnlyField
         value={formatInputSurfaceValue(value, spec)}
@@ -210,7 +215,7 @@ export function InputSurfaceRenderer({
     return (
       <PercentField
         value={value === null || value === undefined || value === "" ? null : Number(value)}
-        disabled={disabled}
+        disabled={interactionDisabled}
         placeholder={fieldPlaceholder}
         min={spec.validation?.min}
         max={spec.validation?.max}
@@ -224,7 +229,7 @@ export function InputSurfaceRenderer({
       <TextareaField
         value={stringValue}
         disabled={disabled}
-        readOnly={readOnly}
+        readOnly={resolvedReadOnly}
         ariaLabel={ariaLabel}
         dataFieldKey={dataFieldKey}
         title={title}
@@ -255,7 +260,7 @@ export function InputSurfaceRenderer({
           normalize: editableSegment.normalize,
           placeholder: fieldPlaceholder ?? editableSegment.placeholder,
         }}
-        disabled={disabled}
+        disabled={interactionDisabled}
         onChange={(next) => onChange?.(next)}
         size={size}
         density={density}
@@ -273,7 +278,7 @@ export function InputSurfaceRenderer({
         minDate={spec.validation?.minDate}
         maxDate={spec.validation?.maxDate}
         disabled={disabled}
-        readOnly={readOnly}
+        readOnly={resolvedReadOnly}
         title={title}
         state={fieldVisualState}
         placeholder={fieldPlaceholder}
@@ -283,11 +288,11 @@ export function InputSurfaceRenderer({
   }
 
   if (renderer === "time") {
-    return <TimeField value={stringValue} disabled={disabled} onChange={(next) => onChange?.(next)} />;
+    return <TimeField value={stringValue} disabled={disabled} readOnly={resolvedReadOnly} onChange={(next) => onChange?.(next)} />;
   }
 
   if (renderer === "checkbox") {
-    return <CheckboxField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
+    return <CheckboxField checked={Boolean(value)} disabled={interactionDisabled} onChange={(next) => onChange?.(next)} />;
   }
 
   if (renderer === "choiceGroup") {
@@ -297,7 +302,7 @@ export function InputSurfaceRenderer({
         type={choiceType ?? (spec.multiple ? "checkbox" : "radio")}
         name={choiceName}
         value={stringValue}
-        disabled={disabled}
+        disabled={interactionDisabled}
         dataFieldKey={dataFieldKey}
         onChange={(next) => onChange?.(next)}
       />
@@ -307,7 +312,7 @@ export function InputSurfaceRenderer({
   if (renderer === "file") {
     return (
       <FileField
-        disabled={disabled}
+        disabled={interactionDisabled}
         accept={accept}
         multiple={multiple ?? spec.multiple}
         variant={fileVariant}
@@ -326,7 +331,7 @@ export function InputSurfaceRenderer({
         value={value === null || value === undefined || value === "" ? 0 : Number(value)}
         label={ratingLabel ?? fieldPlaceholder ?? "评分"}
         max={ratingMax}
-        readOnly={disabled || states.has("readonly")}
+        readOnly={interactionDisabled}
         showLabel={showRatingLabel}
         onChange={(next) => onChange?.(next)}
       />
@@ -337,7 +342,7 @@ export function InputSurfaceRenderer({
     return (
       <TagStringInput
         value={stringValue}
-        disabled={disabled}
+        disabled={interactionDisabled}
         placeholder={fieldPlaceholder}
         onChange={(next) => onChange?.(next)}
         size={size}
@@ -358,7 +363,7 @@ export function InputSurfaceRenderer({
         value={value}
         displayValue={displayValue}
         stringValue={stringValue}
-        disabled={disabled}
+        disabled={interactionDisabled}
         placeholder={fieldPlaceholder}
         autocompletePresentation={autocompletePresentation}
         onChange={onChange}

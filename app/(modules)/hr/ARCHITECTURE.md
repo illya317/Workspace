@@ -108,6 +108,9 @@ roster/page.tsx
 
 `/work/performance` 由 HR-owned `packages/hr/ui/performance/EmployeePerformanceClient.tsx` 渲染，`/hr/performance` 由 `packages/hr/ui/performance/HrPerformanceClient.tsx` 渲染，route shell 只做鉴权和挂载。员工入口仍位于 Work，但绩效 API、UI 实现和正式记录保持同一 HR owner。页面分三块：
 
+- 员工入口固定请求 `view=self`；服务端在缺省 `view` 时也必须按本人处理，强制使用当前登录账号关联的在职员工，并在员工、正式记录、流程单、工作计划和贡献材料查询进入数据库前收窄范围。客户端传入其他员工、部门或项目 audience 不能扩大该范围。
+- HR 处理入口固定请求 `view=summary`。汇总读取只接受目标资源 `hr.performance` 自身的显式 `read`、系统管理员，或 `approve/reject` 处理能力；父级 `hr.read` 与 `submit/revise` 等高阶动作虽然可隐含普通 read，但不能据此读取全员汇总。正式记录详情、贡献 dossier 和流程列表沿用同一 self/summary 边界。
+
 - `考勤`：只读展示 HR 在职口径，包括员工、公司、部门、岗位、人员类型和 `Employment.attendanceType`。V1 不新增打卡事实表。
 - `贡献材料`：按二级范围列出工作空间目录。个人范围一人一行；部门范围按 Work 标准组织空间列出 M 体系部门和运营委员会，一空间一行；项目范围一已开启项目空间一行。点击后按 `(targetType, targetId, cycleId)` 读取对应空间材料：周/月展示工作汇报，季度/半年/年度展示期初目标。这里只读，不要求 `work.tasks` 权限。
 - `绩效`：展示正式绩效记录和绩效流程单。新建和编辑只打开页面草稿，不创建或修改流程单；最终动作由流程单 `ActionRuntime` 唯一决定为提交、再次提交、通过或驳回，撤回和取消申请保留为显式流程状态动作。
@@ -164,10 +167,11 @@ HR roster API 在 `app/api/modules/hr/roster/` 下，采用统一 CRUD 模板：
 - `DELETE` — 删除（`?id=` 参数，已对大部分实体禁用）
 
 HR performance API 在 `app/api/modules/hr/performance/` 下：
-- `GET /api/modules/hr/performance` — 返回周期选项、考勤 rows、OKR/工作来源 rows、正式绩效 rows、流程 rows 和指标汇总。
-- `GET /api/modules/hr/performance/contributions/:audienceType/:audienceId?cycleId=:cycleId` — 读取个人、部门或项目工作空间的只读周期材料。
-- `GET /api/modules/hr/performance/reviews/:id` — 读取正式绩效详情和 OKR 快照。
-- `GET|POST /api/modules/hr/performance/submissions` — 列表和创建绩效流程草稿。
+- `GET /api/modules/hr/performance?view=self|summary` — 返回周期选项、考勤 rows、OKR/工作来源 rows、正式绩效 rows、流程 rows 和指标汇总；缺省为 `self`，`summary` 需独立汇总权限。
+- `GET /api/modules/hr/performance/contributions/:audienceType/:audienceId?cycleId=:cycleId` — 读取个人、部门或项目工作空间的只读周期材料；本人只能读取自己的 personal target。
+- `GET /api/modules/hr/performance/reviews/:id` — 读取正式绩效详情和 OKR 快照；本人只能读取自己的记录。
+- `GET /api/modules/hr/performance/submissions?view=self|summary` — 流程列表缺省按当前发起人过滤，汇总视图需独立汇总权限。
+- `POST /api/modules/hr/performance/submissions` — 创建绩效流程草稿。
 - `PUT /api/modules/hr/performance/submissions/:id` — 员工/上级/HR 按当前阶段修订 payload。
 - `POST /api/modules/hr/performance/submissions/:id/{submit,withdraw,cancel,comment,approve,reject}` — 复用 Platform approval engine。
 
@@ -194,7 +198,7 @@ HR 页面、resource policy 和 API contract 使用同一套新 action：
 - `hr.analytics.entry/read/grant` — 人力分析当前只开放查看。
 - `hr.roster.generated.entry/read/export/grant` — 花名册生成资料 capability；预览是 `read`，CSV 下载是 `export`。
 
-`archive` 覆盖部门/岗位归档与反归档；审计快照恢复归 `revise`；流程草稿创建、发起审核和再次提交归 `submit`，审批、驳回、撤回分别归 `approve/reject/reverse`。绩效 `read` 控制页面/API 读取，`submit` 控制员工自评流程，`approve/reject` 控制 HR 归档处理；直属上级是否能处理具体单据由流程 adapter 的处理人解析收窄。root identity 是系统硬编码超级管理员，不写入 RBAC resource 授权表。
+`archive` 覆盖部门/岗位归档与反归档；审计快照恢复归 `revise`；流程草稿创建、发起审核和再次提交归 `submit`，审批、驳回、撤回分别归 `approve/reject/reverse`。绩效 effective `read` 控制本人页面/API 读取；全员汇总要求目标资源自身的显式 `read`、系统管理员或 `approve/reject`，不能由父级 `hr.read` 或 `submit/revise` 的隐含 read 获得。`submit` 控制员工自评流程，`approve/reject` 控制 HR 归档处理；直属上级是否能处理具体单据由流程 adapter 的处理人解析收窄。root identity 是系统硬编码超级管理员，不写入 RBAC resource 授权表。
 
 **权限继承规则**：
 - 岗位授权和部门授权也会生效（通过 `PositionResourceActionGrant` / `DepartmentResourceActionGrant`）。

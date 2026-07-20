@@ -76,6 +76,12 @@ const WORK_PROJECTS = {
   originHrefPattern: "/work/project",
 } as const;
 
+const WORK_PROJECT_INITIATION = {
+  moduleKey: "work",
+  resourceKey: "work.projects.initiate",
+  originHrefPattern: "/work/project",
+} as const;
+
 const WORK_TASKS = {
   moduleKey: "work",
   resourceKey: "work.tasks",
@@ -168,12 +174,11 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
     notes: "Legacy mixed objective approval runtime key. New target settings use department/personal objective submit action keys.",
   },
   {
-    ...WORK_PROJECTS,
+    ...WORK_PROJECT_INITIATION,
     eligibility: "workflow_required",
     flowType: "approval",
     separationPolicy: "auto_pass_if_authorized",
     submitPermissionAction: "submit",
-    processPermissionAction: "approve",
     workflowCategoryKey: "collaboration",
     key: "work.projects.project.create",
     label: "提交项目确认",

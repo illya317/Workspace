@@ -149,6 +149,7 @@ export type InputSurfaceProps = {
   value?: unknown;
   displayValue?: string;
   onChange?: (value: unknown, option?: unknown) => void;
+  disabled?: boolean;
   placeholder?: string;
   size?: FieldControlSize;
   density?: "normal" | "compact";
@@ -200,6 +201,20 @@ export function normalizeInputSurfaceValue(value: unknown) {
 
 export function inputSurfaceStateSet(state?: InputState | InputState[]) {
   return new Set(Array.isArray(state) ? state : state ? [state] : ["normal"]);
+}
+
+export function resolveInputSurfaceInteractionState(
+  state: InputFieldSpec["state"],
+  overrides: Pick<InputSurfaceProps, "disabled" | "readOnly"> = {},
+) {
+  const states = inputSurfaceStateSet(state);
+  return {
+    hidden: states.has("hidden"),
+    readonlyDisplay: states.has("readonly"),
+    disabled: Boolean(overrides.disabled || states.has("disabled")),
+    readOnly: Boolean(overrides.readOnly || states.has("readonly")),
+    required: states.has("required"),
+  };
 }
 
 export function inputSurfaceOptionItems(options?: InputOptions) {

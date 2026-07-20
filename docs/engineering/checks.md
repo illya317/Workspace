@@ -25,7 +25,7 @@
 | Action contract 行为 | `npm run test:contract` | 执行 ActionContract、BusinessAction command 与 route binding 的运行时行为测试。 |
 | Work 计划治理行为 | `npm run test:domain:work-plan-governance` | 执行 reopen、scope、report action/snapshot、在途引用和完成联动等领域行为测试。 |
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
-| PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint/notification capacity smoke。 |
+| PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint、并发通知读取与并发写入 capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
 | 本地全量/生产发布门禁 | `npm run check:ci` | 串行执行静态门禁、全部 Node 测试、full type 和 production build；`ops/publish.sh deploy` 为当前 Git tree 生成或复用凭证并进入 CNB。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
@@ -76,7 +76,7 @@
 - API / route / resource / RBAC / API contract 的对应关系。
 - API response format 与 history policy registry 等跨仓库静态 contract。
 - 新 action registry 的唯一性和包含关系：permission action 的 icon 不能重复，旧权限 bundle 不再注册。
-- ActionContract 的 key 唯一性和 business action 对齐；历史 action 缺少完整 contract 暂时 warning-only，用于逐步迁移 payload/persistence/form/domain/api/workflow/display 覆盖。普通写入、生命周期、治理和 workflow mutation 必须声明 persistence；exchange import 声明批量/原子性与 persistence，exchange export 声明输出媒介/类型且不得伪造 active entity。`workflow.kind=not_applicable` 明确动作不可接流程，只需说明原因；`configurable/native` 才声明默认节点、路由、修改策略和允许管理员配置的能力。
+- ActionContract 的 key 唯一性和 BusinessAction 一一对齐；缺失、重复或 route/domain binding 漂移均 hard fail。普通写入、生命周期、治理和 workflow mutation 必须声明 persistence；exchange import 声明批量/原子性与 persistence，exchange export 声明输出媒介/类型且不得伪造 active entity。`workflow.kind=not_applicable` 明确动作不可接流程，只需说明原因；`configurable/native` 才声明默认节点、路由、修改策略和允许管理员配置的能力。`test:contract` 另锁定 `validateOn` 三阶段重验、批准 capability 与 direct service guard 的行为边界。
 - 所有 `app/api/**/route.ts` 导出的 HTTP method 必须命中注册契约；内部 API 进 module registry 派生 contract，开放 API 进 Open API registry。
 - 内部 API contract 会派生 `apiKind`：`business` 必须由规范 `/api/modules/<module>/<resource path>` URL 推导 owner `resourceKey`，并有 effective `authorization.requiredActions`；旧兼容路径如果无法从 URL 直接推导 resource，必须声明 `migrationNote`。`session/public/dev/internal` 不允许有 `resourceKey/requiredActions`，且必须写 `notes` 说明例外原因。API 新动作登记在 `permission-api-action-policy.pathPattern + requiredActions + scopeExtractor`，`requireApiAccess()` 检查 effective `authorization.resourceKey/scopeId/projection/actions`；旧 RBAC action 不允许作为 API/RBAC 运行时兼容层恢复。
 - Open API registry、scope wrapper 和 console route 对齐。
@@ -134,13 +134,15 @@ GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 
 
 ### scalability contract 与真实容量
 
-`test:scalability-contract` 中的 workflow case 是确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，且成员判定路径不得枚举全部可登录用户。
+`test:scalability-contract` 中的 workflow case 是确定性放大回归：固定模拟 `64` 个用户同时检查 `7` 张 Work 审批单，判权调用不得超过 `用户数 × 审批单数`，同一用户批量投影时还必须按不同 control target 复用判权结果，且成员判定路径不得枚举全部可登录用户。
 
 同一入口中的 HR case 是默认 Tab 读取的结构容量门禁：花名册、雇佣关系、员工岗位和合同默认读取必须在数据库内完成计数和分页，不允许先全量加载员工及关系后再在 Node 内存分页；同时锁定尽调版默认列契约。
 
 以上测试使用 mock/fixture 验证查询形状和复杂度上界，只能证明“没有明显的全量读取或调用次数爆炸”，不能证明页面 P95/P99 延迟。E2E 暖刷新上限也只拦截灾难性回归；真实“加载慢”仍应由稳定测试数据上的 integration benchmark、候选环境浏览器计时或生产 synthetic/APM 监控负责，避免拿开发机冷启动时间做易抖动的精细 PR gate。
 
 `db:postgresql:notification-capacity` 是 PostgreSQL CI 容量门禁：只允许在 `*_ci` 数据库中运行，用 `173` 个可登录用户、`7` 张已提交 Work 审批单和 `8` 个并发通知读取验证默认 `10` 连接池。它由 `db:postgresql:ci-smoke` 自动调用，连接等待超时、provider 内部捕获并降级的查询错误，或总耗时超过 `15 s` 都会阻断 CI。
+
+`db:postgresql:write-capacity` 是同一 PostgreSQL lane 的写入容量门禁：先以 `24` 个互不冲突的并发写验证默认连接池不会丢写，再以 `8` 个竞争同一状态的 Serializable 写验证统一事务 helper 能通过带抖动的指数退避有界收敛，并断言最终计数不存在 lost update。该门禁只接受 `*_ci` 数据库，任一写失败、超过 `10 s` 或最终状态不一致都会阻断 CI。
 
 ### deploy/runtime
 

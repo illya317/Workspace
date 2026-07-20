@@ -19,7 +19,7 @@ import {
   type WorkTaskApprovalWorkspaceTargetType,
   type WorkTaskApprovalPayload,
 } from "./task-approval-helpers";
-import { canProcessWorkTaskRequest } from "./task-approval-handlers";
+import { canProcessWorkTaskRequests } from "./task-approval-handlers";
 
 let registered = false;
 
@@ -47,10 +47,14 @@ async function listProcessableWorkTaskTodos(userId: number): Promise<WorkflowTod
     orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
     take: 200,
   });
-  const items = await Promise.all(rows.map(async (row): Promise<WorkflowTodoProviderItem | null> => {
+  const records = rows.map((row) => {
     const dto = toDto<WorkTaskApprovalPayload>(row as ApprovalRequestRowWithEvents);
     const record = toRecord(row as ApprovalRequestRowWithEvents, dto.latestPayload);
-    if (!(await canProcessWorkTaskRequest(userId, record))) return null;
+    return { row, dto, record };
+  });
+  const processable = await canProcessWorkTaskRequests(userId, records.map(({ record }) => record));
+  const items = records.map(({ row, dto }, index): WorkflowTodoProviderItem | null => {
+    if (!processable[index]) return null;
     const entityType = approvalEntityType(dto.latestPayload);
     const summary = approvalSummary(dto.latestPayload) || `审批单 #${dto.id}`;
     return {
@@ -71,6 +75,6 @@ async function listProcessableWorkTaskTodos(userId: number): Promise<WorkflowTod
         avatar: null,
       },
     } satisfies WorkflowTodoProviderItem;
-  }));
+  });
   return items.filter((item): item is WorkflowTodoProviderItem => Boolean(item));
 }

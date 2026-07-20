@@ -1,4 +1,5 @@
 import type { ServiceResult } from "../api";
+import type { ApprovalCommitAuthorization } from "@workspace/platform/server/approval-commit-authorization";
 import type {
   WorkflowFlowType,
   WorkflowHandlerSource,
@@ -218,5 +219,6 @@ export type ApprovalAdapter<TPayload> = {
   commitApprovedPayload: (input: {
     actorUserId: number;
     request: ApprovalRequestRecord<TPayload>;
+    approvalAuthorization: ApprovalCommitAuthorization;
   }) => Promise<ServiceResult<ApprovalCommitResult>> | ServiceResult<ApprovalCommitResult>;
 };

@@ -69,6 +69,7 @@ export async function executeSaveWorkReportRouteCommand(
       actorUserId: context.actorUserId,
       submitterUserId: context.submitterUserId,
       payload: prepared.payload,
+      authorization: "direct",
     }),
   });
   const actorUserId = command.actorUserId ?? command.userId;

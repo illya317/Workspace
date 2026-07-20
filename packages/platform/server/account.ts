@@ -13,6 +13,7 @@ import {
 } from "./auth";
 import { findUserByPersonalApiKey, hashPersonalApiKey } from "./personal-api-key";
 import { prisma } from "./prisma";
+import { evaluatePermissionAction } from "./rbac/action-grants";
 import { checkBruteForce, recordAttempt } from "./security";
 
 export type ChangeAvatarResult =
@@ -185,6 +186,10 @@ export async function loginWithApiKey(
   if (!user.canLogin) {
     await recordAttempt(attemptKey, ip, false);
     return { success: false, status: 403, error: "账号已被停用，请联系管理员" };
+  }
+  if (!(await evaluatePermissionAction(user.id, "settings.account.apiAccess", "entry"))) {
+    await recordAttempt(attemptKey, ip, false);
+    return { success: false, status: 403, error: "当前账号未开通个人 API 使用权限" };
   }
 
   await recordAttempt(attemptKey, ip, true);

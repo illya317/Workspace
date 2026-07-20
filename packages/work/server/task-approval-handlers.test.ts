@@ -57,7 +57,7 @@ mockModule("./task-approval-helpers", {
   },
 });
 
-const { canProcessWorkTaskRequest } = await import("./task-approval-handlers");
+const { canProcessWorkTaskRequest, canProcessWorkTaskRequests } = await import("./task-approval-handlers");
 
 function request(activeWorkflowNodeKey: string | null, targetId = 8) {
   return {
@@ -106,9 +106,9 @@ test("keeps multi-user workflow permission checks linear in users times requests
   const users = Array.from({ length: 64 }, (_, index) => index + 1);
   const requests = Array.from({ length: 7 }, (_, index) => request("approval-1", index + 1));
 
-  const results = await Promise.all(users.flatMap((userId) => (
-    requests.map((approvalRequest) => canProcessWorkTaskRequest(userId, approvalRequest))
-  )));
+  const results = (await Promise.all(users.map((userId) => (
+    canProcessWorkTaskRequests(userId, requests)
+  )))).flat();
 
   assert.equal(results.every(Boolean), true);
   assert.equal(permissionCalls.length, users.length * requests.length);
@@ -116,5 +116,16 @@ test("keeps multi-user workflow permission checks linear in users times requests
     new Set(permissionCalls.map((call) => `${call.userId}:${call.targetId}`)).size,
     users.length * requests.length,
   );
+  assert.equal(userEnumerationCalls, 0);
+});
+
+test("reuses one actor permission decision for requests sharing a control target", async () => {
+  reset();
+  const requests = Array.from({ length: 7 }, () => request("approval-1", 8));
+
+  const results = await canProcessWorkTaskRequests(42, requests);
+
+  assert.equal(results.every(Boolean), true);
+  assert.deepEqual(permissionCalls, [{ userId: 42, targetType: "department", targetId: 8 }]);
   assert.equal(userEnumerationCalls, 0);
 });

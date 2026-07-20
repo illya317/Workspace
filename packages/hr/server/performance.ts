@@ -25,10 +25,17 @@ import { buildEmployeeContributionSnapshot, listEmployeeContributionRows } from 
 import {
   getHrPerformanceEmployeeIdentity,
   loadHrPerformanceAudienceCatalog,
+  resolveHrPerformanceDashboardProjection,
   selectHrPerformanceAudience,
   type HrPerformanceAudienceEmployee,
   type HrPerformanceAudienceType,
+  type HrPerformanceDashboardView,
 } from "./performance-audience";
+import {
+  canReadHrPerformanceEmployee,
+  canReadHrPerformanceSummary,
+  hrPerformanceSubmissionSubmitterScope,
+} from "./performance-access";
 
 export type HrPerformanceReviewPayload = {
   entityType: "performance_review";
@@ -46,6 +53,7 @@ export type HrPerformanceReviewPayload = {
 };
 
 type HrPerformanceDashboardQuery = {
+  view?: HrPerformanceDashboardView | null;
   cycleId?: number | null;
   periodType?: string | null;
   audienceType?: string | null;
@@ -71,6 +79,7 @@ type HrPerformanceSubmissionActionBody = {
 };
 
 type HrPerformanceSubmissionsQuery = {
+  view?: HrPerformanceDashboardView | null;
   status?: string | null;
 };
 
@@ -192,6 +201,7 @@ export function buildListHrPerformanceDashboardRouteCommand(input: {
 }) {
   return okCommand({
     userId: input.userId,
+    view: input.query.view ?? null,
     cycleId: positiveNumber(input.query.cycleId),
     periodType: normalizePerformancePeriodType(input.query.periodType),
     audienceType: normalizePerformanceAudience(input.query.audienceType),
@@ -203,6 +213,7 @@ export function buildListHrPerformanceDashboardRouteCommand(input: {
 
 export async function executeListHrPerformanceDashboardRouteCommand(command: {
   userId: number;
+  view?: HrPerformanceDashboardView | null;
   cycleId?: number | null;
   periodType?: PerformancePeriodType | null;
   audienceType?: PerformanceAudience | null;
@@ -210,7 +221,27 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
   keyword?: string;
   status?: string;
 }) {
-  if (!(await checkHRRead(command.userId, HR_PERFORMANCE_RESOURCE_KEY))) return serviceError("无权限查看绩效工作台", 403);
+  const [hasEffectiveRead, canReadSummary, currentEmployee] = await Promise.all([
+    checkHRRead(command.userId, HR_PERFORMANCE_RESOURCE_KEY),
+    canReadHrPerformanceSummary(command.userId),
+    prisma.employee.findFirst({
+      where: { userId: command.userId, employments: { some: { isActive: true } } },
+      select: { id: true, employeeId: true, name: true, userId: true },
+    }),
+  ]);
+  if (!hasEffectiveRead) return serviceError("无权限查看绩效工作台", 403);
+  const dashboardProjection = resolveHrPerformanceDashboardProjection({
+    requestedView: command.view ?? null,
+    canReadSummary,
+    currentEmployeeId: currentEmployee?.id ?? null,
+    requestedAudienceType: command.audienceType ?? null,
+    requestedAudienceId: command.audienceId ?? null,
+  });
+  if (!dashboardProjection.ok) {
+    if (dashboardProjection.reason === "self_identity_missing") return serviceError("当前账号未关联在职员工，无法查看个人绩效", 403);
+    if (dashboardProjection.reason === "summary_forbidden") return serviceError("无权限查看绩效汇总", 403);
+    return serviceError("无权限查看其他员工或组织绩效", 403);
+  }
   const today = new Date().toISOString().slice(0, 10);
   const currentYear = Number(today.slice(0, 4));
   const cycleCandidates = await prisma.workOkrCycle.findMany({
@@ -244,14 +275,25 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
     ? cycleCandidates.find((cycle) => cycle.id === activeCycleOption.id) ?? null
     : null;
   const cycleId = activeCycle?.id ?? null;
-  const [currentEmployee, audienceCatalog, reviews, submissions, workPlans, workflowPolicy, canStartWorkflow] = await Promise.all([
-    prisma.employee.findFirst({
-      where: { userId: command.userId },
-      select: { id: true, employeeId: true, name: true, userId: true },
+  const projectedEmployeeIds = dashboardProjection.employeeIds ? [...dashboardProjection.employeeIds] : null;
+  const workPlanScopeWhere: Prisma.WorkPlanWhereInput = dashboardProjection.view === "self"
+    ? {
+        OR: [
+          { ownerEmployeeId: dashboardProjection.audienceId ?? -1 },
+          { targetType: "personal", targetId: command.userId },
+        ],
+      }
+    : {};
+  const [audienceCatalog, reviews, submissions, workPlans, workflowPolicy, canStartWorkflow] = await Promise.all([
+    loadHrPerformanceAudienceCatalog({
+      employeeIds: projectedEmployeeIds,
+      includeDirectories: dashboardProjection.view === "summary",
     }),
-    loadHrPerformanceAudienceCatalog(),
     cycleId ? prisma.hrPerformanceReview.findMany({
-      where: { okrCycleId: cycleId },
+      where: {
+        okrCycleId: cycleId,
+        ...(projectedEmployeeIds ? { employeeId: { in: projectedEmployeeIds } } : {}),
+      },
       include: { employee: true },
       orderBy: [{ archivedAt: "desc" }, { id: "desc" }],
     }) : Promise.resolve([]),
@@ -260,14 +302,18 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       actorUserId: command.userId,
       resourceKey: HR_PERFORMANCE_RESOURCE_KEY,
       scopeId: null,
+      submitterUserId: hrPerformanceSubmissionSubmitterScope(dashboardProjection.view, command.userId),
       statuses: normalizeStatusFilter(command.status),
     }).then((result) => result.ok ? result.data.requests : []),
     activeCycle ? prisma.workPlan.findMany({
       where: {
         isArchived: false,
-        OR: [
-          { kind: "okr", actualStartDate: { lte: activeCycle.endDate }, actualEndDate: { gte: activeCycle.startDate } },
-          { kind: "routine" },
+        AND: [
+          { OR: [
+            { kind: "okr", actualStartDate: { lte: activeCycle.endDate }, actualEndDate: { gte: activeCycle.startDate } },
+            { kind: "routine" },
+          ] },
+          workPlanScopeWhere,
         ],
       },
       include: {
@@ -281,8 +327,8 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
   ]);
   const { employees, departments, projects } = audienceCatalog;
   const audienceSelection = selectHrPerformanceAudience({
-    audienceType: command.audienceType ?? null,
-    audienceId: command.audienceId ?? null,
+    audienceType: dashboardProjection.audienceType,
+    audienceId: dashboardProjection.audienceId,
     catalog: audienceCatalog,
     today,
   });
@@ -317,7 +363,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
     .filter((row) => !command.status || command.status.split(",").includes(row.status))
     .filter((row) => matchAnyField(row as unknown as Record<string, unknown>, keyword));
   const departmentContributionRows = departments
-    .filter((department) => command.audienceType !== "department" || !command.audienceId || department.id === command.audienceId)
+    .filter((department) => dashboardProjection.audienceType !== "department" || !dashboardProjection.audienceId || department.id === dashboardProjection.audienceId)
     .map((department) => ({
       id: department.id,
       code: department.code,
@@ -327,7 +373,7 @@ export async function executeListHrPerformanceDashboardRouteCommand(command: {
       status: "现用",
     }));
   const projectContributionRows = projects
-    .filter((project) => command.audienceType !== "project" || !command.audienceId || project.id === command.audienceId)
+    .filter((project) => dashboardProjection.audienceType !== "project" || !dashboardProjection.audienceId || project.id === dashboardProjection.audienceId)
     .map((project) => ({
       id: project.id,
       code: project.code || "",
@@ -394,6 +440,9 @@ export async function executeGetHrPerformanceReviewRouteCommand(command: {
     include: { employee: true },
   });
   if (!review) return serviceError("绩效记录不存在", 404);
+  if (!(await canReadHrPerformanceEmployee(command.userId, review.employee.userId))) {
+    return serviceError("无权限查看该绩效记录", 403);
+  }
   return serviceOk({ review: toReviewDetail(review) });
 }
 
@@ -402,23 +451,30 @@ export function buildListHrPerformanceSubmissionsRouteCommand(input: {
   query: HrPerformanceSubmissionsQuery;
 }): DomainValidationResult<{
   userId: number;
+  view: HrPerformanceDashboardView;
   statuses?: ApprovalStatus[];
 }> {
   return okCommand({
     userId: input.userId,
+    view: input.query.view === "summary" ? "summary" as const : "self" as const,
     statuses: normalizeStatusFilter(input.query.status),
   });
 }
 
-export function executeListHrPerformanceSubmissionsRouteCommand(command: {
+export async function executeListHrPerformanceSubmissionsRouteCommand(command: {
   userId: number;
+  view: HrPerformanceDashboardView;
   statuses?: ApprovalStatus[];
 }) {
+  if (command.view === "summary" && !(await canReadHrPerformanceSummary(command.userId))) {
+    return serviceError("无权限查看绩效流程汇总", 403);
+  }
   return listRequests({
     adapter: hrPerformanceApprovalAdapter,
     actorUserId: command.userId,
     resourceKey: HR_PERFORMANCE_RESOURCE_KEY,
     scopeId: null,
+    submitterUserId: hrPerformanceSubmissionSubmitterScope(command.view, command.userId),
     statuses: command.statuses,
   });
 }

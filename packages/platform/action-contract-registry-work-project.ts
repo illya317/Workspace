@@ -1,11 +1,9 @@
 import { defineActionContractMetadataList } from "./action-contract";
 
 const WORK_PROJECT_CREATE_RESOURCE = {
-  resourceKey: "work.projects",
+  resourceKey: "work.projects.initiate",
   moduleKey: "work",
-  scopeTypes: ["personal", "company", "committee", "department"],
   submitPermissionAction: "submit",
-  processPermissionAction: "approve",
 } as const;
 
 export const WORK_PROJECT_ACTION_CONTRACTS = defineActionContractMetadataList([{

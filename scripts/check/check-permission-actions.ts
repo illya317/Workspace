@@ -145,24 +145,36 @@ for (const contract of getApiContracts()) {
     apiPath: contract.pathPrefix,
     resourceKey: contract.resourceKey,
   });
+  const authorizationResourceKey = resolved.resourceKey;
+  assert.ok(authorizationResourceKey, `${contract.method} ${contract.pathPrefix} business API should resolve an authorization resource`);
+  assert.equal(
+    registeredResourceKeys.has(authorizationResourceKey),
+    true,
+    `${contract.method} ${contract.pathPrefix} uses unknown authorization resource ${authorizationResourceKey}`,
+  );
   assert.deepEqual(resolved.requiredActions, contract.requiredActions, `${contract.method} ${contract.pathPrefix} requiredActions should be stable`);
   assert.equal(resolved.runtimeEnforcement, contract.runtimeEnforcement, `${contract.method} ${contract.pathPrefix} runtimeEnforcement should be stable`);
+  assert.equal(
+    contract.authorization.resourceKey,
+    authorizationResourceKey,
+    `${contract.method} ${contract.pathPrefix} authorization resource should be stable`,
+  );
   if (contract.runtimeEnforcement === "serviceDelegated") {
     assert.equal(Boolean(contract.notes), true, `${contract.method} ${contract.pathPrefix} service-delegated API should explain runtime enforcement`);
   }
   if (
-    isRegisteredSpaceResourceKey(contract.resourceKey)
+    isRegisteredSpaceResourceKey(authorizationResourceKey)
     && contract.runtimeEnforcement !== "serviceDelegated"
     && contract.requiredActions.some((actionKey) => actionKey !== "entry")
   ) {
-    assert.fail(`${contract.method} ${contract.pathPrefix} uses space-entry root ${contract.resourceKey}; non-entry API actions must be service-delegated`);
+    assert.fail(`${contract.method} ${contract.pathPrefix} uses space-entry root ${authorizationResourceKey}; non-entry API actions must be service-delegated`);
   }
   for (const actionKey of contract.requiredActions) {
     assert.equal(isPermissionRegistryActionKey(actionKey), true, `${contract.method} ${contract.pathPrefix} requires unknown new action ${actionKey}`);
     assert.equal(
-      isPermissionActionSupported(contract.resourceKey, actionKey),
+      isPermissionActionSupported(authorizationResourceKey, actionKey),
       true,
-      `${contract.method} ${contract.pathPrefix} requires ${actionKey}, but ${contract.resourceKey} does not support it`,
+      `${contract.method} ${contract.pathPrefix} requires ${actionKey}, but authorization resource ${authorizationResourceKey} does not support it`,
     );
     if (contract.runtimeEnforcement !== "serviceDelegated") {
       assert.equal(
@@ -188,12 +200,12 @@ for (const contract of getApiContracts()) {
 for (const policy of PERMISSION_API_ACTION_POLICY_LIST) {
   const contract = findApiContract(policy.method, policy.pathPrefix);
   assert.ok(contract, `${policy.method} ${policy.pathPrefix} should match an API contract`);
-  const resourceKey = contract.resourceKey;
-  assert.ok(resourceKey, `${policy.method} ${policy.pathPrefix} should resolve resourceKey from its API contract`);
+  const authorizationResourceKey = policy.authorizationResourceKey ?? contract.resourceKey;
+  assert.ok(authorizationResourceKey, `${policy.method} ${policy.pathPrefix} should resolve an authorization resource`);
   assert.equal(
-    registeredResourceKeys.has(resourceKey),
+    registeredResourceKeys.has(authorizationResourceKey),
     true,
-    `${policy.method} ${policy.pathPrefix} uses unknown resource ${resourceKey}`,
+    `${policy.method} ${policy.pathPrefix} uses unknown authorization resource ${authorizationResourceKey}`,
   );
   assert.equal(
     policy.requiredActions.length > 0,
@@ -203,9 +215,9 @@ for (const policy of PERMISSION_API_ACTION_POLICY_LIST) {
   for (const actionKey of policy.requiredActions) {
     assert.equal(isPermissionRegistryActionKey(actionKey), true, `${policy.method} ${policy.pathPrefix} requires unknown new action ${actionKey}`);
     assert.equal(
-      isPermissionActionSupported(resourceKey, actionKey),
+      isPermissionActionSupported(authorizationResourceKey, actionKey),
       true,
-      `${policy.method} ${policy.pathPrefix} requires ${actionKey}, but ${resourceKey} does not support it`,
+      `${policy.method} ${policy.pathPrefix} requires ${actionKey}, but authorization resource ${authorizationResourceKey} does not support it`,
     );
     if (policy.runtimeEnforcement !== "serviceDelegated") {
       assert.equal(
@@ -219,11 +231,11 @@ for (const policy of PERMISSION_API_ACTION_POLICY_LIST) {
     assert.equal(Boolean(policy.notes), true, `${policy.method} ${policy.pathPrefix} service-delegated policy should explain runtime enforcement`);
   }
   if (
-    isRegisteredSpaceResourceKey(resourceKey)
+    isRegisteredSpaceResourceKey(authorizationResourceKey)
     && policy.runtimeEnforcement !== "serviceDelegated"
     && policy.requiredActions.some((actionKey) => actionKey !== "entry")
   ) {
-    assert.fail(`${policy.method} ${policy.pathPrefix} uses space-entry root ${resourceKey}; non-entry API actions must be service-delegated`);
+    assert.fail(`${policy.method} ${policy.pathPrefix} uses space-entry root ${authorizationResourceKey}; non-entry API actions must be service-delegated`);
   }
 }
 

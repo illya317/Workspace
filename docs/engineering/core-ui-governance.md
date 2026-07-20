@@ -168,6 +168,8 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 `InputSurface` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SearchableOptionInput`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
 
+`InputSurface` / `FormSurface` 字段的顶层 `disabled`、`readOnly` 必须与 `spec.state` 合并后再选择 renderer；文本、日期和时间控件使用原生只读语义，不支持 `readOnly` 的 choice、FK、checkbox、file、rating、tag 等交互控件必须以 disabled 阻断修改。任何 renderer 都不得吞掉调用方已经声明的不可编辑状态。
+
 业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
 
 多行文本需要随内容展开时声明 `autoGrow: true`，由 Core 根据内容与实际宽度维护高度并隐藏字段内滚动条；业务不得自行估算字符数或操作 textarea DOM。
@@ -230,6 +232,7 @@ Surface 使用红线：
 - 标准新建只声明 `CreateSurface`。`trigger="toolbar"` 由 PageSurface 派生唯一 Toolbar `+`，`trigger="surface"` 跟随所属 section/cell；`presentation` 与 trigger 正交，普通 block 可选跨区 anchor。section header 的 block create 不接受 anchor，Core 自动放在 header 后、body 前；直接追加可编辑行只用 section header 的 `presentation: "row"` 变种。调用方不得手工声明 `+`，不得通过 modal、anchor 或 sections 改变非 inline 表单格式，也不得声明动作样式、图标、标签或顺序。
 - PageSurface 的 toolbar slot 全页唯一；BodySurface split 侧栏控制与 CreateSurface toolbar trigger 都只能派生 toolbar item，并由 PageSurface 一次性合并渲染。正文 Surface 不得拥有 `toolbar/toolbarItems` contract，也不得在 implementation 中渲染 `<Toolbar>`。
 - `FormSurfaceActionSpec` 只声明动作语义和行为，不开放 `icon / variant / size / presentation / section / order / commandPlacement`。Core 根据 `ACTION_GLYPH_ACTIONS` 和 `ACTION_GLYPH_ORDER` 固定图标、样式、位置与顺序；`unarchive` 统一使用 restore glyph。
+- `FormSurface.submit` 只由同一表单的主 `save` / `submit` action 驱动：Enter 提交必须复用该 action 的 disabled 状态（包括 pending、校验和权限结果）；主 action 缺失或被禁用时不得调用 `onSubmit`。带 `onClick` 的 action 使用普通 button，避免点击时同时触发 action 与原生 form submit。
 - `FormSurface.commands` 与 `commandPlacement` 仅允许 `kind: "filters"` 使用。普通字段、详情和登录表单不得用 command 表达根生命周期动作。
 - 业务侧左侧列表、目录树和输入型选择区应通过 `SelectorSurface` 声明接口/helper 表达；页面 tabs 通过 `PageSurface.tabbar` 表达，AppShell header 的上下文切换由 Platform 拥有，弹窗分页通过 `BodySurfaceModalSpec.pagination` 表达。`NavigationSurface` 只是 Core 内部 renderer，不从公共入口导出。
 

@@ -8,7 +8,7 @@
 |--------|------|------|-------------|
 | **POST** | `/api/settings/account/password` | 登录 | 修改密码 |
 | **DELETE** | `/api/auth/dev-login` | 公开 | 退出登录 |
-| **POST** | `/api/auth/dev-login` | 公开 | 开发环境登录 |
+| **POST** | `/api/auth/dev-login` | 公开入口 + `settings.account.apiAccess.entry` | 个人 API Key 登录 |
 | **GET** | `/api/auth/me` | 登录 | 获取当前登录用户信息 |
 | **GET** | `/api/settings/account/routine` | 登录 | 获取用户日常模板 |
 | **PUT** | `/api/settings/account/routine` | 登录 | 更新用户日常模板 |

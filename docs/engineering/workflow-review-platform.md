@@ -14,12 +14,12 @@
 |---|---|
 | `key` | 稳定业务行为 key，不等同于 API path 或 RBAC action。 |
 | `moduleKey` / `resourceKey` | 行为归属的模块和 RBAC resource。 |
-| `writeKind` | 业务动作类别。流程 V1 的写入入口只按 `save` 收口；`review`、`publish` 不是 action，只能作为流程语义或业务结果。 |
+| `writeKind` | 业务动作类别。保存、提交、复核、发布、归档等都可以是独立业务 action；流程处理动作不能冒充新的申请入口。 |
 | `eligibility` | `workflow_optional`、`workflow_required`、`permission_only`、`internal`。 |
 | `flowType` | 业务流程语言：`approval`、`review`、`publish`。仅 workflow eligible 行为需要。 |
 | `workflowCategoryKey` | 流程业务分类；必须引用 Platform workflow category registry，不得由各页面自行推断。 |
 | `separationPolicy` | 提交人与处理人的关系：`independent_required`、`auto_pass_if_authorized`。后台只保留“是/否”两种配置。 |
-| `apiRoutes` | 当前已知 API route 覆盖，用于 warning 级历史债扫描；同一路由可承载多个行为。 |
+| `apiRoutes` | 当前 API route 覆盖；与 ActionContract command/direct route 双向校验，同一路由承载多个行为时必须登记为 typed dispatcher。 |
 | `notes` | 当前缺口、保守判定或后续迁移说明。 |
 
 `eligibility` 的边界：
@@ -46,7 +46,7 @@
 
 源码入口：`packages/platform/workflow-action-readiness.ts`。
 
-流程 readiness 是业务行为注册表之上的 Platform 投影，不是第二套业务行为 registry。它只回答“这个已登记 businessActionKey 是否已经具备流程接入运行证据”，不创建新动作、不替代 RBAC、不查询数据库策略。
+流程 readiness 是业务行为注册表之上的 Platform 投影，不是第二套业务行为 registry。它回答“contract 是否声明了可接入的执行路径”，不创建新动作、不替代 RBAC、不查询数据库策略，也不能单独作为生产运行证明。
 
 流程定义、默认节点、路由、职责分离和修改权限统一来自 ActionContract。`workflow.kind` 是唯一能力判别：`not_applicable` 表示动作固有地不可接流程，`configurable` 表示通用审批请求，`native` 表示业务原生状态流转；不要再组合 `capable/readiness/adminConfigurable` 推断。`workflow-action-readiness.ts` 只把合同投影为 readiness 和 warning，不再维护或编译独立的 workflow definition；策略解析由 `packages/platform/server/workflow-contract-defaults.ts` 从同一合同生成默认值。
 
@@ -57,15 +57,10 @@ readiness V1 只维护 warning/展示所需事实：
 | `workflowIntent` | 该动作的流程意图：默认流程、可选接入、权限直写、不适用或内部行为。 |
 | `workflowReadiness.state` | `ready`、`partial`、`not_ready`、`not_applicable`。 |
 | `executionPath` | `approval_request`、`native_business_state` 或 `ui_status_only`。 |
-| `evidence` | adapter、直写 guard、批准后落库、提交路由、状态 UI、台账路径等证据。 |
+| `evidence` | contract 所声明的 adapter、直写 guard、批准后落库、提交路由、状态 UI、台账路径等接入面；真实数据流另由 checker 与行为/integration test 证明。 |
 | `workflowProductState` | Admin UI 的产品状态基础值，例如未设置、默认启用、未接入、不适用。 |
 
-首批事实边界：
-
-- Work tasks、Docs editor templates、HR department 的 create/update 历史 key 暂保留，但 `writeKind` 统一按 `save` 作为流程入口。
-- QC precheck、inspection 的 `save` 合同集中在 `packages/platform/action-contract-registry-production-qc.ts`，是 `native_business_state` ready：使用业务原生复核签名和状态，不生成通用 `ApprovalRequest` 台账。QC review 是处理动作，不是流程请求入口。
-- Finance statement review 的保存类动作是 `partial` / `ui_status_only`：有状态展示，但没有通用流程 adapter、直写 guard、批准后落库路径或通用流程台账。
-- 删除、归档、导出、发布确认、审批处理、系统维护类动作默认 `not_applicable`，不进入流程设置。
+事实边界：`configurable` 使用通用 `ApprovalRequest`，`native` 使用业务原生状态机，`not_applicable` 不进入流程设置。删除、归档、导出、审批处理等是否可接流程必须逐 ActionContract 声明，不能按 `writeKind` 全局猜测。readiness 全绿只代表声明面完整；route payload 传播、三阶段校验、权限 guard 和批准后写入仍必须由 `action-contract:check`、`test:contract` 及相关 integration test 覆盖。
 
 检查脚本 `node --import tsx scripts/check/check-business-action-registry.ts` 同时校验 route 覆盖和 readiness，任何 default-flow/opt-in readiness gap 都会阻断 domain gate。QC 原生复核通过 ActionContract 声明 `native_business_state` 证据；不得只改 readiness 常量绕过 contract。
 
@@ -148,7 +143,7 @@ ActionContract 把过去混在一个开关里的三件事显式拆开：
 
 ### 统一 mutation executor 与表单动作
 
-保存类写入使用 `@workspace/platform/server/business-action-executor` 作为统一切换缝：调用方只提供业务行为 key、direct 授权/commit 回调和可选 Approval adapter。executor 先按 adapter 的领域校验解析同一个策略；流程启用时只创建并提交 `ApprovalRequest`，正式资料只能由 `commitApprovedPayload()` 写入；流程关闭时仅 `whenDisabled=direct_write` 才执行 direct 授权和正式表写入，`whenDisabled=unavailable` 必须返回 409，不能偷偷降级。业务 domain service 还要在实际 Prisma mutation 前执行同一 direct guard，并只接受显式的 `workflow-approved` 内部授权绕过；因此遗漏 route executor 不能变成数据库旁路。归档、删除等 `permission_only` 行为不复用保存流程，也不能和保存字段混在同一次 mutation 中。
+保存类写入使用 `@workspace/platform/server/business-action-executor` 作为统一切换缝：调用方只提供业务行为 key、direct 授权/commit 回调和可选 Approval adapter。executor 按 adapter 的领域校验解析同一个策略；流程启用时只创建并提交 `ApprovalRequest`，正式资料只能由 `commitApprovedPayload()` 写入；流程关闭时仅 `whenDisabled=direct_write` 才执行 direct 授权和正式表写入，`whenDisabled=unavailable` 必须返回 409，不能偷偷降级。业务 domain service 还要在实际 Prisma mutation 前执行同一 direct guard。审批 bypass 不是公开字符串约定：engine 只有在把指定 request/version 原子抢占为 `committing` 后才签发绑定 action 的一次性 capability，approved command seam 消费成功后才可进入正式写入；direct helper 必须显式传递 `direct`，不能沿用或默认成 `workflow-approved`。归档、删除等 `permission_only` 行为不复用保存流程，也不能和保存字段混在同一次 mutation 中。
 
 历史 direct route 尚未迁到 executor 时，必须调用同文件导出的 `assertBusinessActionDirectExecutionAllowed()`；Work、HR department、Docs editor 不再各自复制策略判断。新 route 不应继续采用“先直写，发现启用流程后返回 409”或“前端自行改打 submissions API”的双路径。
 
@@ -258,7 +253,7 @@ Approval engine 的职责分离规则只保留两种：
 
 审批人来源 V1 开放“直属上级”“部门负责人”和“有权限者”。“直属上级”按发起人的当前任职记录 `reportTo` 解析在职员工并映射到用户；“部门负责人”由部门负责人岗位解析，当前仅对能落到部门上下文的流程生效；两者解析不到人员时回退到“有权限者”，避免流程提交后无人可处理。“有权限者”由 adapter 的 `approve` 判权和通知收件人解析决定；`review/publish` 只作为流程显示语义或业务结果，不作为权限 action。
 
-正式 commit 前会先把 request 从 `submitted` 原子抢占到内部短暂状态 `committing`。只有抢占成功的处理人会调用业务 `commitApprovedPayload()`，避免两个处理人同时通过时重复写正式业务数据。commit 失败时写 `commit_failed` 事件并回到 `submitted`；commit 成功后从 `committing` 转到 `approved`。`committing` 期间不允许评论或其他状态动作。
+正式 commit 前会先把 request 从 `submitted` 原子抢占到内部短暂状态 `committing`。抢占后，engine 按 ActionContract `validateOn=commit` 使用提交者身份重跑 adapter validator，并验证 action/resource/scope/subject 与 request 快照一致；contract 版本变化或业务状态失效都会写 `commit_failed` 并回到 `submitted`。验证成功后才签发绑定 request id、claimed version 和 businessActionKey 的一次性 capability，并调用业务 `commitApprovedPayload()`，避免两个处理人同时通过或普通 server helper 伪造批准上下文。commit 失败同样回到 `submitted`；成功后从 `committing` 转到 `approved`。`committing` 期间不允许评论或其他状态动作。
 
 业务 adapter 可以继续只实现 Approval V1 contract；需要覆盖默认值时，可在 `ApprovalPreparedPayload` 或 adapter `workflowDefaults` 中传 `businessActionKey`、`flowType`、`separationPolicy`、`mode` 或 `handlerSource`。`scopeType/scopeId` 可以继续作为审批单归属和业务判权上下文，但不参与流程策略选择。空间业务仍用空间 `resourceKey + scopeId + projection: "space"` 判权，审批单的 `businessActionKey` 必须使用 base action。
 

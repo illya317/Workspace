@@ -16,6 +16,7 @@ type ApiMethod = ApiGuardRegistration["method"];
 export interface PermissionApiActionPolicy {
   method: ApiMethod;
   pathPrefix: string;
+  authorizationResourceKey?: string;
   requiredActions: readonly PermissionRegistryActionKey[];
   runtimeEnforcement?: "gateway" | "serviceDelegated";
   pathPattern?: RegExp;
@@ -188,7 +189,10 @@ export const PERMISSION_API_ACTION_POLICIES = [
   { method: "GET", pathPrefix: "/api/modules/work/projects", requiredActions: ["read"], runtimeEnforcement: "serviceDelegated", notes: "Work project reads are filtered by project visibility and project-space service rules." },
   { method: "PUT", pathPrefix: "/api/modules/work/projects", requiredActions: ["update"], runtimeEnforcement: "serviceDelegated", notes: "Work project mutations are enforced by project service guards from project id or target space." },
   { method: "DELETE", pathPrefix: "/api/modules/work/projects", requiredActions: ["delete"], runtimeEnforcement: "serviceDelegated", notes: "Work project deletes are enforced by project service guards from project id." },
-  { method: "POST", pathPrefix: "/api/modules/work/projects", requiredActions: ["create"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/work\/projects$/, notes: "Scoped project-space create is enforced by Work service from project type and target space." },
+  { method: "POST", pathPrefix: "/api/modules/work/projects", authorizationResourceKey: "work.projects.initiate", requiredActions: ["submit"], runtimeEnforcement: "gateway", pathPattern: /^\/api\/modules\/work\/projects$/, notes: "Project initiation requires the work.projects.initiate submit capability; Work rechecks the exact action and active-employee eligibility before an approval draft can be created." },
+  { method: "POST", pathPrefix: "/api/modules/work/projects/submissions", requiredActions: ["approve"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/work\/projects\/submissions\/[^/]+\/approve$/, notes: "Project confirmation approval is restricted to the current request's unresolved enabling-department owners by the Work approval adapter." },
+  { method: "POST", pathPrefix: "/api/modules/work/projects/submissions", requiredActions: ["reject"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/work\/projects\/submissions\/[^/]+\/reject$/, notes: "Project confirmation rejection is restricted to the current request's unresolved enabling-department owners by the Work approval adapter." },
+  { method: "POST", pathPrefix: "/api/modules/work/projects/submissions", requiredActions: ["read"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/work\/projects\/submissions\/[^/]+\/comment$/, notes: "Project confirmation comments are restricted by the Work approval adapter to the submitter or a current request handler." },
   { method: "GET", pathPrefix: "/api/modules/work/projects/spaces", requiredActions: ["read"], runtimeEnforcement: "serviceDelegated", notes: "Project-space listing is filtered by project space visibility." },
   { method: "PUT", pathPrefix: "/api/modules/work/projects/spaces", requiredActions: ["grant"], runtimeEnforcement: "serviceDelegated", notes: "Project-space permission updates mutate scoped grants and are enforced by project space permission service." },
   { method: "GET", pathPrefix: "/api/modules/work/projects/spaces", requiredActions: ["grant"], runtimeEnforcement: "serviceDelegated", pathPattern: /^\/api\/modules\/work\/projects\/spaces\/(?<targetType>[^/]+)\/(?<targetId>[^/]+)\/permissions$/, scopeExtractor: standardBusinessSpaceScopeFromPath, notes: "Permission-table visibility is part of grant management and is enforced by project space permission service." },
@@ -353,7 +357,8 @@ export function resolvePermissionApiActionPolicy(input: ResolvePermissionApiActi
   const scope = matched?.scopeExtractor?.(context) ?? null;
   const projection = scope?.projection ?? "default";
   const scopeId = scope?.scopeId ?? null;
-  const resourceKey = projectSpaceResourceKey(input.resourceKey, scopeId, projection);
+  const policyResourceKey = matched?.authorizationResourceKey ?? input.resourceKey;
+  const resourceKey = projectSpaceResourceKey(policyResourceKey, scopeId, projection);
   return {
     resourceKey,
     requiredActions: matched?.requiredActions ?? defaultRequiredApiActionsForMethod(input.method),

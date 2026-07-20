@@ -21,6 +21,7 @@ export const page_api_registry_entries = [
       { name: "presentation", description: "布尔呈现只允许 checkbox / choice；业务状态值使用带产品文案的 choice 下拉，checkbox 仅用于明确勾选语义。" },
       { name: "format", description: "展示和输入格式：percent / currency / date / time / datetime。" },
       { name: "mask", description: "输入约束和格式；可编辑片段使用 mask.kind=editableSegment。" },
+      { name: "state", description: "normal / readonly / disabled / required / hidden；顶层 disabled/readOnly 与 spec.state 合并后统一约束真实控件。" },
       { name: "validation", description: "必填、数值范围、日期上下限和格式校验；日期使用 minDate / maxDate。" },
       { name: "autoGrow", description: "多行文本随内容和可用宽度自动增高，避免字段内部滚动。" },
     ],

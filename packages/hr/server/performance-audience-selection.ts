@@ -1,4 +1,18 @@
 export type HrPerformanceAudienceType = "personal" | "department" | "project";
+export type HrPerformanceDashboardView = "self" | "summary";
+
+export type HrPerformanceDashboardProjection =
+  | {
+      ok: true;
+      view: HrPerformanceDashboardView;
+      audienceType: HrPerformanceAudienceType | null;
+      audienceId: number | null;
+      employeeIds: Set<number> | null;
+    }
+  | {
+      ok: false;
+      reason: "summary_forbidden" | "self_identity_missing" | "self_scope_forbidden";
+    };
 
 export type HrPerformanceAudienceSelectionCatalog = {
   employees: Array<{
@@ -11,6 +25,41 @@ export type HrPerformanceAudienceSelectionCatalog = {
     employees: Array<{ employeeId: number; startDate: string | null; endDate: string | null }>;
   }>;
 };
+
+export function resolveHrPerformanceDashboardProjection(input: {
+  requestedView: HrPerformanceDashboardView | null;
+  canReadSummary: boolean;
+  currentEmployeeId: number | null;
+  requestedAudienceType: HrPerformanceAudienceType | null;
+  requestedAudienceId: number | null;
+}): HrPerformanceDashboardProjection {
+  const view = input.requestedView === "summary" ? "summary" : "self";
+  if (view === "summary") {
+    if (!input.canReadSummary) return { ok: false, reason: "summary_forbidden" };
+    return {
+      ok: true,
+      view,
+      audienceType: input.requestedAudienceType,
+      audienceId: input.requestedAudienceId,
+      employeeIds: null,
+    };
+  }
+
+  if (!input.currentEmployeeId) return { ok: false, reason: "self_identity_missing" };
+  if (
+    (input.requestedAudienceType && input.requestedAudienceType !== "personal")
+    || (input.requestedAudienceId && input.requestedAudienceId !== input.currentEmployeeId)
+  ) {
+    return { ok: false, reason: "self_scope_forbidden" };
+  }
+  return {
+    ok: true,
+    view,
+    audienceType: "personal",
+    audienceId: input.currentEmployeeId,
+    employeeIds: new Set([input.currentEmployeeId]),
+  };
+}
 
 export function selectHrPerformanceAudience(input: {
   audienceType: HrPerformanceAudienceType | null;

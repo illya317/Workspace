@@ -7,6 +7,7 @@ import {
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const dashboardQuerySchema = z.object({
+  view: z.enum(["self", "summary"]).optional(),
   cycleId: z.coerce.number().nullable().optional(),
   periodType: z.enum(["yearly", "half_year", "quarterly", "monthly", "weekly"]).optional(),
   audienceType: z.enum(["personal", "department", "project"]).optional(),

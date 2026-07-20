@@ -2667,6 +2667,10 @@ export const generatedCoreUiSurfaceContracts = {
                                   ],
                                 },
                                 {
+                                  name: "disabled",
+                                  description: "类型：boolean。",
+                                },
+                                {
                                   name: "type",
                                   description: "可选值：email / number / password / tel / text / url。",
                                   children: [
@@ -4563,6 +4567,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               description: "字面量取值。",
                                             },
                                           ],
+                                        },
+                                        {
+                                          name: "disabled",
+                                          description: "类型：boolean。",
                                         },
                                         {
                                           name: "type",
@@ -10977,6 +10985,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               ],
                                             },
                                             {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
                                               name: "type",
                                               description: "可选值：email / number / password / tel / text / url。",
                                               children: [
@@ -12873,6 +12885,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "type",
@@ -20659,6 +20675,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               ],
                                             },
                                             {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
                                               name: "type",
                                               description: "可选值：email / number / password / tel / text / url。",
                                               children: [
@@ -22555,6 +22575,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "type",
@@ -30341,6 +30365,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               ],
                                             },
                                             {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
                                               name: "type",
                                               description: "可选值：email / number / password / tel / text / url。",
                                               children: [
@@ -32237,6 +32265,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "type",
@@ -42765,6 +42797,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "type",
                               description: "可选值：email / number / password / tel / text / url。",
                               children: [
@@ -44661,6 +44697,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "type",
@@ -46371,6 +46411,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "type",
                               description: "可选值：email / number / password / tel / text / url。",
                               children: [
@@ -48267,6 +48311,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "type",
@@ -50081,6 +50129,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "type",
                               description: "可选值：email / number / password / tel / text / url。",
                               children: [
@@ -51977,6 +52029,10 @@ export const generatedCoreUiSurfaceContracts = {
                                           description: "字面量取值。",
                                         },
                                       ],
+                                    },
+                                    {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
                                     },
                                     {
                                       name: "type",
@@ -53897,6 +53953,10 @@ export const generatedCoreUiSurfaceContracts = {
                               ],
                             },
                             {
+                              name: "disabled",
+                              description: "类型：boolean。",
+                            },
+                            {
                               name: "type",
                               description: "可选值：email / number / password / tel / text / url。",
                               children: [
@@ -55795,6 +55855,10 @@ export const generatedCoreUiSurfaceContracts = {
                                       ],
                                     },
                                     {
+                                      name: "disabled",
+                                      description: "类型：boolean。",
+                                    },
+                                    {
                                       name: "type",
                                       description: "可选值：email / number / password / tel / text / url。",
                                       children: [
@@ -57455,6 +57519,10 @@ export const generatedCoreUiSurfaceContracts = {
     {
       name: "onChange",
       description: "类型：(value: unknown, option?: unknown) => void。",
+    },
+    {
+      name: "disabled",
+      description: "类型：boolean。",
     },
     {
       name: "placeholder",
@@ -60465,6 +60533,10 @@ export const generatedCoreUiSurfaceContracts = {
                                               ],
                                             },
                                             {
+                                              name: "disabled",
+                                              description: "类型：boolean。",
+                                            },
+                                            {
                                               name: "type",
                                               description: "可选值：email / number / password / tel / text / url。",
                                               children: [
@@ -62361,6 +62433,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           description: "字面量取值。",
                                                         },
                                                       ],
+                                                    },
+                                                    {
+                                                      name: "disabled",
+                                                      description: "类型：boolean。",
                                                     },
                                                     {
                                                       name: "type",
@@ -68775,6 +68851,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           ],
                                                         },
                                                         {
+                                                          name: "disabled",
+                                                          description: "类型：boolean。",
+                                                        },
+                                                        {
                                                           name: "type",
                                                           description: "可选值：email / number / password / tel / text / url。",
                                                           children: [
@@ -70671,6 +70751,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "type",
@@ -78457,6 +78541,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           ],
                                                         },
                                                         {
+                                                          name: "disabled",
+                                                          description: "类型：boolean。",
+                                                        },
+                                                        {
                                                           name: "type",
                                                           description: "可选值：email / number / password / tel / text / url。",
                                                           children: [
@@ -80353,6 +80441,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "type",
@@ -88139,6 +88231,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                           ],
                                                         },
                                                         {
+                                                          name: "disabled",
+                                                          description: "类型：boolean。",
+                                                        },
+                                                        {
                                                           name: "type",
                                                           description: "可选值：email / number / password / tel / text / url。",
                                                           children: [
@@ -90035,6 +90131,10 @@ export const generatedCoreUiSurfaceContracts = {
                                                                       description: "字面量取值。",
                                                                     },
                                                                   ],
+                                                                },
+                                                                {
+                                                                  name: "disabled",
+                                                                  description: "类型：boolean。",
                                                                 },
                                                                 {
                                                                   name: "type",

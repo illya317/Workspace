@@ -103,6 +103,10 @@ export const registeredModuleDefinitions = [
         { key: "meetings", label: "会议管理", desc: "会议、纪要、表决和决议依据", href: "/work/meeting", iconKey: "meetings", color: "emerald", resourceKey: "work.meetings", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/work/meetings"] },
       ],
     },
+    resourceDefs: [
+      { key: "work.projects.initiate", name: "项目发起", kind: "capability", capabilityOwnerKey: "work.projects", runtimeParentKey: "work.projects", sortOrder: 0 },
+      { key: "work.meetings.viewAll", name: "会议全量查看", kind: "capability", capabilityOwnerKey: "work.meetings", runtimeParentKey: "work.meetings", sortOrder: 0 },
+    ],
     routes: [
       { path: "/work/performance", gatePath: "/work/me", resourceKey: "work.tasks", notes: "Performance review uses the Work task execution resource." },
       { path: "/work/department", gatePath: "/work/me", resourceKey: "work.tasks", notes: "Department entry shows the organization overview shell." },

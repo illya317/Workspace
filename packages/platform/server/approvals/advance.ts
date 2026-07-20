@@ -23,6 +23,8 @@ import {
 } from "./runtime";
 import type { ApprovalAdapter, ApprovalRequestDto, ApprovalRequestRecord } from "./types";
 import { resolveNextWorkflowStateForPayload, type WorkflowExecutionState } from "../workflow-policy-nodes";
+import { issueApprovalCommitAuthorization } from "@workspace/platform/server/approval-commit-authorization";
+import { validateApprovalRequestAtPhase } from "./contract-validation";
 
 export async function completeApprovalNode<TPayload>(
   adapter: ApprovalAdapter<TPayload>,
@@ -70,25 +72,45 @@ export async function commitSubmittedApproval<TPayload>(
 ): Promise<ServiceResult<{ request: ApprovalRequestDto<TPayload> }>> {
   const claimed = await claimApprovalForCommit(adapter, input.request);
   if (!claimed.ok) return claimed;
-  const committed = await adapter.commitApprovedPayload({
-    actorUserId: input.actorUserId,
+  const validated = await validateApprovalRequestAtPhase({
+    adapter,
+    phase: "commit",
+    actorUserId: claimed.data.submitterUserId,
     request: claimed.data,
   });
+  if (!validated.ok) {
+    await recordApprovalCommitFailed(claimed.data, input.actorUserId, validated.error);
+    return validated;
+  }
+  const commitRequest = {
+    ...claimed.data,
+    latestPayload: validated.data.prepared.payload,
+  };
+  const approvalAuthorization = issueApprovalCommitAuthorization({
+    requestId: commitRequest.id,
+    requestVersion: commitRequest.version,
+    businessActionKey: commitRequest.businessActionKey,
+  });
+  const committed = await adapter.commitApprovedPayload({
+    actorUserId: input.actorUserId,
+    request: commitRequest,
+    approvalAuthorization,
+  });
   if (!committed.ok) {
-    await recordApprovalCommitFailed(claimed.data, input.actorUserId, committed.error);
+    await recordApprovalCommitFailed(commitRequest, input.actorUserId, committed.error);
     return committed;
   }
   const now = new Date();
   const eventType = workflowResolutionEventType(claimed.data.flowType);
   const updated = await applyApprovalTransition(adapter, {
-    request: claimed.data,
+    request: commitRequest,
     actorUserId: input.actorUserId,
     eventType,
     toStatus: "approved",
     comment: input.comment,
-    workflowNodeKey: input.workflowNodeKey ?? claimed.data.activeWorkflowNodeKey,
+    workflowNodeKey: input.workflowNodeKey ?? commitRequest.activeWorkflowNodeKey,
     updateData: {
-      ...workflowRuntimeUpdateData({ activeNodeKeys: [], joinState: claimed.data.workflowJoinState }),
+      ...workflowRuntimeUpdateData({ activeNodeKeys: [], joinState: commitRequest.workflowJoinState }),
       resolvedByUserId: input.actorUserId,
       resolvedAt: now,
       committedEntityType: committed.data.entityType,

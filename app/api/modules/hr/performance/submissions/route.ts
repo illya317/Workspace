@@ -9,6 +9,7 @@ import {
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const submissionsQuerySchema = z.object({
+  view: z.enum(["self", "summary"]).optional(),
   status: z.string().optional(),
 });
 

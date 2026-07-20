@@ -16,6 +16,10 @@ import {
   type ApprovalPreparedPayload,
   type ApprovalRequestDto,
 } from "./approvals";
+import {
+  consumeApprovalCommitAuthorization,
+  type ApprovalCommitAuthorization,
+} from "@workspace/platform/server/approval-commit-authorization";
 import { resolveApprovalWorkflowPolicy } from "./approvals/workflow";
 import { serviceError, serviceOk, type ServiceResult } from "./api";
 import {
@@ -197,6 +201,12 @@ export async function executeApprovedBusinessActionCommand<TInput, TNormalized, 
   command: BusinessActionCommandAdapter<TInput, TNormalized, TResult, TContext>;
   input: TInput;
   context: TContext;
+  approvalAuthorization: ApprovalCommitAuthorization;
+  approvalRequest: {
+    id: number;
+    version: number;
+    businessActionKey: string;
+  };
   authorize?: (input: TNormalized, context: TContext) => MaybePromise<boolean>;
   forbiddenMessage?: string;
 }): Promise<ServiceResult<TResult>> {
@@ -205,6 +215,16 @@ export async function executeApprovedBusinessActionCommand<TInput, TNormalized, 
   if (binding.data.workflow.kind !== "configurable") {
     return serviceError(`业务行为 ${input.command.businessActionKey} 不是可审批命令`, 500);
   }
+  if (input.approvalRequest.businessActionKey !== input.command.businessActionKey) {
+    return serviceError("批准后的业务写入与审批行为不匹配", 500);
+  }
+  const authorization = consumeApprovalCommitAuthorization({
+    authorization: input.approvalAuthorization,
+    requestId: input.approvalRequest.id,
+    requestVersion: input.approvalRequest.version,
+    businessActionKey: input.command.businessActionKey,
+  });
+  if (!authorization.ok) return authorization;
   const normalized = await input.command.validate(input.input, input.context);
   if (!normalized.ok) return normalized;
   const committed = await executeBoundDirectCommand(

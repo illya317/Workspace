@@ -9,7 +9,7 @@ import {
   executeApprovedBusinessActionCommand,
   executeBusinessActionCommand,
 } from "@workspace/platform/server/business-action-executor";
-import { listDepartmentResponsibleUserIds, isActiveEmployeeUser } from "@workspace/platform/server/business-space-natural-users";
+import { listDepartmentResponsibleUserIds } from "@workspace/platform/server/business-space-natural-users";
 import { mapValidationToServiceResult, okCommand } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
@@ -18,14 +18,14 @@ import {
   toRecord,
   type ApprovalRequestRowWithEvents,
 } from "@workspace/platform/server/approvals/serialization";
-import { canUseProject } from "./access";
+import { canSubmitWorkProjectAction, canUseProject } from "./access";
 import { buildProjectCreateCommand, type ProjectCreateCommand } from "./domain/project-validation";
 import { commitProjectCreateCommand } from "./projects";
 import { remainingProjectConfirmationHandlers } from "./project-approval-handlers";
 import {
   WORK_PROJECT_CREATE_ACTION,
   WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS,
-  WORK_PROJECT_RESOURCE_KEY,
+  WORK_PROJECT_INITIATION_RESOURCE_KEY,
 } from "./project-action-runtime";
 import type { ProjectCreateInput } from "./schemas";
 
@@ -60,7 +60,7 @@ export const workProjectApprovalAdapter: ApprovalAdapter<WorkProjectApprovalPayl
     const command = await validateProjectCreateForSubmission(actorUserId, normalized.data);
     if (!command.ok) return command;
     return serviceOk({
-      resourceKey: WORK_PROJECT_RESOURCE_KEY,
+      resourceKey: WORK_PROJECT_INITIATION_RESOURCE_KEY,
       scopeId: null,
       subjectId: null,
       businessActionKey: WORK_PROJECT_CREATE_ACTION,
@@ -72,7 +72,7 @@ export const workProjectApprovalAdapter: ApprovalAdapter<WorkProjectApprovalPayl
   },
   resolveAccess: async ({ actorUserId, action, request }) => {
     if (action === "listRequests") return canUseProject(actorUserId);
-    if (action === "createDraft") return Boolean(await canUseProject(actorUserId) && await isActiveEmployeeUser(actorUserId));
+    if (action === "createDraft") return canSubmitWorkProjectAction(actorUserId);
     if (action === "approve" || action === "reject" || action === "reviewUpdate") {
       return Boolean(request && request.status === "submitted" && await canProcessProjectRequest(actorUserId, request));
     }
@@ -92,12 +92,14 @@ export const workProjectApprovalAdapter: ApprovalAdapter<WorkProjectApprovalPayl
     summary: `${request.latestPayload.data.name} · ${request.latestPayload.data.enablingDepartmentIds?.length ?? 0} 个赋能部门`,
     href: `/settings/account?tab=notifications&workflowRequestId=${request.id}`,
   }),
-  commitApprovedPayload: async ({ actorUserId, request }) => {
+  commitApprovedPayload: async ({ actorUserId, request, approvalAuthorization }) => {
     if (!(await canProcessProjectRequest(actorUserId, request))) return serviceError("无权限确认该项目", 403);
     const result = await executeApprovedBusinessActionCommand({
       command: projectCreateCommandAdapter,
       input: request.latestPayload.data,
       context: { userId: request.submitterUserId },
+      approvalAuthorization,
+      approvalRequest: request,
     });
     if (!result.ok) return result;
     const record = result.data as { record?: { id?: unknown } };
@@ -115,13 +117,13 @@ export async function executeCreateProjectWithWorkflowGuard(command: { userId: n
     input: command.body,
     context: { userId: command.userId },
     actorUserId: command.userId,
-    authorize: () => canUseProject(command.userId),
+    authorize: () => canSubmitWorkProjectAction(command.userId),
     forbiddenMessage: "无权限发起项目",
     workflow: {
       adapter: workProjectApprovalAdapter,
       operation: "create",
       prepare: () => ({
-        resourceKey: WORK_PROJECT_RESOURCE_KEY,
+        resourceKey: WORK_PROJECT_INITIATION_RESOURCE_KEY,
         scopeId: null,
         subjectId: null,
         businessActionKey: WORK_PROJECT_CREATE_ACTION,

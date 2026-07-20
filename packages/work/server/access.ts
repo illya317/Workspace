@@ -15,6 +15,7 @@ import {
   listDepartmentIdsManagedByUserPosition,
   getOperatingCommitteeNaturalSpaceActionProfile,
 } from "@workspace/platform/server/business-space-permissions";
+import { isActiveEmployeeUser } from "@workspace/platform/server/business-space-natural-users";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../constants/field-options";
 import {
@@ -31,6 +32,14 @@ export type WorkSpacePermissionKind = "project" | "task";
 export async function canUseProject(userId: number, role: ProjectAccessRole = "entry") {
   void role;
   return canEnterResource(userId, "work.projects");
+}
+
+export async function canSubmitWorkProjectAction(userId: number) {
+  const [canSubmit, isActiveEmployee] = await Promise.all([
+    evaluatePermissionAction(userId, "work.projects.initiate", "submit"),
+    isActiveEmployeeUser(userId),
+  ]);
+  return canSubmit && isActiveEmployee;
 }
 
 async function hasProjectL2Access(userId: number) {

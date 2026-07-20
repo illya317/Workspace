@@ -9,10 +9,43 @@ export async function canProcessWorkTaskRequest(
   actorUserId: number,
   request: ApprovalRequestRecord<WorkTaskApprovalPayload>,
 ) {
+  return canProcessWorkTaskRequestWithPermission(
+    actorUserId,
+    request,
+    (payload) => canApproveWorkTaskPayload(actorUserId, payload),
+  );
+}
+
+export async function canProcessWorkTaskRequests(
+  actorUserId: number,
+  requests: readonly ApprovalRequestRecord<WorkTaskApprovalPayload>[],
+) {
+  const permissionsByTarget = new Map<string, Promise<boolean>>();
+  const resolvePermission = (payload: WorkTaskApprovalPayload) => {
+    const target = approvalControlTarget(payload);
+    if (!target) return Promise.resolve(false);
+    const key = `${target.targetType}:${target.targetId}`;
+    let pending = permissionsByTarget.get(key);
+    if (!pending) {
+      pending = canApproveWorkTaskAction(actorUserId, target.targetType, target.targetId);
+      permissionsByTarget.set(key, pending);
+    }
+    return pending;
+  };
+  return Promise.all(requests.map((request) => (
+    canProcessWorkTaskRequestWithPermission(actorUserId, request, resolvePermission)
+  )));
+}
+
+async function canProcessWorkTaskRequestWithPermission(
+  actorUserId: number,
+  request: ApprovalRequestRecord<WorkTaskApprovalPayload>,
+  canApprovePayload: (payload: WorkTaskApprovalPayload) => Promise<boolean>,
+) {
   const payload = request.latestPayload;
   let actorPermissionHandlers: Promise<number[]> | null = null;
   const resolvePermission = () => {
-    actorPermissionHandlers ??= canApproveWorkTaskPayload(actorUserId, payload)
+    actorPermissionHandlers ??= canApprovePayload(payload)
       .then((allowed) => allowed ? [actorUserId] : []);
     return actorPermissionHandlers;
   };

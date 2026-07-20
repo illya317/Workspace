@@ -7,6 +7,7 @@ import {
 } from "../action/ActionGlyphs";
 import type { InputSurfaceProps } from "../../InputSurface";
 import type { FormSurfaceActionSpec } from "../../FormSurface.types";
+import { isFormSurfaceNativeSubmitAction } from "./form-surface-submit";
 
 function actionOrder(action: FormSurfaceActionSpec) {
   const definition = ACTION_GLYPH_ACTION_BY_KEY[action.action];
@@ -27,7 +28,7 @@ export function renderFormSurfaceActions(
       {orderFormSurfaceActions(actions).map((action) => {
         const definition = ACTION_GLYPH_ACTION_BY_KEY[action.action];
         const label = action.label ?? definition.label;
-        const submitsForm = action.action === "submit" || (action.action === "save" && !action.onClick);
+        const submitsForm = isFormSurfaceNativeSubmitAction(action);
         return (
           <ActionButton
             key={action.key}

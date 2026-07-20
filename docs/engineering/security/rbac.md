@@ -195,6 +195,8 @@ evaluatePermissionAction(userId, resourceKey, actionKey, scope?)
   -> 命中 true，否则 false
 ```
 
+默认求值使用 effective grant：动作可由 `actionImplies` 隐含，资源可按 `ancestorInheritedActions` 从父级继承。少数读取若必须同时排除动作隐含与父级继承，应在同一次求值中设置 `grantMatch.action = exact` 与 `grantMatch.resource = exact`；只设置动作 exact 仍允许同名 action 从父资源下传。exact 只收窄目标 grant 匹配，不取消 root identity、目标资源上的系统管理来源、系统默认权限或显式用户/岗位/部门授权；capability 的 owner-entry 前置条件仍按 owner 的 effective entry 求值。
+
 ## API 权限
 
 API contract 分两层：

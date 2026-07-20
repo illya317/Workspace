@@ -23,7 +23,9 @@
 | `work` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `work.tasks` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `archive`, `revise`, `reverse`, `submit`, `approve`, `reject`, `grant` |
 | `work.projects` | business / space entry | `entry`, `read`, `create`, `update`, `delete`, `revise`, `grant` |
+| `work.projects.initiate` | capability | `submit`, `grant` |
 | `work.meetings` | business | `entry`, `read`, `create`, `update`, `delete`, `submit`, `approve`, `grant` |
+| `work.meetings.viewAll` | capability | `read`, `grant` |
 | `hr` | container | `entry`, `read`, `create`, `update`, `delete`, `grant` |
 | `hr.roster` | business | `entry`, `read`, `create`, `update`, `delete`, `archive`, `revise`, `reverse`, `submit`, `approve`, `reject`, `grant` |
 | `hr.performance` | business | `entry`, `read`, `revise`, `reverse`, `submit`, `approve`, `reject`, `grant` |
@@ -65,6 +67,8 @@
 | `agent` | headless | `entry`, `read`, `submit`, `grant` |
 | `agent.assistant` | capability | `entry`, `read`, `submit`, `grant` |
 | `agent.source` | capability | `read`, `submit`, `grant` |
+
+`work.projects.initiate.submit` 是全局项目发起能力；`work.projects` 仍是标准空间 root，直接授权只允许 `entry`，不能用 root non-entry grant 绕过空间红线。`work.meetings.viewAll.read` 只放宽会议列表对象范围，不提供编辑、管理或审批能力。两个 capability 都要求对应 owner resource 可进入，且自身动作必须显式授权。
 
 `agent` 是无页面的运行态模块。普通员工工具栏与 `/api/agent/**` 只认 `agent.assistant`；其 owner 是 `settings.account`，`runtimeParentKey=agent` 仅控制模块停用。源码检索与 CNB PR 提案另需显式 `agent.source.read/submit`，其 owner 是 `agent.assistant`。虚拟员工模式还要求所选 profile、actor 岗位权限和工具白名单同时通过；当前只有 AI0004 获得 Workspace source grants，且这些 profile-only 工具不会暴露给本人助手。AI0001-AI0003 不承担 Workspace 对话，本地代码开发、直接提交和部署仍在外部运行时完成。
 
@@ -118,6 +122,7 @@ API 权限不再从 HTTP method 粗暴推旧动作。当前规则：
 
 | 场景 | API policy | 真实授权 |
 |---|---|---|
+| 新建项目申请 | `work.projects.initiate.submit` | capability 先控制谁可发起，service/adapter 再校验启用状态、目标部门和真实处理人 |
 | 项目字段或成员修改 | root resource 先要求 `read` | service 根据项目对象解析空间和项目角色，再检查 `create/update/delete/revise/grant` |
 | 工作任务修改 | root resource 先要求 `read` | service 根据目标空间和任务状态检查派生空间 action |
 | 模板发布/撤回/审批 | `submit` / `reverse` / `approve` / `reject` | docs editor adapter 根据模板空间和流程状态检查 |
@@ -129,7 +134,7 @@ API 权限不再从 HTTP method 粗暴推旧动作。当前规则：
 
 开放 API 不进入内部 RBAC resource/action。`/api/open/v1/**` 使用 Open API 专用 scope、client secret 和 client-scope grant。
 
-内部控制台仍走 RBAC：`settings.api` 控制读取和导出，`settings.api.manage` 控制 client/secret/scope 管理，个人 API Key 使用能力归属 `settings.account.apiAccess`。
+内部控制台仍走 RBAC：`settings.api` 控制读取和导出，`settings.api.manage` 控制 client/secret/scope 管理，个人 API Key 使用能力归属 `settings.account.apiAccess`。个人 API Key 登录入口虽在建立 session 前必须公开可达，但只有凭证匹配且具备 `settings.account.apiAccess.entry` 的账号才能获得 session；`x-api-key` 请求沿用同一 capability。
 
 ## 验证命令
 

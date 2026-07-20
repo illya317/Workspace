@@ -7,6 +7,7 @@ import FormField from "./FormField";
 import { isInputField, renderCommands, renderFieldValue } from "./FormSurface.controls";
 import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { orderFormSurfaceActions, renderFormSurfaceActions } from "./form-surface-actions";
+import { isFormSurfaceNativeSubmitAction } from "./form-surface-submit";
 import type {
   FormSurfaceCommandSpec,
   FormSurfaceFilterLayoutSpec,
@@ -355,7 +356,7 @@ function renderLoginActions(actions: FormSurfaceProps["actions"]) {
     <div className="col-span-full space-y-3">
       {orderFormSurfaceActions(actions).map((action) => {
         const definition = ACTION_GLYPH_ACTION_BY_KEY[action.action];
-        const submitsForm = action.action === "submit" && !action.onClick;
+        const submitsForm = isFormSurfaceNativeSubmitAction(action);
         const tone = definition.variant === "primary"
           ? "bg-emerald-600 text-white hover:bg-emerald-700 disabled:bg-slate-300"
           : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 disabled:text-slate-300";

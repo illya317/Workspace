@@ -50,13 +50,17 @@ Workflow contract 只定义能力边界和默认定义，不保存管理员当�
 | V1 支持几个节点、哪些节点类型、哪些审批人来源、是否允许豁免 | ActionContract |
 | 某个租户/管理员当前选择谁处理、是否开启、是否允许撤回/删除/重发 | WorkflowPolicy |
 
-## V1 样板
+## 运行时约束
 
-当前首批已登记：
+- `workflow.validateOn` 是 Approval engine 的运行规则，不是说明性 metadata。`draft` 在写入流程草稿前、`submit` 在状态迁移前、`commit` 在抢占为 `committing` 后分别调用同一个业务 adapter validator。
+- submit / commit 重验只能规范化 payload，不能改变已冻结的 `businessActionKey`、`resourceKey`、`scopeId` 或 `subjectId`。身份漂移必须 fail closed。
+- `ApprovalRequest.sourceActionContractVersion` 与当前 contract 版本不一致时，submit / commit 返回 `409`，由发起人基于当前 contract 重新提交，不能把旧 payload 静默写入新语义。
+- `commitApprovedPayload()` 只接受 Approval engine 在原子抢占成功后签发的一次性 capability；capability 同时绑定 request id、claimed version 和 business action，不能用字符串或裸 helper 伪造“已批准”。
+- direct command 必须把 `direct` 语义显式传到最终 service guard；不得给 `workflow-approved` 设置默认值，也不得让 direct 路径借审批 bypass 跳过对象级权限。
+- commit 重验或正式写入失败时，engine 追加 `commit_failed` 并把请求恢复到 `submitted`；不会留下永久 `committing`，也不会执行批准状态迁移。
 
-| Action | 状态 | 说明 |
-|---|---|---|
-| `hr.roster.department.create` | 可配置 | 表单、domain、API、approval payload、单节点审批 contract 已声明 |
-| `hr.roster.position.create` | 无流程配置 | 表单、domain、API 已声明；runtime 仍是权限直写，未接流程 |
+## 覆盖与检查
 
-历史 action 缺 contract 暂时是 warning-only 债务；`npm run action-contract:check` 会列出缺口。
+ActionContract registry 必须与 BusinessAction registry 一一对应；完整清单由 `docs/generated/action-contracts.md` 生成，不在本页维护易过期的手写样板。
+
+`npm run action-contract:check` 对缺失/重复 contract、domain binding、真实 route、direct/workflow route 双向映射和 persistence/form/runtime 矩阵执行 hard fail。`npm run test:contract` 负责 command binding、一次性批准 capability、route binding 和 ActionRuntime 的行为证据；两者都通过才可把 action 视为已接入。

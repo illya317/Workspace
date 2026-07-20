@@ -34,8 +34,8 @@ export function apiRoutes(
 
 export function systemApiRoutes(): ApiRouteRegistration[] {
   return [
-    { method: "POST", pathPrefix: "/api/auth/dev-login", access: "dev", notes: "Development-only login helper; no business resource is read or mutated." },
-    { method: "DELETE", pathPrefix: "/api/auth/dev-login", access: "dev", notes: "Development-only login session cleanup; no business resource is read or mutated." },
+    { method: "POST", pathPrefix: "/api/auth/dev-login", access: "public", notes: "Production personal API Key login entry; credential verification is followed by settings.account.apiAccess capability enforcement." },
+    { method: "DELETE", pathPrefix: "/api/auth/dev-login", access: "public", notes: "Unauthenticated session-cookie cleanup for the production login surface." },
     { method: "GET", pathPrefix: "/api/auth/gateway-check", access: "protected", notes: "Session gateway check; verifies login state without reading business resources." },
     { method: "GET", pathPrefix: "/api/auth/me", access: "protected", notes: "Current-session identity snapshot; business resources are exposed through derived session claims." },
     { method: "GET", pathPrefix: "/api/auth/wecom", access: "public", notes: "WeCom desktop panel and in-app OAuth endpoints; must be reachable before a local session exists." },

@@ -37,7 +37,7 @@ export const POST = createCommandRoute({
   buildCommand: ({ user, params, body }) => okCommand({
     userId: user.userId,
     templateId: params.templateId,
-    version: body.version,
+    ...body,
   }),
   action: (command) => executePublishDocsEditorTemplate(command),
 });

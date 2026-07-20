@@ -52,6 +52,7 @@
     "./server/admin-projects": "./server/admin-projects.ts",
     "./server/app-version": "./server/app-version.ts",
     "./server/approval-lifecycle": "./server/approval-lifecycle.ts",
+    "./server/approval-commit-authorization": "./server/approval-commit-authorization.ts",
     "./server/approvals": "./server/approvals.ts",
     "./server/approvals/serialization": "./server/approvals/serialization.ts",
     "./server/approvals/workflow-node-handlers": "./server/approvals/workflow-node-handlers.ts",

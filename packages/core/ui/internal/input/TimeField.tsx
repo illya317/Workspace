@@ -1,7 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import FieldShell from "./FieldShell";
 import { useFieldContext } from "./field-context";
+import {
+  normalizeTimeTextPart,
+  parseTimeValue,
+  updateTimeDraftPart,
+} from "./time-field-value";
+import type { TimePartName } from "./time-field-value";
 
 export interface TimeFieldProps {
   value?: string | null;
@@ -10,29 +17,6 @@ export interface TimeFieldProps {
   readOnly?: boolean;
   className?: string;
   placeholder?: string;
-}
-
-function pad2(value: number) {
-  return String(value).padStart(2, "0");
-}
-
-function normalizeTimePart(value: number, max: number) {
-  return pad2(Math.min(max, Math.max(0, value)));
-}
-
-function parseTimeValue(value: string | null | undefined) {
-  const match = value?.match(/^(\d{2}):(\d{2})$/);
-  if (!match) return { hour: "", minute: "" };
-  return {
-    hour: normalizeTimePart(Number(match[1]), 23),
-    minute: normalizeTimePart(Number(match[2]), 59),
-  };
-}
-
-function normalizeTextPart(value: string, max: number) {
-  const digits = value.replace(/\D/g, "").slice(0, 2);
-  if (!digits) return "";
-  return normalizeTimePart(Number(digits), max);
 }
 
 function TimePart({
@@ -50,17 +34,33 @@ function TimePart({
   readOnly?: boolean;
   onChange: (value: string) => void;
 }) {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(value);
+
+  useEffect(() => {
+    if (!editing) setDraft(value);
+  }, [editing, value]);
+
   return (
     <input
       type="text"
       inputMode="numeric"
       disabled={disabled}
       readOnly={readOnly}
-      value={value}
+      value={editing ? draft : value}
       placeholder="00"
       aria-label={label}
-      onFocus={(event) => event.currentTarget.select()}
-      onChange={(event) => onChange(normalizeTextPart(event.target.value, max))}
+      onFocus={(event) => {
+        setDraft(value);
+        setEditing(true);
+        event.currentTarget.select();
+      }}
+      onBlur={() => setEditing(false)}
+      onChange={(event) => {
+        const next = normalizeTimeTextPart(event.target.value, max);
+        setDraft(next);
+        onChange(next);
+      }}
       className="w-8 bg-transparent text-center font-mono text-sm font-semibold text-slate-900 outline-none placeholder:text-slate-300 disabled:text-slate-500"
     />
   );
@@ -73,18 +73,22 @@ export default function TimeField({
   readOnly,
   className,
 }: TimeFieldProps) {
-  const { hour, minute } = parseTimeValue(value);
+  const parsedValue = parseTimeValue(value);
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState(parsedValue);
   const fieldContext = useFieldContext();
 
-  function commit(part: "hour" | "minute", nextValue: string) {
-    const nextHour = part === "hour" ? nextValue : hour;
-    const nextMinute = part === "minute" ? nextValue : minute;
-    if (!nextHour && !nextMinute) {
-      onChange(null);
-      return;
-    }
-    onChange(`${nextHour || "00"}:${nextMinute || "00"}`);
+  useEffect(() => {
+    if (!editing) setDraft(parseTimeValue(value));
+  }, [editing, value]);
+
+  function commit(part: TimePartName, nextValue: string) {
+    const next = updateTimeDraftPart(draft, part, nextValue);
+    setDraft(next.draft);
+    onChange(next.value);
   }
+
+  const displayedValue = editing ? draft : parsedValue;
 
   return (
     <FieldShell
@@ -93,10 +97,19 @@ export default function TimeField({
       size={fieldContext?.size}
       density={fieldContext?.density}
       className={`flex items-center justify-center gap-1 px-2 tabular-nums ${className ?? ""}`}
+      onFocusCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) {
+          setDraft(parsedValue);
+          setEditing(true);
+        }
+      }}
+      onBlurCapture={(event) => {
+        if (!event.currentTarget.contains(event.relatedTarget)) setEditing(false);
+      }}
     >
       <TimePart
         label="小时"
-        value={hour}
+        value={displayedValue.hour}
         max={23}
         disabled={disabled}
         readOnly={readOnly}
@@ -105,7 +118,7 @@ export default function TimeField({
       <span className="font-mono text-sm font-semibold text-slate-400">:</span>
       <TimePart
         label="分钟"
-        value={minute}
+        value={displayedValue.minute}
         max={59}
         disabled={disabled}
         readOnly={readOnly}

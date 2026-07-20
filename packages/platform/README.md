@@ -33,6 +33,7 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 提供 `@workspace/platform/server/relation-registry` 和 `@workspace/platform/server/reference-options` 作为 Relation Catalog、FK 搜索、校验、权限和引用候选契约；带对象可见性或额外参数的 selector 语义仍通过业务包 `server/fk-registry.ts` adapter 注入
 - 提供 `@workspace/platform/server/mutation-impact` 作为变更影响的递归规划和执行契约；业务 service 提供同一事务、业务 adapter、root commit 和审计上下文，Platform 不反向依赖业务 service
 - 提供 `@workspace/platform/server/mutation-impact-ledger` 作为变更批次/影响明细审计契约；root 与关联 effect 必须和真实写入共用调用方事务
+- 提供 Approval engine 的三阶段 ActionContract 重验与一次性批准 capability；正式写入 capability 绑定 request id、claimed version 和 businessActionKey，只有 engine 抢占 `committing` 后可签发，direct command 不得复用审批 bypass
 - 提供 `@workspace/platform/server/resolve-fk` 作为 registry 驱动的 FK 快照显示名解析契约，展示解析优先使用 `entityType + field`，再用 `Any + field` 兜底，避免裸字段名跨实体误解析
 
 Platform 可以读取业务包的注册信息，但不能直接 import 业务页面或业务 service。业务包需要认证和权限时依赖 `@workspace/platform/server/auth` 或 `@workspace/platform/server/with-auth`，需要 RBAC 常量或角色标准化时依赖 `@workspace/platform/permissions`，需要 API route 通用请求解析时依赖 `@workspace/platform/server/api`，需要 domain validator 结果契约时依赖 `@workspace/platform/server/domain-validation`，需要通用 CRUD helper 时依赖 `@workspace/platform/server/crud-factory` 并在本领域封装，需要自定义删除事务时依赖 `@workspace/platform/server/delete-guard`，需要数据库访问时依赖 `@workspace/platform/server/prisma`，需要审计快照时依赖 `@workspace/platform/server/history`，需要 FK 候选或校验时依赖 `@workspace/platform/server/relation-registry` / `@workspace/platform/server/reference-options`，需要 FK 快照显示名时依赖 `@workspace/platform/server/resolve-fk`；不要恢复 app-root `@/lib/auth` 聚合 hub、`lib/with-auth.ts`、`@/lib/crud*` 兼容入口，也不要直接依赖 app-root `@/lib/permissions`、`@/lib/prisma`、`@/lib/history`、`@/lib/resolve-fk` 或 generated Prisma client。
@@ -45,7 +46,7 @@ Platform 可以读取业务包的注册信息，但不能直接 import 业务页
 
 ## Mutation Impact
 
-变更影响协议是 `plan -> confirm -> transaction-local re-plan -> execute -> audit`。确认 token 绑定 actor、scope、root、intent、root revision、影响 fingerprint、策略 revision 和过期时间；业务 route 只能把 `impactToken + resolutions` 回传原 mutation service，不能提供通用 ignore，也不能绕到全局 execute endpoint。任何 blocker、过期/篡改 token、策略或对象版本变化都必须 fail closed。业务 adapter 只声明 relation inspect 和允许的 unlink/cascade/transition 操作；root commit、影响操作和成功的 `MutationImpactBatch` / `MutationImpactEffect` 写入必须处于同一 Serializable 业务事务，序列化冲突按统一 helper 有界重试。block、首次待确认、stale-confirmation 和执行失败使用独立 attempt 事实写入，保证业务事务回滚后仍可观测；attempt 只保存必要的结果码和脱敏消息。
+变更影响协议是 `plan -> confirm -> transaction-local re-plan -> execute -> audit`。确认 token 绑定 actor、scope、root、intent、root revision、影响 fingerprint、策略 revision 和过期时间；业务 route 只能把 `impactToken + resolutions` 回传原 mutation service，不能提供通用 ignore，也不能绕到全局 execute endpoint。任何 blocker、过期/篡改 token、策略或对象版本变化都必须 fail closed。业务 adapter 只声明 relation inspect 和允许的 unlink/cascade/transition 操作；root commit、影响操作和成功的 `MutationImpactBatch` / `MutationImpactEffect` 写入必须处于同一 Serializable 业务事务，序列化冲突由统一 helper 使用带抖动的指数退避做有界重试，避免并发冲突形成同步重试风暴。block、首次待确认、stale-confirmation 和执行失败使用独立 attempt 事实写入，保证业务事务回滚后仍可观测；attempt 只保存必要的结果码和脱敏消息。
 
 ## History Policy Registry
 

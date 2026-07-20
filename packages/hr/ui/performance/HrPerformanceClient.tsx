@@ -56,6 +56,7 @@ export default function HrPerformanceClient({ user: _user }: { user: SessionUser
   const loadData = useCallback(async (filters: DashboardFilters) => {
     setLoading(true);
     const params = new URLSearchParams();
+    params.set("view", "summary");
     if (filters.cycleId) params.set("cycleId", filters.cycleId);
     params.set("periodType", filters.periodType);
     params.set("audienceType", filters.audience);

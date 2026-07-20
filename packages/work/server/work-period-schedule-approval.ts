@@ -65,13 +65,14 @@ export async function validateWorkPeriodScheduleApprovalPayload(
 export async function commitWorkPeriodScheduleApproval(
   submitterUserId: number,
   payload: WorkTaskItemApprovalPayload,
+  authorization: "direct" | "workflow-approved",
 ) {
   const schedule = periodScheduleData(payload);
   if (!schedule) return serviceError("时间安排审批参数无效", 400);
   const result = await createWorkPeriodScheduleItem({
     ...schedule,
     actorUserId: submitterUserId,
-    mutationAuthorization: "workflow-approved",
+    mutationAuthorization: authorization,
   });
   if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({

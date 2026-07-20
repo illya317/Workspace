@@ -54,6 +54,7 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
   const loadData = useCallback(async (nextCycleId = cycleId, nextKeyword = keyword) => {
     setLoading(true);
     const params = new URLSearchParams();
+    params.set("view", "self");
     if (nextCycleId) params.set("cycleId", nextCycleId);
     if (nextKeyword.trim()) params.set("keyword", nextKeyword.trim());
     const response = await fetch(workspacePath(`/api/modules/hr/performance?${params.toString()}`));

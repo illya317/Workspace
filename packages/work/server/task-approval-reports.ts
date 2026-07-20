@@ -20,12 +20,13 @@ export async function commitWorkReportApproval(input: {
   actorUserId: number;
   submitterUserId: number;
   payload: WorkTaskReportApprovalPayload;
+  authorization: "direct" | "workflow-approved";
 }) {
   const items = Array.isArray(input.payload.data.items) ? input.payload.data.items as WorkReportItemInput[] : [];
   const result = await saveWorkReport({
     userId: input.submitterUserId,
     actorUserId: input.actorUserId,
-    updateGuard: "workflow-approved",
+    updateGuard: input.authorization,
     targetType: input.payload.targetType,
     targetId: input.payload.targetId,
     periodType: nullableString(input.payload.periodType ?? input.payload.data.periodType),

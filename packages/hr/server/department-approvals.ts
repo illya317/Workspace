@@ -129,19 +129,23 @@ export const hrDepartmentApprovalAdapter: ApprovalAdapter<HrDepartmentApprovalPa
     summary: departmentApprovalSummary(request.latestPayload) || `部门审批 #${request.id}`,
     href: `/hr/roster?workflowId=${request.id}`,
   }),
-  commitApprovedPayload: async ({ actorUserId, request }) => {
+  commitApprovedPayload: async ({ actorUserId, request, approvalAuthorization }) => {
     if (!(await canProcessHrDepartmentRequest(actorUserId, request))) return serviceError("无权限审批该部门流程", 403);
     const result = request.operation === "create"
       ? await executeApprovedBusinessActionCommand({
           command: departmentCreateCommandAdapter,
           input: request.latestPayload.data as DepartmentCreateInput,
           context: { userId: request.submitterUserId },
+          approvalAuthorization,
+          approvalRequest: request,
         })
       : request.latestPayload.departmentId
         ? await executeApprovedBusinessActionCommand({
             command: departmentUpdateCommandAdapter,
             input: { ...request.latestPayload.data, id: request.latestPayload.departmentId } as DepartmentUpdateInput,
             context: { userId: request.submitterUserId },
+            approvalAuthorization,
+            approvalRequest: request,
           })
         : serviceError("流程单缺少部门 ID", 400);
     if (!result.ok) return serviceError(result.error, result.status || 400);

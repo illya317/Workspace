@@ -30,6 +30,7 @@ import {
 import { publishTemplateSnapshot } from "./publish-service";
 import { saveDraft } from "./service";
 import { resolveTargetSpace } from "./space-service";
+import { consumeApprovalCommitAuthorization } from "../approval-commit-authorization";
 
 export type DocsTemplateWorkflowAction = "draft.create" | "draft.save" | "publish";
 
@@ -108,11 +109,18 @@ export const docsTemplateApprovalAdapter: ApprovalAdapter<DocsTemplateApprovalPa
     summary: docsTemplateApprovalSummary(request.latestPayload) || `模板流程 #${request.id}`,
     href: `/docs/editor?approvalId=${request.id}`,
   }),
-  commitApprovedPayload: async ({ actorUserId, request }) => {
+  commitApprovedPayload: async ({ actorUserId, request, approvalAuthorization }) => {
     const payload = request.latestPayload;
     const space = await spaceFromTarget(payload);
     if (!space) return serviceError("模板空间不存在", 404);
     if (!(await canProcessDocsTemplateRequest(actorUserId, request))) return serviceError("无权限处理该模板流程", 403);
+    const authorized = consumeApprovalCommitAuthorization({
+      authorization: approvalAuthorization,
+      requestId: request.id,
+      requestVersion: request.version,
+      businessActionKey: request.businessActionKey,
+    });
+    if (!authorized.ok) return authorized;
     const result = payload.action === "publish"
       ? await publishTemplateSnapshot({
           userId: actorUserId,

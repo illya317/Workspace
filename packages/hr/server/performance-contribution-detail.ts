@@ -13,6 +13,7 @@ import {
   type HrPerformanceAudienceType,
   type HrPerformanceContributionTarget,
 } from "./performance-audience";
+import { canReadHrPerformanceContributionTarget } from "./performance-access";
 
 const HR_PERFORMANCE_RESOURCE_KEY = "hr.performance";
 const PERIOD_TYPES = ["weekly", "monthly", "quarterly", "half_year", "yearly"] as const;
@@ -68,6 +69,9 @@ export async function executeGetHrPerformanceContributionDetailRouteCommand(comm
     }),
   ]);
   if (!target) return serviceError("对应工作空间不存在或已停用", 404);
+  if (!(await canReadHrPerformanceContributionTarget(command.userId, target))) {
+    return serviceError("无权限查看该绩效贡献材料", 403);
+  }
   if (!cycle || !isPeriodType(cycle.periodType)) return serviceError("绩效周期不存在或不支持", 404);
   const normalizedCycle = { ...cycle, periodType: cycle.periodType as PeriodType };
   const modelBase: Omit<PeriodDossierModel, "content"> = {

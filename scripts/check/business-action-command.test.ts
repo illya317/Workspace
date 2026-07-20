@@ -10,6 +10,7 @@ import {
   executeBusinessActionCommand,
   executeDirectBusinessActionCommand,
 } from "../../packages/platform/server/business-action-executor";
+import { issueApprovalCommitAuthorization } from "@workspace/platform/server/approval-commit-authorization";
 
 const CREATE_VALIDATOR = "packages/administration/server/domain/administration-contract-validation.buildContractCreateCommand";
 const CREATE_COMMIT = "packages/administration/server/contracts.commitCreateContractCommand";
@@ -133,17 +134,72 @@ test("contract delete command rejects a negative optimistic version", () => {
   assert.equal(valid.ok, true);
 });
 
-test("approved command validates again before committing active data", async () => {
+test("approved command rejects calls without approval-engine authorization", async () => {
   const { calls, command } = createApprovedDepartmentCommandHarness();
+
+  const result = await executeApprovedBusinessActionCommand({
+    command,
+    input: { code: "OPS" },
+    context: undefined,
+    approvalAuthorization: undefined as never,
+    approvalRequest: { id: 91, version: 4, businessActionKey: command.businessActionKey },
+  });
+
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.match(result.error, /授权/);
+  assert.deepEqual(calls, { validate: 0, commit: 0 });
+});
+
+test("approved command consumes one engine authorization before committing active data", async () => {
+  const { calls, command } = createApprovedDepartmentCommandHarness();
+  const approvalAuthorization = issueApprovalCommitAuthorization({
+    requestId: 91,
+    requestVersion: 4,
+    businessActionKey: command.businessActionKey,
+  });
 
   const result = await executeApprovedBusinessActionCommand({
     command,
     input: { code: "  OPS  " },
     context: undefined,
+    approvalAuthorization,
+    approvalRequest: { id: 91, version: 4, businessActionKey: command.businessActionKey },
   });
 
   assert.deepEqual(result, { ok: true, data: { id: 9, code: "OPS" } });
   assert.deepEqual(calls, { validate: 1, commit: 1 });
+
+  const replayed = await executeApprovedBusinessActionCommand({
+    command,
+    input: { code: "REPLAY" },
+    context: undefined,
+    approvalAuthorization,
+    approvalRequest: { id: 91, version: 4, businessActionKey: command.businessActionKey },
+  });
+  assert.equal(replayed.ok, false);
+  if (!replayed.ok) assert.match(replayed.error, /无效或已使用/);
+  assert.deepEqual(calls, { validate: 1, commit: 1 });
+});
+
+test("approved command consumes and rejects an authorization bound to another request version", async () => {
+  const { calls, command } = createApprovedDepartmentCommandHarness();
+  const approvalAuthorization = issueApprovalCommitAuthorization({
+    requestId: 91,
+    requestVersion: 4,
+    businessActionKey: command.businessActionKey,
+  });
+
+  const result = await executeApprovedBusinessActionCommand({
+    command,
+    input: { code: "OPS" },
+    context: undefined,
+    approvalAuthorization,
+    approvalRequest: { id: 91, version: 5, businessActionKey: command.businessActionKey },
+  });
+
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.match(result.error, /审批请求不匹配/);
+  assert.deepEqual(calls, { validate: 0, commit: 0 });
 });
 
 test("explicitly inapplicable workflow stays on the direct command path", async () => {

@@ -11,6 +11,7 @@ import {
   canViewWorkTaskTarget,
   canArchiveWorkTaskAction,
   canDeleteWorkTaskAction,
+  canSubmitWorkProjectAction,
   canUseProject,
   normalizeWorkTargetType,
   type WorkSpaceTargetType,
@@ -179,7 +180,7 @@ export async function buildCreateProjectRouteCommand(input: {
   userId: number;
   body: ProjectCreateInput;
 }) {
-  if (!(await canUseProject(input.userId, "entry"))) return failCommand("无权限", 403);
+  if (!(await canSubmitWorkProjectAction(input.userId))) return failCommand("无权限发起项目", 403);
   return okCommand(input);
 }
 

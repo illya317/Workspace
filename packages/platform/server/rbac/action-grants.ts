@@ -37,6 +37,10 @@ export interface ActionGrantItem {
 export interface EvaluatePermissionActionOptions {
   scopeId?: string | null;
   projection?: PermissionResourceProjectionKind;
+  grantMatch?: {
+    action?: "effective" | "exact";
+    resource?: "effective" | "exact";
+  };
   client?: Prisma.TransactionClient | typeof prisma;
 }
 
@@ -354,27 +358,37 @@ export async function evaluatePermissionAction(
   const capabilityOwnerKey = getCapabilityOwnerKey(resourceKey);
   if (capabilityOwnerKey) {
     if (!isResourceEnabled(capabilityOwnerKey)) return false;
-    if (!(await evaluatePermissionAction(userId, capabilityOwnerKey, "entry", { ...opts, client }))) return false;
+    const ownerOptions: EvaluatePermissionActionOptions = {
+      scopeId: opts?.scopeId,
+      projection: opts?.projection,
+      client,
+    };
+    if (!(await evaluatePermissionAction(userId, capabilityOwnerKey, "entry", ownerOptions))) return false;
   }
 
   const resourceIds = await getProjectedAncestorResourceIds(resourceKey, opts?.projection ?? "default", client);
   const resourceId = resourceIds[0];
   if (!resourceId) return false;
-  if (actionKey !== "grant" && await hasImplicitAdminForResourceIds(userId, resourceIds, client)) return true;
-  if (actionKey === "grant" && await hasImplicitGrantForResourceIds(userId, resourceIds, client)) return true;
+  const matchingResourceIds = opts?.grantMatch?.resource === "exact" ? [resourceId] : resourceIds;
+  if (actionKey !== "grant" && await hasImplicitAdminForResourceIds(userId, matchingResourceIds, client)) return true;
+  if (actionKey === "grant" && await hasImplicitGrantForResourceIds(userId, matchingResourceIds, client)) return true;
   if (!capabilityOwnerKey && defaultResourceActionAllows(resourceKey, actionKey)) return true;
-  const inheritableResourceIds = canPermissionActionInheritFromAncestor(resourceKey, actionKey)
-    ? resourceIds
-    : [resourceId];
+  const inheritableResourceIds = opts?.grantMatch?.resource === "exact"
+    ? [resourceId]
+    : canPermissionActionInheritFromAncestor(resourceKey, actionKey)
+      ? resourceIds
+      : [resourceId];
   const [positionIds, departmentIds] = await Promise.all([
     getUserPositionIds(userId, client),
     getUserDepartmentIds(userId, client),
   ]);
-  const matchingActionKeys = isRegisteredSpaceResourceKey(resourceKey) && actionKey === "entry"
-    ? [...PERMISSION_ACTION_KEYS]
-    : PERMISSION_ACTION_KEYS.filter((grantedActionKey) =>
-        permissionGrantContributesToAction(resourceKey, grantedActionKey, actionKey),
-      );
+  const matchingActionKeys = opts?.grantMatch?.action === "exact"
+    ? [actionKey]
+    : isRegisteredSpaceResourceKey(resourceKey) && actionKey === "entry"
+      ? [...PERMISSION_ACTION_KEYS]
+      : PERMISSION_ACTION_KEYS.filter((grantedActionKey) =>
+          permissionGrantContributesToAction(resourceKey, grantedActionKey, actionKey),
+        );
   const scopedResourceIncludesGlobal = opts?.scopeId !== undefined && opts.scopeId !== null
     ? canPermissionResourceInheritGlobalScope(resourceKey)
     : false;

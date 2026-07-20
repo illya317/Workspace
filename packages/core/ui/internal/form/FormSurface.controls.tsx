@@ -51,6 +51,7 @@ export function renderControl(field: FormSurfaceFieldSpec, density: InputSurface
       onFocus={field.onFocus}
       autoFocus={field.autoFocus}
       inputRef={field.inputRef}
+      disabled={field.disabled}
       readOnly={field.readOnly}
       ariaLabel={field.ariaLabel}
       dataFieldKey={field.dataFieldKey}

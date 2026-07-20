@@ -236,7 +236,7 @@ export async function listProjectPlanPhases(input: { userId: number; projectId: 
 export async function createProjectPlanPhase(input: { userId: number; projectId: number; body: PlanPhaseInput }) {
   const command = validateProjectPlanCommand("createProjectPlanPhase");
   if (!command.ok) return serviceError(command.issue.message, command.issue.status);
-  if (!(await canDeleteProjectSubresourceAction(input.userId, input.projectId))) return serviceError("无权限", 403);
+  if (!(await canCreateProjectAction(input.userId, input.projectId))) return serviceError("无权限", 403);
   const normalized = await normalizePlanPhaseInput(input.projectId, input.body, "create");
   if ("error" in normalized) return serviceError(String(normalized.error || "参数错误"));
   const createData = normalized.data;

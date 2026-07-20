@@ -8,11 +8,8 @@ import { commitSubmittedApproval, completeApprovalNode } from "./approvals/advan
 import { activeWorkflowNodeKeys, requestForWorkflowNode } from "./approvals/runtime";
 import { assertRequestLifecycleAction } from "./approvals/lifecycle";
 import {
-  requestInclude,
   stringifyPayload,
-  toDto,
   toRecord,
-  type ApprovalRequestRowWithEvents,
 } from "./approvals/serialization";
 import {
   appendApprovalEvent,
@@ -46,7 +43,6 @@ import type {
   ApprovalOperation,
   ApprovalPreparedPayload,
   ApprovalRequestRecord,
-  ApprovalStatus,
 } from "./approvals/types";
 import type { ResolvedWorkflowPolicy } from "./workflows";
 import {
@@ -58,6 +54,12 @@ import {
   workflowUpdateData,
 } from "./approvals/workflow";
 import { prisma } from "./prisma";
+import {
+  validateApprovalRequestAtPhase,
+  validatePreparedApprovalAtPhase,
+} from "./approvals/contract-validation";
+import { findManualProcessableNode } from "./approvals/read";
+export { getApprovalRequest, listRequests } from "./approvals/read";
 export async function createDraft<TPayload>(input: {
   adapter: ApprovalAdapter<TPayload>;
   actorUserId: number;
@@ -106,10 +108,27 @@ export async function createPreparedApprovalDraft<TPayload>(input: {
   workflowPolicy: ResolvedWorkflowPolicy;
   comment?: string | null;
 }) {
+  const validated = await validatePreparedApprovalAtPhase({
+    adapter: input.adapter,
+    phase: "draft",
+    actorUserId: input.actorUserId,
+    operation: input.operation,
+    subjectId: input.subjectId,
+    prepared: input.prepared,
+    businessActionKey: input.workflowPolicy.businessActionKey,
+    sourceActionContractVersion: input.prepared.sourceActionContractVersion,
+    expectedIdentity: {
+      resourceKey: input.prepared.resourceKey,
+      scopeId: input.prepared.scopeId ?? null,
+      subjectId: input.prepared.subjectId ?? input.subjectId ?? null,
+    },
+  });
+  if (!validated.ok) return validated;
+  const prepared = validated.data.prepared;
   if (!(await input.adapter.resolveAccess({
     actorUserId: input.actorUserId,
     action: "createDraft",
-    prepared: input.prepared,
+    prepared,
   }))) {
     return serviceError("无权限发起审批", 403);
   }
@@ -121,14 +140,14 @@ export async function createPreparedApprovalDraft<TPayload>(input: {
   const created = await prisma.$transaction(async (tx) => {
     const request = await tx.approvalRequest.create({
       data: {
-        resourceKey: input.prepared.resourceKey,
-        scopeId: input.prepared.scopeId ?? null,
-        ...workflowCreationData(workflowPolicy, input.prepared),
+        resourceKey: prepared.resourceKey,
+        scopeId: prepared.scopeId ?? null,
+        ...workflowCreationData(workflowPolicy, prepared),
         subjectType: input.adapter.subjectType,
-        subjectId: input.prepared.subjectId ?? input.subjectId ?? null,
+        subjectId: prepared.subjectId ?? input.subjectId ?? null,
         operation: input.operation,
         status: "draft",
-        latestPayloadJson: stringifyPayload(input.prepared.payload),
+        latestPayloadJson: stringifyPayload(prepared.payload),
         submitterUserId: input.actorUserId,
       },
     });
@@ -139,12 +158,12 @@ export async function createPreparedApprovalDraft<TPayload>(input: {
       fromStatus: null,
       toStatus: "draft",
       comment: input.comment,
-      payload: input.prepared.payload,
+      payload: prepared.payload,
     });
     return request;
   });
 
-  const dto = await getApprovalRequest(input.adapter, created.id);
+  const dto = await getApprovalRequestDto(input.adapter, created.id);
   return dto.ok ? serviceOk({ request: dto.data }) : dto;
 }
 
@@ -161,18 +180,29 @@ export async function submit<TPayload>(input: {
   if (!submitAccess.ok) return submitAccess;
   const version = assertApprovalVersion(request.data, input.expectedVersion);
   if (!version.ok) return version;
+  const validated = await validateApprovalRequestAtPhase({
+    adapter: input.adapter,
+    phase: "submit",
+    actorUserId: request.data.submitterUserId,
+    request: request.data,
+  });
+  if (!validated.ok) return validated;
+  const validatedRequest = {
+    ...request.data,
+    latestPayload: validated.data.prepared.payload,
+  };
   const workflowPolicy = await resolveApprovalWorkflowPolicy(input.adapter, {
     actorUserId: input.actorUserId,
-    operation: request.data.operation,
-    request: request.data,
+    operation: validatedRequest.operation,
+    request: validatedRequest,
   });
   if (workflowPolicy.mode === "direct" || workflowPolicy.mode === "permission_only") {
     return serviceError("该行为未启用流程，请直接保存", 409);
   }
-  const executablePolicy = resolveExecutableWorkflowPolicy(workflowPolicy, request.data.latestPayload);
+  const executablePolicy = resolveExecutableWorkflowPolicy(workflowPolicy, validatedRequest.latestPayload);
   if (!executablePolicy.ok) return executablePolicy;
   const requestWithWorkflowPolicy = {
-    ...request.data,
+    ...validatedRequest,
     ...workflowUpdateData(executablePolicy.data),
   };
   const hasWorkflowNodes = activeWorkflowNodeKeys(requestWithWorkflowPolicy).length > 0;
@@ -185,7 +215,7 @@ export async function submit<TPayload>(input: {
     if (!handlersAvailable.ok) return handlersAvailable;
   }
   const submitted = await applyApprovalTransition(input.adapter, {
-    request: request.data,
+    request: validatedRequest,
     actorUserId: input.actorUserId,
     eventType: "submit",
     toStatus: "submitted",
@@ -193,6 +223,7 @@ export async function submit<TPayload>(input: {
     workflowNodeKey: executablePolicy.data.activeWorkflowNodeKey,
     updateData: {
       ...workflowUpdateData(executablePolicy.data),
+      latestPayloadJson: stringifyPayload(validatedRequest.latestPayload),
       submittedAt: new Date(),
       resolvedByUserId: null,
       resolvedAt: null,
@@ -394,7 +425,7 @@ export async function comment<TPayload>(input: {
     return next;
   });
   if (!updated) return serviceError("审批单已被其他人更新，请刷新后重试", 409);
-  const dto = await getApprovalRequest(input.adapter, updated.id);
+  const dto = await getApprovalRequestDto(input.adapter, updated.id);
   if (dto.ok) await notifyApproval(input.adapter, "comment", toRecord(updated, request.data.latestPayload), input.actorUserId);
   return dto.ok ? serviceOk({ request: dto.data }) : dto;
 }
@@ -476,22 +507,6 @@ async function approveLoadedRequest<TPayload>(
   });
 }
 
-async function findManualProcessableNode<TPayload>(
-  adapter: ApprovalAdapter<TPayload>,
-  request: ApprovalRequestRecord<TPayload>,
-  actorUserId: number,
-) {
-  for (const activeKey of activeWorkflowNodeKeys(request)) {
-    const nodeRequest = requestForWorkflowNode(request, activeKey);
-    if (assertWorkflowProcessAllowed(nodeRequest, actorUserId).ok && await adapter.resolveAccess({
-      actorUserId,
-      action: "approve",
-      request: nodeRequest,
-    })) return nodeRequest;
-  }
-  return null;
-}
-
 async function findAutoProcessableNode<TPayload>(
   adapter: ApprovalAdapter<TPayload>,
   request: ApprovalRequestRecord<TPayload>,
@@ -503,48 +518,4 @@ async function findAutoProcessableNode<TPayload>(
       && await canActorAutoProcess(adapter, nodeRequest, actorUserId)) return nodeRequest;
   }
   return null;
-}
-
-export async function listRequests<TPayload>(input: {
-  adapter: ApprovalAdapter<TPayload>;
-  actorUserId: number;
-  resourceKey?: string | null;
-  scopeId?: string | null;
-  statuses?: ApprovalStatus[];
-  limit?: number;
-}) {
-  const probe = input.resourceKey || input.scopeId
-    ? ({ resourceKey: input.resourceKey || "", scopeId: input.scopeId ?? null } as ApprovalRequestRecord<TPayload>)
-    : undefined;
-  if (!(await input.adapter.resolveAccess({ actorUserId: input.actorUserId, action: "listRequests", request: probe }))) {
-    return serviceError("无权限查看审批单", 403);
-  }
-  const rows = await prisma.approvalRequest.findMany({
-    where: {
-      subjectType: input.adapter.subjectType,
-      ...(input.resourceKey ? { resourceKey: input.resourceKey } : {}),
-      ...(input.scopeId !== undefined ? { scopeId: input.scopeId } : {}),
-      ...(input.statuses?.length ? { status: { in: input.statuses } } : {}),
-    },
-    include: requestInclude,
-    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
-    take: Math.min(Math.max(input.limit ?? 50, 1), 100),
-  });
-  const requests = await Promise.all(rows.map(async (row) => {
-    const dto = toDto<TPayload>(row as ApprovalRequestRowWithEvents);
-    const record = toRecord(row as ApprovalRequestRowWithEvents, dto.latestPayload);
-    return {
-      ...dto,
-      canProcess: dto.status === "submitted"
-        && Boolean(await findManualProcessableNode(input.adapter, record, input.actorUserId)),
-    };
-  }));
-  return serviceOk({ requests });
-}
-
-export async function getApprovalRequest<TPayload>(
-  adapter: ApprovalAdapter<TPayload>,
-  requestId: number,
-) {
-  return getApprovalRequestDto(adapter, requestId);
 }

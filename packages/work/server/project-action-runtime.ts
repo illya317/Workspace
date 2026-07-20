@@ -1,9 +1,8 @@
 import { resolveBusinessActionRuntime } from "@workspace/platform/server/business-action-executor";
-import { isActiveEmployeeUser } from "@workspace/platform/server/business-space-natural-users";
-import { canUseProject } from "./access";
+import { canSubmitWorkProjectAction } from "./access";
 
 export const WORK_PROJECT_CREATE_ACTION = "work.projects.project.create";
-export const WORK_PROJECT_RESOURCE_KEY = "work.projects";
+export const WORK_PROJECT_INITIATION_RESOURCE_KEY = "work.projects.initiate";
 
 export const WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS = {
   businessActionKey: WORK_PROJECT_CREATE_ACTION,
@@ -26,11 +25,11 @@ export const WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS = {
 };
 
 export async function resolveWorkProjectCreateActionRuntime(userId: number) {
-  const canStartWorkflow = Boolean(await canUseProject(userId) && await isActiveEmployeeUser(userId));
+  const canStartWorkflow = await canSubmitWorkProjectAction(userId);
   return resolveBusinessActionRuntime({
     businessActionKey: WORK_PROJECT_CREATE_ACTION,
     actor: { userId, canDirectWrite: false, canStartWorkflow },
-    resourceKey: WORK_PROJECT_RESOURCE_KEY,
+    resourceKey: WORK_PROJECT_INITIATION_RESOURCE_KEY,
     scopeType: "global",
     scopeId: null,
     defaults: WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS,

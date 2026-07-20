@@ -11,6 +11,7 @@ import {
 } from "./InputSurfaceTypes";
 import type { FieldTextAlign, FieldVisualVariant } from "./TextField";
 import type { SelectionOptionGroup } from "../selection/SelectionOptionTypes";
+import { resolveGroupedChoiceGroupSelection } from "./grouped-choice-selection";
 
 export type InputSurfaceChoiceRendererKind =
   | "remoteReference"
@@ -204,8 +205,13 @@ export function StagedGroupedAutocompleteChoice({
         className={className}
         inputClassName={inputClassName}
         onChange={(next) => {
-          if (!next) return;
-          setActiveGroupKey(next);
+          const selection = resolveGroupedChoiceGroupSelection(next);
+          if (selection.kind === "clear") {
+            onChange(null);
+            setStage("group");
+            return;
+          }
+          setActiveGroupKey(selection.groupKey);
           setStage("option");
         }}
       />

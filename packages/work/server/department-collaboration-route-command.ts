@@ -139,6 +139,7 @@ async function executeDepartmentCollaborationMutation(command: {
       operation: command.operation,
       subjectId: prepared.data.prepared.subjectId ?? command.subjectId,
       payload: prepared.data.prepared.payload,
+      authorization: "direct",
     });
     return committed.ok
       ? serviceOk({ executionMode: "direct" as const, result: committed.data })

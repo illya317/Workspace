@@ -2,6 +2,7 @@
 
 import type { FormEvent } from "react";
 import { renderContent } from "./internal/form/FormSurface.renderers";
+import { executeFormSurfaceSubmit } from "./internal/form/form-surface-submit";
 import { useSurfaceFrameDepth } from "./internal/common/SurfaceFrameContextParts";
 import type { FormSurfaceLooseItem, FormSurfaceProps } from "./FormSurface.types";
 
@@ -38,7 +39,7 @@ export default function FormSurface<T = FormSurfaceLooseItem>(props: FormSurface
   const content = renderContent(props, useSurfaceFrameDepth() > 0);
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    props.submit?.onSubmit();
+    executeFormSurfaceSubmit(props.submit, props.actions);
   };
   const body = props.submit || props.actions?.length ? <form onSubmit={handleSubmit}>{content}</form> : content;
   return body;

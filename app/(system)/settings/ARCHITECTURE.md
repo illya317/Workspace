@@ -24,7 +24,7 @@
 | Resource | Action | UI placement / icon |
 | --- | --- | --- |
 | `settings.account` | `entry/read` | 登录用户默认可进入个人设置；个人资料、常用部门、桌面入口和 inbox 偏好只写当前 session 用户，不显示全局维护 action。 |
-| `settings.account.apiAccess` | `revise` | 个人 API Key 的申请、重置和覆盖都用 `revise`；复制接入信息用 UI-only `copy`。 |
+| `settings.account.apiAccess` | `entry/read/revise` | `entry` 控制个人 API Key 登录及 `x-api-key` 调用；`read` 控制查看接入状态；申请、重置和覆盖都用 `revise`；复制接入信息用 UI-only `copy`。登录 route 在 session 建立前公开可达，但凭证通过后仍必须校验 `entry`。 |
 | `settings.admin` | `grant` | 权限矩阵和空间权限入口使用 action registry 的 `permission-organization`；空间授权仍由对应空间 scoped `grant` 最终验权。 |
 | `settings.admin` | `configure` | 模块启停、系统配置和流程策略保存属于配置；恢复默认是 UI-only `reset`，不是 `delete`。 |
 | `settings.admin.workflow*` | `configure` | 流程 root、分类和单流程授权；只控制流程设置/台账范围，不授予业务提交、审批或转授权。 |

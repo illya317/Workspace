@@ -2,7 +2,9 @@ import type { PeriodDossierModel } from "@workspace/platform/period-dossier";
 import { getOperatingCommitteeDepartmentContext } from "@workspace/platform/server/business-space-permissions";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 export {
+  resolveHrPerformanceDashboardProjection,
   selectHrPerformanceAudience,
+  type HrPerformanceDashboardView,
   type HrPerformanceAudienceType,
 } from "./performance-audience-selection";
 import type { HrPerformanceAudienceType } from "./performance-audience-selection";
@@ -55,15 +57,25 @@ export type HrPerformanceContributionTarget = {
   subject: PeriodDossierModel["subject"];
 };
 
-export async function loadHrPerformanceAudienceCatalog(): Promise<HrPerformanceAudienceCatalog> {
-  const operatingCommittee = await getOperatingCommitteeDepartmentContext();
+export async function loadHrPerformanceAudienceCatalog(input: {
+  employeeIds?: readonly number[] | null;
+  includeDirectories?: boolean;
+} = {}): Promise<HrPerformanceAudienceCatalog> {
+  const includeDirectories = input.includeDirectories !== false;
+  const employeeIds = input.employeeIds === undefined || input.employeeIds === null
+    ? null
+    : Array.from(new Set(input.employeeIds.filter((id) => Number.isInteger(id) && id > 0)));
+  const operatingCommittee = includeDirectories ? await getOperatingCommitteeDepartmentContext() : null;
   const [employees, departments, projects] = await Promise.all([
     prisma.employee.findMany({
-      where: { employments: { some: { isActive: true } } },
+      where: {
+        employments: { some: { isActive: true } },
+        ...(employeeIds ? { id: { in: employeeIds } } : {}),
+      },
       include: employeeInclude,
       orderBy: { employeeId: "asc" },
     }),
-    prisma.department.findMany({
+    includeDirectories ? prisma.department.findMany({
       where: {
         isArchived: false,
         OR: [
@@ -73,12 +85,12 @@ export async function loadHrPerformanceAudienceCatalog(): Promise<HrPerformanceA
       },
       select: departmentSelect,
       orderBy: [{ hierarchyKind: "asc" }, { level: "asc" }, { code: "asc" }, { id: "asc" }],
-    }),
-    prisma.project.findMany({
+    }) : Promise.resolve([]),
+    includeDirectories ? prisma.project.findMany({
       where: { isArchived: false, workspaceEnabled: true },
       select: projectSelect,
       orderBy: [{ name: "asc" }, { id: "asc" }],
-    }),
+    }) : Promise.resolve([]),
   ]);
   return { employees, departments, projects };
 }
