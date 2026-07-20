@@ -6,9 +6,22 @@ const ADMINISTRATION_CONTRACT_RESOURCE = {
   scopeTypes: ["global"],
 } as const;
 
+const ADMINISTRATION_ERP_DILIGENCE_RESOURCE = {
+  resourceKey: "administration.erpDiligence",
+  moduleKey: "administration",
+  scopeTypes: ["global"],
+} as const;
+
 const ACTIVE_CONTRACT_PERSISTENCE = {
   strategy: "active_table_state",
   activeEntity: "Contract",
+  supportedPersistenceModes: ["active"],
+  defaultMode: "active",
+} as const;
+
+const ACTIVE_ERP_DILIGENCE_PERSISTENCE = {
+  strategy: "active_table_state",
+  activeEntity: "ErpDueDiligenceSubmission",
   supportedPersistenceModes: ["active"],
   defaultMode: "active",
 } as const;
@@ -19,6 +32,39 @@ const DIRECT_ONLY = {
 } as const;
 
 export const ADMINISTRATION_ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
+  {
+    key: "administration.erpDiligence.save",
+    version: 1,
+    kind: "write",
+    label: "保存ERP流程尽调",
+    targetKind: "ErpDueDiligenceSubmission",
+    resource: { ...ADMINISTRATION_ERP_DILIGENCE_RESOURCE, directPermissionAction: "update" },
+    payload: {
+      cardinality: "single",
+      shape: "full_record",
+      target: "mixed",
+      notes: "每位用户在当前尽调批次中只有一份记录；服务端绑定当前用户并按批次执行 upsert。",
+    },
+    persistence: { ...ACTIVE_ERP_DILIGENCE_PERSISTENCE, commitMode: "native_transition" },
+    domain: {
+      validatorKey: "packages/administration/server/domain/erp-diligence-validation.buildErpDiligenceSaveCommand",
+      commitKey: "packages/administration/server/erp-diligence.commitErpDiligenceSaveCommand",
+    },
+    api: {
+      commandRoute: "PUT /api/modules/administration/erp-diligence",
+      directRoutes: ["PUT /api/modules/administration/erp-diligence"],
+      envelopeVersion: 1,
+    },
+    workflow: {
+      kind: "not_applicable",
+      reason: "流程尽调是当前用户维护自己的事实采集表，不产生审批草稿。",
+    },
+    display: {
+      titleTemplate: "保存ERP流程尽调",
+      summaryTemplate: "{departmentName} · {primaryArea}",
+      hrefPattern: "/administration/erp-diligence",
+    },
+  },
   {
     key: "administration.contract.export",
     version: 1,

@@ -8,6 +8,7 @@
  *
  * 🟢 You can import this file directly.
  */
+export type * from './models/ErpDueDiligenceSubmission'
 export type * from './models/AgentProfile'
 export type * from './models/AgentRuntimeBinding'
 export type * from './models/AgentSession'

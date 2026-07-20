@@ -6,6 +6,12 @@ const ADMINISTRATION_CONTRACTS = {
   originHrefPattern: "/administration/contracts",
 } as const;
 
+const ADMINISTRATION_ERP_DILIGENCE = {
+  moduleKey: "administration",
+  resourceKey: "administration.erpDiligence",
+  originHrefPattern: "/administration/erp-diligence",
+} as const;
+
 const EXTERNAL_CUSTOMERS = {
   moduleKey: "external",
   resourceKey: "external.customers",
@@ -45,6 +51,7 @@ export const OPERATIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.update", label: "更新行政合同", writeKind: "update", targetKind: "Contract", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/administration/contracts/:id")] },
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.delete", label: "删除行政合同", writeKind: "delete", targetKind: "Contract", directPermissionAction: "delete", apiRoutes: [route("DELETE", "/api/modules/administration/contracts/:id")] },
   { ...ADMINISTRATION_CONTRACTS, ...PERMISSION_ONLY, key: "administration.contract.export", label: "下载行政合同台账", writeKind: "export", targetKind: "ContractExport", directPermissionAction: "export", apiRoutes: [readRoute("/api/modules/administration/contracts/export")] },
+  { ...ADMINISTRATION_ERP_DILIGENCE, ...PERMISSION_ONLY, key: "administration.erpDiligence.save", label: "保存ERP流程尽调", writeKind: "save", targetKind: "ErpDueDiligenceSubmission", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/administration/erp-diligence")] },
 
   { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.create", label: "创建客户", writeKind: "create", targetKind: "ExternalParty", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/external/customers")] },
   { ...EXTERNAL_CUSTOMERS, ...PERMISSION_ONLY, key: "external.customers.party.update", label: "更新客户", writeKind: "update", targetKind: "ExternalParty", directPermissionAction: "update", apiRoutes: [route("PATCH", "/api/modules/external/customers/:id")] },

@@ -118,7 +118,7 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 |---|---|---|---|
 | Work `work` | `@workspace/work` domain | `work.tasks`, `work.projects`, `work.meetings` | API prefixes exist for tasks, projects, meetings |
 | HR `hr` | `@workspace/hr` domain | `hr.roster`, `hr.performance`, `hr.analytics` | roster has module API; performance/analytics currently reuse roster data or page-only behavior |
-| Administration `administration` | `@workspace/administration` domain | `administration.contracts` | contracts module API |
+| Administration `administration` | `@workspace/administration` domain | `administration.contracts`, `administration.erpDiligence` | contracts and ERP diligence module APIs |
 | Finance `finance` | `@workspace/finance` domain | ledger, statement config/review/statements, analysis, budget, cost, import, tax, treasury | most have module API; tax/treasury are planned page entries |
 | Inventory `inventory` | `@workspace/inventory` domain | `inventory.operations` | material cards, batches, documents, stocktakes, valuation and voucher-link APIs |
 | Production `production` | `@workspace/production` domain | `production.qc` | QC batches module APIs; QC template editing is handled by Docs `docs.editor` |

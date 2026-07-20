@@ -2,11 +2,11 @@
 
 # ActionContract Registry
 
-**169 contracts** across 11 modules.
+**170 contracts** across 11 modules.
 
-Kinds: write=94 · lifecycle=46 · exchange:export=4 · governance=13 · exchange:import=7 · workflow=4 · remote_effect=1
+Kinds: write=95 · lifecycle=46 · exchange:export=4 · governance=13 · exchange:import=7 · workflow=4 · remote_effect=1
 
-Workflow: not_applicable=145 · configurable=21 · native=3
+Workflow: not_applicable=146 · configurable=21 · native=3
 
 Contract facts come from `packages/platform/action-contract-registry.ts` and its composed registries. Route bindings and referenced runtime symbols are enforced by `npm run action-contract:check`.
 
@@ -18,6 +18,7 @@ Contract facts come from `packages/platform/action-contract-registry.ts` and its
 | `administration.contract.delete`<br>删除行政合同 | lifecycle<br>Contract | `administration.contracts`<br>direct=delete | command: DELETE /api/modules/administration/contracts/:id<br>direct: DELETE /api/modules/administration/contracts/:id | validate=packages/administration/server/domain/administration-contract-validation.buildContractDeleteCommand<br>commit=packages/administration/server/contracts.commitDeleteContractCommand | strategy=active_table_state<br>active=Contract<br>mode=native_transition<br>---<br>operation=delete<br>reference=none<br>audit=history | not_applicable<br>行政合同当前是权限直写命令，没有审批草稿或业务原生流程状态。 |
 | `administration.contract.export`<br>下载行政合同台账 | exchange<br>ContractExport | `administration.contracts`<br>direct=export | command: GET /api/modules/administration/contracts/export<br>direct: GET /api/modules/administration/contracts/export | validate=identity<br>execute=packages/administration/server/contracts.exportContracts | none (read-only export)<br>---<br>direction=export<br>transport=file<br>result=file | not_applicable<br>合同台账下载是只读文件生成，不创建审批草稿或正式业务记录。 |
 | `administration.contract.update`<br>更新行政合同 | write<br>Contract | `administration.contracts`<br>direct=update | command: PATCH /api/modules/administration/contracts/:id<br>direct: PATCH /api/modules/administration/contracts/:id | validate=packages/administration/server/domain/administration-contract-validation.buildContractUpdateCommand<br>commit=packages/administration/server/contracts.commitUpdateContractCommand | strategy=active_table_state<br>active=Contract<br>mode=apply_patch<br>---<br>payload=single/field_patch<br>target=existing_record | not_applicable<br>行政合同当前是权限直写命令，没有审批草稿或业务原生流程状态。 |
+| `administration.erpDiligence.save`<br>保存ERP流程尽调 | write<br>ErpDueDiligenceSubmission | `administration.erpDiligence`<br>direct=update | command: PUT /api/modules/administration/erp-diligence<br>direct: PUT /api/modules/administration/erp-diligence | validate=packages/administration/server/domain/erp-diligence-validation.buildErpDiligenceSaveCommand<br>commit=packages/administration/server/erp-diligence.commitErpDiligenceSaveCommand | strategy=active_table_state<br>active=ErpDueDiligenceSubmission<br>mode=native_transition<br>---<br>payload=single/full_record<br>target=mixed | not_applicable<br>流程尽调是当前用户维护自己的事实采集表，不产生审批草稿。 |
 
 ## agent
 

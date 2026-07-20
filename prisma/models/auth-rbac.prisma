@@ -62,6 +62,7 @@ model User {
   createdKpiDefinitions            WorkKpiDefinition[]                  @relation("WorkKpiDefinitionCreator")
   updatedKpiAssignments            WorkKpiAssignment[]                  @relation("WorkKpiAssignmentUpdater")
   approvedKpiResultSnapshots       WorkKpiResultSnapshot[]              @relation("WorkKpiResultSnapshotApprover")
+  erpDueDiligenceSubmissions       ErpDueDiligenceSubmission[]          @relation("ErpDueDiligenceRespondent")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

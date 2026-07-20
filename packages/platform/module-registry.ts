@@ -208,7 +208,7 @@ export const registeredModuleDefinitions = [
     moduleDef: {
       key: "administration",
       label: "行政管理",
-      desc: "合同台账、办公事务",
+      desc: "合同台账、ERP流程尽调、办公事务",
       href: "/administration",
       iconKey: "admin",
       color: "indigo",
@@ -226,10 +226,15 @@ export const registeredModuleDefinitions = [
           mobileExperience: { strategy: "native" },
           apiPrefixes: ["/api/modules/administration/contracts"],
         },
+        { key: "erpDiligence", label: "ERP流程尽调", desc: "销售到回款现状流程、系统与材料采集", href: "/administration/erp-diligence", iconKey: "contracts", color: "indigo", resourceKey: "administration.erpDiligence", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/administration/erp-diligence"] },
       ],
     },
+    resourceDefs: [
+      { key: "administration.erpDiligence.viewAll", name: "ERP尽调全量查看", kind: "capability", capabilityOwnerKey: "administration.erpDiligence", runtimeParentKey: "administration.erpDiligence", sortOrder: 0 },
+    ],
     apiGuards: [
       ...apiResourceGuards("/api/modules/administration/contracts", ["GET", "POST", "PATCH", "DELETE"]),
+      ...apiResourceGuards("/api/modules/administration/erp-diligence", ["GET", "PUT"]),
     ],
   },
   {

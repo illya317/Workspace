@@ -51,6 +51,7 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
+  ErpDueDiligenceSubmission: 'ErpDueDiligenceSubmission',
   AgentProfile: 'AgentProfile',
   AgentRuntimeBinding: 'AgentRuntimeBinding',
   AgentSession: 'AgentSession',
@@ -241,6 +242,29 @@ export const TransactionIsolationLevel = runtime.makeStrictEnum({
 } as const)
 
 export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof typeof TransactionIsolationLevel]
+
+
+export const ErpDueDiligenceSubmissionScalarFieldEnum = {
+  id: 'id',
+  campaignKey: 'campaignKey',
+  definitionVersion: 'definitionVersion',
+  respondentUserId: 'respondentUserId',
+  respondentName: 'respondentName',
+  departmentName: 'departmentName',
+  roleTitle: 'roleTitle',
+  primaryArea: 'primaryArea',
+  status: 'status',
+  answersJson: 'answersJson',
+  processStepsJson: 'processStepsJson',
+  evidenceItemsJson: 'evidenceItemsJson',
+  submittedAt: 'submittedAt',
+  editedAt: 'editedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ErpDueDiligenceSubmissionScalarFieldEnum = (typeof ErpDueDiligenceSubmissionScalarFieldEnum)[keyof typeof ErpDueDiligenceSubmissionScalarFieldEnum]
 
 
 export const AgentProfileScalarFieldEnum = {
@@ -3754,14 +3778,6 @@ export const QueryMode = {
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
 
 
-export const NullsOrder = {
-  first: 'first',
-  last: 'last'
-} as const
-
-export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
-
-
 export const JsonNullValueFilter = {
   DbNull: DbNull,
   JsonNull: JsonNull,
@@ -3769,4 +3785,12 @@ export const JsonNullValueFilter = {
 } as const
 
 export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 

@@ -1,0 +1,25 @@
+/// 销售到回款 ERP 现状尽调填报。问卷定义由代码版本管理，数据库保存每位填报人的事实回答。
+model ErpDueDiligenceSubmission {
+  id                Int      @id @default(autoincrement())
+  campaignKey       String   @default("order-to-cash-2026")
+  definitionVersion Int      @default(1)
+  respondentUserId  Int
+  respondentName    String
+  departmentName    String
+  roleTitle         String
+  primaryArea       String
+  status            String   @default("draft")
+  answersJson       Json     @default("{}")
+  processStepsJson  Json     @default("[]")
+  evidenceItemsJson Json     @default("[]")
+  submittedAt       DateTime?
+  editedAt          DateTime @default(now())
+  version           Int      @default(1)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @default(now()) @updatedAt
+  respondent        User     @relation("ErpDueDiligenceRespondent", fields: [respondentUserId], references: [id], onDelete: Cascade)
+
+  @@unique([campaignKey, respondentUserId])
+  @@index([campaignKey, status, updatedAt])
+  @@index([departmentName, primaryArea])
+}

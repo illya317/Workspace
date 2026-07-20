@@ -18,6 +18,11 @@ export { Prisma }
 export * as $Enums from './enums'
 export * from './enums';
 /**
+ * Model ErpDueDiligenceSubmission
+ * 销售到回款 ERP 现状尽调填报。问卷定义由代码版本管理，数据库保存每位填报人的事实回答。
+ */
+export type ErpDueDiligenceSubmission = Prisma.ErpDueDiligenceSubmissionModel
+/**
  * Model AgentProfile
  * 虚拟员工的 Agent 描述档案。员工、雇佣与岗位事实仍由 HR 拥有；执行载体由 AgentRuntimeBinding 独立治理。
  */
