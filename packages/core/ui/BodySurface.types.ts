@@ -122,9 +122,19 @@ export interface BodySurfaceBadgeSpec {
   tone?: "default" | "muted" | "info" | "success" | "warning" | "danger";
 }
 
+export interface BodySurfaceSectionDirectCreateSpec {
+  id: string;
+  title: string;
+  presentation: "row";
+  canCreate?: boolean;
+  disabled?: boolean;
+  onCreate: () => void;
+}
+
 export type BodySurfaceSectionCreateSpec<T = FormSurfaceLooseItem> =
   | (Omit<Extract<CreateSurfaceSurfaceProps<T>, { presentation: "block" }>, "anchor"> & { anchor?: never })
-  | Extract<CreateSurfaceSurfaceProps<T>, { presentation: "modal" }>;
+  | Extract<CreateSurfaceSurfaceProps<T>, { presentation: "modal" }>
+  | BodySurfaceSectionDirectCreateSpec;
 
 export interface BodySurfaceSectionHeaderSpec {
   title?: ReactNode;

@@ -138,7 +138,7 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - 项目管理 L2 `work.projects` 承载入口和项目新建提交；正式项目创建完成后，项目、项目成员和甘特兼容动作由归口部门对应的目标标准业务空间派生 resource/scoped action grant 控制。
 - 工作计划 L2 `work.tasks` 承载入口和普通 L2 权限；组织空间内的工作项和工作计划创建/编辑/删除由目标任务空间的派生 resource/scoped action grant 控制。空间授权配置由目标空间 scoped `grant` 或 root identity 控制，业务 `manager` 不代表授权管理。
 - Work UI 当前只枚举 personal、department 和 project 空间；运营委员会由 `Department` 实例进入 `space.department.*`。`space.committee.*` / `space.company.*` 派生资源仅保留给存量授权、审批快照和非 Work 页面能力兼容，不再作为 Work 标准空间入口。项目空间使用 `space.project.*` 派生资源，空间授权只派生对应 L2 的 `entry`，不反向派生 L2 root 的 `update/delete/approve`。
-- UI 上新增项目、计划或工作项放在对应列表/空间工具栏；单条编辑、删除、归档和审批动作必须贴近具体项目、阶段、任务、工作项或审批单。
+- UI 上新增项目、计划或工作项统一放在对应列表/区块标题行；点击后新建表单在关联内容上方展开，表格记录编辑在原行内展开。多行快速新增和周期排程单元格新建作为显式声明变种保留。单条编辑、删除、归档和审批动作必须贴近具体项目、阶段、任务、工作项或审批单。
 
 ### 工作计划审批与 OKR 绩效
 

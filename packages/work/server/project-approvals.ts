@@ -22,6 +22,11 @@ import { canUseProject } from "./access";
 import { buildProjectCreateCommand, type ProjectCreateCommand } from "./domain/project-validation";
 import { commitProjectCreateCommand } from "./projects";
 import { remainingProjectConfirmationHandlers } from "./project-approval-handlers";
+import {
+  WORK_PROJECT_CREATE_ACTION,
+  WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS,
+  WORK_PROJECT_RESOURCE_KEY,
+} from "./project-action-runtime";
 import type { ProjectCreateInput } from "./schemas";
 
 export type WorkProjectApprovalPayload = {
@@ -30,9 +35,6 @@ export type WorkProjectApprovalPayload = {
 };
 
 const WORK_PROJECT_APPROVAL_SUBJECT = "work.project";
-const WORK_PROJECT_RESOURCE_KEY = "work.projects";
-const WORK_PROJECT_CREATE_ACTION = "work.projects.project.create";
-
 type ProjectCommandContext = { userId: number };
 
 const projectCreateCommandAdapter = defineBusinessActionCommandAdapter({
@@ -50,25 +52,7 @@ const projectCreateCommandAdapter = defineBusinessActionCommandAdapter({
 
 export const workProjectApprovalAdapter: ApprovalAdapter<WorkProjectApprovalPayload> = {
   subjectType: WORK_PROJECT_APPROVAL_SUBJECT,
-  workflowDefaults: {
-    businessActionKey: WORK_PROJECT_CREATE_ACTION,
-    scopeType: "global",
-    mode: "required",
-    flowType: "approval",
-    separationPolicy: "auto_pass_if_authorized",
-    handlerSource: "department_owner",
-    workflowNodes: [{
-      key: "work-project-enabling-departments-confirm",
-      kind: "approval",
-      assignees: [{ fieldKind: "relationship", value: "department_owner" }],
-      approvalMode: "all",
-    }],
-    handlerCanRevise: false,
-    requestCanWithdraw: true,
-    requestCanResubmit: false,
-    requestCanCancel: true,
-    requestCanRevise: false,
-  },
+  workflowDefaults: WORK_PROJECT_CREATE_WORKFLOW_DEFAULTS,
   validatePayload: async ({ actorUserId, operation, payload }) => {
     if (operation !== "create") return serviceError("项目确认流程只支持新建项目", 400);
     const normalized = normalizeProjectApprovalPayload(payload);

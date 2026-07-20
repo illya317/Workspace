@@ -2,9 +2,11 @@
 
 import { useState } from "react";
 import { workspacePath } from "@workspace/core/routing";
-import { createEmptySection, createFormSection, createPageBody, type BodySurfaceProps, type FormSurfaceActionSpec, type FormSurfaceItemSpec, BodySurface } from "@workspace/core/ui";
+import { createEmptySection, createFormSection, createPageBody, createSectionSection, type BodySurfaceProps, type BodySurfaceSectionCreateSpec, type FormSurfaceActionSpec, type FormSurfaceItemSpec, BodySurface } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { canEditActualEndDate, todayDateString } from "@workspace/platform/completion-date-policy";
+import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import {
   MULTI_PROJECT_ROLES,
   PROJECT_LEVEL_OPTION_SPECS,
@@ -33,6 +35,7 @@ type ProjectDetailEditorProps = {
   saving: boolean;
   canSave: boolean;
   canCreate?: boolean;
+  createActionRuntime?: ActionRuntime | null;
   creating: boolean;
   onStartCreate: () => void;
   onCancelCreate: () => void;
@@ -53,6 +56,7 @@ export function useProjectDetailEditorSection({
   saving,
   canSave,
   canCreate,
+  createActionRuntime,
   creating,
   onStartCreate,
   onCancelCreate,
@@ -231,27 +235,35 @@ export function useProjectDetailEditorSection({
     },
   ] : [];
 
+  if (!selectedProject) {
+    const projectCreateSubmission = actionRuntimeCreateSubmission(createActionRuntime, {
+      disabled: !canSave || saving,
+      execute: onSave,
+    });
+    const projectCreate: BodySurfaceSectionCreateSpec | undefined = projectCreateSubmission ? {
+      id: "project-create",
+      trigger: "surface",
+      presentation: "block",
+      title: editorTitle,
+      open: creating,
+      canCreate,
+      content: { kind: "form", form: { items: overviewFields } },
+      submission: projectCreateSubmission,
+      feedback: { saved: "项目已新建", submitted: "项目确认已提交" },
+      onOpenChange: (open) => { if (open) onStartCreate(); else onCancelCreate(); },
+    } : undefined;
+    return createPageBody([createSectionSection("project-create-section", {
+      title: "项目",
+      create: projectCreate,
+      chrome: "plain",
+      sections: [],
+    })]);
+  }
+
   if (!draft) return createPageBody([createEmptySection("project-empty", {
     presentation: "plain",
     content: "暂无可编辑项目。请选择左侧项目，或新建项目后维护资料。"
   })]);
-
-  if (!selectedProject) {
-    return {
-      kind: "create",
-      create: {
-        id: "project-create",
-        trigger: "toolbar",
-        presentation: "inline",
-        title: editorTitle,
-        open: creating,
-        canCreate,
-        content: { kind: "form", form: { items: overviewFields } },
-        submission: { action: "save", disabled: !canSave || saving, execute: onSave },
-        onOpenChange: (open) => { if (open) onStartCreate(); else onCancelCreate(); },
-      },
-    };
-  }
 
   return createPageBody([
     createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields }, actions: actions.length ? actions : undefined }),

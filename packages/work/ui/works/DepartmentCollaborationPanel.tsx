@@ -4,7 +4,9 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   createMessageSection,
   createPageBody,
+  createSectionSection,
   type BodySurfaceProps,
+  type BodySurfaceSectionCreateSpec,
   type BodySurfaceSelectorProps,
   type FormSurfaceActionSpec,
   type SurfaceToolbarItems,
@@ -262,28 +264,24 @@ export function useDepartmentCollaborationController(input: {
         content: loading ? "加载协作详情中..." : "请选择左侧协作事项",
         tone: "muted",
       })]);
-  const rightBody = createPageBody([
-    {
-      key: "department-collaboration-create",
-      chrome: "plain",
-      body: {
-        kind: "create",
-        create: {
-          id: "department-collaboration-create",
-          trigger: "surface",
-          presentation: "block",
-          title: "新建协作事项",
-          open: creating,
-          canCreate: Boolean(collaborationCreateSubmission),
-          disabled: saving,
-          content: { kind: "form", form: { items: departmentCollaborationFormItems(createFormInput), layout: { columns: 1, density: "compact" } } },
-          submission: collaborationCreateSubmission ?? { action: "save", disabled: true, execute: () => undefined },
-          onOpenChange: (open) => { if (open) startCreate(); else cancelCreate(); },
-        },
-      },
-    },
-    ...(creating ? [] : [{ key: "department-collaboration-detail", body: selectedBody, chrome: "plain" as const }]),
-  ]);
+  const collaborationCreate: BodySurfaceSectionCreateSpec = {
+    id: "department-collaboration-create",
+    trigger: "surface",
+    presentation: "block",
+    title: "新建协作事项",
+    open: creating,
+    canCreate: Boolean(collaborationCreateSubmission),
+    disabled: saving,
+    content: { kind: "form", form: { items: departmentCollaborationFormItems(createFormInput), layout: { columns: 1, density: "compact" } } },
+    submission: collaborationCreateSubmission ?? { action: "save", disabled: true, execute: () => undefined },
+    onOpenChange: (open) => { if (open) startCreate(); else cancelCreate(); },
+  };
+  const rightBody = createPageBody([createSectionSection("department-collaboration-workspace", {
+    title: "协作事项",
+    create: collaborationCreate,
+    chrome: "plain",
+    sections: creating ? [] : [{ key: "department-collaboration-detail", body: selectedBody, chrome: "plain" }],
+  })]);
 
   return {
     leftNavigationBody,

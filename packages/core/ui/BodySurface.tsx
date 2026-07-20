@@ -22,11 +22,13 @@ import { SurfaceFrameBoundary, useSurfaceFrameDepth } from "./internal/common/Su
 import { joinClassNames } from "./internal/common/card-utils";
 import { renderCommands } from "./internal/page/PageSurface.commands";
 import { ActionGlyph } from "./internal/action/ActionGlyphs";
+import { CreateStartButton } from "./internal/action/CreateActionControls";
 import { PAGE_SURFACE_BODY_SECTION_STACK_CLASS } from "./internal/page/PageSurface.spacing";
 import type {
   BodySurfaceListSpec,
   BodySurfaceModalSpec,
   BodySurfaceProps,
+  BodySurfaceSectionDirectCreateSpec,
   BodySurfaceSectionChrome,
   BodySurfaceSectionGridColumns,
   BodySurfaceSectionProps,
@@ -44,11 +46,12 @@ function renderBodyList(list?: BodySurfaceListSpec) {
 }
 
 const sectionChrome = (section: BodySurfaceSectionSpec): BodySurfaceSectionChrome => section.chrome ?? (section.framed === false ? "plain" : "card");
+type RenderedSectionCreateSpec = CreateSurfaceSurfaceProps | BodySurfaceSectionDirectCreateSpec;
 
 function renderSectionHeader(
   section: BodySurfaceSectionSpec,
   chrome: BodySurfaceSectionChrome = sectionChrome(section),
-  create: CreateSurfaceSurfaceProps | undefined = section.header?.create,
+  create: RenderedSectionCreateSpec | undefined = section.header?.create,
 ) {
   const header = section.header;
   const disclosure = section.disclosure;
@@ -83,7 +86,11 @@ function renderSectionHeader(
       </div>
       {header?.actions?.length || create ? (
         <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
-          {create ? <CreateSurface {...create} /> : null}
+          {create?.presentation === "row"
+            ? create.canCreate !== false
+              ? <CreateStartButton label={create.title} disabled={create.disabled} onClick={create.onCreate} size="sm" />
+              : null
+            : create ? <CreateSurface {...create} /> : null}
           {header?.actions?.length ? actions : null}
         </div>
       ) : null}
@@ -117,7 +124,7 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
   const declaredCreate = section.header?.create;
-  const renderedCreate: CreateSurfaceSurfaceProps | undefined = declaredCreate?.presentation === "block"
+  const renderedCreate: RenderedSectionCreateSpec | undefined = declaredCreate?.presentation === "block"
     ? { ...declaredCreate, anchor: `body-section-create:${declaredCreate.id}` }
     : declaredCreate;
   const createAnchor = renderedCreate?.presentation === "block" ? renderedCreate.anchor ?? null : null;

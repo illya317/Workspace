@@ -8,7 +8,7 @@ import {
   createPageDataSection,
   createSectionSection,
   type BodySurfaceProps,
-  type CreateSurfaceToolbarProps,
+  type BodySurfaceSectionCreateSpec,
   type FormSurfaceActionSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -66,6 +66,7 @@ export function useWorkKpiScorecardController({
   const [definitions, setDefinitions] = useState<WorkKpiDefinition[]>([]);
   const [entries, setEntries] = useState<WorkKpiScorecardEntry[]>([]);
   const [results, setResults] = useState<WorkKpiResultsResponse | null>(null);
+  const [editingFacet, setEditingFacet] = useState<"target" | "measurement" | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -79,6 +80,7 @@ export function useWorkKpiScorecardController({
       ]);
       setDefinitions(definitionData.definitions.filter((definition) => definition.status === "active"));
       setEntries(scorecard.assignments.map(assignmentEntry));
+      setEditingFacet(null);
       if (scorecard.assignments.length > 0
         && scorecard.assignments.every((assignment) => assignment.currentValue !== null)) {
         setResults(await getWorkKpiResults(plan.id));
@@ -115,14 +117,17 @@ export function useWorkKpiScorecardController({
   const measurementDisabled = loading || saving || !allMeasurementsReady;
 
   const addEntry = useCallback(() => {
+    setEditingFacet("target");
     setEntries((current) => [...current, emptyEntry(plan?.ownerEmployeeId ?? null, plan?.ownerEmployeeName ?? "")]);
   }, [plan?.ownerEmployeeId, plan?.ownerEmployeeName]);
 
   const updateEntry = useCallback((localKey: string, patch: Partial<WorkKpiScorecardEntry>) => {
+    setEditingFacet((current) => current ?? (Object.keys(patch).length === 1 && "currentValue" in patch ? "measurement" : "target"));
     setEntries((current) => current.map((entry) => entry.localKey === localKey ? { ...entry, ...patch } : entry));
   }, []);
 
   const removeEntry = useCallback((localKey: string) => {
+    setEditingFacet("target");
     setEntries((current) => current.filter((entry) => entry.localKey !== localKey));
   }, []);
 
@@ -148,6 +153,7 @@ export function useWorkKpiScorecardController({
     try {
       const scorecard = await updateWorkKpiMeasurements(plan.id, entries);
       setEntries(scorecard.assignments.map(assignmentEntry));
+      setEditingFacet(null);
       setResults(scorecard.assignments.every((assignment) => assignment.currentValue !== null)
         ? await getWorkKpiResults(plan.id)
         : null);
@@ -176,14 +182,17 @@ export function useWorkKpiScorecardController({
   }, [load, onRefreshPlans, onToast, plan, reportRuntime, results, saving, space]);
 
   const scorecardActions = targetEditable ? workflowActionSurfaceActions(actionRuntimeCommands(objectiveRuntime, {
-    "record.save": { label: saving ? "保存中..." : "保存目标", disabled: finalizationDisabled, onClick: () => void finalizeTargets() },
-    "workflow.request.submit": { label: saving ? "提交中..." : "提交目标", disabled: finalizationDisabled, onClick: () => void finalizeTargets() },
+    "record.save": { label: saving ? "保存中..." : "保存目标", disabled: finalizationDisabled || editingFacet !== "target", onClick: () => void finalizeTargets() },
+    "workflow.request.submit": { label: saving ? "提交中..." : "提交目标", disabled: finalizationDisabled || editingFacet !== "target", onClick: () => void finalizeTargets() },
   })) : [];
   const resultActions = measurementEditable && results ? workflowActionSurfaceActions(actionRuntimeCommands(reportRuntime, {
     "record.save": { label: saving ? "确认中..." : "确认结果", disabled: saving || !results.workReport, onClick: () => void finalizeResults() },
     "workflow.request.submit": { label: saving ? "提交中..." : "提交结果", disabled: saving || !results.workReport, onClick: () => void finalizeResults() },
   })) : [];
-  const rows = scorecardRows({ entries, definitions, targetEditable, measurementEditable, target: space, onUpdate: updateEntry, onRemove: removeEntry });
+  const activeScorecardFacet = editingFacet ?? (targetEditable ? "target" : measurementEditable ? "measurement" : null);
+  const targetFormEditable = targetEditable && editingFacet !== "measurement";
+  const measurementFormEditable = measurementEditable && editingFacet !== "target";
+  const rows = scorecardRows({ entries, definitions, targetEditable: targetFormEditable, measurementEditable: measurementFormEditable, target: space, onUpdate: updateEntry, onRemove: removeEntry });
   const availableDefinitions = definitions.filter((definition) => !entries.some((entry) => entry.definitionId === definition.id));
   const sections = !space
     ? [createMessageSection("kpi-empty-space", { content: "请选择工作空间", tone: "muted" })]
@@ -205,23 +214,21 @@ export function useWorkKpiScorecardController({
               }),
               { ...createSectionSection("kpi-scorecard-section", {
                 title: "周期指标",
+                create: targetEditable ? {
+                  id: "add-kpi-scorecard-entry",
+                  title: "添加指标",
+                  presentation: "row",
+                  disabled: saving || editingFacet === "measurement" || availableDefinitions.length === 0 || entries.some((entry) => !entry.definitionId),
+                  onCreate: addEntry,
+                } : undefined,
                 sections: [
-                  createMessageSection("kpi-scorecard-guidance", { content: targetEditable && measurementEditable ? "目标口径与实际结果可同时维护；流程关闭时保存即生效。" : targetEditable ? "维护指标、责任人、权重和目标；权重合计 100% 后保存。" : measurementEditable ? "维护实际结果；确认后会保留不可变快照。" : "当前内容为只读。", tone: "muted" }),
+                  createMessageSection("kpi-scorecard-guidance", { content: activeScorecardFacet === "target" ? "维护指标、责任人、权重和目标；权重合计 100% 后保存。" : activeScorecardFacet === "measurement" ? "维护实际结果；保存后可生成并确认结果快照。" : "当前内容为只读。", tone: "muted" }),
                   createPageDataSection("kpi-scorecard", { kind: "structured", rows, frame: "bordered", presentation: { density: "compact", header: "tinted", controlHeight: "fillRow" }, structuredScroll: true, scroll: { x: true } }),
-                  ...(targetEditable || measurementEditable ? [createFieldsSection("kpi-scorecard-actions", [], { actions: [
-                    ...(measurementEditable ? [{ key: "save-measurements", action: "save" as const, label: saving ? "保存中..." : "保存实际值", disabled: measurementDisabled, onClick: () => void saveMeasurements() }] : []),
-                    ...scorecardActions,
-                  ] })] : []),
+                  ...(activeScorecardFacet ? [createFieldsSection("kpi-scorecard-actions", [], { actions: activeScorecardFacet === "measurement"
+                    ? [{ key: "save-measurements", action: "save" as const, label: saving ? "保存中..." : "保存实际值", disabled: measurementDisabled || editingFacet !== "measurement", onClick: () => void saveMeasurements() }]
+                    : scorecardActions })] : []),
                 ],
-              }), header: { title: "周期指标", actions: targetEditable ? [{
-                key: "add-kpi-scorecard-entry",
-                label: "添加指标",
-                icon: "add" as const,
-                presentation: "icon" as const,
-                variant: "primary" as const,
-                disabled: saving || availableDefinitions.length === 0 || entries.some((entry) => !entry.definitionId),
-                onClick: addEntry,
-              }] : undefined }, visibility: "desktop" as const },
+              }), visibility: "desktop" as const },
               ...(results ? [{ ...createSectionSection("kpi-results-section", {
                 title: "结果预览",
                 sections: [
@@ -316,9 +323,9 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
     { key: "cancel-definition", action: "cancel", label: "取消", disabled: saving, onClick: () => setDraft(null) },
   ] : [];
   const createOpen = Boolean(draft && !draft.id);
-  const definitionCreate: CreateSurfaceToolbarProps | undefined = canMaintain ? {
+  const definitionCreate: BodySurfaceSectionCreateSpec | undefined = canMaintain ? {
     id: "kpi-definition-create",
-    trigger: "toolbar",
+    trigger: "surface",
     presentation: "block",
     title: "新增指标",
     open: createOpen,
@@ -362,9 +369,9 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
       ];
   return {
     body: createPageBody([
-      ...(definitionCreate ? [{ key: "kpi-definition-create", chrome: "plain" as const, body: { kind: "create" as const, create: definitionCreate } }] : []),
       createSectionSection("kpi-definition-section", {
         title: "指标库",
+        create: definitionCreate,
         sections: [
           { ...createMessageSection("kpi-definition-guidance", { content: "指标定义按版本维护；已生效版本不会被周期计分卡的后续修订覆盖。", tone: "muted" }), chrome: "plain" },
           ...sections.map((section) => ({ ...section, chrome: "plain" as const })),

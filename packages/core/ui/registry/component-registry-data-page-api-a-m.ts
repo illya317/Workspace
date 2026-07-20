@@ -25,7 +25,7 @@ export const page_api_registry_entries = [
             description: "正文通用编排容器。",
             children: [
               { name: "sections", description: "递归 section tree。" },
-              { name: "section.header.create", description: "局部 Surface +；block 由 Core 自动紧贴 header 并置于 section body 之前，调用方不声明 anchor。" },
+              { name: "section.header.create", description: "局部 Surface +；block 由 Core 自动紧贴 header 并置于 section body 之前，row 直接触发可编辑行，调用方不声明 anchor 或图标。" },
               { name: "section.disclosure", description: "可控折叠面板：声明 expanded / onExpandedChange；同层可共享 active key 组成互斥折叠组，不等同于 TabBar accordion。" },
               { name: "layout", description: "正文布局：stack / grid / split。" },
               { name: "gridColumns", description: "grid 布局列数：2 / 3。" },
@@ -50,7 +50,7 @@ export const page_api_registry_entries = [
       { name: "commands", description: "正文内部短命令；页面级工具放 PageSurface.toolbar。" },
       { name: "split", description: "split 专属：left/right/drawerLeft/sideOpen/drawerOpen/sideLabel/splitRatio/showSideControls；桌面侧栏控制由 PageSurface 合并进唯一 toolbar，移动端统一采用列表到详情的全屏推进。" },
     ],
-    composes: ["ActionGlyph", "CreateSurface", "FormSurface", "DataSurface", "DocumentSurface", "NavigationSurface", "VisualizationSurface", "SelectorSurface", "EmptyStateCard", "ModuleCard"],
+    composes: ["ActionGlyph", "CreateStartButton", "CreateSurface", "FormSurface", "DataSurface", "DocumentSurface", "NavigationSurface", "VisualizationSurface", "SelectorSurface", "EmptyStateCard", "ModuleCard"],
   },
   {
     name: "DataSurface",

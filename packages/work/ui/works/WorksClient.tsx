@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type CreateSurfaceProps, type FormSurfaceProps } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type FormSurfaceProps } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
@@ -885,9 +885,9 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     execute: () => planCommands.handleCreatePlan({ feedback: false, rethrow: true }),
   });
   const globalCreateSubmission = planCreating ? planCreateSubmission : nodeCreateSubmission;
-  const globalCreate: CreateSurfaceProps = {
+  const globalCreate: BodySurfaceSectionCreateSpec = {
     id: "work-create",
-    trigger: "toolbar",
+    trigger: "surface",
     presentation: "block",
     title: planCreating ? "新建计划" : isolatedRoutineTaskCreate ? "新建任务" : "新建",
     open: globalCreateOpen,

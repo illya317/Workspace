@@ -6,6 +6,7 @@ import { useFeedback } from "@workspace/core/ui";
 import type { ReferenceOption } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { actualEndDateForStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
+import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import { type WorkProjectActionPermissions, type WorkUser } from "@workspace/work/types";
 import { createProject, deleteProject, listProjectSpaces, syncMembers, updateProjectField } from "./api";
 import {
@@ -93,6 +94,7 @@ export function useProjectTabModel(
   const [creating, setCreating] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [createActionRuntime, setCreateActionRuntime] = useState<ActionRuntime | null>(null);
   const [projectListOpen, setProjectListOpen] = useState(true);
   const [projectListDrawerOpen, setProjectListDrawerOpen] = useState(false);
   const [projectListFilter, setProjectListFilter] = useState<ProjectListFilter>("全部");
@@ -141,6 +143,7 @@ export function useProjectTabModel(
       if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
       const [projectData, entryData] = await Promise.all([projectRes.json(), entryRes.json()]);
       const nextProjects = (projectData.projects || []) as ProjectItem[];
+      setCreateActionRuntime((projectData.actionRuntimes?.create ?? null) as ActionRuntime | null);
       setProjectSpaces(spaceData.spaces);
       setPreferredDepartmentIds(spaceData.preferredDepartmentIds);
       setProjects(nextProjects);
@@ -332,7 +335,7 @@ export function useProjectTabModel(
   }
 
   return {
-    canCreateProject: actionPermissions.canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, creating, dirty, draft, error,
+    canCreateProject: actionPermissions.canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, createActionRuntime, creating, dirty, draft, error,
     filteredProjects, loading, preferredDepartmentIds, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectSpaces, projectTypeFilter, saving,
     selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,

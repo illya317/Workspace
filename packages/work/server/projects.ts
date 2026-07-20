@@ -11,6 +11,7 @@ import {
   getProjectPermissionsById,
 } from "./access";
 import { formatDate } from "./project-normalization";
+import { resolveWorkProjectCreateActionRuntime } from "./project-action-runtime";
 import {
   buildProjectFieldUpdateCommand,
   validateProjectDeleteCommand,
@@ -24,7 +25,10 @@ import {
 } from "./work-mutation-impact";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
-  const visibleWhere = await buildVisibleProjectWhere(input.userId);
+  const [visibleWhere, createRuntime] = await Promise.all([
+    buildVisibleProjectWhere(input.userId),
+    resolveWorkProjectCreateActionRuntime(input.userId),
+  ]);
   const projects = await prisma.project.findMany({
     where: { AND: [visibleWhere, { isArchived: Boolean(input.archived) }] },
     orderBy: input.archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
@@ -87,7 +91,7 @@ export async function listProjects(input: { userId: number; keyword: string; pag
   const result = input.keyword ? mapped.filter((project) => matchAnyField(project, input.keyword)) : mapped;
   const total = result.length;
   const start = (input.page - 1) * input.pageSize;
-  return { projects: result.slice(start, start + input.pageSize), total };
+  return { projects: result.slice(start, start + input.pageSize), total, actionRuntimes: { create: createRuntime } };
 }
 
 export async function listProjectGantt(input: { userId: number; includeTasks?: boolean }) {

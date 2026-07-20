@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createMessageSection, createPageBody, PageSurface, useFeedback } from "@workspace/core/ui";
-import type { SurfaceToolbarItems } from "@workspace/core/ui";
+import { createMessageSection, createPageBody, createSectionSection, PageSurface, useFeedback } from "@workspace/core/ui";
+import type { BodySurfaceSectionCreateSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import type { SessionUser } from "@workspace/platform/types";
 import { useMeetingDetailSection } from "./MeetingDetailPanel";
 import { meetingCreateFields } from "./meeting-create-fields";
@@ -256,6 +256,25 @@ export default function MeetingsPage({
       onClick: () => void loadMeetings(),
     }],
   }];
+  const meetingCreate: BodySurfaceSectionCreateSpec = {
+    id: "create-meeting",
+    trigger: "surface",
+    presentation: "block",
+    title: "新建会议",
+    open: creating,
+    canCreate,
+    disabled: saving,
+    content: { kind: "form", form: {
+      items: meetingCreateFields(createDraft, types, setCreateDraft),
+      layout: { columns: 3 },
+    } },
+    submission: {
+      action: "save",
+      disabled: saving || !createDraft.title.trim() || !createDraft.typeId,
+      execute: handleCreateMeeting,
+    },
+    onOpenChange: setCreating,
+  };
 
   return (
     <PageSurface kind="standard"
@@ -285,40 +304,17 @@ export default function MeetingsPage({
             onSelect: (item: MeetingSummary) => setSelectedId(item.id),
           },
         },
-        right: createPageBody([
-          {
-            key: "create-meeting",
-            chrome: "plain",
-            body: {
-              kind: "create",
-              create: {
-                id: "create-meeting",
-                trigger: "surface",
-                presentation: "block",
-                title: "新建会议",
-                open: creating,
-                canCreate,
-                disabled: saving,
-                content: { kind: "form", form: {
-                  items: meetingCreateFields(createDraft, types, setCreateDraft),
-                  layout: { columns: 3 },
-                } },
-                submission: {
-                  action: "save",
-                  disabled: saving || !createDraft.title.trim() || !createDraft.typeId,
-                  execute: handleCreateMeeting,
-                },
-                onOpenChange: setCreating,
-              },
-            },
-          },
-          meeting
+        right: createPageBody([createSectionSection("meeting-workspace", {
+          title: "会议",
+          create: meetingCreate,
+          chrome: "plain",
+          sections: [meeting
             ? meetingDetailSection
             : createMessageSection("meeting-empty", {
                 content: detailLoading ? "加载中..." : "暂无会议",
                 tone: "muted"
-              }),
-        ]),
+              })],
+        })]),
         sideOpen,
         drawerOpen,
         onSideOpenChange: setSideOpen,

@@ -1,7 +1,7 @@
 "use client";
 
 import { createFormSection, createMessageSection, createPanelSection } from "@workspace/core/ui";
-import type { BodySurfaceCommandSpec, BodySurfaceSectionSpec, CreateSurfaceProps, FormSurfaceActionSpec, FormSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
+import type { BodySurfaceCommandSpec, BodySurfaceSectionCreateSpec, BodySurfaceSectionSpec, FormSurfaceActionSpec, FormSurfaceProps, SelectorSurfaceProps } from "@workspace/core/ui";
 import { formatWorkDate, getWorkPeriodLabel, getWorkPlanKindLabel, getWorkSourceTypeLabel, getWorkSpaceLabel } from "./model";
 import { shouldShowWorkOwner } from "./work-target-presentation";
 import type { WorkPlan, WorkTaskSpace, WorkTarget } from "./types";
@@ -175,7 +175,7 @@ export function createWorkPlanContentSection({
   onSubmitKrReview,
 }: {
   planCreating: boolean;
-  globalCreate?: CreateSurfaceProps;
+  globalCreate?: BodySurfaceSectionCreateSpec;
   sectionTitle: string;
   hideWorkSections: boolean;
   activePlan: WorkPlan | null;
@@ -218,12 +218,8 @@ export function createWorkPlanContentSection({
   const showPlanForm = Boolean(activePlan && !isRoutinePlan && planEditing);
   return createPanelSection("tasks", {
     ...(showPlanForm ? {} : { title: sectionTitle }),
+    create: showPlanForm ? undefined : globalCreate,
     sections: [
-      ...(globalCreate ? [{
-        key: "global-create",
-        chrome: "plain" as const,
-        body: { kind: "create" as const, create: globalCreate },
-      }] : []),
       ...(showPlanForm ? [createFormSection("plan-form", {
         ...planFormSurface,
         header: { title: sectionTitle },
