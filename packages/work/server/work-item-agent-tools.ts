@@ -6,230 +6,89 @@ import {
   type ProposalExecutorControl,
   type ProposalExecutors,
 } from "@workspace/platform/server/agent";
+
+import { canUpdateWorkTaskAction, type WorkSpaceTargetType } from "./access";
 import {
-  canCreateWorkTaskAction,
-  canUpdateWorkTaskAction,
-  type WorkSpaceTargetType,
-} from "./access";
-import { intersectWorkSpaces } from "./agent-work-overview-model";
+  buildAgentWorkItemUpdateDiff,
+  type AgentWorkItemDiffReferenceLabels,
+} from "./domain/agent-work-item-proposal-diff";
 import {
+  agentWorkItemAvailabilityError,
+  expandAgentWorkItemFormPatch,
   firstAgentWorkItemValidationMessage,
-  parseAgentCreateWorkItemInput,
   parseAgentUpdateWorkItemInput,
-  parseStoredAgentCreateWorkItem,
   parseStoredAgentUpdateWorkItem,
-  type AgentCreateWorkItemInput,
+  validateAgentWorkItemFormFields,
   type AgentUpdateWorkItemInput,
 } from "./domain/agent-work-item-proposal-validation";
-import {
-  validateCreateItemApprovalPayload,
-  validateUpdateItemApprovalPayload,
-} from "./task-approval-adapter";
+import { validateWorkItemCompletion } from "./domain/work-completion-policy";
+import { validateUpdateItemApprovalPayload } from "./task-approval-adapter";
 import type { WorkTaskItemApprovalPayload } from "./task-approval-helpers";
-import { listWorkTaskSpaces, type WorkTaskSpace } from "./task-spaces";
+import { getWorkSpaceDetailTool, searchWorkReferenceOptionsTool } from "./work-item-agent-read-tools";
+import { validateAgentWorkItemReferenceChanges } from "./work-item-agent-reference-validation";
+import { sharedAgentWorkSpace } from "./work-item-agent-space-access";
+import { assertSharedAgentWorkItemStageAllowed } from "./work-item-agent-stage-access";
+import { executeUpdateWorkItemRouteCommand } from "./work-item-mutation-executor";
+import { validateKrEvidenceTasks } from "./work-kr-evidence";
 import {
-  buildCreateWorkItemRouteCommand,
-  buildUpdateWorkItemRouteCommand,
-} from "./work-task-route-command";
-import {
-  executeCreateWorkItemRouteCommand,
-  executeUpdateWorkItemRouteCommand,
-} from "./work-item-mutation-executor";
+  summarizeWorkResponsibilityReference,
+  workResponsibilityReferenceSummarySelect,
+} from "./work-responsibility-references";
+import { validateWorkItemResponsibility } from "./work-item-service-helpers";
+import { buildUpdateWorkItemRouteCommand } from "./work-task-route-command";
 
 const WORK_ENTRY = { resourceKey: "work.tasks", action: "entry" } as const;
-const CREATE_WORK_ITEM_ACTION = "work.createWorkItem";
 const UPDATE_WORK_ITEM_ACTION = "work.updateWorkItem";
-const targetTypeSchema = { type: "string", enum: ["personal", "department", "project"] };
+const SEARCH_REFERENCE_OPTIONS_ACTION = "work.searchReferenceOptions";
 const nullablePositiveInteger = { type: ["integer", "null"], minimum: 1 };
-const nullableDate = { type: ["string", "null"], description: "YYYY-MM-DD；传 null 表示清空" };
+const nullableDateOnly = {
+  type: ["string", "null"],
+  pattern: "^\\d{4}-\\d{2}-\\d{2}$",
+  description: "严格 YYYY-MM-DD；传 null 表示清空",
+};
 
-const mutableWorkItemProperties = {
-  planId: { ...nullablePositiveInteger, description: "所属工作计划 ID" },
-  category: { type: "string", enum: ["routine", "non-routine"] },
-  itemType: { type: "string", enum: ["objective", "key_result", "task"] },
-  content: { type: "string", minLength: 1, maxLength: 2000 },
-  description: { type: "string", maxLength: 8000 },
-  importance: { type: "integer", minimum: 0, maximum: 10 },
-  urgency: { type: "integer", minimum: 0, maximum: 10 },
-  status: { type: ["string", "null"], enum: ["active", "paused", "done", null] },
+const mutableWorkItemFormProperties = {
+  content: { type: "string", minLength: 1 },
+  description: { type: "string" },
+  importance: { type: "integer", minimum: 1, maximum: 5 },
+  urgency: { type: "integer", minimum: 1, maximum: 5 },
+  status: { type: "string", enum: ["active", "paused", "done"] },
   krStartValue: { type: ["number", "null"] },
   krTargetValue: { type: ["number", "null"] },
   krCurrentValue: { type: ["number", "null"] },
-  krUnit: { type: ["string", "null"], maxLength: 100 },
-  routineTaskType: { type: ["string", "null"], enum: ["standing", "task", null] },
-  ownerEmployeeId: { ...nullablePositiveInteger, description: "负责人 Employee 数字 ID" },
-  collaborationId: nullablePositiveInteger,
-  actualStartDate: nullableDate,
-  actualEndDate: nullableDate,
-  plannedStartDate: nullableDate,
-  plannedEndDate: nullableDate,
+  krUnit: { type: ["string", "null"] },
+  routineRecurrenceType: { type: ["string", "null"], enum: ["daily", "weekly", "monthly", "quarterly", "yearly", null] },
+  routineRecurrenceTime: { type: ["string", "null"], pattern: "^([01]\\d|2[0-3]):[0-5]\\d$" },
+  routineRecurrenceWeekday: { type: ["integer", "null"], minimum: 1, maximum: 7 },
+  routineRecurrenceMonthDay: { type: ["integer", "null"], minimum: 1, maximum: 31 },
+  routineRecurrenceQuarterDay: { type: ["integer", "null"], minimum: 1, maximum: 92 },
+  routineRecurrenceYearMonth: { type: ["integer", "null"], minimum: 1, maximum: 12 },
+  routineRecurrenceYearDay: { type: ["integer", "null"], minimum: 1, maximum: 31 },
+  ownerEmployeeId: { ...nullablePositiveInteger, description: `只能使用 ${SEARCH_REFERENCE_OPTIONS_ACTION} 返回的 Employee ID` },
+  collaborationId: { ...nullablePositiveInteger, description: `只能使用 ${SEARCH_REFERENCE_OPTIONS_ACTION} 返回的协作 ID` },
+  actualStartDate: nullableDateOnly,
+  actualEndDate: nullableDateOnly,
+  plannedStartDate: nullableDateOnly,
+  plannedEndDate: nullableDateOnly,
   isMilestone: { type: "boolean" },
-  milestoneDate: nullableDate,
-  sourceDepartmentId: nullablePositiveInteger,
-  linkedProjectId: nullablePositiveInteger,
-  linkedProjectPhaseId: nullablePositiveInteger,
+  milestoneDate: nullableDateOnly,
   parentWorkItemId: nullablePositiveInteger,
-  responsibilityNodeId: nullablePositiveInteger,
-  responsibilityPositionId: nullablePositiveInteger,
-  participants: { type: "string", maxLength: 2000, description: "参与人姓名，使用逗号分隔" },
-  sortOrder: { type: "integer" },
+  parentPeriodWorkItemId: nullablePositiveInteger,
+  previousPeriodWorkItemId: nullablePositiveInteger,
+  responsibilityNodeId: { ...nullablePositiveInteger, description: `只能使用 ${SEARCH_REFERENCE_OPTIONS_ACTION} 返回的职责 ID` },
+  responsibilityPositionId: { ...nullablePositiveInteger, description: `只能使用 ${SEARCH_REFERENCE_OPTIONS_ACTION} 返回的岗位 ID` },
+  evidenceTaskIds: { type: "array", items: { type: "integer", minimum: 1 }, uniqueItems: true },
 } satisfies Record<string, unknown>;
-
-export const getWorkSpaceDetailTool: AgentTool = {
-  key: "work.getSpaceDetail",
-  label: "读取 Work 空间明细",
-  description: "读取一个有权访问的个人、部门或项目 Work 空间中的计划与工作节点，返回后续修改所需的真实 ID、当前内容和更新时间。修改前必须先用本工具定位目标，不得猜测 ID。",
-  parameters: {
-    type: "object",
-    properties: {
-      targetType: targetTypeSchema,
-      targetId: { type: "integer", minimum: 1 },
-      planId: { type: "integer", minimum: 1, description: "可选；只读取指定计划的节点" },
-    },
-    required: ["targetType", "targetId"],
-    additionalProperties: false,
-  },
-  requiredPermissions: [WORK_ENTRY],
-  delegatedExecution: true,
-  mutates: false,
-
-  async execute(params, execution) {
-    const target = parseTarget(params);
-    if (!target) return { type: "error", message: "Work 空间参数无效" };
-    const planId = positiveInteger(params.planId);
-    if (params.planId !== undefined && !planId) return { type: "error", message: "工作计划 ID 无效" };
-    const space = await sharedWorkSpace(execution, target.targetType, target.targetId);
-    if (!space) return { type: "error", message: "无权限读取该 Work 空间" };
-    const [plans, items] = await Promise.all([
-      prisma.workPlan.findMany({
-        where: { targetType: target.targetType, targetId: target.targetId, isArchived: false },
-        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
-        take: 50,
-        select: {
-          id: true,
-          kind: true,
-          title: true,
-          description: true,
-          status: true,
-          ownerEmployeeId: true,
-          okrCycleId: true,
-          periodType: true,
-          plannedStartDate: true,
-          plannedEndDate: true,
-          updatedAt: true,
-        },
-      }),
-      prisma.workItem.findMany({
-        where: {
-          targetType: target.targetType,
-          targetId: target.targetId,
-          isArchived: false,
-          ...(planId ? { planId } : {}),
-        },
-        orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
-        take: 100,
-        select: {
-          id: true,
-          planId: true,
-          itemType: true,
-          category: true,
-          content: true,
-          description: true,
-          status: true,
-          ownerEmployeeId: true,
-          plannedStartDate: true,
-          plannedEndDate: true,
-          actualStartDate: true,
-          actualEndDate: true,
-          parentWorkItemId: true,
-          krCurrentValue: true,
-          krTargetValue: true,
-          krUnit: true,
-          updatedAt: true,
-        },
-      }),
-    ]);
-    const data = {
-      space: {
-        targetType: space.targetType,
-        targetId: space.targetId,
-        name: space.name,
-        allowedActions: allowedActionNames(space),
-      },
-      plans: plans.map(serializeDates),
-      items: items.map(serializeDates),
-      truncated: { plans: plans.length === 50, items: items.length === 100 },
-    };
-    return {
-      type: plans.length || items.length ? "data" : "empty",
-      message: `已读取「${space.name}」的 ${plans.length} 个计划和 ${items.length} 个工作节点。`,
-      data,
-      modelContext: data,
-    };
-  },
-};
-
-export const createWorkItemTool: AgentTool = {
-  key: CREATE_WORK_ITEM_ACTION,
-  label: "新建 Work 工作节点",
-  description: "在用户明确要求写入后，为其有 create 权限的个人、部门或项目空间生成目标、KR 或任务的新建提案。只生成待确认提案；确认后复用网页端同一领域校验、scoped 权限和审批策略。",
-  parameters: {
-    type: "object",
-    properties: {
-      targetType: targetTypeSchema,
-      targetId: { type: "integer", minimum: 1 },
-      ...mutableWorkItemProperties,
-      content: { type: "string", minLength: 1, maxLength: 2000 },
-    },
-    required: ["targetType", "targetId", "content"],
-    additionalProperties: false,
-  },
-  examples: [{
-    user: "在部门空间 825 的计划 12 下新增任务：完成月度经营分析，7 月 31 日前完成",
-    arguments: {
-      targetType: "department",
-      targetId: 825,
-      planId: 12,
-      category: "non-routine",
-      itemType: "task",
-      content: "完成月度经营分析",
-      plannedEndDate: "2026-07-31",
-    },
-  }],
-  requiredPermissions: [WORK_ENTRY],
-  policyActions: ["create"],
-  delegatedExecution: true,
-  mutates: true,
-
-  async execute(params, execution) {
-    const parsed = parseAgentCreateWorkItemInput(params);
-    if (!parsed.success) return { type: "error", message: firstAgentWorkItemValidationMessage(parsed.error) };
-    const space = await sharedWorkSpace(execution, parsed.data.targetType, parsed.data.targetId);
-    if (!space?.actionPermissions.canCreate) return { type: "error", message: "请求人或执行身份无权在该 Work 空间新建内容" };
-    const validation = await validateCreateProposalInput(execution, parsed.data);
-    if (!validation.ok) return { type: "error", message: validation.error };
-    const diff = createDiff(space, parsed.data);
-    const proposal = await createProposal(execution, {
-      actionKey: CREATE_WORK_ITEM_ACTION,
-      toolKey: CREATE_WORK_ITEM_ACTION,
-      targetType: "WorkItem",
-      targetId: `${parsed.data.targetType}:${parsed.data.targetId}:new`,
-      payload: { input: parsed.data },
-      diff,
-    });
-    return proposalResult(proposal.proposalId, CREATE_WORK_ITEM_ACTION, undefined, diff, "工作节点新建提案已生成；确认后才会写入或进入现有审批流程。");
-  },
-};
 
 export const updateWorkItemTool: AgentTool = {
   key: UPDATE_WORK_ITEM_ACTION,
   label: "修改 Work 工作节点",
-  description: "修改已经通过 work.getSpaceDetail 读取并由用户明确指定的目标、KR 或任务。只提交需要变化的字段并生成待确认提案；确认时会重新校验对象版本、scoped update 权限、领域规则和审批策略。",
+  description: "根据用户反馈填写已读取工作节点的人工表单可编辑字段。只生成待确认提案；用户确认后才通过网页端同一权限、领域校验和审批策略写入。计划、类别、节点类型、来源、参与人和排序等锁定或隐藏字段不可修改。",
   parameters: {
     type: "object",
     properties: {
       workId: { type: "integer", minimum: 1 },
-      ...mutableWorkItemProperties,
+      ...mutableWorkItemFormProperties,
     },
     required: ["workId"],
     additionalProperties: false,
@@ -247,43 +106,41 @@ export const updateWorkItemTool: AgentTool = {
     const parsed = parseAgentUpdateWorkItemInput(params);
     if (!parsed.success) return { type: "error", message: firstAgentWorkItemValidationMessage(parsed.error) };
     const snapshot = await workItemSnapshot(parsed.data.workId);
-    if (!snapshot) return { type: "error", message: "工作节点不存在" };
+    const availabilityError = agentWorkItemAvailabilityError(snapshot);
+    if (availabilityError || !snapshot) return { type: "error", message: availabilityError ?? "工作节点不存在或不可维护" };
     const targetType = supportedTargetType(snapshot.targetType);
     const targetId = positiveInteger(snapshot.targetId);
-    if (!targetType || !targetId) return { type: "error", message: "该工作节点不属于 Agent 支持的 Work 空间" };
-    const space = await sharedWorkSpace(execution, targetType, targetId);
-    if (!space?.actionPermissions.canUpdate) return { type: "error", message: "请求人或执行身份无权修改该 Work 空间" };
-    const validation = await validateUpdateProposalInput(execution, parsed.data);
+    if (!targetType || !targetId) return { type: "error", message: "工作节点不存在或不可维护" };
+    const space = await sharedAgentWorkSpace(execution, targetType, targetId);
+    if (!space?.actionPermissions.canUpdate) return { type: "error", message: "工作节点不存在或不可维护" };
+    const formFieldError = validateAgentWorkItemFormFields(parsed.data, snapshot);
+    if (formFieldError) return { type: "error", message: formFieldError };
+    const expandedInput = expandAgentWorkItemFormPatch(parsed.data, snapshot);
+    const expectedUpdatedAt = snapshot.updatedAt.toISOString();
+    const validation = await validateUpdateProposalInput(execution, expandedInput, snapshot, expectedUpdatedAt);
     if (!validation.ok) return { type: "error", message: validation.error };
-    const diff = updateDiff(space, snapshot.content, parsed.data);
+    const diff = buildAgentWorkItemUpdateDiff({
+      spaceName: space.name,
+      workId: parsed.data.workId,
+      changes: expandedInput,
+      currentValues: currentFormValues(snapshot),
+      currentReferenceLabels: currentReferenceLabels(snapshot),
+      nextReferenceLabels: validation.referenceLabels,
+      standingResponsibility: snapshot.category === "routine"
+        && snapshot.itemType === "task"
+        && snapshot.routineTaskType === "standing",
+    });
     const proposal = await createProposal(execution, {
       actionKey: UPDATE_WORK_ITEM_ACTION,
       toolKey: UPDATE_WORK_ITEM_ACTION,
       targetType: "WorkItem",
       targetId: String(parsed.data.workId),
-      payload: { input: parsed.data, expectedUpdatedAt: snapshot.updatedAt.toISOString() },
+      payload: { input: parsed.data, expectedUpdatedAt },
       diff,
     });
-    return proposalResult(proposal.proposalId, UPDATE_WORK_ITEM_ACTION, String(parsed.data.workId), diff, "工作节点修改提案已生成；确认后才会写入或进入现有审批流程。");
+    return proposalResult(proposal.proposalId, String(parsed.data.workId), diff);
   },
 };
-
-async function executeCreateWorkItemProposal(
-  payload: Record<string, unknown>,
-  execution: AgentExecutionContext,
-  control: ProposalExecutorControl,
-) {
-  const parsed = parseStoredAgentCreateWorkItem(payload);
-  if (!parsed.success) throw new Error(firstAgentWorkItemValidationMessage(parsed.error));
-  const { targetType, targetId } = parsed.data.input;
-  await assertSharedScopedAction(execution, targetType, targetId, "create");
-  const command = await buildCreateWorkItemRouteCommand({ user: actorUser(execution), body: parsed.data.input });
-  if (!command.ok) throw new Error(command.issue.message);
-  control.markExternalDispatchStarted();
-  const result = await executeCreateWorkItemRouteCommand(command.data);
-  if (!result.ok) throw new Error(result.error);
-  return { success: true, ...result.data };
-}
 
 async function executeUpdateWorkItemProposal(
   payload: Record<string, unknown>,
@@ -293,18 +150,30 @@ async function executeUpdateWorkItemProposal(
   const parsed = parseStoredAgentUpdateWorkItem(payload);
   if (!parsed.success) throw new Error(firstAgentWorkItemValidationMessage(parsed.error));
   const snapshot = await workItemSnapshot(parsed.data.input.workId);
-  if (!snapshot) throw new Error("工作节点不存在");
+  const availabilityError = agentWorkItemAvailabilityError(snapshot);
+  if (availabilityError || !snapshot) throw new Error(availabilityError ?? "工作节点不存在或不可维护");
+  const targetType = supportedTargetType(snapshot.targetType);
+  const targetId = positiveInteger(snapshot.targetId);
+  if (!targetType || !targetId) throw new Error("工作节点不存在或不可维护");
+  await assertSharedScopedUpdate(execution, targetType, targetId);
   if (snapshot.updatedAt.toISOString() !== parsed.data.expectedUpdatedAt) {
     throw new Error("工作节点已经被修改，请重新读取后生成提案");
   }
-  const targetType = supportedTargetType(snapshot.targetType);
-  const targetId = positiveInteger(snapshot.targetId);
-  if (!targetType || !targetId) throw new Error("该工作节点不属于 Agent 支持的 Work 空间");
-  await assertSharedScopedAction(execution, targetType, targetId, "update");
+  const formFieldError = validateAgentWorkItemFormFields(parsed.data.input, snapshot);
+  if (formFieldError) throw new Error(formFieldError);
+  const expandedInput = expandAgentWorkItemFormPatch(parsed.data.input, snapshot);
+  const validation = await validateUpdateProposalInput(
+    execution,
+    expandedInput,
+    snapshot,
+    parsed.data.expectedUpdatedAt,
+  );
+  if (!validation.ok) throw new Error(validation.error);
   const command = await buildUpdateWorkItemRouteCommand({
     userId: execution.actor.id,
-    workId: parsed.data.input.workId,
-    body: withoutWorkId(parsed.data.input),
+    workId: expandedInput.workId,
+    body: withoutWorkId(expandedInput),
+    expectedUpdatedAt: parsed.data.expectedUpdatedAt,
   });
   if (!command.ok) throw new Error(command.issue.message);
   control.markExternalDispatchStarted();
@@ -314,15 +183,6 @@ async function executeUpdateWorkItemProposal(
 }
 
 export const workItemAgentProposalExecutors: ProposalExecutors = {
-  [CREATE_WORK_ITEM_ACTION]: {
-    toolKey: CREATE_WORK_ITEM_ACTION,
-    requiredPermissions: [WORK_ENTRY],
-    policyActions: ["create"],
-    delegatedExecution: true,
-    failureMayHaveSideEffects: true,
-    uncertainFailureBoundary: "external_dispatch",
-    execute: executeCreateWorkItemProposal,
-  },
   [UPDATE_WORK_ITEM_ACTION]: {
     toolKey: UPDATE_WORK_ITEM_ACTION,
     requiredPermissions: [WORK_ENTRY],
@@ -334,25 +194,26 @@ export const workItemAgentProposalExecutors: ProposalExecutors = {
   },
 };
 
+// Create remains intentionally unexposed until its hidden defaults can be derived exactly like WorkTaskForm.
 export const workItemAgentTools: AgentTool[] = [
   getWorkSpaceDetailTool,
-  createWorkItemTool,
+  searchWorkReferenceOptionsTool,
   updateWorkItemTool,
 ];
 
-async function validateCreateProposalInput(execution: AgentExecutionContext, input: AgentCreateWorkItemInput) {
-  const command = await buildCreateWorkItemRouteCommand({ user: actorUser(execution), body: input });
-  if (!command.ok) return { ok: false as const, error: command.issue.message };
-  const { actorUserId: _actorUserId, targetType, targetId, ...data } = command.data;
-  const payload = { entityType: "item", targetType, targetId, workId: null, data } as unknown as WorkTaskItemApprovalPayload;
-  return validateCreateItemApprovalPayload(execution.actor.id, payload);
-}
-
-async function validateUpdateProposalInput(execution: AgentExecutionContext, input: AgentUpdateWorkItemInput) {
+async function validateUpdateProposalInput(
+  execution: AgentExecutionContext,
+  input: AgentUpdateWorkItemInput,
+  snapshot: NonNullable<Awaited<ReturnType<typeof workItemSnapshot>>>,
+  expectedUpdatedAt: string,
+) {
+  const references = await validateAgentWorkItemReferenceChanges({ execution, changes: input, snapshot });
+  if (!references.ok) return references;
   const command = await buildUpdateWorkItemRouteCommand({
     userId: execution.actor.id,
     workId: input.workId,
     body: withoutWorkId(input),
+    expectedUpdatedAt,
   });
   if (!command.ok) return { ok: false as const, error: command.issue.message };
   const payload = {
@@ -360,47 +221,135 @@ async function validateUpdateProposalInput(execution: AgentExecutionContext, inp
     targetType: command.data.targetType,
     targetId: command.data.targetId,
     workId: input.workId,
+    expectedUpdatedAt: command.data.expectedUpdatedAt,
     data: command.data.data,
   } as unknown as WorkTaskItemApprovalPayload;
-  return validateUpdateItemApprovalPayload(execution.actor.id, String(input.workId), payload);
+  const approval = await validateUpdateItemApprovalPayload(execution.actor.id, String(input.workId), payload);
+  if (!approval.ok) return approval;
+
+  const stage = await assertSharedAgentWorkItemStageAllowed({
+    execution,
+    planId: snapshot.planId,
+    itemType: snapshot.itemType,
+    changesKrCurrentValue: snapshot.itemType === "key_result"
+      && input.krCurrentValue !== undefined
+      && input.krCurrentValue !== snapshot.krCurrentValue,
+  });
+  if (!stage.ok) return stage;
+
+  const effectiveParentWorkItemId = input.parentWorkItemId === undefined
+    ? snapshot.parentWorkItemId
+    : input.parentWorkItemId;
+  const evidenceError = await validateKrEvidenceTasks(prisma, {
+    planId: snapshot.planId,
+    objectiveId: effectiveParentWorkItemId,
+    evidenceTaskIds: input.evidenceTaskIds,
+  });
+  if (evidenceError) return { ok: false as const, error: evidenceError, status: 400 };
+
+  const responsibilityError = await preflightResponsibility(input, snapshot);
+  if (responsibilityError) return { ok: false as const, error: responsibilityError, status: 400 };
+  if (input.status === "done" && snapshot.status !== "done") {
+    const completionError = await validateWorkItemCompletion(prisma, input.workId, input.evidenceTaskIds);
+    if (completionError) return { ok: false as const, error: completionError, status: 409 };
+  }
+  return { ok: true as const, referenceLabels: references.labels };
 }
 
-async function sharedWorkSpace(execution: AgentExecutionContext, targetType: WorkSpaceTargetType, targetId: number) {
-  const [actorResult, requesterResult] = await Promise.all([
-    listWorkTaskSpaces(execution.actor.id),
-    execution.actor.id === execution.requester.id
-      ? Promise.resolve(null)
-      : listWorkTaskSpaces(execution.requester.id),
-  ]);
-  const spaces = requesterResult
-    ? intersectWorkSpaces(actorResult.spaces, requesterResult.spaces)
-    : actorResult.spaces;
-  return spaces.find((space) => space.targetType === targetType && space.targetId === targetId) ?? null;
+async function preflightResponsibility(
+  input: AgentUpdateWorkItemInput,
+  snapshot: NonNullable<Awaited<ReturnType<typeof workItemSnapshot>>>,
+) {
+  const nodeTouched = hasOwn(input, "responsibilityNodeId");
+  const positionTouched = hasOwn(input, "responsibilityPositionId");
+  const standingOwnerChanged = snapshot.category === "routine"
+    && snapshot.itemType === "task"
+    && snapshot.routineTaskType === "standing"
+    && input.ownerEmployeeId !== undefined
+    && input.ownerEmployeeId !== snapshot.ownerEmployeeId;
+  if (positionTouched && !nodeTouched) return "修改关联岗位时必须同时提交职责候选";
+  if (standingOwnerChanged && !nodeTouched) return "修改常设职责负责人时必须重新选择关联岗位职责";
+  if (!nodeTouched) return null;
+  if (input.responsibilityNodeId && !input.responsibilityPositionId) return "选择关联职责时必须使用候选项返回的岗位 ID";
+  if (!input.responsibilityNodeId && input.responsibilityPositionId) return "清空关联职责时必须同时清空岗位";
+  return validateWorkItemResponsibility({
+    planId: snapshot.planId,
+    itemType: snapshot.itemType,
+    category: snapshot.category,
+    routineTaskType: snapshot.routineTaskType,
+    ownerEmployeeId: input.ownerEmployeeId === undefined ? snapshot.ownerEmployeeId : input.ownerEmployeeId,
+    responsibilityNodeId: input.responsibilityNodeId,
+    responsibilityPositionId: input.responsibilityPositionId,
+    responsibilityTouched: true,
+  });
 }
 
-async function assertSharedScopedAction(
+async function assertSharedScopedUpdate(
   execution: AgentExecutionContext,
   targetType: WorkSpaceTargetType,
   targetId: number,
-  action: "create" | "update",
 ) {
-  const checker = action === "create" ? canCreateWorkTaskAction : canUpdateWorkTaskAction;
   const userIds = [...new Set([execution.requester.id, execution.actor.id])];
-  const allowed = await Promise.all(userIds.map((userId) => checker(userId, targetType, targetId)));
-  if (!allowed.every(Boolean)) throw new Error(`请求人或执行身份的 Work ${action} 权限已失效`);
+  const allowed = await Promise.all(userIds.map((userId) => canUpdateWorkTaskAction(userId, targetType, targetId)));
+  if (!allowed.every(Boolean)) throw new Error("工作节点不存在或不可维护");
 }
 
 async function workItemSnapshot(workId: number) {
   return prisma.workItem.findUnique({
     where: { id: workId },
-    select: { targetType: true, targetId: true, content: true, updatedAt: true },
+    select: {
+      id: true,
+      targetType: true,
+      targetId: true,
+      planId: true,
+      category: true,
+      itemType: true,
+      routineTaskType: true,
+      routineRecurrenceType: true,
+      routineRecurrenceTime: true,
+      routineRecurrenceWeekday: true,
+      routineRecurrenceMonthDay: true,
+      routineRecurrenceQuarterDay: true,
+      routineRecurrenceYearMonth: true,
+      routineRecurrenceYearDay: true,
+      ownerEmployeeId: true,
+      collaborationId: true,
+      parentWorkItemId: true,
+      parentPeriodWorkItemId: true,
+      previousPeriodWorkItemId: true,
+      description: true,
+      importance: true,
+      urgency: true,
+      status: true,
+      krStartValue: true,
+      krTargetValue: true,
+      krCurrentValue: true,
+      krUnit: true,
+      actualStartDate: true,
+      actualEndDate: true,
+      plannedStartDate: true,
+      plannedEndDate: true,
+      isMilestone: true,
+      milestoneDate: true,
+      isArchived: true,
+      content: true,
+      updatedAt: true,
+      owner: { select: { id: true, employeeId: true, name: true } },
+      collaboration: { select: { id: true, title: true } },
+      parentWorkItem: { select: { id: true, content: true } },
+      parentPeriodWorkItem: { select: { id: true, content: true } },
+      previousPeriodWorkItem: { select: { id: true, content: true } },
+      responsibilityReferences: {
+        where: { referenceRole: "execution" },
+        orderBy: [{ id: "asc" as const }],
+        select: workResponsibilityReferenceSummarySelect,
+      },
+      krEvidenceTasks: {
+        orderBy: [{ sortOrder: "asc" as const }, { id: "asc" as const }],
+        select: { taskWorkItemId: true, taskWorkItem: { select: { content: true } } },
+      },
+    },
   });
-}
-
-function parseTarget(params: Record<string, unknown>) {
-  const targetType = supportedTargetType(params.targetType);
-  const targetId = positiveInteger(params.targetId);
-  return targetType && targetId ? { targetType, targetId } : null;
 }
 
 function supportedTargetType(value: unknown): Extract<WorkSpaceTargetType, "personal" | "department" | "project"> | null {
@@ -412,89 +361,102 @@ function positiveInteger(value: unknown) {
   return Number.isInteger(number) && number > 0 ? number : null;
 }
 
-function actorUser(execution: AgentExecutionContext) {
-  return { userId: execution.actor.id, departmentId: execution.actor.departmentId ?? null };
-}
-
 function withoutWorkId(input: AgentUpdateWorkItemInput) {
   const { workId: _workId, ...changes } = input;
   return changes;
 }
 
-function allowedActionNames(space: WorkTaskSpace) {
-  return Object.entries(space.actionPermissions)
-    .filter(([, allowed]) => allowed)
-    .map(([action]) => action);
-}
-
-function serializeDates<T extends Record<string, unknown>>(row: T) {
-  return Object.fromEntries(Object.entries(row).map(([key, value]) => [
-    key,
-    value instanceof Date ? value.toISOString() : value,
-  ]));
-}
-
-function createDiff(space: WorkTaskSpace, input: AgentCreateWorkItemInput) {
-  const { targetType: _targetType, targetId: _targetId, ...changes } = input;
-  return { 动作: "新建工作节点", 空间: space.name, ...localizedChanges(changes) };
-}
-
-function updateDiff(space: WorkTaskSpace, currentContent: string, input: AgentUpdateWorkItemInput) {
-  const { workId, ...changes } = input;
+function currentFormValues(snapshot: NonNullable<Awaited<ReturnType<typeof workItemSnapshot>>>) {
+  const responsibility = summarizeWorkResponsibilityReference(snapshot.responsibilityReferences);
   return {
-    动作: "修改工作节点",
-    空间: space.name,
-    工作节点ID: workId,
-    当前内容: currentContent,
-    ...localizedChanges(changes),
+    content: snapshot.content,
+    description: snapshot.description,
+    importance: snapshot.importance,
+    urgency: snapshot.urgency,
+    status: snapshot.status ?? "active",
+    krStartValue: snapshot.krStartValue,
+    krTargetValue: snapshot.krTargetValue,
+    krCurrentValue: snapshot.krCurrentValue,
+    krUnit: snapshot.krUnit,
+    routineRecurrenceType: snapshot.routineRecurrenceType,
+    routineRecurrenceTime: snapshot.routineRecurrenceTime,
+    routineRecurrenceWeekday: snapshot.routineRecurrenceWeekday,
+    routineRecurrenceMonthDay: snapshot.routineRecurrenceMonthDay,
+    routineRecurrenceQuarterDay: snapshot.routineRecurrenceQuarterDay,
+    routineRecurrenceYearMonth: snapshot.routineRecurrenceYearMonth,
+    routineRecurrenceYearDay: snapshot.routineRecurrenceYearDay,
+    ownerEmployeeId: snapshot.ownerEmployeeId,
+    collaborationId: snapshot.collaborationId,
+    actualStartDate: dateOnlyValue(snapshot.actualStartDate),
+    actualEndDate: dateOnlyValue(snapshot.actualEndDate),
+    plannedStartDate: dateOnlyValue(snapshot.plannedStartDate),
+    plannedEndDate: dateOnlyValue(snapshot.plannedEndDate),
+    isMilestone: snapshot.isMilestone,
+    milestoneDate: dateOnlyValue(snapshot.milestoneDate),
+    parentWorkItemId: snapshot.parentWorkItemId,
+    parentPeriodWorkItemId: snapshot.parentPeriodWorkItemId,
+    previousPeriodWorkItemId: snapshot.previousPeriodWorkItemId,
+    responsibilityNodeId: responsibility.responsibilityNodeId,
+    responsibilityPositionId: responsibility.responsibilityPositionId,
+    evidenceTaskIds: snapshot.krEvidenceTasks.map((evidence) => evidence.taskWorkItemId),
   };
 }
 
-function localizedChanges(changes: Record<string, unknown>) {
-  const labels: Record<string, string> = {
-    planId: "工作计划ID",
-    category: "工作类别",
-    itemType: "节点类型",
-    content: "内容",
-    description: "说明",
-    importance: "重要度",
-    urgency: "紧急度",
-    status: "状态",
-    krStartValue: "KR起始值",
-    krTargetValue: "KR目标值",
-    krCurrentValue: "KR当前值",
-    krUnit: "KR单位",
-    routineTaskType: "日常任务类型",
-    ownerEmployeeId: "负责人EmployeeID",
-    collaborationId: "部门协作ID",
-    actualStartDate: "实际开始",
-    actualEndDate: "实际结束",
-    plannedStartDate: "计划开始",
-    plannedEndDate: "计划结束",
-    isMilestone: "是否里程碑",
-    milestoneDate: "里程碑日期",
-    sourceDepartmentId: "来源部门ID",
-    linkedProjectId: "关联项目ID",
-    linkedProjectPhaseId: "关联项目阶段ID",
-    parentWorkItemId: "父节点ID",
-    responsibilityNodeId: "岗位职责节点ID",
-    responsibilityPositionId: "岗位ID",
-    participants: "参与人",
-    sortOrder: "排序",
+function currentReferenceLabels(
+  snapshot: NonNullable<Awaited<ReturnType<typeof workItemSnapshot>>>,
+): AgentWorkItemDiffReferenceLabels {
+  const responsibility = summarizeWorkResponsibilityReference(snapshot.responsibilityReferences);
+  return {
+    ownerEmployeeId: employeeReferenceLabel(snapshot.owner),
+    collaborationId: entityReferenceLabel(snapshot.collaboration?.title, snapshot.collaboration?.id),
+    parentWorkItemId: entityReferenceLabel(snapshot.parentWorkItem?.content, snapshot.parentWorkItem?.id),
+    parentPeriodWorkItemId: entityReferenceLabel(snapshot.parentPeriodWorkItem?.content, snapshot.parentPeriodWorkItem?.id),
+    previousPeriodWorkItemId: entityReferenceLabel(snapshot.previousPeriodWorkItem?.content, snapshot.previousPeriodWorkItem?.id),
+    responsibilityNodeId: responsibilityContextLabel(snapshot, responsibility),
+    responsibilityPositionId: entityReferenceLabel(
+      responsibility.responsibilityPositionName,
+      responsibility.responsibilityPositionId,
+    ),
+    evidenceTaskIds: snapshot.krEvidenceTasks.map((evidence) => (
+      `${evidence.taskWorkItem.content} (#${evidence.taskWorkItemId})`
+    )),
   };
-  return Object.fromEntries(Object.entries(changes).map(([key, value]) => [labels[key] ?? key, value]));
 }
 
-function proposalResult(
-  id: number,
-  actionKey: string,
-  targetId: string | undefined,
-  diff: Record<string, unknown>,
-  message: string,
+function employeeReferenceLabel(employee: { id: number; employeeId: string | null; name: string } | null) {
+  if (!employee) return "未设置";
+  return `${[employee.name, employee.employeeId].filter(Boolean).join(" ")} (#${employee.id})`;
+}
+
+function entityReferenceLabel(label: string | null | undefined, id: number | null | undefined) {
+  return label && id ? `${label} (#${id})` : "未设置";
+}
+
+function responsibilityContextLabel(
+  snapshot: NonNullable<Awaited<ReturnType<typeof workItemSnapshot>>>,
+  responsibility: ReturnType<typeof summarizeWorkResponsibilityReference>,
 ) {
+  if (!responsibility.responsibilityNodeId || !responsibility.responsibilityLabel) return "未设置";
+  const owner = employeeReferenceLabel(snapshot.owner);
+  const position = entityReferenceLabel(
+    responsibility.responsibilityPositionName,
+    responsibility.responsibilityPositionId,
+  );
+  return `${responsibility.responsibilityLabel} (#${responsibility.responsibilityNodeId}) · 负责人 ${owner} · 岗位 ${position}`;
+}
+
+function dateOnlyValue(value: Date | null) {
+  return value?.toISOString().slice(0, 10) ?? null;
+}
+
+function proposalResult(id: number, targetId: string, diff: Record<string, unknown>) {
   return {
     type: "proposal" as const,
-    message,
-    proposal: { id, actionKey, targetType: "WorkItem", targetId, diff },
+    message: "工作节点表单提案已生成；用户确认后才会写入或进入现有审批流程。",
+    proposal: { id, actionKey: UPDATE_WORK_ITEM_ACTION, targetType: "WorkItem", targetId, diff },
   };
+}
+
+function hasOwn(input: object, field: PropertyKey) {
+  return Object.prototype.hasOwnProperty.call(input, field);
 }

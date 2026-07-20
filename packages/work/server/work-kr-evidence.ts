@@ -1,6 +1,8 @@
 import type { Prisma } from "@workspace/platform/server/prisma";
 import { validateWorkKrEvidenceCommand } from "./domain/work-kr-evidence-validation";
 
+type WorkKrEvidenceValidationStore = Pick<Prisma.TransactionClient, "workItem">;
+
 export class WorkKrEvidenceValidationError extends Error {}
 
 export function normalizeEvidenceTaskIds(value: unknown): number[] | undefined {
@@ -24,9 +26,33 @@ export async function replaceKrEvidenceTasks(
   const command = validateWorkKrEvidenceCommand("replaceKrEvidenceTasks");
   if (!command.ok) return command.issue.message;
   if (input.evidenceTaskIds === undefined) return null;
+  const validationError = await validateKrEvidenceTasks(tx, input);
+  if (validationError) return validationError;
+  await tx.workKrEvidence.deleteMany({ where: { krWorkItemId: input.krWorkItemId } });
+  if (input.evidenceTaskIds.length === 0) return null;
+  await tx.workKrEvidence.createMany({
+    data: input.evidenceTaskIds.map((taskWorkItemId, index) => ({
+      krWorkItemId: input.krWorkItemId,
+      taskWorkItemId,
+      sortOrder: (index + 1) * 10,
+    })),
+  });
+  return null;
+}
+
+/** Read-only validation shared by form writes and Agent proposal preflight. */
+export async function validateKrEvidenceTasks(
+  store: WorkKrEvidenceValidationStore,
+  input: {
+    planId: number | null;
+    objectiveId: number | null;
+    evidenceTaskIds?: number[];
+  },
+) {
+  if (input.evidenceTaskIds === undefined) return null;
   if (!input.planId || !input.objectiveId) return "KR 必须挂在目标下才能关联任务证据";
   if (input.evidenceTaskIds.length > 0) {
-    const tasks = await tx.workItem.findMany({
+    const tasks = await store.workItem.findMany({
       where: { id: { in: input.evidenceTaskIds } },
       select: { id: true, planId: true, itemType: true, parentWorkItemId: true },
     });
@@ -38,14 +64,5 @@ export async function replaceKrEvidenceTasks(
     ));
     if (invalidTask) return "KR 证据只能关联同一目标下的任务";
   }
-  await tx.workKrEvidence.deleteMany({ where: { krWorkItemId: input.krWorkItemId } });
-  if (input.evidenceTaskIds.length === 0) return null;
-  await tx.workKrEvidence.createMany({
-    data: input.evidenceTaskIds.map((taskWorkItemId, index) => ({
-      krWorkItemId: input.krWorkItemId,
-      taskWorkItemId,
-      sortOrder: (index + 1) * 10,
-    })),
-  });
   return null;
 }

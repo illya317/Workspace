@@ -21,6 +21,10 @@ import {
   serializeAgentProposalExecutionResult,
   STALE_PROPOSAL_EXECUTION_MESSAGE,
 } from "./proposal-execution-lease";
+import {
+  appendAgentSessionMessageForUser,
+  type AgentStoredProposalStatus,
+} from "./sessions";
 
 export interface ProposalInput {
   actionKey: string;
@@ -76,6 +80,122 @@ export function agentProposalActionErrorStatus(error: unknown) {
 }
 
 const FINALIZE_ATTEMPTS = 3;
+
+type ProposalSettlementRecord = {
+  id: number;
+  sessionId: string | null;
+  actionKey: string;
+  targetType: string;
+  targetId: string | null;
+  diffJson: string | null;
+  createdAt: Date;
+  confirmedAt: Date | null;
+};
+
+function storedProposalStatus(status: string): AgentStoredProposalStatus {
+  if (
+    status === "pending"
+    || status === "executing"
+    || status === "confirmed"
+    || status === "cancelled"
+    || status === "failed"
+    || status === "expired"
+  ) return status;
+  return "failed";
+}
+
+function isTerminalProposalStatus(
+  status: AgentStoredProposalStatus | null,
+): status is Extract<AgentStoredProposalStatus, "confirmed" | "cancelled" | "failed" | "expired"> {
+  return status === "confirmed" || status === "cancelled" || status === "failed" || status === "expired";
+}
+
+async function readAuthoritativeProposalStatus(
+  proposalId: number,
+  requester: SessionUser,
+): Promise<AgentStoredProposalStatus | null> {
+  try {
+    const current = await prisma.agentProposal.findFirst({
+      where: { id: proposalId, userId: requester.id },
+      select: { status: true },
+    });
+    return current ? storedProposalStatus(current.status) : null;
+  } catch (error) {
+    // A failed recovery read must not replace the original CAS conflict or append stale state.
+    console.error("Agent proposal status could not be refreshed after a lost race", error);
+    return null;
+  }
+}
+
+function confirmConflict(status: AgentStoredProposalStatus | null) {
+  if (status === "expired") {
+    return new AgentProposalActionError("变更已过期（超过30分钟），请重新发起", 410);
+  }
+  if (status === "executing") {
+    return new AgentProposalActionError("变更正在执行，无法重复确认", 409);
+  }
+  return new AgentProposalActionError("变更已被处理，无法重复确认", 409);
+}
+
+function cancelConflict(status: AgentStoredProposalStatus | null) {
+  if (status === "expired") {
+    return new AgentProposalActionError("变更已过期（超过30分钟），无法取消", 410);
+  }
+  return new AgentProposalActionError("只能取消待确认的变更", 409);
+}
+
+function proposalSettlementMessage(error: unknown) {
+  return error instanceof Error && error.message ? error.message : "提案处理失败";
+}
+
+function confirmedProposalMessage(result: unknown) {
+  if (typeof result !== "object" || result === null || Array.isArray(result)) return "变更已执行";
+  const executionMode = (result as { executionMode?: unknown }).executionMode;
+  if (executionMode === "direct") return "已保存";
+  if (executionMode === "workflow") return "已提交审批";
+  return "变更已执行";
+}
+
+async function persistProposalSettlement(
+  proposal: ProposalSettlementRecord,
+  requester: SessionUser,
+  input: {
+    status: AgentStoredProposalStatus;
+    message: string;
+    responseType: "answer" | "error";
+  },
+) {
+  if (!proposal.sessionId) return;
+  try {
+    const view = createAgentProposalView({
+      id: proposal.id,
+      status: input.status,
+      actionKey: proposal.actionKey,
+      targetType: proposal.targetType,
+      targetId: proposal.targetId,
+      diffJson: proposal.diffJson,
+      createdAt: proposal.createdAt,
+      confirmedAt: input.status === "confirmed" ? new Date() : proposal.confirmedAt,
+    });
+    await appendAgentSessionMessageForUser(proposal.sessionId, {
+      role: "agent",
+      content: input.message,
+      responseType: input.responseType,
+      proposal: {
+        id: view.id,
+        actionKey: view.actionKey,
+        targetType: view.targetType,
+        targetId: view.targetId ?? undefined,
+        diff: view.diff,
+      },
+      proposalStatus: storedProposalStatus(view.status),
+    }, requester);
+  } catch (error) {
+    // The proposal's database state and original executor error are authoritative.
+    // Session transcript persistence is best-effort and must never replace them.
+    console.error("Agent proposal settlement could not be appended to its session", error);
+  }
+}
 
 async function finalizeClaimedProposal(
   proposalId: number,
@@ -184,95 +304,132 @@ export async function confirmProposalAction(
     where: { id: proposalId, userId: requester.id },
   });
   if (!proposal) throw new AgentProposalActionError("变更记录不存在", 404);
-  if (proposal.status === "executing") {
-    const reconciled = await reconcileStaleAgentProposalExecutions({ proposalId });
-    if (reconciled.count === 1) {
-      throw new AgentProposalActionError(STALE_PROPOSAL_EXECUTION_MESSAGE, 409);
-    }
-    throw new AgentProposalActionError("变更正在执行，无法重复确认", 409);
-  }
-  if (proposal.status === "expired") {
-    throw new AgentProposalActionError("变更已过期（超过30分钟），请重新发起", 410);
-  }
-  if (proposal.status !== "pending") {
-    throw new AgentProposalActionError("变更已处理，无法重复确认", 409);
-  }
-
-  const executor = executors[proposal.actionKey];
-  if (!executor) throw new Error(`未知 actionKey: ${proposal.actionKey}`);
-  if (proposal.toolKey && proposal.toolKey !== executor.toolKey) {
-    throw new Error("变更记录的工具身份不一致");
-  }
-
-  const age = Date.now() - new Date(proposal.createdAt).getTime();
-  if (age > AGENT_PROPOSAL_TTL_MS) {
-    await prisma.agentProposal.updateMany({
-      where: { id: proposalId, status: "pending" },
-      data: { status: "expired" },
-    });
-    throw new AgentProposalActionError("变更已过期（超过30分钟），请重新发起", 410);
-  }
-
-  let execution: AgentExecutionContext;
+  let settlementStatus = storedProposalStatus(proposal.status);
   try {
-    execution = await resolveStoredAgentExecutionContext(
-      requester,
-      proposal.actorUserId ?? proposal.userId,
-      proposal.agentProfileId,
-    );
-  } catch (error) {
-    if (error instanceof AgentExecutionError) {
-      throw new AgentProposalActionError(error.message, 409);
+    if (proposal.status === "executing") {
+      const reconciled = await reconcileStaleAgentProposalExecutions({ proposalId });
+      if (reconciled.count === 1) {
+        settlementStatus = "failed";
+        throw new AgentProposalActionError(STALE_PROPOSAL_EXECUTION_MESSAGE, 409);
+      }
+      const currentStatus = await readAuthoritativeProposalStatus(proposalId, requester);
+      if (currentStatus) settlementStatus = currentStatus;
+      throw confirmConflict(currentStatus);
     }
-    throw error;
-  }
-  const access = await resolveAgentToolAccess(execution, [executorAsTool(executor)]);
-  if (access.tools.length !== 1) {
-    throw new AgentProposalActionError("请求人或虚拟员工的执行权限已失效", 403);
-  }
+    if (proposal.status === "expired") {
+      throw new AgentProposalActionError("变更已过期（超过30分钟），请重新发起", 410);
+    }
+    if (proposal.status !== "pending") {
+      throw new AgentProposalActionError("变更已处理，无法重复确认", 409);
+    }
 
-  const executionToken = randomUUID();
-  const claimed = await prisma.agentProposal.updateMany({
-    where: { id: proposalId, userId: requester.id, status: "pending" },
-    data: {
-      status: "executing",
-      executionToken,
-      executionStartedAt: new Date(),
-    },
-  });
-  if (claimed.count !== 1) {
-    throw new AgentProposalActionError("变更已被处理，无法重复确认", 409);
-  }
+    const executor = executors[proposal.actionKey];
+    if (!executor) throw new Error(`未知 actionKey: ${proposal.actionKey}`);
+    if (proposal.toolKey && proposal.toolKey !== executor.toolKey) {
+      throw new Error("变更记录的工具身份不一致");
+    }
 
-  let result: unknown;
-  let sideEffectStarted = false;
-  let serializedResult: string;
-  try {
-    const payload = JSON.parse(proposal.payloadJson) as Record<string, unknown>;
-    sideEffectStarted = executor.failureMayHaveSideEffects === true
-      && executor.uncertainFailureBoundary !== "external_dispatch";
-    result = await executor.execute(payload, access.execution ?? execution, {
-      markExternalDispatchStarted() {
-        if (executor.failureMayHaveSideEffects === true) sideEffectStarted = true;
+    const age = Date.now() - new Date(proposal.createdAt).getTime();
+    if (age > AGENT_PROPOSAL_TTL_MS) {
+      const expired = await prisma.agentProposal.updateMany({
+        where: { id: proposalId, userId: requester.id, status: "pending" },
+        data: { status: "expired" },
+      });
+      if (expired.count !== 1) {
+        const currentStatus = await readAuthoritativeProposalStatus(proposalId, requester);
+        if (currentStatus) settlementStatus = currentStatus;
+        throw confirmConflict(currentStatus);
+      }
+      settlementStatus = "expired";
+      throw new AgentProposalActionError("变更已过期（超过30分钟），请重新发起", 410);
+    }
+
+    let execution: AgentExecutionContext;
+    try {
+      execution = await resolveStoredAgentExecutionContext(
+        requester,
+        proposal.actorUserId ?? proposal.userId,
+        proposal.agentProfileId,
+      );
+    } catch (error) {
+      if (error instanceof AgentExecutionError) {
+        throw new AgentProposalActionError(error.message, 409);
+      }
+      throw error;
+    }
+    const access = await resolveAgentToolAccess(execution, [executorAsTool(executor)]);
+    if (access.tools.length !== 1) {
+      throw new AgentProposalActionError("请求人或虚拟员工的执行权限已失效", 403);
+    }
+
+    const executionToken = randomUUID();
+    const claimed = await prisma.agentProposal.updateMany({
+      where: { id: proposalId, userId: requester.id, status: "pending" },
+      data: {
+        status: "executing",
+        executionToken,
+        executionStartedAt: new Date(),
       },
     });
-    serializedResult = serializeAgentProposalExecutionResult(result);
-  } catch (error) {
+    if (claimed.count !== 1) {
+      const currentStatus = await readAuthoritativeProposalStatus(proposalId, requester);
+      if (currentStatus) settlementStatus = currentStatus;
+      throw confirmConflict(currentStatus);
+    }
+    settlementStatus = "executing";
+
+    let result: unknown;
+    let sideEffectStarted = false;
+    let serializedResult: string;
+    try {
+      const payload = JSON.parse(proposal.payloadJson) as Record<string, unknown>;
+      sideEffectStarted = executor.failureMayHaveSideEffects === true
+        && executor.uncertainFailureBoundary !== "external_dispatch";
+      result = await executor.execute(payload, access.execution ?? execution, {
+        markExternalDispatchStarted() {
+          if (executor.failureMayHaveSideEffects === true) sideEffectStarted = true;
+        },
+      });
+      serializedResult = serializeAgentProposalExecutionResult(result);
+    } catch (error) {
+      try {
+        await finalizeClaimedProposal(proposalId, executionToken, {
+          status: "failed",
+          resultJson: JSON.stringify(agentProposalFailureResult(
+            error,
+            sideEffectStarted && executor.failureMayHaveSideEffects === true,
+          )),
+        });
+        settlementStatus = "failed";
+      } catch (finalizationError) {
+        console.error("Agent proposal failure could not be finalized", finalizationError);
+      }
+      throw error;
+    }
     await finalizeClaimedProposal(proposalId, executionToken, {
-      status: "failed",
-      resultJson: JSON.stringify(agentProposalFailureResult(
-        error,
-        sideEffectStarted && executor.failureMayHaveSideEffects === true,
-      )),
+      status: "confirmed",
+      resultJson: serializedResult,
+      confirmedAt: new Date(),
     });
+    settlementStatus = "confirmed";
+    const message = confirmedProposalMessage(result);
+    await persistProposalSettlement(proposal, requester, {
+      status: settlementStatus,
+      message,
+      responseType: "answer",
+    });
+    return { proposalId, status: settlementStatus, message, result };
+  } catch (error) {
+    const currentStatus = await readAuthoritativeProposalStatus(proposalId, requester);
+    if (isTerminalProposalStatus(currentStatus)) {
+      await persistProposalSettlement(proposal, requester, {
+        status: currentStatus,
+        message: proposalSettlementMessage(error),
+        responseType: "error",
+      });
+    }
     throw error;
   }
-  await finalizeClaimedProposal(proposalId, executionToken, {
-    status: "confirmed",
-    resultJson: serializedResult,
-    confirmedAt: new Date(),
-  });
-  return { proposalId, status: "confirmed", message: "变更已执行", result };
 }
 
 export async function cancelProposal(
@@ -281,31 +438,69 @@ export async function cancelProposal(
 ): Promise<ProposalResult> {
   const proposal = await prisma.agentProposal.findFirst({
     where: { id: proposalId, userId: user.id },
-    select: { status: true, createdAt: true },
+    select: {
+      id: true,
+      sessionId: true,
+      status: true,
+      actionKey: true,
+      targetType: true,
+      targetId: true,
+      diffJson: true,
+      createdAt: true,
+      confirmedAt: true,
+    },
   });
   if (!proposal) throw new AgentProposalActionError("变更记录不存在", 404);
-  if (proposal.status === "expired") {
-    throw new AgentProposalActionError("变更已过期（超过30分钟），无法取消", 410);
-  }
-  if (proposal.status !== "pending") {
-    throw new AgentProposalActionError("只能取消待确认的变更", 409);
-  }
+  let settlementStatus = storedProposalStatus(proposal.status);
+  try {
+    if (proposal.status === "expired") {
+      throw new AgentProposalActionError("变更已过期（超过30分钟），无法取消", 410);
+    }
+    if (proposal.status !== "pending") {
+      throw new AgentProposalActionError("只能取消待确认的变更", 409);
+    }
 
-  const age = Date.now() - new Date(proposal.createdAt).getTime();
-  if (age > AGENT_PROPOSAL_TTL_MS) {
-    await prisma.agentProposal.updateMany({
+    const age = Date.now() - new Date(proposal.createdAt).getTime();
+    if (age > AGENT_PROPOSAL_TTL_MS) {
+      const expired = await prisma.agentProposal.updateMany({
+        where: { id: proposalId, userId: user.id, status: "pending" },
+        data: { status: "expired" },
+      });
+      if (expired.count !== 1) {
+        const currentStatus = await readAuthoritativeProposalStatus(proposalId, user);
+        if (currentStatus) settlementStatus = currentStatus;
+        throw cancelConflict(currentStatus);
+      }
+      settlementStatus = "expired";
+      throw new AgentProposalActionError("变更已过期（超过30分钟），无法取消", 410);
+    }
+
+    const cancelled = await prisma.agentProposal.updateMany({
       where: { id: proposalId, userId: user.id, status: "pending" },
-      data: { status: "expired" },
+      data: { status: "cancelled" },
     });
-    throw new AgentProposalActionError("变更已过期（超过30分钟），无法取消", 410);
+    if (cancelled.count !== 1) {
+      const currentStatus = await readAuthoritativeProposalStatus(proposalId, user);
+      if (currentStatus) settlementStatus = currentStatus;
+      throw cancelConflict(currentStatus);
+    }
+    settlementStatus = "cancelled";
+    const message = "变更已取消";
+    await persistProposalSettlement(proposal, user, {
+      status: settlementStatus,
+      message,
+      responseType: "answer",
+    });
+    return { proposalId, status: settlementStatus, message };
+  } catch (error) {
+    const currentStatus = await readAuthoritativeProposalStatus(proposalId, user);
+    if (isTerminalProposalStatus(currentStatus)) {
+      await persistProposalSettlement(proposal, user, {
+        status: currentStatus,
+        message: proposalSettlementMessage(error),
+        responseType: "error",
+      });
+    }
+    throw error;
   }
-
-  const cancelled = await prisma.agentProposal.updateMany({
-    where: { id: proposalId, userId: user.id, status: "pending" },
-    data: { status: "cancelled" },
-  });
-  if (cancelled.count !== 1) {
-    throw new AgentProposalActionError("只能取消待确认的变更", 409);
-  }
-  return { proposalId, status: "cancelled", message: "变更已取消" };
 }

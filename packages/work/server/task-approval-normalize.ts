@@ -1,4 +1,5 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { parseExpectedWorkItemUpdatedAt } from "./domain/work-item-revision";
 import {
   approvalEntityType,
   normalizeApprovalTargetType,
@@ -25,6 +26,7 @@ export function normalizeApprovalPayload(payload: unknown) {
     periodType?: unknown;
     periodStart?: unknown;
     reportStage?: unknown;
+    expectedUpdatedAt?: unknown;
   };
   const entityType = approvalEntityType(input);
   const workspaceTargetType = normalizeApprovalWorkspaceTargetType(input.targetType);
@@ -84,7 +86,20 @@ export function normalizeApprovalPayload(payload: unknown) {
     } satisfies WorkTaskRevisionApprovalPayload);
   }
   if (!targetType) return serviceError("审批只支持组织工作空间", 400);
-  return serviceOk({ entityType: "item", targetType, targetId, workId: nullablePositiveNumber(input.workId ?? input.entityId), data } satisfies WorkTaskItemApprovalPayload);
+  const expectedUpdatedAt = input.expectedUpdatedAt === undefined
+    ? undefined
+    : parseExpectedWorkItemUpdatedAt(input.expectedUpdatedAt);
+  if (input.expectedUpdatedAt !== undefined && !expectedUpdatedAt) {
+    return serviceError("工作项版本无效", 400);
+  }
+  return serviceOk({
+    entityType: "item",
+    targetType,
+    targetId,
+    workId: nullablePositiveNumber(input.workId ?? input.entityId),
+    data,
+    ...(expectedUpdatedAt && { expectedUpdatedAt: expectedUpdatedAt.toISOString() }),
+  } satisfies WorkTaskItemApprovalPayload);
 }
 
 function normalizeReportStage(value: unknown): "kr" | "final" {

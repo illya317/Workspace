@@ -115,7 +115,8 @@ export type UpdateWorkItemRouteCommand = {
   targetType: WorkTaskScopeTargetType;
   targetId: number;
   lifecycleOnly: boolean;
-  data: Parameters<typeof updateWorkItem>[1];
+  expectedUpdatedAt?: string;
+  data: Omit<Parameters<typeof updateWorkItem>[1], "expectedUpdatedAt">;
 };
 
 export type DeleteWorkItemRouteCommand = {
@@ -400,6 +401,7 @@ export async function buildUpdateWorkItemRouteCommand(input: {
   userId: number;
   workId: number;
   body: Record<string, unknown> & { participants?: string };
+  expectedUpdatedAt?: string;
 }): Promise<DomainValidationResult<UpdateWorkItemRouteCommand>> {
   const existing = await getWorkItemTargetMetadata(input.workId);
   if (!existing) return failCommand("节点不存在", 404);
@@ -420,6 +422,7 @@ export async function buildUpdateWorkItemRouteCommand(input: {
     targetType: existing.targetType,
     targetId,
     lifecycleOnly: lifecycleRequest,
+    ...(input.expectedUpdatedAt !== undefined && { expectedUpdatedAt: input.expectedUpdatedAt }),
     data: {
       ...normalizeWorkItemArchiveLifecyclePatch(data),
       ...(participants !== undefined && { participants: parseParticipants(participants) }),

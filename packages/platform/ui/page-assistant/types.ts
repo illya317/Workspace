@@ -1,6 +1,7 @@
 import type { PageAssistantOpenInput } from "@workspace/core/ui";
 
 export type AssistantRole = "user" | "agent";
+export type AssistantProposalStatus = "pending" | "executing" | "confirmed" | "cancelled" | "failed" | "expired";
 
 export type AgentConversationStarter = {
   key: string;
@@ -39,7 +40,7 @@ export type AssistantMessage = {
   responseType?: "answer" | "error" | "clarification" | "proposal";
   data?: unknown;
   proposal?: AssistantProposal;
-  proposalStatus?: "pending" | "confirmed" | "cancelled";
+  proposalStatus?: AssistantProposalStatus;
 };
 
 export type AgentResponse = {

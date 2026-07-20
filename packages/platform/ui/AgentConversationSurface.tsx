@@ -8,6 +8,7 @@ import { PageAssistantComposer } from "./page-assistant/PageAssistantComposer";
 import { AgentConversationEmptyState, PageAssistantMessages } from "./page-assistant/PageAssistantMessages";
 import { readAgentStream } from "./page-assistant/agent-stream";
 import { createEmptyConversationSnapshot, type ConversationSnapshot } from "./page-assistant/conversation-state";
+import { requestProposalSettlement } from "./page-assistant/proposal-settlement";
 import { useAgentProfileSelector } from "./page-assistant/useAgentProfileSelector";
 import {
   contextKey,
@@ -371,42 +372,23 @@ export function AgentConversationSurface({
     const requestContextKey = activeContextKeyRef.current;
     setBusyProposalId(proposalId);
     try {
-      const response = await fetch(workspacePath(`/api/agent/proposals/${proposalId}/${action}`), {
-        method: "POST",
-      });
-      const body = (await response.json()) as { message?: string; error?: string };
-      if (!response.ok) throw new Error(body.message || body.error || "处理失败");
-
-      updateMessagesForContext(requestContextKey, (current) => current.map((message) => {
-        if (message.id !== messageId) return message;
-        return {
-          ...message,
-          proposalStatus: action === "confirm" ? "confirmed" : "cancelled",
-        };
-      }));
+      const outcome = await requestProposalSettlement(proposalId, action);
+      if (outcome.status) {
+        updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+          message.id === messageId ? { ...message, proposalStatus: outcome.status ?? undefined } : message
+        )));
+      }
       updateMessagesForContext(requestContextKey, (current) => [
         ...current,
         {
-          id: nextMessageId("agent-proposal"),
+          id: nextMessageId(outcome.ok ? "agent-proposal" : "agent-proposal-error"),
           role: "agent",
-          content: body.message || (action === "confirm" ? "变更已执行。" : "变更已取消。"),
-          responseType: "answer",
-        },
-      ]);
-    } catch (error) {
-      updateMessagesForContext(requestContextKey, (current) => [
-        ...current,
-        {
-          id: nextMessageId("agent-proposal-error"),
-          role: "agent",
-          content: error instanceof Error ? error.message : "处理失败。",
-          responseType: "error",
+          content: outcome.message,
+          responseType: outcome.ok ? "answer" : "error",
         },
       ]);
     } finally {
-      if (activeContextKeyRef.current === requestContextKey) {
-        setBusyProposalId(null);
-      }
+      setBusyProposalId((current) => current === proposalId ? null : current);
     }
   }
 

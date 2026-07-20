@@ -4,6 +4,7 @@ import test, { mock } from "node:test";
 import { serviceOk } from "../../packages/platform/server/api";
 
 const writes: Array<Record<string, unknown>> = [];
+const updates: Array<Record<string, unknown>> = [];
 
 mock.module("server-only", { namedExports: {} } as never);
 mock.module("next/navigation", {
@@ -21,8 +22,9 @@ mock.module("../../packages/work/server/works", {
       writes.push(input);
       return serviceOk({ id: 51 });
     },
-    updateWorkItem: async () => {
-      throw new Error("update is not expected in this test");
+    updateWorkItem: async (_workId: number, input: Record<string, unknown>) => {
+      updates.push(input);
+      return serviceOk({ id: 52 });
     },
   },
 } as never);
@@ -120,4 +122,25 @@ test("work-task approved commit consumes a matching engine capability", async ()
   const replay = await commitPreparedWorkTaskPayload(input);
   assert.equal(replay.ok, false);
   assert.equal(writes.length, 1);
+});
+
+test("work-task update commit forwards the optimistic timestamp to the shared writer", async () => {
+  updates.length = 0;
+  const expectedUpdatedAt = "2026-07-21T02:03:04.005Z";
+  const result = await commitPreparedWorkTaskPayload({
+    actorUserId: 7,
+    submitterUserId: 7,
+    operation: "update",
+    payload: {
+      ...payload,
+      workId: 52,
+      expectedUpdatedAt,
+    } as never,
+    authorization: "direct",
+  });
+
+  assert.equal(result.ok, true, JSON.stringify(result));
+  assert.equal(updates.length, 1);
+  assert.equal(updates[0]?.expectedUpdatedAt, expectedUpdatedAt);
+  assert.equal(updates[0]?.mutationAuthorization, "direct");
 });

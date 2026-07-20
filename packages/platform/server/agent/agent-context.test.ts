@@ -103,6 +103,35 @@ test("session history does not apply a legacy per-message fallback truncation", 
   assert.equal(history[0].content, content);
 });
 
+test("session history preserves proposal diff and lifecycle feedback for the next turn", () => {
+  const prepared = preparedSession(0, null);
+  prepared.messages = [{
+    id: "msg_proposal",
+    role: "agent",
+    content: "已按你的反馈生成待确认变更。",
+    createdAt: new Date().toISOString(),
+    responseType: "proposal",
+    proposal: {
+      id: 42,
+      actionKey: "work.item.create",
+      targetType: "WorkItem",
+      targetId: "123",
+      diff: { title: "准备周报", priority: "high" },
+    },
+    proposalStatus: "failed",
+  }];
+
+  const history = buildAgentHistory(prepared);
+
+  assert.equal(history.length, 1);
+  assert.match(history[0].content, /\[Workspace proposal state\]/);
+  assert.match(history[0].content, /proposalId=42/);
+  assert.match(history[0].content, /actionKey=work\.item\.create/);
+  assert.match(history[0].content, /targetId=123/);
+  assert.match(history[0].content, /status=failed/);
+  assert.match(history[0].content, /"title":"准备周报"/);
+});
+
 test("oversize model context remains bounded valid JSON and reports truncation", () => {
   const serialized = serializeAgentModelContext({
     records: Array.from({ length: 2_000 }, (_, index) => ({

@@ -4,6 +4,7 @@ import { useState, type ReactNode, type RefObject } from "react";
 
 import type { AgentConversationStarter, AssistantMessage } from "./types";
 import { AgentMessageMarkdown } from "./AgentMessageMarkdown";
+import { proposalCanSettle, proposalStatusLabel } from "./proposal-state";
 import { proposalDiffText } from "./types";
 
 type ResourceItem = {
@@ -272,7 +273,7 @@ function ProposalBlock({
       <pre className="mt-2 max-h-36 overflow-auto whitespace-pre-wrap break-words rounded bg-white p-2 text-[11px] leading-5 text-slate-700">
         {proposalDiffText(proposal)}
       </pre>
-      {message.proposalStatus === "pending" ? (
+      {proposalCanSettle(message.proposalStatus) ? (
         <div className="mt-2 flex justify-end gap-2">
           <button
             type="button"
@@ -297,7 +298,7 @@ function ProposalBlock({
         </div>
       ) : (
         <div className="mt-2 text-xs font-medium text-slate-500">
-          {message.proposalStatus === "confirmed" ? "已确认" : "已取消"}
+          {proposalStatusLabel(message.proposalStatus)}
         </div>
       )}
     </div>

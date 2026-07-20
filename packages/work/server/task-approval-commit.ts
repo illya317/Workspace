@@ -95,7 +95,13 @@ async function commitWorkItemApproval(
         mutationAuthorization: authorization,
       } as Parameters<typeof createWorkItem>[0])
     : payload.workId
-      ? await updateWorkItem(payload.workId, { ...payload.data, actorUserId, ownerEligibilityUserId: submitterUserId, mutationAuthorization: authorization } as Parameters<typeof updateWorkItem>[1])
+      ? await updateWorkItem(payload.workId, {
+          ...payload.data,
+          actorUserId,
+          ownerEligibilityUserId: submitterUserId,
+          mutationAuthorization: authorization,
+          expectedUpdatedAt: payload.expectedUpdatedAt,
+        } as Parameters<typeof updateWorkItem>[1])
       : serviceError("审批单缺少工作项 ID", 400);
   if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   const entity = result.data as { id?: unknown };

@@ -1000,6 +1000,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
         ? WORK_REPORTING_NAVIGATION_KEY
       : activeTab;
   const pageNavigation = navigationItems.length > 0 ? createPageTabBar({
+    label: workAgentNavigationLabel(currentSpace, activePlan),
     items: navigationItems,
     active: activeNavigationTab,
     activeChild: activeNavigationTab === WORK_REPORTING_NAVIGATION_KEY
@@ -1040,6 +1041,12 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       body={activeTab === "settings" ? settingsBody : activeTab === WORK_KPI_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: kpiNavigationBody, right: kpiBody, label: "KPI 周期计划", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false })}
     />,
   });
+}
+
+function workAgentNavigationLabel(space: WorkTaskSpace | null, plan: WorkPlan | null) {
+  const spaceContext = space ? `${space.name} [${space.targetType}:${space.targetId}]` : "未选择空间";
+  const planContext = plan ? `${plan.title} [plan:${plan.id}]` : "未选择计划";
+  return `Work 空间：${spaceContext} · 计划：${planContext}`.slice(0, 120);
 }
 
 function createSurfaceForm(

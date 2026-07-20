@@ -53,6 +53,12 @@ function workAgentStarters(user: SessionUser, canEnterDepartmentHome: boolean): 
   if (canEnter(user, "work.tasks")) {
     starters.push(
       {
+        key: "maintain-work-item",
+        label: "维护已有工作项",
+        description: "通过问答定位目标、KR 或任务，核对表单后再确认写入",
+        prompt: "请帮我维护一个已有 Work 工作项。先读取我有权限的空间、计划和节点；空间、计划、目标节点或字段有缺失或歧义时逐项询问，不要猜 ID。根据我的反馈整理完整变更，最后只生成待确认提案，由我确认后再写入。",
+      },
+      {
         key: "work-overview",
         label: "梳理我的重点事项",
         description: "汇总我当前参与的空间、计划和待推进工作",

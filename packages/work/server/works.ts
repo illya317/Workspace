@@ -18,6 +18,11 @@ import { validateWorkItemPeriodRelations } from "./work-period-relations";
 import { archiveWorkItem, deleteWorkItemRecord, restoreArchivedWorkItem } from "./work-item-archive";
 import { assertWorkItemMutationCommitAllowed, type WorkItemMutationAuthorization } from "./work-item-mutation-guard";
 import { closeOkrPlanIfAllItemsComplete, shouldRecalculateOkrPlanCompletion } from "./domain/work-plan-item-state";
+import {
+  parseExpectedWorkItemUpdatedAt,
+  WORK_ITEM_REVISION_CONFLICT_MESSAGE,
+  workItemRevisionMatches,
+} from "./domain/work-item-revision";
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
@@ -232,9 +237,16 @@ export async function updateWorkItem(
     mutationAuthorization?: WorkItemMutationAuthorization;
     evidenceTaskIds?: number[];
     isArchived?: boolean;
+    expectedUpdatedAt?: string;
   },
 ): Promise<DomainServiceResult<unknown>> {
-  const { actorUserId, ownerEligibilityUserId, mutationAuthorization, ...itemPatch } = opts;
+  const { actorUserId, ownerEligibilityUserId, mutationAuthorization, expectedUpdatedAt, ...itemPatch } = opts;
+  const expectedRevision = expectedUpdatedAt === undefined
+    ? undefined
+    : parseExpectedWorkItemUpdatedAt(expectedUpdatedAt);
+  if (expectedUpdatedAt !== undefined && !expectedRevision) {
+    return { ok: false, error: "工作项版本无效", status: 400 };
+  }
   const existing = await prisma.workItem.findUnique({
     where: { id: workId },
     select: {
@@ -278,6 +290,9 @@ export async function updateWorkItem(
     },
   });
   if (!existing?.targetId) return { ok: false, error: "工作项不存在", status: 404 };
+  if (expectedRevision && !workItemRevisionMatches(existing.updatedAt, expectedRevision)) {
+    return { ok: false, error: WORK_ITEM_REVISION_CONFLICT_MESSAGE, status: 409 };
+  }
   if (isArchiveLifecycleOnlyWorkItemPatch(itemPatch)) {
     const archive = itemPatch.isArchived as boolean;
     if (archive) {
@@ -294,6 +309,9 @@ export async function updateWorkItem(
       include: workItemInclude,
     });
     return { ok: true, data: toWorkItemDto(work) };
+  }
+  if (existing.isArchived) {
+    return { ok: false, error: "归档工作项不能修改，请先恢复", status: 409 };
   }
   const workflowGuard = await assertWorkItemMutationCommitAllowed({ operation: "update", actorUserId, targetType: existing.targetType, targetId: existing.targetId, authorization: mutationAuthorization });
   if (!workflowGuard.ok) return workflowGuard;
@@ -422,8 +440,8 @@ export async function updateWorkItem(
         });
         if (invariantError) throw new WorkCompletionPolicyError(invariantError);
         await tx.workItem.update({
-          where: completingItem
-            ? { id: command.data.workId, updatedAt: existing.updatedAt }
+          where: expectedRevision || completingItem
+            ? { id: command.data.workId, updatedAt: expectedRevision ?? existing.updatedAt }
             : { id: command.data.workId },
           data,
         });
@@ -473,6 +491,9 @@ export async function updateWorkItem(
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
     if (error instanceof WorkCompletionPolicyError) return { ok: false, error: error.message, status: 409 };
+    if (expectedRevision && error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
+      return { ok: false, error: WORK_ITEM_REVISION_CONFLICT_MESSAGE, status: 409 };
+    }
     const impactError = mutationImpactServiceError(error);
     if (impactError) return impactError;
     throw error;

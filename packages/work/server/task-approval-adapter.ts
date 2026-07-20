@@ -3,6 +3,11 @@ import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform
 import { prisma } from "@workspace/platform/server/prisma";
 import { canViewWorkTaskTarget, canSubmitWorkTaskAction } from "./access";
 import { buildWorkItemCreateCommand, buildWorkItemUpdateCommand } from "./domain/work-item-validation";
+import {
+  parseExpectedWorkItemUpdatedAt,
+  WORK_ITEM_REVISION_CONFLICT_MESSAGE,
+  workItemRevisionMatches,
+} from "./domain/work-item-revision";
 import { validateWorkItemRelations } from "./domain/work-item-relation-validation";
 import { effectiveWorkItemRelationInput } from "./domain/work-item-relation-state";
 import {
@@ -250,9 +255,19 @@ export async function validateUpdateItemApprovalPayload(
       parentPeriodWorkItemId: true,
       previousPeriodWorkItemId: true,
       collaborationId: true, status: true,
+      updatedAt: true,
     },
   });
   if (!existing?.targetId) return serviceError("工作项不存在", 404);
+  const expectedUpdatedAt = payload.expectedUpdatedAt === undefined
+    ? undefined
+    : parseExpectedWorkItemUpdatedAt(payload.expectedUpdatedAt);
+  if (payload.expectedUpdatedAt !== undefined && !expectedUpdatedAt) {
+    return serviceError("工作项版本无效", 400);
+  }
+  if (expectedUpdatedAt && !workItemRevisionMatches(existing.updatedAt, expectedUpdatedAt)) {
+    return serviceError(WORK_ITEM_REVISION_CONFLICT_MESSAGE, 409);
+  }
   const targetType = normalizeApprovalWorkspaceTargetType(existing.targetType);
   if (!targetType) return serviceError("工作空间范围无效", 400);
   const command = buildWorkItemUpdateCommand(workId, {
@@ -304,6 +319,7 @@ export async function validateUpdateItemApprovalPayload(
       targetType,
       targetId: existing.targetId,
       workId,
+      ...(expectedUpdatedAt && { expectedUpdatedAt: expectedUpdatedAt.toISOString() }),
       data: command.data.data as Record<string, unknown>,
     },
   });

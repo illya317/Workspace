@@ -80,6 +80,9 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 - 两个入口统一消费 `application/x-ndjson` 响应流：`status / delta / heartbeat / result` 是固定事件，heartbeat 每 15 秒产生一次，避免工具调用阶段因没有文本 token 而被反向代理按空闲请求中断。网页原位更新当前消息；企业微信使用同一个 stream id 节流刷新，结束时才发送 `finish=true`。
 - Web 与企业微信共用一个进程级活跃 turn 限流器，硬上限为 3。排队请求不计入活跃数；完成、异常和取消都必须在 `finally` 中释放槽位。OAuth 与 API Key 认证共用同一上限。
 - Kimi 自定义 agent 的内置工具列表固定为空；只有经过 `agentAllowedActions` 与当前 `SessionUser` RBAC 过滤的 Workspace 工具才能通过 Wire 注册，工具真正调用前再次授权。写工具必须只返回 proposal，确认仍走独立 API 并重新鉴权。
+- 需要用户补充必填项或消除歧义时，SDK `QuestionRequest` 必须转成 `clarification` 返回并写入 Workspace 会话；同一轮一旦出现待澄清问题，mutating tool 必须停止。下一轮由正常会话历史承接用户反馈，不得用占位回答替用户选择实体或引用 ID。
+- proposal 的字段差异和可观测状态必须进入模型历史：初始消息记录 `pending`，`confirmed / cancelled / failed / expired` 终态按 `sessionId` 追加到会话。错误恢复不得把可能已过时的 `pending / executing` 追加在终态之后；数据库状态和按 owner 读取的 proposal API 始终权威。会话落盘失败不能改变数据库中的 proposal 终态，也不能遮蔽 executor 原错误。
+- 业务写入工具按 `精确读取当前表单 -> 复用业务 FK registry 搜索候选 -> 生成 proposal -> 用户确认 -> 重新鉴权与校验 -> 调用原业务 command/service` 建立深接口。Agent schema 只能暴露人工表单在该状态下真实可编辑的字段，不能复制一份更宽的 CRUD payload；条件隐藏字段、锁定字段、版本字段和业务派生默认值必须在服务端拒绝或由同一领域入口推导。
 - SDK 子进程必须经过 `ops/kimi-agent-sandbox-runner.sh`：在 Bash 启动前清空继承环境，只挂载专用 Kimi home/share、空 workdir、固定 agent config 和只读 Python runtime。禁止给 CLI 挂载应用源码、数据库、`.env`、服务器 home、任意 MCP 或 Shell/文件工具。
 - 页面和企业微信入口都把已认证 `SessionUser` 的 Workspace userId、登录名、员工姓名/工号和企业微信 userId 作为只读身份上下文；“我是谁/我的工号”直接使用该绑定回答，不调用人员搜索，也不把身份绑定解释成额外权限。
 - HR 人员查询必须提供姓名、工号或别名关键词，禁止空关键词返回全员名单；候选按精确值、前缀和包含关系排序，最多给模型 20 人。经 `hr.roster.read` 校验后的姓名和工号必须原样显示，不得用星号脱敏，其他非必要个人字段不进入模型投影。

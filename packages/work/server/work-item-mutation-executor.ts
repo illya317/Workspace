@@ -86,7 +86,11 @@ export async function executeCreateWorkItemRouteCommand(command: CreateWorkItemR
 
 export async function executeUpdateWorkItemRouteCommand(command: UpdateWorkItemRouteCommand) {
   if (command.lifecycleOnly) {
-    const work = await updateWorkItem(command.workId, { actorUserId: command.userId, ...command.data });
+    const work = await updateWorkItem(command.workId, {
+      actorUserId: command.userId,
+      ...command.data,
+      expectedUpdatedAt: command.expectedUpdatedAt,
+    });
     if (!work.ok) return serviceError(work.error, work.status || 400, work.details);
     return serviceOk({ work: work.data });
   }
@@ -95,6 +99,7 @@ export async function executeUpdateWorkItemRouteCommand(command: UpdateWorkItemR
     targetType: command.targetType,
     targetId: command.targetId,
     workId: command.workId,
+    expectedUpdatedAt: command.expectedUpdatedAt,
     data: command.data,
   } as unknown as WorkTaskItemApprovalPayload;
   const context = { actorUserId: command.userId, submitterUserId: command.userId, operation: "update" as const, subjectId: String(command.workId) };

@@ -15,6 +15,7 @@ export class WorkCompletionPolicyError extends Error {}
 export async function validateWorkItemCompletion(
   store: WorkCompletionStore,
   workItemId: number,
+  pendingEvidenceTaskIds?: readonly number[],
 ) {
   const item = await store.workItem.findUnique({
     where: { id: workItemId },
@@ -27,12 +28,18 @@ export async function validateWorkItemCompletion(
       where: { parentWorkItemId: workItemId, ...INCOMPLETE_ITEM_WHERE },
     }),
     item.itemType === "key_result"
-      ? store.workKrEvidence.count({
-        where: {
-          krWorkItemId: workItemId,
-          taskWorkItem: { ...INCOMPLETE_ITEM_WHERE },
-        },
-      })
+      ? pendingEvidenceTaskIds === undefined
+        ? store.workKrEvidence.count({
+          where: {
+            krWorkItemId: workItemId,
+            taskWorkItem: { ...INCOMPLETE_ITEM_WHERE },
+          },
+        })
+        : pendingEvidenceTaskIds.length === 0
+          ? Promise.resolve(0)
+          : store.workItem.count({
+            where: { id: { in: [...pendingEvidenceTaskIds] }, ...INCOMPLETE_ITEM_WHERE },
+          })
       : Promise.resolve(0),
   ]);
 

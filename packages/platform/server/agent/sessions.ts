@@ -10,6 +10,7 @@ import { AGENT_SESSION_SUMMARY_CHARS, summarizeAgentSessionHistory } from "./ses
 import { storeAgentSessionImagesAt } from "./session-images";
 
 export type AgentStoredMessageRole = "user" | "agent";
+export type AgentStoredProposalStatus = "pending" | "executing" | "confirmed" | "cancelled" | "failed" | "expired";
 
 export type AgentStoredAttachment = {
   id: string;
@@ -49,7 +50,7 @@ export type AgentStoredMessage = {
     targetId?: string;
     diff: Record<string, unknown>;
   };
-  proposalStatus?: "pending" | "confirmed" | "cancelled";
+  proposalStatus?: AgentStoredProposalStatus;
 };
 
 export type AgentSessionRow = {
@@ -157,6 +158,27 @@ function storedMessageText(message: Pick<AgentStoredMessage, "content" | "attach
     ? `\n[图片附件：${message.attachments.map(attachmentLabel).join("；")}]`
     : "";
   return `${message.content}${attachmentText}`;
+}
+
+function storedProposalHistoryText(message: Pick<AgentStoredMessage, "proposal" | "proposalStatus">) {
+  if (!message.proposal) return "";
+  const proposal = message.proposal;
+  let diff = "{}";
+  try {
+    diff = JSON.stringify(proposal.diff);
+  } catch {
+    diff = "{\"unavailable\":true}";
+  }
+  return [
+    "",
+    "[Workspace proposal state]",
+    `proposalId=${proposal.id}`,
+    `actionKey=${proposal.actionKey}`,
+    `targetType=${proposal.targetType}`,
+    `targetId=${proposal.targetId ?? "(none)"}`,
+    `status=${message.proposalStatus ?? "pending"}`,
+    `diff=${diff}`,
+  ].join("\n");
 }
 
 function normalizeSessionRows(rows: AgentSessionRow[]) {
@@ -333,11 +355,18 @@ export function buildAgentHistory(prepared: PreparedAgentSession, fallbackHistor
   return history;
 }
 
-function modelHistoryMessageText(message: Pick<AgentStoredMessage, "content" | "attachments">) {
-  return truncateText(storedMessageText(message), MAX_STORED_MESSAGE_CHARS);
+function modelHistoryMessageText(
+  message: Pick<AgentStoredMessage, "content" | "attachments" | "proposal" | "proposalStatus">,
+) {
+  return truncateText(
+    `${storedMessageText(message)}${storedProposalHistoryText(message)}`,
+    MAX_STORED_MESSAGE_CHARS,
+  );
 }
 
-function modelHistoryStartIndex(messages: Array<Pick<AgentStoredMessage, "content" | "attachments">>) {
+function modelHistoryStartIndex(
+  messages: Array<Pick<AgentStoredMessage, "content" | "attachments" | "proposal" | "proposalStatus">>,
+) {
   let usedChars = 0;
   for (let index = messages.length - 1; index >= 0; index -= 1) {
     const nextChars = modelHistoryMessageText(messages[index]).length;
@@ -373,6 +402,18 @@ export async function appendAgentSessionMessage(
   });
 
   return (await getSessionById(session.id, user)) ?? session;
+}
+
+/** Append to an existing requester-owned session without mutating its page/profile binding. */
+export async function appendAgentSessionMessageForUser(
+  sessionId: string | null | undefined,
+  input: Omit<AgentStoredMessage, "id" | "createdAt">,
+  user: SessionUser,
+) {
+  if (!sessionId) return null;
+  const session = await getSessionById(sessionId, user);
+  if (!session) return null;
+  return appendAgentSessionMessage(session, input, user);
 }
 
 function contextText(value: string | null | undefined) {

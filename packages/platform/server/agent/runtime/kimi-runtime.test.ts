@@ -27,6 +27,12 @@ function fakeClient(
     eventError?: Error;
     hangAfterEvents?: boolean;
     onStart?: (options: Parameters<ProtocolClient["start"]>[0]) => Promise<void> | void;
+    onQuestionResponse?: (
+      requestId: string,
+      questionRequestId: string,
+      answers: Record<string, string>,
+      tools: ExternalTool[],
+    ) => Promise<void> | void;
   } = {},
 ) {
   let externalTools: ExternalTool[] = [];
@@ -57,7 +63,9 @@ function fakeClient(
     },
     async sendCancel() {},
     async sendApproval() {},
-    async sendQuestionResponse() {},
+    async sendQuestionResponse(requestId: string, questionRequestId: string, answers: Record<string, string>) {
+      await turn.onQuestionResponse?.(requestId, questionRequestId, answers, externalTools);
+    },
   };
   return client;
 }
@@ -151,6 +159,78 @@ test("Kimi runtime uses an empty builtin toolset and preserves proposal-only wri
     assert.match(systemPrompt, /never contradict it by claiming you cannot perform the capability/);
     assert.match(systemPrompt, /selected runtime's responsibility boundary/);
     assert.match(systemPrompt, /never expand the supplied tools or Platform permissions/);
+    assert.match(systemPrompt, /Never guess entity, workspace, employee, plan, or relationship IDs/);
+    assert.match(systemPrompt, /Do not call a mutating external tool until the user has supplied it/);
+  } finally {
+    await rm(root, { recursive: true, force: true });
+  }
+});
+
+test("QuestionRequest becomes a user clarification and blocks mutating tools for the turn", async () => {
+  const root = await mkdtemp(path.join(os.tmpdir(), "workspace-kimi-runtime-"));
+  let executeCount = 0;
+  let observedAnswers: Record<string, string> = {};
+  const mutatingTool: AgentTool = {
+    key: "work.item.create",
+    label: "Create work item",
+    description: "Create a work item proposal",
+    parameters: { type: "object", properties: {}, additionalProperties: false },
+    requiredPermissions: [],
+    mutates: true,
+    execute: async () => {
+      executeCount += 1;
+      return {
+        type: "proposal",
+        message: "请确认",
+        proposal: { id: 61, actionKey: "work.item.create", targetType: "WorkItem", diff: {} },
+      };
+    },
+  };
+  const runtime = new KimiAgentRuntime({
+    runtimeRoot: root,
+    clientFactory: () => fakeClient(async () => undefined, {
+      events: [{
+        type: "QuestionRequest",
+        payload: {
+          id: "question-1",
+          tool_call_id: "ask-1",
+          questions: [{
+            question: "要写入哪个工作空间？",
+            header: "工作空间",
+            options: [
+              { label: "个人空间", description: "写入我的工作" },
+              { label: "部门空间" },
+            ],
+            multi_select: false,
+          }],
+        },
+      }] as StreamEvent[],
+      onQuestionResponse: async (requestId, questionRequestId, answers, tools) => {
+        assert.equal(requestId, "question-1");
+        assert.equal(questionRequestId, "question-1");
+        observedAnswers = answers;
+        const blocked = await tools[0].handler({});
+        assert.match(String(blocked.message), /Wait for the user's clarification/);
+      },
+    }) as never,
+    resolveToolAccess: async (_runtimeExecution, tools) => ({ tools, capabilities: [] }),
+  });
+
+  try {
+    const response = await runtime.runTurn({
+      message: "帮我建一个任务",
+      execution,
+      tools: [mutatingTool],
+      history: [],
+      images: [],
+    });
+
+    assert.equal(executeCount, 0);
+    assert.deepEqual(observedAnswers, { "要写入哪个工作空间？": "等待用户在下一轮确认" });
+    assert.equal(response.type, "clarification");
+    assert.match(response.message, /工作空间：要写入哪个工作空间/);
+    assert.match(response.message, /个人空间（写入我的工作）/);
+    assert.match(response.message, /确认完整后我再生成待确认变更/);
   } finally {
     await rm(root, { recursive: true, force: true });
   }
