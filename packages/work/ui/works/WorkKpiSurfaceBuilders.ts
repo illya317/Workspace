@@ -67,7 +67,11 @@ export function resultRows(result: WorkKpiResultsResponse, entries: WorkKpiScore
   ];
 }
 
-export function definitionColumns(): DataSurfaceColumnSpec<WorkKpiDefinition>[] {
+export function definitionColumns(input?: {
+  canDelete: boolean;
+  deletingDefinitionId: number | null;
+  onDelete: (definition: WorkKpiDefinition) => void;
+}): DataSurfaceColumnSpec<WorkKpiDefinition>[] {
   return [
     { key: "code", label: "编码", required: true, cell: (definition) => ({ kind: "text", value: definition.code, emphasis: "strong" }) },
     { key: "name", label: "名称", required: true, cell: (definition) => ({ kind: "text", value: definition.name }) },
@@ -76,6 +80,26 @@ export function definitionColumns(): DataSurfaceColumnSpec<WorkKpiDefinition>[] 
     { key: "direction", label: "方向", required: true, cell: (definition) => ({ kind: "text", value: directionLabel(definition.direction) }) },
     { key: "unit", label: "单位", required: true, cell: (definition) => ({ kind: "text", value: definition.unit }) },
     { key: "ownerDepartment", label: "归口部门", required: true, cell: (definition) => ({ kind: "text", value: definition.ownerDepartmentName }) },
+    ...(input?.canDelete ? [{
+      key: "actions",
+      label: "操作",
+      required: true,
+      width: "xs" as const,
+      cell: (definition: WorkKpiDefinition) => ({
+        kind: "actions" as const,
+        actions: [{
+          key: `delete-${definition.id}`,
+          label: definition.referenceCount > 0 ? `已被周期计分卡引用 ${definition.referenceCount} 次，不能删除` : "删除指标",
+          icon: "delete" as const,
+          variant: "danger" as const,
+          presentation: "glyph" as const,
+          size: "sm" as const,
+          disabled: definition.referenceCount > 0 || input.deletingDefinitionId === definition.id,
+          stopPropagation: true,
+          onClick: () => input.onDelete(definition),
+        }],
+      }),
+    }] : []),
   ];
 }
 

@@ -225,6 +225,17 @@ export const BUSINESS_ACTION_REGISTRATIONS = [
   {
     ...WORK_TASKS,
     ...PERMISSION_ONLY,
+    key: "work.tasks.kpi_definition.delete",
+    label: "删除 KPI 指标定义",
+    writeKind: "delete",
+    targetKind: "WorkKpiDefinition",
+    directPermissionAction: "delete",
+    apiRoutes: [route("DELETE", "/api/modules/work/tasks/kpi/definitions/:id")],
+    notes: "仅允许删除未被周期计分卡引用的指标定义版本。",
+  },
+  {
+    ...WORK_TASKS,
+    ...PERMISSION_ONLY,
     key: "work.tasks.kpi_measurement.update",
     label: "更新 KPI 实际值",
     writeKind: "update",

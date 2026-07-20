@@ -23,7 +23,7 @@ test("work plan page index remains inside the available range", () => {
 });
 
 test("stale fractional page sizes cannot turn plans into empty pager cards", () => {
-  const plans = ["2026年07月OKR计划", "2026年第3季度OKR计划"];
+  const plans = ["2026年07月计划", "2026年第3季度计划"];
   const result = paginateWorkPlanGroup(plans, 0.1, 0);
 
   assert.deepEqual(result.items, plans);

@@ -21,6 +21,12 @@ export type WorkKpiDefinitionCommand = {
   ownerDepartmentId: number;
 };
 
+export type WorkKpiDefinitionDeleteCommand = {
+  actorUserId: number;
+  definitionId: number;
+  expectedVersion: number;
+};
+
 const STATUSES = new Set<WorkKpiDefinitionStatus>(["draft", "active", "retired"]);
 const DISPLAY_TYPES = new Set<WorkKpiDisplayType>(["number", "percent", "currency", "count"]);
 const DIRECTIONS = new Set<WorkKpiDirection>(["higher_is_better", "lower_is_better", "target_range"]);
@@ -56,4 +62,14 @@ export function validateWorkKpiDefinitionCommand(input: Record<string, unknown>)
     measurementMode: "manual",
     ownerDepartmentId,
   });
+}
+
+export function validateWorkKpiDefinitionDeleteCommand(input: Record<string, unknown>): DomainValidationResult<WorkKpiDefinitionDeleteCommand> {
+  const actorUserId = Number(input.actorUserId);
+  if (!Number.isInteger(actorUserId) || actorUserId <= 0) return failCommand("KPI 指标删除用户无效", 400, "actorUserId");
+  const definitionId = Number(input.definitionId);
+  if (!Number.isInteger(definitionId) || definitionId <= 0) return failCommand("KPI 指标定义 ID 无效", 400, "definitionId");
+  const expectedVersion = Number(input.expectedVersion);
+  if (!Number.isInteger(expectedVersion) || expectedVersion <= 0) return failCommand("删除缺少指标版本号，请刷新后重试", 409, "expectedVersion");
+  return okCommand({ actorUserId, definitionId, expectedVersion });
 }

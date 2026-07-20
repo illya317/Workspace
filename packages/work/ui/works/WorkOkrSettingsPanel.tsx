@@ -51,7 +51,7 @@ export interface WorkOkrSettingsController {
 export function workOkrSettingsBody(sections: BodySurfaceSectionSpec[]): BodySurfaceProps {
   return createPageBody([
     createSectionSection("okr-settings", {
-      title: "OKR 设置",
+      title: "时间设置",
       sections,
     }),
   ]);
@@ -76,13 +76,13 @@ export function useWorkOkrSettingsController({
     setLoading(true);
     try {
       const data = await requestJson<WorkOkrControlResponse>("/api/modules/work/tasks/okr-control", {
-        fallbackMessage: "加载 OKR 设置失败",
+        fallbackMessage: "加载时间设置失败",
       });
       setSettings(data);
       setSettingsDraft(data.settings);
       setDraft((current) => hydrateDraftFromActivePolicy(current, data.cycles, data.policies[0]));
     } catch (err) {
-      onToast({ message: err instanceof Error ? err.message : "加载 OKR 设置失败", type: "error" });
+      onToast({ message: err instanceof Error ? err.message : "加载时间设置失败", type: "error" });
     } finally {
       setLoading(false);
     }
@@ -146,7 +146,7 @@ export function useWorkOkrSettingsController({
           krReviewOpensAt: draft.krReviewOpensAt || null,
           krSubmitDeadline: draft.krSubmitDeadline || null,
         },
-      }, "保存 OKR 设置失败");
+      }, "保存时间设置失败");
       setSettingsDraft(result.settings);
       setSettings((current) => current ? {
         ...current,
@@ -155,9 +155,9 @@ export function useWorkOkrSettingsController({
         policies: mergeSavedPolicy(current.policies, result.policy ?? null, result.deletedPolicyKey ?? null),
       } : current);
       if (!result.policy) setHydratedPolicyKey(null);
-      onToast({ message: "OKR 设置已保存", type: "success" });
+      onToast({ message: "时间设置已保存", type: "success" });
     } catch (err) {
-      onToast({ message: err instanceof Error ? err.message : "保存 OKR 设置失败", type: "error" });
+      onToast({ message: err instanceof Error ? err.message : "保存时间设置失败", type: "error" });
     } finally {
       setSaving(false);
     }
@@ -217,7 +217,7 @@ export function useWorkOkrSettingsController({
         sections: [createFormSection("okr-control-exceptions", { kind: "fields", content: { items: exceptionFields, layout: { columns: 3, density: "compact" } } })],
       }),
     ] : [
-      createMessageSection("okr-control-loading", { content: loading ? "加载 OKR 设置中..." : "暂无 OKR 设置", tone: "muted" }),
+      createMessageSection("okr-control-loading", { content: loading ? "加载时间设置中..." : "暂无时间设置", tone: "muted" }),
     ],
   };
 }

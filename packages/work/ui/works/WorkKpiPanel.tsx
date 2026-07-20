@@ -7,8 +7,10 @@ import {
   createPageBody,
   createPageDataSection,
   createSectionSection,
+  useFeedback,
   type BodySurfaceProps,
   type BodySurfaceSectionCreateSpec,
+  type BodySurfaceSectionSpec,
   type FormSurfaceActionSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
@@ -16,6 +18,7 @@ import { actionRuntimeCommands, workflowActionSurfaceActions } from "@workspace/
 import {
   finalizeWorkKpiResults,
   finalizeWorkKpiScorecard,
+  deleteWorkKpiDefinition,
   getWorkKpiResults,
   getWorkKpiScorecard,
   listWorkKpiDefinitions,
@@ -46,8 +49,9 @@ import type {
 type Toast = (toast: { message: string; type: "success" | "error" }) => void;
 
 export interface WorkKpiScorecardController {
-  body: BodySurfaceProps;
+  body: BodySurfaceProps & { kind: "section"; sections: BodySurfaceSectionSpec[] };
   toolbarItems: SurfaceToolbarItems;
+  reload: () => Promise<void>;
 }
 
 export function useWorkKpiScorecardController({
@@ -242,31 +246,36 @@ export function useWorkKpiScorecardController({
   return {
     body: createPageBody(sections),
     toolbarItems: [],
+    reload: load,
   };
 }
 
 export interface WorkKpiDefinitionController {
-  body: BodySurfaceProps;
+  body: BodySurfaceProps & { kind: "section"; sections: BodySurfaceSectionSpec[] };
   toolbarItems: SurfaceToolbarItems;
 }
 
-export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
+export function useWorkKpiDefinitionController({ enabled, space, onToast, onDefinitionsChanged }: {
   enabled: boolean;
   space: WorkTaskSpace | null;
   onToast: Toast;
+  onDefinitionsChanged?: () => Promise<unknown>;
 }): WorkKpiDefinitionController {
   const [definitions, setDefinitions] = useState<WorkKpiDefinition[]>([]);
   const [draft, setDraft] = useState<WorkKpiDefinitionDraft | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [deletingDefinitionId, setDeletingDefinitionId] = useState<number | null>(null);
+  const { confirmDelete } = useFeedback();
   const ownerDepartmentId = space?.targetType === "department" ? space.targetId : null;
   const canMaintain = Boolean(ownerDepartmentId && space?.actionPermissions.canUpdate);
+  const canDelete = Boolean(ownerDepartmentId && space?.actionPermissions.canDelete);
 
   const load = useCallback(async () => {
     if (!enabled || !space) return;
     setLoading(true);
     try {
-      const data = await listWorkKpiDefinitions(space, ownerDepartmentId);
+      const data = await listWorkKpiDefinitions(space, ownerDepartmentId, true);
       setDefinitions(data.definitions);
     } catch (error) {
       onToast({ message: error instanceof Error ? error.message : "加载 KPI 指标库失败", type: "error" });
@@ -302,10 +311,11 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
       await saveWorkKpiDefinition(draft);
       setDraft(null);
       await load();
+      await onDefinitionsChanged?.();
     } finally {
       setSaving(false);
     }
-  }, [draft, load, saving]);
+  }, [draft, load, onDefinitionsChanged, saving]);
 
   const saveRevision = useCallback(async () => {
     try {
@@ -315,6 +325,26 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
       onToast({ message: error instanceof Error ? error.message : "保存 KPI 指标失败", type: "error" });
     }
   }, [onToast, save]);
+
+  const removeDefinition = useCallback(async (definition: WorkKpiDefinition) => {
+    if (!canDelete || deletingDefinitionId !== null || definition.referenceCount > 0) return;
+    const confirmed = await confirmDelete({
+      message: `确定删除指标「${definition.code} · ${definition.name} · v${definition.version}」吗？此操作不可撤销。`,
+    });
+    if (!confirmed) return;
+    setDeletingDefinitionId(definition.id);
+    try {
+      await deleteWorkKpiDefinition(definition);
+      setDraft((current) => current?.id === definition.id ? null : current);
+      await load();
+      await onDefinitionsChanged?.();
+      onToast({ message: "KPI 指标已删除", type: "success" });
+    } catch (error) {
+      onToast({ message: error instanceof Error ? error.message : "删除 KPI 指标失败", type: "error" });
+    } finally {
+      setDeletingDefinitionId(null);
+    }
+  }, [canDelete, confirmDelete, deletingDefinitionId, load, onDefinitionsChanged, onToast]);
 
   const activeDefinition = draft?.id ? definitions.find((definition) => definition.id === draft.id) ?? null : null;
   const revisionDirty = Boolean(activeDefinition && draft && definitionDraftDirty(activeDefinition, draft));
@@ -343,7 +373,7 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
         createPageDataSection("kpi-definitions", {
           kind: "table",
           rows: definitions,
-          columns: definitionColumns(),
+          columns: definitionColumns({ canDelete, deletingDefinitionId, onDelete: (definition) => void removeDefinition(definition) }),
           rowKey: (definition) => definition.id,
           loading,
           emptyText: "暂无 KPI 指标定义",

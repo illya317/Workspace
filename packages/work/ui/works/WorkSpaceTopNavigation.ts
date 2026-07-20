@@ -19,30 +19,28 @@ export const WORK_REPORTS_NAVIGATION_KEY = "reports";
 export const WORK_REPORTING_NAVIGATION_KEY = "work-reporting";
 export const WORK_GANTT_NAVIGATION_KEY = "gantt";
 export const WORK_KPI_NAVIGATION_KEY = "kpi";
-export const WORK_OKR_GOVERNANCE_VIEW_KEY = "governance";
-export const WORK_KPI_DEFINITIONS_VIEW_KEY = "kpi-definitions";
 
 export type WorkTasksChildView = typeof WORK_TASKS_OWNED_VIEW_KEY | typeof WORK_TASKS_ASSIGNED_VIEW_KEY | typeof WORK_TASKS_COLLABORATION_VIEW_KEY;
 
 export const WORK_TASK_VIEW_NAVIGATION_ITEMS = [
-  { key: WORK_TASKS_NAVIGATION_KEY, label: "工作计划", children: [
+  { key: WORK_TASKS_NAVIGATION_KEY, label: "计划", children: [
     { key: WORK_TASKS_OWNED_VIEW_KEY, label: "负责" },
     { key: WORK_TASKS_ASSIGNED_VIEW_KEY, label: "承接" },
     { key: WORK_TASKS_COLLABORATION_VIEW_KEY, label: "协作" },
+    { key: WORK_GANTT_NAVIGATION_KEY, label: "甘特图" },
+  ] },
+  { key: WORK_REPORTS_NAVIGATION_KEY, label: "目标考核", children: [
+    ...WORK_REPORT_STAGE_OPTIONS.filter((option) => option.value === "kr").map((option) => ({ key: option.value, label: option.label })),
+    { key: WORK_KPI_NAVIGATION_KEY, label: "指标计分卡" },
   ] },
   { key: WORK_REPORTING_NAVIGATION_KEY, label: "工作汇报", children: [
     { key: "weekly", label: "周报" },
     { key: "monthly", label: "月报" },
+    ...WORK_REPORT_STAGE_OPTIONS.filter((option) => option.value === "final").map((option) => ({ key: option.value, label: option.label })),
   ] },
-  { key: WORK_KPI_NAVIGATION_KEY, label: "指标计分卡" },
-  { key: WORK_REPORTS_NAVIGATION_KEY, label: "目标考核", children: WORK_REPORT_STAGE_OPTIONS.map((option) => ({ key: option.value, label: option.label })) },
-  { key: WORK_GANTT_NAVIGATION_KEY, label: "甘特图" },
 ];
 
-export const WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM = { key: WORK_OKR_SETTINGS_VIEW_NAVIGATION_KEY, label: "OKR 设置", children: [
-  { key: WORK_OKR_GOVERNANCE_VIEW_KEY, label: "管控规则" },
-  { key: WORK_KPI_DEFINITIONS_VIEW_KEY, label: "指标库" },
-] };
+export const WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM = { key: WORK_OKR_SETTINGS_VIEW_NAVIGATION_KEY, label: "时间设置" };
 
 export function workViewNavigationItemsForSpace(
   items: ReadonlyArray<{ key: string; label: string; children?: ReadonlyArray<{ key: string; label: string }> }>,
@@ -54,8 +52,11 @@ export function workViewNavigationItemsForSpace(
       ? [...(item.key !== WORK_TASKS_NAVIGATION_KEY || targetType === "personal"
         ? item.children
         : targetType === "department"
-          ? item.children.filter((child) => child.key === WORK_TASKS_OWNED_VIEW_KEY || child.key === WORK_TASKS_COLLABORATION_VIEW_KEY)
-          : item.children.filter((child) => child.key === WORK_TASKS_OWNED_VIEW_KEY))]
+          ? item.children.filter((child) => child.key === WORK_TASKS_OWNED_VIEW_KEY
+            || child.key === WORK_TASKS_COLLABORATION_VIEW_KEY
+            || child.key === WORK_GANTT_NAVIGATION_KEY)
+          : item.children.filter((child) => child.key === WORK_TASKS_OWNED_VIEW_KEY
+            || child.key === WORK_GANTT_NAVIGATION_KEY))]
       : undefined,
   }));
 }
@@ -78,7 +79,7 @@ export function createWorkSpaceTopNavigationItems(
 }
 
 export function workTopNavigationItems(items: SpaceWorkbenchKindOption[], canManageOkrSettings: boolean) {
-  return canManageOkrSettings ? [...items, { key: WORK_OKR_SETTINGS_NAVIGATION_KEY, label: "OKR 设置" }] : items;
+  return canManageOkrSettings ? [...items, { key: WORK_OKR_SETTINGS_NAVIGATION_KEY, label: "时间设置" }] : items;
 }
 
 export function activeWorkTopNavigationKey(activeTab: string, activeSpaceKey: string | null, items: SpaceWorkbenchKindOption[]) {

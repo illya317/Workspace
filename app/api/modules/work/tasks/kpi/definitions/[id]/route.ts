@@ -1,7 +1,7 @@
 import { z } from "zod";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { buildSaveKpiDefinitionCommand, executeSaveKpiDefinitionCommand } from "@workspace/work/server";
+import { buildDeleteKpiDefinitionCommand, buildSaveKpiDefinitionCommand, executeDeleteKpiDefinitionCommand, executeSaveKpiDefinitionCommand } from "@workspace/work/server";
 
 const workKpiDefinitionBodySchema = z.object({
   code: z.string(),
@@ -31,4 +31,15 @@ export const PUT = createCommandRoute({
     body,
   }),
   action: executeSaveKpiDefinitionCommand,
+});
+
+export const DELETE = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "KPI 指标定义 ID 无效",
+  buildCommand: ({ user, params, request }) => buildDeleteKpiDefinitionCommand({
+    actorUserId: user.userId,
+    definitionId: params.id,
+    expectedVersion: readRequestExpectedVersion(request),
+  }),
+  action: executeDeleteKpiDefinitionCommand,
 });

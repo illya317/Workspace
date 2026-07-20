@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { validateWorkKpiDefinitionCommand } from "./work-kpi-definition-validation";
+import { validateWorkKpiDefinitionCommand, validateWorkKpiDefinitionDeleteCommand } from "./work-kpi-definition-validation";
 import { validateWorkKpiScorecardCommand } from "./work-kpi-scorecard-validation";
 import { validateWorkKpiResultCommitCommand } from "./work-kpi-result-validation";
 
@@ -17,6 +17,12 @@ test("KPI definition normalizes stable code and percent unit", () => {
   assert.equal(result.data.code, "SALES.GROWTH");
   assert.equal(result.data.unit, "%");
   assert.deepEqual(result.data.scoringRule, { kind: "linear", targetScore: 100, floorScore: 0, capScore: 120 });
+});
+
+test("KPI definition delete requires target, actor, and optimistic version", () => {
+  assert.equal(validateWorkKpiDefinitionDeleteCommand({ actorUserId: 8, definitionId: 12, expectedVersion: 2 }).ok, true);
+  assert.equal(validateWorkKpiDefinitionDeleteCommand({ actorUserId: 8, definitionId: 12 }).ok, false);
+  assert.equal(validateWorkKpiDefinitionDeleteCommand({ actorUserId: 8, definitionId: 0, expectedVersion: 2 }).ok, false);
 });
 
 test("KPI scorecard draft allows incomplete total but finalization requires 100", () => {

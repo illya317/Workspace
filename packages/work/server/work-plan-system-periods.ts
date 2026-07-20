@@ -261,11 +261,11 @@ function normalizePositiveId(value: unknown) {
 }
 
 export function standardOkrPlanTitle(cycle: { periodType: string; label?: string; year: number; sequence: number }) {
-  if (cycle.periodType === "yearly") return `${cycle.year}年度OKR计划`;
-  if (cycle.periodType === "half_year") return `${cycle.year}年${cycle.sequence === 1 ? "上" : "下"}半年OKR计划`;
-  if (cycle.periodType === "quarterly") return `${cycle.year}年第${cycle.sequence}季度OKR计划`;
-  if (cycle.periodType === "monthly") return `${cycle.year}年${String(cycle.sequence).padStart(2, "0")}月OKR计划`;
-  return `${(cycle.label ?? "").replace(/\s+/g, " ")} OKR计划`;
+  if (cycle.periodType === "yearly") return `${cycle.year}年度计划`;
+  if (cycle.periodType === "half_year") return `${cycle.year}年${cycle.sequence === 1 ? "上" : "下"}半年计划`;
+  if (cycle.periodType === "quarterly") return `${cycle.year}年第${cycle.sequence}季度计划`;
+  if (cycle.periodType === "monthly") return `${cycle.year}年${String(cycle.sequence).padStart(2, "0")}月计划`;
+  return `${(cycle.label ?? "").replace(/\s+/g, " ").trim()}计划`;
 }
 
 function systemOkrPlanSortOrder(cycle: { periodType: string; startDate: Date; sequence: number }) {

@@ -159,9 +159,11 @@ export { workImpactCommandBodySchema } from "./work-mutation-impact-schema";
 export { executeSaveWorkReportRouteCommand } from "./work-report-mutation-executor";
 
 export {
+  buildDeleteKpiDefinitionCommand,
   buildKpiPlanCommand,
   buildListKpiDefinitionsCommand,
   buildSaveKpiDefinitionCommand,
+  executeDeleteKpiDefinitionCommand,
   executeFinalizeKpiScorecardCommand,
   executeGetKpiResultsCommand,
   executeGetKpiScorecardCommand,

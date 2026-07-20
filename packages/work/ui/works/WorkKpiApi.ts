@@ -11,9 +11,10 @@ import type {
   WorkKpiScorecardEntry,
 } from "./WorkKpiTypes";
 
-export function listWorkKpiDefinitions(target: WorkTarget, ownerDepartmentId?: number | null) {
+export function listWorkKpiDefinitions(target: WorkTarget, ownerDepartmentId?: number | null, includeRetired = false) {
   const query = new URLSearchParams({ targetType: target.targetType, targetId: String(target.targetId) });
   if (ownerDepartmentId) query.set("ownerDepartmentId", String(ownerDepartmentId));
+  if (includeRetired) query.set("includeRetired", "true");
   return requestJson<{ definitions: WorkKpiDefinition[] }>(`/api/modules/work/tasks/kpi/definitions?${query.toString()}`, {
     fallbackMessage: "加载 KPI 指标库失败",
   });
@@ -34,6 +35,14 @@ export function saveWorkKpiDefinition(draft: WorkKpiDefinitionDraft) {
   return draft.id
     ? putJson<{ definition: WorkKpiDefinition }>(`/api/modules/work/tasks/kpi/definitions/${draft.id}`, body, "修订 KPI 指标失败")
     : postJson<{ definition: WorkKpiDefinition }>("/api/modules/work/tasks/kpi/definitions", body, "新增 KPI 指标失败");
+}
+
+export function deleteWorkKpiDefinition(definition: Pick<WorkKpiDefinition, "id" | "version">) {
+  return requestJson<{ success: true; id: number }>(`/api/modules/work/tasks/kpi/definitions/${definition.id}`, {
+    method: "DELETE",
+    headers: { "If-Match": String(definition.version) },
+    fallbackMessage: "删除 KPI 指标失败",
+  });
 }
 
 export function getWorkKpiScorecard(planId: number) {

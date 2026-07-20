@@ -25,6 +25,7 @@ export interface WorkKpiDefinition {
   ownerDepartmentId: number;
   ownerDepartmentCode: string;
   ownerDepartmentName: string;
+  referenceCount: number;
   createdByUserId: number;
   createdAt: string;
   updatedAt: string;

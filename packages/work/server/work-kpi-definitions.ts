@@ -1,7 +1,8 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
-import { validateWorkKpiDefinitionCommand, type WorkKpiDefinitionCommand } from "./domain/work-kpi-definition-validation";
-import { canUpdateWorkTaskAction, canViewWorkTaskTarget } from "./access";
+import { guardedDelete } from "@workspace/platform/server/delete-guard";
+import { validateWorkKpiDefinitionCommand, type WorkKpiDefinitionCommand, type WorkKpiDefinitionDeleteCommand } from "./domain/work-kpi-definition-validation";
+import { canDeleteWorkTaskAction, canUpdateWorkTaskAction, canViewWorkTaskTarget } from "./access";
 import { toWorkKpiDefinitionDto, workKpiDefinitionInclude } from "./work-kpi-dto";
 
 export async function listKpiDefinitions(input: {
@@ -66,6 +67,31 @@ export async function saveKpiDefinitionRevision(input: {
     if (isUniqueConstraintError(error)) return serviceError("KPI 指标版本已被其他人更新，请刷新后重试", 409);
     throw error;
   }
+}
+
+export async function deleteKpiDefinition(command: WorkKpiDefinitionDeleteCommand) {
+  const result = await guardedDelete({
+    entityType: "WorkKpiDefinition",
+    modelKey: "workKpiDefinition",
+    id: command.definitionId,
+    userId: command.actorUserId,
+    expectedVersion: command.expectedVersion,
+    actionLabel: "删除 KPI 指标定义",
+    deleteMode: "hard",
+    references: [{
+      label: "周期计分卡",
+      count: (tx) => tx.workKpiAssignment.count({ where: { definitionId: command.definitionId } }),
+    }],
+    referencePolicy: "checked",
+    scopeGuard: async ({ record }) => {
+      const ownerDepartmentId = Number(record.ownerDepartmentId);
+      if (!Number.isInteger(ownerDepartmentId) || ownerDepartmentId <= 0) return { error: "KPI 指标归口部门无效", status: 400 };
+      return await canDeleteWorkTaskAction(command.actorUserId, "department", ownerDepartmentId)
+        ? { ok: true }
+        : { error: "无权限删除该归口部门的 KPI 指标", status: 403 };
+    },
+  });
+  return result.ok ? serviceOk(result.data) : serviceError(result.error, result.status ?? 400);
 }
 
 function definitionWriteData(

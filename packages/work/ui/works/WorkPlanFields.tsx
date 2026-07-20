@@ -204,18 +204,18 @@ function workItemTypeLabel(itemType: WorkItem["itemType"]) {
 
 function standardOkrPlanTitleFromCycle(cycle: { periodType: string | null | undefined; name: string; startDate: string }) {
   const year = Number(cycle.startDate.slice(0, 4)) || Number(cycle.name.match(/\d{4}/)?.[0]);
-  if (!year) return cycle.name ? `${cycle.name} OKR计划` : "";
-  if (cycle.periodType === "yearly") return `${year}年度OKR计划`;
-  if (cycle.periodType === "half_year") return `${year}年${cycle.name.includes("H2") || cycle.startDate.slice(5, 7) === "07" ? "下" : "上"}半年OKR计划`;
+  if (!year) return cycle.name ? `${cycle.name.trim()}计划` : "";
+  if (cycle.periodType === "yearly") return `${year}年度计划`;
+  if (cycle.periodType === "half_year") return `${year}年${cycle.name.includes("H2") || cycle.startDate.slice(5, 7) === "07" ? "下" : "上"}半年计划`;
   if (cycle.periodType === "quarterly") {
     const quarter = Number(cycle.name.match(/Q([1-4])/)?.[1]) || Math.floor((Number(cycle.startDate.slice(5, 7)) - 1) / 3) + 1;
-    return `${year}年第${quarter}季度OKR计划`;
+    return `${year}年第${quarter}季度计划`;
   }
   if (cycle.periodType === "monthly") {
     const month = cycle.startDate.slice(5, 7) || cycle.name.match(/\d{4}-(\d{2})/)?.[1] || "";
-    return month ? `${year}年${month}月OKR计划` : `${cycle.name} OKR计划`;
+    return month ? `${year}年${month}月计划` : `${cycle.name.trim()}计划`;
   }
-  return `${cycle.name} OKR计划`;
+  return `${cycle.name.trim()}计划`;
 }
 
 function alignmentSourceFields(

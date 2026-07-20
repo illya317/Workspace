@@ -378,6 +378,7 @@ export const historyPolicyRegistry = {
     ignoredFields: AUDIT_FIELDS,
     restore: false,
   },
+  WorkKpiDefinition: nonRestorableHistoryPolicy("WorkKpiDefinition", "workKpiDefinition", { field: "name", fallback: "未知 KPI 指标定义" }),
   EmployeeProject: {
     entityType: "EmployeeProject",
     modelKey: "employeeProject",

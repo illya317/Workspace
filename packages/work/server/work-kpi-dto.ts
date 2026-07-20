@@ -2,6 +2,7 @@ import { Prisma } from "@workspace/platform/server/prisma";
 
 export const workKpiDefinitionInclude = {
   ownerDepartment: { select: { id: true, code: true, name: true } },
+  _count: { select: { assignments: true } },
 } satisfies Prisma.WorkKpiDefinitionInclude;
 
 export const workKpiAssignmentInclude = {
@@ -66,6 +67,7 @@ export function toWorkKpiDefinitionDto(row: WorkKpiDefinitionRow) {
     ownerDepartmentId: row.ownerDepartmentId,
     ownerDepartmentCode: row.ownerDepartment.code,
     ownerDepartmentName: row.ownerDepartment.name,
+    referenceCount: row._count.assignments,
     createdByUserId: row.createdByUserId,
     createdAt: row.createdAt.toISOString(),
     updatedAt: row.updatedAt.toISOString(),

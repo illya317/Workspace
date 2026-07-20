@@ -1,5 +1,7 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { listKpiDefinitions, saveKpiDefinitionRevision } from "./work-kpi-definitions";
+import { deleteKpiDefinition } from "./work-kpi-definitions";
+import { validateWorkKpiDefinitionDeleteCommand } from "./domain/work-kpi-definition-validation";
 import { finalizeKpiScorecard, getKpiScorecard, updateKpiMeasurements } from "./work-kpi-scorecard";
 import { prepareKpiResultSubmission } from "./work-kpi-results";
 
@@ -46,6 +48,22 @@ export function executeSaveKpiDefinitionCommand(command: {
   data: Record<string, unknown>;
 }) {
   return saveKpiDefinitionRevision(command);
+}
+
+export function buildDeleteKpiDefinitionCommand(input: {
+  actorUserId: number;
+  definitionId: number;
+  expectedVersion: number | undefined;
+}) {
+  return validateWorkKpiDefinitionDeleteCommand(input);
+}
+
+export function executeDeleteKpiDefinitionCommand(command: {
+  actorUserId: number;
+  definitionId: number;
+  expectedVersion: number;
+}) {
+  return deleteKpiDefinition(command);
 }
 
 export function buildKpiPlanCommand(input: {

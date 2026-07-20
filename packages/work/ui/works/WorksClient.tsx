@@ -1,7 +1,7 @@
 /* eslint-disable max-lines */
 "use client";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type FormSurfaceProps } from "@workspace/core/ui";
+import { createFieldsSection, createMessageSection, createPageBody, createPageTabBar, PageSurface, useFeedback, type BodySurfaceSectionCreateSpec, type CreateSurfaceFormSpec, type CreateSurfaceProps, type FormSurfaceProps } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, createStandardBusinessSpaceNavigationSelector, createSpaceWorkbenchBody, workflowActionSurfaceActions } from "@workspace/platform/ui";
 import { renderAppShellPage } from "@workspace/platform/ui/app-shell-page";
@@ -19,7 +19,7 @@ import { createWorkPlanContentSection } from "./WorkPlanSections";
 import { useWorkPlanCommands } from "./WorkPlanCommands";
 import { useWorkOkrPlanSurface } from "./WorkOkrPlanSurface";
 import { applyDefaultExpandedWorkSpaces, createWorkSpaceNavigationBody, workSpaceKey } from "./WorkSpaceSidebar";
-import { activeWorkSpaceNavigationKey, createWorkSpaceTopNavigationItems, filterWorkSpacesByNavigation, targetNavigationKey, workViewNavigationItemsForSpace, WORK_KPI_DEFINITIONS_VIEW_KEY, WORK_KPI_NAVIGATION_KEY, WORK_OKR_GOVERNANCE_VIEW_KEY, WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM, WORK_REPORTING_NAVIGATION_KEY, WORK_TASK_VIEW_NAVIGATION_ITEMS, WORK_TASKS_COLLABORATION_VIEW_KEY, WORK_TASKS_OWNED_VIEW_KEY, type WorkTasksChildView } from "./WorkSpaceTopNavigation";
+import { activeWorkSpaceNavigationKey, createWorkSpaceTopNavigationItems, filterWorkSpacesByNavigation, targetNavigationKey, workViewNavigationItemsForSpace, WORK_GANTT_NAVIGATION_KEY, WORK_KPI_NAVIGATION_KEY, WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM, WORK_REPORTING_NAVIGATION_KEY, WORK_TASK_VIEW_NAVIGATION_ITEMS, WORK_TASKS_COLLABORATION_VIEW_KEY, WORK_TASKS_OWNED_VIEW_KEY, type WorkTasksChildView } from "./WorkSpaceTopNavigation";
 import { useWorkPlanPagination } from "./useWorkPlanPagination";
 import { createWorkToolbarItems } from "./WorkToolbar";
 import { ownedPeriodTypeForFilter, planMatchesPeriodFilter, type WorkPlanPeriodFilter } from "./work-plan-period-filter";
@@ -51,7 +51,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const [spacesLoading, setSpacesLoading] = useState(true);
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(() => normalizeInitialTarget(initialTarget));
   const [activeTab, setActiveTab] = useState("tasks");
-  const [settingsView, setSettingsView] = useState(WORK_OKR_GOVERNANCE_VIEW_KEY);
   const [workTasksChildView, setWorkTasksChildView] = useState<WorkTasksChildView>(WORK_TASKS_OWNED_VIEW_KEY);
   const [goalReportStage, setGoalReportStage] = useState<WorkReportStage>("kr");
   const [compactNavigation, setCompactNavigation] = useState(false);
@@ -225,12 +224,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     onToast: showToast,
   });
   const settingsState = useWorkOkrSettingsController({
-    enabled: activeTab === "settings" && settingsView === WORK_OKR_GOVERNANCE_VIEW_KEY && canManageOkrSettings,
-    onToast: showReportToast,
-  });
-  const kpiDefinitionState = useWorkKpiDefinitionController({
-    enabled: activeTab === "settings" && settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY && canManageOkrSettings,
-    space: currentSpace,
+    enabled: activeTab === "settings" && canManageOkrSettings,
     onToast: showReportToast,
   });
   const collaborationState = useDepartmentCollaborationController({
@@ -323,6 +317,12 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     plan: activePlan,
     onToast: showReportToast,
     onRefreshPlans: loadPlans,
+  });
+  const kpiDefinitionState = useWorkKpiDefinitionController({
+    enabled: activeTab === WORK_KPI_NAVIGATION_KEY,
+    space: currentSpace,
+    onToast: showReportToast,
+    onDefinitionsChanged: kpiScorecardState.reload,
   });
   const loadApprovalRequests = useCallback(async (options?: { isCancelled?: () => boolean }) => {
     if (!currentSpace || currentSpace.targetType === "personal") {
@@ -786,7 +786,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     statusFilter,
     planPageToolbarItem: planPagination.toolbarItem,
     reportToolbarItems: WORK_GOAL_REPORTS_CONTENT_EMPTY ? [] : workReportingState.toolbarItems,
-    settingsToolbarItems: settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY ? kpiDefinitionState.toolbarItems : settingsState.toolbarItems,
+    settingsToolbarItems: settingsState.toolbarItems,
     onToggleSide: () => setSideOpen(!sideOpen),
     onPlanPeriodFilterChange: (filter) => {
       setPlanPeriodFilter(filter);
@@ -864,7 +864,11 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     onToggleSpace: toggleSpace,
     onPlanPageChange: planPagination.setPlanPage,
   });
-  const settingsBody = settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY ? kpiDefinitionState.body : workOkrSettingsBody(settingsState.sections);
+  const settingsBody = workOkrSettingsBody(settingsState.sections);
+  const kpiBody = createPageBody([
+    ...kpiDefinitionState.body.sections,
+    ...kpiScorecardState.body.sections,
+  ]);
   const isolatedRoutineTaskCreate = Boolean(
     pendingRoutineTaskCreatePlanId !== null
     || (worksState.creating
@@ -885,9 +889,9 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     execute: () => planCommands.handleCreatePlan({ feedback: false, rethrow: true }),
   });
   const globalCreateSubmission = planCreating ? planCreateSubmission : nodeCreateSubmission;
-  const globalCreate: BodySurfaceSectionCreateSpec = {
+  const globalCreate: CreateSurfaceProps = {
     id: "work-create",
-    trigger: "surface",
+    trigger: "toolbar",
     presentation: "block",
     title: planCreating ? "新建计划" : isolatedRoutineTaskCreate ? "新建任务" : "新建",
     open: globalCreateOpen,
@@ -988,24 +992,39 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       activeTab === "tasks" ? assignedNavigation.assignedBodySection ?? workPlanSection : workPlanSection,
     ] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]);
   const ganttBody = createPageBody(currentSpace ? [ganttView.section] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]);
+  const activeNavigationTab = activeTab === WORK_GANTT_NAVIGATION_KEY
+    ? "tasks"
+    : activeTab === WORK_KPI_NAVIGATION_KEY
+      ? "reports"
+      : activeTab === "reports" && goalReportStage === "final"
+        ? WORK_REPORTING_NAVIGATION_KEY
+      : activeTab;
   const pageNavigation = navigationItems.length > 0 ? createPageTabBar({
     items: navigationItems,
-    active: activeTab,
-    activeChild: activeTab === WORK_REPORTING_NAVIGATION_KEY
-      ? workReportingState.periodType
-      : activeTab === "reports"
-        ? goalReportStage
-        : activeTab === "tasks"
-          ? scopedWorkTasksChildView
-          : activeTab === "settings"
-            ? settingsView
-            : undefined,
+    active: activeNavigationTab,
+    activeChild: activeNavigationTab === WORK_REPORTING_NAVIGATION_KEY
+      ? activeTab === "reports" ? "final" : workReportingState.periodType
+      : activeNavigationTab === "reports"
+        ? activeTab === WORK_KPI_NAVIGATION_KEY ? WORK_KPI_NAVIGATION_KEY : "kr"
+        : activeNavigationTab === "tasks"
+          ? activeTab === WORK_GANTT_NAVIGATION_KEY ? WORK_GANTT_NAVIGATION_KEY : scopedWorkTasksChildView
+          : undefined,
     onChange: setActiveTab,
     onChildChange: (child) => {
-      if (activeTab === WORK_REPORTING_NAVIGATION_KEY) workReportingState.updatePeriodType(child);
-      else if (activeTab === "reports") setGoalReportStage(child === "kr" ? "kr" : "final");
-      else if (activeTab === "settings") setSettingsView(child === WORK_KPI_DEFINITIONS_VIEW_KEY ? WORK_KPI_DEFINITIONS_VIEW_KEY : WORK_OKR_GOVERNANCE_VIEW_KEY);
-      else if (child === "owned" || (currentSpace?.targetType === "personal" && (child === "assigned" || child === "collaboration")) || (currentSpace?.targetType === "department" && child === "collaboration")) setWorkTasksChildView(child);
+      if (child === "weekly" || child === "monthly") {
+        setActiveTab(WORK_REPORTING_NAVIGATION_KEY);
+        workReportingState.updatePeriodType(child);
+      } else if (child === "kr" || child === "final") {
+        setActiveTab("reports");
+        setGoalReportStage(child);
+      } else if (child === WORK_KPI_NAVIGATION_KEY) {
+        setActiveTab(WORK_KPI_NAVIGATION_KEY);
+      } else if (child === WORK_GANTT_NAVIGATION_KEY) {
+        setActiveTab(WORK_GANTT_NAVIGATION_KEY);
+      } else if (child === "owned" || (currentSpace?.targetType === "personal" && (child === "assigned" || child === "collaboration")) || (currentSpace?.targetType === "department" && child === "collaboration")) {
+        setActiveTab("tasks");
+        setWorkTasksChildView(child);
+      }
     },
     variant: compactNavigation ? "small" : "large",
     ariaLabel: "工作视图",
@@ -1018,7 +1037,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     children: <PageSurface kind="standard"
       tabbar={pageNavigation}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
-      body={activeTab === "settings" ? settingsBody : activeTab === WORK_KPI_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: kpiNavigationBody, right: kpiScorecardState.body, label: "KPI 周期计划", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false })}
+      body={activeTab === "settings" ? settingsBody : activeTab === WORK_KPI_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: kpiNavigationBody, right: kpiBody, label: "KPI 周期计划", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false })}
     />,
   });
 }
