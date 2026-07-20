@@ -2454,7 +2454,7 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "presentation",
-                                      description: "可选值：checkbox / choice / switch。",
+                                      description: "可选值：checkbox / choice。",
                                       children: [
                                         {
                                           name: "checkbox",
@@ -2462,10 +2462,6 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "choice",
-                                          description: "字面量取值。",
-                                        },
-                                        {
-                                          name: "switch",
                                           description: "字面量取值。",
                                         },
                                       ],
@@ -4060,7 +4056,7 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "presentation",
-                                              description: "可选值：checkbox / choice / switch。",
+                                              description: "可选值：checkbox / choice。",
                                               children: [
                                                 {
                                                   name: "checkbox",
@@ -4068,10 +4064,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "choice",
-                                                  description: "字面量取值。",
-                                                },
-                                                {
-                                                  name: "switch",
                                                   description: "字面量取值。",
                                                 },
                                               ],
@@ -10772,7 +10764,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "presentation",
-                                                  description: "可选值：checkbox / choice / switch。",
+                                                  description: "可选值：checkbox / choice。",
                                                   children: [
                                                     {
                                                       name: "checkbox",
@@ -10780,10 +10772,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "choice",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "switch",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -12378,7 +12366,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "presentation",
-                                                          description: "可选值：checkbox / choice / switch。",
+                                                          description: "可选值：checkbox / choice。",
                                                           children: [
                                                             {
                                                               name: "checkbox",
@@ -12386,10 +12374,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "choice",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "switch",
                                                               description: "字面量取值。",
                                                             },
                                                           ],
@@ -20462,7 +20446,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "presentation",
-                                                  description: "可选值：checkbox / choice / switch。",
+                                                  description: "可选值：checkbox / choice。",
                                                   children: [
                                                     {
                                                       name: "checkbox",
@@ -20470,10 +20454,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "choice",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "switch",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -22068,7 +22048,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "presentation",
-                                                          description: "可选值：checkbox / choice / switch。",
+                                                          description: "可选值：checkbox / choice。",
                                                           children: [
                                                             {
                                                               name: "checkbox",
@@ -22076,10 +22056,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "choice",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "switch",
                                                               description: "字面量取值。",
                                                             },
                                                           ],
@@ -30152,7 +30128,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "presentation",
-                                                  description: "可选值：checkbox / choice / switch。",
+                                                  description: "可选值：checkbox / choice。",
                                                   children: [
                                                     {
                                                       name: "checkbox",
@@ -30160,10 +30136,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "choice",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "switch",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -31758,7 +31730,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "presentation",
-                                                          description: "可选值：checkbox / choice / switch。",
+                                                          description: "可选值：checkbox / choice。",
                                                           children: [
                                                             {
                                                               name: "checkbox",
@@ -31766,10 +31738,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "choice",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "switch",
                                                               description: "字面量取值。",
                                                             },
                                                           ],
@@ -42584,7 +42552,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "presentation",
-                                  description: "可选值：checkbox / choice / switch。",
+                                  description: "可选值：checkbox / choice。",
                                   children: [
                                     {
                                       name: "checkbox",
@@ -42592,10 +42560,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "choice",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "switch",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -44190,7 +44154,7 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "presentation",
-                                          description: "可选值：checkbox / choice / switch。",
+                                          description: "可选值：checkbox / choice。",
                                           children: [
                                             {
                                               name: "checkbox",
@@ -44198,10 +44162,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "choice",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "switch",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -46198,7 +46158,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "presentation",
-                                  description: "可选值：checkbox / choice / switch。",
+                                  description: "可选值：checkbox / choice。",
                                   children: [
                                     {
                                       name: "checkbox",
@@ -46206,10 +46166,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "choice",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "switch",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -47804,7 +47760,7 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "presentation",
-                                          description: "可选值：checkbox / choice / switch。",
+                                          description: "可选值：checkbox / choice。",
                                           children: [
                                             {
                                               name: "checkbox",
@@ -47812,10 +47768,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "choice",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "switch",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -49916,7 +49868,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "presentation",
-                                  description: "可选值：checkbox / choice / switch。",
+                                  description: "可选值：checkbox / choice。",
                                   children: [
                                     {
                                       name: "checkbox",
@@ -49924,10 +49876,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "choice",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "switch",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -51522,7 +51470,7 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "presentation",
-                                          description: "可选值：checkbox / choice / switch。",
+                                          description: "可选值：checkbox / choice。",
                                           children: [
                                             {
                                               name: "checkbox",
@@ -51530,10 +51478,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "choice",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "switch",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -53740,7 +53684,7 @@ export const generatedCoreUiSurfaceContracts = {
                                 },
                                 {
                                   name: "presentation",
-                                  description: "可选值：checkbox / choice / switch。",
+                                  description: "可选值：checkbox / choice。",
                                   children: [
                                     {
                                       name: "checkbox",
@@ -53748,10 +53692,6 @@ export const generatedCoreUiSurfaceContracts = {
                                     },
                                     {
                                       name: "choice",
-                                      description: "字面量取值。",
-                                    },
-                                    {
-                                      name: "switch",
                                       description: "字面量取值。",
                                     },
                                   ],
@@ -55346,7 +55286,7 @@ export const generatedCoreUiSurfaceContracts = {
                                         },
                                         {
                                           name: "presentation",
-                                          description: "可选值：checkbox / choice / switch。",
+                                          description: "可选值：checkbox / choice。",
                                           children: [
                                             {
                                               name: "checkbox",
@@ -55354,10 +55294,6 @@ export const generatedCoreUiSurfaceContracts = {
                                             },
                                             {
                                               name: "choice",
-                                              description: "字面量取值。",
-                                            },
-                                            {
-                                              name: "switch",
                                               description: "字面量取值。",
                                             },
                                           ],
@@ -57370,7 +57306,7 @@ export const generatedCoreUiSurfaceContracts = {
         },
         {
           name: "presentation",
-          description: "可选值：checkbox / choice / switch。",
+          description: "可选值：checkbox / choice。",
           children: [
             {
               name: "checkbox",
@@ -57378,10 +57314,6 @@ export const generatedCoreUiSurfaceContracts = {
             },
             {
               name: "choice",
-              description: "字面量取值。",
-            },
-            {
-              name: "switch",
               description: "字面量取值。",
             },
           ],
@@ -60320,7 +60252,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                 },
                                                 {
                                                   name: "presentation",
-                                                  description: "可选值：checkbox / choice / switch。",
+                                                  description: "可选值：checkbox / choice。",
                                                   children: [
                                                     {
                                                       name: "checkbox",
@@ -60328,10 +60260,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                     },
                                                     {
                                                       name: "choice",
-                                                      description: "字面量取值。",
-                                                    },
-                                                    {
-                                                      name: "switch",
                                                       description: "字面量取值。",
                                                     },
                                                   ],
@@ -61926,7 +61854,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                         },
                                                         {
                                                           name: "presentation",
-                                                          description: "可选值：checkbox / choice / switch。",
+                                                          description: "可选值：checkbox / choice。",
                                                           children: [
                                                             {
                                                               name: "checkbox",
@@ -61934,10 +61862,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "choice",
-                                                              description: "字面量取值。",
-                                                            },
-                                                            {
-                                                              name: "switch",
                                                               description: "字面量取值。",
                                                             },
                                                           ],
@@ -68638,7 +68562,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "presentation",
-                                                              description: "可选值：checkbox / choice / switch。",
+                                                              description: "可选值：checkbox / choice。",
                                                               children: [
                                                                 {
                                                                   name: "checkbox",
@@ -68646,10 +68570,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                                 {
                                                                   name: "choice",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "switch",
                                                                   description: "字面量取值。",
                                                                 },
                                                               ],
@@ -70244,7 +70164,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                                     },
                                                                     {
                                                                       name: "presentation",
-                                                                      description: "可选值：checkbox / choice / switch。",
+                                                                      description: "可选值：checkbox / choice。",
                                                                       children: [
                                                                         {
                                                                           name: "checkbox",
@@ -70252,10 +70172,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                         },
                                                                         {
                                                                           name: "choice",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                        {
-                                                                          name: "switch",
                                                                           description: "字面量取值。",
                                                                         },
                                                                       ],
@@ -78328,7 +78244,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "presentation",
-                                                              description: "可选值：checkbox / choice / switch。",
+                                                              description: "可选值：checkbox / choice。",
                                                               children: [
                                                                 {
                                                                   name: "checkbox",
@@ -78336,10 +78252,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                                 {
                                                                   name: "choice",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "switch",
                                                                   description: "字面量取值。",
                                                                 },
                                                               ],
@@ -79934,7 +79846,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                                     },
                                                                     {
                                                                       name: "presentation",
-                                                                      description: "可选值：checkbox / choice / switch。",
+                                                                      description: "可选值：checkbox / choice。",
                                                                       children: [
                                                                         {
                                                                           name: "checkbox",
@@ -79942,10 +79854,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                         },
                                                                         {
                                                                           name: "choice",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                        {
-                                                                          name: "switch",
                                                                           description: "字面量取值。",
                                                                         },
                                                                       ],
@@ -88018,7 +87926,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                             },
                                                             {
                                                               name: "presentation",
-                                                              description: "可选值：checkbox / choice / switch。",
+                                                              description: "可选值：checkbox / choice。",
                                                               children: [
                                                                 {
                                                                   name: "checkbox",
@@ -88026,10 +87934,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                 },
                                                                 {
                                                                   name: "choice",
-                                                                  description: "字面量取值。",
-                                                                },
-                                                                {
-                                                                  name: "switch",
                                                                   description: "字面量取值。",
                                                                 },
                                                               ],
@@ -89624,7 +89528,7 @@ export const generatedCoreUiSurfaceContracts = {
                                                                     },
                                                                     {
                                                                       name: "presentation",
-                                                                      description: "可选值：checkbox / choice / switch。",
+                                                                      description: "可选值：checkbox / choice。",
                                                                       children: [
                                                                         {
                                                                           name: "checkbox",
@@ -89632,10 +89536,6 @@ export const generatedCoreUiSurfaceContracts = {
                                                                         },
                                                                         {
                                                                           name: "choice",
-                                                                          description: "字面量取值。",
-                                                                        },
-                                                                        {
-                                                                          name: "switch",
                                                                           description: "字面量取值。",
                                                                         },
                                                                       ],

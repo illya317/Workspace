@@ -49,7 +49,13 @@ const companyRelationFields: FieldConfig[] = [
   { key: "parentId", label: "持股方", type: "fk", editable: true, required: true },
   { key: "childId", label: "被持股方", type: "fk", editable: true, required: true },
   { key: "shareRatio", label: "持股比例（0-1）", editable: true, type: "number" },
-  { key: "isConsolidated", label: "并表", editable: true, type: "boolean" },
+  {
+    key: "isConsolidated",
+    label: "并表",
+    editable: true,
+    type: "boolean",
+    booleanLabels: { true: "纳入并表", false: "不纳入并表" },
+  },
   { key: "effectiveFrom", label: "生效日期", editable: true, type: "date" },
   { key: "effectiveTo", label: "失效日期", editable: true, type: "date" },
 ];

@@ -15,7 +15,6 @@ const DIRECT_INPUT_COMPONENTS = new Map<string, string>([
   ["FkFieldInput", "InputSurface spec control=reference options.source=remote"],
   ["PercentField", "InputSurface spec format=percent"],
   ["SearchableOptionInput", "InputSurface spec control=choice options.source=static/grouped"],
-  ["SwitchField", "InputSurface spec control=boolean presentation=switch"],
   ["TagStringInput", "InputSurface spec control=collection itemControl=text"],
   ["TextField", "InputSurface spec control=text/number"],
   ["TextareaField", "InputSurface spec control=text multiline=true"],

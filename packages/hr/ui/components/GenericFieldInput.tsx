@@ -46,7 +46,28 @@ export function createGenericInputControl({
   }
   if (field.key === "gender") return { spec: { valueType: "string", control: "choice", options: { source: "static", items: [{ label: "男", value: "男" }, { label: "女", value: "女" }] } }, value: value === true || value === "男" ? "男" : "女", onChange, onKeyDown, inputRef, density: "compact" };
   if (field.type === "select" && field.options?.length) return { spec: { valueType: "string", control: "choice", options: { source: "static", items: field.options, visibleCount: 5 } }, value: String(value ?? ""), onChange, onKeyDown, inputRef, density: "compact" };
-  if (field.type === "boolean") return { spec: { valueType: "boolean", control: "boolean", presentation: "switch" }, value: Boolean(value), onChange, onKeyDown, inputRef, density: "compact" };
+  if (field.type === "boolean") {
+    const labels = field.booleanLabels ?? { true: "是", false: "否" };
+    return {
+      spec: {
+        valueType: "boolean",
+        control: "choice",
+        options: {
+          source: "static",
+          items: [
+            { label: labels.true, value: "true" },
+            { label: labels.false, value: "false" },
+          ],
+          visibleCount: 2,
+        },
+      },
+      value: value === true ? "true" : "false",
+      onChange: next => onChange(next === "true"),
+      onKeyDown,
+      inputRef,
+      density: "compact",
+    };
+  }
   if (field.type === "date") return { spec: { valueType: "date", control: "temporal", precision: "date" }, value: String(value ?? ""), onChange, onKeyDown, inputRef, density: "compact" };
   if (field.type === "textarea") return { spec: { valueType: "string", control: "text", multiline: true }, value: String(value ?? ""), onChange, onKeyDown, rows: 3, density: "compact" };
   if (field.type === "phone") return { spec: { valueType: "string", control: "text" }, type: "tel", value: formatPhoneNumber(value), onChange: next => onChange(normalizePhoneValue(String(next ?? ""))), onKeyDown, inputRef, density: "compact" };

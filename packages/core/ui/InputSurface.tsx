@@ -9,7 +9,6 @@ import PercentField from "./internal/input/PercentField";
 import RatingControl from "./internal/input/RatingControl";
 import ReadOnlyField from "./internal/input/ReadOnlyField";
 import SegmentedCodeInput from "./internal/input/SegmentedCodeInput";
-import SwitchField from "./internal/input/SwitchField";
 import TagStringInput from "./internal/input/TagStringInput";
 import TextareaField from "./internal/input/TextareaField";
 import TextField, { type TextFieldProps } from "./internal/input/TextField";
@@ -65,7 +64,6 @@ type ResolvedInputRenderer =
   | "date"
   | "time"
   | "checkbox"
-  | "switch"
   | "choiceGroup"
   | "file"
   | "rating"
@@ -79,7 +77,6 @@ function resolveInputRenderer(spec: InputFieldSpec): ResolvedInputRenderer {
   if (spec.control === "number") return "number";
   if (spec.control === "temporal") return spec.precision === "time" || spec.valueType === "time" ? "time" : "date";
   if (spec.control === "boolean") {
-    if (spec.presentation === "switch") return "switch";
     if (spec.presentation === "choice") return "choiceGroup";
     return "checkbox";
   }
@@ -287,10 +284,6 @@ export function InputSurfaceRenderer({
 
   if (renderer === "time") {
     return <TimeField value={stringValue} disabled={disabled} onChange={(next) => onChange?.(next)} />;
-  }
-
-  if (renderer === "switch") {
-    return <SwitchField checked={Boolean(value)} disabled={disabled} onChange={(next) => onChange?.(next)} />;
   }
 
   if (renderer === "checkbox") {

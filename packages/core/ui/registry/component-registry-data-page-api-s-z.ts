@@ -42,10 +42,6 @@ export const page_api_registry_entries = [
     composes: ["SelectorCard", "PanelCard", "Badge", "EmptyStateCard", "InputSurface"],
   },
   {
-    name: "SwitchField",
-    description: "开关字段",
-  },
-  {
     name: "TagListInput",
     description: "标签列表输入",
     composes: [

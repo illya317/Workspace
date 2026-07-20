@@ -156,6 +156,7 @@ Finance 当前已经有第一层统一模板，但业务页面还在渐进迁移
 - `app/*` 和 `packages/*/ui` 页面反馈只能使用 `useFeedback`；禁止直接使用 `Toast`、`ConfirmProvider`、`useToast`、`useConfirm`、`useConfirmDelete`、`useUnsavedChangesPrompt`，专用 Agent 确认弹窗除外。
 - 业务新增 Core UI 用法必须落到公共 runtime 入口、helper 或 Surface spec；内部 renderer 只保留 Core 内部、迁移阅读或 type-only 兼容用途。`npm run gate:ui` 会校验 registry 和业务 import 边界；组件库主展示只自动收录有 `declares` 的封装组件，并按 `页面布局 / 页面内容 / 通用` 分类。页面布局协议新增绕过属于 UI 阻断，由当前改动 agent 自己修，不交给 Hygiene。
 - `InputSurface` spec 禁止使用 `editor`。文本、数字、布尔、选项、FK、日期、文件、集合和评分分别通过 `control` 语义表达；选项来源通过 `options.source` 表达，分组选项默认二段式 autocomplete，分段编码等细节通过 `format`、`mask.kind` 派生。
+- 业务状态类 Boolean 统一使用 `control: "choice"` 的产品文案下拉，并在领域边界转换回 `boolean`；checkbox 只保留明确勾选语义，禁止新增或复刻 switch。
 - `packages/*` 禁止原生 `input[type=date]`，统一通过 `BodySurface` 日期 field spec、`InputSurface` 或领域薄壳表达。
 - 选择/搜索类组件必须使用 `@workspace/core/search` 的 `matchText` 或由服务端提供同等拼音匹配。
 - Core 禁止依赖 Platform、业务包、Prisma、权限和业务事实。

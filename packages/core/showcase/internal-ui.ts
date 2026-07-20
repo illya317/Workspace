@@ -33,7 +33,6 @@ export { default as SearchInput } from "../ui/internal/input/SearchInput";
 export { default as SearchableOptionInput } from "../ui/internal/input/SearchableOptionInput";
 export { default as SelectionGrid } from "../ui/internal/selection/SelectionGrid";
 export { default as StructuredTable } from "../ui/internal/data/StructuredTable";
-export { default as SwitchField } from "../ui/internal/input/SwitchField";
 export { default as TabBar } from "../ui/internal/common/TabBar";
 export { default as TableScrollFrame } from "../ui/internal/data/TableScrollFrame";
 export { default as TagInlineTextField } from "../ui/internal/input/TagInlineTextField";

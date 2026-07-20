@@ -168,6 +168,8 @@ Core UI 文件按层放置。`packages/core/ui/` 根目录保留最常用的 Sur
 
 `InputSurface` 是字段语义入口，不是 renderer 选择器。业务只声明 `valueType`、`control`、`options`、`format`、`mask`、`state`、`validation`、`usage` 和 `dependencies`；Core 内部 resolver 决定实际使用 `TextField`、`SearchableOptionInput`、`CalendarDateInput`、`FkFieldInput`、`SegmentedCodeInput` 等实现。新增字段不得写 `spec.editor`，分段编码统一写成 `control: "text"` + `mask.kind: "editableSegment"`，FK 搜索统一写成 `control: "reference"` + `options.source: "remote"`。
 
+业务状态类 Boolean 必须用 `control: "choice"` + 静态产品文案选项表达，并在回调边界还原为 `boolean`；`control: "boolean"` + `presentation: "checkbox"` 只用于明确的勾选/确认语义。Core 不提供 `switch` presentation，业务不得自行复刻开关 renderer。
+
 多行文本需要随内容展开时声明 `autoGrow: true`，由 Core 根据内容与实际宽度维护高度并隐藏字段内滚动条；业务不得自行估算字符数或操作 textarea DOM。
 
 `PaperInputSurface` 是独立纸面输入声明，与 `DocumentSurface` 同属页面内容能力。它只表达纸面内的 line/date/select/choice、纸面布局和填写状态；不得把下划线、纸张宽度、表格单元格定位等纸面语义重新塞回通用 `InputSurface`，Production/QC 也不得保留自己的单字段 renderer 入口。
