@@ -1,4 +1,6 @@
 import {
+  type CreateSurfaceFormSpec,
+  type DataSurfaceColumnSpec,
   type DataSurfaceCellSpec,
   type DataSurfaceStructuredCellSpec,
   type FormSurfaceFieldSpec,
@@ -25,11 +27,13 @@ export function scorecardRows(input: {
 }): DataSurfaceStructuredCellSpec[][] {
   const headers = ["指标", "责任人", "权重", "起点", "目标/区间", "实际值", "结果确认", ""];
   if (input.entries.length === 0) return [[{ content: { kind: "text", value: "暂无周期指标" }, colSpan: headers.length, tone: "muted" }]];
-  const definitionOptions = input.definitions.map((definition) => ({ value: String(definition.id), label: `${definition.code} · ${definition.name} · v${definition.version}` }));
   return [
     headerRow(headers),
     ...input.entries.map((entry): DataSurfaceStructuredCellSpec[] => {
       const definition = input.definitions.find((item) => item.id === entry.definitionId);
+      const definitionOptions = input.definitions
+        .filter((item) => item.id === entry.definitionId || !input.entries.some((candidate) => candidate.definitionId === item.id))
+        .map((item) => ({ value: String(item.id), label: `${item.code} · ${item.name} · v${item.version}` }));
       return [
         input.targetEditable ? inputCell({ valueType: "string", control: "choice", options: { source: "static", items: definitionOptions } }, entry.definitionId ? String(entry.definitionId) : "", (value) => input.onUpdate(entry.localKey, { definitionId: positiveNumber(value), scoringRule: null }), "选择指标") : textCell(definition ? `${definition.code} · ${definition.name}` : `指标 #${entry.definitionId ?? "-"}`, "strong"),
         input.targetEditable && input.target ? referenceCell(entry, input.target, input.onUpdate) : textCell(entry.ownerEmployeeName || `员工 #${entry.ownerEmployeeId ?? "-"}`),
@@ -63,24 +67,19 @@ export function resultRows(result: WorkKpiResultsResponse, entries: WorkKpiScore
   ];
 }
 
-export function definitionRows(definitions: WorkKpiDefinition[], canMaintain: boolean, onRevise: (definition: WorkKpiDefinition) => void): DataSurfaceStructuredCellSpec[][] {
-  if (definitions.length === 0) return [[{ content: { kind: "text", value: "暂无 KPI 指标定义" }, colSpan: 7, tone: "muted" }]];
+export function definitionColumns(): DataSurfaceColumnSpec<WorkKpiDefinition>[] {
   return [
-    headerRow(["编码", "名称", "版本", "状态", "方向", "单位", "归口部门", ""]),
-    ...definitions.map((definition): DataSurfaceStructuredCellSpec[] => [
-      textCell(definition.code, "strong"),
-      textCell(definition.name),
-      textCell(`v${definition.version}`),
-      { content: { kind: "badge", label: definitionStatusLabel(definition.status), tone: definition.status === "active" ? "green" : definition.status === "retired" ? "gray" : "blue" } },
-      textCell(directionLabel(definition.direction)),
-      textCell(definition.unit),
-      textCell(definition.ownerDepartmentName),
-      canMaintain ? { content: { kind: "action", action: { key: `revise-${definition.id}`, label: "修订", icon: "revise", presentation: "glyph", onClick: () => onRevise(definition) } } } : textCell(""),
-    ]),
+    { key: "code", label: "编码", required: true, cell: (definition) => ({ kind: "text", value: definition.code, emphasis: "strong" }) },
+    { key: "name", label: "名称", required: true, cell: (definition) => ({ kind: "text", value: definition.name }) },
+    { key: "version", label: "版本", required: true, cell: (definition) => ({ kind: "text", value: `v${definition.version}` }) },
+    { key: "status", label: "状态", required: true, cell: (definition) => ({ kind: "badge", label: definitionStatusLabel(definition.status), tone: definition.status === "active" ? "green" : definition.status === "retired" ? "gray" : "blue" }) },
+    { key: "direction", label: "方向", required: true, cell: (definition) => ({ kind: "text", value: directionLabel(definition.direction) }) },
+    { key: "unit", label: "单位", required: true, cell: (definition) => ({ kind: "text", value: definition.unit }) },
+    { key: "ownerDepartment", label: "归口部门", required: true, cell: (definition) => ({ kind: "text", value: definition.ownerDepartmentName }) },
   ];
 }
 
-export function definitionFields(draft: WorkKpiDefinitionDraft, setDraft: (draft: WorkKpiDefinitionDraft) => void, disabled: boolean): FormSurfaceFieldSpec[] {
+function definitionFields(draft: WorkKpiDefinitionDraft, setDraft: (draft: WorkKpiDefinitionDraft) => void, disabled: boolean): FormSurfaceFieldSpec[] {
   const patch = (next: Partial<WorkKpiDefinitionDraft>) => setDraft({ ...draft, ...next });
   return [
     { key: "code", label: "指标编码", required: true, spec: { valueType: "string", control: "text", state: disabled || Boolean(draft.id) ? "disabled" : "normal" }, value: draft.code, placeholder: "例如 SALES.REVENUE", onChange: (value) => patch({ code: String(value ?? "").toUpperCase() }) },
@@ -95,6 +94,45 @@ export function definitionFields(draft: WorkKpiDefinitionDraft, setDraft: (draft
     { key: "capScore", label: "封顶分", required: true, spec: { valueType: "number", control: "number", state: disabled ? "disabled" : "normal" }, value: draft.scoringRule.capScore, onChange: (value) => patch({ scoringRule: { ...draft.scoringRule, capScore: optionalNumber(value) ?? 120 } }) },
     { key: "description", label: "口径说明", span: "wide", spec: { valueType: "string", control: "text", multiline: true, state: disabled ? "disabled" : "normal" }, value: draft.description, placeholder: "说明统计范围、数据口径与边界", onChange: (value) => patch({ description: String(value ?? "") }) },
   ];
+}
+
+export function definitionFormContent(
+  draft: WorkKpiDefinitionDraft,
+  setDraft: (draft: WorkKpiDefinitionDraft) => void,
+  disabled: boolean,
+): CreateSurfaceFormSpec {
+  return { items: definitionFields(draft, setDraft, disabled), layout: { columns: 2 } };
+}
+
+export function definitionDraft(definition: WorkKpiDefinition): WorkKpiDefinitionDraft {
+  return {
+    id: definition.id,
+    code: definition.code,
+    status: definition.status,
+    name: definition.name,
+    description: definition.description,
+    displayType: definition.displayType,
+    unit: definition.unit,
+    direction: definition.direction,
+    ownerDepartmentId: definition.ownerDepartmentId,
+    ownerDepartmentName: definition.ownerDepartmentName,
+    scoringRule: definition.scoringRule,
+  };
+}
+
+export function definitionDraftDirty(definition: WorkKpiDefinition, draft: WorkKpiDefinitionDraft) {
+  const initial = definitionDraft(definition);
+  return initial.code !== draft.code
+    || initial.status !== draft.status
+    || initial.name !== draft.name
+    || initial.description !== draft.description
+    || initial.displayType !== draft.displayType
+    || initial.unit !== draft.unit
+    || initial.direction !== draft.direction
+    || initial.ownerDepartmentId !== draft.ownerDepartmentId
+    || initial.scoringRule.targetScore !== draft.scoringRule.targetScore
+    || initial.scoringRule.floorScore !== draft.scoringRule.floorScore
+    || initial.scoringRule.capScore !== draft.scoringRule.capScore;
 }
 
 export function assignmentEntry(assignment: WorkKpiAssignment): WorkKpiScorecardEntry {

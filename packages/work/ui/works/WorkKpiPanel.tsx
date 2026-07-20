@@ -3,14 +3,13 @@
 import { useCallback, useEffect, useState } from "react";
 import {
   createFieldsSection,
-  createFormSection,
   createMessageSection,
   createPageBody,
   createPageDataSection,
   createSectionSection,
   type BodySurfaceProps,
+  type CreateSurfaceToolbarProps,
   type FormSurfaceActionSpec,
-  type FormSurfaceFieldSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import { actionRuntimeCommands, workflowActionSurfaceActions } from "@workspace/platform/ui";
@@ -25,9 +24,11 @@ import {
 } from "./WorkKpiApi";
 import {
   assignmentEntry,
+  definitionColumns,
+  definitionDraft,
   definitionDraftComplete,
-  definitionFields,
-  definitionRows,
+  definitionDraftDirty,
+  definitionFormContent,
   emptyDefinitionDraft,
   emptyEntry,
   formatNumber,
@@ -65,7 +66,6 @@ export function useWorkKpiScorecardController({
   const [definitions, setDefinitions] = useState<WorkKpiDefinition[]>([]);
   const [entries, setEntries] = useState<WorkKpiScorecardEntry[]>([]);
   const [results, setResults] = useState<WorkKpiResultsResponse | null>(null);
-  const [creatingDefinitionId, setCreatingDefinitionId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -95,7 +95,6 @@ export function useWorkKpiScorecardController({
   }, [enabled, onToast, plan, space]);
 
   useEffect(() => { void load(); }, [load]);
-  useEffect(() => { setCreatingDefinitionId(null); }, [plan?.id, space?.targetId, space?.targetType]);
 
   // Facet editability already distinguishes direct-write permission from workflow
   // submit permission. Requiring canUpdate again would hide workflow forms from a
@@ -115,14 +114,9 @@ export function useWorkKpiScorecardController({
   const finalizationDisabled = loading || saving || entries.length === 0 || entries.some((entry) => !entry.definitionId || !entry.ownerEmployeeId || !entry.weight) || Math.abs(totalWeight - 100) > 0.000001;
   const measurementDisabled = loading || saving || !allMeasurementsReady;
 
-  const setCreateOpen = useCallback((open: boolean) => {
-    setCreatingDefinitionId(open && targetEditable ? 0 : null);
-  }, [targetEditable]);
-
   const addEntry = useCallback(() => {
-    if (!creatingDefinitionId) return;
-    setEntries((current) => [...current, { ...emptyEntry(plan?.ownerEmployeeId ?? null, plan?.ownerEmployeeName ?? ""), definitionId: creatingDefinitionId }]);
-  }, [creatingDefinitionId, plan?.ownerEmployeeId, plan?.ownerEmployeeName]);
+    setEntries((current) => [...current, emptyEntry(plan?.ownerEmployeeId ?? null, plan?.ownerEmployeeName ?? "")]);
+  }, [plan?.ownerEmployeeId, plan?.ownerEmployeeName]);
 
   const updateEntry = useCallback((localKey: string, patch: Partial<WorkKpiScorecardEntry>) => {
     setEntries((current) => current.map((entry) => entry.localKey === localKey ? { ...entry, ...patch } : entry));
@@ -191,15 +185,6 @@ export function useWorkKpiScorecardController({
   })) : [];
   const rows = scorecardRows({ entries, definitions, targetEditable, measurementEditable, target: space, onUpdate: updateEntry, onRemove: removeEntry });
   const availableDefinitions = definitions.filter((definition) => !entries.some((entry) => entry.definitionId === definition.id));
-  const createFields: FormSurfaceFieldSpec[] = creatingDefinitionId === null ? [] : [{
-    key: "definition",
-    label: "指标",
-    required: true,
-    spec: { valueType: "string", control: "choice", options: { source: "static", items: availableDefinitions.map((definition) => ({ value: String(definition.id), label: `${definition.code} · ${definition.name} · v${definition.version}` })) } },
-    value: creatingDefinitionId ? String(creatingDefinitionId) : "",
-    placeholder: "选择指标",
-    onChange: (value) => { const id = Number(value); setCreatingDefinitionId(Number.isInteger(id) && id > 0 ? id : 0); },
-  }];
   const sections = !space
     ? [createMessageSection("kpi-empty-space", { content: "请选择工作空间", tone: "muted" })]
     : !plan
@@ -209,23 +194,6 @@ export function useWorkKpiScorecardController({
         : loading && entries.length === 0
           ? [createMessageSection("kpi-loading", { content: "加载 KPI 计分卡中...", tone: "muted" })]
           : [
-              ...(targetEditable ? [{
-                key: "kpi-scorecard-create",
-                chrome: "plain" as const,
-                body: { kind: "create" as const, create: {
-                  id: "kpi-scorecard-create",
-                  trigger: "toolbar" as const,
-                  presentation: "inline" as const,
-                  title: "添加指标",
-                  open: creatingDefinitionId !== null,
-                  canCreate: targetEditable,
-                  disabled: saving || availableDefinitions.length === 0,
-                  content: { kind: "form" as const, form: { items: createFields, layout: { columns: 3 as const, density: "compact" as const } } },
-                  submission: { action: "save" as const, disabled: saving || !creatingDefinitionId, execute: addEntry },
-                  feedback: { saved: "指标已添加，请继续保存目标" },
-                  onOpenChange: setCreateOpen,
-                } },
-              }] : []),
               createPageDataSection("kpi-summary", {
                 kind: "summary",
                 metrics: [
@@ -245,7 +213,15 @@ export function useWorkKpiScorecardController({
                     ...scorecardActions,
                   ] })] : []),
                 ],
-              }), visibility: "desktop" as const },
+              }), header: { title: "周期指标", actions: targetEditable ? [{
+                key: "add-kpi-scorecard-entry",
+                label: "添加指标",
+                icon: "add" as const,
+                presentation: "icon" as const,
+                variant: "primary" as const,
+                disabled: saving || availableDefinitions.length === 0 || entries.some((entry) => !entry.definitionId),
+                onClick: addEntry,
+              }] : undefined }, visibility: "desktop" as const },
               ...(results ? [{ ...createSectionSection("kpi-results-section", {
                 title: "结果预览",
                 sections: [
@@ -309,19 +285,7 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
   }, [beginCreate]);
 
   const beginRevise = useCallback((definition: WorkKpiDefinition) => {
-    setDraft({
-      id: definition.id,
-      code: definition.code,
-      status: definition.status,
-      name: definition.name,
-      description: definition.description,
-      displayType: definition.displayType,
-      unit: definition.unit,
-      direction: definition.direction,
-      ownerDepartmentId: definition.ownerDepartmentId,
-      ownerDepartmentName: definition.ownerDepartmentName,
-      scoringRule: definition.scoringRule,
-    });
+    setDraft(definitionDraft(definition));
   }, []);
 
   const save = useCallback(async () => {
@@ -345,52 +309,67 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
     }
   }, [onToast, save]);
 
+  const activeDefinition = draft?.id ? definitions.find((definition) => definition.id === draft.id) ?? null : null;
+  const revisionDirty = Boolean(activeDefinition && draft && definitionDraftDirty(activeDefinition, draft));
   const formActions: FormSurfaceActionSpec[] = draft?.id ? [
-    { key: "save-definition", action: "save", label: saving ? "保存中..." : "保存新版本", disabled: saving || !definitionDraftComplete(draft), onClick: () => void saveRevision() },
+    { key: "save-definition", action: "save", label: saving ? "保存中..." : "保存新版本", disabled: saving || !definitionDraftComplete(draft) || !revisionDirty, onClick: () => void saveRevision() },
     { key: "cancel-definition", action: "cancel", label: "取消", disabled: saving, onClick: () => setDraft(null) },
   ] : [];
   const createOpen = Boolean(draft && !draft.id);
+  const definitionCreate: CreateSurfaceToolbarProps | undefined = canMaintain ? {
+    id: "kpi-definition-create",
+    trigger: "toolbar",
+    presentation: "block",
+    title: "新增指标",
+    open: createOpen,
+    canCreate: canMaintain,
+    disabled: saving || Boolean(draft?.id),
+    content: { kind: "form", form: createOpen && draft ? definitionFormContent(draft, setDraft, saving) : { items: [] } },
+    submission: { action: "save", disabled: saving || !draft || !definitionDraftComplete(draft), execute: save },
+    feedback: { saved: "KPI 指标已新增" },
+    onOpenChange: setCreateOpen,
+  } : undefined;
   const sections = !space
     ? [createMessageSection("kpi-definition-empty-space", { content: "请选择工作空间", tone: "muted" })]
     : [
         ...(!canMaintain ? [createMessageSection("kpi-definition-readonly", { content: "指标按归口部门维护；当前空间可查看可用指标，切换到有维护权限的部门空间后可新增或修订。", tone: "muted" })] : []),
-        ...(draft?.id ? [createFormSection("kpi-definition-form", {
-          kind: "fields",
-          content: { items: definitionFields(draft, setDraft, saving), layout: { columns: 3, density: "compact" } },
-          actions: formActions,
-        })] : []),
-        loading && definitions.length === 0
-          ? createMessageSection("kpi-definition-loading", { content: "加载 KPI 指标库中...", tone: "muted" })
-          : createPageDataSection("kpi-definitions", {
-              kind: "structured",
-              rows: definitionRows(definitions, canMaintain, beginRevise),
-              mobile: { presentation: "list" },
-              frame: "bordered",
-              presentation: { density: "compact", header: "tinted" },
-              structuredScroll: true,
-              scroll: { x: true },
-            }),
+        createPageDataSection("kpi-definitions", {
+          kind: "table",
+          rows: definitions,
+          columns: definitionColumns(),
+          rowKey: (definition) => definition.id,
+          loading,
+          emptyText: "暂无 KPI 指标定义",
+          onRowClick: canMaintain ? (definition) => {
+            if (draft?.id === definition.id) setDraft(null);
+            else beginRevise(definition);
+          } : undefined,
+          expandedRowKey: draft?.id ?? null,
+          expandedRow: canMaintain ? (definition) => draft?.id === definition.id ? {
+            kind: "form",
+            form: {
+              kind: "fields",
+              content: definitionFormContent(draft, setDraft, saving),
+              actions: formActions,
+            },
+          } : null : undefined,
+          rowState: (definition) => draft?.id === definition.id ? "selected" : "normal",
+          mobile: { presentation: "list" },
+          frame: "bordered",
+          presentation: { density: "compact", header: "tinted", rowHover: canMaintain ? "interactive" : "none" },
+          scroll: { x: true, y: "hidden" },
+        }),
       ];
   return {
     body: createPageBody([
-      ...(canMaintain ? [{
-        key: "kpi-definition-create",
-        chrome: "plain" as const,
-        body: { kind: "create" as const, create: {
-          id: "kpi-definition-create",
-          trigger: "toolbar" as const,
-          presentation: "block" as const,
-          title: "新增指标",
-          open: createOpen,
-          canCreate: canMaintain,
-          disabled: saving || Boolean(draft?.id),
-          content: { kind: "form" as const, form: { items: createOpen && draft ? definitionFields(draft, setDraft, saving) : [], layout: { columns: 3 as const, density: "compact" as const } } },
-          submission: { action: "save" as const, disabled: saving || !draft || !definitionDraftComplete(draft), execute: save },
-          feedback: { saved: "KPI 指标已新增" },
-          onOpenChange: setCreateOpen,
-        } },
-      }] : []),
-      createSectionSection("kpi-definition-section", { title: "指标库", sections: [createMessageSection("kpi-definition-guidance", { content: "指标定义按版本维护；已生效版本不会被周期计分卡的后续修订覆盖。", tone: "muted" }), ...sections] }),
+      ...(definitionCreate ? [{ key: "kpi-definition-create", chrome: "plain" as const, body: { kind: "create" as const, create: definitionCreate } }] : []),
+      createSectionSection("kpi-definition-section", {
+        title: "指标库",
+        sections: [
+          { ...createMessageSection("kpi-definition-guidance", { content: "指标定义按版本维护；已生效版本不会被周期计分卡的后续修订覆盖。", tone: "muted" }), chrome: "plain" },
+          ...sections.map((section) => ({ ...section, chrome: "plain" as const })),
+        ],
+      }),
     ]),
     toolbarItems: [],
   };
