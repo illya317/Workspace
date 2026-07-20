@@ -178,7 +178,7 @@ function reportOkrItems(
   if (isLightReportPeriod(periodType) && stage !== "kr" && nextPeriod) {
     return tasks
       .sort(sortReportPlanItem)
-      .flatMap((item) => lightReportTaskKinds(item, period)
+      .flatMap((item) => lightReportTaskKinds(item, period, nextPeriod)
         .map((kind) => taskReportItem(plan, item, period, itemsById, kind)));
   }
   return objectives
@@ -288,7 +288,7 @@ async function listAssignedDepartmentReportItems(
     .flatMap((item) => {
       const plan = { id: item.plan!.id, kind: item.plan!.kind, title: item.plan!.title, sortOrder: item.plan!.sortOrder };
       if (reportingPeriod) {
-        return lightReportTaskKinds(item, period)
+        return lightReportTaskKinds(item, period, reportingPeriod)
           .map((kind) => taskReportItem(plan, item, period, new Map(), kind));
       }
       return item.itemType === "key_result" || taskHasStarted(item.actualStartDate, period.endDate)
@@ -489,9 +489,15 @@ function nextLightReportPeriod(period: { startDate: Date; endDate: Date }, perio
 export function lightReportTaskKinds(
   item: Pick<ReportPlanItem, "status" | "actualStartDate" | "actualEndDate" | "plannedStartDate" | "plannedEndDate">,
   period: { startDate: Date; endDate: Date },
+  nextPeriod: { startDate: Date; endDate: Date },
 ): Array<"current" | "next"> {
-  if (item.status !== "done") return ["next"];
+  if (item.status !== "done") return unfinishedTaskVisibleInNextPeriod(item, nextPeriod) ? ["next"] : [];
   return dateInRange(item.actualEndDate, period.startDate, period.endDate) ? ["current"] : [];
+}
+
+function unfinishedTaskVisibleInNextPeriod(item: Pick<ReportPlanItem, "actualStartDate" | "plannedStartDate">, nextPeriod: { endDate: Date }) {
+  const startDate = item.actualStartDate ?? item.plannedStartDate;
+  return !startDate || startDate <= nextPeriod.endDate;
 }
 
 function routineReportingTaskKinds(
@@ -499,10 +505,11 @@ function routineReportingTaskKinds(
   period: { startDate: Date; endDate: Date },
   nextPeriod: { startDate: Date; endDate: Date },
 ) {
-  const kinds = lightReportTaskKinds(item, period);
+  const kinds = lightReportTaskKinds(item, period, nextPeriod);
   if (item.actualStartDate || !item.routineRecurrenceType) return kinds;
   if (routineTaskVisibleInPeriod(item, period) && !kinds.includes("current")) kinds.push("current");
-  if (item.status !== "done" && routineTaskVisibleInPeriod(item, nextPeriod) && !kinds.includes("next")) kinds.push("next");
+  if (item.status !== "done" && unfinishedTaskVisibleInNextPeriod(item, nextPeriod)
+    && routineTaskVisibleInPeriod(item, nextPeriod) && !kinds.includes("next")) kinds.push("next");
   return kinds;
 }
 

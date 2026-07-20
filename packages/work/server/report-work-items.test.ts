@@ -25,6 +25,10 @@ const currentPeriod = {
   startDate: new Date("2026-07-13T00:00:00.000Z"),
   endDate: new Date("2026-07-19T00:00:00.000Z"),
 };
+const nextPeriod = {
+  startDate: new Date("2026-07-20T00:00:00.000Z"),
+  endDate: new Date("2026-07-26T00:00:00.000Z"),
+};
 
 test("unfinished cross-week task remains in the next-week plan", () => {
   assert.deepEqual(lightReportTaskKinds({
@@ -33,7 +37,7 @@ test("unfinished cross-week task remains in the next-week plan", () => {
     actualEndDate: null,
     plannedStartDate: new Date("2026-07-17T00:00:00.000Z"),
     plannedEndDate: new Date("2026-07-21T00:00:00.000Z"),
-  }, currentPeriod), ["next"]);
+  }, currentPeriod, nextPeriod), ["next"]);
 });
 
 test("weekly reports keep unfinished tasks after their parent plan period", async () => {
@@ -77,21 +81,46 @@ test("weekly reports keep unfinished tasks after their parent plan period", asyn
   assert.equal(items[0]?.content, "Still unfinished");
 });
 
-test("overdue and future unfinished tasks keep rolling forward", () => {
+test("overdue unfinished tasks keep rolling forward but later tasks wait for their start period", () => {
   assert.deepEqual(lightReportTaskKinds({
     status: "paused",
     actualStartDate: null,
     actualEndDate: null,
     plannedStartDate: new Date("2026-07-01T00:00:00.000Z"),
     plannedEndDate: new Date("2026-07-05T00:00:00.000Z"),
-  }, currentPeriod), ["next"]);
+  }, currentPeriod, nextPeriod), ["next"]);
   assert.deepEqual(lightReportTaskKinds({
     status: null,
     actualStartDate: null,
     actualEndDate: null,
     plannedStartDate: new Date("2026-08-01T00:00:00.000Z"),
     plannedEndDate: new Date("2026-08-05T00:00:00.000Z"),
-  }, currentPeriod), ["next"]);
+  }, currentPeriod, nextPeriod), []);
+});
+
+test("monthly reports do not show unfinished tasks before their planned start month", () => {
+  const marchPeriod = {
+    startDate: new Date("2025-03-01T00:00:00.000Z"),
+    endDate: new Date("2025-03-31T00:00:00.000Z"),
+  };
+  const aprilPeriod = {
+    startDate: new Date("2025-04-01T00:00:00.000Z"),
+    endDate: new Date("2025-04-30T00:00:00.000Z"),
+  };
+  assert.deepEqual(lightReportTaskKinds({
+    status: "active",
+    actualStartDate: null,
+    actualEndDate: null,
+    plannedStartDate: new Date("2026-07-01T00:00:00.000Z"),
+    plannedEndDate: new Date("2026-07-31T00:00:00.000Z"),
+  }, marchPeriod, aprilPeriod), []);
+  assert.deepEqual(lightReportTaskKinds({
+    status: "active",
+    actualStartDate: null,
+    actualEndDate: null,
+    plannedStartDate: new Date("2025-04-30T00:00:00.000Z"),
+    plannedEndDate: new Date("2025-05-15T00:00:00.000Z"),
+  }, marchPeriod, aprilPeriod), ["next"]);
 });
 
 test("completed tasks appear only in their completion period", () => {
@@ -101,12 +130,12 @@ test("completed tasks appear only in their completion period", () => {
     actualEndDate: new Date("2026-07-17T00:00:00.000Z"),
     plannedStartDate: new Date("2026-07-15T00:00:00.000Z"),
     plannedEndDate: new Date("2026-07-17T00:00:00.000Z"),
-  }, currentPeriod), ["current"]);
+  }, currentPeriod, nextPeriod), ["current"]);
   assert.deepEqual(lightReportTaskKinds({
     status: "done",
     actualStartDate: new Date("2026-07-10T00:00:00.000Z"),
     actualEndDate: new Date("2026-07-12T00:00:00.000Z"),
     plannedStartDate: new Date("2026-07-10T00:00:00.000Z"),
     plannedEndDate: new Date("2026-07-12T00:00:00.000Z"),
-  }, currentPeriod), []);
+  }, currentPeriod, nextPeriod), []);
 });
