@@ -15,12 +15,14 @@ function tool(
   action: "read" | "submit" = "read",
   delegatedExecution = true,
   requiresAgentProfile = false,
+  policyActions?: AgentTool["policyActions"],
 ): AgentTool {
   return {
     key,
     label: key,
     description: key,
     requiredPermissions: [{ resourceKey: "agent.source", action }],
+    policyActions,
     delegatedExecution,
     requiresAgentProfile,
     mutates: action === "submit",
@@ -134,6 +136,26 @@ test("global Agent action ceiling narrows a profile even when both identities ar
   );
   assert.deepEqual(result.tools, []);
   assert.equal(permissionChecks, 0);
+});
+
+test("global Agent ceiling can enforce a scoped write action without a static root permission check", async () => {
+  const candidate = tool("work.updateWorkItem", "read", true, false, ["update"]);
+  let permissionChecks = 0;
+  const denied = await resolveAgentToolAccess(requester, [candidate], {
+    agentAllowedActions: ["entry", "read"],
+    permissionEvaluator: async () => {
+      permissionChecks += 1;
+      return true;
+    },
+  });
+  const allowed = await resolveAgentToolAccess(requester, [candidate], {
+    agentAllowedActions: ["entry", "read", "update"],
+    permissionEvaluator: async () => true,
+  });
+
+  assert.deepEqual(denied.tools, []);
+  assert.equal(permissionChecks, 0);
+  assert.deepEqual(allowed.tools.map((item) => item.key), [candidate.key]);
 });
 
 test("live profile refresh revokes a tool removed after the conversation started", async () => {

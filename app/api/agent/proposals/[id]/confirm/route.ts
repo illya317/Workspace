@@ -6,6 +6,7 @@
 import { NextResponse } from "next/server";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { hrAgentProposalExecutors } from "@workspace/hr/server/agent-tools";
+import { workItemAgentProposalExecutors } from "@workspace/work/server/agent-tools";
 import {
   agentProposalActionErrorStatus,
   confirmProposalAction,
@@ -29,6 +30,7 @@ export async function POST(
   try {
     const result = await confirmProposalAction(parsedParams.data.id, user, {
       ...hrAgentProposalExecutors,
+      ...workItemAgentProposalExecutors,
       ...sourceAgentProposalExecutors,
     });
     return NextResponse.json(result);

@@ -6,6 +6,8 @@ import {
 } from "./work-assigned-items";
 import { intersectWorkSpaces } from "./agent-work-overview-model";
 import { listWorkTaskSpaces, type WorkTaskSpace } from "./task-spaces";
+import { workItemAgentTools } from "./work-item-agent-tools";
+export { workItemAgentProposalExecutors } from "./work-item-agent-tools";
 
 type SharedWorkSpace = WorkTaskSpace & {
   actionPermissions: WorkTaskSpace["actionPermissions"];
@@ -144,4 +146,4 @@ function workSpaceTypeLabel(targetType: string) {
   return "个人空间";
 }
 
-export const workAgentTools: AgentTool[] = [getMyWorkOverviewTool];
+export const workAgentTools: AgentTool[] = [getMyWorkOverviewTool, ...workItemAgentTools];

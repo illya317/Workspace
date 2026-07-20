@@ -21,7 +21,7 @@ type WorkTaskApprovalPayloadBase<TTarget extends WorkTaskApprovalWorkspaceTarget
   data: Record<string, unknown>;
 };
 
-export type WorkTaskItemApprovalPayload = WorkTaskApprovalPayloadBase<WorkTaskApprovalTargetType> & {
+export type WorkTaskItemApprovalPayload = WorkTaskApprovalPayloadBase<WorkTaskApprovalWorkspaceTargetType> & {
   entityType: "item";
   workId: number | null;
 };

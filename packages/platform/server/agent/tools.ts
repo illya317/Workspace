@@ -49,6 +49,12 @@ export interface AgentTool {
   examples?: AgentToolExample[];
   /** Minimum actor permissions; the Agent action ceiling may only narrow them. */
   requiredPermissions: readonly AgentToolPermissionRequirement[];
+  /**
+   * Optional actions checked only against the global Agent ceiling.
+   * Use this when the live business permission is scoped and therefore cannot
+   * be evaluated from a static root resource requirement.
+   */
+  policyActions?: readonly PermissionActionKey[];
   /** Explicit opt-in: the adapter is safe when requester and virtual actor differ. */
   delegatedExecution?: boolean;
   /** Explicit opt-in: this tool is unavailable to the profile-less personal assistant. */

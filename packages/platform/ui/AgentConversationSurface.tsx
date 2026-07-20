@@ -25,7 +25,6 @@ import {
 } from "./page-assistant/types";
 
 export type { AgentConversationStarter } from "./page-assistant/types";
-
 export function AgentConversationSurface({
   open,
   context,
@@ -37,6 +36,7 @@ export function AgentConversationSurface({
   emptyDescription = "它会结合当前页面和栏目理解你的问题。",
   starters = [],
   disabledMessage = "当前账号没有 Agent 助手调用权限。",
+  showAgentProfileSelector = true,
 }: {
   open: boolean;
   context: PageAssistantOpenInput | null;
@@ -48,6 +48,7 @@ export function AgentConversationSurface({
   emptyDescription?: string;
   starters?: AgentConversationStarter[];
   disabledMessage?: string;
+  showAgentProfileSelector?: boolean;
 }) {
   const [messages, setMessages] = useState<AssistantMessage[]>([]);
   const [draft, setDraft] = useState("");
@@ -63,7 +64,7 @@ export function AgentConversationSurface({
   const conversationsRef = useRef<Map<string, ConversationSnapshot>>(new Map());
   const abortActiveRequest = useCallback(() => abortControllerRef.current?.abort(), []);
   const { selectedAgentProfileId, selector: agentProfileSelector } = useAgentProfileSelector({
-    open: open && enabled,
+    open: open && enabled && showAgentProfileSelector,
     onBeforeChange: abortActiveRequest,
   });
   const currentContextLabel = useMemo(() => contextLabel(context), [context]);
@@ -441,7 +442,7 @@ export function AgentConversationSurface({
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
               <h2 className="shrink-0 text-sm font-semibold text-slate-900">{title}</h2>
-              {enabled ? <NavigationContextSelector selector={agentProfileSelector} /> : null}
+              {enabled && showAgentProfileSelector ? <NavigationContextSelector selector={agentProfileSelector} /> : null}
             </div>
             <p className="mt-0.5 truncate text-xs text-slate-500">
               {sessionSummary ? `已压缩上下文 · ${currentContextLabel}` : currentContextLabel}

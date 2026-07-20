@@ -129,6 +129,8 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 
 - `/work` 是移动端优先的统一 Agent 入口；`/work/me`、`/work/project`、`/work/meeting`、`/work/performance` 继续作为结构化事实、完整编辑和流程状态入口，不复制为另一套 Agent 业务协议。
 - Work Agent 读取工作空间时复用 `work.tasks` 入口能力和各目标空间的 scoped permission。选择虚拟执行身份时，只返回请求人与执行身份共同具备 `read` 的空间，并取双方动作权限交集。
+- Work Agent 可以读取个人、部门和项目空间的计划与工作节点明细，并为目标、KR、任务的新建或修改生成 proposal。用户确认后必须重新校验全局 Agent action ceiling、请求人与执行身份的 scoped `create/update` 权限；修改还要校验 `updatedAt` 快照，再复用网页端 WorkItem command、domain validator、审批策略和 service。删除与归档不属于本试点写入范围。
+- `/work` 当前固定使用本人助手，不展示仅具备源码/PR 能力的通用虚拟执行身份；其他页面助手仍可按其上下文切换有效身份。
 - 本人绩效材料仍由 HR 的 `hr.performance` service 与周期档案模型提供；Agent 只读取当前登录用户本人材料。绩效自评写入必须生成 proposal，用户确认后再次校验 `hr.performance.read + submit`、本人身份、流程状态和版本，再复用现有 HR 绩效草稿与提交流程。
 - Agent 没有权限时 `/work` 不展示可发送的输入框，只保留当前用户原本有权进入的结构化 Work 入口，避免页面能力与 API guard 不一致。
 

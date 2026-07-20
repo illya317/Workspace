@@ -36,6 +36,7 @@ export function WorkHomePageView({
       emptyTitle="今天，想推进什么？"
       emptyDescription="我会先读取你有权限的工作空间、目标和绩效材料，再给出可追溯的结果；任何写入都需要你确认。"
       disabledMessage="当前账号可以继续进入原有 Work 模块，但尚未开通 Agent 助手调用权限。"
+      showAgentProfileSelector={false}
       context={{
         path: "/work",
         title: "Work Agent",

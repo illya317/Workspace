@@ -13,7 +13,6 @@ import {
   businessActionKeyFor,
   getWorkTaskApprovalResourceKey,
   hasPlanSourceReference,
-  normalizeApprovalTargetType,
   normalizeApprovalWorkspaceTargetType,
   normalizePlanApprovalData,
   nullablePositiveNumber,
@@ -312,8 +311,8 @@ export async function validateUpdateItemApprovalPayload(
     },
   });
   if (!existing?.targetId) return serviceError("工作项不存在", 404);
-  const targetType = normalizeApprovalTargetType(existing.targetType);
-  if (!targetType) return serviceError("审批只支持组织工作空间", 400);
+  const targetType = normalizeApprovalWorkspaceTargetType(existing.targetType);
+  if (!targetType) return serviceError("工作空间范围无效", 400);
   const command = buildWorkItemUpdateCommand(workId, {
     ...payload.data,
     participants: payload.data.participants === undefined ? undefined : normalizeApprovalParticipants(payload.data.participants),

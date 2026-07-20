@@ -3,6 +3,7 @@ import { ActionGlyph } from "@workspace/core/ui";
 import { useState, type ReactNode, type RefObject } from "react";
 
 import type { AgentConversationStarter, AssistantMessage } from "./types";
+import { AgentMessageMarkdown } from "./AgentMessageMarkdown";
 import { proposalDiffText } from "./types";
 
 type ResourceItem = {
@@ -129,7 +130,9 @@ export function PageAssistantMessages({
                   : "bg-transparent text-slate-800 sm:border sm:border-slate-200 sm:bg-white sm:shadow-sm"
             }`}
           >
-            <div className="whitespace-pre-wrap">{message.content}</div>
+            {message.role === "agent"
+              ? <AgentMessageMarkdown content={message.content} />
+              : <div className="whitespace-pre-wrap">{message.content}</div>}
             <MessageAttachments message={message} />
             <MessageData message={message} />
             {message.proposal ? (

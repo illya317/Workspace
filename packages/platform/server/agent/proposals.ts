@@ -41,6 +41,7 @@ export interface ProposalResult {
 export interface ProposalExecutor {
   toolKey: string;
   requiredPermissions: readonly AgentToolPermissionRequirement[];
+  policyActions?: AgentTool["policyActions"];
   delegatedExecution?: boolean;
   requiresAgentProfile?: boolean;
   /** True when an exception can happen after an external side effect was accepted. */
@@ -166,6 +167,7 @@ function executorAsTool(executor: ProposalExecutor): AgentTool {
     label: executor.toolKey,
     description: "Agent proposal confirmation authorization",
     requiredPermissions: executor.requiredPermissions,
+    policyActions: executor.policyActions,
     delegatedExecution: executor.delegatedExecution,
     requiresAgentProfile: executor.requiresAgentProfile,
     mutates: true,

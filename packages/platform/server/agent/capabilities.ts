@@ -86,8 +86,8 @@ export async function resolveAgentToolAccess(
     if (!configurationPreview && tool.requiresAgentProfile && !execution.profile) return false;
     if (execution.profile && !tool.delegatedExecution) return false;
     if (!configurationPreview && execution.profile && !execution.profile.allowedToolKeys.includes(tool.key)) return false;
-    const requiredActions = tool.requiredPermissions.map((requirement) => requirement.action);
-    if (!agentPolicyAllowsActions(requiredActions, agentAllowedActions)) return false;
+    const policyActions = tool.policyActions ?? tool.requiredPermissions.map((requirement) => requirement.action);
+    if (!agentPolicyAllowsActions(policyActions, agentAllowedActions)) return false;
     const identities = execution.requester.id === execution.actor.id
       ? [execution.requester]
       : [execution.requester, execution.actor];
