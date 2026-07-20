@@ -33,7 +33,9 @@ import {
 
 const EXPECTED_KIMI_CLI_VERSION = "1.48.0";
 const EXPECTED_WIRE_PROTOCOL = "1.10";
-const WORKSPACE_KIMI_MODEL = "kimi-code/k3";
+// Kimi Code routes this managed model to K2.6 when Thinking is disabled.
+const WORKSPACE_KIMI_MODEL = "kimi-code/kimi-for-coding";
+const WORKSPACE_KIMI_THINKING = false;
 const RUNTIME_DIR_NAME = "kimi-agent";
 
 const AGENT_SPEC = `version: 1
@@ -450,7 +452,7 @@ export class KimiAgentRuntime implements AgentRuntime {
         externalTools,
         agentFile: prepared.agentFile,
         skillsDir: this.paths.skills,
-        thinking: true,
+        thinking: WORKSPACE_KIMI_THINKING,
         yoloMode: false,
         clientInfo: { name: "workspace-internal-agent", version: "1" },
         hooks: [{
