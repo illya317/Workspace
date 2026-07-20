@@ -75,7 +75,7 @@ export function definitionRows(definitions: WorkKpiDefinition[], canMaintain: bo
       textCell(directionLabel(definition.direction)),
       textCell(definition.unit),
       textCell(definition.ownerDepartmentName),
-      canMaintain ? { content: { kind: "action", action: { key: `revise-${definition.id}`, label: "修订", presentation: "button", onClick: () => onRevise(definition) } } } : textCell(""),
+      canMaintain ? { content: { kind: "action", action: { key: `revise-${definition.id}`, label: "修订", icon: "revise", presentation: "glyph", onClick: () => onRevise(definition) } } } : textCell(""),
     ]),
   ];
 }

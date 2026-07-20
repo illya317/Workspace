@@ -10,6 +10,7 @@ import {
   createSectionSection,
   type BodySurfaceProps,
   type FormSurfaceActionSpec,
+  type FormSurfaceFieldSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import { actionRuntimeCommands, workflowActionSurfaceActions } from "@workspace/platform/ui";
@@ -64,6 +65,7 @@ export function useWorkKpiScorecardController({
   const [definitions, setDefinitions] = useState<WorkKpiDefinition[]>([]);
   const [entries, setEntries] = useState<WorkKpiScorecardEntry[]>([]);
   const [results, setResults] = useState<WorkKpiResultsResponse | null>(null);
+  const [creatingDefinitionId, setCreatingDefinitionId] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -93,6 +95,7 @@ export function useWorkKpiScorecardController({
   }, [enabled, onToast, plan, space]);
 
   useEffect(() => { void load(); }, [load]);
+  useEffect(() => { setCreatingDefinitionId(null); }, [plan?.id, space?.targetId, space?.targetType]);
 
   // Facet editability already distinguishes direct-write permission from workflow
   // submit permission. Requiring canUpdate again would hide workflow forms from a
@@ -112,10 +115,14 @@ export function useWorkKpiScorecardController({
   const finalizationDisabled = loading || saving || entries.length === 0 || entries.some((entry) => !entry.definitionId || !entry.ownerEmployeeId || !entry.weight) || Math.abs(totalWeight - 100) > 0.000001;
   const measurementDisabled = loading || saving || !allMeasurementsReady;
 
+  const setCreateOpen = useCallback((open: boolean) => {
+    setCreatingDefinitionId(open && targetEditable ? 0 : null);
+  }, [targetEditable]);
+
   const addEntry = useCallback(() => {
-    if (!targetEditable) return;
-    setEntries((current) => [...current, emptyEntry(plan?.ownerEmployeeId ?? null, plan?.ownerEmployeeName ?? "")]);
-  }, [plan?.ownerEmployeeId, plan?.ownerEmployeeName, targetEditable]);
+    if (!creatingDefinitionId) return;
+    setEntries((current) => [...current, { ...emptyEntry(plan?.ownerEmployeeId ?? null, plan?.ownerEmployeeName ?? ""), definitionId: creatingDefinitionId }]);
+  }, [creatingDefinitionId, plan?.ownerEmployeeId, plan?.ownerEmployeeName]);
 
   const updateEntry = useCallback((localKey: string, patch: Partial<WorkKpiScorecardEntry>) => {
     setEntries((current) => current.map((entry) => entry.localKey === localKey ? { ...entry, ...patch } : entry));
@@ -183,6 +190,16 @@ export function useWorkKpiScorecardController({
     "workflow.request.submit": { label: saving ? "提交中..." : "提交结果", disabled: saving || !results.workReport, onClick: () => void finalizeResults() },
   })) : [];
   const rows = scorecardRows({ entries, definitions, targetEditable, measurementEditable, target: space, onUpdate: updateEntry, onRemove: removeEntry });
+  const availableDefinitions = definitions.filter((definition) => !entries.some((entry) => entry.definitionId === definition.id));
+  const createFields: FormSurfaceFieldSpec[] = creatingDefinitionId === null ? [] : [{
+    key: "definition",
+    label: "指标",
+    required: true,
+    spec: { valueType: "string", control: "choice", options: { source: "static", items: availableDefinitions.map((definition) => ({ value: String(definition.id), label: `${definition.code} · ${definition.name} · v${definition.version}` })) } },
+    value: creatingDefinitionId ? String(creatingDefinitionId) : "",
+    placeholder: "选择指标",
+    onChange: (value) => { const id = Number(value); setCreatingDefinitionId(Number.isInteger(id) && id > 0 ? id : 0); },
+  }];
   const sections = !space
     ? [createMessageSection("kpi-empty-space", { content: "请选择工作空间", tone: "muted" })]
     : !plan
@@ -192,6 +209,23 @@ export function useWorkKpiScorecardController({
         : loading && entries.length === 0
           ? [createMessageSection("kpi-loading", { content: "加载 KPI 计分卡中...", tone: "muted" })]
           : [
+              ...(targetEditable ? [{
+                key: "kpi-scorecard-create",
+                chrome: "plain" as const,
+                body: { kind: "create" as const, create: {
+                  id: "kpi-scorecard-create",
+                  trigger: "toolbar" as const,
+                  presentation: "inline" as const,
+                  title: "添加指标",
+                  open: creatingDefinitionId !== null,
+                  canCreate: targetEditable,
+                  disabled: saving || availableDefinitions.length === 0,
+                  content: { kind: "form" as const, form: { items: createFields, layout: { columns: 3 as const, density: "compact" as const } } },
+                  submission: { action: "save" as const, disabled: saving || !creatingDefinitionId, execute: addEntry },
+                  feedback: { saved: "指标已添加，请继续保存目标" },
+                  onOpenChange: setCreateOpen,
+                } },
+              }] : []),
               createPageDataSection("kpi-summary", {
                 kind: "summary",
                 metrics: [
@@ -224,7 +258,7 @@ export function useWorkKpiScorecardController({
 
   return {
     body: createPageBody(sections),
-    toolbarItems: targetEditable ? [{ kind: "action-group", key: "kpi-scorecard-create", visibility: "desktop", actions: [{ key: "add-kpi", kind: "update", label: "添加指标", disabled: saving || definitions.length === 0, onClick: addEntry }] }] : [],
+    toolbarItems: [],
   };
 }
 
