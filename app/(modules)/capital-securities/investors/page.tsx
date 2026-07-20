@@ -1,4 +1,4 @@
-import { createProtectedModulePage } from "@workspace/platform/ui/protected-page";
+import { createProtectedModulePage } from "@workspace/platform/server/protected-page";
 import { InvestorsClient } from "@workspace/capital-securities/ui";
 
 export default createProtectedModulePage({

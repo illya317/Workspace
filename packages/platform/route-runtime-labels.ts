@@ -11,8 +11,14 @@ type RuntimeRouteModule = RuntimeRouteChild & {
   children?: RuntimeRouteChild[];
 };
 
+type RuntimeRouteRegistration = string | {
+  path: string;
+  gatePath?: string;
+};
+
 type RuntimeRouteDefinition = {
   moduleDef?: RuntimeRouteModule | null;
+  routes?: RuntimeRouteRegistration[];
 };
 
 export type RouteRuntimeMeta = {
@@ -46,13 +52,20 @@ export function getRouteRuntimeMeta(
   const normalizedRoute = normalizeRoute(route, options.normalizeRecordRoute);
   const respectVisibility = options.respectVisibility ?? true;
 
-  for (const { moduleDef } of runtimeDefinitions) {
+  for (const { moduleDef, routes } of runtimeDefinitions) {
     if (!moduleDef || !isVisible(moduleDef, respectVisibility)) continue;
     if (moduleDef.href === normalizedRoute) {
       return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? moduleDef.label, label: moduleDef.label };
     }
     const child = moduleDef.children?.find((item) => item.href === normalizedRoute && isVisible(item, respectVisibility));
     if (child) return { baseLabel: getBaseRouteLabel(normalizedRoute) ?? child.label, label: child.label };
+    const registeredRoute = routes?.find((item) => (typeof item === "string" ? item : item.path) === normalizedRoute);
+    if (!registeredRoute) continue;
+    const gatePath = typeof registeredRoute === "string" ? null : registeredRoute.gatePath;
+    if (gatePath && gatePath !== normalizedRoute) {
+      return getRouteRuntimeMeta(gatePath, runtimeDefinitions, options);
+    }
+    return { baseLabel: moduleDef.label, label: moduleDef.label };
   }
   return null;
 }

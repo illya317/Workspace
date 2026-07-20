@@ -171,14 +171,17 @@ function createBudgetTableSection<T extends MonthlyBudgetItem>({
     createTotalColumn<T>(),
   ];
 
-  return createPageTableSection(key, {
-    rows,
-    columns,
-    visibleColumns: columns.map((column) => column.key),
-    emptyText: "暂无数据",
-    rowKey: (row) => row.id,
-    rowState: (row) => row.kind === "total" ? "total" : "normal",
-  });
+  return {
+    ...createPageTableSection(key, {
+      rows,
+      columns,
+      visibleColumns: columns.map((column) => column.key),
+      emptyText: "暂无数据",
+      rowKey: (row) => row.id,
+      rowState: (row) => row.kind === "total" ? "total" : "normal",
+    }),
+    visibility: "desktop",
+  };
 }
 
 function itemColumn<T extends MonthlyBudgetItem>(

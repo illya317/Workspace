@@ -121,7 +121,7 @@ Level 1/1.5 只有一个硬门禁入口：
 - 模块启停优先于项目业务访问规则：`work` 或 `work.projects` disabled 后，项目入口、`/work/project`、相关 API 和 FK 目标都必须统一失效。项目任务、项目阶段和基线都随项目管理模块失效，不单独配置 disable。
 - `work.projects.entry/read/create/update/delete` 是模块功能门禁和上级继承边界；它们不能被解释为查看全部项目、管理全部项目或删除全部项目。组织空间里的项目对象操作继续由 `space.<scope>.projects.*` scoped action grant 和 Work service 对象规则收窄。
 - 项目对象级业务访问规则由 `packages/work/server/access.ts` 计算：创建人、主导部门负责人、项目 RASCI 成员、所属标准业务空间和 root identity 决定可见、可写、可管理、可删除。`editedBy` 是审计字段，不参与所有权和管理权判断。
-- 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳，项目/会议 FK 的对象可见性 adapter 必须留在 `@workspace/work/server/fk-registry.ts` 并通过 Platform FK registry 暴露，route 不再按 `fkKey` 手写分支。
+- 项目 FK 候选过滤属于 Work 业务规则。`app/api/modules/work/projects/reference-options` 只做路由壳和权限壳，项目/会议 FK 的对象可见性 adapter 必须留在 `@workspace/work/server/fk-registry.ts` 并通过 Platform Relation Catalog 暴露，route 不再按 `fkKey` 手写分支。
 
 ## 后续拆分顺序
 

@@ -45,7 +45,7 @@ export function getDropdownItemClassName({
     tone === "danger"
       ? "text-red-600 hover:bg-red-50"
       : "text-gray-700 hover:bg-gray-50";
-  return `${layoutClass} px-4 py-2 text-left ${textClassName} transition-colors ${colorClass}`;
+  return `${layoutClass} min-h-11 px-4 py-2 text-left ${textClassName} transition-colors ${colorClass}`;
 }
 
 /**

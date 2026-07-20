@@ -2,6 +2,7 @@
 
 import { createDocumentSection, PaperInputSurface, type BodySurfaceSectionSpec, type PaperInputLayoutSpec } from "@workspace/core/ui";
 import { DocumentPreview, type EditorBlock, type EditorDocument, type EditorSlotInline, type FieldModel } from "@workspace/platform/document-editor";
+import { resolveQcEditorRuntimeField } from "./qc-editor-runtime-field";
 import type { EditorRuntimeValues } from "./useEditorRuntimeFormulaEngine";
 
 export interface QcEditorRuntimePaperProps {
@@ -44,13 +45,7 @@ export function createQcEditorRuntimePaperSection(key: string, props: QcEditorRu
 }
 
 function RuntimeSlot({ part, context }: { part: EditorSlotInline; context: RenderContext }) {
-  const value = slotValue(part, context);
-  const field = fieldDefinition(context.fieldModel, part.fieldKey);
-  const rawInputType = part.inputType || field?.inputType || (field?.type === "date" ? "date" : undefined) || (part.type === "dateSlot" ? "date" : "text");
-  const options = part.options ?? field?.options;
-  const inputType = normalizedInputType(rawInputType, options);
-  const valueType = part.valueType || field?.valueType || inferredValueType(part, field, rawInputType);
-  const disabled = context.readOnly || !context.onFieldChange || part.readonlyDisplay || part.slotKind === "formula" || part.slotKind === "reference" || !!part.referenceFieldKey;
+  const { value, field, rawInputType, options, inputType, valueType, disabled } = resolveQcEditorRuntimeField(part, context);
   const layout: PaperInputLayoutSpec = {
     fieldKey: part.fieldKey,
     width: part.width ? String(part.width) : "3rem",
@@ -91,41 +86,4 @@ function paperInputAlign(align: string | undefined): PaperInputLayoutSpec["align
 function paperInputNumberFormat(format: string | undefined): PaperInputLayoutSpec["numberFormat"] {
   if (format === "round_half_even" || format === "ceil" || format === "floor" || format === "truncate") return format;
   return "round";
-}
-
-function slotValue(part: EditorSlotInline, context: RenderContext) {
-  const fixed = fixedReferenceValue(part, context.referenceValues);
-  if (fixed != null) return fixed;
-  if (part.referenceFieldKey) return context.values[part.referenceFieldKey] ?? context.referenceValues?.[part.referenceFieldKey] ?? "";
-  return context.values[part.fieldKey] ?? part.defaultValue ?? "";
-}
-
-function fixedReferenceValue(part: EditorSlotInline, referenceValues?: EditorRuntimeValues) {
-  if (!referenceValues) return undefined;
-  if (part.fieldKey === "batch_number") return referenceValues.__qc_ref_batch_number;
-  if (part.fieldKey.endsWith("/signature/inspector")) return referenceValues.__qc_ref_inspector;
-  if (part.fieldKey.endsWith("/signature/reviewer")) return referenceValues.__qc_ref_reviewer;
-  return undefined;
-}
-
-function fieldDefinition(fieldModel: FieldModel, fieldKey: string) {
-  if (Array.isArray(fieldModel.fields)) return fieldModel.fields.find((field) => field.fieldKey === fieldKey || field.key === fieldKey);
-  return fieldModel.fields[fieldKey];
-}
-
-function normalizedInputType(rawInputType: string, options?: string[]) {
-  if (rawInputType === "number") return "text";
-  if (rawInputType === "field") return options?.length ? "select" : "text";
-  if (rawInputType === "boolean") return "radio";
-  return rawInputType;
-}
-
-function inferredValueType(part: EditorSlotInline, field: ReturnType<typeof fieldDefinition>, rawInputType: string) {
-  if (part.withTime || rawInputType === "datetime") return "datetime";
-  if (rawInputType === "date" || part.type === "dateSlot" || field?.type === "date") return "date";
-  if (rawInputType === "boolean" || field?.type === "boolean") return "boolean";
-  if (rawInputType === "checkbox") return "array";
-  if (part.inputType === "number" || field?.inputType === "number" || field?.type === "number") return "number";
-  if (field?.type === "line" || field?.type === "field") return "text";
-  return field?.type;
 }

@@ -51,11 +51,16 @@ const checks: Check[] = [
     file: "packages/work/server/work-okr-control.ts",
     includes: [
       "resolveEffectiveWorkOkrControl",
-      "parseBoundWorkOkrControl",
-      "不能读取当前全局日期规则补齐",
+      "resolveWorkflowPolicy({",
+      "目标申报尚未开放",
+      "结果申报尚未开放",
       "if (stored) return serviceOk(stored);",
     ],
-    excludes: ["stored && plan.targetType !== \"personal\""],
+    excludes: [
+      "stored && plan.targetType !== \"personal\"",
+      "当前 OKR 周期已锁定",
+      "getWorkOkrCyclePlanningWindow",
+    ],
   },
   {
     file: "packages/work/server/domain/work-okr-bound-control.ts",
@@ -63,19 +68,13 @@ const checks: Check[] = [
   },
   {
     file: "packages/work/server/domain/work-plan-maintenance-policy.ts",
-    includes: ["validateWorkPlanReopenTransition", "timeControlEnabled"],
-  },
-  {
-    file: "packages/work/server/work-okr-stage.ts",
-    includes: ["timeControlEnabled: isBoundWorkOkrTimeControlEnabled(plan.governanceSnapshotJson)"],
-  },
-  {
-    file: "packages/work/server/work-plan-dto.ts",
-    includes: ["timeControlEnabled: isBoundWorkOkrTimeControlEnabled(row.governanceSnapshotJson)"],
+    includes: ["validateWorkPlanReopenTransition"],
+    excludes: ["timeControlEnabled", "input.status === \"done\"", "input.stage === \"closed\""],
   },
   {
     file: "packages/work/server/work-plans.ts",
-    includes: ["validateWorkPlanReopenTransition({"],
+    includes: ["validateWorkPlanReopenTransition({", "directTargetRevision:"],
+    excludes: ["resolveReopenedWorkPlanLifecycle"],
   },
   {
     file: "packages/work/server/work-plan-route-command.ts",
@@ -95,14 +94,17 @@ const checks: Check[] = [
   {
     file: "packages/work/server/task-approval-okr.ts",
     includes: [
-      "workPlanPreparedWorkflowBinding(existing, \"objective_submit\")",
-      "workPlanPreparedWorkflowBinding(existing, \"report_submit\")",
+      "const actionKind = targetFacet.action?.kind",
+      "const actionKind = resultFacet.action?.kind",
+      "workPlanPreparedWorkflowBinding(existing, actionKind)",
     ],
+    excludes: ["governance.governance.mode !== \"free_edit\""],
   },
   {
     file: "packages/work/server/task-approval-adapter.ts",
     includes: [
-      "workPlanPreparedWorkflowBinding(existing, \"objective_revise\")",
+      "const actionKind = targetFacet.action?.kind",
+      "workPlanPreparedWorkflowBinding(existing, actionKind)",
       "validateReportApprovalPayload(reportPayload, { actionKind })",
     ],
   },
@@ -147,12 +149,57 @@ const checks: Check[] = [
   {
     file: "packages/work/server/work-plan-governance.ts",
     includes: [
-      "不能按当前全局设置推断",
-      "不能按当前全局设置补齐",
+      "resolveBusinessActionRuntime",
+      "resolveWorkflowPolicy({",
+      "resolveWorkOkrGovernancePolicy",
       "approvalPayloadReferencesWorkPlan",
       "\"workPlanId\"",
     ],
-    excludes: ["const current = await resolveWorkflowPolicy"],
+  },
+  {
+    file: "packages/work/server/work-okr-stage.ts",
+    includes: ["objectiveApprovedAt: new Date()", "krApprovedAt: new Date()"],
+    excludes: [
+      "data: { okrStage: \"objective_submitted\"",
+      "data: { okrStage: \"kr_submitted\"",
+      "okrStage: \"closed\"",
+      "status: \"done\"",
+      "syncDueKrReview",
+      "当前阶段为",
+      "目标审查后计划头已锁定",
+    ],
+  },
+  {
+    file: "packages/work/server/work-plan-system-periods.ts",
+    excludes: ["getWorkOkrCyclePlanningWindow"],
+  },
+  {
+    file: "packages/work/ui/works/WorkReportPeriods.ts",
+    excludes: ["isLocked", "autoLock", "objectiveSubmitDeadline", "krSubmitDeadline", "okrStage"],
+  },
+  {
+    file: "packages/work/ui/works/WorkReportsPanel.tsx",
+    excludes: ["canUpdate", "isLocked", "autoLock"],
+  },
+  {
+    file: "packages/work/server/task-reports.ts",
+    includes: ["canEdit: actionRuntime.data.editability === \"editable\""],
+  },
+  {
+    file: "packages/work/ui/works/WorkKpiPanel.tsx",
+    excludes: ["actionPermissions.canUpdate && plan?.governance?.facets"],
+  },
+  {
+    file: "packages/work/ui/works/useOkrStageControls.ts",
+    excludes: ["targetEditable && resultEditable"],
+  },
+  {
+    file: "packages/work/ui/works/works-client-helpers.tsx",
+    excludes: ["facets.target.editable && facets.result.editable"],
+  },
+  {
+    file: "packages/work/ui/works/WorkOkrSettingsPanel.tsx",
+    excludes: ["governanceMigration", "计划可编辑范围仍由计划阶段"],
   },
 ];
 

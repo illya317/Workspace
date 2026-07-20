@@ -17,7 +17,6 @@ export function createWorkToolbarItems({
   planPageToolbarItem,
   reportToolbarItems,
   settingsToolbarItems,
-  onOpenDrawer,
   onToggleSide,
   onPlanPeriodFilterChange,
   onStatusFilterChange,
@@ -30,7 +29,6 @@ export function createWorkToolbarItems({
   planPageToolbarItem: SurfaceToolbarItem;
   reportToolbarItems: SurfaceToolbarItems;
   settingsToolbarItems: SurfaceToolbarItems;
-  onOpenDrawer: () => void;
   onToggleSide: () => void;
   onPlanPeriodFilterChange: (value: WorkPlanPeriodFilter) => void;
   onStatusFilterChange: (value: WorkStatusFilter) => void;
@@ -41,7 +39,6 @@ export function createWorkToolbarItems({
     ...spaceWorkbenchPanelToolbarItems({
       label: activeTab === "work-reporting" ? "汇报周期" : activeTab === "reports" ? "考核周期" : activeTab === "tasks" ? "工作计划" : "工作空间",
       open: sideOpen,
-      onOpenDrawer,
       onToggleSide,
     }),
     ...(activeTab === "tasks" ? [

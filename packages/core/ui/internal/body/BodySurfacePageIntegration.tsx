@@ -59,14 +59,6 @@ function splitPageToolbarItems(body?: BodySurfaceProps): SurfaceToolbarItems {
   return [
     {
       kind: "panel-toggle",
-      key: "mobile-side-toggle",
-      icon: "panel-open",
-      label: `显示${split.sideLabel}`,
-      onClick: () => split.onDrawerOpenChange(true),
-      visibility: "mobile",
-    },
-    {
-      kind: "panel-toggle",
       key: "desktop-side-toggle",
       icon: split.sideOpen ? "panel-close" : "panel-open",
       label: `${split.sideOpen ? "隐藏" : "显示"}${split.sideLabel}`,
@@ -142,19 +134,19 @@ export function renderBodySurfaceDirectory(body: BodySurfaceProps | undefined, s
     return (
       <div key={section?.key} className="flex w-full flex-col items-center justify-center">
         {(grid.leading || grid.title || grid.summary) && (
-          <div className="mb-8 flex flex-col items-center">
+          <div className="mb-5 flex w-full flex-col items-start sm:mb-8 sm:items-center">
             {grid.leading}
-            {grid.title ? <h1 className="mt-4 text-2xl font-bold text-gray-800">{grid.title}</h1> : null}
-            {grid.summary ? <p className="mt-1 text-center text-sm text-gray-500">{grid.summary}</p> : null}
+            {grid.title ? <h1 className="mt-3 text-xl font-bold tracking-tight text-gray-800 sm:mt-4 sm:text-2xl">{grid.title}</h1> : null}
+            {grid.summary ? <p className="mt-1 text-left text-sm text-gray-500 sm:text-center">{grid.summary}</p> : null}
           </div>
         )}
-        <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid w-full max-w-4xl grid-cols-4 gap-x-2 gap-y-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {grid.items.map((item) => {
             const { key, ...props } = item;
             return <ModuleCard key={key} {...props} />;
           })}
         </div>
-        {grid.afterGrid ? <div className="mt-8 w-full max-w-4xl">{grid.afterGrid}</div> : null}
+        {grid.afterGrid ? <div className="mt-6 w-full max-w-4xl sm:mt-8">{grid.afterGrid}</div> : null}
       </div>
     );
   }

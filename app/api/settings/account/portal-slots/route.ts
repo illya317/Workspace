@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
+import { MAX_PORTAL_SLOTS } from "@workspace/platform/portal-preferences";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import {
@@ -13,7 +14,7 @@ const portalSlotSchema = z.object({
 });
 
 const updatePortalSlotsSchema = z.object({
-  slots: z.array(portalSlotSchema).max(9),
+  slots: z.array(portalSlotSchema).max(MAX_PORTAL_SLOTS),
 });
 
 async function requireSessionUser(request: Request) {

@@ -1,0 +1,95 @@
+/// KPI 指标定义版本（事实表，来源于 Work 指标库手工维护）
+model WorkKpiDefinition {
+  id                         Int                 @id @default(autoincrement())
+  code                       String
+  version                    Int                 @default(1)
+  status                     String              @default("draft")
+  name                       String
+  description                String              @default("")
+  valueType                  String              @default("number")
+  displayType                String              @default("number")
+  unit                       String              @default("")
+  direction                  String              @default("higher_is_better")
+  defaultScoringRuleJson     String              @default("{}")
+  measurementMode            String              @default("manual")
+  ownerDepartmentId          Int
+  createdByUserId            Int
+  createdAt                  DateTime            @default(now())
+  updatedAt                  DateTime            @default(now()) @updatedAt
+  ownerDepartment            Department          @relation(fields: [ownerDepartmentId], references: [id], onDelete: Restrict)
+  createdByUser              User                @relation("WorkKpiDefinitionCreator", fields: [createdByUserId], references: [id], onDelete: Restrict)
+  assignments                WorkKpiAssignment[]
+
+  @@unique([code, version])
+  @@index([status, ownerDepartmentId])
+  @@index([ownerDepartmentId, name])
+  @@index([createdByUserId])
+}
+
+/// 周期 KPI 指标分配（事实表，来源于 Work 周期计分卡填报/确认）
+model WorkKpiAssignment {
+  id                       Int                     @id @default(autoincrement())
+  workPlanId               Int
+  definitionId             Int
+  workItemId               Int                     @unique
+  ownerEmployeeId          Int
+  sourceAssignmentId       Int?
+  relationKind             String                  @default("direct")
+  weight                   Decimal                 @db.Decimal(20, 6)
+  baselineValue            Decimal?                @db.Decimal(20, 6)
+  targetValue              Decimal?                @db.Decimal(20, 6)
+  targetLowerBound         Decimal?                @db.Decimal(20, 6)
+  targetUpperBound         Decimal?                @db.Decimal(20, 6)
+  currentValue             Decimal?                @db.Decimal(20, 6)
+  definitionSnapshotJson   String                  @default("{}")
+  scoringRuleSnapshotJson  String                  @default("{}")
+  version                  Int                     @default(1)
+  updatedByUserId          Int
+  createdAt                DateTime                @default(now())
+  updatedAt                DateTime                @default(now()) @updatedAt
+  workPlan                 WorkPlan                @relation(fields: [workPlanId], references: [id], onDelete: Cascade)
+  definition               WorkKpiDefinition       @relation(fields: [definitionId], references: [id], onDelete: Restrict)
+  workItem                 WorkItem                @relation(fields: [workItemId], references: [id], onDelete: Restrict)
+  ownerEmployee            Employee                @relation(fields: [ownerEmployeeId], references: [id], onDelete: Restrict)
+  sourceAssignment         WorkKpiAssignment?      @relation("WorkKpiAssignmentSource", fields: [sourceAssignmentId], references: [id], onDelete: SetNull)
+  derivedAssignments       WorkKpiAssignment[]     @relation("WorkKpiAssignmentSource")
+  updatedByUser            User                    @relation("WorkKpiAssignmentUpdater", fields: [updatedByUserId], references: [id], onDelete: Restrict)
+  resultSnapshots          WorkKpiResultSnapshot[]
+
+  @@unique([workPlanId, definitionId])
+  @@index([workPlanId, ownerEmployeeId])
+  @@index([definitionId])
+  @@index([ownerEmployeeId])
+  @@index([sourceAssignmentId])
+  @@index([updatedByUserId])
+}
+
+/// KPI 结果版本快照（事实表，来源于 Work 考核结果直接确认或审批通过）
+model WorkKpiResultSnapshot {
+  id                       Int                    @id @default(autoincrement())
+  assignmentId             Int
+  workReportId             Int
+  version                  Int                    @default(1)
+  previousSnapshotId       Int?
+  actualValue              Decimal                @db.Decimal(20, 6)
+  scoreBeforeAdjustment    Decimal                @db.Decimal(20, 6)
+  confirmedScore           Decimal                @db.Decimal(20, 6)
+  adjustmentReason         String                 @default("")
+  definitionSnapshotJson   String                 @default("{}")
+  assignmentSnapshotJson   String                 @default("{}")
+  scoringRuleSnapshotJson  String                 @default("{}")
+  evidenceSnapshotJson     String                 @default("{}")
+  approvedByUserId         Int
+  approvedAt               DateTime               @default(now())
+  createdAt                DateTime               @default(now())
+  assignment               WorkKpiAssignment      @relation(fields: [assignmentId], references: [id], onDelete: Restrict)
+  workReport               WorkReport             @relation(fields: [workReportId], references: [id], onDelete: Restrict)
+  previousSnapshot         WorkKpiResultSnapshot? @relation("WorkKpiResultSnapshotPrevious", fields: [previousSnapshotId], references: [id], onDelete: Restrict)
+  nextSnapshots            WorkKpiResultSnapshot[] @relation("WorkKpiResultSnapshotPrevious")
+  approvedByUser           User                   @relation("WorkKpiResultSnapshotApprover", fields: [approvedByUserId], references: [id], onDelete: Restrict)
+
+  @@unique([assignmentId, version])
+  @@index([workReportId])
+  @@index([previousSnapshotId])
+  @@index([approvedByUserId, approvedAt])
+}

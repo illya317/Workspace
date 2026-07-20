@@ -3,7 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
 import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { matchAnyField } from "@workspace/platform/search";
 import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
 import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";

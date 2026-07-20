@@ -1,5 +1,4 @@
 import { Prisma } from "@workspace/platform/server/prisma";
-import { isBoundWorkOkrTimeControlEnabled } from "./domain/work-okr-bound-control";
 import { resolveWorkPlanMaintenance } from "./domain/work-plan-maintenance-policy";
 import { effectiveWorkOkrStage } from "./work-okr-stage";
 import type { WorkPlanItemStatusCounts } from "./domain/work-plan-item-state";
@@ -53,8 +52,8 @@ export function toWorkPlanDto(row: WorkPlanRow, input: {
       stage: okrStage,
       status: row.status,
       isArchived: row.isArchived,
-      timeControlEnabled: isBoundWorkOkrTimeControlEnabled(row.governanceSnapshotJson),
     }),
+    governance: null,
     objectiveSubmittedAt: row.objectiveSubmittedAt?.toISOString() ?? null,
     objectiveApprovedAt: row.objectiveApprovedAt?.toISOString() ?? null,
     objectiveApprovedByUserId: row.objectiveApprovedByUserId,

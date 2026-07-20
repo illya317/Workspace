@@ -243,6 +243,10 @@
 | secretariedMeetings | Meeting[] | @relation("MeetingSecretary") |  |
 | meetingParticipations | MeetingParticipant[] | @relation("MeetingParticipantUser") |  |
 | meetingVotes | MeetingVote[] | @relation("MeetingVoteUser") |  |
+| mutationImpactBatches | MutationImpactBatch[] | @relation("MutationImpactBatchActor") |  |
+| createdKpiDefinitions | WorkKpiDefinition[] | @relation("WorkKpiDefinitionCreator") |  |
+| updatedKpiAssignments | WorkKpiAssignment[] | @relation("WorkKpiAssignmentUpdater") |  |
+| approvedKpiResultSnapshots | WorkKpiResultSnapshot[] | @relation("WorkKpiResultSnapshotApprover") |  |
 
 ### Resource
 
@@ -1791,7 +1795,7 @@
 | finalScore | Int | - |  |
 | finalGrade | String | - |  |
 | hrComment | String | @default("") |  |
-| okrSnapshotJson | String | @default("{ |  |
+| workEvidenceSnapshotJson | String | @default("{ |  |
 
 ### Employee
 
@@ -1831,6 +1835,7 @@
 | financeShipments | FinanceShipment[] | - |  |
 | financeWorkshopReports | FinanceWorkshopReport[] | - |  |
 | performanceReviews | HrPerformanceReview[] | - |  |
+| ownedKpiAssignments | WorkKpiAssignment[] | - |  |
 
 ### Employment
 
@@ -1936,6 +1941,7 @@
 | edps | EDP[] | - |  |
 | positions | Position[] | - |  |
 | positionReportOverrides | PositionReportOverride[] | - |  |
+| ownedKpiDefinitions | WorkKpiDefinition[] | - |  |
 
 ### DepartmentManagerEmployee
 
@@ -2823,6 +2829,54 @@
 | tag | LibraryTag | @relation(fields: [tagId], references: [id], onDelete: Cascade) |  |
 | creator | User? | @relation("LibraryDocumentTagCreator", fields: [createdBy], references: [id], onDelete: SetNull) |  |
 
+### MutationImpactBatch
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(uuid()) |  |
+| actorUserId | Int? | - |  |
+| actorLabel | String? | - |  |
+| scopeType | String? | - |  |
+| scopeId | String? | - |  |
+| requestId | String? | - |  |
+| rootEntityType | String | - |  |
+| rootEntityId | String | - |  |
+| intent | String | - |  |
+| policyRevision | String | - |  |
+| impactFingerprint | String | - |  |
+| resolutionsJson | String | @default("[]") | 仅保存 relationKey + resolution 的允许列表 |
+| status | String | @default("pending") | pending, succeeded, failed, stale_confirmation |
+| resultCode | String? | - |  |
+| resultMessage | String? | - |  |
+| sourceBatchId | String? | - | restore 批次指向其使用的 archive provenance 批次 |
+| startedAt | DateTime | @default(now()) |  |
+| finishedAt | DateTime? | - |  |
+| actor | User? | @relation("MutationImpactBatchActor", fields: [actorUserId], references: [id], onDelete: SetNull) |  |
+| sourceBatch | MutationImpactBatch? | @relation("MutationImpactBatchProvenance", fields: [sourceBatchId], references: [id], onDelete: Restrict) |  |
+| derivedBatches | MutationImpactBatch[] | @relation("MutationImpactBatchProvenance") |  |
+| effects | MutationImpactEffect[] | - |  |
+
+### MutationImpactEffect
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| batchId | String | - |  |
+| sequence | Int | - |  |
+| relationKey | String | - |  |
+| relationPathJson | String | @default("[]") | 从 root 到 effect 的 relationKey 有序列表 |
+| policyKey | String | - |  |
+| entityType | String | - |  |
+| entityId | String | - |  |
+| operation | String | - |  |
+| beforeRevision | String? | - | adapter 提供的版本、updatedAt 或稳定状态指纹 |
+| afterRevision | String? | - | restore 前必须与当前 revision 重新比较 |
+| beforeSummaryJson | String? | - | 仅允许模块声明的非敏感摘要字段 |
+| afterSummaryJson | String? | - | 仅允许模块声明的非敏感摘要字段 |
+| changedInBatch | Boolean | @default(false) | false 表示已处于目标状态，本批次未改写 |
+| createdAt | DateTime | @default(now()) |  |
+| batch | MutationImpactBatch | @relation(fields: [batchId], references: [id], onDelete: Cascade) |  |
+
 ### OpenApiClient
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -2976,6 +3030,56 @@
 | createdAt | DateTime | @default(now()) |  |
 | collaboration | DepartmentCollaboration | @relation(fields: [collaborationId], references: [id], onDelete: Cascade) |  |
 | position | Position | @relation(fields: [positionId], references: [id], onDelete: Cascade) |  |
+
+### WorkKpiDefinition
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| code | String | - |  |
+| version | Int | @default(1) |  |
+| status | String | @default("draft") |  |
+| name | String | - |  |
+| description | String | @default("") |  |
+| valueType | String | @default("number") |  |
+| displayType | String | @default("number") |  |
+| unit | String | @default("") |  |
+| direction | String | @default("higher_is_better") |  |
+| defaultScoringRuleJson | String | @default("{ |  |
+
+### WorkKpiAssignment
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| workPlanId | Int | - |  |
+| definitionId | Int | - |  |
+| workItemId | Int | @unique |  |
+| ownerEmployeeId | Int | - |  |
+| sourceAssignmentId | Int? | - |  |
+| relationKind | String | @default("direct") |  |
+| weight | Decimal | @db.Decimal(20, 6) |  |
+| baselineValue | Decimal? | @db.Decimal(20, 6) |  |
+| targetValue | Decimal? | @db.Decimal(20, 6) |  |
+| targetLowerBound | Decimal? | @db.Decimal(20, 6) |  |
+| targetUpperBound | Decimal? | @db.Decimal(20, 6) |  |
+| currentValue | Decimal? | @db.Decimal(20, 6) |  |
+| definitionSnapshotJson | String | @default("{ |  |
+
+### WorkKpiResultSnapshot
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| assignmentId | Int | - |  |
+| workReportId | Int | - |  |
+| version | Int | @default(1) |  |
+| previousSnapshotId | Int? | - |  |
+| actualValue | Decimal | @db.Decimal(20, 6) |  |
+| scoreBeforeAdjustment | Decimal | @db.Decimal(20, 6) |  |
+| confirmedScore | Decimal | @db.Decimal(20, 6) |  |
+| adjustmentReason | String | @default("") |  |
+| definitionSnapshotJson | String | @default("{ |  |
 
 ### MeetingType
 
@@ -3433,6 +3537,7 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | submitter | User | @relation("WorkReportSubmitter", fields: [submittedBy], references: [id], onDelete: Cascade) |  |
 | items | WorkReportItem[] | - |  |
+| kpiResultSnapshots | WorkKpiResultSnapshot[] | - |  |
 
 ### WorkReportItem
 
@@ -3606,6 +3711,7 @@
 | isPrivate | Boolean | @default(false) |  |
 | sortOrder | Int | @default(0) |  |
 | createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
 | plan | WorkPlan? | @relation(fields: [planId], references: [id], onDelete: Cascade) |  |
 | participants | WorkParticipant[] | - |  |
 | owner | Employee? | @relation("WorkItemOwner", fields: [ownerEmployeeId], references: [id], onDelete: SetNull) |  |
@@ -3628,6 +3734,7 @@
 | krEvidenceTasks | WorkKrEvidence[] | @relation("WorkKrEvidenceKr") |  |
 | taskEvidenceForKrs | WorkKrEvidence[] | @relation("WorkKrEvidenceTask") |  |
 | responsibilityReferences | WorkResponsibilityReference[] | - |  |
+| kpiAssignment | WorkKpiAssignment? | - |  |
 
 ### WorkKrEvidence
 

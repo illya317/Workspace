@@ -26,15 +26,17 @@
 当前已接入：
 
 1. `packages/production/server/qc/` 读取已发布的 docs editor QC 官方模板，并在创建批次时固化模板快照。
-2. `packages/production/ui/qc/` 承载 QC 批次、检验记录和纸面布局 UI；`app/(modules)/production/qc/*` route 只做鉴权、必要预取和挂载 package component。
+2. `packages/production/ui/qc/` 承载 QC 批次与检验记录 UI；桌面端保留纸面预览，移动端把同一 document slice 映射为原生章节表单。`app/(modules)/production/qc/*` route 只做鉴权、必要预取和挂载 package component。
 3. `/production/qc` 提供批次创建、批次台账、检验状态和记录入口。
 4. `/production/qc` 展示批次队列和当前批次阶段入口；不再保留独立的 `/production/qc/[batchId]` 中间页。
-5. `/production/qc/[batchId]/[stageKey]` 使用 docs editor document 的阶段切片展示检验前确认表；同阶段检验前确认和检测项目是一个记录工作台的平级页签，不互相作为解锁前置。
-6. `/production/qc/[batchId]/[stageKey]/[testName]` 使用 docs editor document 的检验项目切片展示纸面记录；公式和引用由 docs field model 驱动，Production 不再保留独立纸面 renderer。
+5. `/production/qc/[batchId]/[stageKey]` 使用 docs editor document 的阶段切片展示检验前确认；桌面端显示纸面记录，移动端先选章节再进入满宽字段表单。同阶段检验前确认和检测项目是一个记录工作台的平级页签，不互相作为解锁前置。
+6. `/production/qc/[batchId]/[stageKey]/[testName]` 使用 docs editor document 的检验项目切片展示记录；桌面端保留纸面预览，移动端按标题、表格行和字段模型转换成章节化原生表单。公式、引用、只读、选项、字段值和保存/复核仍由同一 docs field model 与 QC workflow 驱动，不另建移动端数据协议。
 7. `/api/modules/production/qc*` 提供 JSON 批次台账读写接口。
 8. `/docs/editor` 把 `generated/production/qc/template-snapshots` 中的 QC 官方模板快照同步到质量控制部部门空间，负责模板空间、纸面编辑、复制、发布和权限管理。
 
 QC 批次页面只使用批次固化的 docs editor 模板快照。模板编辑器入口不再通过 Production L2 暴露。
+
+QC 记录页的响应式边界是展示层边界：`QcEditorRuntimePaper` 只在桌面 section 渲染，`QcEditorRuntimeMobile` 只在移动 section 渲染；两者必须复用 `qc-editor-runtime-field` 的字段解析和同一 `values/onFieldChange`，不能分别保存、计算或定义字段。移动端章节目录使用 Core `BodySurface.mobilePresentation="drilldown"`，避免缩放 A4、横向表格或一次铺开整份记录。
 
 后续迁移目标：
 

@@ -16,6 +16,7 @@ Usage:
 
 Options:
   --check       Check system commands, OCR languages and Python packages only.
+  --quick-check Verify the installed versions without importing heavy OCR runtimes.
   --smoke       Run a real image-only PDF -> OCR -> searchable PDF smoke test.
   --local       Require macOS/Homebrew installation behavior.
   --server      Require Ubuntu/Debian installation behavior.
@@ -31,6 +32,7 @@ EOF
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --check) MODE="check" ;;
+    --quick-check) MODE="quick-check" ;;
     --smoke) RUN_SMOKE=1 ;;
     --local) TARGET="local" ;;
     --server) TARGET="server" ;;
@@ -169,14 +171,15 @@ install_python_packages() {
 }
 
 check_runtime() {
-  local missing=0
+  local quick_check="${1:-0}"
+  local runtime_missing=0
   local command_name
   for command_name in ccache tesseract ocrmypdf qpdf gs pdftotext pdfinfo; do
     if command -v "$command_name" >/dev/null 2>&1; then
       echo "$command_name=$(command -v "$command_name")"
     else
       echo "[error] missing command: $command_name"
-      missing=1
+      runtime_missing=1
     fi
   done
 
@@ -187,16 +190,23 @@ check_runtime() {
     for language in eng chi_sim chi_tra; do
       if ! printf '%s\n' "$languages" | grep -qx "$language"; then
         echo "[error] missing Tesseract language: $language"
-        missing=1
+        runtime_missing=1
       fi
     done
   fi
 
   if [ ! -x "$VENV_DIR/bin/python" ]; then
     echo "[error] missing library worker venv: $VENV_DIR"
-    missing=1
+    runtime_missing=1
   else
-    LIBRARY_REQUIREMENTS_FILE="$REQUIREMENTS_FILE" PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True "$VENV_DIR/bin/python" - <<'PY' || missing=1
+    local expected_hash
+    local marker="$VENV_DIR/.workspace-library-requirements.sha256"
+    expected_hash="$(hash_file "$REQUIREMENTS_FILE")"
+    if [ ! -f "$marker" ] || [ "$(tr -d '\r\n' < "$marker")" != "$expected_hash" ]; then
+      echo "[error] library runtime requirements marker is missing or stale"
+      runtime_missing=1
+    fi
+    LIBRARY_REQUIREMENTS_FILE="$REQUIREMENTS_FILE" LIBRARY_QUICK_CHECK="$quick_check" PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK=True "$VENV_DIR/bin/python" - <<'PY' || runtime_missing=1
 import importlib
 import importlib.metadata
 import os
@@ -217,8 +227,10 @@ modules = {
     "torch": "torch",
     "torchvision": "torchvision",
 }
+quick_check = os.environ.get("LIBRARY_QUICK_CHECK") == "1"
 for module, distribution in modules.items():
-    importlib.import_module(module)
+    if not quick_check:
+        importlib.import_module(module)
     print(f"{distribution}={importlib.metadata.version(distribution)}")
 
 for raw_line in Path(os.environ["LIBRARY_REQUIREMENTS_FILE"]).read_text().splitlines():
@@ -230,10 +242,10 @@ for raw_line in Path(os.environ["LIBRARY_REQUIREMENTS_FILE"]).read_text().splitl
     if actual != expected:
         raise RuntimeError(f"{distribution} expected {expected}, got {actual}")
 PY
-    "$VENV_DIR/bin/python" -m pip check || missing=1
+    "$VENV_DIR/bin/python" -m pip check || runtime_missing=1
   fi
 
-  if [ "$missing" -ne 0 ]; then
+  if [ "$runtime_missing" -ne 0 ]; then
     return 1
   fi
   echo "Library OCR/PDF runtime dependency check passed."
@@ -249,7 +261,11 @@ if [ "$MODE" = "install" ]; then
   install_python_packages "$PYTHON_BIN"
 fi
 
-check_runtime
+if [ "$MODE" = "quick-check" ]; then
+  check_runtime 1
+else
+  check_runtime 0
+fi
 
 if [ "$RUN_SMOKE" = "1" ]; then
   echo "==> Running library OCR/PDF smoke test"

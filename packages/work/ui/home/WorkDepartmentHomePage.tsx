@@ -149,7 +149,6 @@ export function WorkDepartmentHomePageView({
   const toolbarItems: SurfaceToolbarItems = spaceWorkbenchPanelToolbarItems({
     label: "组织层级",
     open: sideOpen,
-    onOpenDrawer: () => setDrawerOpen(true),
     onToggleSide: () => setSideOpen(!sideOpen),
   });
 

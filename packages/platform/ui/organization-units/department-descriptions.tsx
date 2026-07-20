@@ -306,7 +306,6 @@ export function createDepartmentDescriptionDetailsSections({
     const records = Array.isArray(parsedDetails[key]) ? parsedDetails[key] as Array<Record<string, unknown>> : [];
     return responsibilityFrameSectionSpec({
       sectionKey: "duty-description",
-      sectionTitle: "部门职责描述",
       key,
       title: "部门职责描述",
       records,

@@ -1,8 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent, type ReactNode } from "react";
-import { BotMessageSquare, Plus, X } from "lucide-react";
-import { NavigationContextSelector, PageAssistantProvider as CorePageAssistantProvider, type PageAssistantOpenInput } from "@workspace/core/ui";
+import { ActionGlyph, NavigationContextSelector, PageAssistantProvider as CorePageAssistantProvider, type PageAssistantOpenInput } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
 
 import { PageAssistantComposer } from "./page-assistant/PageAssistantComposer";
@@ -425,14 +424,14 @@ function PageAssistantPanel({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-3 bottom-3 z-50 sm:inset-x-auto sm:right-5 sm:w-[420px]">
+    <div className="fixed inset-0 z-50 sm:inset-x-auto sm:bottom-3 sm:left-auto sm:right-5 sm:top-auto sm:w-[420px]">
       <section
         aria-label="页面助手"
-        className="flex h-[min(620px,calc(100vh-7rem))] min-h-[420px] flex-col overflow-hidden rounded-lg border border-slate-200 bg-white shadow-2xl"
+        className="flex h-[100dvh] flex-col overflow-hidden bg-white sm:h-[min(620px,calc(100vh-7rem))] sm:min-h-[420px] sm:rounded-lg sm:border sm:border-slate-200 sm:shadow-2xl"
       >
-        <header className="flex items-start gap-3 border-b border-slate-200 px-4 py-3">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
-            <BotMessageSquare aria-hidden="true" className="h-5 w-5" strokeWidth={1.9} />
+        <header className="flex items-center gap-2 border-b border-slate-200 px-3 pb-3 pt-[calc(0.75rem+env(safe-area-inset-top))] sm:items-start sm:gap-3 sm:px-4 sm:py-3">
+          <div className="hidden h-9 w-9 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700 sm:flex">
+            <ActionGlyph kind="assistant" className="size-5" />
           </div>
           <div className="min-w-0 flex-1">
             <div className="flex min-w-0 items-center gap-2">
@@ -448,18 +447,19 @@ function PageAssistantPanel({
             title="新会话"
             aria-label="新会话"
             onClick={startNewSession}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+            className="flex size-11 shrink-0 items-center justify-center rounded-xl text-slate-500 active:bg-slate-100 sm:size-9 sm:rounded-md sm:border sm:border-slate-200 sm:hover:bg-slate-50 sm:hover:text-slate-800"
           >
-            <Plus aria-hidden="true" className="h-4 w-4" />
+            <ActionGlyph kind="add" className="size-5 sm:size-4" />
           </button>
           <button
             type="button"
             title="关闭"
             aria-label="关闭页面助手"
             onClick={onClose}
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border border-slate-200 text-slate-500 hover:bg-slate-50 hover:text-slate-800"
+            className="order-first flex size-11 shrink-0 items-center justify-center rounded-xl text-slate-600 active:bg-slate-100 sm:order-none sm:size-9 sm:rounded-md sm:border sm:border-slate-200 sm:text-slate-500 sm:hover:bg-slate-50 sm:hover:text-slate-800"
           >
-            <X aria-hidden="true" className="h-4 w-4" />
+            <ActionGlyph kind="back" className="size-6 sm:hidden" />
+            <ActionGlyph kind="x" className="hidden size-4 sm:block" />
           </button>
         </header>
 

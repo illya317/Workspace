@@ -2,16 +2,25 @@
 
 import { joinClassNames } from "../common/card-utils";
 import type { ControlSize } from "../common/interactionTokens";
-import { getToolbarItemActionBoundary, getToolbarItemActionOrder, ToolbarDivider, ToolbarItemRenderer } from "./Toolbar.parts";
+import {
+  getToolbarItemActionBoundary,
+  getToolbarItemActionOrder,
+  ToolbarDivider,
+  ToolbarItemRenderer,
+} from "./Toolbar.parts";
 import { inferZone, resolveSection } from "./Toolbar.sections";
-import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarZoneKey } from "./Toolbar.types";
+import { filterToolbarItemsByViewport } from "./toolbar-item-visibility";
+import type { ToolbarItem, ToolbarLayoutMode, ToolbarSection, ToolbarVisibility, ToolbarZoneKey } from "./Toolbar.types";
 
 export const SECTION_ORDER: ToolbarSection[] = ["primary", "search", "filter", "edit", "action", "meta", "view"];
 
 type SectionWithItems = { key: ToolbarSection; items: ToolbarItem[] };
 export type ToolbarGroupedItems = Record<ToolbarZoneKey, ToolbarItem[]>;
 
-export function groupToolbarItems(items: ToolbarItem[]): ToolbarGroupedItems {
+export function groupToolbarItems(
+  items: ToolbarItem[],
+  viewport?: Exclude<ToolbarVisibility, "always">,
+): ToolbarGroupedItems {
   const result: ToolbarGroupedItems = {
     lead: [],
     search: [],
@@ -19,7 +28,7 @@ export function groupToolbarItems(items: ToolbarItem[]): ToolbarGroupedItems {
     actions: [],
     trailing: [],
   };
-  for (const item of items) {
+  for (const item of filterToolbarItemsByViewport(items, viewport)) {
     result[inferZone(item)].push(item);
   }
   return result;
@@ -57,7 +66,7 @@ function renderSectionGroup(
   return sections.map((section) => (
     <div
       key={section.key}
-      className={joinClassNames("flex shrink-0 items-center", gapClass)}
+      className={joinClassNames("flex shrink-0 items-center max-sm:w-full max-sm:flex-wrap", gapClass)}
     >
       {section.items.map((item, index) => {
         const previous = section.items[index - 1];
@@ -95,7 +104,7 @@ function ZoneGroup({
   if (!hasSections(sections)) return null;
   return (
     <div className={joinClassNames(
-      "flex min-w-0 flex-nowrap items-center gap-3",
+      "flex min-w-0 flex-nowrap items-center gap-3 max-sm:w-full max-sm:flex-wrap max-sm:gap-2",
       overflow === "hidden" ? "overflow-hidden" : "overflow-visible",
       className,
     )}>
@@ -127,8 +136,8 @@ export function CompactToolbarContent({
   const hasTrailing = hasSections(metaSections) || hasSections(otherTrailingSections);
 
   return (
-    <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible">
-      <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible">
+    <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-col max-sm:items-stretch max-sm:gap-2">
+      <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
         <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} className="shrink-0" />
         {hasLead && hasSearchOrFilter && <ToolbarDivider />}
         <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink" />
@@ -137,7 +146,7 @@ export function CompactToolbarContent({
         <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
       </div>
       {hasTrailing && (
-        <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible">
+        <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible max-sm:ml-0 max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
           <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} className="shrink-0" />
           {hasSections(metaSections) && hasSections(otherTrailingSections) && <ToolbarDivider />}
           <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} className="shrink-0" />
@@ -172,21 +181,21 @@ function SplitToolbarContent({
 
   return (
     <div className="flex w-full min-w-0 flex-col gap-2 overflow-visible">
-      <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible">
-        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible">
+      <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-wrap max-sm:gap-2">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
           <ZoneGroup sections={leadSections} size={size} gapClass={gapClass} className="shrink-0" />
           {hasLead && hasFilter && <ToolbarDivider />}
           <ZoneGroup sections={filterSections} size={size} gapClass={gapClass} className="shrink" />
         </div>
       </div>
-      <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible">
-        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible">
+      <div className="flex w-full min-w-0 flex-nowrap items-center gap-3 overflow-visible max-sm:flex-wrap max-sm:gap-2">
+        <div className="flex min-w-0 flex-1 flex-nowrap items-center gap-3 overflow-visible max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
           <ZoneGroup sections={searchSections} size={size} gapClass={gapClass} className="shrink" />
           {hasSearch && hasActions && <ToolbarDivider />}
           <ZoneGroup sections={actionSections} size={size} gapClass={gapClass} className="shrink-0" />
         </div>
         {hasTrailing && (
-          <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible">
+          <div className="ml-auto flex shrink-0 flex-nowrap items-center gap-3 overflow-visible max-sm:ml-0 max-sm:w-full max-sm:flex-wrap max-sm:gap-2">
             <ZoneGroup sections={metaSections} size={size} gapClass={gapClass} className="shrink-0" />
             {hasSections(metaSections) && hasSections(otherTrailingSections) && <ToolbarDivider />}
             <ZoneGroup sections={otherTrailingSections} size={size} gapClass={gapClass} className="shrink-0" />

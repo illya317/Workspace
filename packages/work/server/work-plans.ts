@@ -1,12 +1,12 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { isCompletedStatus, validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
 import { validateWorkPlanCommand, validateWorkPlanCycleBinding } from "./domain/work-plan-validation";
+import { validateSingleOkrPlanPerCycle } from "./domain/work-plan-cycle-validation";
 import { normalizeSourceType } from "./domain/work-item-source-validation";
 import {
   assertWorkPlanHeaderStageAllowed,
-  syncDueKrReviewForPlan,
-  syncDueKrReviewsForTarget,
 } from "./work-okr-stage";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import { ensureSystemOkrPeriodPlans, isWorkPlanVisibleInCurrentWindow, resolveDefaultPlanOwnerEmployeeId, standardOkrPlanTitle } from "./work-plan-system-periods";
@@ -21,18 +21,26 @@ import { validateWorkOwnerAssignment } from "./work-owner-eligibility";
 import { validateWorkCollaborationReference } from "./work-collaboration-references";
 import { toWorkPlanDto, workPlanInclude, type WorkPlanRow } from "./work-plan-dto";
 import {
-  assertWorkPlanCanComplete,
   listWorkPlanItemStatusCounts,
-  WorkCompletionBlockedError,
 } from "./domain/work-plan-item-state";
-import { validateWorkPlanReopenTransition } from "./domain/work-plan-maintenance-policy";
+import {
+  validateWorkPlanReopenTransition,
+} from "./domain/work-plan-maintenance-policy";
 import type { WorkPlanCommandInput } from "./domain/work-plan-command-input";
 import { getEffectiveWorkTaskActionPermissions } from "./access";
 import {
   buildWorkPlanGovernanceBinding,
-  resolveWorkPlanActionRuntime,
+  getWorkPlanOkrGovernance,
+  listWorkPlanActionRuntimeRequests,
+  resolveWorkPlanOkrGovernance,
   type WorkPlanGovernanceRow,
 } from "./work-plan-governance";
+import {
+  buildAuditedWorkMutationImpactEngine,
+  mutationImpactServiceError,
+  workMutationRoot,
+  type WorkMutationImpactContext,
+} from "./work-mutation-impact";
 const PLAN_STATUSES = new Set(["active", "done"]);
 const PLAN_KINDS = new Set(["okr", "routine"]);
 const PLAN_PERIOD_TYPES = new Set(["yearly", "half_year", "quarterly", "monthly"]);
@@ -130,7 +138,6 @@ export async function listWorkPlans(opts: {
   kind?: string;
   includeArchived?: boolean;
 }) {
-  await syncDueKrReviewsForTarget({ targetType: opts.targetType, targetId: opts.targetId });
   if (!opts.kind || opts.kind === "routine") {
     await ensureRoutineWorkPlan(opts.targetType, opts.targetId);
   }
@@ -150,35 +157,31 @@ export async function listWorkPlans(opts: {
   });
   const visibleRows = normalizeRoutinePlanRows(rows)
     .filter((row) => isWorkPlanVisibleInCurrentWindow(row, visibleOkrCycleIds));
-  const [itemStatusCounts, permissions] = await Promise.all([
+  const [itemStatusCounts, permissions, requestsByPlanId] = await Promise.all([
     listWorkPlanItemStatusCounts(prisma, visibleRows.map((row) => row.id)),
     getEffectiveWorkTaskActionPermissions(opts.actorUserId, opts.targetType, opts.targetId),
+    listWorkPlanActionRuntimeRequests(visibleRows.filter((row) => row.kind === "okr") as WorkPlanGovernanceRow[]),
   ]);
-  return Promise.all(visibleRows.map(async (row) => ({
-    ...toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(row.id) }),
-    actionRuntimes: row.kind === "okr" ? {
-      objectiveSubmit: await resolveWorkPlanActionRuntime({
-        plan: row as WorkPlanGovernanceRow,
-        kind: "objective_submit",
-        actor: {
-          userId: opts.actorUserId,
-          canDirectWrite: permissions.canUpdate,
-          canStartWorkflow: permissions.canSubmit,
-          canProcessWorkflow: permissions.canApprove,
-        },
-      }),
-      planRevision: await resolveWorkPlanActionRuntime({
-        plan: row as WorkPlanGovernanceRow,
-        kind: "objective_revise",
-        actor: {
-          userId: opts.actorUserId,
-          canDirectWrite: permissions.canUpdate,
-          canStartWorkflow: permissions.canSubmit,
-          canProcessWorkflow: permissions.canApprove,
-        },
-      }),
-    } : null,
-  })));
+  const actor = {
+    userId: opts.actorUserId,
+    canDirectWrite: permissions.canUpdate,
+    canStartWorkflow: permissions.canSubmit,
+    canProcessWorkflow: permissions.canApprove,
+  };
+  return Promise.all(visibleRows.map(async (row) => {
+    const dto = toWorkPlanDto(row, { itemStatusCounts: itemStatusCounts.get(row.id) });
+    if (row.kind !== "okr") return { ...dto, governance: null, actionRuntimes: null };
+    const runtime = await resolveWorkPlanOkrGovernance({
+      plan: row as WorkPlanGovernanceRow,
+      actor,
+      requests: requestsByPlanId.get(row.id),
+    });
+    return {
+      ...dto,
+      governance: runtime.governance,
+      actionRuntimes: runtime.actionRuntimes,
+    };
+  }));
 }
 
 async function ensureRoutineWorkPlan(targetType: string, targetId: number) {
@@ -227,7 +230,6 @@ function normalizeRoutinePlanRows(rows: WorkPlanRow[]) {
 }
 
 export async function getWorkPlanTargetMetadata(planId: number) {
-  await syncDueKrReviewForPlan(planId);
   return prisma.workPlan.findUnique({
     where: { id: planId },
     select: { targetType: true, targetId: true, status: true, okrStage: true, okrCycleId: true, okrControlScopeType: true, okrControlScopeId: true, krReviewOpensAt: true },
@@ -320,6 +322,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
       isMilestone: true,
       milestoneDate: true,
       sortOrder: true,
+      updatedAt: true,
     },
   });
   if (!existing) return { ok: false, error: "工作计划不存在", status: 404 };
@@ -331,11 +334,16 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (opts.status !== undefined && !isCompletedStatus(opts.status) && opts.actualEndDate) {
     return { ok: false, error: "请先选择已完成，再填写实际结束", status: 400 };
   }
+  const reopeningRuntime = existing.kind === "okr" && existing.status === "done" && opts.status === "active" && opts.actorUserId
+    ? await getWorkPlanOkrGovernance({ planId: id, actorUserId: opts.actorUserId })
+    : null;
   const reopenTransition = validateWorkPlanReopenTransition({
     kind: existing.kind,
     currentStatus: existing.status,
     requestedStatus: opts.status,
     updateGuard: opts.updateGuard,
+    directTargetRevision: reopeningRuntime?.governance.facets.target.editable === true
+      && reopeningRuntime.governance.facets.target.action?.runtime.executionMode === "direct",
   });
   if (!reopenTransition.ok) {
     return { ok: false, error: reopenTransition.issue.message, status: reopenTransition.issue.status };
@@ -351,7 +359,7 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
   if (!command.ok) return { ok: false, error: command.error, status: 400 };
   const nextKind = String(command.data.kind ?? existing.kind);
   if (nextKind === "okr" && opts.updateGuard !== "workflow-approved" && !reopeningCompletedPlan) {
-    const stageGuard = await assertWorkPlanHeaderStageAllowed(id);
+    const stageGuard = await assertWorkPlanHeaderStageAllowed(id, opts.actorUserId);
     if (!stageGuard.ok) return stageGuard;
   }
   const relationError = await validateWorkPlanRelations({
@@ -374,21 +382,39 @@ export async function updateWorkPlan(planId: number, opts: Partial<Parameters<ty
     alignment: command.alignment,
   });
   if (alignmentError) return { ok: false, error: alignmentError, status: 400 };
-  const updateData = reopeningCompletedPlan && existing.kind === "okr" ? { ...command.data, okrStage: "executing" } : command.data;
-  const completingPlan = existing.kind === "okr" && existing.status !== "done" && command.data.status === "done";
+  const completingPlan = existing.status !== "done" && command.data.status === "done";
   let row: WorkPlanRow;
   try {
-    row = await prisma.$transaction(async (tx) => {
-      if (completingPlan) await assertWorkPlanCanComplete(tx, id);
-      await tx.workPlan.update({
-        where: { id },
-        data: updateData,
+    row = await runSerializableTransaction(async (tx) => {
+      const commit = async () => {
+        await tx.workPlan.update({
+          where: { id, updatedAt: existing.updatedAt },
+          data: command.data,
+        });
+        await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
+        return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
+      };
+      if (!completingPlan) return commit();
+      const context: WorkMutationImpactContext = {
+        tx,
+        actorUserId: opts.actorUserId ?? null,
+        scopeType: existing.targetType,
+        scopeId: String(existing.targetId),
+      };
+      return buildAuditedWorkMutationImpactEngine(context).execute({
+        context,
+        actorKey: opts.actorUserId ? `user:${opts.actorUserId}` : "system",
+        scopeKey: `${existing.targetType}:${existing.targetId}`,
+        root: workMutationRoot({
+          plan: { id, title: existing.title, updatedAt: existing.updatedAt },
+          intent: "transition",
+        }),
+        commitRoot: commit,
       });
-      await replaceWorkPlanDecomposeAlignment(tx, id, command.alignment);
-      return tx.workPlan.findUniqueOrThrow({ where: { id }, include: workPlanInclude });
     });
   } catch (error) {
-    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) return impactError;
     throw error;
   }
   const itemStatusCounts = await listWorkPlanItemStatusCounts(prisma, [id]);
@@ -501,30 +527,4 @@ async function validateWorkPlanRelations(input: {
     if (ownerError) return ownerError;
   }
   return null;
-}
-
-async function validateSingleOkrPlanPerCycle(input: {
-  targetType?: string | null;
-  targetId?: number | string | null;
-  kind?: string | null;
-  status?: string | null;
-  okrCycleId?: number | null;
-  currentPlanId?: number | null;
-}) {
-  const kind = input.kind || "okr";
-  const okrCycleId = normalizeNullablePositiveId(input.okrCycleId);
-  const targetId = normalizePositiveId(input.targetId);
-  if (kind !== "okr" || !okrCycleId || !targetId) return null;
-  const duplicate = await prisma.workPlan.findFirst({
-    where: {
-      targetType: input.targetType || "department",
-      targetId,
-      kind: "okr",
-      okrCycleId,
-      isArchived: false,
-      ...(input.currentPlanId ? { id: { not: input.currentPlanId } } : {}),
-    },
-    select: { title: true },
-  });
-  return duplicate ? `该周期已存在计划：${duplicate.title}` : null;
 }

@@ -11,6 +11,7 @@ export type ToolbarSection = "primary" | "search" | "filter" | "edit" | "action"
 export type ToolbarZoneKey = "lead" | "search" | "filter" | "actions" | "trailing";
 
 export type ToolbarLayoutMode = "auto" | "compact" | "split";
+export type ToolbarVisibility = "always" | "mobile" | "desktop";
 
 export type ToolbarActionGlyphKind = Exclude<ActionGlyphKind, "add">;
 export type ToolbarActionSemanticKey =
@@ -53,7 +54,6 @@ export interface ToolbarPanelToggleItem {
   label: string;
   variant?: "primary" | "secondary";
   disabled?: boolean;
-  visibility?: "always" | "mobile" | "desktop";
   onClick?: () => void;
 }
 
@@ -261,7 +261,9 @@ export interface ToolbarCreateItem {
   onClick: () => void;
 }
 
-export type ToolbarItem =
+export type ToolbarItem = {
+  visibility?: ToolbarVisibility;
+} & (
   | ToolbarIconButtonItem
   | ToolbarPanelToggleItem
   | ToolbarSearchItem
@@ -278,7 +280,8 @@ export type ToolbarItem =
   | ToolbarMenuItem
   | ToolbarActionGroupItem
   | ToolbarEditGroupItem
-  | ToolbarCreateItem;
+  | ToolbarCreateItem
+);
 
 export interface ToolbarProps {
   items: ToolbarItem[];

@@ -27,8 +27,7 @@
 | 可扩展性契约 | `npm run test:scalability-contract` | 用 mock/fixture 阻断全量读取、内存分页和调用次数爆炸；不把它当作真实延迟测试。 |
 | PostgreSQL integration | `npm run test:integration:postgresql` | 在一次性 `*_ci` 库执行真实 PostgreSQL runtime/constraint/notification capacity smoke。 |
 | 关键浏览器保存闭环 | `npm run test:e2e:critical` | 先拒绝非一次性数据库并 seed 身份，再执行页面操作 → 保存 → API/DB 回读 → 刷新保留；账户页暖重载超过 `10 s` 会阻断。 |
-| 本地全量/完整生产发布门禁 | `npm run check:ci` | 串行执行静态门禁、全部 Node 测试、full type 和 production build；只有显式 `ops/publish.sh deploy --full` 才对当前 Git tree 生成或复用凭证并进入 CNB。 |
-| 默认受治理 SSH 热修 | `OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy` | 对干净、已提交且从当前运行 source 单调向前的 HEAD 运行 blockers、migration policy 和 quick type，在服务器 Node 24 Linux 容器构建后复用正式 cutover；不经 CNB。`ops/publish.sh hotfix` 为显式别名。 |
+| 本地全量/生产发布门禁 | `npm run check:ci` | 串行执行静态门禁、全部 Node 测试、full type 和 production build；`ops/publish.sh deploy` 为当前 Git tree 生成或复用凭证并进入 CNB。 |
 | 兼容旧入口 | `npm run check:full` | `check:ci` 的别名。 |
 | 日常 hygiene 提示 | `npm run check:hygiene:warn` | 跑简单清扫项但永远退出 0。 |
 | 周期性清债 | `npm run check:hygiene` | 强制巡检公司硬编码和简单 structure hygiene 债务。 |
@@ -101,7 +100,7 @@
 - 全项目写入入口只负责打开本地表单；CreateSurface 与编辑表单的 `保存/提交` 必须分别通过 `actionRuntimeCreateSubmission` / `actionRuntimeCommands` 映射，不得由页面权限条件猜测，也不得同时暴露两个持久化出口。审批处理、发布、结案等显式业务状态流转不属于同一表单的保存/提交替换关系。
 - 业务 UI 候选组件没有复用 Core/Platform 基建、Core UI ownership/coupling 违规。
 - UI helper 纯度是零 baseline Gate：纯数据 helper 不得拥有可见 UI、页面 chrome、构造期流程副作用或权限显示决策；显式结构声明可以拥有完整结构内的语义文案、状态和动作，但禁止单字段/单 cell 叶子声明。
-- Surface raw/custom content 是零 baseline Gate：未审核的 `content JSX`、JSX `cell`、`expandedRowContent`、`renderItem/renderOption` 直接失败。`@ui-specialized-surface` 只能出现在脚本精确登记的完整深模块，目前为 Platform 文档工作区、阶段流程板、Page Assistant composer/message stream、Workflow BPMN canvas/element editor 和 Production QC runtime paper；QC 纸面字段必须走 Core `PaperInputSurface`，页面、字段、cell、label/icon 级例外禁止登记。
+- Surface raw/custom content 是零 baseline Gate：未审核的 `content JSX`、JSX `cell`、`expandedRowContent`、`renderItem/renderOption` 直接失败。`@ui-specialized-surface` 只能出现在脚本精确登记的完整深模块，目前为 Platform 文档工作区、阶段流程板、企业微信登录面板、Page Assistant composer/message stream、Workflow BPMN canvas/element editor 和 Production QC runtime paper；QC 纸面字段必须走 Core `PaperInputSurface`，页面、字段、cell、label/icon 级例外禁止登记。
 
 这些问题不交给 hygiene 重构；谁引入或触碰相关 UI，谁修到 `gate:ui` 通过。`arch:gate` 仍保留为兼容总入口，内部等价于 `gate:domain + gate:ui`。
 
@@ -131,7 +130,7 @@
 
 GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 static、Node、type、PostgreSQL 和 canonical build；E2E 是独立 job，只下载并启动同一个 standalone 产物。`CI / required` 最后验证哪些 job 必须成功、哪些必须跳过。详细分级、覆盖映射和同 SHA 发布契约见 [`ops/ci-cd.md`](ops/ci-cd.md)。
 
-生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 默认走受治理 SSH hotfix：当前 scope policy 为 `off`/只记录，但仍运行 blockers、migration policy 和 quick type，并在受管 Node 24 容器中生成 exact-source artifact，禁止手改 `current`。Hotfix 依赖/Next cache 只能加速构建，不能替代完整 artifact 和 digest 校验。只有显式 `ops/publish.sh deploy --full` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。
+生产发布不等待或查询 GitHub。Git hooks 与本地 `ops/publish*.sh` / `release-to-cnb.sh` 入口统一通过 `scripts/runtime/run-with-repo-node.sh` 选择 `.node-version` 指定的 Node，并把 `TMPDIR` 固定到工作区忽略目录 `.cache/runtime-tmp`，避免调用方 PATH 漂移；仓库 TypeScript 脚本统一使用 `node --import tsx`，不启动受限环境会拒绝的 `tsx` CLI IPC server。`ops/publish.sh deploy` 要求干净的本地 `main`，为当前 tree 生成或复用一次 `npm run check:ci` 凭证，再由 CNB 做 Linux standalone 构建、产物/迁移 digest 校验和服务器部署。Library/Qwen/ONLYOFFICE runtime 快速路径都必须先通过 identity/version/health 复验。
 
 ### scalability contract 与真实容量
 

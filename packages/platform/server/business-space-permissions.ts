@@ -3,7 +3,7 @@ import "server-only";
 import type { PermissionActionSource } from "../permission-actions";
 import type { NaturalSpaceActionProfile } from "../permission-natural-space-actions";
 import { getSpaceParentResourceKeyForTargetType } from "../permission-resource-policy";
-import { currentOpenEndedDateWhere } from "./fk-registry";
+import { currentOpenEndedDateWhere } from "./relation-registry";
 import { prisma } from "./prisma";
 import { evaluatePermissionAction } from "./rbac/action-grants";
 import { canManageResourceGrant } from "./rbac/admin-scope";

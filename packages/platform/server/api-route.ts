@@ -129,7 +129,8 @@ function firstZodIssue(error: z.ZodError, fallback: string) {
 
 async function parseRouteBody(request: Request, parser: "json" | "formData") {
   if (parser === "formData") return Object.fromEntries((await request.formData()).entries());
-  return request.json();
+  const raw = await request.text();
+  return raw.trim() ? JSON.parse(raw) : {};
 }
 
 function commandActionResponse<TResult>(result: CommandRouteResult<TResult>) {

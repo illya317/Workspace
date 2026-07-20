@@ -35,8 +35,8 @@ test("legacy CNB receipts normalize to one runtime and canonical source", () => 
   }
 });
 
-test("v3 SSH receipt keeps runtime and canonical identities separate", () => {
-  const normalized = normalizeDeployedRelease({
+test("v3 receipts reject unsupported transports", () => {
+  assert.throws(() => normalizeDeployedRelease({
     schemaVersion: 3,
     source: { commitSha: d, treeSha: c },
     canonicalSource: { commitSha: a, treeSha: b },
@@ -45,10 +45,7 @@ test("v3 SSH receipt keeps runtime and canonical identities separate", () => {
     transport: { kind: "ssh-hotfix", scopePolicy: "off" },
     cnb: { repository: "illya317/Workspace", sourceBranch: "main", injectionSha: c },
     deployment: { releaseId: `20260717170000-${d.slice(0, 8)}`, releaseDir: `/srv/releases/${d.slice(0, 8)}` },
-  }, { expectedRepository: "illya317/Workspace" });
-  assert.equal(normalized.transport, "ssh-hotfix");
-  assert.equal(normalized.runtimeSource.commitSha, d);
-  assert.equal(normalized.canonicalSource.commitSha, a);
+  }, { expectedRepository: "illya317/Workspace" }), /unsupported release transport: ssh-hotfix/);
 });
 
 test("v3 CNB receipt cannot claim a different canonical source", () => {
@@ -70,11 +67,10 @@ test("write creates an atomic schema-v3 receipt that assert can verify", async (
   await main([
     "write",
     "--file", file,
-    "--transport", "ssh-hotfix",
     "--runtime-source", d,
     "--runtime-tree", c,
-    "--canonical-source", a,
-    "--canonical-tree", b,
+    "--canonical-source", d,
+    "--canonical-tree", c,
     "--artifact-sha", digest("1"),
     "--manifest-sha", digest("2"),
     "--migration-set", digest("3"),
@@ -83,21 +79,24 @@ test("write creates an atomic schema-v3 receipt that assert can verify", async (
     "--cnb-injection", c,
     "--release-id", `20260717170000-${d.slice(0, 8)}`,
     "--release-dir", `/srv/releases/${d.slice(0, 8)}`,
-    "--scope-policy", "off",
-    "--risk-class", "C3",
-    "--build-image", "node:24-bookworm@sha256:" + digest("4"),
   ]);
   const record = JSON.parse(readFileSync(file, "utf8"));
   assert.equal(record.schemaVersion, 3);
-  assert.equal(record.transport.kind, "ssh-hotfix");
-  assert.equal(record.transport.scopePolicy, "off");
+  assert.equal(record.transport.kind, "cnb");
   await main([
     "assert",
     "--file", file,
     "--expected-repository", "illya317/Workspace",
     "--runtime-source", d,
-    "--canonical-source", a,
-    "--transport", "ssh-hotfix",
+    "--canonical-source", d,
     "--artifact-sha", digest("1"),
   ]);
+});
+
+test("retired transport options cannot recreate a secondary receipt", async () => {
+  await assert.rejects(() => main([
+    "write",
+    "--file", "/tmp/unused-release-receipt.json",
+    "--transport", "ssh-hotfix",
+  ]), /--transport is no longer supported/);
 });

@@ -5,6 +5,11 @@ export {
   tiptapJsonToEditorDocument,
 } from "./adapters";
 export { default as DocumentEditorCanvas } from "./DocumentEditorCanvas";
+export {
+  DOCUMENT_EDITOR_COMPACT_LANDSCAPE_QUERY,
+  DOCUMENT_EDITOR_MOBILE_PORTRAIT_QUERY,
+  useDocumentEditorMobileLayout,
+} from "./mobile-layout";
 export { default as DocumentPreview } from "./DocumentPreview";
 export { createDocumentWorkspaceSection } from "./DocumentWorkspaceSurface";
 export { PageBreakNode } from "./page-break-extension";

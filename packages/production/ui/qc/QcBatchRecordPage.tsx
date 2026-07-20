@@ -2,8 +2,9 @@
 
 import { createPageBody, PageSurface, type BodySurfaceSectionSpec, type SurfaceToolbarItems } from "@workspace/core/ui";
 import type { EditorBlock } from "@workspace/platform/document-editor";
-import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/types";
 import { createQcEditorRuntimePaperSection } from "./QcEditorRuntimePaper";
+import { createQcEditorRuntimeMobileSection } from "./QcEditorRuntimeMobile";
 import { qcBatchStagePath, qcBatchTestPath } from "./qc-routes";
 import type { EditorRuntimeValues } from "./useEditorRuntimeFormulaEngine";
 
@@ -99,6 +100,15 @@ export default function QcBatchRecordPage({
       actions: recordActions,
     }] : []),
   ];
+  const runtimeSurfaceProps = {
+    blocks,
+    fieldModel: runtimeTemplate.fieldModel,
+    values,
+    referenceValues,
+    onFieldChange,
+    readOnly,
+  };
+  const paperSection = createQcEditorRuntimePaperSection("record-paper", runtimeSurfaceProps);
 
   return (
     <PageSurface
@@ -106,14 +116,8 @@ export default function QcBatchRecordPage({
       toolbar={{ items: toolbarItems }}
       body={createPageBody([
         ...leadingSections,
-        createQcEditorRuntimePaperSection("record-paper", {
-          blocks,
-          fieldModel: runtimeTemplate.fieldModel,
-          values,
-          referenceValues,
-          onFieldChange,
-          readOnly,
-        }),
+        createQcEditorRuntimeMobileSection("record-mobile", runtimeSurfaceProps),
+        { ...paperSection, visibility: "desktop" },
       ])}
     />
   );

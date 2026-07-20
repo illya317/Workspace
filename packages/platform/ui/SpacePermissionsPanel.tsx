@@ -263,22 +263,32 @@ export function useSpacePermissionsSections<TTarget>({
   if (!data || !filteredData) return [createStatusSection("permission-table-empty", { kind: "empty", content: "请选择空间" })];
   if (filteredData.subjects.length === 0) return [createStatusSection("permission-table-empty", { kind: "empty", content: nameSearch.trim() ? "无匹配结果" : "暂无可授权用户" })];
 
-  return [{
-    key: "permission-table",
-    body: { kind: "data", data: createPermissionActionMatrixSurface({
-      subjects: filteredData.subjects,
-      subjectColumnLabel: "姓名",
-      getSubjectKey: subjectRowKey,
-      renderSubject: subjectContent,
-      getRecord: (subject) => filteredData.actionRecords[subject.id],
-      expandedKeys: expandedRows,
-      onToggleExpand: (subject) => toggleExpand(subjectRowKey(subject)),
-      onToggleAction: toggleGrant,
-      canToggleAction: (subject) => Boolean(subject.extra?.hasUser && subject.extra?.userId),
-      savingKey,
-      visibleActionKeys: filteredData.resourceActions,
-    }) },
-  }];
+  return [
+    {
+      ...createStatusSection("permission-table-mobile-boundary", {
+        kind: "empty",
+        content: "权限矩阵需要同时核对资源与动作，请在桌面端维护。",
+      }),
+      visibility: "mobile",
+    },
+    {
+      key: "permission-table",
+      visibility: "desktop",
+      body: { kind: "data", data: createPermissionActionMatrixSurface({
+        subjects: filteredData.subjects,
+        subjectColumnLabel: "姓名",
+        getSubjectKey: subjectRowKey,
+        renderSubject: subjectContent,
+        getRecord: (subject) => filteredData.actionRecords[subject.id],
+        expandedKeys: expandedRows,
+        onToggleExpand: (subject) => toggleExpand(subjectRowKey(subject)),
+        onToggleAction: toggleGrant,
+        canToggleAction: (subject) => Boolean(subject.extra?.hasUser && subject.extra?.userId),
+        savingKey,
+        visibleActionKeys: filteredData.resourceActions,
+      }) },
+    },
+  ];
 }
 
 function spacePermissionTargetKey(target: unknown): string {

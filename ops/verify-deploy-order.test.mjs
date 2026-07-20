@@ -39,45 +39,13 @@ test("a proven descendant of the deployed source is allowed", () => {
   }), { action: "deploy", reason: "monotonic-upgrade" });
 });
 
-test("SSH hotfixes advance from the running source", () => {
-  assert.deepEqual(validateDeployOrder({
+test("retired transport inputs cannot reopen a second deployment path", () => {
+  assert.throws(() => validateDeployOrder({
     candidateSha: c,
     currentHeadSha: c,
+    deployedSha: b,
     candidateTransport: "ssh-hotfix",
-    deployedSha: b,
-    deployedCanonicalSha: a,
-    deployedTransport: "ssh-hotfix",
-    comparison: { status: "ahead", ahead_by: 1, base_commit: { sha: b }, merge_base_commit: { sha: b }, head_commit: { sha: c } },
-  }), { action: "deploy", reason: "hotfix-monotonic-upgrade" });
-});
-
-test("formal CNB deployment replaces a hotfix from the canonical baseline", () => {
-  for (const [candidateSha, comparison] of [
-    [a, undefined],
-    [c, { status: "ahead", ahead_by: 1, base_commit: { sha: a }, merge_base_commit: { sha: a }, head_commit: { sha: c } }],
-  ]) {
-    assert.deepEqual(validateDeployOrder({
-      candidateSha,
-      currentHeadSha: candidateSha,
-      candidateTransport: "cnb",
-      deployedSha: b,
-      deployedCanonicalSha: a,
-      deployedTransport: "ssh-hotfix",
-      comparison,
-    }), { action: "deploy", reason: "formal-replaces-hotfix" });
-  }
-});
-
-test("formal CNB deployment does not need to descend from the temporary hotfix", () => {
-  assert.deepEqual(validateDeployOrder({
-    candidateSha: c,
-    currentHeadSha: c,
-    candidateTransport: "cnb",
-    deployedSha: b,
-    deployedCanonicalSha: a,
-    deployedTransport: "ssh-hotfix",
-    comparison: { status: "ahead", ahead_by: 1, base_commit: { sha: a }, merge_base_commit: { sha: a }, head_commit: { sha: c } },
-  }), { action: "deploy", reason: "formal-replaces-hotfix" });
+  }), /candidateTransport is no longer supported/);
 });
 
 test("same source is a no-op and stale or divergent candidates are rejected", () => {

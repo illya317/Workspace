@@ -1,18 +1,18 @@
 import {
+  businessSpaceScopeId,
   getGroupCompanyContext,
   getOperatingCommitteeDepartmentContext,
 } from "@workspace/platform/server/business-space-permissions";
 import { serviceError, serviceOk, type ServiceResult } from "@workspace/platform/server/api";
-import { currentOpenEndedDateWhere } from "@workspace/platform/server/fk-registry";
+import { currentOpenEndedDateWhere } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { resolveWorkflowPolicy } from "@workspace/platform/server/workflows";
+import { getWorkTaskPermissionResourceKey, normalizeWorkTargetType } from "./access";
 import { normalizeStoredWorkOkrControlScope } from "./domain/work-okr-control-scope";
-import { parseBoundWorkOkrControl } from "./domain/work-okr-bound-control";
 import { workOkrWorkflowBusinessActionKey } from "./task-approval-helpers";
 import { workTaskScopeId } from "./task-spaces";
 import {
   getWorkOkrControlSettings,
-  normalizeWorkOkrControlSettings,
   WORK_OKR_PERIOD_TYPES,
   type WorkOkrControlRule,
   type WorkOkrControlSettings,
@@ -164,80 +164,23 @@ async function resolveEffectiveWorkOkrControl(
   plan: WorkOkrPlanScopeInput,
   actionKind: "objective_submit" | "report_submit",
 ) {
-  const bound = parseBoundOkrControl(plan.governanceSnapshotJson, actionKind);
-  if (!bound) throw new Error(`OKR 计划 ${plan.id ?? "unknown"} 缺少完整治理快照，不能读取当前全局日期规则补齐`);
-  if (!bound.settings.enabled || !bound.workflowEnabled) return null;
-  return { settings: bound.settings, policy: bound.policy };
-}
-
-function parseBoundOkrControl(
-  snapshotJson: string | null | undefined,
-  actionKind: "objective_submit" | "report_submit",
-) {
-  const bound = parseBoundWorkOkrControl(snapshotJson, actionKind);
-  if (!bound) return null;
-  return {
-    settings: normalizeWorkOkrControlSettings(bound.settings),
-    policy: normalizeBoundControlPolicy(bound.policy),
-    workflowEnabled: bound.workflowEnabled,
-  };
-}
-
-function normalizeBoundControlPolicy(value: unknown) {
-  if (!value || typeof value !== "object") return null;
-  const source = value as Record<string, unknown>;
-  const cycleId = Number(source.cycleId);
-  if (!Number.isInteger(cycleId) || cycleId <= 0) return null;
-  return {
-    id: Number(source.id) || 0,
-    cycleId,
-    scopeType: String(source.scopeType || "global"),
-    scopeId: String(source.scopeId || ""),
-    isLocked: source.isLocked === true,
-    objectiveSubmitDeadline: nullableDate(source.objectiveSubmitDeadline as string | Date | null | undefined),
-    krReviewOpensAt: nullableDate(source.krReviewOpensAt as string | Date | null | undefined),
-    krSubmitDeadline: nullableDate(source.krSubmitDeadline as string | Date | null | undefined),
-    version: Number(source.version) || 1,
-  };
-}
-
-export async function resolveWorkOkrKrReviewOpensAt(plan: WorkOkrPlanScopeInput & {
-  periodType?: string | null;
-  periodStart?: Date | null;
-  periodEnd?: Date | null;
-  krReviewOpensAt?: Date | null;
-}) {
-  const control = await resolveEffectiveWorkOkrControl(plan, "report_submit");
-  if (!control) return plan.krReviewOpensAt ?? plan.periodEnd ?? plan.plannedEndDate ?? null;
-  const { settings, policy } = control;
-  if (policy?.krReviewOpensAt) return policy.krReviewOpensAt;
-  const configured = await resolveConfiguredKrOpenDate(plan, settings);
-  return configured ?? plan.krReviewOpensAt ?? plan.periodEnd ?? plan.plannedEndDate ?? null;
-}
-
-export async function getWorkOkrCyclePlanningWindow(
-  cycle: { periodType: string; startDate: Date; endDate: Date },
-  workspaceTargetType?: string | null,
-) {
+  const businessActionKey = workOkrWorkflowBusinessActionKey({
+    kind: actionKind,
+    workspaceTargetType: plan.targetType,
+  });
+  const workflow = await resolveWorkflowPolicy({
+    businessActionKey,
+    resourceKey: getWorkTaskPermissionResourceKey(plan.targetType),
+    scopeType: plan.targetType,
+    scopeId: businessSpaceScopeId(normalizeWorkTargetType(plan.targetType), plan.targetId),
+  });
+  if (workflow.mode !== "optional" && workflow.mode !== "required") return null;
   const settings = await getWorkOkrControlSettings();
-  if (!settings.enabled || !isWorkOkrPeriodType(cycle.periodType)) return { enabled: true, opensAt: cycle.startDate };
-  if (workspaceTargetType) {
-    const businessActionKey = workOkrWorkflowBusinessActionKey({ kind: "objective_submit", workspaceTargetType });
-    const workflow = await resolveWorkflowPolicy({ businessActionKey });
-    if (workflow.mode === "direct" || workflow.mode === "permission_only") {
-      return { enabled: true, opensAt: cycle.startDate };
-    }
-  }
-  const periodRule = settings.periodTypes[cycle.periodType];
-  if (periodRule?.mode === "disabled" || periodRule?.mode === "report_only") return { enabled: false, opensAt: null };
-  const rule = resolvePeriodTypeControlRule(settings, cycle.periodType, "objectiveOpensAt");
-  return { enabled: Boolean(rule), opensAt: rule ? applyControlRule({ periodStart: cycle.startDate, periodEnd: cycle.endDate }, rule) : null };
-}
-
-export async function assertWorkOkrCycleUnlocked(plan: WorkOkrPlanScopeInput): Promise<ServiceResult<{ ok: true }>> {
-  const policy = (await resolveEffectiveWorkOkrControl(plan, "objective_submit"))?.policy;
-  if (policy?.isLocked) return serviceError("当前 OKR 周期已锁定", 409);
-  return serviceOk({ ok: true as const });
+  if (!settings.enabled) return null;
+  return {
+    settings,
+    policy: await getStoredWorkOkrControlPolicyForPlan(plan),
+  };
 }
 
 export async function assertWorkOkrSubmissionAllowed(
@@ -249,7 +192,17 @@ export async function assertWorkOkrSubmissionAllowed(
   const control = await resolveEffectiveWorkOkrControl(plan, actionKind);
   if (!control) return serviceOk({ ok: true as const });
   const policy = control.policy;
-  if (policy?.isLocked) return serviceError("当前 OKR 周期已锁定", 409);
+  const configuredOpensAt = await resolveConfiguredSubmissionOpensAt(
+    plan,
+    control.settings,
+    kind === "objective_plan" ? "objectiveOpensAt" : "krReviewOpensAt",
+  );
+  const opensAt = kind === "kr_review"
+    ? policy?.krReviewOpensAt ?? configuredOpensAt
+    : configuredOpensAt;
+  if (opensAt && now < startOfDate(opensAt)) {
+    return serviceError(kind === "objective_plan" ? "目标申报尚未开放" : "结果申报尚未开放", 409);
+  }
   const configuredDeadline = await resolveConfiguredSubmissionDeadline(
     plan,
     control.settings,
@@ -259,7 +212,7 @@ export async function assertWorkOkrSubmissionAllowed(
     ? policy?.objectiveSubmitDeadline ?? configuredDeadline
     : policy?.krSubmitDeadline ?? configuredDeadline;
   if (deadline && now > endOfDate(deadline)) {
-    return serviceError(kind === "objective_plan" ? "目标提交已超过截止日" : "KR 提交已超过截止日", 409);
+    return serviceError(kind === "objective_plan" ? "目标申报已超过截止日" : "结果申报已超过截止日", 409);
   }
   return serviceOk({ ok: true as const });
 }
@@ -279,20 +232,23 @@ async function resolveConfiguredSubmissionDeadline(
   return rule ? applyControlRule(period, rule) : null;
 }
 
-export function controlScopeToWorkTaskScope(scope: WorkOkrControlScope) {
-  return scope.targetType && scope.targetId ? workTaskScopeId(scope.targetType, scope.targetId) : null;
+async function resolveConfiguredSubmissionOpensAt(
+  plan: WorkOkrPlanScopeInput,
+  settings: WorkOkrControlSettings,
+  key: "objectiveOpensAt" | "krReviewOpensAt",
+) {
+  const period = await resolvePlanControlPeriod({
+    ...plan,
+    periodStart: plan.plannedStartDate,
+    periodEnd: plan.plannedEndDate,
+  });
+  if (!period) return null;
+  const rule = resolvePeriodTypeControlRule(settings, period.periodType, key);
+  return rule ? applyControlRule(period, rule) : null;
 }
 
-async function resolveConfiguredKrOpenDate(plan: WorkOkrPlanScopeInput & {
-  periodType?: string | null;
-  periodStart?: Date | null;
-  periodEnd?: Date | null;
-}, settings: WorkOkrControlSettings) {
-  if (!plan.okrCycleId && (!plan.periodType || !plan.periodStart || !plan.periodEnd)) return null;
-  const period = await resolvePlanControlPeriod(plan);
-  if (!period) return null;
-  const rule = resolvePeriodTypeControlRule(settings, period.periodType, "krReviewOpensAt");
-  return rule ? applyControlRule(period, rule) : null;
+export function controlScopeToWorkTaskScope(scope: WorkOkrControlScope) {
+  return scope.targetType && scope.targetId ? workTaskScopeId(scope.targetType, scope.targetId) : null;
 }
 
 async function resolvePlanControlPeriod(plan: WorkOkrPlanScopeInput & {
@@ -332,14 +288,14 @@ function isWorkOkrPeriodType(value: string | null | undefined): value is WorkOkr
   return typeof value === "string" && WORK_OKR_PERIOD_TYPES.includes(value as WorkOkrPeriodType);
 }
 
-function nullableDate(value: string | Date | null | undefined) {
-  if (!value) return null;
-  const date = value instanceof Date ? value : new Date(value);
-  return Number.isNaN(date.getTime()) ? null : date;
-}
-
 function endOfDate(value: Date) {
   const end = new Date(value);
   end.setUTCHours(23, 59, 59, 999);
   return end;
+}
+
+function startOfDate(value: Date) {
+  const start = new Date(value);
+  start.setUTCHours(0, 0, 0, 0);
+  return start;
 }

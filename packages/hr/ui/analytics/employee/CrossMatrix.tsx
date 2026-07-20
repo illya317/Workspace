@@ -114,20 +114,23 @@ export function createCrossMatrixSection({
     } },
   };
 
-  return createAnalysisSection("cross-matrix", {
-    title: "交叉分析",
-    sections: [
-      createInlineFieldsSection("cross-matrix-filters", [
-        { key: "row", label: "行", spec: { valueType: "string", control: "choice", options: { source: "static", items: rowOptions } }, value: crossRow, onChange: (value) => setCrossRow(value as DimKey) },
-        { key: "column", label: "列", spec: { valueType: "string", control: "choice", options: { source: "static", items: colOptions } }, value: crossCol, onChange: (value) => setCrossCol(value as DimKey) },
-        { kind: "readonly", key: "meta", label: "统计", value: <>共 {statsActive} 人</>, variant: "plain" },
-      ]),
-      ...(crossMatrix.rowKeys.length === 0
-      ? [createMessageSection("empty", {
-        tone: "muted",
-        content: "无数据"
-      })]
-      : [matrixTableSection]),
-    ],
-  });
+  return {
+    ...createAnalysisSection("cross-matrix", {
+      title: "交叉分析",
+      sections: [
+        createInlineFieldsSection("cross-matrix-filters", [
+          { key: "row", label: "行", spec: { valueType: "string", control: "choice", options: { source: "static", items: rowOptions } }, value: crossRow, onChange: (value) => setCrossRow(value as DimKey) },
+          { key: "column", label: "列", spec: { valueType: "string", control: "choice", options: { source: "static", items: colOptions } }, value: crossCol, onChange: (value) => setCrossCol(value as DimKey) },
+          { kind: "readonly", key: "meta", label: "统计", value: <>共 {statsActive} 人</>, variant: "plain" },
+        ]),
+        ...(crossMatrix.rowKeys.length === 0
+          ? [createMessageSection("empty", {
+              tone: "muted",
+              content: "无数据",
+            })]
+          : [matrixTableSection]),
+      ],
+    }),
+    visibility: "desktop",
+  };
 }

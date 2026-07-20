@@ -3,15 +3,9 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 import { listWorkOkrSettings, updateWorkOkrSettings } from "@workspace/work/server";
 
-const governanceMigrationSchema = z.object({
-  planIds: z.array(z.coerce.number()),
-  reason: z.string(),
-}).strict();
-
 const okrControlPolicySchema = z.object({
   settings: z.unknown().optional(),
   exception: z.unknown().optional(),
-  governanceMigration: governanceMigrationSchema.optional(),
   cycleId: z.coerce.number(),
   scopeType: z.string().nullable().optional(),
   scopeId: z.union([z.string(), z.number()]).nullable().optional(),
@@ -28,7 +22,7 @@ export const GET = createCommandRoute({
 
 export const PUT = createCommandRoute({
   bodySchema: okrControlPolicySchema,
-  bodyError: "OKR 管控设置参数无效",
+  bodyError: "OKR 申报时间窗参数无效",
   buildCommand: ({ user, body }) => okCommand({
     ...body,
     actorUserId: user.userId,

@@ -177,6 +177,8 @@ export const ModelName = {
   LibraryGeneratedSource: 'LibraryGeneratedSource',
   LibraryTag: 'LibraryTag',
   LibraryDocumentTag: 'LibraryDocumentTag',
+  MutationImpactBatch: 'MutationImpactBatch',
+  MutationImpactEffect: 'MutationImpactEffect',
   OpenApiClient: 'OpenApiClient',
   OpenApiResource: 'OpenApiResource',
   OpenApiScope: 'OpenApiScope',
@@ -187,6 +189,9 @@ export const ModelName = {
   DepartmentCollaboration: 'DepartmentCollaboration',
   DepartmentCollaborationDepartment: 'DepartmentCollaborationDepartment',
   DepartmentCollaborationPosition: 'DepartmentCollaborationPosition',
+  WorkKpiDefinition: 'WorkKpiDefinition',
+  WorkKpiAssignment: 'WorkKpiAssignment',
+  WorkKpiResultSnapshot: 'WorkKpiResultSnapshot',
   MeetingType: 'MeetingType',
   MeetingSeries: 'MeetingSeries',
   Meeting: 'Meeting',
@@ -1876,7 +1881,7 @@ export const HrPerformanceReviewScalarFieldEnum = {
   finalScore: 'finalScore',
   finalGrade: 'finalGrade',
   hrComment: 'hrComment',
-  okrSnapshotJson: 'okrSnapshotJson',
+  workEvidenceSnapshotJson: 'workEvidenceSnapshotJson',
   archivedByUserId: 'archivedByUserId',
   archivedAt: 'archivedAt',
   editedBy: 'editedBy',
@@ -2807,6 +2812,51 @@ export const LibraryDocumentTagScalarFieldEnum = {
 export type LibraryDocumentTagScalarFieldEnum = (typeof LibraryDocumentTagScalarFieldEnum)[keyof typeof LibraryDocumentTagScalarFieldEnum]
 
 
+export const MutationImpactBatchScalarFieldEnum = {
+  id: 'id',
+  actorUserId: 'actorUserId',
+  actorLabel: 'actorLabel',
+  scopeType: 'scopeType',
+  scopeId: 'scopeId',
+  requestId: 'requestId',
+  rootEntityType: 'rootEntityType',
+  rootEntityId: 'rootEntityId',
+  intent: 'intent',
+  policyRevision: 'policyRevision',
+  impactFingerprint: 'impactFingerprint',
+  resolutionsJson: 'resolutionsJson',
+  status: 'status',
+  resultCode: 'resultCode',
+  resultMessage: 'resultMessage',
+  sourceBatchId: 'sourceBatchId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt'
+} as const
+
+export type MutationImpactBatchScalarFieldEnum = (typeof MutationImpactBatchScalarFieldEnum)[keyof typeof MutationImpactBatchScalarFieldEnum]
+
+
+export const MutationImpactEffectScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  sequence: 'sequence',
+  relationKey: 'relationKey',
+  relationPathJson: 'relationPathJson',
+  policyKey: 'policyKey',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  operation: 'operation',
+  beforeRevision: 'beforeRevision',
+  afterRevision: 'afterRevision',
+  beforeSummaryJson: 'beforeSummaryJson',
+  afterSummaryJson: 'afterSummaryJson',
+  changedInBatch: 'changedInBatch',
+  createdAt: 'createdAt'
+} as const
+
+export type MutationImpactEffectScalarFieldEnum = (typeof MutationImpactEffectScalarFieldEnum)[keyof typeof MutationImpactEffectScalarFieldEnum]
+
+
 export const OpenApiClientScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2950,6 +3000,75 @@ export const DepartmentCollaborationPositionScalarFieldEnum = {
 } as const
 
 export type DepartmentCollaborationPositionScalarFieldEnum = (typeof DepartmentCollaborationPositionScalarFieldEnum)[keyof typeof DepartmentCollaborationPositionScalarFieldEnum]
+
+
+export const WorkKpiDefinitionScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  status: 'status',
+  name: 'name',
+  description: 'description',
+  valueType: 'valueType',
+  displayType: 'displayType',
+  unit: 'unit',
+  direction: 'direction',
+  defaultScoringRuleJson: 'defaultScoringRuleJson',
+  measurementMode: 'measurementMode',
+  ownerDepartmentId: 'ownerDepartmentId',
+  createdByUserId: 'createdByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkKpiDefinitionScalarFieldEnum = (typeof WorkKpiDefinitionScalarFieldEnum)[keyof typeof WorkKpiDefinitionScalarFieldEnum]
+
+
+export const WorkKpiAssignmentScalarFieldEnum = {
+  id: 'id',
+  workPlanId: 'workPlanId',
+  definitionId: 'definitionId',
+  workItemId: 'workItemId',
+  ownerEmployeeId: 'ownerEmployeeId',
+  sourceAssignmentId: 'sourceAssignmentId',
+  relationKind: 'relationKind',
+  weight: 'weight',
+  baselineValue: 'baselineValue',
+  targetValue: 'targetValue',
+  targetLowerBound: 'targetLowerBound',
+  targetUpperBound: 'targetUpperBound',
+  currentValue: 'currentValue',
+  definitionSnapshotJson: 'definitionSnapshotJson',
+  scoringRuleSnapshotJson: 'scoringRuleSnapshotJson',
+  version: 'version',
+  updatedByUserId: 'updatedByUserId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type WorkKpiAssignmentScalarFieldEnum = (typeof WorkKpiAssignmentScalarFieldEnum)[keyof typeof WorkKpiAssignmentScalarFieldEnum]
+
+
+export const WorkKpiResultSnapshotScalarFieldEnum = {
+  id: 'id',
+  assignmentId: 'assignmentId',
+  workReportId: 'workReportId',
+  version: 'version',
+  previousSnapshotId: 'previousSnapshotId',
+  actualValue: 'actualValue',
+  scoreBeforeAdjustment: 'scoreBeforeAdjustment',
+  confirmedScore: 'confirmedScore',
+  adjustmentReason: 'adjustmentReason',
+  definitionSnapshotJson: 'definitionSnapshotJson',
+  assignmentSnapshotJson: 'assignmentSnapshotJson',
+  scoringRuleSnapshotJson: 'scoringRuleSnapshotJson',
+  evidenceSnapshotJson: 'evidenceSnapshotJson',
+  approvedByUserId: 'approvedByUserId',
+  approvedAt: 'approvedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type WorkKpiResultSnapshotScalarFieldEnum = (typeof WorkKpiResultSnapshotScalarFieldEnum)[keyof typeof WorkKpiResultSnapshotScalarFieldEnum]
 
 
 export const MeetingTypeScalarFieldEnum = {
@@ -3554,7 +3673,8 @@ export const WorkItemScalarFieldEnum = {
   isArchived: 'isArchived',
   isPrivate: 'isPrivate',
   sortOrder: 'sortOrder',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
 } as const
 
 export type WorkItemScalarFieldEnum = (typeof WorkItemScalarFieldEnum)[keyof typeof WorkItemScalarFieldEnum]

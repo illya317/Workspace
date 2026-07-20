@@ -10,6 +10,7 @@ import {
   renderToolbarContent,
   renderCompactToolbarMeasurement,
 } from "./internal/toolbar/Toolbar.layout";
+import MobileToolbarContent from "./internal/toolbar/Toolbar.mobile";
 import { useAutoToolbarLayout } from "./internal/toolbar/Toolbar.visibility";
 
 export type {
@@ -18,6 +19,7 @@ export type {
   ToolbarProps,
   ToolbarZoneKey,
   ToolbarLayoutMode,
+  ToolbarVisibility,
   ToolbarIconButtonItem,
   ToolbarPanelToggleItem,
   ToolbarSearchItem,
@@ -74,7 +76,8 @@ export function Toolbar({
     ];
   }, [defaultAssistant, items, pageAssistant]);
 
-  const grouped = useMemo(() => groupToolbarItems(resolvedItems), [resolvedItems]);
+  const mobileGrouped = useMemo(() => groupToolbarItems(resolvedItems, "mobile"), [resolvedItems]);
+  const desktopGrouped = useMemo(() => groupToolbarItems(resolvedItems, "desktop"), [resolvedItems]);
   const autoMode = useAutoToolbarLayout({
     enabled: layoutMode === "auto",
     containerRef,
@@ -84,21 +87,26 @@ export function Toolbar({
 
   const content = (
     <div ref={containerRef} className="relative w-full min-w-0 overflow-visible">
-      {renderToolbarContent(grouped, resolvedLayoutMode, size, gapClass)}
+      <div className="sm:hidden">
+        <MobileToolbarContent grouped={mobileGrouped} size={size} onSubmit={onSubmit} />
+      </div>
+      <div className="hidden sm:block">
+        {renderToolbarContent(desktopGrouped, resolvedLayoutMode, size, gapClass)}
+      </div>
       {layoutMode === "auto" && (
         <div
           ref={compactMeasureRef}
           aria-hidden="true"
-          className="invisible pointer-events-none absolute left-0 top-0 w-max"
+          className="invisible pointer-events-none absolute left-0 top-0 max-w-full overflow-hidden"
         >
-          {renderCompactToolbarMeasurement(grouped, size, gapClass)}
+          {renderCompactToolbarMeasurement(desktopGrouped, size, gapClass)}
         </div>
       )}
     </div>
   );
 
   const barClassName = joinClassNames(
-    "relative z-20 flex min-h-14 items-center overflow-visible rounded-lg border border-slate-200 bg-white p-3 shadow-sm",
+    "relative z-20 flex min-h-14 items-center overflow-visible rounded-xl border border-slate-200 bg-white p-2.5 shadow-sm sm:rounded-lg sm:p-3",
   );
 
   if (onSubmit) {

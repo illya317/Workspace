@@ -1,60 +1,19 @@
 import { prisma } from "@workspace/platform/server/prisma";
+import type {
+  ReclassClassification,
+  ReclassEntry,
+  ReclassWorkbenchStatus,
+  ReclassWorkbenchSummary,
+} from "@workspace/finance/types";
 
 import { oppositeBalanceSide, resolveLongestPrefixRule } from "../ledger/reclass-rules/resolution";
 
-export type ReclassClassification =
-  | "reclass_candidate"
-  | "pending_review"
-  | "allowed_negative"
-  | "contra_account"
-  | "non_balance_sheet_negative"
-  | "legacy_voucher_adjustment";
-
-export type ReclassWorkbenchStatus =
-  | "pending"
-  | "configured"
-  | "approved"
-  | "adjusted"
-  | "rejected"
-  | "exempt"
-  | "historical";
-
-export interface ReclassEntry {
-  id: string;
-  periodId: number;
-  accountCode: string;
-  accountName: string;
-  balanceSide: "debit" | "credit";
-  naturalSide: "debit" | "credit";
-  closingDebit: number;
-  closingCredit: number;
-  /** Persisted report amount when an adjustment exists; otherwise the current candidate amount. */
-  amount: number;
-  /** Current reverse closing balance, kept separate from the persisted report amount. */
-  currentAbnormalAmount: number | null;
-  /** The persisted amount no longer matches the current reverse closing balance. */
-  stale: boolean;
-  classification: ReclassClassification;
-  status: ReclassWorkbenchStatus;
-  targetAccountCode: string | null;
-  targetAccountName: string | null;
-  sourceType: string;
-  detailCount: number;
-  abnormalSide: "debit" | "credit";
-  ruleId: number | null;
-  adjustmentId: number | null;
-  reason: string;
-}
-
-export interface ReclassWorkbenchSummary {
-  total: number;
-  attention: number;
-  processed: number;
-  exempt: number;
-  historical: number;
-  attentionAmount: number;
-  processedAmount: number;
-}
+export type {
+  ReclassClassification,
+  ReclassEntry,
+  ReclassWorkbenchStatus,
+  ReclassWorkbenchSummary,
+} from "@workspace/finance/types";
 
 interface BalanceInput {
   closingDebit: number;

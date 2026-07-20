@@ -74,6 +74,7 @@ const EXPLICIT_MULTI_ACTION_ROUTE_DISPATCHERS = new Map<string, string>([
   ["POST /api/modules/work/tasks/submissions", "buildCreateWorkTaskSubmissionRouteCommand derives the registered BusinessAction from the typed entity and payload."],
   ["POST /api/modules/work/tasks/submissions/:id/submit", "The stored request payload owns the BusinessAction identity dispatched by the submission lifecycle."],
   ["PUT /api/modules/work/tasks/reports", "workReportBusinessActionKey derives report-save versus target-specific submit behavior from target, stage, and period."],
+  ["PUT /api/modules/work/tasks/plans/:id/kpi-scorecard", "executeFinalizeKpiScorecardCommand loads the plan-bound governance and dispatches the personal versus department goal action from its target space."],
 ]);
 
 interface RouteHandler {

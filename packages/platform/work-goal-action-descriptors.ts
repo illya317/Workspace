@@ -12,6 +12,7 @@ export const WORK_GOAL_ACTION_DESCRIPTORS = [
     targetKind: "WorkGoalInitialSnapshot",
     settingsSortOrder: 101,
     apiRoutes: [
+      route("PUT", "/api/modules/work/tasks/plans/:id/kpi-scorecard", "流程关闭时直接确认 KPI 目标计分卡"),
       route("POST", "/api/modules/work/tasks/submissions"),
       route("POST", "/api/modules/work/tasks/submissions/:id/submit"),
     ],
@@ -24,6 +25,7 @@ export const WORK_GOAL_ACTION_DESCRIPTORS = [
     targetKind: "WorkGoalInitialSnapshot",
     settingsSortOrder: 102,
     apiRoutes: [
+      route("PUT", "/api/modules/work/tasks/plans/:id/kpi-scorecard", "流程关闭时直接确认 KPI 目标计分卡"),
       route("POST", "/api/modules/work/tasks/submissions"),
       route("POST", "/api/modules/work/tasks/submissions/:id/submit"),
     ],

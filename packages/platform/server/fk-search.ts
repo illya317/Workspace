@@ -4,7 +4,7 @@ import {
   employeeActiveLifecycleStatus,
   matchesFkKeyword,
   type LifecycleScope,
-} from "./fk-registry";
+} from "./relation-registry";
 
 const MAX_RESULTS = 50;
 const PREFETCH_LIMIT = 1000;

@@ -31,15 +31,15 @@ export default function DisclosureRecordCard({
       <button
         type="button"
         onClick={onToggle}
-        className="flex w-full items-center gap-4 px-4 py-2.5 text-left"
+        className="flex w-full items-start gap-3 px-3 py-3 text-left sm:items-center sm:gap-4 sm:px-4 sm:py-2.5"
       >
         <div className="min-w-0 flex-1">{header}</div>
-        {summary && <div className="shrink-0">{summary}</div>}
+        {summary && <div className="max-w-[45%] shrink-0 text-right sm:max-w-none">{summary}</div>}
         <span className="shrink-0 text-xs text-gray-300">{expanded ? "▲" : "▼"}</span>
       </button>
 
       {expanded && (
-        <div className="border-t border-slate-200 bg-gray-50 px-4 py-3">
+        <div className="border-t border-slate-200 bg-gray-50 px-3 py-3 sm:px-4">
           {(detailTitle || detailAction) && (
             <div className="mb-2 flex items-center justify-between gap-3">
               {detailTitle && <span className="text-xs text-gray-500">{detailTitle}</span>}

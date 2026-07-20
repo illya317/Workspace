@@ -88,8 +88,8 @@ export function checkSplitPriority() {
     return true;
   }
 
-  console.error("✗ Split priority failed: left/selector columns must not be mobile-first.");
-  console.error("  Use PageSurface split/surfaceGroup, TemplateWorkbenchFrame, or add max-lg:order-last to the left column.");
+  console.error("✗ Split priority failed: hand-written auxiliary columns cannot define the mobile flow.");
+  console.error("  Use BodySurface/SplitWorkspace for list-to-detail, or keep non-navigation auxiliary content after the primary content.");
   for (const item of violations) {
     console.error(`  ${item.file}:${item.line} ${item.className}`);
   }

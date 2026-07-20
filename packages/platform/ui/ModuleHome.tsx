@@ -43,6 +43,7 @@ export default function ModuleHome({ module, user }: Props) {
             color={child.color}
             href={workspacePath(child.href)}
             badge={lifecycleStatus && lifecycleStatus !== "workspace-owned" ? MODULE_LIFECYCLE_LABELS[lifecycleStatus] : undefined}
+            className={child.mobileExperience.strategy === "unavailable" ? "max-sm:hidden" : undefined}
           />
         );
       })}

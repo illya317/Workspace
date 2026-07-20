@@ -4,7 +4,7 @@ import { workspacePath } from "@workspace/core/routing";
 import { useMemo, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useFeedback } from "@workspace/core/ui";
-import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate, QcEditorRuntimeTest } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate, QcEditorRuntimeTest } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchRecordPage from "./QcBatchRecordPage";
 import { useEditorRuntimeFormulaEngine } from "./useEditorRuntimeFormulaEngine";

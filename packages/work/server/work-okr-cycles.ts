@@ -1,4 +1,4 @@
-import { matchesFkKeyword } from "@workspace/platform/server/fk-registry";
+import { matchesFkKeyword } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { validateWorkOkrCycleCommand } from "./domain/work-okr-cycle-validation";
 

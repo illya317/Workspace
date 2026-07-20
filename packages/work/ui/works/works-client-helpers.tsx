@@ -42,8 +42,15 @@ export function withFormActions(surface: FormSurfaceProps, actions: FormSurfaceA
 
 export function canMaintainWorkByType(
   work: WorkItem,
-  maintenance: WorkPlan["maintenance"] | null | undefined,
+  plan: WorkPlan | null | undefined,
 ) {
+  if (plan?.governance) {
+    const facets = plan.governance.facets;
+    if (work.itemType === "objective") return facets.target.editable;
+    if (work.itemType === "key_result") return facets.target.editable;
+    return facets.execution.editable;
+  }
+  const maintenance = plan?.maintenance;
   if (!maintenance) return false;
   if (work.itemType === "objective") return maintenance.objective;
   if (work.itemType === "key_result") return maintenance.keyResult;

@@ -2,37 +2,20 @@ import "server-only";
 
 import { getPublishedQcOfficialTemplateByProductKey, listPublishedQcOfficialTemplateSummaries } from "@workspace/platform/server/docs-editor";
 import type { EditorBlock, EditorDocument, FieldModel } from "@workspace/platform/document-editor";
+import type {
+  QcEditorRuntimeStage,
+  QcEditorRuntimeTemplate,
+  QcEditorRuntimeTest,
+  QcOfficialTemplateProduct,
+} from "@workspace/production/types/qc/runtime";
 import type { QcBatchSummary, QcBatchTemplateSnapshot } from "./types";
 
-export interface QcEditorRuntimeTest {
-  key: string;
-  sequence: string;
-  name: string;
-  blocks: EditorBlock[];
-}
-
-export interface QcEditorRuntimeStage {
-  key: string;
-  label: string;
-  index: number;
-  precheckBlocks: EditorBlock[];
-  tests: QcEditorRuntimeTest[];
-}
-
-export interface QcEditorRuntimeTemplate {
-  templateId: number;
-  templateVersion: number;
-  productKey: string;
-  productName: string;
-  document: EditorDocument;
-  fieldModel: FieldModel;
-  stages: QcEditorRuntimeStage[];
-}
-
-export interface QcOfficialTemplateProduct {
-  id: string;
-  productName: string;
-}
+export type {
+  QcEditorRuntimeStage,
+  QcEditorRuntimeTemplate,
+  QcEditorRuntimeTest,
+  QcOfficialTemplateProduct,
+} from "@workspace/production/types/qc/runtime";
 
 type Section = "stage" | "precheck" | "test";
 

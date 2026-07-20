@@ -1,9 +1,6 @@
 import type {
   WorkOkrControlCycleOption,
-  WorkOkrControlPolicy,
-  WorkOkrControlSettings,
   WorkPeriodType,
-  WorkTarget,
 } from "./types";
 import { selectVisiblePeriods } from "@workspace/core/period";
 import { listWorkReportWeekStarts, normalizeWorkReportWeekStart } from "../../work-report-periods";
@@ -34,19 +31,13 @@ export function createReportPeriodRecords(
   cycles: WorkOkrControlCycleOption[],
   periodType: ReportPeriodType,
   periodStart: string,
-  controls: {
-    policies: WorkOkrControlPolicy[];
-    settings: WorkOkrControlSettings | null;
-    target: WorkTarget | null;
-  },
 ): WorkReportPeriodRecord[] {
   const today = formatDate(new Date());
   if (periodType === "weekly") return createWeeklyReportPeriodRecords(periodStart, today);
   const futureBoundary = addMonths(today, 1);
   const seen = new Set<string>();
   const visibleCycles = cycles
-    .filter((cycle) => cycle.periodType === periodType)
-    .filter((cycle) => !isReportCycleLocked(cycle, controls, today));
+    .filter((cycle) => cycle.periodType === periodType);
   const records = selectVisiblePeriods(visibleCycles, { today })
     .flatMap((cycle) => {
       const key = reportPeriodRecordKey(periodType, cycle.startDate);
@@ -110,47 +101,6 @@ function nextPeriodStart(periodType: ReportPeriodType, today: string) {
   else if (periodType === "half_year") date.setUTCMonth(date.getUTCMonth() + 6, 1);
   else date.setUTCFullYear(date.getUTCFullYear() + 1, 0, 1);
   return formatDate(date);
-}
-
-function isReportCycleLocked(
-  cycle: WorkOkrControlCycleOption,
-  controls: {
-    policies: WorkOkrControlPolicy[];
-    settings: WorkOkrControlSettings | null;
-    target: WorkTarget | null;
-  },
-  today: string,
-) {
-  const policy = resolveReportCyclePolicy(cycle, controls.policies, controls.target);
-  if (policy?.isLocked) return true;
-  const settings = controls.settings;
-  if (!settings?.enabled || settings.autoLock === "off") return false;
-  const deadlineKey = settings.autoLock === "afterObjectiveDeadline" ? "objectiveSubmitDeadline" : "krSubmitDeadline";
-  const deadline = policy?.[deadlineKey] || resolveReportControlDeadline(settings, cycle, deadlineKey);
-  return Boolean(deadline && deadline < today);
-}
-
-function resolveReportCyclePolicy(
-  cycle: WorkOkrControlCycleOption,
-  policies: WorkOkrControlPolicy[],
-  target: WorkTarget | null,
-) {
-  const cyclePolicies = policies.filter((policy) => policy.cycleId === cycle.id);
-  const scopedPolicy = target && target.targetType !== "personal"
-    ? cyclePolicies.find((policy) => policy.scopeType === target.targetType && policy.scopeId === String(target.targetId))
-    : null;
-  return scopedPolicy ?? cyclePolicies.find((policy) => policy.scopeType === "global" && policy.scopeId === "") ?? null;
-}
-
-function resolveReportControlDeadline(
-  settings: WorkOkrControlSettings,
-  cycle: WorkOkrControlCycleOption,
-  key: "objectiveSubmitDeadline" | "krSubmitDeadline",
-) {
-  const periodRule = settings.periodTypes[cycle.periodType];
-  if (periodRule?.mode === "disabled" || periodRule?.mode === "report_only") return null;
-  const rule = periodRule?.mode === "custom" ? periodRule[key] ?? settings[key] : settings[key];
-  return addDays(rule.anchor === "periodStart" ? cycle.startDate : cycle.endDate, rule.offsetDays);
 }
 
 function cycleToPeriodRecord(
@@ -236,12 +186,6 @@ function parseDate(value: string) {
 function addMonths(value: string, amount: number) {
   const date = parseDate(value);
   date.setUTCMonth(date.getUTCMonth() + amount);
-  return formatDate(date);
-}
-
-function addDays(value: string, amount: number) {
-  const date = parseDate(value);
-  date.setUTCDate(date.getUTCDate() + amount);
   return formatDate(date);
 }
 

@@ -2,7 +2,7 @@ import {
   currentOpenEndedDateWhere,
   matchesFkKeyword,
   type FkOption,
-} from "@workspace/platform/server/fk-registry";
+} from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 
 type WorkSourceDepartment = {

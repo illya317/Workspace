@@ -125,9 +125,9 @@ export function fieldGrid(
   disabled: boolean,
   onChange: (key: string, value: unknown, option?: ReferenceOption) => void,
   isFieldDisabled?: (field: ProfileField, record: EditableRecord) => boolean,
-  gridClassName = "grid-cols-3",
+  gridClassName = "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
 ) {
-  const defaultGrid = gridClassName === "grid-cols-3";
+  const defaultGrid = gridClassName === "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3";
   return (
     <div className={`grid gap-3 ${gridClassName}`}>
       {fields.map((field) => {
@@ -137,7 +137,7 @@ export function fieldGrid(
         return (
           <div
             key={field.key}
-            className={wide && defaultGrid ? "col-span-3" : ""}
+            className={wide && defaultGrid ? "sm:col-span-2 lg:col-span-3" : ""}
           >
             <div className="mb-1 flex items-center gap-1 text-xs font-medium text-slate-500">
               <span>{field.label}</span>

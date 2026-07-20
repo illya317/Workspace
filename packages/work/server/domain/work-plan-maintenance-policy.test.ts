@@ -1,99 +1,45 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { isBoundWorkOkrTimeControlEnabled } from "./work-okr-bound-control";
 import {
   canMaintainWorkItem,
   resolveWorkPlanMaintenance,
   validateWorkPlanReopenTransition,
+  workItemMutationFacets,
 } from "./work-plan-maintenance-policy";
 
-test("bound time control unlocks maintenance only for an explicit disabled snapshot", () => {
-  const snapshot = JSON.stringify({
-    version: 1,
-    okrControl: { version: 1, settings: { enabled: false }, policy: null },
-    actions: { objective_submit: { policy: { mode: "required" } } },
-  });
-  assert.equal(isBoundWorkOkrTimeControlEnabled(snapshot), false);
-  assert.equal(isBoundWorkOkrTimeControlEnabled("{}"), true);
-  assert.equal(isBoundWorkOkrTimeControlEnabled("invalid"), true);
-});
-
-test("submitted objectives remain locked while time control is enabled", () => {
+test("legacy OKR stages do not lock maintenance", () => {
   assert.deepEqual(resolveWorkPlanMaintenance({
     kind: "okr",
     stage: "objective_submitted",
-    status: "active",
+    status: "done",
     isArchived: false,
-    timeControlEnabled: true,
-  }), {
-    plan: false,
-    objective: false,
-    task: false,
-    keyResult: false,
-  });
-});
-
-test("disabled time control unlocks every maintenance area for active OKR plans", () => {
-  for (const stage of ["objective_draft", "objective_submitted", "executing", "kr_open", "kr_submitted"]) {
-    assert.deepEqual(resolveWorkPlanMaintenance({
-      kind: "okr",
-      stage,
-      status: "active",
-      isArchived: false,
-      timeControlEnabled: false,
-    }), {
-      plan: true,
-      objective: true,
-      task: true,
-      keyResult: true,
-    });
-  }
-});
-
-test("OKR maintenance follows lifecycle stage", () => {
-  assert.deepEqual(resolveWorkPlanMaintenance({
-    kind: "okr",
-    stage: "objective_draft",
-    status: "active",
-    isArchived: false,
-    timeControlEnabled: true,
   }), {
     plan: true,
     objective: true,
-    task: false,
-    keyResult: false,
-  });
-  assert.deepEqual(resolveWorkPlanMaintenance({
-    kind: "okr",
-    stage: "executing",
-    status: "active",
-    isArchived: false,
-    timeControlEnabled: true,
-  }), {
-    plan: false,
-    objective: false,
     task: true,
     keyResult: true,
   });
 });
 
-test("closed lifecycle remains immutable", () => {
-  for (const input of [
-    { stage: "closed", status: "active", isArchived: false },
-    { stage: "executing", status: "done", isArchived: false },
-    { stage: "executing", status: "active", isArchived: true },
-  ]) {
-    assert.deepEqual(resolveWorkPlanMaintenance({
-      kind: "okr",
-      ...input,
-      timeControlEnabled: false,
-    }), {
-      plan: false,
-      objective: false,
-      task: false,
-      keyResult: false,
-    });
-  }
+test("archived OKR plans remain immutable", () => {
+  assert.deepEqual(resolveWorkPlanMaintenance({
+    kind: "okr",
+    stage: "closed",
+    status: "done",
+    isArchived: true,
+  }), {
+    plan: false,
+    objective: false,
+    task: false,
+    keyResult: false,
+  });
+});
+
+test("work item mutation facets keep KR definition separate from its current result", () => {
+  assert.deepEqual(workItemMutationFacets("objective"), ["target"]);
+  assert.deepEqual(workItemMutationFacets("task"), ["execution"]);
+  assert.deepEqual(workItemMutationFacets("key_result"), ["target"]);
+  assert.deepEqual(workItemMutationFacets("key_result", { changesKrCurrentValue: true }), ["target", "result"]);
 });
 
 test("routine plans only allow task maintenance", () => {
@@ -102,7 +48,6 @@ test("routine plans only allow task maintenance", () => {
     stage: "closed",
     status: "active",
     isArchived: false,
-    timeControlEnabled: false,
   });
   assert.equal(canMaintainWorkItem(maintenance, "task"), true);
   assert.equal(canMaintainWorkItem(maintenance, "objective"), false);
@@ -126,8 +71,26 @@ test("completed OKR plans can reopen only through the canonical revision adapter
   }), { ok: true, data: { reopening: true } });
   assert.deepEqual(validateWorkPlanReopenTransition({
     kind: "okr",
+    currentStatus: "done",
+    requestedStatus: "active",
+    updateGuard: undefined,
+    directTargetRevision: true,
+  }), { ok: true, data: { reopening: true } });
+  assert.deepEqual(validateWorkPlanReopenTransition({
+    kind: "okr",
     currentStatus: "active",
     requestedStatus: "active",
     updateGuard: undefined,
   }), { ok: true, data: { reopening: false } });
+});
+
+test("workflow-mode target revisions cannot be bypassed by direct lifecycle reopen", () => {
+  const blocked = validateWorkPlanReopenTransition({
+    kind: "okr",
+    currentStatus: "done",
+    requestedStatus: "active",
+    updateGuard: undefined,
+    directTargetRevision: false,
+  });
+  assert.equal(blocked.ok, false);
 });

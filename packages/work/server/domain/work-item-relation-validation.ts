@@ -11,6 +11,7 @@ export interface WorkItemRelationInput {
   targetId: number;
   currentWorkId?: number;
   itemType?: string;
+  status?: string | null;
   sourceType?: string;
   sourceKind?: string | null;
   sourceMeetingId?: number | null;
@@ -26,9 +27,21 @@ export interface WorkItemRelationInput {
 
 export async function validateWorkItemRelations(input: WorkItemRelationInput) {
   if (!input.planId) return "必须选择工作计划";
-  const plan = await prisma.workPlan.findUnique({ where: { id: input.planId }, select: { targetType: true, targetId: true, kind: true, collaborationId: true } });
+  const plan = await prisma.workPlan.findUnique({
+    where: { id: input.planId },
+    select: {
+      targetType: true,
+      targetId: true,
+      kind: true,
+      collaborationId: true,
+      status: true,
+      isArchived: true,
+    },
+  });
   if (!plan) return "工作计划不存在";
   if (plan.targetType !== input.targetType || plan.targetId !== input.targetId) return "工作计划不属于当前空间";
+  if (plan.isArchived) return "已归档计划不能新增、恢复或调整工作项";
+  if (plan.status === "done" && input.status !== "done") return "已完成计划下不能保留未完成工作项";
   if (plan.collaborationId && input.collaborationId && plan.collaborationId !== input.collaborationId) return "任务关联的部门协作必须与所属计划一致";
   const collaborationId = input.collaborationId ?? plan.collaborationId;
   const collaborationError = await validateWorkCollaborationReference({
@@ -99,6 +112,7 @@ async function validateParentRelation(input: WorkItemRelationInput) {
   if (parent.targetType !== input.targetType || parent.targetId !== input.targetId) return "上级工作项不属于当前空间";
   if (parent.planId !== input.planId) return "上级工作项不属于当前 OKR 计划";
   if (parent.isArchived) return "上级工作项已归档";
+  if (parent.status === "done" && input.status !== "done") return "已完成上级工作项下不能保留未完成子项";
   if (input.itemType === "key_result" && parent.itemType !== "objective") return "KR 必须挂在 O/目标下";
   if (input.itemType === "objective") return "O/目标只能作为根节点";
   if (input.itemType === "task" && parent.itemType !== "objective") {

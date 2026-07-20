@@ -3,9 +3,11 @@ import type {
   ModuleRegistration,
   ResourceRegistration,
   SubModuleRegistration,
-  WorkspacePackageRegistration,
 } from "@workspace/core";
-import { registeredModuleDefinitions } from "./module-registry";
+import {
+  registeredModuleDefinitions,
+  type RelationAwareWorkspacePackageRegistration,
+} from "./module-registry";
 import { deriveWorkspaceResourceDefs } from "./module-registry-utils";
 import { getModuleRuntimeOverrides, type ModuleRuntimeOverride, type ModuleRuntimeOverrideMap } from "./module-overrides";
 
@@ -179,7 +181,9 @@ function targetResourceEnabled(target: string) {
   return resourceKey ? isResourceEnabled(resourceKey) : true;
 }
 
-function toEffectiveDefinition(definition: WorkspacePackageRegistration): WorkspacePackageRegistration {
+function toEffectiveDefinition(
+  definition: RelationAwareWorkspacePackageRegistration,
+): RelationAwareWorkspacePackageRegistration {
   return {
     ...definition,
     moduleDef: definition.moduleDef ? applyModuleOverride(definition.moduleDef) : undefined,
@@ -187,7 +191,9 @@ function toEffectiveDefinition(definition: WorkspacePackageRegistration): Worksp
   };
 }
 
-function toActiveDefinition(definition: WorkspacePackageRegistration): WorkspacePackageRegistration {
+function toActiveDefinition(
+  definition: RelationAwareWorkspacePackageRegistration,
+): RelationAwareWorkspacePackageRegistration {
   const effective = toEffectiveDefinition(definition);
   const activeModuleDef = effective.moduleDef
     ? {
@@ -199,7 +205,7 @@ function toActiveDefinition(definition: WorkspacePackageRegistration): Workspace
     ...effective,
     moduleDef: activeModuleDef,
     resourceDefs: effective.resourceDefs?.filter((resource) => resource.enabled !== false),
-    fkRegistrations: effective.fkRegistrations?.filter(
+    relationRegistrations: effective.relationRegistrations?.filter(
       (registration) => isResourceEnabled(registration.permission.resourceKey) && targetResourceEnabled(registration.target),
     ),
   };
@@ -209,7 +215,7 @@ export const effectiveModuleDefinitions = registeredModuleDefinitions.map(toEffe
 
 export const activeModuleDefinitions = registeredModuleDefinitions.map(toActiveDefinition);
 
-export function getEffectiveModuleDefinition(packageName: string): WorkspacePackageRegistration {
+export function getEffectiveModuleDefinition(packageName: string): RelationAwareWorkspacePackageRegistration {
   const definition = effectiveModuleDefinitions.find((item) => item.packageName === packageName);
   if (!definition) throw new Error(`Module package is not registered: ${packageName}`);
   return definition;

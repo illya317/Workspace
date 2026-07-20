@@ -1,6 +1,7 @@
 import { randomBytes } from "crypto";
 
 import {
+  buildWecomInAppLoginUrl,
   buildWecomWebLoginUrl,
   getWecomUserByCode,
   getWecomUserDetail,
@@ -63,11 +64,17 @@ export async function getCurrentSessionStatus(request: Request): Promise<Current
   return { status: "unauthenticated" };
 }
 
-export function createWecomLoginStart(origin: string, basePath: string): WecomLoginStart {
+export function createWecomLoginStart(
+  origin: string,
+  basePath: string,
+  mode: "web" | "in-app" = "web",
+): WecomLoginStart {
   const state = randomBytes(24).toString("hex");
   const redirectUri = `${origin}${basePath}/api/auth/wecom/callback`;
   return {
-    authorizeUrl: buildWecomWebLoginUrl(redirectUri, state),
+    authorizeUrl: mode === "in-app"
+      ? buildWecomInAppLoginUrl(redirectUri, state)
+      : buildWecomWebLoginUrl(redirectUri, state),
     state,
   };
 }

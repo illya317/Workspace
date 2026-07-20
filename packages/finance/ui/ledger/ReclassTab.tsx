@@ -14,8 +14,7 @@ import {
 import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { RuleCandidate, ScanCandidatesResult } from "../../server/ledger/reclass-rules";
-import type { ReclassEntry, ReclassWorkbenchSummary } from "../../server/schedules/reclassify";
+import type { ReclassEntry, ReclassWorkbenchSummary, RuleCandidate, ScanCandidatesResult } from "@workspace/finance/types";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
 import { formatFinanceAmount } from "../formatters";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";

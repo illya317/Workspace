@@ -35,6 +35,7 @@ type NestedPageSections = {
   sections: BodySurfaceSectionSpec[];
   layout?: "stack" | "grid";
   gridColumns?: 2 | 3;
+  mobilePresentation?: "stack" | "drilldown";
 };
 
 type PageSectionPanelOptions = NestedPageSections & {
@@ -61,6 +62,8 @@ export type BodySplitSectionOptions = {
   left: BodySurfaceProps;
   drawerLeft?: BodySurfaceProps;
   right: BodySurfaceProps;
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
   side: {
     label: string;
     open: boolean;
@@ -107,6 +110,8 @@ export function createBodySplitSection(options: BodySplitSectionOptions): BodySu
     onDrawerOpenChange: options.side.onDrawerOpenChange,
     showSideControls: options.side.showControls,
     splitRatio: options.layout?.ratio,
+    mobileDetailActive: options.mobileDetailActive,
+    onMobileNavigateToList: options.onMobileNavigateToList,
   };
 }
 
@@ -287,15 +292,15 @@ export function createSectionsSection(
   key: string,
   group: NestedPageSections,
 ): BodySurfaceSectionSpec {
-  const { gridColumns, layout = "stack", sections } = group;
-  return { key, body: { kind: "section", layout, gridColumns, sections } };
+  const { gridColumns, layout = "stack", mobilePresentation, sections } = group;
+  return { key, body: { kind: "section", layout, gridColumns, mobilePresentation, sections } };
 }
 
 export function createPanelSection(
   key: string,
   panel: PageSectionPanelOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, disclosure, framed, gridColumns, itemRef, layout = "stack", sections, title } = panel;
+  const { actions, chrome, disclosure, framed, gridColumns, itemRef, layout = "stack", mobilePresentation, sections, title } = panel;
   return {
     key,
     label: title,
@@ -304,7 +309,7 @@ export function createPanelSection(
     framed,
     itemRef,
     header: { title, actions },
-    body: { kind: "section", layout, gridColumns, sections },
+    body: { kind: "section", layout, gridColumns, mobilePresentation, sections },
   };
 }
 
@@ -312,14 +317,14 @@ export function createAnalysisSection(
   key: string,
   analysis: PageSectionAnalysisOptions,
 ): BodySurfaceSectionSpec {
-  const { actions, chrome, framed, layout = "stack", sections, title } = analysis;
+  const { actions, chrome, framed, layout = "stack", mobilePresentation, sections, title } = analysis;
   return {
     key,
     label: title,
     chrome,
     framed,
     header: { title, actions },
-    body: { kind: "section", layout, sections },
+    body: { kind: "section", layout, mobilePresentation, sections },
   };
 }
 

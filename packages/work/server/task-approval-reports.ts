@@ -48,7 +48,7 @@ export async function validateReportApprovalPayload(
   if (!approvalTarget.ok) return approvalTarget;
   const periodType = normalizeReportPeriodType(payload.periodType ?? payload.data.periodType);
   const reportStage = normalizeReportStage(payload.reportStage ?? payload.data.reportStage);
-  const actionKind = options.actionKind ?? resolveWorkReportWorkflowActionKind(reportStage, "submit");
+  const actionKind = options.actionKind ?? resolveWorkReportWorkflowActionKind(reportStage, payload.reportId ? "correct" : "submit");
   const items = Array.isArray(payload.data.items) ? payload.data.items : [];
   const boundPlan = await findWorkReportGovernancePlan({
     targetType: payload.targetType,

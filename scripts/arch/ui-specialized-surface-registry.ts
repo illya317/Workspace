@@ -4,6 +4,7 @@ export const REVIEWED_UI_SPECIALIZED_SURFACES = [
   { file: "packages/production/ui/qc/QcEditorRuntimePaper.tsx", seam: "qc-runtime-paper", granularity: "deep-module" },
   { file: "packages/platform/ui/page-assistant/PageAssistantComposer.tsx", seam: "page-assistant-composer", granularity: "deep-module" },
   { file: "packages/platform/ui/page-assistant/PageAssistantMessages.tsx", seam: "page-assistant-messages", granularity: "deep-module" },
+  { file: "packages/platform/ui/auth/WecomLoginPanel.tsx", seam: "wecom-login-panel", granularity: "deep-module" },
   { file: "packages/platform/ui/admin/tabs/WorkflowPoliciesBpmnCanvasLayout.tsx", seam: "workflow-bpmn-canvas", granularity: "deep-module" },
   { file: "packages/platform/ui/admin/tabs/WorkflowPoliciesBpmnElementModal.tsx", seam: "workflow-bpmn-element-editor", granularity: "deep-module" },
 ] as const;

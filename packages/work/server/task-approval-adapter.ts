@@ -1,7 +1,4 @@
-import {
-  type ApprovalAdapter,
-  type ApprovalOperation,
-} from "@workspace/platform/server/approvals";
+import { type ApprovalAdapter, type ApprovalOperation } from "@workspace/platform/server/approvals";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { prisma } from "@workspace/platform/server/prisma";
 import { canViewWorkTaskTarget, canSubmitWorkTaskAction } from "./access";
@@ -45,13 +42,10 @@ import { canProcessWorkTaskRequest, resolveWorkTaskHandlerUserIds } from "./task
 import { normalizeApprovalPayload } from "./task-approval-normalize";
 import { commitWorkReportApproval, resolveWorkReportWorkflowActionKind, validateReportApprovalPayload } from "./task-approval-reports";
 import { validateWorkItemPeriodRelations, validateWorkPlanPeriodRelations } from "./work-period-relations";
-import {
-  commitWorkPeriodScheduleApproval,
-  isWorkPeriodScheduleApprovalPayload,
-  validateWorkPeriodScheduleApprovalPayload,
-} from "./work-period-schedule-approval";
+import { commitWorkPeriodScheduleApproval, isWorkPeriodScheduleApprovalPayload, validateWorkPeriodScheduleApprovalPayload } from "./work-period-schedule-approval";
 import { normalizeApprovalParticipants, validateReferencedProjectVisibility } from "./task-approval-reference-validation";
-import { workPlanGovernanceSelect, workPlanPreparedWorkflowBinding } from "./work-plan-governance";
+import { getWorkPlanOkrGovernance, workPlanGovernanceSelect, workPlanPreparedWorkflowBinding } from "./work-plan-governance";
+import { workOkrFacetMutationIssue } from "./domain/work-okr-governance-policy";
 
 export {
   getWorkTaskApprovalResourceKey,
@@ -130,15 +124,15 @@ export const workTaskApprovalAdapter: ApprovalAdapter<WorkTaskApprovalPayload> =
 };
 
 export async function commitPreparedWorkTaskPayload(input: {
-  actorUserId: number; submitterUserId: number; operation: ApprovalOperation;
-  subjectId?: string | null;
-  payload: WorkTaskApprovalPayload;
+  actorUserId: number; submitterUserId: number; operation: ApprovalOperation; subjectId?: string | null;
+  payload: WorkTaskApprovalPayload; authorization?: "direct" | "workflow-approved";
 }) {
   const entityType = approvalEntityType(input.payload);
+  const authorization = input.authorization ?? "workflow-approved";
   const result = entityType === "objective_plan"
-    ? await commitObjectivePlanApproval(input.actorUserId, input.payload as WorkTaskObjectivePlanApprovalPayload)
+    ? await commitObjectivePlanApproval(input.actorUserId, input.submitterUserId, input.payload as WorkTaskObjectivePlanApprovalPayload, authorization)
     : entityType === "kr_review"
-      ? await commitKrReviewApproval(input.actorUserId, input.payload as WorkTaskKrReviewApprovalPayload)
+      ? await commitKrReviewApproval(input.actorUserId, input.payload as WorkTaskKrReviewApprovalPayload, authorization)
       : entityType === "item"
         ? await commitWorkItemApproval(input.actorUserId, input.submitterUserId, input.operation, input.payload as WorkTaskItemApprovalPayload)
         : entityType === "plan"
@@ -148,7 +142,7 @@ export async function commitPreparedWorkTaskPayload(input: {
           : entityType === "revision"
             ? await commitRevisionApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskRevisionApprovalPayload })
             : await commitWorkReportApproval({ actorUserId: input.actorUserId, submitterUserId: input.submitterUserId, payload: input.payload as WorkTaskReportApprovalPayload });
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk(result.data);
 }
 
@@ -168,7 +162,7 @@ export async function commitWorkItemApproval(actorUserId: number, submitterUserI
     : payload.workId
       ? await updateWorkItem(payload.workId, { ...payload.data, actorUserId, ownerEligibilityUserId: submitterUserId, mutationAuthorization: "workflow-approved" } as Parameters<typeof updateWorkItem>[1])
       : serviceError("审批单缺少工作项 ID", 400);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   const entity = result.data as { id?: unknown };
   if (!entity.id) return serviceError("审批通过后未能取得工作项 ID", 500);
   return serviceOk({ entityType: "work.task", entityId: String(entity.id), entity: result.data });
@@ -186,7 +180,7 @@ async function commitWorkPlanApproval(actorUserId: number, submitterUserId: numb
     : payload.planId
       ? await updateWorkPlan(payload.planId, { ...payload.data, actorUserId, ownerEligibilityUserId: submitterUserId } as Parameters<typeof updateWorkPlan>[1])
       : serviceError("审批单缺少 OKR 计划 ID", 400);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   const entity = result.data as { id?: unknown };
   if (!entity.id) return serviceError("审批通过后未能取得 OKR 计划 ID", 500);
   return serviceOk({ entityType: "work.plan", entityId: String(entity.id) });
@@ -221,7 +215,7 @@ export async function commitRevisionApproval(input: {
     actorUserId: input.actorUserId,
     updateGuard: "workflow-approved",
   } as Parameters<typeof updateWorkPlan>[1] & { updateGuard: "workflow-approved" });
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk({ entityType: "work.plan", entityId: String(input.payload.planId) });
 }
 
@@ -243,8 +237,8 @@ async function validateWorkTaskApprovalPayload(input: {
     return validateUpdatePlanApprovalPayload(input.actorUserId, input.subjectId, raw.data as WorkTaskPlanApprovalPayload);
   }
   if (entityType === "collaboration") return validateCollaborationApprovalPayload({ operation: input.operation, subjectId: input.subjectId, payload: raw.data as WorkTaskCollaborationApprovalPayload });
-  if (entityType === "objective_plan") return validateObjectivePlanApprovalPayload(raw.data as WorkTaskObjectivePlanApprovalPayload, input.subjectId);
-  if (entityType === "kr_review") return validateKrReviewApprovalPayload(raw.data as WorkTaskKrReviewApprovalPayload, input.subjectId);
+  if (entityType === "objective_plan") return validateObjectivePlanApprovalPayload(raw.data as WorkTaskObjectivePlanApprovalPayload, input.subjectId, input.actorUserId);
+  if (entityType === "kr_review") return validateKrReviewApprovalPayload(raw.data as WorkTaskKrReviewApprovalPayload, input.subjectId, input.actorUserId);
   if (entityType === "revision") return validateRevisionApprovalPayload(input.actorUserId, raw.data as WorkTaskRevisionApprovalPayload);
   return validateReportApprovalPayload(raw.data as WorkTaskReportApprovalPayload);
 }
@@ -314,7 +308,7 @@ export async function validateUpdateItemApprovalPayload(
       parentWorkItemId: true,
       parentPeriodWorkItemId: true,
       previousPeriodWorkItemId: true,
-      collaborationId: true,
+      collaborationId: true, status: true,
     },
   });
   if (!existing?.targetId) return serviceError("工作项不存在", 404);
@@ -329,7 +323,7 @@ export async function validateUpdateItemApprovalPayload(
   const relationError = await validateWorkItemRelations({
     targetType: existing.targetType,
     targetId: existing.targetId,
-    currentWorkId: command.data.workId,
+    currentWorkId: command.data.workId, status: command.data.data.status === undefined ? existing.status : command.data.data.status,
     ownerEmployeeId: command.data.data.ownerEmployeeId,
     collaborationId: command.data.data.collaborationId === undefined ? existing.collaborationId : command.data.data.collaborationId,
     actorUserId,
@@ -424,7 +418,13 @@ async function validateUpdatePlanApprovalPayload(
   if (collaborationError) return serviceError(collaborationError, 400);
   const periodRelationError = await validateWorkPlanPeriodRelations(planPeriodRelationInput(data, { ...existing, currentPlanId: planId }));
   if (periodRelationError) return serviceError(periodRelationError, 400);
-  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "objective_revise");
+  const governance = await getWorkPlanOkrGovernance({ planId, actorUserId });
+  if (!governance) return serviceError("工作计划治理状态不存在", 409);
+  const targetFacet = governance.governance.facets.target;
+  const targetIssue = workOkrFacetMutationIssue(targetFacet, "目标修订");
+  if (targetIssue) return serviceError(targetIssue.message, targetIssue.status);
+  const actionKind = targetFacet.action?.kind ?? "objective_revise";
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, actionKind);
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(targetType),
     scopeId: workTaskScopeId(targetType, existing.targetId),

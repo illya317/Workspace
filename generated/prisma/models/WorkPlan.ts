@@ -732,6 +732,7 @@ export type WorkPlanWhereInput = {
   items?: Prisma.WorkItemListRelationFilter
   meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
   reportItems?: Prisma.WorkReportItemListRelationFilter
+  kpiAssignments?: Prisma.WorkKpiAssignmentListRelationFilter
   governanceEvents?: Prisma.WorkPlanGovernanceEventListRelationFilter
 }
 
@@ -812,6 +813,7 @@ export type WorkPlanOrderByWithRelationInput = {
   items?: Prisma.WorkItemOrderByRelationAggregateInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateOrderByRelationAggregateInput
   reportItems?: Prisma.WorkReportItemOrderByRelationAggregateInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentOrderByRelationAggregateInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventOrderByRelationAggregateInput
 }
 
@@ -895,6 +897,7 @@ export type WorkPlanWhereUniqueInput = Prisma.AtLeast<{
   items?: Prisma.WorkItemListRelationFilter
   meetingActionCandidates?: Prisma.MeetingActionCandidateListRelationFilter
   reportItems?: Prisma.WorkReportItemListRelationFilter
+  kpiAssignments?: Prisma.WorkKpiAssignmentListRelationFilter
   governanceEvents?: Prisma.WorkPlanGovernanceEventListRelationFilter
 }, "id">
 
@@ -1088,6 +1091,7 @@ export type WorkPlanCreateInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -1156,6 +1160,7 @@ export type WorkPlanUncheckedCreateInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -1223,6 +1228,7 @@ export type WorkPlanUpdateInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -1291,6 +1297,7 @@ export type WorkPlanUncheckedUpdateInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -1468,14 +1475,14 @@ export type WorkPlanOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type WorkPlanNullableScalarRelationFilter = {
-  is?: Prisma.WorkPlanWhereInput | null
-  isNot?: Prisma.WorkPlanWhereInput | null
-}
-
 export type WorkPlanScalarRelationFilter = {
   is?: Prisma.WorkPlanWhereInput
   isNot?: Prisma.WorkPlanWhereInput
+}
+
+export type WorkPlanNullableScalarRelationFilter = {
+  is?: Prisma.WorkPlanWhereInput | null
+  isNot?: Prisma.WorkPlanWhereInput | null
 }
 
 export type WorkPlanCountOrderByAggregateInput = {
@@ -1831,6 +1838,20 @@ export type WorkPlanUncheckedUpdateManyWithoutCollaborationNestedInput = {
   update?: Prisma.WorkPlanUpdateWithWhereUniqueWithoutCollaborationInput | Prisma.WorkPlanUpdateWithWhereUniqueWithoutCollaborationInput[]
   updateMany?: Prisma.WorkPlanUpdateManyWithWhereWithoutCollaborationInput | Prisma.WorkPlanUpdateManyWithWhereWithoutCollaborationInput[]
   deleteMany?: Prisma.WorkPlanScalarWhereInput | Prisma.WorkPlanScalarWhereInput[]
+}
+
+export type WorkPlanCreateNestedOneWithoutKpiAssignmentsInput = {
+  create?: Prisma.XOR<Prisma.WorkPlanCreateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedCreateWithoutKpiAssignmentsInput>
+  connectOrCreate?: Prisma.WorkPlanCreateOrConnectWithoutKpiAssignmentsInput
+  connect?: Prisma.WorkPlanWhereUniqueInput
+}
+
+export type WorkPlanUpdateOneRequiredWithoutKpiAssignmentsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkPlanCreateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedCreateWithoutKpiAssignmentsInput>
+  connectOrCreate?: Prisma.WorkPlanCreateOrConnectWithoutKpiAssignmentsInput
+  upsert?: Prisma.WorkPlanUpsertWithoutKpiAssignmentsInput
+  connect?: Prisma.WorkPlanWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkPlanUpdateToOneWithWhereWithoutKpiAssignmentsInput, Prisma.WorkPlanUpdateWithoutKpiAssignmentsInput>, Prisma.WorkPlanUncheckedUpdateWithoutKpiAssignmentsInput>
 }
 
 export type WorkPlanCreateNestedManyWithoutSourceMeetingInput = {
@@ -2414,6 +2435,7 @@ export type WorkPlanCreateWithoutOwnerInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2481,6 +2503,7 @@ export type WorkPlanUncheckedCreateWithoutOwnerInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2635,6 +2658,7 @@ export type WorkPlanCreateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2702,6 +2726,7 @@ export type WorkPlanUncheckedCreateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2794,6 +2819,7 @@ export type WorkPlanCreateWithoutCollaborationInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2861,6 +2887,7 @@ export type WorkPlanUncheckedCreateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -2888,6 +2915,292 @@ export type WorkPlanUpdateWithWhereUniqueWithoutCollaborationInput = {
 export type WorkPlanUpdateManyWithWhereWithoutCollaborationInput = {
   where: Prisma.WorkPlanScalarWhereInput
   data: Prisma.XOR<Prisma.WorkPlanUpdateManyMutationInput, Prisma.WorkPlanUncheckedUpdateManyWithoutCollaborationInput>
+}
+
+export type WorkPlanCreateWithoutKpiAssignmentsInput = {
+  targetType?: string
+  targetId: number
+  kind?: string
+  title: string
+  description?: string
+  status?: string
+  isArchived?: boolean
+  okrStage?: string
+  objectiveSubmittedAt?: Date | string | null
+  objectiveApprovedAt?: Date | string | null
+  objectiveApprovedByUserId?: number | null
+  krReviewOpensAt?: Date | string | null
+  krSubmittedAt?: Date | string | null
+  krApprovedAt?: Date | string | null
+  krApprovedByUserId?: number | null
+  okrControlScopeType?: string | null
+  okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
+  objectiveApprovalSnapshotJson?: string
+  krApprovalSnapshotJson?: string
+  periodType?: string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  isSystemGenerated?: boolean
+  isMilestone?: boolean
+  milestoneDate?: Date | string | null
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner?: Prisma.EmployeeCreateNestedOneWithoutOwnedWorkPlansInput
+  collaboration?: Prisma.DepartmentCollaborationCreateNestedOneWithoutWorkPlansInput
+  okrCycle?: Prisma.WorkOkrCycleCreateNestedOneWithoutPlansInput
+  sourcePlan?: Prisma.WorkPlanCreateNestedOneWithoutDerivedPlansInput
+  derivedPlans?: Prisma.WorkPlanCreateNestedManyWithoutSourcePlanInput
+  parentPeriodPlan?: Prisma.WorkPlanCreateNestedOneWithoutChildPeriodPlansInput
+  childPeriodPlans?: Prisma.WorkPlanCreateNestedManyWithoutParentPeriodPlanInput
+  previousPeriodPlan?: Prisma.WorkPlanCreateNestedOneWithoutNextPeriodPlansInput
+  nextPeriodPlans?: Prisma.WorkPlanCreateNestedManyWithoutPreviousPeriodPlanInput
+  planAlignments?: Prisma.WorkPlanAlignmentCreateNestedManyWithoutChildPlanInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentCreateNestedManyWithoutSourcePlanInput
+  linkedProject?: Prisma.ProjectCreateNestedOneWithoutLinkedWorkPlansInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseCreateNestedOneWithoutLinkedWorkPlansInput
+  sourceMeeting?: Prisma.MeetingCreateNestedOneWithoutSourceWorkPlansInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionCreateNestedOneWithoutSourceWorkPlansInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateCreateNestedOneWithoutSourceWorkPlansInput
+  sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
+  items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
+  reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
+}
+
+export type WorkPlanUncheckedCreateWithoutKpiAssignmentsInput = {
+  id?: number
+  targetType?: string
+  targetId: number
+  kind?: string
+  title: string
+  description?: string
+  status?: string
+  isArchived?: boolean
+  okrStage?: string
+  objectiveSubmittedAt?: Date | string | null
+  objectiveApprovedAt?: Date | string | null
+  objectiveApprovedByUserId?: number | null
+  krReviewOpensAt?: Date | string | null
+  krSubmittedAt?: Date | string | null
+  krApprovedAt?: Date | string | null
+  krApprovedByUserId?: number | null
+  ownerEmployeeId?: number | null
+  collaborationId?: number | null
+  okrCycleId?: number | null
+  sourcePlanId?: number | null
+  parentPeriodPlanId?: number | null
+  previousPeriodPlanId?: number | null
+  okrControlScopeType?: string | null
+  okrControlScopeId?: string | null
+  governanceMode?: string
+  governanceRevision?: number
+  governanceActionKey?: string | null
+  governanceWorkflowPolicyId?: number | null
+  governanceWorkflowVersion?: number | null
+  governanceActionContractVersion?: number | null
+  governanceOkrControlVersion?: number | null
+  governanceSnapshotJson?: string
+  governanceBoundAt?: Date | string | null
+  governanceBoundByUserId?: number | null
+  governanceBindingSource?: string
+  objectiveApprovalSnapshotJson?: string
+  krApprovalSnapshotJson?: string
+  periodType?: string | null
+  actualStartDate?: Date | string | null
+  actualEndDate?: Date | string | null
+  plannedStartDate?: Date | string | null
+  plannedEndDate?: Date | string | null
+  sourceType?: string
+  sourceKind?: string | null
+  sourceMeetingId?: number | null
+  sourceMeetingDecisionId?: number | null
+  sourceMeetingActionCandidateId?: number | null
+  sourceDepartmentId?: number | null
+  linkedProjectId?: number | null
+  linkedProjectPhaseId?: number | null
+  isSystemGenerated?: boolean
+  isMilestone?: boolean
+  milestoneDate?: Date | string | null
+  sortOrder?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  derivedPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutSourcePlanInput
+  childPeriodPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutParentPeriodPlanInput
+  nextPeriodPlans?: Prisma.WorkPlanUncheckedCreateNestedManyWithoutPreviousPeriodPlanInput
+  planAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutChildPlanInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
+  items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
+  reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
+}
+
+export type WorkPlanCreateOrConnectWithoutKpiAssignmentsInput = {
+  where: Prisma.WorkPlanWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedCreateWithoutKpiAssignmentsInput>
+}
+
+export type WorkPlanUpsertWithoutKpiAssignmentsInput = {
+  update: Prisma.XOR<Prisma.WorkPlanUpdateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedUpdateWithoutKpiAssignmentsInput>
+  create: Prisma.XOR<Prisma.WorkPlanCreateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedCreateWithoutKpiAssignmentsInput>
+  where?: Prisma.WorkPlanWhereInput
+}
+
+export type WorkPlanUpdateToOneWithWhereWithoutKpiAssignmentsInput = {
+  where?: Prisma.WorkPlanWhereInput
+  data: Prisma.XOR<Prisma.WorkPlanUpdateWithoutKpiAssignmentsInput, Prisma.WorkPlanUncheckedUpdateWithoutKpiAssignmentsInput>
+}
+
+export type WorkPlanUpdateWithoutKpiAssignmentsInput = {
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  okrStage?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isSystemGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  milestoneDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.EmployeeUpdateOneWithoutOwnedWorkPlansNestedInput
+  collaboration?: Prisma.DepartmentCollaborationUpdateOneWithoutWorkPlansNestedInput
+  okrCycle?: Prisma.WorkOkrCycleUpdateOneWithoutPlansNestedInput
+  sourcePlan?: Prisma.WorkPlanUpdateOneWithoutDerivedPlansNestedInput
+  derivedPlans?: Prisma.WorkPlanUpdateManyWithoutSourcePlanNestedInput
+  parentPeriodPlan?: Prisma.WorkPlanUpdateOneWithoutChildPeriodPlansNestedInput
+  childPeriodPlans?: Prisma.WorkPlanUpdateManyWithoutParentPeriodPlanNestedInput
+  previousPeriodPlan?: Prisma.WorkPlanUpdateOneWithoutNextPeriodPlansNestedInput
+  nextPeriodPlans?: Prisma.WorkPlanUpdateManyWithoutPreviousPeriodPlanNestedInput
+  planAlignments?: Prisma.WorkPlanAlignmentUpdateManyWithoutChildPlanNestedInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUpdateManyWithoutSourcePlanNestedInput
+  linkedProject?: Prisma.ProjectUpdateOneWithoutLinkedWorkPlansNestedInput
+  linkedProjectPhase?: Prisma.ProjectPlanPhaseUpdateOneWithoutLinkedWorkPlansNestedInput
+  sourceMeeting?: Prisma.MeetingUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceMeetingDecision?: Prisma.MeetingDecisionUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceMeetingActionCandidate?: Prisma.MeetingActionCandidateUpdateOneWithoutSourceWorkPlansNestedInput
+  sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
+  items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
+  reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
+}
+
+export type WorkPlanUncheckedUpdateWithoutKpiAssignmentsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  kind?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  okrStage?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  objectiveApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  krReviewOpensAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krSubmittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  krApprovedByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  ownerEmployeeId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  collaborationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrCycleId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourcePlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  parentPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  previousPeriodPlanId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  okrControlScopeType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  okrControlScopeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceMode?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceRevision?: Prisma.IntFieldUpdateOperationsInput | number
+  governanceActionKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  governanceWorkflowPolicyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceWorkflowVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceActionContractVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceOkrControlVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  governanceBoundAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  governanceBoundByUserId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  governanceBindingSource?: Prisma.StringFieldUpdateOperationsInput | string
+  objectiveApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  krApprovalSnapshotJson?: Prisma.StringFieldUpdateOperationsInput | string
+  periodType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  actualStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  actualEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedStartDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  plannedEndDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKind?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMeetingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingDecisionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceMeetingActionCandidateId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceDepartmentId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedProjectPhaseId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isSystemGenerated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  isMilestone?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  milestoneDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  derivedPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutSourcePlanNestedInput
+  childPeriodPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutParentPeriodPlanNestedInput
+  nextPeriodPlans?: Prisma.WorkPlanUncheckedUpdateManyWithoutPreviousPeriodPlanNestedInput
+  planAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutChildPlanNestedInput
+  sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
+  items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
+  meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
+  reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateWithoutSourceMeetingInput = {
@@ -2953,6 +3266,7 @@ export type WorkPlanCreateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3020,6 +3334,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3112,6 +3427,7 @@ export type WorkPlanCreateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3179,6 +3495,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3271,6 +3588,7 @@ export type WorkPlanCreateWithoutMeetingActionCandidatesInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3338,6 +3656,7 @@ export type WorkPlanUncheckedCreateWithoutMeetingActionCandidatesInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3409,6 +3728,7 @@ export type WorkPlanCreateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3476,6 +3796,7 @@ export type WorkPlanUncheckedCreateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3563,6 +3884,7 @@ export type WorkPlanUpdateWithoutMeetingActionCandidatesInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -3630,6 +3952,7 @@ export type WorkPlanUncheckedUpdateWithoutMeetingActionCandidatesInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -3712,6 +4035,7 @@ export type WorkPlanCreateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3779,6 +4103,7 @@ export type WorkPlanUncheckedCreateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3850,6 +4175,7 @@ export type WorkPlanCreateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3917,6 +4243,7 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -3999,6 +4326,7 @@ export type WorkPlanUpdateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -4066,6 +4394,7 @@ export type WorkPlanUncheckedUpdateWithoutPlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -4143,6 +4472,7 @@ export type WorkPlanUpdateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -4210,6 +4540,7 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanAlignmentsInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -4276,6 +4607,7 @@ export type WorkPlanCreateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -4343,6 +4675,7 @@ export type WorkPlanUncheckedCreateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -4436,6 +4769,7 @@ export type WorkPlanCreateWithoutGovernanceEventsInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanUncheckedCreateWithoutGovernanceEventsInput = {
@@ -4503,6 +4837,7 @@ export type WorkPlanUncheckedCreateWithoutGovernanceEventsInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
 export type WorkPlanCreateOrConnectWithoutGovernanceEventsInput = {
@@ -4585,6 +4920,7 @@ export type WorkPlanUpdateWithoutGovernanceEventsInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanUncheckedUpdateWithoutGovernanceEventsInput = {
@@ -4652,6 +4988,7 @@ export type WorkPlanUncheckedUpdateWithoutGovernanceEventsInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
 export type WorkPlanCreateWithoutLinkedProjectInput = {
@@ -4717,6 +5054,7 @@ export type WorkPlanCreateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -4784,6 +5122,7 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -4876,6 +5215,7 @@ export type WorkPlanCreateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -4943,6 +5283,7 @@ export type WorkPlanUncheckedCreateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5035,6 +5376,7 @@ export type WorkPlanCreateWithoutReportItemsInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5102,6 +5444,7 @@ export type WorkPlanUncheckedCreateWithoutReportItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5184,6 +5527,7 @@ export type WorkPlanUpdateWithoutReportItemsInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -5251,6 +5595,7 @@ export type WorkPlanUncheckedUpdateWithoutReportItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -5317,6 +5662,7 @@ export type WorkPlanCreateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5384,6 +5730,7 @@ export type WorkPlanUncheckedCreateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5455,6 +5802,7 @@ export type WorkPlanCreateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5522,6 +5870,7 @@ export type WorkPlanUncheckedCreateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5598,6 +5947,7 @@ export type WorkPlanCreateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5665,6 +6015,7 @@ export type WorkPlanUncheckedCreateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5736,6 +6087,7 @@ export type WorkPlanCreateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5803,6 +6155,7 @@ export type WorkPlanUncheckedCreateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5879,6 +6232,7 @@ export type WorkPlanCreateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -5946,6 +6300,7 @@ export type WorkPlanUncheckedCreateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -6017,6 +6372,7 @@ export type WorkPlanCreateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -6084,6 +6440,7 @@ export type WorkPlanUncheckedCreateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedCreateNestedManyWithoutPlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -6171,6 +6528,7 @@ export type WorkPlanUpdateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6238,6 +6596,7 @@ export type WorkPlanUncheckedUpdateWithoutDerivedPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6331,6 +6690,7 @@ export type WorkPlanUpdateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6398,6 +6758,7 @@ export type WorkPlanUncheckedUpdateWithoutChildPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6491,6 +6852,7 @@ export type WorkPlanUpdateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6558,6 +6920,7 @@ export type WorkPlanUncheckedUpdateWithoutNextPeriodPlansInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6640,6 +7003,7 @@ export type WorkPlanCreateWithoutItemsInput = {
   sourceDepartment?: Prisma.DepartmentCreateNestedOneWithoutSourceWorkPlansInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -6707,6 +7071,7 @@ export type WorkPlanUncheckedCreateWithoutItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedCreateNestedManyWithoutSourcePlanInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedCreateNestedManyWithoutLinkedWorkPlanInput
   reportItems?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutWorkPlanInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutWorkPlanInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedCreateNestedManyWithoutWorkPlanInput
 }
 
@@ -6789,6 +7154,7 @@ export type WorkPlanUpdateWithoutItemsInput = {
   sourceDepartment?: Prisma.DepartmentUpdateOneWithoutSourceWorkPlansNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6856,6 +7222,7 @@ export type WorkPlanUncheckedUpdateWithoutItemsInput = {
   sourcePlanAlignments?: Prisma.WorkPlanAlignmentUncheckedUpdateManyWithoutSourcePlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -6980,6 +7347,7 @@ export type WorkPlanUpdateWithoutOwnerInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7047,6 +7415,7 @@ export type WorkPlanUncheckedUpdateWithoutOwnerInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7229,6 +7598,7 @@ export type WorkPlanUpdateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7296,6 +7666,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceDepartmentInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7478,6 +7849,7 @@ export type WorkPlanUpdateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7545,6 +7917,7 @@ export type WorkPlanUncheckedUpdateWithoutCollaborationInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7727,6 +8100,7 @@ export type WorkPlanUpdateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7794,6 +8168,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -7976,6 +8351,7 @@ export type WorkPlanUpdateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8043,6 +8419,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingDecisionInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8225,6 +8602,7 @@ export type WorkPlanUpdateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8292,6 +8670,7 @@ export type WorkPlanUncheckedUpdateWithoutSourceMeetingActionCandidateInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8474,6 +8853,7 @@ export type WorkPlanUpdateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8541,6 +8921,7 @@ export type WorkPlanUncheckedUpdateWithoutOkrCycleInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8723,6 +9104,7 @@ export type WorkPlanUpdateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8790,6 +9172,7 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -8972,6 +9355,7 @@ export type WorkPlanUpdateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9039,6 +9423,7 @@ export type WorkPlanUncheckedUpdateWithoutLinkedProjectPhaseInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9337,6 +9722,7 @@ export type WorkPlanUpdateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9404,6 +9790,7 @@ export type WorkPlanUncheckedUpdateWithoutSourcePlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9528,6 +9915,7 @@ export type WorkPlanUpdateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9595,6 +9983,7 @@ export type WorkPlanUncheckedUpdateWithoutParentPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9719,6 +10108,7 @@ export type WorkPlanUpdateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9786,6 +10176,7 @@ export type WorkPlanUncheckedUpdateWithoutPreviousPeriodPlanInput = {
   items?: Prisma.WorkItemUncheckedUpdateManyWithoutPlanNestedInput
   meetingActionCandidates?: Prisma.MeetingActionCandidateUncheckedUpdateManyWithoutLinkedWorkPlanNestedInput
   reportItems?: Prisma.WorkReportItemUncheckedUpdateManyWithoutWorkPlanNestedInput
+  kpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutWorkPlanNestedInput
   governanceEvents?: Prisma.WorkPlanGovernanceEventUncheckedUpdateManyWithoutWorkPlanNestedInput
 }
 
@@ -9861,6 +10252,7 @@ export type WorkPlanCountOutputType = {
   items: number
   meetingActionCandidates: number
   reportItems: number
+  kpiAssignments: number
   governanceEvents: number
 }
 
@@ -9873,6 +10265,7 @@ export type WorkPlanCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   items?: boolean | WorkPlanCountOutputTypeCountItemsArgs
   meetingActionCandidates?: boolean | WorkPlanCountOutputTypeCountMeetingActionCandidatesArgs
   reportItems?: boolean | WorkPlanCountOutputTypeCountReportItemsArgs
+  kpiAssignments?: boolean | WorkPlanCountOutputTypeCountKpiAssignmentsArgs
   governanceEvents?: boolean | WorkPlanCountOutputTypeCountGovernanceEventsArgs
 }
 
@@ -9940,6 +10333,13 @@ export type WorkPlanCountOutputTypeCountMeetingActionCandidatesArgs<ExtArgs exte
  */
 export type WorkPlanCountOutputTypeCountReportItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.WorkReportItemWhereInput
+}
+
+/**
+ * WorkPlanCountOutputType without action
+ */
+export type WorkPlanCountOutputTypeCountKpiAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkKpiAssignmentWhereInput
 }
 
 /**
@@ -10027,6 +10427,7 @@ export type WorkPlanSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   items?: boolean | Prisma.WorkPlan$itemsArgs<ExtArgs>
   meetingActionCandidates?: boolean | Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkPlan$reportItemsArgs<ExtArgs>
+  kpiAssignments?: boolean | Prisma.WorkPlan$kpiAssignmentsArgs<ExtArgs>
   governanceEvents?: boolean | Prisma.WorkPlan$governanceEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkPlanCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workPlan"]>
@@ -10254,6 +10655,7 @@ export type WorkPlanInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   items?: boolean | Prisma.WorkPlan$itemsArgs<ExtArgs>
   meetingActionCandidates?: boolean | Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>
   reportItems?: boolean | Prisma.WorkPlan$reportItemsArgs<ExtArgs>
+  kpiAssignments?: boolean | Prisma.WorkPlan$kpiAssignmentsArgs<ExtArgs>
   governanceEvents?: boolean | Prisma.WorkPlan$governanceEventsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkPlanCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -10309,6 +10711,7 @@ export type $WorkPlanPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     items: Prisma.$WorkItemPayload<ExtArgs>[]
     meetingActionCandidates: Prisma.$MeetingActionCandidatePayload<ExtArgs>[]
     reportItems: Prisma.$WorkReportItemPayload<ExtArgs>[]
+    kpiAssignments: Prisma.$WorkKpiAssignmentPayload<ExtArgs>[]
     governanceEvents: Prisma.$WorkPlanGovernanceEventPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -10782,6 +11185,7 @@ export interface Prisma__WorkPlanClient<T, Null = never, ExtArgs extends runtime
   items<T extends Prisma.WorkPlan$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   meetingActionCandidates<T extends Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$meetingActionCandidatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$MeetingActionCandidatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportItems<T extends Prisma.WorkPlan$reportItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$reportItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkReportItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  kpiAssignments<T extends Prisma.WorkPlan$kpiAssignmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$kpiAssignmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiAssignmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   governanceEvents<T extends Prisma.WorkPlan$governanceEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkPlan$governanceEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkPlanGovernanceEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -11686,6 +12090,30 @@ export type WorkPlan$reportItemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.WorkReportItemScalarFieldEnum | Prisma.WorkReportItemScalarFieldEnum[]
+}
+
+/**
+ * WorkPlan.kpiAssignments
+ */
+export type WorkPlan$kpiAssignmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkKpiAssignment
+   */
+  select?: Prisma.WorkKpiAssignmentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkKpiAssignment
+   */
+  omit?: Prisma.WorkKpiAssignmentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkKpiAssignmentInclude<ExtArgs> | null
+  where?: Prisma.WorkKpiAssignmentWhereInput
+  orderBy?: Prisma.WorkKpiAssignmentOrderByWithRelationInput | Prisma.WorkKpiAssignmentOrderByWithRelationInput[]
+  cursor?: Prisma.WorkKpiAssignmentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkKpiAssignmentScalarFieldEnum | Prisma.WorkKpiAssignmentScalarFieldEnum[]
 }
 
 /**

@@ -13,13 +13,14 @@ import SearchableOptionInput from "../input/SearchableOptionInput";
 import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
+import ToolbarPageSizeControl from "./ToolbarPageSizeControlParts";
 import type { ToolbarActionGlyphKind, ToolbarActionKind, ToolbarItem } from "./Toolbar.types";
 
 export function ToolbarDivider() {
   return <span aria-hidden="true" className="hidden h-6 w-px shrink-0 bg-slate-200 sm:inline-block" />;
 }
 
-type ToolbarRenderableAction = {
+export type ToolbarRenderableAction = {
   key?: string;
   label: string;
   kind: ToolbarActionKind;
@@ -37,7 +38,7 @@ function getActionGroup(action: ToolbarRenderableAction) {
   return ACTION_GLYPH_ORDER_BY_KIND[resolveToolbarActionIcon(action)]?.subgroup ?? "unknown";
 }
 
-function getOrderedActions(actions: ToolbarRenderableAction[]) {
+export function getOrderedActions(actions: ToolbarRenderableAction[]) {
   return [...actions].sort((a, b) => getActionOrder(a) - getActionOrder(b));
 }
 
@@ -77,7 +78,7 @@ function getEditGroupActions(item: Extract<ToolbarItem, { kind: "edit-group" }>)
   return actions;
 }
 
-function getToolbarItemActions(item: ToolbarItem): ToolbarRenderableAction[] {
+export function getToolbarItemActions(item: ToolbarItem): ToolbarRenderableAction[] {
   if (item.kind === "action-group") return item.actions;
   if (item.kind === "edit-group") return getEditGroupActions(item);
   if (item.kind === "icon-button") {
@@ -125,15 +126,15 @@ function resolveToolbarSemanticAction(action: ToolbarRenderableAction) {
   return resolveActionGlyphAction({ key: action.kind, type: action.type });
 }
 
-function resolveToolbarActionIcon(action: ToolbarRenderableAction): ActionGlyphKind {
+export function resolveToolbarActionIcon(action: ToolbarRenderableAction): ActionGlyphKind {
   return resolveToolbarSemanticAction(action)?.icon ?? (action.kind as ActionGlyphKind);
 }
 
-function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
+export function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
   return action.variant ?? resolveToolbarSemanticAction(action)?.variant;
 }
 
-const TOOLBAR_FIXED_CHOICE_WIDTH_CLASS = "w-[120px] min-w-[120px] max-w-[120px]";
+const TOOLBAR_FIXED_CHOICE_WIDTH_CLASS = "w-full min-w-0 max-w-none sm:w-[120px] sm:min-w-[120px] sm:max-w-[120px]";
 
 function getToolbarOptionInputClassName(size: ControlSize, widthClass = CONTROL_SIZES[size].minWidth) {
   return [
@@ -169,7 +170,6 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           variant={item.variant}
           disabled={item.disabled}
           onClick={item.onClick}
-          className={item.visibility === "mobile" ? "lg:!hidden" : item.visibility === "desktop" ? "!hidden lg:!inline-flex" : undefined}
           size={size}
         />
       );
@@ -186,7 +186,8 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
           placeholder={item.placeholder}
           ariaLabel={ariaLabel}
           size={size}
-          className="w-full min-w-[18rem] sm:w-80"
+          widthMode="fill"
+          className="w-full min-w-0 sm:w-80 sm:min-w-[18rem]"
         />
       );
     }
@@ -242,7 +243,7 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
       );
     case "option-group":
       return (
-        <div className="inline-flex items-center gap-2">
+        <div className="inline-flex max-w-full items-center gap-2 overflow-x-auto max-sm:w-full max-sm:justify-between">
           {item.label && <span className={TEXT_STYLES.labelText}>{item.label}</span>}
           <ToolbarOptionGroup
             value={item.value}
@@ -309,12 +310,12 @@ export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; 
     }
     case "page-size":
       return (
-        <SearchableOptionInput
+        <ToolbarPageSizeControl
           value={item.value}
           options={item.options}
-          onChange={(next) => item.onChange(next ?? "")}
-          placeholder={item.label}
-          inputClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
+          onChange={item.onChange}
+          label={item.label}
+          triggerClassName={getToolbarOptionInputClassName(size, TOOLBAR_FIXED_CHOICE_WIDTH_CLASS)}
         />
       );
     case "period":

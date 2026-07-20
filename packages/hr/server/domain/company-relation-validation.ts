@@ -4,7 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { HR_FK_REGISTRY } from "../fk-registry";
 import {
   INVALID_COMPANY_RELATION_VALUE,

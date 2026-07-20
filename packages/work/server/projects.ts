@@ -1,7 +1,7 @@
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
-import { guardedDelete } from "@workspace/platform/server/delete-guard";
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
+import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
 import { matchAnyField } from "@workspace/platform/search";
 import type { ProjectCreateCommand } from "./domain/project-validation";
 import {
@@ -16,6 +16,12 @@ import {
   validateProjectDeleteCommand,
 } from "./domain/project-validation";
 import type { ProjectType } from "./project-normalization";
+import {
+  buildAuditedWorkMutationImpactEngine,
+  mutationImpactServiceError,
+  projectMutationRoot,
+  type WorkMutationImpactContext,
+} from "./work-mutation-impact";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const visibleWhere = await buildVisibleProjectWhere(input.userId);
@@ -198,6 +204,13 @@ export async function updateProjectField(input: {
     value: input.value,
   });
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
+  if (input.field === "isArchived") {
+    return updateProjectArchiveState({
+      userId: input.userId,
+      projectId,
+      isArchived: Boolean(command.data.data.isArchived),
+    });
+  }
   await prisma.$transaction(async (tx) => {
     await ensureEditHistoryBaseline("Project", projectId, input.userId, tx);
     await tx.project.update({
@@ -224,26 +237,87 @@ export async function deleteProject(input: { userId: number; projectId: number; 
   if (!Number.isInteger(input.projectId) || input.projectId <= 0) return serviceError("ID 无效", 400);
   const command = await validateProjectDeleteCommand(input.userId, input.projectId);
   if (!command.ok) return serviceError(command.issue.message, command.issue.status || 400);
-  const result = await guardedDelete({
-    entityType: "Project",
-    modelKey: "project",
-    id: command.data.projectId,
-    expectedVersion: input.expectedVersion,
-    userId: input.userId,
-    actionLabel: "删除项目",
-    deleteMode: "hard",
-    references: [
-      { label: "项目成员", count: (tx) => tx.employeeProject.count({ where: { projectId: command.data.projectId } }) },
-      { label: "赋能部门", count: (tx) => tx.projectEnablingDepartment.count({ where: { projectId: command.data.projectId } }) },
-      { label: "项目阶段", count: (tx) => tx.projectPlanPhase.count({ where: { projectId: command.data.projectId } }) },
-      { label: "项目依赖", count: (tx) => tx.projectPlanDependency.count({ where: { projectId: command.data.projectId } }) },
-      { label: "计划基线", count: (tx) => tx.projectPlanBaseline.count({ where: { projectId: command.data.projectId } }) },
-      { label: "项目任务责任人", count: (tx) => tx.projectWorkAssignee.count({ where: { projectId: command.data.projectId } }) },
-      { label: "关联工作项", count: (tx) => tx.workItem.count({ where: { linkedProjectId: command.data.projectId } }) },
-      { label: "关联工作计划", count: (tx) => tx.workPlan.count({ where: { linkedProjectId: command.data.projectId } }) },
-    ],
-    referencePolicy: "checked",
-  });
-  if (!result.ok) return serviceError(result.error, result.status || 400);
-  return serviceOk({ success: true });
+  try {
+    await runSerializableTransaction(async (tx) => {
+      const project = await tx.project.findUnique({
+        where: { id: command.data.projectId },
+        select: { id: true, name: true, version: true },
+      });
+      if (!project) throw new Error("项目不存在");
+      const context = projectImpactContext(tx, input.userId, project.id);
+      await buildAuditedWorkMutationImpactEngine(context).execute({
+        context,
+        actorKey: `user:${input.userId}`,
+        scopeKey: `project:${project.id}`,
+        root: projectMutationRoot({ project, intent: "delete" }),
+        commitRoot: async () => {
+          await ensureEditHistoryBaseline("Project", project.id, input.userId, tx);
+          await snapshotHistory("Project", project.id, input.userId, tx);
+          await tx.project.delete({ where: { id: project.id, version: project.version } });
+        },
+      });
+    });
+    return serviceOk({ success: true });
+  } catch (error) {
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) return serviceError(impactError.error, impactError.status, impactError.details);
+    throw error;
+  }
+}
+
+async function updateProjectArchiveState(input: {
+  userId: number;
+  projectId: number;
+  isArchived: boolean;
+}) {
+  try {
+    await runSerializableTransaction(async (tx) => {
+      const project = await tx.project.findUnique({
+        where: { id: input.projectId },
+        select: { id: true, name: true, version: true, isArchived: true },
+      });
+      if (!project) throw new Error("项目不存在");
+      if (project.isArchived === input.isArchived) return;
+      const intent = input.isArchived ? "archive" as const : "restore" as const;
+      const context = projectImpactContext(tx, input.userId, project.id);
+      await buildAuditedWorkMutationImpactEngine(context).execute({
+        context,
+        actorKey: `user:${input.userId}`,
+        scopeKey: `project:${project.id}`,
+        root: projectMutationRoot({ project, intent }),
+        commitRoot: async () => {
+          await ensureEditHistoryBaseline("Project", project.id, input.userId, tx);
+          await tx.project.update({
+            where: { id: project.id, version: project.version },
+            data: {
+              isArchived: input.isArchived,
+              archivedAt: input.isArchived ? new Date() : null,
+              editedBy: input.userId,
+              editedAt: new Date(),
+              version: { increment: 1 },
+            },
+          });
+          await snapshotHistory("Project", project.id, input.userId, tx);
+        },
+      });
+    });
+    return serviceOk({ success: true });
+  } catch (error) {
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) return serviceError(impactError.error, impactError.status, impactError.details);
+    throw error;
+  }
+}
+
+function projectImpactContext(
+  tx: Prisma.TransactionClient,
+  actorUserId: number,
+  projectId: number,
+): WorkMutationImpactContext {
+  return {
+    tx,
+    actorUserId,
+    scopeType: "project",
+    scopeId: String(projectId),
+  };
 }

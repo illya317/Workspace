@@ -13,12 +13,13 @@ import { canMaintainWorkByType, createDefaultNodeDraft, createSpaceMetricsSectio
 import { createWorkReportPeriodNavigationBody, useWorkReportsController } from "./WorkReportsPanel";
 import { workReportingSection } from "./WorkReportingSections";
 import { useWorkOkrSettingsController, workOkrSettingsBody } from "./WorkOkrSettingsPanel";
+import { useWorkKpiDefinitionController, useWorkKpiScorecardController } from "./WorkKpiPanel";
 import { useWorkTaskFormSurface } from "./WorkTaskFields";
 import { createWorkPlanContentSection } from "./WorkPlanSections";
 import { useWorkPlanCommands } from "./WorkPlanCommands";
 import { useWorkOkrPlanSurface } from "./WorkOkrPlanSurface";
 import { applyDefaultExpandedWorkSpaces, createWorkSpaceNavigationBody, workSpaceKey } from "./WorkSpaceSidebar";
-import { activeWorkSpaceNavigationKey, createWorkSpaceTopNavigationItems, filterWorkSpacesByNavigation, targetNavigationKey, workViewNavigationItemsForSpace, WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM, WORK_REPORTING_NAVIGATION_KEY, WORK_TASK_VIEW_NAVIGATION_ITEMS, WORK_TASKS_COLLABORATION_VIEW_KEY, WORK_TASKS_OWNED_VIEW_KEY, type WorkTasksChildView } from "./WorkSpaceTopNavigation";
+import { activeWorkSpaceNavigationKey, createWorkSpaceTopNavigationItems, filterWorkSpacesByNavigation, targetNavigationKey, workViewNavigationItemsForSpace, WORK_KPI_DEFINITIONS_VIEW_KEY, WORK_KPI_NAVIGATION_KEY, WORK_OKR_GOVERNANCE_VIEW_KEY, WORK_OKR_SETTINGS_VIEW_NAVIGATION_ITEM, WORK_REPORTING_NAVIGATION_KEY, WORK_TASK_VIEW_NAVIGATION_ITEMS, WORK_TASKS_COLLABORATION_VIEW_KEY, WORK_TASKS_OWNED_VIEW_KEY, type WorkTasksChildView } from "./WorkSpaceTopNavigation";
 import { useWorkPlanPagination } from "./useWorkPlanPagination";
 import { createWorkToolbarItems } from "./WorkToolbar";
 import { ownedPeriodTypeForFilter, planMatchesPeriodFilter, type WorkPlanPeriodFilter } from "./work-plan-period-filter";
@@ -50,6 +51,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const [spacesLoading, setSpacesLoading] = useState(true);
   const [activeTarget, setActiveTarget] = useState<WorkTarget | null>(() => normalizeInitialTarget(initialTarget));
   const [activeTab, setActiveTab] = useState("tasks");
+  const [settingsView, setSettingsView] = useState(WORK_OKR_GOVERNANCE_VIEW_KEY);
   const [workTasksChildView, setWorkTasksChildView] = useState<WorkTasksChildView>(WORK_TASKS_OWNED_VIEW_KEY);
   const [goalReportStage, setGoalReportStage] = useState<WorkReportStage>("kr");
   const [compactNavigation, setCompactNavigation] = useState(false);
@@ -70,7 +72,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const [periodScheduleCreateContext, setPeriodScheduleCreateContext] = useState<WorkPeriodScheduleCreateContext | null>(null);
   const [periodScheduleCreateDraft, setPeriodScheduleCreateDraft] = useState<WorkPeriodScheduleCreateDraft | null>(null);
   const [periodScheduleCollapsedSourceIds, setPeriodScheduleCollapsedSourceIds] = useState<Set<number>>(() => new Set());
-  const [planPeriodFilter, setPlanPeriodFilter] = useState<WorkPlanPeriodFilter>("routine");
+  const [planPeriodFilter, setPlanPeriodFilter] = useState<WorkPlanPeriodFilter>("all");
   const [statusFilter, setStatusFilter] = useState<WorkStatusFilter>("active");
   const [sideOpen, setSideOpen] = useState(true);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -114,6 +116,10 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const navigationPlans = useMemo(() => periodFilteredPlans.filter((plan) => plan.kind === "routine"
     ? statusFilter === "active" || plan.id === activePlanId
     : matchesWorkPlanStatusFilter(plan, statusFilter)), [activePlanId, periodFilteredPlans, statusFilter]);
+  const kpiPlans = useMemo(
+    () => filteredPlans.filter((plan) => plan.kind === "okr" && matchesWorkPlanStatusFilter(plan, statusFilter)),
+    [filteredPlans, statusFilter],
+  );
   const planPagination = useWorkPlanPagination(activePlan, navigationPlans);
   const currentSpace = useMemo(() => {
     const target = activePlan ? { targetType: activePlan.targetType, targetId: activePlan.targetId } : activeTarget;
@@ -143,13 +149,20 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const itemCreateRuntime = currentSpace?.actionRuntimes.itemCreate;
   const itemUpdateRuntime = currentSpace?.actionRuntimes.itemUpdate;
   const planCreateRuntime = currentSpace?.actionRuntimes.planCreate;
-  const planSaveRuntime = activePlan?.objectiveApprovedAt || activePlan?.status === "done"
-    ? activePlan.actionRuntimes?.planRevision ?? currentSpace?.actionRuntimes.planRevision
+  const selectedTargetActionKind = activePlan?.governance?.facets.target.action?.kind;
+  const selectedTargetRuntime = selectedTargetActionKind === "objective_revise"
+    ? activePlan?.actionRuntimes?.objectiveRevise ?? currentSpace?.actionRuntimes.objectiveRevise
+    : activePlan?.actionRuntimes?.objectiveSubmit ?? currentSpace?.actionRuntimes.objectiveSubmit;
+  const usesObjectiveRevision = activePlan?.governance
+    ? selectedTargetActionKind === "objective_revise"
+    : Boolean(activePlan?.objectiveApprovedAt || activePlan?.status === "done");
+  const planSaveRuntime = usesObjectiveRevision
+    ? activePlan?.actionRuntimes?.planRevision ?? currentSpace?.actionRuntimes.planRevision
     : currentSpace?.actionRuntimes.planSave;
   const canCreateItem = Boolean(itemCreateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
   const canUpdateItem = Boolean(itemUpdateRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
   const canUpdatePlan = Boolean(planSaveRuntime?.actions.some((action) => action === "record.save" || action === "workflow.request.submit"));
-  const canSubmitObjective = (activePlan?.actionRuntimes?.objectiveSubmit ?? currentSpace?.actionRuntimes.objectiveSubmit)?.actions.includes("workflow.request.submit") === true;
+  const canSubmitObjective = selectedTargetRuntime?.actions.includes("workflow.request.submit") === true;
   const worksState = useWorks(currentSpace, activePlanId);
   const activeRoutineTask = useMemo(() => activeRoutineTaskId
     ? worksState.works.find((work) => work.id === activeRoutineTaskId && work.routineTaskType === "task") ?? null
@@ -201,7 +214,6 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   const showReportToast = useCallback((toast: { message: string; type: "success" | "error" }) => showToast(toast.message, toast.type), [showToast]);
   const workReportingState = useWorkReportsController({
     target: currentSpace,
-    canEdit,
     onToast: showReportToast,
     enabled: Boolean(currentSpace) && activeTab === WORK_REPORTING_NAVIGATION_KEY,
   });
@@ -213,7 +225,12 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     onToast: showToast,
   });
   const settingsState = useWorkOkrSettingsController({
-    enabled: activeTab === "settings" && canManageOkrSettings,
+    enabled: activeTab === "settings" && settingsView === WORK_OKR_GOVERNANCE_VIEW_KEY && canManageOkrSettings,
+    onToast: showReportToast,
+  });
+  const kpiDefinitionState = useWorkKpiDefinitionController({
+    enabled: activeTab === "settings" && settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY && canManageOkrSettings,
+    space: currentSpace,
     onToast: showReportToast,
   });
   const collaborationState = useDepartmentCollaborationController({
@@ -228,6 +245,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     draft: worksState.createDraft,
     works: worksState.works,
     disabled: worksState.saving,
+    resultDisabled: worksState.saving || activePlan?.governance?.facets.result.editable === false,
     excludedWorkId: null,
     allowedItemTypes: createAllowedItemTypes,
     target: currentSpace,
@@ -299,6 +317,13 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       if (!options?.isCancelled?.()) setPlansLoading(false);
     }
   }, [activeTarget, planLoadSpaces, showToast]);
+  const kpiScorecardState = useWorkKpiScorecardController({
+    enabled: activeTab === WORK_KPI_NAVIGATION_KEY,
+    space: currentSpace,
+    plan: activePlan,
+    onToast: showReportToast,
+    onRefreshPlans: loadPlans,
+  });
   const loadApprovalRequests = useCallback(async (options?: { isCancelled?: () => boolean }) => {
     if (!currentSpace || currentSpace.targetType === "personal") {
       if (options?.isCancelled?.()) return;
@@ -550,11 +575,12 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       canDelete,
       canArchive,
       emptyText: activePlan?.kind === "routine" ? activeRoutineTaskId ? "该任务不存在或已删除。" : "暂无常设职责。" : "暂无目标。周期初先添加根级目标。",
-      canEditWork: (work) => !work.isArchived && canUpdateItem && canMaintainWorkByType(work, activePlan?.maintenance),
-      canDeleteWork: (work) => !work.isArchived && canMaintainWorkByType(work, activePlan?.maintenance),
+      canEditWork: (work) => !work.isArchived && canUpdateItem && canMaintainWorkByType(work, activePlan),
+      canDeleteWork: (work) => !work.isArchived && canMaintainWorkByType(work, activePlan),
       canArchiveWork: (work) => work.itemType === "task",
       onEditDraftChange: worksState.setEditDraft,
       editFormActions: editNodeActions,
+      resultDisabled: activePlan?.governance?.facets.result.editable === false,
       onDetail: (work) => {
         if (worksState.editingId === work.id) return;
         worksState.setDetailId(worksState.detailId === work.id ? null : work.id);
@@ -614,6 +640,12 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     if (activeTab === "settings" && !canManageOkrSettings) setActiveTab("tasks");
   }, [activeTab, canManageOkrSettings]);
   useEffect(() => {
+    if (activeTab !== WORK_KPI_NAVIGATION_KEY || plansLoading) return;
+    if (activePlan?.kind === "okr" && kpiPlans.some((plan) => plan.id === activePlan.id)) return;
+    const preferred = kpiPlans.find((plan) => sameTarget(plan, activeTarget)) ?? kpiPlans[0] ?? null;
+    setActivePlanId(preferred?.id ?? null);
+  }, [activePlan, activeTab, activeTarget, kpiPlans, plansLoading]);
+  useEffect(() => {
     if (!activePlan) return;
     const nextTarget = { targetType: activePlan.targetType, targetId: activePlan.targetId };
     if (sameTarget(activeTarget, nextTarget)) return;
@@ -632,6 +664,8 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     }
     window.history.pushState(null, "", workspacePath(getWorkSpacePath(plan.targetType, plan.targetId)));
   }
+  function selectKpiPlan(plan: WorkPlan) { selectPlan(plan); setActiveTab(WORK_KPI_NAVIGATION_KEY); }
+  function selectKpiSpace(space: WorkTaskSpace) { selectSpace(space); setActiveTab(WORK_KPI_NAVIGATION_KEY); }
   function resetTaskView(nextStatus?: WorkStatusFilter) { setActiveTab("tasks"); setWorkTasksChildView(WORK_TASKS_OWNED_VIEW_KEY); if (nextStatus) setStatusFilter(nextStatus); setCreateChoiceOpen(false); setPendingRoutineTaskCreatePlanId(null); setPlanCreating(false); worksState.setCreating(false); setDrawerOpen(false); }
   function selectSpace(space: WorkTaskSpace) { changeActiveSpace(space, true); }
   function selectNavigationSpace(space: WorkTaskSpace) { changeActiveSpace(space, false); }
@@ -752,8 +786,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     statusFilter,
     planPageToolbarItem: planPagination.toolbarItem,
     reportToolbarItems: WORK_GOAL_REPORTS_CONTENT_EMPTY ? [] : workReportingState.toolbarItems,
-    settingsToolbarItems: settingsState.toolbarItems,
-    onOpenDrawer: () => setDrawerOpen(true),
+    settingsToolbarItems: settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY ? kpiDefinitionState.toolbarItems : settingsState.toolbarItems,
     onToggleSide: () => setSideOpen(!sideOpen),
     onPlanPeriodFilterChange: (filter) => {
       setPlanPeriodFilter(filter);
@@ -763,6 +796,8 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
   });
   const toolbarItems = activeTab === "gantt"
     ? ganttView.toolbarItems
+    : activeTab === WORK_KPI_NAVIGATION_KEY
+      ? [...workToolbarItems.filter((item) => item.kind === "panel-toggle"), ...kpiScorecardState.toolbarItems]
     : isDepartmentCollaborationView
       ? [...workToolbarItems.filter((item) => item.kind === "panel-toggle"), ...collaborationState.toolbarItems]
     : activeTab === "tasks" && scopedWorkTasksChildView !== WORK_TASKS_OWNED_VIEW_KEY
@@ -812,7 +847,24 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     onToggleSpace: toggleSpace,
     onPlanPageChange: planPagination.setPlanPage,
   });
-  const settingsBody = workOkrSettingsBody(settingsState.sections);
+  const kpiNavigationBody = createWorkSpaceNavigationBody({
+    spaces: filteredSpaces,
+    active: activeTarget,
+    activePlanId,
+    activeRoutineTaskId: null,
+    statusFilter,
+    routineWorks: [],
+    plans: kpiPlans,
+    loading: spacesLoading || plansLoading,
+    expandedSpaceKeys,
+    planPageSize: planPagination.planPageSize,
+    planPageBySpace: planPagination.planPageBySpace,
+    onSelect: selectKpiSpace,
+    onSelectPlan: selectKpiPlan,
+    onToggleSpace: toggleSpace,
+    onPlanPageChange: planPagination.setPlanPage,
+  });
+  const settingsBody = settingsView === WORK_KPI_DEFINITIONS_VIEW_KEY ? kpiDefinitionState.body : workOkrSettingsBody(settingsState.sections);
   const isolatedRoutineTaskCreate = Boolean(
     pendingRoutineTaskCreatePlanId !== null
     || (worksState.creating
@@ -867,13 +919,13 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     },
   };
   const planSaveDisabled = planSaving || worksState.saving || !isPlanDraftComplete(planDraft)
-    || (!planCreating && !planDirty && activePlan?.status !== "done");
+    || (!planCreating && !planDirty);
   const runPlanSave = () => {
-    const completed = activePlan?.status === "done";
+    const reopening = activePlan?.status === "done" && planDraft.status === "active";
     void planCommands.handleSavePlan().then((outcome) => {
       if (!outcome) return;
       setPlanEditing(false);
-      if (completed && outcome === "committed") setStatusFilter("active");
+      if (reopening && outcome === "committed") setStatusFilter("active");
     });
   };
   const planSaveActions = workflowActionSurfaceActions(actionRuntimeCommands(planSaveRuntime, {
@@ -936,7 +988,28 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
       activeTab === "tasks" ? assignedNavigation.assignedBodySection ?? workPlanSection : workPlanSection,
     ] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]);
   const ganttBody = createPageBody(currentSpace ? [ganttView.section] : [createMessageSection("empty-space", { content: spacesLoading ? "加载工作空间中..." : "当前账号暂无可进入的工作计划空间", tone: "muted" })]);
-  const pageNavigation = navigationItems.length > 0 ? createPageTabBar({ items: navigationItems, active: activeTab, activeChild: activeTab === WORK_REPORTING_NAVIGATION_KEY ? workReportingState.periodType : activeTab === "reports" ? goalReportStage : activeTab === "tasks" ? scopedWorkTasksChildView : undefined, onChange: setActiveTab, onChildChange: (child) => { if (activeTab === WORK_REPORTING_NAVIGATION_KEY) workReportingState.updatePeriodType(child); else if (activeTab === "reports") setGoalReportStage(child === "kr" ? "kr" : "final"); else if (child === "owned" || (currentSpace?.targetType === "personal" && (child === "assigned" || child === "collaboration")) || (currentSpace?.targetType === "department" && child === "collaboration")) setWorkTasksChildView(child); }, variant: compactNavigation ? "small" : "large", ariaLabel: "工作视图" }) : undefined;
+  const pageNavigation = navigationItems.length > 0 ? createPageTabBar({
+    items: navigationItems,
+    active: activeTab,
+    activeChild: activeTab === WORK_REPORTING_NAVIGATION_KEY
+      ? workReportingState.periodType
+      : activeTab === "reports"
+        ? goalReportStage
+        : activeTab === "tasks"
+          ? scopedWorkTasksChildView
+          : activeTab === "settings"
+            ? settingsView
+            : undefined,
+    onChange: setActiveTab,
+    onChildChange: (child) => {
+      if (activeTab === WORK_REPORTING_NAVIGATION_KEY) workReportingState.updatePeriodType(child);
+      else if (activeTab === "reports") setGoalReportStage(child === "kr" ? "kr" : "final");
+      else if (activeTab === "settings") setSettingsView(child === WORK_KPI_DEFINITIONS_VIEW_KEY ? WORK_KPI_DEFINITIONS_VIEW_KEY : WORK_OKR_GOVERNANCE_VIEW_KEY);
+      else if (child === "owned" || (currentSpace?.targetType === "personal" && (child === "assigned" || child === "collaboration")) || (currentSpace?.targetType === "department" && child === "collaboration")) setWorkTasksChildView(child);
+    },
+    variant: compactNavigation ? "small" : "large",
+    ariaLabel: "工作视图",
+  }) : undefined;
   return renderAppShellPage({
     title: shellTitle ?? "工作空间",
     backHref: shellBackHref ?? "/work/me",
@@ -945,7 +1018,7 @@ export default function WorksClient({ user, initialTarget, shellTitle, shellBack
     children: <PageSurface kind="standard"
       tabbar={pageNavigation}
       toolbar={toolbarItems.length > 0 ? { items: toolbarItems } : undefined}
-      body={activeTab === "settings" ? settingsBody : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false })}
+      body={activeTab === "settings" ? settingsBody : activeTab === WORK_KPI_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: kpiNavigationBody, right: kpiScorecardState.body, label: "KPI 周期计划", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : isDepartmentCollaborationView ? createSpaceWorkbenchBody({ left: collaborationState.leftNavigationBody, right: collaborationState.rightBody, label: "协作事项", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false }) : activeTab === "gantt" ? ganttBody : activeTab === "reports" ? reportsBody : activeTab === WORK_REPORTING_NAVIGATION_KEY ? createSpaceWorkbenchBody({ left: leftNavigationBody, right: workReportingBody, label: "汇报周期", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.24, 0.76], showControls: false }) : createSpaceWorkbenchBody({ left: leftNavigationBody, right: rightBody, label: "工作空间", open: sideOpen, drawerOpen, onOpenChange: setSideOpen, onDrawerOpenChange: setDrawerOpen, ratio: [0.3, 0.7], showControls: false })}
     />,
   });
 }
@@ -967,9 +1040,12 @@ function responsiveWorkNavigationItems(items: Array<{ key: string; label: string
     "work-reporting": "汇报",
     reports: "考核",
     gantt: "甘特",
+    kpi: "KPI",
     settings: "设置",
     kr: "期初目标",
     final: "考核结果",
+    governance: "管控",
+    "kpi-definitions": "指标库",
   };
   return items.map((item) => ({
     ...item,

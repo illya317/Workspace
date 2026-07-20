@@ -1,6 +1,6 @@
 import { RESOURCE_KEYS } from "@workspace/platform/resources";
 import { isResourceEnabled } from "@workspace/platform/effective-module-registry";
-import { currentOpenEndedDateWhere } from "../fk-registry";
+import { currentOpenEndedDateWhere } from "../relation-registry";
 import { prisma, type Prisma } from "../prisma";
 import { WORKFLOW_MANAGEMENT_ROOT_RESOURCE_KEY } from "../../workflow-management-resources";
 

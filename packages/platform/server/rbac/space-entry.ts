@@ -11,7 +11,7 @@ import {
 } from "@workspace/platform/space-registry";
 import { getResourceAncestorKeys } from "./resource";
 import { getUserDepartmentIds, getUserPositionIds } from "./helpers";
-import { currentOpenEndedDateWhere } from "../fk-registry";
+import { currentOpenEndedDateWhere } from "../relation-registry";
 import { isActiveEmployeeUser } from "../business-space-natural-users";
 import { getOperatingCommitteeDepartmentContext } from "../business-space-permissions";
 import { prisma } from "../prisma";

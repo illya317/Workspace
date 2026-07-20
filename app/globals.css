@@ -23,6 +23,21 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overscroll-behavior-y: none;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-padding-bottom: calc(5rem + env(safe-area-inset-bottom));
+}
+
+button,
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }
 
 input,
@@ -35,6 +50,66 @@ input::placeholder,
 textarea::placeholder {
   color: #6b7280;
   opacity: 1;
+}
+
+@media (max-width: 639px) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (pointer: coarse) and (max-height: 500px) and (orientation: landscape) {
+  .body-surface-desktop-only {
+    display: none;
+  }
+
+  .body-surface-mobile-only {
+    display: block;
+  }
+
+  .mobile-experience-landscape-content {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: flex;
+    height: 100dvh;
+    flex-direction: column;
+    overflow: hidden;
+    background: #f8fafc;
+  }
+
+  .mobile-experience-landscape-toolbar {
+    display: flex;
+    min-height: 3rem;
+    flex: none;
+    align-items: center;
+    gap: 0.75rem;
+    border-bottom: 1px solid #e2e8f0;
+    background: #ffffff;
+    padding-inline: 0.75rem;
+  }
+
+  .mobile-experience-landscape-scroll {
+    min-height: 0;
+    flex: 1;
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+
+  .mobile-experience-unavailable-content {
+    display: none;
+  }
+
+  .mobile-experience-unavailable-state {
+    position: fixed;
+    inset: 0;
+    z-index: 90;
+    display: block;
+    overflow: auto;
+    background: #f8fafc;
+  }
 }
 
 @keyframes slide-in {
@@ -55,3 +130,8 @@ textarea::placeholder {
 .work-gantt-milestone { border-radius: 3px; }
 .work-gantt-today-line { background-image: repeating-linear-gradient(to bottom, rgba(100, 116, 139, 0.62) 0 10px, transparent 10px 22px); }
 .organization-title-layout { display: grid; grid-template-columns: minmax(0, max-content) auto minmax(0, 18rem); align-items: center; column-gap: 0.75rem; row-gap: 0.5rem; }
+
+@media (max-width: 639px) {
+  .organization-title-layout { grid-template-columns: minmax(0, 1fr) auto; }
+  .organization-title-layout > :last-child { grid-column: 1 / -1; }
+}

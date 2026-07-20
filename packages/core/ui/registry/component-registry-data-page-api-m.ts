@@ -8,6 +8,6 @@ export const page_api_registry_entries = [
   {
     name: "ModuleCard",
     description: "模块入口卡片",
-    composes: ["ModuleCardBody", "getModuleCardClassName", "moduleCardColorClasses", "getToolbarActionClassName"],
+    composes: ["ModuleCardBody", "getModuleCardClassName", "moduleCardColorClasses"],
   },
 ] as const satisfies readonly CoreUiComponentRegistration[];

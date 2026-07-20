@@ -3,9 +3,8 @@ import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import {
   approveKrReview,
   approveObjectiveReview,
-  getWorkPlanStage,
-  submitKrReview,
-  submitObjectiveReview,
+  recordDirectKrConfirmation,
+  recordDirectObjectiveConfirmation,
 } from "./work-okr-stage";
 import {
   getWorkTaskApprovalResourceKey,
@@ -20,37 +19,83 @@ import {
   type WorkOkrControlScope,
 } from "./work-okr-control";
 import {
+  getWorkPlanOkrGovernance,
   workPlanGovernanceSelect,
   workPlanPreparedWorkflowBinding,
 } from "./work-plan-governance";
+import { finalizeKpiScorecard, validateKpiScorecardFinalization } from "./work-kpi-scorecard";
+import { commitApprovedKpiResults, validateKpiResultFinalization } from "./work-kpi-results";
+import { workOkrFacetMutationIssue } from "./domain/work-okr-governance-policy";
 
-export async function commitObjectivePlanApproval(actorUserId: number, payload: WorkTaskObjectivePlanApprovalPayload) {
+export async function commitObjectivePlanApproval(
+  actorUserId: number,
+  submitterUserId: number,
+  payload: WorkTaskObjectivePlanApprovalPayload,
+  authorization: "direct" | "workflow-approved" = "workflow-approved",
+) {
   if (payload.data.packageOnly) return serviceOk({ entityType: "work.package", entityId: String(payload.data.packageKey || payload.planId) });
-  const stage = await getWorkPlanStage(payload.planId);
-  if (stage?.okrStage === "objective_draft") {
-    const submitted = await submitObjectiveReview(payload.planId);
-    if (!submitted.ok) return serviceError(submitted.error, submitted.status || 400);
+  if (Array.isArray(payload.data.kpiScorecardEntries)) {
+    const finalized = await finalizeKpiScorecard({
+      actorUserId,
+      ownerEligibilityUserId: submitterUserId,
+      planId: payload.planId,
+      expectedPlanGovernanceRevision: positiveInteger(payload.data.expectedPlanGovernanceRevision) ?? undefined,
+      entries: payload.data.kpiScorecardEntries,
+      authorization,
+    });
+    if (!finalized.ok) return finalized;
+    return serviceOk({ entityType: "work.plan", entityId: String(payload.planId), entity: finalized.data });
+  }
+  if (authorization === "direct") {
+    const result = await recordDirectObjectiveConfirmation(payload.planId, actorUserId, payload.data.approvalSnapshot);
+    if (!result.ok) return serviceError(result.error, result.status || 400);
+    return serviceOk({ entityType: "work.plan", entityId: String(payload.planId) });
   }
   const result = await approveObjectiveReview(payload.planId, actorUserId, payload.data.approvalSnapshot);
   if (!result.ok) return serviceError(result.error, result.status || 400);
   return serviceOk({ entityType: "work.plan", entityId: String(payload.planId) });
 }
 
-export async function commitKrReviewApproval(actorUserId: number, payload: WorkTaskKrReviewApprovalPayload) {
+export async function commitKrReviewApproval(
+  actorUserId: number,
+  payload: WorkTaskKrReviewApprovalPayload,
+  authorization: "direct" | "workflow-approved" = "workflow-approved",
+) {
   if (payload.data.packageOnly) return serviceOk({ entityType: "work.package", entityId: String(payload.data.packageKey || payload.planId) });
-  const stage = await getWorkPlanStage(payload.planId);
-  if (stage?.okrStage === "kr_open") {
-    const submitted = await submitKrReview(payload.planId);
-    if (!submitted.ok) return serviceError(submitted.error, submitted.status || 400);
+  let kpiResult: Awaited<ReturnType<typeof commitApprovedKpiResults>> | null = null;
+  const kpiResultCommit = objectRecord(payload.data.kpiResultCommit);
+  if (kpiResultCommit) {
+    kpiResult = await commitApprovedKpiResults({
+      actorUserId,
+      planId: payload.planId,
+      workReportId: Number(kpiResultCommit.workReportId),
+      adjustments: kpiResultCommit.adjustments,
+      authorization,
+    });
+    if (!kpiResult.ok) return kpiResult;
+  }
+  if (authorization === "direct") {
+    const result = await recordDirectKrConfirmation(payload.planId, actorUserId, payload.data.approvalSnapshot);
+    if (!result.ok) return serviceError(result.error, result.status || 400);
+    return serviceOk({
+      entityType: "work.plan",
+      entityId: String(payload.planId),
+      ...(kpiResult?.ok ? { kpiResult: kpiResult.data } : {}),
+    });
   }
   const result = await approveKrReview(payload.planId, actorUserId, payload.data.approvalSnapshot);
   if (!result.ok) return serviceError(result.error, result.status || 400);
-  return serviceOk({ entityType: "work.plan", entityId: String(payload.planId) });
+  return serviceOk({
+    entityType: "work.plan",
+    entityId: String(payload.planId),
+    ...(kpiResult?.ok ? { kpiResult: kpiResult.data } : {}),
+  });
 }
 
 export async function validateObjectivePlanApprovalPayload(
   payload: WorkTaskObjectivePlanApprovalPayload,
   subjectId: string | null | undefined,
+  actorUserId: number,
 ) {
   const planId = payload.planId ?? Number(subjectId);
   if (!Number.isInteger(planId) || planId <= 0) return serviceError("OKR 计划 ID 无效", 400);
@@ -65,15 +110,28 @@ export async function validateObjectivePlanApprovalPayload(
   if (!controlScope.ok) return serviceError(controlScope.error, controlScope.status || 400);
   const approvalTarget = approvalTargetFromControlScope(controlScope.data);
   if (!approvalTarget) return serviceError("OKR 审批管控空间无效", 400);
-  const unlocked = await assertWorkOkrSubmissionAllowed(existing, "objective_plan");
-  if (!unlocked.ok) return serviceError(unlocked.error, unlocked.status || 400);
-  if (existing.kind === "okr") {
-    const stage = await getWorkPlanStage(planId);
-    if (stage?.okrStage !== "objective_draft") return serviceError("只有目标草稿阶段可以提交目标审查", 409);
+  const governance = await getWorkPlanOkrGovernance({ planId, actorUserId });
+  if (!governance) return serviceError("OKR 计划治理状态不存在", 409);
+  const targetFacet = governance.governance.facets.target;
+  const targetIssue = workOkrFacetMutationIssue(targetFacet, "目标申报/修订");
+  if (targetIssue) return serviceError(targetIssue.message, targetIssue.status);
+  const actionKind = targetFacet.action?.kind ?? "objective_submit";
+  if (actionKind === "objective_submit") {
+    const unlocked = await assertWorkOkrSubmissionAllowed(existing, "objective_plan");
+    if (!unlocked.ok) return serviceError(unlocked.error, unlocked.status || 400);
   }
+  const kpiScorecard = payload.data.kpiScorecardEntries === undefined
+    ? null
+    : await validateKpiScorecardFinalization({
+        actorUserId,
+        planId,
+        expectedPlanGovernanceRevision: positiveInteger(payload.data.expectedPlanGovernanceRevision) ?? undefined,
+        entries: payload.data.kpiScorecardEntries,
+      });
+  if (kpiScorecard && !kpiScorecard.ok) return kpiScorecard;
   const snapshot = await buildPlanApprovalSnapshot(existing, controlScope.data, "objective_plan");
   const packageKey = workPackageKey(existing);
-  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "objective_submit");
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, actionKind);
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(approvalTarget.targetType),
     scopeId: workTaskScopeId(approvalTarget.targetType, approvalTarget.targetId),
@@ -94,6 +152,12 @@ export async function validateObjectivePlanApprovalPayload(
         approvalSnapshot: snapshot,
         packageOnly: existing.kind !== "okr",
         packageKey,
+        ...(kpiScorecard?.ok ? {
+          kpiScorecardEntries: kpiScorecard.data.entries,
+          ...(kpiScorecard.data.expectedPlanGovernanceRevision === undefined
+            ? {}
+            : { expectedPlanGovernanceRevision: kpiScorecard.data.expectedPlanGovernanceRevision }),
+        } : {}),
       },
     },
   });
@@ -102,6 +166,7 @@ export async function validateObjectivePlanApprovalPayload(
 export async function validateKrReviewApprovalPayload(
   payload: WorkTaskKrReviewApprovalPayload,
   subjectId: string | null | undefined,
+  actorUserId: number,
 ) {
   const planId = payload.planId ?? Number(subjectId);
   if (!Number.isInteger(planId) || planId <= 0) return serviceError("OKR 计划 ID 无效", 400);
@@ -116,15 +181,29 @@ export async function validateKrReviewApprovalPayload(
   if (!controlScope.ok) return serviceError(controlScope.error, controlScope.status || 400);
   const approvalTarget = approvalTargetFromControlScope(controlScope.data);
   if (!approvalTarget) return serviceError("OKR 审批管控空间无效", 400);
-  const unlocked = await assertWorkOkrSubmissionAllowed(existing, "kr_review");
-  if (!unlocked.ok) return serviceError(unlocked.error, unlocked.status || 400);
-  if (existing.kind === "okr") {
-    const stage = await getWorkPlanStage(planId);
-    if (stage?.okrStage !== "kr_open") return serviceError("只有考核结果开放阶段可以提交考核结果", 409);
+  const governance = await getWorkPlanOkrGovernance({ planId, actorUserId });
+  if (!governance) return serviceError("OKR 计划治理状态不存在", 409);
+  const resultFacet = governance.governance.facets.result;
+  const resultIssue = workOkrFacetMutationIssue(resultFacet, "结果申报/更正");
+  if (resultIssue) return serviceError(resultIssue.message, resultIssue.status);
+  const actionKind = resultFacet.action?.kind ?? "report_submit";
+  if (actionKind === "report_submit") {
+    const unlocked = await assertWorkOkrSubmissionAllowed(existing, "kr_review");
+    if (!unlocked.ok) return serviceError(unlocked.error, unlocked.status || 400);
   }
+  const rawKpiResultCommit = objectRecord(payload.data.kpiResultCommit);
+  const kpiResultCommit = rawKpiResultCommit
+    ? await validateKpiResultFinalization({
+        actorUserId,
+        planId,
+        workReportId: rawKpiResultCommit.workReportId,
+        adjustments: rawKpiResultCommit.adjustments,
+      })
+    : null;
+  if (kpiResultCommit && !kpiResultCommit.ok) return kpiResultCommit;
   const snapshot = await buildPlanApprovalSnapshot(existing, controlScope.data, "kr_review");
   const packageKey = workPackageKey(existing);
-  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, "report_submit");
+  const workflowBinding = await workPlanPreparedWorkflowBinding(existing, actionKind);
   return serviceOk({
     resourceKey: getWorkTaskApprovalResourceKey(approvalTarget.targetType),
     scopeId: workTaskScopeId(approvalTarget.targetType, approvalTarget.targetId),
@@ -146,6 +225,7 @@ export async function validateKrReviewApprovalPayload(
         approvalSnapshot: snapshot,
         packageOnly: existing.kind !== "okr",
         packageKey,
+        ...(kpiResultCommit?.ok ? { kpiResultCommit: kpiResultCommit.data } : {}),
       },
     },
   });
@@ -294,4 +374,13 @@ function workPackageKey(plan: Pick<OkrPlanApprovalSnapshotRow, "targetType" | "t
 
 function isoDate(value: Date | null | undefined) {
   return value ? value.toISOString() : null;
+}
+
+function positiveInteger(value: unknown) {
+  const number = Number(value);
+  return Number.isInteger(number) && number > 0 ? number : null;
+}
+
+function objectRecord(value: unknown) {
+  return value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null;
 }

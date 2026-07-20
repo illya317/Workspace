@@ -19,6 +19,13 @@ export type DataSurfaceFrame = "plain" | "clipped" | "bordered";
 export type DataSurfaceRowState = "normal" | "selected" | "section" | "total" | "muted" | "warning" | "danger" | "info";
 export type DataSurfaceStructuredCellRole = "header" | "label" | "value" | "empty" | "title" | "signature";
 export type DataSurfaceRowHeight = "sm" | "md" | "lg" | number;
+export type DataSurfaceMobilePresentation = "list" | "landscape" | "unavailable";
+
+export interface DataSurfaceMobileSpec {
+  presentation?: DataSurfaceMobilePresentation;
+  title?: string;
+  reason?: string;
+}
 
 export interface DataSurfaceScrollSpec {
   x?: boolean;
@@ -237,6 +244,8 @@ interface DataSurfaceBaseProps {
   empty?: ReactNode;
   wrap?: boolean;
   presentation?: DataSurfacePresentationSpec;
+  /** 紧凑移动设备的呈现策略；矩阵默认 landscape，普通表格默认 list。 */
+  mobile?: DataSurfaceMobileSpec;
 }
 
 export interface DataSurfacePresentationSpec {

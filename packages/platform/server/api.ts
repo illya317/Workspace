@@ -5,9 +5,11 @@ export type ParsedJson<T> =
   | { ok: true; data: T }
   | { ok: false; error: string };
 
+export type ServiceErrorDetails = Record<string, unknown>;
+
 export type ServiceResult<T> =
   | { ok: true; data: T }
-  | { ok: false; error: string; status?: number };
+  | { ok: false; error: string; status?: number; details?: ServiceErrorDetails };
 
 const SERVICE_RESULT_BRAND = Symbol.for("@workspace/platform/service-result");
 
@@ -25,8 +27,12 @@ export function serviceOk<T>(data: T): ServiceResult<T> {
   return brandServiceResult({ ok: true, data });
 }
 
-export function serviceError(error: string, status = 400): ServiceResult<never> {
-  return brandServiceResult({ ok: false, error, status });
+export function serviceError(
+  error: string,
+  status = 400,
+  details?: ServiceErrorDetails,
+): ServiceResult<never> {
+  return brandServiceResult({ ok: false, error, status, ...(details ? { details } : {}) });
 }
 
 export function isServiceResult<T = unknown>(value: unknown): value is ServiceResult<T> {
@@ -119,7 +125,7 @@ export function jsonErrorResponse(error: unknown, status = 400, extra?: Record<s
 
 export function serviceResponse<T>(result: ServiceResult<T>) {
   if (result.ok) return NextResponse.json(result.data);
-  return jsonErrorResponse(result.error, result.status ?? 400);
+  return jsonErrorResponse(result.error, result.status ?? 400, result.details);
 }
 
 export function jsonResultResponse<T extends object>(result: T) {

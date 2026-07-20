@@ -63,6 +63,8 @@ export type {
   DataSurfaceDisplaySpec,
   DataSurfaceKind,
   DataSurfaceLooseRow,
+  DataSurfaceMobilePresentation,
+  DataSurfaceMobileSpec,
   DataSurfaceActionsColumnSpec,
   DataSurfacePresentationSpec,
   DataSurfaceProps,
@@ -183,6 +185,11 @@ export type {
 } from "./FormSurface";
 export { default as NavigationContextSelector } from "./NavigationContextSelector";
 export type { NavigationContextSelectorProps } from "./NavigationContextSelector";
+export { default as MobileExperienceBoundary } from "./MobileExperienceBoundary";
+export type {
+  MobileExperienceBoundaryProps,
+  MobileExperienceStrategy,
+} from "./MobileExperienceBoundary";
 export type { NavigationSurfaceSelectorSpec } from "./NavigationSurface.types";
 export { default as PageSurface } from "./PageSurface";
 export type {

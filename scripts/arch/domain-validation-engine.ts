@@ -507,10 +507,17 @@ function usesAuditedTransactionalLifecycleProtocol(entry: ExportedEntry) {
     && /(?:reference|count|roles|status)/i.test(entry.text);
 }
 
+function usesMutationImpactLifecycleProtocol(entry: ExportedEntry) {
+  return /\brunSerializableTransaction\s*\(/.test(entry.text)
+    && /\bbuild[A-Za-z0-9_$]*MutationImpactEngine\s*\([^)]*\)\.execute\s*\(/.test(entry.text)
+    && /\bcommitRoot\s*:/.test(entry.text);
+}
+
 function callsLifecycleGuard(file: string, source: string, entry: ExportedEntry) {
   return /\bguardedDelete\s*\(/.test(entry.text)
     || usesValidatedCrudHelper(file, source, entry.text)
-    || usesAuditedTransactionalLifecycleProtocol(entry);
+    || usesAuditedTransactionalLifecycleProtocol(entry)
+    || usesMutationImpactLifecycleProtocol(entry);
 }
 
 export function lifecycleGuardBypassEntryNames(file: string, source: string) {

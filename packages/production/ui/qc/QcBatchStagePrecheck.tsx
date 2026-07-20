@@ -5,7 +5,7 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { createMessageSection, useFeedback } from "@workspace/core/ui";
 import type { EditorBlock, EditorSlotInline } from "@workspace/platform/document-editor";
-import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/server/qc";
+import type { QcBatchSummary, QcEditorRuntimeStage, QcEditorRuntimeTemplate } from "@workspace/production/types";
 import { buildQcBatchWorkflow } from "@workspace/production/qc/workflow";
 import QcBatchRecordPage from "./QcBatchRecordPage";
 import { useEditorRuntimeFormulaEngine, type EditorRuntimeValues } from "./useEditorRuntimeFormulaEngine";

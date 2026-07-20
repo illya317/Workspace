@@ -91,7 +91,7 @@ export function SelectorCard({
     </>
   );
   const cardClassName = joinClassNames(
-    "w-full rounded-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200",
+    "w-full rounded-lg border text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200 max-sm:rounded-none max-sm:border-x-0 max-sm:border-b-0 max-sm:shadow-none max-sm:first:border-t-0",
     size === "sm" ? "px-2.5 py-2" : "px-3 py-3",
     active
       ? "border-slate-200 bg-emerald-50 shadow-sm"

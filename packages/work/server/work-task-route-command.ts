@@ -1,6 +1,6 @@
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { authorize, canEnterResource } from "@workspace/platform/server/auth";
-import { normalizeLifecycleScope, searchFkOptions, type FkSearchParams } from "@workspace/platform/server/fk-registry";
+import { normalizeLifecycleScope, searchFkOptions, type FkSearchParams } from "@workspace/platform/server/relation-registry";
 import {
   failCommand,
   okCommand,
@@ -49,9 +49,9 @@ import {
   deleteWorkItem,
   getWorkItemTargetMetadata,
   getWorkItems,
-  parseParticipants,
   updateWorkItem,
 } from "./works";
+import { parseParticipants } from "./domain/work-participant-normalization";
 
 type AuthUserContext = {
   userId: number;
@@ -455,7 +455,7 @@ export async function buildDeleteWorkItemRouteCommand(input: {
 
 export async function executeDeleteWorkItemRouteCommand(command: DeleteWorkItemRouteCommand) {
   const result = await deleteWorkItem(command.workId, command.userId);
-  if (!result.ok) return serviceError(result.error, result.status || 400);
+  if (!result.ok) return serviceError(result.error, result.status || 400, result.details);
   return serviceOk(result.data);
 }
 

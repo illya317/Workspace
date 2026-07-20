@@ -14,7 +14,7 @@ import {
   getDepartmentNaturalSpaceActionProfile,
   getOperatingCommitteeNaturalSpaceActionProfile,
 } from "../business-space-permissions";
-import { currentOpenEndedDateWhere } from "../fk-registry";
+import { currentOpenEndedDateWhere } from "../relation-registry";
 import { prisma } from "../prisma";
 import { evaluatePermissionAction } from "../rbac/action-grants";
 import type {

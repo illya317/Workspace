@@ -30,6 +30,7 @@ import {
   validateKrReviewApprovalPayload,
   validateObjectivePlanApprovalPayload,
 } from "./task-approval-okr";
+import { assertNoActiveWorkGoalRequest } from "./work-goal-request-guard";
 import {
   rejectKrReview,
   rejectObjectiveReview,
@@ -197,6 +198,12 @@ export async function executeCreateWorkTaskSubmissionRouteCommand(command: {
   if (!prepared.ok) return prepared;
   const workflowPolicy = prepared.data.workflowPolicy;
   if (workflowPolicy.mode !== "direct" && workflowPolicy.mode !== "permission_only") {
+    const duplicateGuard = await assertNoActiveWorkGoalRequest({
+      businessActionKey: prepared.data.prepared.businessActionKey,
+      subjectId: prepared.data.prepared.subjectId ?? command.subjectId,
+      includeDraft: true,
+    });
+    if (!duplicateGuard.ok) return duplicateGuard;
     const created = await createPreparedApprovalDraft({
       adapter: workTaskApprovalAdapter,
       ...command,
@@ -221,6 +228,7 @@ export async function executeCreateWorkTaskSubmissionRouteCommand(command: {
     operation: command.operation,
     subjectId: prepared.data.prepared.subjectId ?? command.subjectId,
     payload,
+    authorization: "direct",
   });
   return committed.ok
     ? serviceOk({ executionMode: "direct" as const, result: committed.data })
@@ -282,7 +290,7 @@ export async function executeSubmitWorkTaskSubmissionRouteCommand(command: {
 }) {
   const current = await workTaskApprovalLifecycle.getRequest(command.requestId);
   if (!current.ok) return current;
-  const okrGuard = await assertOkrReviewCanSubmit(current.data.latestPayload);
+  const okrGuard = await assertOkrReviewCanSubmit(current.data.latestPayload, command.actorUserId);
   if (!okrGuard.ok) return okrGuard;
   const result = await workTaskApprovalLifecycle.submit(command);
   if (!result.ok) return result;
@@ -373,13 +381,13 @@ async function markOkrReviewSubmitted(payload: WorkTaskApprovalPayload) {
   return { ok: true as const, data: null };
 }
 
-async function assertOkrReviewCanSubmit(payload: WorkTaskApprovalPayload) {
+async function assertOkrReviewCanSubmit(payload: WorkTaskApprovalPayload, actorUserId: number) {
   if (payload.entityType === "objective_plan") {
-    const result = await validateObjectivePlanApprovalPayload(payload, String(payload.planId));
+    const result = await validateObjectivePlanApprovalPayload(payload, String(payload.planId), actorUserId);
     return result.ok ? { ok: true as const, data: null } : result;
   }
   if (payload.entityType === "kr_review") {
-    const result = await validateKrReviewApprovalPayload(payload, String(payload.planId));
+    const result = await validateKrReviewApprovalPayload(payload, String(payload.planId), actorUserId);
     return result.ok ? { ok: true as const, data: null } : result;
   }
   return { ok: true as const, data: null };

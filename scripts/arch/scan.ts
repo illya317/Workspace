@@ -186,6 +186,7 @@ function isAllowedModuleShellComponentImport(rel: string, moduleKey: string, spe
     || specifier.startsWith(`@workspace/${moduleKey}/ui/`)
     || specifier === "@workspace/platform/ui"
     || specifier.startsWith("@workspace/platform/ui/")
+    || specifier === "@workspace/platform/server/module-home-page"
     || CROSS_OWNER_MODULE_SHELL_UI.get(rel)?.has(specifier) === true;
 }
 

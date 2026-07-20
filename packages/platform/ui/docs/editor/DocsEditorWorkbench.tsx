@@ -8,7 +8,7 @@ import {
   type FormSurfaceActionSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
-import { createEmptyEditorDocument, type EditorDocument, type FieldModel } from "@workspace/platform/document-editor";
+import { createEmptyEditorDocument, useDocumentEditorMobileLayout, type EditorDocument, type FieldModel } from "@workspace/platform/document-editor";
 import { actionRuntimeCommands, actionRuntimeCreateSubmission, workflowActionSurfaceActions } from "../../workflow";
 import {
   createSpaceKindNavigation,
@@ -70,6 +70,11 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
   const [focusApprovalId, setFocusApprovalId] = useState<number | null>(null);
   const hydratedDefaultSpaceIdRef = useRef<string | null>(null);
   const feedback = useFeedback();
+  const documentEditorLayout = useDocumentEditorMobileLayout();
+
+  useEffect(() => {
+    if (documentEditorLayout.compactLandscape) setSideOpen(false);
+  }, [documentEditorLayout.compactLandscape]);
 
   const loadBootstrap = useCallback(async (spaceId: string | null) => {
     setLoading(true);
@@ -391,7 +396,6 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
           ...spaceWorkbenchPanelToolbarItems({
             label: "模板列表",
             open: sideOpen,
-            onOpenDrawer: () => setDrawerOpen(true),
             onToggleSide: () => setSideOpen(!sideOpen),
           }),
           createSpaceViewToolbarItem({

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import DataSurface from "./DataSurface";
 import CreateSurface, { type CreateSurfaceSurfaceProps } from "./CreateSurface";
 import DocumentSurface from "./DocumentSurface";
@@ -14,10 +15,13 @@ import { BodySurfaceList } from "./internal/body/BodySurfaceList";
 import { BodySurfaceSectionFrame } from "./internal/body/BodySurfaceSectionParts";
 import { sectionCardClassName, sectionStackPosition, type BodySectionStackPosition } from "./internal/body/BodySurfaceSectionStack.styles";
 import { BodySurfaceRevealProvider } from "./internal/body/BodySurfaceRevealContext";
+import { sectionVisibilityClassName } from "./internal/body/body-surface-visibility";
 import { CreateSurfaceAnchorProvider, CreateSurfaceAnchorTarget } from "./internal/create/CreateSurfaceAnchorContext";
 import SplitWorkspace, { type SplitWorkspaceMode } from "./internal/common/SplitWorkspace";
+import { SurfaceFrameBoundary, useSurfaceFrameDepth } from "./internal/common/SurfaceFrameContextParts";
 import { joinClassNames } from "./internal/common/card-utils";
 import { renderCommands } from "./internal/page/PageSurface.commands";
+import { ActionGlyph } from "./internal/action/ActionGlyphs";
 import { PAGE_SURFACE_BODY_SECTION_STACK_CLASS } from "./internal/page/PageSurface.spacing";
 import type {
   BodySurfaceListSpec,
@@ -108,7 +112,7 @@ function renderBodyModals(modals?: BodySurfaceModalSpec[]) {
   ));
 }
 
-function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition) {
+function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, stackPosition?: BodySectionStackPosition, frameDepth = 0) {
   if (section.body.kind === "create" && section.body.create.presentation === "inline") return null;
   const stretchClassName = stretch ? "h-full" : "";
   const chrome = sectionChrome(section);
@@ -117,17 +121,33 @@ function renderBodySection(section: BodySurfaceSectionSpec, stretch = false, sta
     ? { ...declaredCreate, anchor: `body-section-create:${declaredCreate.id}` }
     : declaredCreate;
   const createAnchor = renderedCreate?.presentation === "block" ? renderedCreate.anchor ?? null : null;
+  const mobileFlushData = chrome === "card"
+    && section.body.kind === "data"
+    && (section.body.data.kind === "table" || section.body.data.kind === "structured");
+  const nestedCard = chrome === "card" && frameDepth > 0;
   const sectionClassName = joinClassNames(
-    chrome === "card" ? sectionCardClassName(stackPosition) : "space-y-4",
+    chrome === "card" ? sectionCardClassName(stackPosition, nestedCard) : "space-y-4",
     chrome === "plain" && section.header?.title ? "pt-2" : "",
+    mobileFlushData ? "max-sm:!space-y-0 max-sm:!p-0" : "",
     stretchClassName,
   );
+  const header = renderSectionHeader(section, chrome, renderedCreate);
   return (
-    <BodySurfaceSectionFrame key={section.key} revealKey={section.key} itemRef={section.itemRef} className={stretchClassName}>
-      <section className={sectionClassName}>
-        {renderSectionHeader(section, chrome, renderedCreate)}
+    <BodySurfaceSectionFrame
+      key={section.key}
+      revealKey={section.key}
+      itemRef={section.itemRef}
+      className={joinClassNames(stretchClassName, sectionVisibilityClassName(section.visibility))}
+      visibility={section.visibility}
+    >
+      <section className={sectionClassName} data-surface-frame={chrome === "card" ? (nestedCard ? "nested" : "primary") : undefined}>
+        {mobileFlushData && header ? <div className="px-3 pb-3 pt-3">{header}</div> : header}
         {createAnchor ? <CreateSurfaceAnchorTarget anchor={createAnchor} /> : null}
-        {!section.disclosure || section.disclosure.expanded ? <BodySurface {...section.body} /> : null}
+        {!section.disclosure || section.disclosure.expanded ? (
+          <SurfaceFrameBoundary framed={chrome === "card"}>
+            <BodySurface {...section.body} />
+          </SurfaceFrameBoundary>
+        ) : null}
       </section>
     </BodySurfaceSectionFrame>
   );
@@ -140,16 +160,93 @@ function stackPositionForSection(sections: BodySurfaceSectionSpec[], index: numb
   return sectionStackPosition(previousIsCard, nextIsCard);
 }
 
-function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, leadingCardSegment = false }: { sections?: BodySurfaceSectionSpec[]; layout?: "stack" | "grid"; gridColumns?: BodySurfaceSectionGridColumns; leadingCardSegment?: boolean }) {
+function sectionNavigationTitle(section: BodySurfaceSectionSpec) {
+  return section.label ?? section.header?.title ?? null;
+}
+
+function MobileSectionDrilldown({ sections }: { sections: BodySurfaceSectionSpec[] }) {
+  const [activeKey, setActiveKey] = useState<string | null>(null);
+  const activeIndex = activeKey === null ? -1 : sections.findIndex((section) => section.key === activeKey);
+  const activeSection = activeIndex >= 0 ? sections[activeIndex] : null;
+
+  if (!activeSection) {
+    return (
+      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm sm:hidden" data-mobile-section-view="directory">
+        {sections.map((section, index) => (
+          <button
+            key={section.key}
+            type="button"
+            onClick={() => setActiveKey(section.key)}
+            className="flex min-h-14 w-full items-center gap-3 border-t border-slate-100 px-4 text-left transition first:border-t-0 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-emerald-200"
+          >
+            <span className="grid size-7 shrink-0 place-items-center rounded-lg bg-slate-100 text-xs font-semibold text-slate-500">{index + 1}</span>
+            <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">{sectionNavigationTitle(section)}</span>
+            <span aria-hidden="true" className="shrink-0 text-xl leading-none text-slate-300">›</span>
+          </button>
+        ))}
+      </div>
+    );
+  }
+
+  const previous = sections[activeIndex - 1];
+  const next = sections[activeIndex + 1];
+  return (
+    <div className="sm:hidden" data-mobile-section-view="detail">
+      <div className="mb-3 flex min-h-12 items-center gap-2 rounded-xl border border-slate-200 bg-white px-2 shadow-sm">
+        <button
+          type="button"
+          aria-label="返回章节目录"
+          title="返回章节目录"
+          onClick={() => setActiveKey(null)}
+          className="grid size-10 shrink-0 place-items-center rounded-lg text-slate-600 transition hover:bg-slate-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+        >
+          <ActionGlyph kind="back" className="size-5" />
+        </button>
+        <span className="min-w-0 flex-1 truncate text-sm font-semibold text-slate-900">{sectionNavigationTitle(activeSection)}</span>
+        <span className="shrink-0 text-xs font-medium tabular-nums text-slate-400">{activeIndex + 1} / {sections.length}</span>
+        <button
+          type="button"
+          aria-label="上一章节"
+          title="上一章节"
+          disabled={!previous}
+          onClick={() => previous && setActiveKey(previous.key)}
+          className="grid size-9 shrink-0 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+        >
+          <ActionGlyph kind="back" className="size-4" />
+        </button>
+        <button
+          type="button"
+          aria-label="下一章节"
+          title="下一章节"
+          disabled={!next}
+          onClick={() => next && setActiveKey(next.key)}
+          className="grid size-9 shrink-0 place-items-center rounded-lg text-slate-500 transition hover:bg-slate-100 disabled:opacity-25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-200"
+        >
+          <span className="rotate-180"><ActionGlyph kind="back" className="size-4" /></span>
+        </button>
+      </div>
+      {renderBodySection(activeSection)}
+    </div>
+  );
+}
+
+function BodySurfaceSectionStack({ sections, layout = "stack", gridColumns = 2, leadingCardSegment = false, mobilePresentation = "stack" }: { sections?: BodySurfaceSectionSpec[]; layout?: "stack" | "grid"; gridColumns?: BodySurfaceSectionGridColumns; leadingCardSegment?: boolean; mobilePresentation?: "stack" | "drilldown" }) {
+  const frameDepth = useSurfaceFrameDepth();
   if (!sections?.length) return null;
   if (layout === "grid") {
     const gridClassName = gridColumns === 3 ? "lg:grid-cols-3" : "lg:grid-cols-2";
-    return <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true))}</div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>;
+    return <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className={`grid items-stretch gap-4 ${gridClassName}`}>{sections.map((section) => renderBodySection(section, true, undefined, frameDepth))}</div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>;
   }
+  const canDrillDown = mobilePresentation === "drilldown"
+    && sections.length > 1
+    && sections.every((section) => sectionNavigationTitle(section) !== null);
   return (
-    <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider><div className={PAGE_SURFACE_BODY_SECTION_STACK_CLASS}>
-      {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, leadingCardSegment)))}
-    </div></BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
+    <CreateSurfaceAnchorProvider><BodySurfaceRevealProvider>
+      {canDrillDown ? <MobileSectionDrilldown sections={sections} /> : null}
+      <div className={`${PAGE_SURFACE_BODY_SECTION_STACK_CLASS} ${canDrillDown ? "max-sm:hidden" : ""}`}>
+        {sections.map((section, index) => renderBodySection(section, false, stackPositionForSection(sections, index, leadingCardSegment), frameDepth))}
+      </div>
+    </BodySurfaceRevealProvider></CreateSurfaceAnchorProvider>
   );
 }
 
@@ -162,29 +259,60 @@ function renderBodyTitle(props: BodySurfaceSectionProps) {
   );
 }
 
-function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspaceMode) {
-  const body = mode === "drawer" ? props.drawerLeft ?? props.left : props.left;
-  return <BodySurface {...body} />;
+function withMobileSplitNavigation(body: BodySurfaceProps, onNavigateToDetail: () => void): BodySurfaceProps {
+  if (body.kind === "selector") {
+    const onSelect = body.selector.onSelect as (item: unknown) => void;
+    return {
+      ...body,
+      selector: {
+        ...body.selector,
+        onSelect: (item: unknown) => {
+          onSelect(item);
+          onNavigateToDetail();
+        },
+      },
+    } as BodySurfaceProps;
+  }
+  if (body.kind !== "section" || body.layout === "split" || !body.sections?.length) return body;
+  return {
+    ...body,
+    sections: body.sections.map((section) => ({
+      ...section,
+      body: withMobileSplitNavigation(section.body, onNavigateToDetail),
+    })),
+  };
+}
+
+function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspaceMode, onNavigateToDetail?: () => void) {
+  const body = mode === "mobile" ? props.drawerLeft ?? props.left : props.left;
+  return <BodySurface {...(onNavigateToDetail ? withMobileSplitNavigation(body, onNavigateToDetail) : body)} />;
 }
 
 function renderSectionContent(props: BodySurfaceSectionProps) {
   if (props.layout === "split") {
     if (props.splitPresentation === "fixed-sidebar") {
       return (
-        <div className="grid gap-4 xl:grid-cols-[25rem_minmax(0,1fr)]">
-          <div className="max-lg:order-last min-w-0"><BodySurface {...props.left} /></div>
-          <div className="min-w-0"><BodySurface {...props.right} /></div>
-        </div>
+        <SplitWorkspace
+          sideOpen
+          sideLabel={props.sideLabel || "列表"}
+          renderSide={(mode, onNavigateToDetail) => renderSplitSide(props, mode, onNavigateToDetail)}
+          desktopPresentation="fixed-sidebar"
+          mobileDetailActive={props.mobileDetailActive}
+          onMobileNavigateToList={props.onMobileNavigateToList}
+        >
+          <BodySurface {...props.right} />
+        </SplitWorkspace>
       );
     }
     return (
       <div className="space-y-3">
         <SplitWorkspace
           sideOpen={props.sideOpen}
-          drawerOpen={props.drawerOpen}
-          onDrawerOpenChange={props.onDrawerOpenChange}
-          renderSide={(mode) => renderSplitSide(props, mode)}
+          sideLabel={props.sideLabel}
+          renderSide={(mode, onNavigateToDetail) => renderSplitSide(props, mode, onNavigateToDetail)}
           splitRatio={props.splitRatio}
+          mobileDetailActive={props.mobileDetailActive}
+          onMobileNavigateToList={props.onMobileNavigateToList}
         >
           <BodySurface {...props.right} />
         </SplitWorkspace>
@@ -203,6 +331,7 @@ function renderSectionContent(props: BodySurfaceSectionProps) {
         sections={props.sections}
         layout={props.layout}
         gridColumns={props.gridColumns}
+        mobilePresentation={props.mobilePresentation}
       />
     ) : null,
   ].filter(Boolean);

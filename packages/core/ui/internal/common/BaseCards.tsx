@@ -32,7 +32,7 @@ export function PanelCard({
       onMouseLeave={onMouseLeave}
     >
       {hasHeader && (
-        <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-4">
+        <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-3 sm:p-4">
           <div className="min-w-0">
             {title && <div className="truncate text-base font-semibold text-slate-900">{title}</div>}
             {subtitle && <div className="mt-1 text-sm text-slate-500">{subtitle}</div>}
@@ -103,7 +103,7 @@ export function SectionCard({
       subtitle={subtitle}
       actions={actions}
       className={className}
-      bodyClassName={joinClassNames("p-4", bodyClassName)}
+      bodyClassName={joinClassNames("p-3 sm:p-4", bodyClassName)}
     >
       {children}
     </PanelCard>
@@ -133,7 +133,7 @@ export function AnalysisBlock({
       subtitle={subtitle}
       actions={toolbarItems?.length ? <Toolbar items={toolbarItems} /> : undefined}
       className={className}
-      bodyClassName={joinClassNames("p-5", bodyClassName)}
+      bodyClassName={joinClassNames("p-3 sm:p-5", bodyClassName)}
     >
       {children}
     </PanelCard>

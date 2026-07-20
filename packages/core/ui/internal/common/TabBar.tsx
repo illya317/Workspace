@@ -1,8 +1,9 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import { ActionButton } from "../action/ActionControls";
 import type { ActionGlyphKind } from "../action/ActionGlyphs";
+import DetailModal from "./DetailModal";
 
 function joinClassNames(...classNames: Array<string | false | null | undefined>) {
   return classNames.filter(Boolean).join(" ");
@@ -11,6 +12,7 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
 export interface TabDef {
   key: string;
   label: ReactNode;
+  compactLabel?: ReactNode;
   children?: TabDef[];
 }
 
@@ -45,9 +47,9 @@ interface VariantStyle {
 
 export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
   large: {
-    nav: "flex flex-wrap items-center w-full gap-3 rounded-xl border border-slate-200 bg-white p-2 shadow-sm",
+    nav: "flex w-full items-center gap-2 overflow-x-auto rounded-xl border border-slate-200 bg-white p-2 shadow-sm sm:flex-wrap sm:gap-3",
     button: {
-      base: "h-11 rounded-lg px-6 text-sm font-semibold transition",
+      base: "h-10 whitespace-nowrap rounded-lg px-4 text-sm font-semibold transition sm:h-11 sm:px-6",
       active: "bg-emerald-600 text-white shadow-sm",
       inactive: "text-slate-600 hover:bg-slate-50 hover:text-slate-900",
     },
@@ -61,7 +63,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   lineLarge: {
-    nav: "flex flex-wrap items-center w-full gap-3 border-b border-slate-200 bg-transparent p-0 pb-2 shadow-none",
+    nav: "flex w-full items-center gap-2 overflow-x-auto border-b border-slate-200 bg-transparent p-0 pb-2 shadow-none sm:flex-wrap sm:gap-3",
     button: {
       base: "h-11 rounded-lg px-6 text-sm font-semibold transition",
       active: "bg-emerald-600 text-white shadow-sm",
@@ -77,7 +79,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   small: {
-    nav: "flex flex-wrap items-center w-fit gap-2 rounded-lg border-0 bg-transparent p-0 shadow-none",
+    nav: "flex max-w-full items-center gap-2 overflow-x-auto rounded-lg border-0 bg-transparent p-0 shadow-none sm:w-fit sm:flex-wrap",
     button: {
       base: "h-10 rounded-lg px-4 text-sm font-semibold transition",
       active: "bg-emerald-600 text-white shadow-sm",
@@ -93,7 +95,7 @@ export const TAB_VARIANT_STYLES: Record<TabBarVariant, VariantStyle> = {
     },
   },
   micro: {
-    nav: "flex w-fit rounded-md border border-slate-200 bg-slate-50 p-0.5",
+    nav: "flex max-w-full overflow-x-auto rounded-md border border-slate-200 bg-slate-50 p-0.5 sm:w-fit",
     button: {
       base: "min-w-10 rounded px-3 py-1.5 text-xs font-semibold transition",
       active: "bg-white text-emerald-700 shadow-sm",
@@ -157,6 +159,12 @@ export default function TabBar(props: TabBarProps) {
   const styles = TAB_VARIANT_STYLES[variant];
   const activeChild = accordion ? (props as TabBarAccordionProps).activeChild : undefined;
   const onChildChange = accordion ? (props as TabBarAccordionProps).onChildChange : undefined;
+  const activeTab = tabs.find((tab) => tab.key === active);
+  const activeChildTab = activeTab?.children?.find((tab) => tab.key === activeChild);
+  const activeMobileLabel = activeChildTab
+    ? <>{activeTab?.label}<span aria-hidden="true" className="text-slate-300">·</span>{activeChildTab.label}</>
+    : activeTab?.label ?? "选择栏目";
+  const compactMobileNavigation = tabs.length > 3 || tabs.some((tab) => (tab.children?.length ?? 0) > 0);
 
   const renderActions = (actions: TabBarAction[] | undefined) => {
     if (!actions || actions.length === 0) return null;
@@ -176,14 +184,14 @@ export default function TabBar(props: TabBarProps) {
     );
   };
 
-  return (
+  const desktopTabs = (
     <div
       role="tablist"
       aria-label={ariaLabel}
-      className={joinClassNames(styles.nav, className)}
+      className={joinClassNames(styles.nav, "hidden sm:flex", className)}
     >
       {renderActions(leadingActions)}
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-max items-center gap-2">
         {tabs.map((tab) => {
           const selected = active === tab.key;
           const children = tab.children ?? [];
@@ -232,4 +240,146 @@ export default function TabBar(props: TabBarProps) {
       {renderActions(trailingActions)}
     </div>
   );
+
+  return (
+    <>
+      <div className={joinClassNames("sm:hidden", className)}>
+        {compactMobileNavigation ? (
+          <MobileTabSelector
+            tabs={tabs}
+            active={active}
+            activeChild={activeChild}
+            activeLabel={activeMobileLabel}
+            ariaLabel={ariaLabel}
+            onChange={onChange}
+            onChildChange={onChildChange}
+          />
+        ) : (
+          <div role="tablist" aria-label={ariaLabel} className="flex rounded-xl border border-slate-200 bg-slate-100 p-1 shadow-sm">
+            {tabs.map((tab) => {
+              const selected = active === tab.key;
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={selected}
+                  onClick={() => onChange(tab.key)}
+                  className={joinClassNames(
+                    "min-h-11 min-w-0 flex-1 truncate rounded-lg px-3 text-sm font-semibold transition",
+                    selected ? "bg-white text-emerald-700 shadow-sm" : "text-slate-500 active:bg-white/70",
+                  )}
+                >
+                  {compactTabLabel(tab)}
+                </button>
+              );
+            })}
+          </div>
+        )}
+        {(leadingActions?.length || trailingActions?.length) ? (
+          <div className="mt-2 flex items-center justify-end gap-2 overflow-x-auto">
+            {renderActions(leadingActions)}
+            {renderActions(trailingActions)}
+          </div>
+        ) : null}
+      </div>
+      {desktopTabs}
+    </>
+  );
+}
+
+function MobileTabSelector({
+  tabs,
+  active,
+  activeChild,
+  activeLabel,
+  ariaLabel,
+  onChange,
+  onChildChange,
+}: {
+  tabs: TabDef[];
+  active: string;
+  activeChild?: string;
+  activeLabel: ReactNode;
+  ariaLabel?: string;
+  onChange: (key: string) => void;
+  onChildChange?: (key: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  return (
+    <>
+      <button
+        type="button"
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        className="flex min-h-16 w-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-left shadow-sm transition active:bg-slate-50"
+      >
+        <span className="min-w-0 flex-1">
+          <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">当前栏目</span>
+          <span className="mt-1 flex min-w-0 flex-wrap items-center gap-1.5 text-sm font-bold leading-5 text-slate-900">{activeLabel}</span>
+        </span>
+        <span className="shrink-0 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-700">切换</span>
+      </button>
+      <DetailModal open={open} title={ariaLabel ?? "切换栏目"} onClose={() => setOpen(false)} maxWidth="max-w-md">
+        <div className="grid gap-3" role="tablist" aria-label={ariaLabel}>
+          {tabs.map((tab) => {
+            const selected = active === tab.key;
+            return (
+              <section key={tab.key} className="rounded-2xl border border-slate-200 bg-white p-2.5 shadow-sm">
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={selected && !activeChild}
+                  onClick={() => {
+                    onChange(tab.key);
+                    setOpen(false);
+                  }}
+                  className={joinClassNames(
+                    "flex min-h-12 w-full items-center justify-between gap-3 rounded-xl px-3 text-left text-sm font-semibold transition",
+                    selected ? "bg-emerald-50 text-emerald-800" : "text-slate-700 active:bg-slate-50",
+                  )}
+                >
+                  <span className="min-w-0 flex-1 break-words leading-5">{tab.label}</span>
+                  {selected && !activeChild ? <span className="text-emerald-600">✓</span> : null}
+                </button>
+                {tab.children?.length ? (
+                  <div className="mt-2 grid grid-cols-2 gap-2 border-t border-slate-100 pt-2">
+                    {tab.children.map((child) => {
+                      const childSelected = selected && activeChild === child.key;
+                      return (
+                        <button
+                          key={child.key}
+                          type="button"
+                          role="tab"
+                          aria-selected={childSelected}
+                          onClick={() => {
+                            onChange(tab.key);
+                            onChildChange?.(child.key);
+                            setOpen(false);
+                          }}
+                          className={joinClassNames(
+                            "flex min-h-12 w-full items-center justify-between gap-2 rounded-xl border px-3 text-left text-sm transition",
+                            childSelected ? "bg-slate-900 font-semibold text-white" : "text-slate-600 active:bg-slate-50",
+                            childSelected ? "border-slate-900" : "border-slate-200 bg-white",
+                          )}
+                        >
+                          <span className="min-w-0 flex-1 break-words leading-5">{child.label}</span>
+                          {childSelected ? <span>✓</span> : null}
+                        </button>
+                      );
+                    })}
+                  </div>
+                ) : null}
+              </section>
+            );
+          })}
+        </div>
+      </DetailModal>
+    </>
+  );
+}
+
+function compactTabLabel(tab?: TabDef) {
+  return tab?.compactLabel ?? tab?.label;
 }

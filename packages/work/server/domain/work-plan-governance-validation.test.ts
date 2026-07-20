@@ -12,28 +12,23 @@ test("OKR settings mutation keeps ordinary settings on the control branch", () =
   assert.deepEqual(result, { ok: true, data: { kind: "control_settings", input } });
 });
 
-test("governance migration normalizes unique plan ids and reason", () => {
+test("OKR settings mutation rejects the retired governance migration entry", () => {
   const result = validateWorkOkrSettingsMutation({
     actorUserId: 7,
     governanceMigration: { planIds: [3, "3", 5], reason: "  switch policy  " },
   });
-  assert.deepEqual(result, {
-    ok: true,
-    data: {
-      kind: "governance_migration",
-      migration: { planIds: [3, 5], actorUserId: 7, reason: "switch policy" },
-    },
-  });
+  assert.equal(result.ok, false);
+  if (!result.ok) assert.equal(result.issue.message, "存量计划治理迁移已停用；流程策略按当前配置直接生效");
 });
 
-test("governance migration cannot be mixed with time settings", () => {
+test("retired governance migration is rejected even when mixed with time settings", () => {
   const result = validateWorkOkrSettingsMutation({
     actorUserId: 7,
     settings: {},
     governanceMigration: { planIds: [3], reason: "switch policy" },
   });
   assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.issue.message, "治理规则迁移不能和 OKR 时间设置同时提交");
+  if (!result.ok) assert.equal(result.issue.message, "存量计划治理迁移已停用；流程策略按当前配置直接生效");
 });
 
 test("governance migration rejects invalid ids instead of silently dropping them", () => {

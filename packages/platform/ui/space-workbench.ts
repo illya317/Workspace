@@ -256,27 +256,15 @@ export function createSpaceViewToolbarItem({
 export function spaceWorkbenchPanelToolbarItems({
   label,
   open,
-  onOpenDrawer,
   onToggleSide,
-  mobileKey = "mobile-side-toggle",
   desktopKey = "desktop-side-toggle",
 }: {
   label: string;
   open: boolean;
-  onOpenDrawer: () => void;
   onToggleSide: () => void;
-  mobileKey?: string;
   desktopKey?: string;
 }): SurfaceToolbarItems {
   return [
-    {
-      kind: "panel-toggle",
-      key: mobileKey,
-      icon: "panel-open",
-      label: `显示${label}`,
-      visibility: "mobile",
-      onClick: onOpenDrawer,
-    },
     {
       kind: "panel-toggle",
       key: desktopKey,
@@ -299,6 +287,8 @@ export function createSpaceWorkbenchBody({
   onDrawerOpenChange,
   ratio = [0.28, 0.72],
   showControls = true,
+  mobileDetailActive,
+  onMobileNavigateToList,
 }: {
   left: BodySurfaceSelectorProps;
   right: BodySurfaceProps;
@@ -309,11 +299,15 @@ export function createSpaceWorkbenchBody({
   onDrawerOpenChange: (open: boolean) => void;
   ratio?: [number, number];
   showControls?: boolean;
+  mobileDetailActive?: boolean;
+  onMobileNavigateToList?: () => void;
 }): BodySurfaceProps {
   return createBodySplitSection({
     left,
     drawerLeft: left,
     right,
+    mobileDetailActive,
+    onMobileNavigateToList,
     side: {
       label,
       open,

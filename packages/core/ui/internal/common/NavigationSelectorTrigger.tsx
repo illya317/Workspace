@@ -13,7 +13,7 @@ function joinClassNames(...classNames: Array<string | false | null | undefined>)
 
 const TRIGGER_CLASSES = {
   root: "relative block",
-  button: "inline-flex h-8 max-w-32 items-center gap-1.5 rounded-md border border-slate-100 bg-white/60 px-2.5 text-sm font-medium text-slate-500 shadow-none transition hover:border-emerald-100 hover:bg-emerald-50/50 hover:text-emerald-700 sm:max-w-44",
+  button: "inline-flex h-10 max-w-32 items-center gap-1.5 rounded-md border border-slate-100 bg-white/60 px-2.5 text-sm font-medium text-slate-500 shadow-none transition hover:border-emerald-100 hover:bg-emerald-50/50 hover:text-emerald-700 sm:h-8 sm:max-w-44",
   closed: "",
   open: "border-emerald-100 bg-emerald-50/50 text-emerald-700",
   list: "w-44 border-slate-100",

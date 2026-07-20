@@ -44,6 +44,7 @@ export function workReportingSection(props: WorkReportingSectionProps): BodySurf
         kind: "structured",
         rows: reportingTableRows(objectiveRows, periodLabel, nextPeriodLabel, props.loading),
         format: { kind: "matrix", columnWidths: ["12rem", null, null, "11rem"] },
+        mobile: { presentation: "list" },
         frame: "bordered",
         structuredScroll: true,
         scroll: { x: true },

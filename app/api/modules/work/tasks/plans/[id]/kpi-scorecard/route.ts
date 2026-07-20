@@ -1,0 +1,49 @@
+import { z } from "zod";
+import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import {
+  buildKpiPlanCommand,
+  executeFinalizeKpiScorecardCommand,
+  executeGetKpiScorecardCommand,
+} from "@workspace/work/server";
+
+const optionalNumber = z.coerce.number().finite().nullable().optional();
+const scorecardBodySchema = z.object({
+  expectedPlanGovernanceRevision: z.coerce.number().int().positive().optional(),
+  entries: z.array(z.object({
+    id: z.coerce.number().int().positive().nullable().optional(),
+    version: z.coerce.number().int().positive().nullable().optional(),
+    definitionId: z.coerce.number().int().positive(),
+    ownerEmployeeId: z.coerce.number().int().positive(),
+    objectiveWorkItemId: z.coerce.number().int().positive().nullable().optional(),
+    sourceAssignmentId: z.coerce.number().int().positive().nullable().optional(),
+    relationKind: z.enum(["direct", "decompose"]).optional(),
+    weight: z.coerce.number().finite(),
+    baselineValue: optionalNumber,
+    targetValue: optionalNumber,
+    targetLowerBound: optionalNumber,
+    targetUpperBound: optionalNumber,
+    scoringRule: z.object({
+      kind: z.literal("linear"),
+      targetScore: z.coerce.number().finite(),
+      floorScore: z.coerce.number().finite(),
+      capScore: z.coerce.number().finite(),
+    }).strip().nullable().optional(),
+  }).strip()).max(100),
+}).strip();
+
+export const GET = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  paramsError: "OKR 计划 ID 无效",
+  buildCommand: ({ user, params }) => buildKpiPlanCommand({ userId: user.userId, planId: params.id }),
+  action: executeGetKpiScorecardCommand,
+});
+
+export const PUT = createCommandRoute({
+  paramsSchema: routeIdParamsSchema,
+  bodySchema: scorecardBodySchema,
+  paramsError: "OKR 计划 ID 无效",
+  bodyError: "KPI 计分卡参数无效",
+  buildCommand: ({ user, params, body }) => buildKpiPlanCommand({ userId: user.userId, planId: params.id, body }),
+  action: executeFinalizeKpiScorecardCommand,
+});

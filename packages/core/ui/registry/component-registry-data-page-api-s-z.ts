@@ -63,11 +63,11 @@ export const page_api_registry_entries = [
   },
   {
     name: "StructuredTable",
-    description: "结构化表格",
+    description: "结构化表格；移动端简单行和简单矩阵转纵向记录卡片，复杂跨行跨列矩阵保留横向浏览",
   },
   {
     name: "TabBar",
-    description: "Tab 切换栏；accordion 模式在选中父 Tab 后于同栏展开其 children 子 Tab",
+    description: "Tab 切换栏；桌面 accordion 同栏展开 children，移动端按选项数量切换为分段控件或可完整换行的分组栏目选择面板",
     declares: [
       { name: "tabs.children", description: "父 Tab 的子视图项。" },
       { name: "accordion", description: "启用同栏父子 Tab 展开结构。" },

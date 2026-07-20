@@ -71,7 +71,7 @@ export async function GET(request: Request) {
     const response = NextResponse.redirect(new URL(nextPath, getRequestOrigin(request)));
     response.cookies.set("token", login.token, {
       httpOnly: true,
-      secure: false,
+      secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: SESSION_MAX_AGE_SECONDS,
       path: "/",

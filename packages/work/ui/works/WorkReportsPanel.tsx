@@ -37,9 +37,8 @@ export interface WorkReportsController {
   updateItem: (index: number, patch: Partial<WorkReportItem>) => void;
 }
 
-export function useWorkReportsController({ target, canEdit, onToast, enabled }: {
+export function useWorkReportsController({ target, onToast, enabled }: {
   target: WorkTarget | null;
-  canEdit: boolean;
   onToast: (toast: { message: string; type: "success" | "error" }) => void;
   enabled: boolean;
 }): WorkReportsController {
@@ -58,8 +57,8 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
     [cycleOptions, periodStart, periodType],
   );
   const periodRecords = useMemo(
-    () => createReportPeriodRecords(cycleOptions, periodType, periodStart, { policies: [], settings: null, target }),
-    [cycleOptions, periodStart, periodType, target],
+    () => createReportPeriodRecords(cycleOptions, periodType, periodStart),
+    [cycleOptions, periodStart, periodType],
   );
 
   useEffect(() => {
@@ -106,7 +105,7 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
   }, [target?.targetType, target?.targetId]);
 
   const saveReportRecord = useCallback(async () => {
-    if (!target || !draft || saving || !canEdit) return;
+    if (!target || !draft || saving || draft.actionRuntime.editability !== "editable") return;
     setSaving(true);
     try {
       const outcome = await saveWorkReport(target, periodType, periodStart, "final", draft.items);
@@ -124,7 +123,7 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
     } finally {
       setSaving(false);
     }
-  }, [canEdit, draft, onToast, periodStart, periodType, saving, target]);
+  }, [draft, onToast, periodStart, periodType, saving, target]);
 
   const updateItem = useCallback((index: number, patch: Partial<WorkReportItem>) => {
     setDraft((current) => current ? {
@@ -142,10 +141,11 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
   }, [cycleOptions]);
 
   const selectPeriodRecord = useCallback((record: WorkReportPeriodRecord) => {
+    if (record.periodStart === periodStart) return;
     setDraft(null);
     setDraftSnapshot("");
     setPeriodStart(record.periodStart);
-  }, []);
+  }, [periodStart]);
 
   const toolbarItems = useMemo(() => [{
     kind: "option-group",
@@ -157,7 +157,12 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
     presentation: "segmented" as const,
   }] satisfies SurfaceToolbarItems, [periodType, updatePeriodType]);
 
-  const actionDisabled = loading || saving || !draft || !hasDraftChanges;
+  const hasSavableDraft = Boolean(
+    draft
+    && draft.items.length > 0
+    && (draft.report === null || hasDraftChanges),
+  );
+  const actionDisabled = loading || saving || !hasSavableDraft;
   const formActions = workflowActionSurfaceActions(actionRuntimeCommands(draft?.actionRuntime, {
     "record.save": { label: "保存快照", disabled: actionDisabled, onClick: () => void saveReportRecord() },
     "workflow.request.submit": { disabled: actionDisabled, onClick: () => void saveReportRecord() },
@@ -169,7 +174,7 @@ export function useWorkReportsController({ target, canEdit, onToast, enabled }: 
     formActions,
     draft,
     loading,
-    canEditDraft: canEdit && draft?.canEdit === true && draft.actionRuntime.editability === "editable",
+    canEditDraft: draft?.canEdit === true && draft.actionRuntime.editability === "editable",
     periodType,
     periodStart,
     selectedCycle,

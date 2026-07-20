@@ -38,6 +38,7 @@ type BodySurfaceModuleGridLike = {
   afterGrid?: ReactNode;
   centered?: boolean;
   fullScreen?: boolean;
+  columns?: 3 | 4 | 5;
   items: Array<{
     key: string;
     title: string;
@@ -92,6 +93,13 @@ export function renderBodyStatus(status?: BodySurfaceStatusLike) {
 
 export function renderModuleGrid(moduleGrid?: BodySurfaceModuleGridLike) {
   if (!moduleGrid) return null;
+  const gridClassName = moduleGrid.columns === 3
+    ? "grid-cols-3"
+    : moduleGrid.columns === 4
+      ? "grid-cols-4"
+      : moduleGrid.columns === 5
+        ? "grid-cols-5"
+        : "grid-cols-4 sm:grid-cols-2 lg:grid-cols-3";
   return (
     <div key="module-grid" className={joinClassNames(
       "flex w-full flex-col items-center",
@@ -105,7 +113,7 @@ export function renderModuleGrid(moduleGrid?: BodySurfaceModuleGridLike) {
           {moduleGrid.summary ? <p className="mt-1 text-center text-sm text-gray-500">{moduleGrid.summary}</p> : null}
         </div>
       )}
-      <div className="grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      <div className={joinClassNames("grid w-full max-w-4xl gap-x-2 gap-y-5 sm:gap-4", gridClassName)}>
         {moduleGrid.items.map((item) => {
           const { key, ...props } = item;
           return <ModuleCard key={key} {...props} />;

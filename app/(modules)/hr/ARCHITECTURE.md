@@ -119,7 +119,7 @@ roster/page.tsx
 1. 员工点击“新建自评”只进入本地编辑态，最终“提交”才在内部创建 ApprovalRequest 草稿并立即提交；已有草稿、撤回单或驳回单点击“编辑”后，最终动作分别由 runtime 映射为提交或再次提交。
 2. 默认第一个审批节点是 `direct_manager`，直属上级来自现有自然上级链 `listDirectManagerUserIds`，该节点可写直属上级评分和评语。
 3. 默认第二个审批节点是有 `hr.performance.approve` 的 HR 处理人，该节点可写最终分、等级和 HR 评语。
-4. HR 最终通过时才创建 `HrPerformanceReview`，并重新抓取所选周期的 OKR/工作来源生成 `okrSnapshotJson`。归档后的快照不随 Work 后续修改变化。
+4. HR 最终通过时才创建 `HrPerformanceReview`，并重新抓取所选周期的 Work/OKR 材料以及每项 KPI 最新的已确认结果快照，生成 `workEvidenceSnapshotJson`。快照使用版本化 `work + kpi` 结构；HR 只复制已确认 KPI 分数和证据，不重新运行 Work 的评分公式，归档后也不随 Work 后续修改变化。
 
 绩效范围事实统一由 HR-private `performance-audience` 模块维护：在职员工、M 体系及运营委员会部门、已开启项目空间、部门后代和项目成员有效期使用同一口径；dashboard、贡献材料 dossier 与归档快照不得各自重建范围规则。
 

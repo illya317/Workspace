@@ -44,7 +44,7 @@ export default function Toast({
   }
 
   return (
-    <div className="fixed left-1/2 top-6 z-50 -translate-x-1/2">
+    <div className="fixed left-1/2 top-[max(1.5rem,env(safe-area-inset-top))] z-50 w-[calc(100%-1.5rem)] -translate-x-1/2 sm:w-auto">
       <div className="rounded-md bg-emerald-600 px-4 py-2 text-sm text-white shadow-lg">
         {message}
       </div>

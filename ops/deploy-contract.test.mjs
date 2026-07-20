@@ -7,6 +7,8 @@ import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
+const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-deps.sh", import.meta.url), "utf8");
+const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
 
 function assertOrdered(source, needles) {
@@ -40,23 +42,68 @@ test("deploy delegates all receipt reads and writes to one versioned helper", ()
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' inspect/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' assert/);
   assert.match(deploy, /'\$REMOTE_RELEASE_RECEIPT_TOOL' write/);
-  assert.match(deploy, /--deployed-canonical "\$DEPLOYED_CANONICAL_SOURCE_SHA"/);
-  assert.match(deploy, /--deployed-transport "\$DEPLOYED_TRANSPORT"/);
+  assert.doesNotMatch(deploy, /--deployed-canonical|--deployed-transport|--candidate-transport/);
+  assert.doesNotMatch(deploy, /--transport|DEPLOYED_TRANSPORT/);
   const invocation = deploy.slice(deploy.indexOf('echo "==> 验证服务器连接..."'));
   assert.ok(invocation.indexOf("acquire_remote_deploy_lock") < invocation.indexOf("sync_remote_deploy_tools"));
 });
 
-test("deployment notification records the exact release transport", () => {
-  assert.match(deploy, /REMOTE_DIR='\$REMOTE_DIR' RELEASE_TRANSPORT='\$RELEASE_TRANSPORT' RELEASE_SOURCE_SHA='\$RELEASE_SOURCE_SHA' python3/);
-  assert.match(deploy, /transport = os\.environ\['RELEASE_TRANSPORT'\]/);
-  assert.match(deploy, /transport not in \{'cnb', 'ssh-hotfix'\}/);
-  assert.match(deploy, /'transport': transport/);
-  assert.match(deploy, /os\.environ\['RELEASE_SOURCE_SHA'\]/);
+test("deployment notification records exact source and end-to-end publish duration", () => {
+  assert.match(deploy, /local started_epoch/);
+  assert.match(deploy, /require\('\.\/\$RELEASE_METADATA_FILE'\)\.deployment\.startedAtEpochSeconds/);
+  assert.match(deploy, /duration_seconds="\$\(\(\$\(date \+%s\) - started_epoch\)\)"/);
+  assert.doesNotMatch(deploy, /DEPLOY_STARTED_SECONDS|PUBLISH_STARTED_EPOCH_SECONDS/);
+  assert.match(deploy, /package_version="\$\(node -p "require\('\.\/package\.json'\)\.version"\)"/);
+  assert.match(
+    deploy,
+    /REMOTE_DIR='\$REMOTE_DIR' DEPLOY_PACKAGE_VERSION='\$package_version' DEPLOY_SOURCE_SHA='\$RELEASE_SOURCE_SHA' DEPLOY_DURATION_SECONDS='\$duration_seconds' python3/,
+  );
+  assert.match(deploy, /package = os\.environ\['DEPLOY_PACKAGE_VERSION'\]/);
+  assert.match(deploy, /build = os\.environ\['DEPLOY_SOURCE_SHA'\]/);
+  assert.match(deploy, /re\.fullmatch\(r'\[0-9a-f\]\{40\}', build\)/);
+  assert.match(deploy, /duration_seconds = int\(os\.environ\['DEPLOY_DURATION_SECONDS'\]\)/);
+  assert.match(deploy, /'durationSeconds': duration_seconds/);
+  assert.match(deploy, /'transport': 'cnb'/);
+  assertOrdered(deploy, [
+    "run_healthcheck",
+    "notify_workspace_bot_deploy",
+    "build = os.environ['DEPLOY_SOURCE_SHA']",
+    "'durationSeconds': duration_seconds",
+  ]);
 });
 
-test("remote receipt verification output stays inside the SSH command", () => {
-  assert.match(deploy, /echo \\"==> \\\$verification_phase: 生产部署记录未被并发修改\\"/);
-  assert.doesNotMatch(deploy, /echo "==> \\\$verification_phase: 生产部署记录未被并发修改"/);
+test("deployment notification program writes a complete event at runtime", () => {
+  const embeddedProgram = embeddedPrograms("python3", "PY")
+    .find((candidate) => candidate.includes("Workspace deploy event recorded"));
+  assert.ok(embeddedProgram, "deployment notification Python program must exist");
+  const program = embeddedProgram.replaceAll('\\"', '"');
+  const root = mkdtempSync(join(tmpdir(), "workspace-deploy-event-"));
+  const remoteDir = join(root, "remote");
+  mkdirSync(remoteDir, { recursive: true });
+  try {
+    const result = runPython(program, {
+      HOME: root,
+      REMOTE_DIR: remoteDir,
+      DEPLOY_PACKAGE_VERSION: "0.1.2",
+      DEPLOY_SOURCE_SHA: "a".repeat(40),
+      DEPLOY_DURATION_SECONDS: "123",
+    });
+    assert.equal(result.status, 0, result.stderr);
+    const event = JSON.parse(readFileSync(join(root, ".finance-bot-deploy-event.json"), "utf8"));
+    assert.equal(event.transport, "cnb");
+    assert.equal(event.package, "0.1.2");
+    assert.equal(event.build, "a".repeat(40));
+    assert.equal(event.durationSeconds, 123);
+  } finally {
+    rmSync(root, { recursive: true, force: true });
+  }
+});
+
+test("remote verification messages cannot become local shell redirects", () => {
+  assert.equal(deploy.includes('echo "[错误] \\$verification_phase:'), false);
+  assert.equal(deploy.includes('echo "==> \\$verification_phase:'), false);
+  assert.equal(deploy.includes('echo \\"[错误] \\$verification_phase:'), true);
+  assert.equal(deploy.includes('echo \\"==> \\$verification_phase:'), true);
 });
 
 test("ordinary PostgreSQL releases restore the previous application until the release record is committed", () => {
@@ -126,7 +173,7 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
   assert.match(
     deploy,
-    /REMOTE_STANDALONE_ARTIFACT_PATH[\s\S]*?rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?cutover 前再次确认 release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
+    /ARTIFACT_PATH[\s\S]*?rsync -av[\s\S]*?\$ARTIFACT_MANIFEST_PATH[\s\S]*?cutover 前再次确认 release metadata 与部署顺序[\s\S]*?verify_release_order[\s\S]*?服务器复验产物/,
   );
   assert.match(
     deploy,
@@ -134,26 +181,33 @@ test("Kimi runtime, artifact integrity, and release order fail closed", () => {
   );
 });
 
-test("library OCR/PDF and Qwen runtime reinstall only when their source fingerprint changes", () => {
-  const runtimeDeps = deploy.slice(
-    deploy.indexOf("ensure_remote_library_runtime_deps()"),
-    deploy.indexOf("ensure_remote_kimi_agent_runtime()"),
-  );
+test("Library, Qwen, and ONLYOFFICE reuse verified runtime installations", () => {
   assert.match(
-    runtimeDeps,
-    /runtime_digest=.*sha256sum[\s\S]*?install-library-runtime-deps\.sh[\s\S]*?install-library-embedding-model\.sh[\s\S]*?library-worker-requirements\.txt[\s\S]*?library-runtime-smoke\.py[\s\S]*?sha256sum/,
+    deploy,
+    /Library\/Qwen 运行时 source\/version 未变化，跳过网络安装和模型加载/,
   );
-  assert.match(runtimeDeps, /runtime_marker=.*\.installed-source\.sha256/);
-  assert.match(
-    runtimeDeps,
-    /if \[ -f .*runtime_marker[\s\S]*?指纹未变化，完全跳过安装和模型复验[\s\S]*?install-library-runtime-deps\.sh' --server[\s\S]*?install-library-embedding-model\.sh'/,
+  assert.match(deploy, /install-library-runtime-deps\.sh' --server --quick-check/);
+  assert.match(deploy, /install-library-embedding-model\.sh' --quick-check/);
+  assert.match(deploy, /ONLYOFFICE source\/version 未变化且健康，跳过 compose reconcile/);
+  assert.match(libraryRuntimeInstaller, /--quick-check/);
+  assert.match(libraryRuntimeInstaller, /LIBRARY_QUICK_CHECK/);
+  assert.match(embeddingInstaller, /workspace-embedding-model\.json/);
+  assert.match(embeddingInstaller, /"mode": "quick-check"/);
+  const quickCheck = embeddingInstaller.slice(
+    embeddingInstaller.indexOf('if [ "$MODE" = "quick-check" ]'),
+    embeddingInstaller.indexOf('echo "==> Checking Qwen embedding model on CPU"'),
   );
-  assertOrdered(runtimeDeps, [
-    "marker_tmp=",
-    "printf '%s\\\\n'",
-    "chmod 600",
-    "mv ",
-  ]);
+  assert.doesNotMatch(quickCheck, /SentenceTransformer|model\.encode/);
+});
+
+test("CNB artifacts are uploaded, verified, and removed after extraction", () => {
+  const remoteDeploy = deploy.slice(
+    deploy.indexOf("deploy_remote_artifact()"),
+    deploy.indexOf("run_healthcheck()"),
+  );
+  assert.match(remoteDeploy, /rsync -av[\s\S]*?\$ARTIFACT_PATH[\s\S]*?\$ARTIFACT_MANIFEST_PATH/);
+  assert.match(remoteDeploy, /rm -f '\$remote_tar' '\$remote_manifest'/);
+  assert.doesNotMatch(remoteDeploy, /preserve_remote_artifact|REMOTE_STANDALONE/);
 });
 
 test("Kimi sandbox mounts only the validated per-turn agent config", () => {

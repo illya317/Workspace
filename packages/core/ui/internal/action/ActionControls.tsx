@@ -55,7 +55,7 @@ export function ActionButton({
       disabled={disabled}
       aria-label={buttonProps["aria-label"] ?? label}
       title={buttonProps.title ?? label}
-      className={joinClassNames(getToolbarActionClassName(variant, size), `${iconButtonWidth} !px-0 ${tokens.text} ${tokens.leading}`, className)}
+      className={joinClassNames(getToolbarActionClassName(variant, size), `${iconButtonWidth} max-sm:!h-11 max-sm:!w-11 !px-0 ${tokens.text} ${tokens.leading}`, className)}
     >
       <ActionGlyph kind={kind} className={iconClassName ?? defaultIconClassName} />
     </button>

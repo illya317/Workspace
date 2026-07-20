@@ -24,7 +24,7 @@ export type {
   QcEditorRuntimeTemplate,
   QcEditorRuntimeTest,
   QcOfficialTemplateProduct,
-} from "./editor-runtime-template";
+} from "@workspace/production/types/qc/runtime";
 export type {
   QcBatchCreateInput,
   QcBatchList,

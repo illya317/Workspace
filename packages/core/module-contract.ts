@@ -57,6 +57,20 @@ export type ModuleIconKey =
   | "api"
   | "ui";
 
+export type MobileExperienceStrategy = "native" | "landscape" | "unavailable";
+
+export interface MobileExperienceOverrideRegistration {
+  pathPrefix: string;
+  strategy: MobileExperienceStrategy;
+  reason?: string;
+}
+
+export interface MobileExperienceRegistration {
+  strategy: MobileExperienceStrategy;
+  reason?: string;
+  overrides?: MobileExperienceOverrideRegistration[];
+}
+
 export interface SubModuleRegistration {
   key: string;
   label: string;
@@ -65,6 +79,8 @@ export interface SubModuleRegistration {
   iconKey: ModuleIconKey;
   color: ModuleColor;
   resourceKey: string;
+  /** L2 在紧凑移动设备上的产品级呈现策略。 */
+  mobileExperience: MobileExperienceRegistration;
   resourceHidden?: boolean;
   resourceSortOrder?: number;
   pageAccess?: PageRouteAccessMode;

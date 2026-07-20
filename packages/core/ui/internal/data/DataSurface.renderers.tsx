@@ -1,5 +1,4 @@
 "use client";
-
 import type { ReactNode } from "react";
 import AmountCell from "./AmountCell";
 import Badge, { badgeToneClassName } from "../common/Badge";
@@ -17,6 +16,7 @@ import CommandButton from "../common/CommandButton";
 import { InputSurfaceRenderer } from "../../InputSurface";
 import FormSurface from "../../FormSurface";
 import CreateSurface from "../../CreateSurface";
+import MobileExperienceBoundary from "../../MobileExperienceBoundary";
 import { CreateSurfaceAnchorTarget } from "../create/CreateSurfaceAnchorContext";
 import { joinClassNames } from "../common/card-utils";
 import { resolveDataTableScroll, resolveTableToneClass } from "./table-presentation";
@@ -27,6 +27,8 @@ import type {
   DataSurfaceCommandSpec,
   DataSurfaceDisplaySpec,
   DataSurfaceFrame,
+  DataSurfaceMobilePresentation,
+  DataSurfaceMobileSpec,
   DataSurfaceProps,
   DataSurfaceRecordProps,
   DataSurfaceScrollSpec,
@@ -345,13 +347,14 @@ function normalizeColumns<T>(columns: Array<DataSurfaceColumnSpec<T>>): DataTabl
 function renderTable<T>(props: DataSurfaceTableProps<T>) {
   const frame = props.frame ?? (props.format?.kind === "matrix" ? "bordered" : undefined);
   const scroll = resolveDataTableScroll(props.format, props.scroll);
-  return (
-    <>
-      <TableScrollFrame frame={frame} scroll={scroll}>
-        <DataTable<T>
+  const mobilePresentation = resolveMobilePresentation(props.mobile, props.format?.kind === "matrix");
+  const table = (
+    <TableScrollFrame frame={frame} scroll={scroll}>
+      <DataTable<T>
           rows={props.rows}
           columns={normalizeColumns(props.columns)}
           format={props.format}
+          mobilePresentation={mobilePresentation}
           rowKey={props.rowKey}
           visibleColumns={props.visibleColumns}
           presentation={props.presentation}
@@ -367,16 +370,33 @@ function renderTable<T>(props: DataSurfaceTableProps<T>) {
           rowActions={props.rowActions}
           rowEditActions={props.rowEditActions}
           actionsColumn={props.actionsColumn}
-        />
-      </TableScrollFrame>
-    </>
+      />
+    </TableScrollFrame>
+  );
+  return withMobileDataExperience(table, mobilePresentation, props.mobile);
+}
+
+function resolveMobilePresentation(mobile: DataSurfaceMobileSpec | undefined, matrix: boolean): DataSurfaceMobilePresentation {
+  return mobile?.presentation ?? (matrix ? "landscape" : "list");
+}
+
+function withMobileDataExperience(content: ReactNode, presentation: DataSurfaceMobilePresentation, mobile?: DataSurfaceMobileSpec) {
+  if (presentation === "list") return content;
+  return (
+    <MobileExperienceBoundary
+      strategy={presentation}
+      title={mobile?.title ?? (presentation === "landscape" ? "数据矩阵" : "该数据视图")}
+      reason={mobile?.reason}
+    >
+      {content}
+    </MobileExperienceBoundary>
   );
 }
 
 function renderSummary(props: DataSurfaceSummaryProps) {
   if (props.metrics.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无指标"}</EmptyStateCard>;
   return (
-    <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
       {props.metrics.map((metric) => (
         <MetricCard key={metric.key} label={metric.label} value={renderDisplay(metric.value)} />
       ))}
@@ -408,8 +428,10 @@ function renderRecord(props: DataSurfaceRecordProps) {
 export function renderData<T>(props: DataSurfaceProps<T>) {
   if (props.kind === "table") return renderTable(props);
   if (props.kind === "structured") {
+    if (props.rows.length === 0) return <EmptyStateCard compact>{props.empty ?? "暂无数据"}</EmptyStateCard>;
     const colWidths = props.colWidths ?? structuredFormatColWidths(props.rows, props.format);
     const rowHeights = props.rowHeights ?? structuredFormatRowHeights(props.rows.length, props.format);
+    const mobilePresentation = resolveMobilePresentation(props.mobile, props.format?.kind === "matrix");
     const table = (
       <StructuredTable
         rows={normalizeStructuredRows(props.rows)}
@@ -417,9 +439,11 @@ export function renderData<T>(props: DataSurfaceProps<T>) {
         colWidths={colWidths}
         rowHeights={rowHeights}
         presentation={structuredPresentation(props)}
+        mobilePresentation={mobilePresentation}
       />
     );
-    return props.structuredScroll === false ? table : <TableScrollFrame frame={structuredFrame(props)} scroll={structuredScroll(props)}>{table}</TableScrollFrame>;
+    const framedTable = props.structuredScroll === false ? table : <TableScrollFrame frame={structuredFrame(props)} scroll={structuredScroll(props)}>{table}</TableScrollFrame>;
+    return withMobileDataExperience(framedTable, mobilePresentation, props.mobile);
   }
   if (props.kind === "summary") return renderSummary(props);
   return renderRecord(props);

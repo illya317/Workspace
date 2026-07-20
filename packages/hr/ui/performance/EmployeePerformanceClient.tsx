@@ -100,6 +100,7 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
       onChange: (value: unknown) => setKeyword(String(value || "")),
     },
   ], {
+    header: { title: "考核周期", description: "选择周期后刷新本人的考勤、贡献材料和绩效流程。" },
     commands: [
       { key: "search", label: "刷新", icon: "refresh", variant: "primary", disabled: loading, onClick: () => void loadData(cycleId, keyword) },
     ],
@@ -120,7 +121,7 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
     ...(loading
       ? [createMessageSection("loading", { content: "正在加载绩效数据...", tone: "muted" as const })]
       : activeTab === "attendance"
-        ? [structuredTableSection("attendance-table", attendanceHeaders, data?.attendanceRows ?? [], attendanceCells, "暂无考勤口径数据")]
+        ? [structuredTableSection("attendance-table", "考勤口径", attendanceHeaders, data?.attendanceRows ?? [], attendanceCells, "暂无考勤口径数据")]
         : activeTab === "works"
           ? [
             createMetricsSection("work-kind-metrics", {
@@ -130,19 +131,23 @@ export default function EmployeePerformanceClient({ user: _user }: { user: Sessi
                 { key: "project", label: "项目结构", value: contributionCounts.project },
               ],
             }),
-            structuredTableSection("contribution-table", contributionHeaders, data?.contributionRows ?? [], contributionCells, "当前周期暂无贡献材料"),
+            structuredTableSection("contribution-table", "本周期贡献材料", contributionHeaders, data?.contributionRows ?? [], contributionCells, "当前周期暂无贡献材料"),
           ]
           : [
             createFieldsSection("review-form", reviewFormItems(editor.draft, editor.setDraft, editor.editorFieldsDisabled, editor.editorStage), {
               layout: { columns: 4 },
+              header: {
+                title: "个人绩效评审",
+                description: reviewFormDescription(editor.editorOpen, editor.editorStage),
+              },
               actions: editor.editorOpen
                 ? editor.editorActions
                 : editor.showCreateSelfReview
                   ? [{ key: "create-review", action: "create", label: "新建自评", disabled: editor.saving || !editor.canCreateSelfReview, onClick: editor.beginCreate }]
                   : [],
             }),
-            structuredTableSection("submissions-table", submissionHeaders, data?.submissionRows ?? [], (row) => submissionCells(row, editor.beginEdit, editor.runRowAction, editor.saving, editor.selectedSubmissionId), "暂无绩效流程"),
-            structuredTableSection("reviews-table", reviewHeaders, data?.reviewRows ?? [], reviewCells, "暂无正式绩效记录"),
+            structuredTableSection("submissions-table", "绩效流程", submissionHeaders, data?.submissionRows ?? [], (row) => submissionCells(row, editor.beginEdit, editor.runRowAction, editor.saving, editor.selectedSubmissionId), "暂无绩效流程"),
+            structuredTableSection("reviews-table", "已归档绩效", reviewHeaders, data?.reviewRows ?? [], reviewCells, "暂无正式绩效记录"),
           ]),
   ]);
 
@@ -238,6 +243,14 @@ function reviewFormItems(
   ];
 }
 
+function reviewFormDescription(open: boolean, stage: ReviewEditorStage) {
+  if (!open) return "新建自评，或从下方流程记录继续处理已有申请。";
+  if (stage === "self") return "填写自评分与本周期工作总结后提交。";
+  if (stage === "manager") return "填写上级评分与评语后处理申请。";
+  if (stage === "hr") return "完成最终评分、等级与 HR 评语。";
+  return "当前流程仅供查看。";
+}
+
 function formatDate(value: string) {
   if (!value) return "-";
   return value.slice(0, 10);
@@ -321,6 +334,7 @@ function actionsCell(actions: Extract<DataSurfaceCellSpec, { kind: "actions" }>[
 
 function structuredTableSection<T>(
   key: string,
+  title: string,
   headers: string[],
   rows: T[],
   toCells: (row: T) => DataSurfaceStructuredCellSpec[],
@@ -329,12 +343,15 @@ function structuredTableSection<T>(
   const headerRows: DataSurfaceStructuredCellSpec[][] = rows.length
     ? [headers.map((label) => ({ content: { kind: "text" as const, value: label }, header: true, emphasis: "strong" }))]
     : [];
-  return createPageDataSection(key, {
-    kind: "structured",
-    rows: [...headerRows, ...rows.map(toCells)],
-    empty: emptyText,
-    frame: "bordered",
-    presentation: { density: "compact", header: "tinted" },
-    scroll: { x: true },
-  });
+  return {
+    ...createPageDataSection(key, {
+      kind: "structured",
+      rows: [...headerRows, ...rows.map(toCells)],
+      empty: emptyText,
+      frame: "bordered",
+      presentation: { density: "compact", header: "tinted" },
+      scroll: { x: true },
+    }),
+    header: { title },
+  };
 }

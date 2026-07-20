@@ -173,6 +173,35 @@ function ProjectLedgerTab({
   const isProjectDetail = Boolean(model.selectedProject && !model.creating);
   const navigationItems = isProjectDetail ? PROJECT_DETAIL_VIEW_ITEMS : projectViewItems;
   const activeNavigationKey = isProjectDetail ? activeDetailView : activeView;
+  const setProjectSelection = model.setSelection;
+
+  useEffect(() => {
+    function restoreProjectSelection() {
+      const match = window.location.pathname.match(/\/work\/project\/(\d+)\/?$/);
+      setProjectSelection(match ? Number(match[1]) : null);
+    }
+    window.addEventListener("popstate", restoreProjectSelection);
+    return () => window.removeEventListener("popstate", restoreProjectSelection);
+  }, [setProjectSelection]);
+
+  function selectProject(project: ProjectItem) {
+    model.setCreating(false);
+    model.setSelection(project.id);
+    setActiveDetailView("overview");
+    window.history.pushState({ workspaceProjectSelection: project.id }, "", workspacePath(`/work/project/${project.id}`));
+  }
+
+  function returnToProjectList() {
+    model.setCreating(false);
+    model.setSelection(null);
+    setActiveDetailView("overview");
+    if (window.history.state?.workspaceProjectSelection) {
+      window.history.back();
+      return;
+    }
+    window.history.replaceState({}, "", workspacePath("/work/project"));
+  }
+
   return (
     <PageSurface kind="standard"
       tabbar={createPageTabBar({
@@ -192,7 +221,6 @@ function ProjectLedgerTab({
           ...spaceWorkbenchPanelToolbarItems({
             label: "项目列表",
             open: model.projectListOpen,
-            onOpenDrawer: () => model.setProjectListDrawerOpen(true),
             onToggleSide: () => model.setProjectListOpen(!model.projectListOpen),
           }),
         ],
@@ -204,9 +232,7 @@ function ProjectLedgerTab({
             model.filteredProjects,
             model.projectListFilter,
             model.selection,
-            (project) => {
-              window.location.assign(workspacePath(`/work/project/${project.id}`));
-            },
+            selectProject,
             model.loading,
             model.error,
           ),
@@ -231,6 +257,8 @@ function ProjectLedgerTab({
         onDrawerOpenChange: model.setProjectListDrawerOpen,
         ratio: [0.2, 0.8],
         showControls: false,
+        mobileDetailActive: isProjectDetail || model.creating,
+        onMobileNavigateToList: returnToProjectList,
       })}
     />
   );

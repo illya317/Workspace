@@ -127,6 +127,8 @@ space.company
 
 登录只看 `User.canLogin` 和 `sessionVersion`，不看任何 RBAC resource。
 
+企业微信登录由 Platform 按运行环境分流：桌面浏览器使用官方 Web 登录面板；企业微信内置浏览器使用 `snsapi_base` OAuth 直接登录；手机外部浏览器不使用未公开支持的自定义 scheme 唤起，而是引导用户从企业微信工作台进入本应用。OAuth callback 校验 state 后仅为已绑定且允许登录的用户签发 HttpOnly session Cookie。
+
 默认有效入口：
 
 - 已登录用户默认拥有 `settings.account` 的 `entry/read`。

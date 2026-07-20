@@ -11,9 +11,11 @@ import {
 import {
   workOkrWorkflowBusinessActionKey,
 } from "./task-approval-helpers";
+import { resolveWorkReportWorkflowActionKind } from "./domain/work-report-workflow-action";
 import { workTaskScopeId } from "./task-spaces";
 import { resolveWorkOkrControlScopeForPlan } from "./work-okr-control";
 import {
+  listWorkPlanActionRuntimeRequests,
   resolveWorkPlanActionRuntime,
   workPlanGovernanceSelect,
   type WorkPlanGovernanceRow,
@@ -26,10 +28,11 @@ export function workReportBusinessActionKey(
   targetType: WorkSpaceTargetType,
   reportStage: string | null | undefined,
   periodType?: string | null,
+  confirmed = false,
 ) {
   if (!workReportWorkflowApplicable(periodType)) return "work.tasks.report.save";
   return workOkrWorkflowBusinessActionKey({
-    kind: reportStage === "kr" ? "objective_submit" : "report_submit",
+    kind: resolveWorkReportWorkflowActionKind(reportStage, confirmed ? "correct" : "submit"),
     workspaceTargetType: targetType,
   });
 }
@@ -45,8 +48,9 @@ export async function resolveWorkReportActionRuntime(input: {
   periodType: string | null | undefined;
   periodStart?: string | Date | null;
   reportStage: WorkReportStage;
+  confirmed?: boolean;
 }) {
-  const businessActionKey = workReportBusinessActionKey(input.targetType, input.reportStage, input.periodType);
+  const businessActionKey = workReportBusinessActionKey(input.targetType, input.reportStage, input.periodType, input.confirmed);
   const permissions = await getEffectiveWorkTaskActionPermissions(
     input.actorUserId,
     input.targetType,
@@ -66,15 +70,18 @@ export async function resolveWorkReportActionRuntime(input: {
   }
   const boundPlan = await findWorkReportGovernancePlan(input);
   if (boundPlan) {
+    const kind = resolveWorkReportWorkflowActionKind(input.reportStage, input.confirmed ? "correct" : "submit");
+    const requests = await listWorkPlanActionRuntimeRequests([boundPlan]);
     return serviceOk(await resolveWorkPlanActionRuntime({
       plan: boundPlan,
-      kind: input.reportStage === "kr" ? "objective_submit" : "report_submit",
+      kind,
       actor: {
         userId: input.actorUserId,
         canDirectWrite: permissions.canUpdate,
         canStartWorkflow: permissions.canSubmit,
         canProcessWorkflow: permissions.canApprove,
       },
+      request: requests.get(boundPlan.id)?.[kind],
     }));
   }
   const context = await resolveWorkReportWorkflowContext(input.targetType, input.targetId);
@@ -101,16 +108,20 @@ export async function assertWorkReportDirectCommitAllowed(input: {
   periodType: string | null | undefined;
   periodStart?: string | Date | null;
   reportStage: WorkReportStage;
+  confirmed?: boolean;
 }) {
   if (!workReportWorkflowApplicable(input.periodType)) {
     return serviceOk({ allowed: true as const });
   }
   const boundPlan = await findWorkReportGovernancePlan(input);
   if (boundPlan) {
+    const kind = resolveWorkReportWorkflowActionKind(input.reportStage, input.confirmed ? "correct" : "submit");
+    const requests = await listWorkPlanActionRuntimeRequests([boundPlan]);
     const runtime = await resolveWorkPlanActionRuntime({
       plan: boundPlan,
-      kind: input.reportStage === "kr" ? "objective_submit" : "report_submit",
+      kind,
       actor: { userId: input.actorUserId, canDirectWrite: true },
+      request: requests.get(boundPlan.id)?.[kind],
     });
     if (runtime.executionMode === "direct" && runtime.capabilities.record.save.allowed) {
       return serviceOk({ allowed: true as const });
@@ -122,7 +133,7 @@ export async function assertWorkReportDirectCommitAllowed(input: {
   }
   const context = await resolveWorkReportWorkflowContext(input.targetType, input.targetId);
   if (!context.ok) return context;
-  const businessActionKey = workReportBusinessActionKey(input.targetType, input.reportStage, input.periodType);
+  const businessActionKey = workReportBusinessActionKey(input.targetType, input.reportStage, input.periodType, input.confirmed);
   return assertBusinessActionDirectExecutionAllowed({
     businessActionKey,
     actorUserId: input.actorUserId,

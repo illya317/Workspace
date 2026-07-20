@@ -274,6 +274,7 @@ export type WorkReportWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"WorkReport"> | Date | string
   submitter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   items?: Prisma.WorkReportItemListRelationFilter
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotListRelationFilter
 }
 
 export type WorkReportOrderByWithRelationInput = {
@@ -290,6 +291,7 @@ export type WorkReportOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   submitter?: Prisma.UserOrderByWithRelationInput
   items?: Prisma.WorkReportItemOrderByRelationAggregateInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotOrderByRelationAggregateInput
 }
 
 export type WorkReportWhereUniqueInput = Prisma.AtLeast<{
@@ -310,6 +312,7 @@ export type WorkReportWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"WorkReport"> | Date | string
   submitter?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   items?: Prisma.WorkReportItemListRelationFilter
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotListRelationFilter
 }, "id" | "targetType_targetId_periodType_periodStart_reportStage">
 
 export type WorkReportOrderByWithAggregationInput = {
@@ -360,6 +363,7 @@ export type WorkReportCreateInput = {
   updatedAt?: Date | string
   submitter: Prisma.UserCreateNestedOneWithoutWorkReportsInput
   items?: Prisma.WorkReportItemCreateNestedManyWithoutReportInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportUncheckedCreateInput = {
@@ -375,6 +379,7 @@ export type WorkReportUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutReportInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportUpdateInput = {
@@ -389,6 +394,7 @@ export type WorkReportUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submitter?: Prisma.UserUpdateOneRequiredWithoutWorkReportsNestedInput
   items?: Prisma.WorkReportItemUpdateManyWithoutReportNestedInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportUncheckedUpdateInput = {
@@ -404,6 +410,7 @@ export type WorkReportUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.WorkReportItemUncheckedUpdateManyWithoutReportNestedInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportCreateManyInput = {
@@ -454,6 +461,11 @@ export type WorkReportListRelationFilter = {
 
 export type WorkReportOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type WorkReportScalarRelationFilter = {
+  is?: Prisma.WorkReportWhereInput
+  isNot?: Prisma.WorkReportWhereInput
 }
 
 export type WorkReportTargetTypeTargetIdPeriodTypePeriodStartReportStageCompoundUniqueInput = {
@@ -518,11 +530,6 @@ export type WorkReportSumOrderByAggregateInput = {
   submittedBy?: Prisma.SortOrder
 }
 
-export type WorkReportScalarRelationFilter = {
-  is?: Prisma.WorkReportWhereInput
-  isNot?: Prisma.WorkReportWhereInput
-}
-
 export type WorkReportCreateNestedManyWithoutSubmitterInput = {
   create?: Prisma.XOR<Prisma.WorkReportCreateWithoutSubmitterInput, Prisma.WorkReportUncheckedCreateWithoutSubmitterInput> | Prisma.WorkReportCreateWithoutSubmitterInput[] | Prisma.WorkReportUncheckedCreateWithoutSubmitterInput[]
   connectOrCreate?: Prisma.WorkReportCreateOrConnectWithoutSubmitterInput | Prisma.WorkReportCreateOrConnectWithoutSubmitterInput[]
@@ -565,6 +572,20 @@ export type WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput = {
   deleteMany?: Prisma.WorkReportScalarWhereInput | Prisma.WorkReportScalarWhereInput[]
 }
 
+export type WorkReportCreateNestedOneWithoutKpiResultSnapshotsInput = {
+  create?: Prisma.XOR<Prisma.WorkReportCreateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedCreateWithoutKpiResultSnapshotsInput>
+  connectOrCreate?: Prisma.WorkReportCreateOrConnectWithoutKpiResultSnapshotsInput
+  connect?: Prisma.WorkReportWhereUniqueInput
+}
+
+export type WorkReportUpdateOneRequiredWithoutKpiResultSnapshotsNestedInput = {
+  create?: Prisma.XOR<Prisma.WorkReportCreateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedCreateWithoutKpiResultSnapshotsInput>
+  connectOrCreate?: Prisma.WorkReportCreateOrConnectWithoutKpiResultSnapshotsInput
+  upsert?: Prisma.WorkReportUpsertWithoutKpiResultSnapshotsInput
+  connect?: Prisma.WorkReportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.WorkReportUpdateToOneWithWhereWithoutKpiResultSnapshotsInput, Prisma.WorkReportUpdateWithoutKpiResultSnapshotsInput>, Prisma.WorkReportUncheckedUpdateWithoutKpiResultSnapshotsInput>
+}
+
 export type WorkReportCreateNestedOneWithoutItemsInput = {
   create?: Prisma.XOR<Prisma.WorkReportCreateWithoutItemsInput, Prisma.WorkReportUncheckedCreateWithoutItemsInput>
   connectOrCreate?: Prisma.WorkReportCreateOrConnectWithoutItemsInput
@@ -590,6 +611,7 @@ export type WorkReportCreateWithoutSubmitterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.WorkReportItemCreateNestedManyWithoutReportInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportUncheckedCreateWithoutSubmitterInput = {
@@ -604,6 +626,7 @@ export type WorkReportUncheckedCreateWithoutSubmitterInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutReportInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportCreateOrConnectWithoutSubmitterInput = {
@@ -649,6 +672,80 @@ export type WorkReportScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"WorkReport"> | Date | string
 }
 
+export type WorkReportCreateWithoutKpiResultSnapshotsInput = {
+  targetType: string
+  targetId: number
+  periodType?: string
+  reportStage?: string
+  periodStart: Date | string
+  periodEnd: Date | string
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  submitter: Prisma.UserCreateNestedOneWithoutWorkReportsInput
+  items?: Prisma.WorkReportItemCreateNestedManyWithoutReportInput
+}
+
+export type WorkReportUncheckedCreateWithoutKpiResultSnapshotsInput = {
+  id?: number
+  targetType: string
+  targetId: number
+  periodType?: string
+  reportStage?: string
+  periodStart: Date | string
+  periodEnd: Date | string
+  submittedBy: number
+  submittedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.WorkReportItemUncheckedCreateNestedManyWithoutReportInput
+}
+
+export type WorkReportCreateOrConnectWithoutKpiResultSnapshotsInput = {
+  where: Prisma.WorkReportWhereUniqueInput
+  create: Prisma.XOR<Prisma.WorkReportCreateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedCreateWithoutKpiResultSnapshotsInput>
+}
+
+export type WorkReportUpsertWithoutKpiResultSnapshotsInput = {
+  update: Prisma.XOR<Prisma.WorkReportUpdateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedUpdateWithoutKpiResultSnapshotsInput>
+  create: Prisma.XOR<Prisma.WorkReportCreateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedCreateWithoutKpiResultSnapshotsInput>
+  where?: Prisma.WorkReportWhereInput
+}
+
+export type WorkReportUpdateToOneWithWhereWithoutKpiResultSnapshotsInput = {
+  where?: Prisma.WorkReportWhereInput
+  data: Prisma.XOR<Prisma.WorkReportUpdateWithoutKpiResultSnapshotsInput, Prisma.WorkReportUncheckedUpdateWithoutKpiResultSnapshotsInput>
+}
+
+export type WorkReportUpdateWithoutKpiResultSnapshotsInput = {
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodType?: Prisma.StringFieldUpdateOperationsInput | string
+  reportStage?: Prisma.StringFieldUpdateOperationsInput | string
+  periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  periodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submitter?: Prisma.UserUpdateOneRequiredWithoutWorkReportsNestedInput
+  items?: Prisma.WorkReportItemUpdateManyWithoutReportNestedInput
+}
+
+export type WorkReportUncheckedUpdateWithoutKpiResultSnapshotsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  targetType?: Prisma.StringFieldUpdateOperationsInput | string
+  targetId?: Prisma.IntFieldUpdateOperationsInput | number
+  periodType?: Prisma.StringFieldUpdateOperationsInput | string
+  reportStage?: Prisma.StringFieldUpdateOperationsInput | string
+  periodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  periodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  submittedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.WorkReportItemUncheckedUpdateManyWithoutReportNestedInput
+}
+
 export type WorkReportCreateWithoutItemsInput = {
   targetType: string
   targetId: number
@@ -660,6 +757,7 @@ export type WorkReportCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   submitter: Prisma.UserCreateNestedOneWithoutWorkReportsInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportUncheckedCreateWithoutItemsInput = {
@@ -674,6 +772,7 @@ export type WorkReportUncheckedCreateWithoutItemsInput = {
   submittedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutWorkReportInput
 }
 
 export type WorkReportCreateOrConnectWithoutItemsInput = {
@@ -703,6 +802,7 @@ export type WorkReportUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   submitter?: Prisma.UserUpdateOneRequiredWithoutWorkReportsNestedInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportUncheckedUpdateWithoutItemsInput = {
@@ -717,6 +817,7 @@ export type WorkReportUncheckedUpdateWithoutItemsInput = {
   submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportCreateManySubmitterInput = {
@@ -743,6 +844,7 @@ export type WorkReportUpdateWithoutSubmitterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.WorkReportItemUpdateManyWithoutReportNestedInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportUncheckedUpdateWithoutSubmitterInput = {
@@ -757,6 +859,7 @@ export type WorkReportUncheckedUpdateWithoutSubmitterInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.WorkReportItemUncheckedUpdateManyWithoutReportNestedInput
+  kpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutWorkReportNestedInput
 }
 
 export type WorkReportUncheckedUpdateManyWithoutSubmitterInput = {
@@ -779,10 +882,12 @@ export type WorkReportUncheckedUpdateManyWithoutSubmitterInput = {
 
 export type WorkReportCountOutputType = {
   items: number
+  kpiResultSnapshots: number
 }
 
 export type WorkReportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | WorkReportCountOutputTypeCountItemsArgs
+  kpiResultSnapshots?: boolean | WorkReportCountOutputTypeCountKpiResultSnapshotsArgs
 }
 
 /**
@@ -802,6 +907,13 @@ export type WorkReportCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Type
   where?: Prisma.WorkReportItemWhereInput
 }
 
+/**
+ * WorkReportCountOutputType without action
+ */
+export type WorkReportCountOutputTypeCountKpiResultSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.WorkKpiResultSnapshotWhereInput
+}
+
 
 export type WorkReportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -817,6 +929,7 @@ export type WorkReportSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   updatedAt?: boolean
   submitter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   items?: boolean | Prisma.WorkReport$itemsArgs<ExtArgs>
+  kpiResultSnapshots?: boolean | Prisma.WorkReport$kpiResultSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkReportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["workReport"]>
 
@@ -868,6 +981,7 @@ export type WorkReportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type WorkReportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   submitter?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   items?: boolean | Prisma.WorkReport$itemsArgs<ExtArgs>
+  kpiResultSnapshots?: boolean | Prisma.WorkReport$kpiResultSnapshotsArgs<ExtArgs>
   _count?: boolean | Prisma.WorkReportCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type WorkReportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -882,6 +996,7 @@ export type $WorkReportPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     submitter: Prisma.$UserPayload<ExtArgs>
     items: Prisma.$WorkReportItemPayload<ExtArgs>[]
+    kpiResultSnapshots: Prisma.$WorkKpiResultSnapshotPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1291,6 +1406,7 @@ export interface Prisma__WorkReportClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   submitter<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   items<T extends Prisma.WorkReport$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkReport$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkReportItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  kpiResultSnapshots<T extends Prisma.WorkReport$kpiResultSnapshotsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.WorkReport$kpiResultSnapshotsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$WorkKpiResultSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1753,6 +1869,30 @@ export type WorkReport$itemsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.WorkReportItemScalarFieldEnum | Prisma.WorkReportItemScalarFieldEnum[]
+}
+
+/**
+ * WorkReport.kpiResultSnapshots
+ */
+export type WorkReport$kpiResultSnapshotsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the WorkKpiResultSnapshot
+   */
+  select?: Prisma.WorkKpiResultSnapshotSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the WorkKpiResultSnapshot
+   */
+  omit?: Prisma.WorkKpiResultSnapshotOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.WorkKpiResultSnapshotInclude<ExtArgs> | null
+  where?: Prisma.WorkKpiResultSnapshotWhereInput
+  orderBy?: Prisma.WorkKpiResultSnapshotOrderByWithRelationInput | Prisma.WorkKpiResultSnapshotOrderByWithRelationInput[]
+  cursor?: Prisma.WorkKpiResultSnapshotWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.WorkKpiResultSnapshotScalarFieldEnum | Prisma.WorkKpiResultSnapshotScalarFieldEnum[]
 }
 
 /**

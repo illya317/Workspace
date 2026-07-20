@@ -219,6 +219,7 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
       })]
       : [{
           key: "table",
+          visibility: "desktop" as const,
           body: { kind: "data", data: {
             kind: "structured",
             presentation: { density: "compact",
@@ -236,17 +237,18 @@ export default function RosterGeneratedTab({ variant, canExport, surface }: { va
 
   const sections: BodySurfaceSectionSpec[] = [
     ...(error ? [createMessageSection("error", { content: error, tone: "danger" as const })] : []),
-    createPanelSection("preview", {
-
-
-      sections: tableSections,
-    }),
+    { ...createMessageSection("generated-roster-mobile-boundary", {
+      content: "生成花名册包含动态列、批量编辑与导出，请在桌面端继续。",
+      tone: "muted" as const,
+    }), visibility: "mobile" as const },
+    { ...createPanelSection("preview", { sections: tableSections }), visibility: "desktop" as const },
   ];
+  const desktopToolbarItems = toolbarItems.map((item) => ({ ...item, visibility: "desktop" as const }));
 
   return (
     <PageSurface kind="standard"
       {...surface}
-      toolbar={{ items: toolbarItems, onSubmit: refreshPreview }}
+      toolbar={{ items: desktopToolbarItems, onSubmit: refreshPreview }}
       body={createPageBody(sections)}
     />
   );

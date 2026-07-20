@@ -1,6 +1,6 @@
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { rejectInvalidDateField } from "@workspace/platform/server/api";
-import { validateFkValue } from "@workspace/platform/server/fk-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { PROJECT_ROLES } from "../../constants/field-options";
 import { canManageProject, canUpdateProjectAction } from "../access";

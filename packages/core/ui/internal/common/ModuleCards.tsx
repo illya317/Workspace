@@ -1,7 +1,6 @@
 import type { ReactNode } from "react";
 import PageContent from "../page/PageContent";
 import { joinClassNames } from "./card-utils";
-import { getToolbarActionClassName } from "../toolbar/toolbar-styles";
 
 export type ModuleCardColor = "emerald" | "blue" | "indigo" | "purple" | "amber" | "cyan" | "orange" | string;
 
@@ -24,19 +23,19 @@ export interface ModuleCardProps {
 }
 
 export const moduleCardColorClasses: Record<string, { icon: string; ring: string }> = {
-  emerald: { icon: "bg-emerald-100 text-emerald-600", ring: "hover:ring-emerald-400" },
-  blue: { icon: "bg-blue-100 text-blue-600", ring: "hover:ring-blue-400" },
-  indigo: { icon: "bg-indigo-100 text-indigo-600", ring: "hover:ring-indigo-400" },
-  purple: { icon: "bg-purple-100 text-purple-600", ring: "hover:ring-purple-400" },
-  amber: { icon: "bg-amber-100 text-amber-600", ring: "hover:ring-amber-400" },
-  cyan: { icon: "bg-cyan-100 text-cyan-600", ring: "hover:ring-cyan-400" },
-  orange: { icon: "bg-orange-100 text-orange-600", ring: "hover:ring-orange-400" },
+  emerald: { icon: "bg-emerald-100 text-emerald-600", ring: "sm:hover:ring-emerald-400" },
+  blue: { icon: "bg-blue-100 text-blue-600", ring: "sm:hover:ring-blue-400" },
+  indigo: { icon: "bg-indigo-100 text-indigo-600", ring: "sm:hover:ring-indigo-400" },
+  purple: { icon: "bg-purple-100 text-purple-600", ring: "sm:hover:ring-purple-400" },
+  amber: { icon: "bg-amber-100 text-amber-600", ring: "sm:hover:ring-amber-400" },
+  cyan: { icon: "bg-cyan-100 text-cyan-600", ring: "sm:hover:ring-cyan-400" },
+  orange: { icon: "bg-orange-100 text-orange-600", ring: "sm:hover:ring-orange-400" },
 };
 
 export function getModuleCardClassName(color: ModuleCardColor = "emerald", className = "") {
   const colorClass = moduleCardColorClasses[color] || moduleCardColorClasses.emerald;
   return joinClassNames(
-    "group flex min-h-40 flex-col items-center justify-center rounded-lg bg-white p-5 text-center shadow-sm transition-all hover:shadow-md hover:ring-2",
+    "group relative flex min-h-24 min-w-0 flex-col items-center justify-start rounded-2xl bg-transparent px-1 py-1 text-center transition active:scale-[0.98] sm:min-h-40 sm:justify-center sm:rounded-lg sm:bg-white sm:p-5 sm:shadow-sm sm:hover:shadow-md sm:hover:ring-2",
     colorClass.ring,
     className,
   );
@@ -54,19 +53,19 @@ export function ModuleCardBody({
   const colorClass = moduleCardColorClasses[color] || moduleCardColorClasses.emerald;
 
   return (
-    <div className="flex flex-col items-center justify-center text-center">
-      <div className={joinClassNames("mb-3 flex h-12 w-12 items-center justify-center rounded-full [&>svg]:h-6 [&>svg]:w-6", colorClass.icon)}>
+    <div className="flex w-full min-w-0 flex-col items-center justify-center text-center">
+      <div className={joinClassNames("relative mb-2 flex h-13 w-13 items-center justify-center rounded-2xl shadow-sm ring-1 ring-white/80 [&>svg]:h-6 [&>svg]:w-6 sm:mb-3 sm:h-12 sm:w-12 sm:rounded-full sm:shadow-none sm:ring-0", colorClass.icon)}>
         {icon}
       </div>
       <div className="flex flex-wrap items-center justify-center gap-2">
-        <h3 className="text-base font-semibold text-gray-800">{title}</h3>
+        <h3 className="line-clamp-2 min-h-10 text-[13px] font-medium leading-5 text-slate-800 sm:min-h-0 sm:text-base sm:font-semibold sm:text-gray-800">{title}</h3>
         {badge && (
-          <span className="rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700">
+          <span className="hidden rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-xs text-amber-700 sm:inline-flex">
             {badge}
           </span>
         )}
       </div>
-      {description && <p className="mt-1.5 text-center text-xs leading-5 text-gray-500">{description}</p>}
+      {description && <p className="mt-1.5 hidden text-center text-xs leading-5 text-gray-500 sm:block">{description}</p>}
     </div>
   );
 }
@@ -114,7 +113,10 @@ export function ModuleCard({
       <button
         type="button"
         onClick={onClick}
-        className={[getToolbarActionClassName(), `${mergedClassName} border-0 text-inherit`].filter(Boolean).join(" ")}
+        className={joinClassNames(
+          mergedClassName,
+          "appearance-none border-0 text-inherit focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2",
+        )}
       >
         {body}
       </button>
@@ -136,18 +138,18 @@ export function ModuleGridPage({
   gridClassName = "",
 }: ModuleGridPageProps) {
   const content = (
-    <div className={joinClassNames("flex w-full flex-col items-center", className)}>
+    <div className={joinClassNames("flex w-full flex-col items-start sm:items-center", className)}>
       {(leading || title || summary) && (
-        <div className="mb-8 flex flex-col items-center">
+        <div className="mb-5 flex w-full flex-col items-start sm:mb-8 sm:items-center">
           {leading}
-          {title && <h1 className="mt-4 text-2xl font-bold text-gray-800">{title}</h1>}
-          {summary && <p className="mt-1 text-center text-sm text-gray-500">{summary}</p>}
+          {title && <h1 className="mt-3 text-xl font-bold tracking-tight text-gray-800 sm:mt-4 sm:text-2xl">{title}</h1>}
+          {summary && <p className="mt-1 text-left text-sm text-gray-500 sm:text-center">{summary}</p>}
         </div>
       )}
-      <div className={joinClassNames("grid w-full max-w-4xl grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3", gridClassName)}>
+      <div className={joinClassNames("grid w-full max-w-4xl grid-cols-4 gap-x-2 gap-y-5 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3", gridClassName)}>
         {children}
       </div>
-      {afterGrid && <div className="mt-8 w-full max-w-4xl">{afterGrid}</div>}
+      {afterGrid && <div className="mt-6 w-full max-w-4xl sm:mt-8">{afterGrid}</div>}
     </div>
   );
 
@@ -160,7 +162,7 @@ export function ModuleGridPage({
   }
 
   return (
-    <PageContent className={joinClassNames("py-10", contentClassName)}>
+    <PageContent className={joinClassNames("py-5 sm:py-10", contentClassName)}>
       {content}
     </PageContent>
   );

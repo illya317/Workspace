@@ -105,7 +105,7 @@ test("archiving a plan archives every visible item", async () => {
   }]);
 });
 
-test("automatic completion waits for every visible item and closes the plan without mutating nodes", async () => {
+test("automatic completion marks lifecycle done without closing OKR governance", async () => {
   const planUpdates: unknown[] = [];
   const counts = [3, 0];
   const store = {
@@ -124,7 +124,7 @@ test("automatic completion waits for every visible item and closes the plan with
   assert.equal(await closeOkrPlanIfAllItemsComplete(store, 13), true);
   assert.deepEqual(planUpdates, [{
     where: { id: 13 },
-    data: { status: "done", okrStage: "closed" },
+    data: { status: "done" },
   }]);
 });
 

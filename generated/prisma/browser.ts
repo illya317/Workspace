@@ -415,7 +415,7 @@ export type DepartmentDescription = Prisma.DepartmentDescriptionModel
 export type PositionDescription = Prisma.PositionDescriptionModel
 /**
  * Model HrPerformanceReview
- * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；OKR/工作数据以快照 JSON 固化）
+ * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
  */
 export type HrPerformanceReview = Prisma.HrPerformanceReviewModel
 /**
@@ -662,6 +662,17 @@ export type LibraryTag = Prisma.LibraryTagModel
  */
 export type LibraryDocumentTag = Prisma.LibraryDocumentTagModel
 /**
+ * Model MutationImpactBatch
+ * 变更影响批次（append-only 事实表，来源于 Platform mutation impact executor 的原子写入）
+ * 只保存策略、确认和提交上下文；不复制业务实体的完整敏感记录。
+ */
+export type MutationImpactBatch = Prisma.MutationImpactBatchModel
+/**
+ * Model MutationImpactEffect
+ * 变更影响效果（append-only 事实表，记录批次内按确定性顺序评估和执行的最小化摘要）
+ */
+export type MutationImpactEffect = Prisma.MutationImpactEffectModel
+/**
  * Model OpenApiClient
  * Open API 调用方（事实表，来源于设置页手工创建/轮换）
  */
@@ -711,6 +722,21 @@ export type DepartmentCollaborationDepartment = Prisma.DepartmentCollaborationDe
  * 部门协作通道岗位池；负责岗位可引用通道，执行岗位可被选为负责人。
  */
 export type DepartmentCollaborationPosition = Prisma.DepartmentCollaborationPositionModel
+/**
+ * Model WorkKpiDefinition
+ * KPI 指标定义版本（事实表，来源于 Work 指标库手工维护）
+ */
+export type WorkKpiDefinition = Prisma.WorkKpiDefinitionModel
+/**
+ * Model WorkKpiAssignment
+ * 周期 KPI 指标分配（事实表，来源于 Work 周期计分卡填报/确认）
+ */
+export type WorkKpiAssignment = Prisma.WorkKpiAssignmentModel
+/**
+ * Model WorkKpiResultSnapshot
+ * KPI 结果版本快照（事实表，来源于 Work 考核结果直接确认或审批通过）
+ */
+export type WorkKpiResultSnapshot = Prisma.WorkKpiResultSnapshotModel
 /**
  * Model MeetingType
  * 会议类型（业务 L3 配置）

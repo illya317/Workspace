@@ -34,6 +34,7 @@ model Employee {
   financeShipments       FinanceShipment[]
   financeWorkshopReports FinanceWorkshopReport[]
   performanceReviews     HrPerformanceReview[]
+  ownedKpiAssignments    WorkKpiAssignment[]
 }
 
 /// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
@@ -141,6 +142,7 @@ model Department {
   edps                      EDP[]
   positions                 Position[]
   positionReportOverrides   PositionReportOverride[]
+  ownedKpiDefinitions       WorkKpiDefinition[]
 
   @@index([code])
   @@index([name])

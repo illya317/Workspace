@@ -20,17 +20,9 @@ export type OkrSettingsDraft = {
   krSubmitDeadline: string | null;
 };
 
-export function parseOkrGovernancePlanIds(value: string) {
-  return Array.from(new Set(value.split(/[\s,，]+/).map(Number).filter((id) => Number.isInteger(id) && id > 0)));
-}
-
 export function normalizeOkrRuleOffset(value: unknown) {
   const number = Number(value);
   return Number.isInteger(number) ? Math.max(-365, Math.min(365, number)) : 0;
-}
-
-export function normalizeOkrAutoLock(value: unknown): WorkOkrControlSettings["autoLock"] {
-  return value === "off" || value === "afterObjectiveDeadline" || value === "afterKrDeadline" ? value : "afterKrDeadline";
 }
 
 export function normalizeOkrRuleMode(value: unknown): WorkOkrPeriodTypeRuleMode {

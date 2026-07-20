@@ -1,31 +1,23 @@
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import type { DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { guardedDelete } from "@workspace/platform/server/delete-guard";
-import { buildWorkItemCreateCommand, buildWorkItemUpdateCommand, validateWorkItemDeleteCommand } from "./domain/work-item-validation";
+import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
+import {
+  buildWorkItemCreateCommand,
+  buildWorkItemUpdateCommand,
+  validateWorkItemDeleteCommand,
+  type WorkItemUpdateCommand,
+} from "./domain/work-item-validation";
 import { validateWorkItemRelations } from "./domain/work-item-relation-validation";
-import {
-  effectiveWorkItemRelationInput,
-  sourcePatchTouched,
-} from "./domain/work-item-relation-state";
-import {
-  normalizeEvidenceTaskIds,
-  replaceKrEvidenceTasks,
-  WorkKrEvidenceValidationError,
-} from "./work-kr-evidence";
+import { effectiveWorkItemRelationInput, sourcePatchTouched } from "./domain/work-item-relation-state";
+import { normalizeEvidenceTaskIds, replaceKrEvidenceTasks, WorkKrEvidenceValidationError } from "./work-kr-evidence";
 import { toWorkItemDto, workItemInclude } from "./work-item-dto";
-import { assertWorkItemStageAllowed, syncDueKrReviewForPlan } from "./work-okr-stage";
-import {
-  replaceWorkResponsibilityReference,
-} from "./work-responsibility-references";
-import {
-  buildStatusPatch,
-  validateWorkItemPeriodPatch,
-  validateWorkItemResponsibility,
-} from "./work-item-service-helpers";
+import { assertWorkItemStageAllowed } from "./work-okr-stage";
+import { replaceWorkResponsibilityReference } from "./work-responsibility-references";
+import { buildStatusPatch, validateWorkItemPeriodPatch, validateWorkItemResponsibility } from "./work-item-service-helpers";
 import { validateWorkItemPeriodRelations } from "./work-period-relations";
-import { archiveWorkItem, restoreArchivedWorkItem, workItemHierarchyReferences } from "./work-item-archive";
+import { archiveWorkItem, deleteWorkItemRecord, restoreArchivedWorkItem } from "./work-item-archive";
 import { assertWorkItemMutationCommitAllowed, type WorkItemMutationAuthorization } from "./work-item-mutation-guard";
-import { assertWorkItemCanComplete, closeOkrPlanIfAllItemsComplete, shouldRecalculateOkrPlanCompletion, WorkCompletionBlockedError } from "./domain/work-plan-item-state";
+import { closeOkrPlanIfAllItemsComplete, shouldRecalculateOkrPlanCompletion } from "./domain/work-plan-item-state";
 export function parseParticipants(input?: string): string[] {
   if (!input) return [];
   return input
@@ -33,6 +25,17 @@ export function parseParticipants(input?: string): string[] {
     .map((name) => name.trim())
     .filter(Boolean);
 }
+import {
+  validateWorkItemCompletion,
+  validateWorkItemParentStateInvariant,
+  WorkCompletionPolicyError,
+} from "./domain/work-completion-policy";
+import {
+  buildAuditedWorkMutationImpactEngine,
+  mutationImpactServiceError,
+  workItemMutationRoot,
+  type WorkMutationImpactContext,
+} from "./work-mutation-impact";
 export async function getWorkItems(opts: {
   planId?: number | null;
   targetType: string;
@@ -42,7 +45,6 @@ export async function getWorkItems(opts: {
   periodStart?: string | null;
   includeArchived?: boolean;
 }) {
-  if (opts.planId) await syncDueKrReviewForPlan(opts.planId);
   const where: { planId?: number; targetType: string; targetId: number; category?: string; periodType?: string | null; periodStart?: Date; isArchived?: boolean } = {
     targetType: opts.targetType,
     targetId: opts.targetId,
@@ -59,60 +61,15 @@ export async function getWorkItems(opts: {
   });
   return rows.map(toWorkItemDto);
 }
-export async function createWorkItem(opts: {
+
+type WorkItemServiceCreateInput = Parameters<typeof buildWorkItemCreateCommand>[0] & {
   actorUserId?: number | null;
   ownerEligibilityUserId?: number | null;
   mutationAuthorization?: WorkItemMutationAuthorization;
-  planId?: number | null;
-  targetType: string;
-  targetId: number;
-  category?: string;
-  itemType?: string;
-  content: string;
-  description?: string;
-  importance?: number;
-  urgency?: number;
-  status?: string | null;
-  krStartValue?: number | null;
-  krTargetValue?: number | null;
-  krCurrentValue?: number | null;
-  krUnit?: string | null;
-  routineTaskType?: string | null;
-  routineRecurrenceType?: string | null;
-  routineRecurrenceTime?: string | null;
-  routineRecurrenceWeekday?: number | null;
-  routineRecurrenceMonthDay?: number | null;
-  routineRecurrenceQuarterDay?: number | null;
-  routineRecurrenceYearMonth?: number | null;
-  routineRecurrenceYearDay?: number | null;
-  ownerEmployeeId?: number | null;
-  collaborationId?: number | null;
-  actualStartDate?: Date | string | null;
-  actualEndDate?: Date | string | null;
-  plannedStartDate?: Date | string | null;
-  plannedEndDate?: Date | string | null;
-  isMilestone?: boolean;
-  milestoneDate?: Date | string | null;
-  periodType?: string | null;
-  periodStart?: Date | string | null;
-  periodEnd?: Date | string | null;
-  sourceType?: string;
-  sourceKind?: string | null;
-  sourceMeetingId?: number | null;
-  sourceMeetingDecisionId?: number | null;
-  sourceMeetingActionCandidateId?: number | null;
-  sourceDepartmentId?: number | null;
-  linkedProjectId?: number | null;
-  linkedProjectPhaseId?: number | null;
-  parentWorkItemId?: number | null;
-  parentPeriodWorkItemId?: number | null;
-  previousPeriodWorkItemId?: number | null;
-  responsibilityNodeId?: number | null;
-  responsibilityPositionId?: number | null;
   evidenceTaskIds?: number[];
-  participants?: string[];
-  sortOrder?: number;
-}): Promise<DomainServiceResult<unknown>> {
+};
+
+export async function createWorkItem(opts: WorkItemServiceCreateInput): Promise<DomainServiceResult<unknown>> {
   const command = buildWorkItemCreateCommand(opts);
   if (!command.ok) return { ok: false, error: command.issue.message, status: command.issue.status };
   const workflowGuard = await assertWorkItemMutationCommitAllowed({ operation: "create", actorUserId: opts.actorUserId, targetType: command.data.targetType, targetId: command.data.targetId, authorization: opts.mutationAuthorization });
@@ -132,6 +89,8 @@ export async function createWorkItem(opts: {
     action: "create",
     planId: command.data.planId,
     itemType: command.data.itemType,
+    actorUserId: opts.actorUserId,
+    changesKrCurrentValue: command.data.itemType === "key_result" && command.data.krCurrentValue !== null,
   });
   if (!stageGuard.ok) return stageGuard;
   const evidenceTaskIds = normalizeEvidenceTaskIds(opts.evidenceTaskIds);
@@ -199,7 +158,15 @@ export async function createWorkItem(opts: {
     sortOrder: command.data.sortOrder,
   };
   try {
-    const work = await prisma.$transaction(async (tx) => {
+    const work = await runSerializableTransaction(async (tx) => {
+      const invariantError = await validateWorkItemParentStateInvariant(tx, {
+        planId: command.data.planId,
+        parentWorkItemId: command.data.parentWorkItemId,
+        targetType: command.data.targetType,
+        targetId: command.data.targetId,
+        status: command.data.status,
+      });
+      if (invariantError) throw new WorkCompletionPolicyError(invariantError);
       const created = await tx.workItem.create({
         data: {
           ...data,
@@ -217,6 +184,10 @@ export async function createWorkItem(opts: {
         evidenceTaskIds,
       });
       if (evidenceError) throw new WorkKrEvidenceValidationError(evidenceError);
+      if (command.data.status === "done") {
+        const completionError = await validateWorkItemCompletion(tx, created.id);
+        if (completionError) throw new WorkCompletionPolicyError(completionError);
+      }
       await replaceWorkResponsibilityReference(tx, {
         targetKind: "work_item",
         referenceRole: "execution",
@@ -226,15 +197,20 @@ export async function createWorkItem(opts: {
         ownerEmployeeId: command.data.ownerEmployeeId,
         positionId: command.data.responsibilityPositionId,
       });
+      if (command.data.status === "done" && command.data.planId) {
+        await closeOkrPlanIfAllItemsComplete(tx, command.data.planId);
+      }
       return tx.workItem.findUniqueOrThrow({
         where: { id: created.id },
         include: workItemInclude,
       });
     });
-    if (command.data.status === "done") await closeOkrPlanIfComplete(command.data.planId);
     return { ok: true, data: toWorkItemDto(work) };
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
+    if (error instanceof WorkCompletionPolicyError) return { ok: false, error: error.message, status: 409 };
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) return impactError;
     throw error;
   }
 }
@@ -250,57 +226,11 @@ export async function getWorkItemTargetMetadata(workId: number) {
 }
 export async function updateWorkItem(
   workId: number,
-  opts: {
+  opts: WorkItemUpdateCommand["data"] & {
     actorUserId?: number | null;
     ownerEligibilityUserId?: number | null;
     mutationAuthorization?: WorkItemMutationAuthorization;
-    category?: string;
-    planId?: number | null;
-    itemType?: string;
-    content?: string;
-    description?: string;
-    importance?: number;
-    urgency?: number;
-    status?: string | null;
-    krStartValue?: number | null;
-    krTargetValue?: number | null;
-    krCurrentValue?: number | null;
-    krUnit?: string | null;
-    routineTaskType?: string | null;
-    routineRecurrenceType?: string | null;
-    routineRecurrenceTime?: string | null;
-    routineRecurrenceWeekday?: number | null;
-    routineRecurrenceMonthDay?: number | null;
-    routineRecurrenceQuarterDay?: number | null;
-    routineRecurrenceYearMonth?: number | null;
-    routineRecurrenceYearDay?: number | null;
-    ownerEmployeeId?: number | null;
-    collaborationId?: number | null;
-    actualStartDate?: Date | string | null;
-    actualEndDate?: Date | string | null;
-    plannedStartDate?: Date | string | null;
-    plannedEndDate?: Date | string | null;
-    isMilestone?: boolean;
-    milestoneDate?: Date | string | null;
-    periodType?: string | null;
-    periodStart?: Date | string | null;
-    periodEnd?: Date | string | null;
-    sourceType?: string;
-    sourceKind?: string | null;
-    sourceMeetingId?: number | null;
-    sourceMeetingDecisionId?: number | null;
-    sourceMeetingActionCandidateId?: number | null;
-    sourceDepartmentId?: number | null;
-    linkedProjectId?: number | null;
-    linkedProjectPhaseId?: number | null;
-    parentWorkItemId?: number | null;
-    parentPeriodWorkItemId?: number | null;
-    previousPeriodWorkItemId?: number | null;
-    responsibilityNodeId?: number | null;
-    responsibilityPositionId?: number | null;
-    participants?: string[];
     evidenceTaskIds?: number[];
-    sortOrder?: number;
     isArchived?: boolean;
   },
 ): Promise<DomainServiceResult<unknown>> {
@@ -342,6 +272,7 @@ export async function updateWorkItem(
       ownerEmployeeId: true,
       collaborationId: true,
       status: true, completedAt: true,
+      content: true, isArchived: true, updatedAt: true, krCurrentValue: true,
       isMilestone: true,
       milestoneDate: true,
     },
@@ -354,7 +285,8 @@ export async function updateWorkItem(
       const archiveResult = await archiveWorkItem(workId, actorUserId);
       if (!archiveResult.ok) return archiveResult;
     } else {
-      const restoreResult = await restoreArchivedWorkItem(workId);
+      if (!actorUserId) return { ok: false, error: "恢复工作项缺少操作人", status: 401 };
+      const restoreResult = await restoreArchivedWorkItem(workId, actorUserId);
       if (!restoreResult.ok) return restoreResult;
     }
     const work = await prisma.workItem.findUniqueOrThrow({
@@ -375,6 +307,7 @@ export async function updateWorkItem(
     targetType: existing.targetType,
     targetId: existing.targetId,
     currentWorkId: command.data.workId,
+    status: command.data.data.status === undefined ? existing.status : command.data.data.status,
     ownerEmployeeId: command.data.data.ownerEmployeeId,
     collaborationId: command.data.data.collaborationId === undefined ? existing.collaborationId : command.data.data.collaborationId,
     actorUserId,
@@ -399,6 +332,10 @@ export async function updateWorkItem(
     action: "update",
     planId: effective.planId,
     itemType: effective.itemType,
+    actorUserId,
+    changesKrCurrentValue: effective.itemType === "key_result"
+      && command.data.data.krCurrentValue !== undefined
+      && command.data.data.krCurrentValue !== existing.krCurrentValue,
   });
   if (!stageGuard.ok) return stageGuard;
   const evidenceTaskIds = normalizeEvidenceTaskIds(opts.evidenceTaskIds);
@@ -471,43 +408,73 @@ export async function updateWorkItem(
       create: command.data.data.participants.map((name) => ({ name })),
     };
   }
+  const nextStatus = command.data.data.status === undefined ? existing.status : command.data.data.status;
+  const completingItem = shouldRecalculateOkrPlanCompletion(existing.status, nextStatus);
   try {
-    const nextStatus = command.data.data.status === undefined ? existing.status : command.data.data.status;
-    const completingWorkItem = shouldRecalculateOkrPlanCompletion(existing.status, nextStatus);
-    const work = await prisma.$transaction(async (tx) => {
-      await tx.workItem.update({
-        where: { id: command.data.workId },
-        data,
-      });
-      const evidenceError = await replaceKrEvidenceTasks(tx, {
-        krWorkItemId: command.data.workId,
-        planId: effective.planId,
-        objectiveId: effective.parentWorkItemId,
-        evidenceTaskIds,
-      });
-      if (evidenceError) throw new WorkKrEvidenceValidationError(evidenceError);
-      if (completingWorkItem) await assertWorkItemCanComplete(tx, command.data.workId);
-      if (responsibilityTouched) {
-        await replaceWorkResponsibilityReference(tx, {
-          targetKind: "work_item",
-          referenceRole: "execution",
-          workItemId: command.data.workId,
-        }, {
-          responsibilityNodeId: command.data.data.responsibilityNodeId,
-          ownerEmployeeId: command.data.data.ownerEmployeeId === undefined ? existing.ownerEmployeeId : command.data.data.ownerEmployeeId,
-          positionId: command.data.data.responsibilityPositionId,
+    const work = await runSerializableTransaction(async (tx) => {
+      const commit = async () => {
+        const invariantError = await validateWorkItemParentStateInvariant(tx, {
+          planId: effective.planId,
+          parentWorkItemId: effective.parentWorkItemId,
+          targetType: existing.targetType,
+          targetId: Number(existing.targetId),
+          status: nextStatus,
         });
-      }
-      return tx.workItem.findUniqueOrThrow({
-        where: { id: command.data.workId },
-        include: workItemInclude,
+        if (invariantError) throw new WorkCompletionPolicyError(invariantError);
+        await tx.workItem.update({
+          where: completingItem
+            ? { id: command.data.workId, updatedAt: existing.updatedAt }
+            : { id: command.data.workId },
+          data,
+        });
+        const evidenceError = await replaceKrEvidenceTasks(tx, {
+          krWorkItemId: command.data.workId,
+          planId: effective.planId,
+          objectiveId: effective.parentWorkItemId,
+          evidenceTaskIds,
+        });
+        if (evidenceError) throw new WorkKrEvidenceValidationError(evidenceError);
+        if (responsibilityTouched) {
+          await replaceWorkResponsibilityReference(tx, {
+            targetKind: "work_item",
+            referenceRole: "execution",
+            workItemId: command.data.workId,
+          }, {
+            responsibilityNodeId: command.data.data.responsibilityNodeId,
+            ownerEmployeeId: command.data.data.ownerEmployeeId === undefined ? existing.ownerEmployeeId : command.data.data.ownerEmployeeId,
+            positionId: command.data.data.responsibilityPositionId,
+          });
+        }
+        if (completingItem && effective.planId) {
+          await closeOkrPlanIfAllItemsComplete(tx, effective.planId);
+        }
+        return tx.workItem.findUniqueOrThrow({
+          where: { id: command.data.workId },
+          include: workItemInclude,
+        });
+      };
+      if (!completingItem) return commit();
+      const context: WorkMutationImpactContext = {
+        tx,
+        actorUserId: actorUserId ?? null,
+        scopeType: existing.targetType,
+        scopeId: String(existing.targetId),
+        pendingEvidenceTaskIds: evidenceTaskIds,
+      };
+      return buildAuditedWorkMutationImpactEngine(context).execute({
+        context,
+        actorKey: actorUserId ? `user:${actorUserId}` : "system",
+        scopeKey: `${existing.targetType}:${existing.targetId}`,
+        root: workItemMutationRoot({ item: { id: command.data.workId, ...existing } }),
+        commitRoot: commit,
       });
     });
-    if (completingWorkItem) await closeOkrPlanIfComplete(effective.planId);
     return { ok: true, data: toWorkItemDto(work) };
   } catch (error) {
     if (error instanceof WorkKrEvidenceValidationError) return { ok: false, error: error.message, status: 400 };
-    if (error instanceof WorkCompletionBlockedError) return { ok: false, error: error.message, status: 409 };
+    if (error instanceof WorkCompletionPolicyError) return { ok: false, error: error.message, status: 409 };
+    const impactError = mutationImpactServiceError(error);
+    if (impactError) return impactError;
     throw error;
   }
 }
@@ -522,26 +489,9 @@ export async function deleteWorkItem(workId: number, actorUserId: number): Promi
     select: { planId: true, itemType: true },
   });
   if (!existing) return { ok: false, error: "工作项不存在", status: 404 };
-  const stageGuard = await assertWorkItemStageAllowed({
-    action: "delete",
-    planId: existing.planId,
-    itemType: existing.itemType,
-  });
+  const stageGuard = await assertWorkItemStageAllowed({ action: "delete", planId: existing.planId, itemType: existing.itemType, actorUserId });
   if (!stageGuard.ok) return stageGuard;
-  const deleteResult = await guardedDelete({
-    entityType: "WorkItem",
-    modelKey: "workItem",
-    id: command.data.workId,
-    userId: actorUserId,
-    actionLabel: "删除工作项",
-    deleteMode: "hard",
-    references: workItemHierarchyReferences(command.data.workId),
-    referencePolicy: "checked",
-  });
+  const deleteResult = await deleteWorkItemRecord(command.data.workId, actorUserId);
   if (!deleteResult.ok) return deleteResult;
   return { ok: true, data: { success: true } };
-}
-async function closeOkrPlanIfComplete(planId: number | null | undefined) {
-  if (!planId) return;
-  await prisma.$transaction((tx) => closeOkrPlanIfAllItemsComplete(tx, planId));
 }

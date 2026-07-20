@@ -94,6 +94,15 @@ function workPlanHeaderSection(plan: WorkPlan, actions?: BodySurfaceCommandSpec[
               label: planStatusLabel(plan.status, plan.isArchived),
               tone: plan.isArchived ? "warning" : plan.status === "done" ? "muted" : "success",
             },
+            ...(plan.kind === "okr" ? (plan.governance?.badges ?? [])
+              .filter((badge) => badge.key !== "archived")
+              .map((badge) => ({
+                key: `governance-${badge.key}`,
+                label: badge.label,
+                tone: badge.key === "free_edit" ? "success" as const
+                  : badge.key === "readonly" ? "muted" as const
+                    : "warning" as const,
+              })) : []),
           ],
           actions,
           meta: (
@@ -226,10 +235,13 @@ export function createWorkPlanContentSection({
             canDeletePlan,
             canSubmitObjectiveReview,
             canSubmitKrReview,
-            canEditPlan: canSavePlan && !planArchived && Boolean(
-              canEditPlan || activePlan.status === "done" || activePlan.objectiveApprovedAt,
-            ),
-            revisionEntry: Boolean(activePlan.objectiveApprovedAt || activePlan.status === "done"),
+            canEditPlan: canSavePlan && !planArchived && Boolean(activePlan.governance
+              ? canEditPlan
+              : canEditPlan || activePlan.status === "done" || activePlan.objectiveApprovedAt),
+            revisionEntry: activePlan.governance
+              ? activePlan.governance.facets.target.action?.runtime.executionMode === "workflow"
+                && activePlan.governance.facets.target.action.kind === "objective_revise"
+              : Boolean(activePlan.objectiveApprovedAt || activePlan.status === "done"),
             canArchivePlan,
             planArchived,
             nodeCreating,

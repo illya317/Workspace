@@ -1,7 +1,7 @@
 "use client";
 
 import { renderVisual } from "./internal/visualization/VisualizationSurfaceChart";
-import VisualizationGantt from "./internal/visualization/VisualizationGantt";
+import VisualizationGantt from "./internal/visualization/VisualizationGanttMobileFrame";
 import type { VisualizationSurfaceFrameSpec, VisualizationSurfaceProps } from "./VisualizationSurfaceTypes";
 
 export type {

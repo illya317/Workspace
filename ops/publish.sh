@@ -15,36 +15,21 @@ usage() {
 用法:
   OPS_ENV_FILE=/path/to/ops/.env publish.sh push
   OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy --full [CNB 部署选项]
-  OPS_ENV_FILE=/path/to/ops/.env publish.sh hotfix
+  OPS_ENV_FILE=/path/to/ops/.env publish.sh deploy [CNB 部署选项]
 
 模式:
   push           对当前提交跑自适应本地 gate；GitHub bot 创建候选 PR
-  deploy         默认 hotfix；经 SSH 在服务器隔离构建并受治理切换
-  deploy --full  显式完整部署；转交 CNB-native 发布入口
-  hotfix         `deploy` 默认行为的显式别名
+  deploy         Full CNB 部署；本地全量凭证、CNB canonical build、生产切换
 
 说明:
-  只有用户明确指定 `deploy --full` 才会触发 CNB 完整部署。
+  生产发布只有 Full CNB 一条路径，不提供旁路部署。
 EOF
 }
 
 case "${1:-}" in
   deploy)
     shift
-    case "${1:-}" in
-      "") exec "$SCRIPT_DIR/publish-hotfix.sh" ;;
-      --full)
-        shift
-        exec "$SCRIPT_DIR/publish-cnb.sh" "$@"
-        ;;
-      -h|--help) usage; exit 0 ;;
-      *) echo "[错误] deploy 默认为 hotfix；完整部署请显式使用 deploy --full"; usage; exit 1 ;;
-    esac
-    ;;
-  hotfix)
-    shift
-    exec "$SCRIPT_DIR/publish-hotfix.sh" "$@"
+    exec "$SCRIPT_DIR/publish-cnb.sh" "$@"
     ;;
 esac
 

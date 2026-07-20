@@ -49,7 +49,6 @@ export async function getWorkReportDraft(input: {
   const previous = await findSpaceReport(input.targetType, input.targetId, period.type, previousPeriodStart(period), reportStage);
   const workItems = await listReportWorkItems(input.targetType, input.targetId, period, reportStage, { userId: input.userId, periodType: period.type });
   const actorUserId = input.actorUserId ?? input.userId;
-  const canUpdate = (!report || isLightReportPeriod(period.type)) && await canUpdateWorkTaskAction(actorUserId, input.targetType, input.targetId);
   const actionRuntime = await resolveWorkReportActionRuntime({
     actorUserId,
     targetType: input.targetType,
@@ -57,13 +56,14 @@ export async function getWorkReportDraft(input: {
     periodType: period.type,
     periodStart: period.startDate,
     reportStage,
+    confirmed: Boolean(report),
   });
   if (!actionRuntime.ok) return actionRuntime;
   const items = mergeReportItems(workItems, report, previous);
   return serviceOk({
       period: period.dto,
       reportStage,
-      canEdit: canUpdate,
+      canEdit: actionRuntime.data.editability === "editable",
       actionRuntime: actionRuntime.data,
       report: report ? toReportDto(report) : null,
       items,
@@ -89,6 +89,7 @@ export async function saveWorkReport(input: {
   }
   const period = normalizeReportPeriod(input.periodType, input.periodStart);
   const reportStage = normalizeReportStage(input.reportStage);
+  const existingReport = await findSpaceReport(input.targetType, input.targetId, period.type, period.startDate, reportStage);
   if (input.updateGuard !== "workflow-approved") {
     const workflowGuard = await assertWorkReportDirectCommitAllowed({
       actorUserId: input.actorUserId ?? input.userId,
@@ -97,13 +98,13 @@ export async function saveWorkReport(input: {
       periodType: period.type,
       periodStart: period.startDate,
       reportStage,
+      confirmed: Boolean(existingReport),
     });
     if (!workflowGuard.ok) return workflowGuard;
   }
   const workItems = await listReportWorkItems(input.targetType, input.targetId, period, reportStage, { userId: input.userId, periodType: period.type });
   const workItemIds = new Set(workItems.map((work) => work.id));
   const workPlanIds = new Set(workItems.map((work) => work.planId));
-  const existingReport = await findSpaceReport(input.targetType, input.targetId, period.type, period.startDate, reportStage);
   for (const item of existingReport?.items ?? []) {
     if (item.workItemId) workItemIds.add(item.workItemId);
     if (item.workPlanId) workPlanIds.add(item.workPlanId);
@@ -473,9 +474,6 @@ function normalizeReportPeriodType(value: string | null | undefined): WorkReport
   return value === "monthly" || value === "quarterly" || value === "half_year" || value === "yearly" ? value : "weekly";
 }
 
-function isLightReportPeriod(periodType: WorkReportPeriod["periodType"]) {
-  return periodType === "weekly" || periodType === "monthly";
-}
 function normalizeReportStage(value: string | null | undefined): WorkReportStage {
   return value === "kr" ? "kr" : "final";
 }

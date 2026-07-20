@@ -48,6 +48,7 @@
 | Core UI 五层治理 | `docs/engineering/core-ui-governance.md` | Architecture / UI-system |
 | Core UI 和页面 primitive | `docs/engineering/reusable-components.md` | Architecture / UI-system |
 | Core Toolbar 规则 | `docs/engineering/core-toolbar.md` | Architecture / UI-system |
+| 移动端页面、表格和横屏策略 | `docs/engineering/mobile-experience.md` | Architecture / UI-system |
 | Core / Platform / Apps 迁移归属 | `docs/engineering/core-platform-apps-migration-map.md` | Architecture |
 | 新模块接入 | `docs/engineering/new-module-checklist.md`, `docs/engineering/new-domain-template.md` | Architecture |
 | 现有模块新增能力 | `docs/engineering/existing-module-feature-checklist.md` | Feature |

@@ -1,4 +1,6 @@
 import { getActionContractMetadata } from "@workspace/platform/action-contract-registry";
+import { resolveBusinessActionRuntime } from "@workspace/platform/server/business-action-executor";
+import { businessSpaceScopeId } from "@workspace/platform/server/business-space-permissions";
 import type { ApprovalWorkflowPolicySnapshot } from "@workspace/platform/server/approvals";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
@@ -6,10 +8,12 @@ import {
   resolveWorkflowPolicy,
   type ResolvedWorkflowPolicy,
 } from "@workspace/platform/server/workflows";
+import type { ActionRuntimeRequestSnapshot } from "@workspace/platform/workflow-action-runtime";
 import {
-  resolveActionRuntime,
-  type ActionRuntimeRequestSnapshot,
-} from "@workspace/platform/workflow-action-runtime";
+  getEffectiveWorkTaskActionPermissions,
+  getWorkTaskPermissionResourceKey,
+  normalizeWorkTargetType,
+} from "./access";
 import {
   getStoredWorkOkrControlPolicyForPlan,
 } from "./work-okr-control";
@@ -18,10 +22,16 @@ import {
   approvalPayloadReferencesWorkPlan,
   validateWorkPlanGovernanceMigrationCommand,
 } from "./domain/work-plan-governance-validation";
+import { resolveWorkOkrGovernancePolicy } from "./domain/work-okr-governance-policy";
 import {
   workOkrWorkflowBusinessActionKey,
   type WorkOkrWorkflowActionKind,
 } from "./task-approval-helpers";
+import {
+  listWorkPlanActionRuntimeRequests,
+  type WorkPlanActionRuntimeRequests,
+} from "./work-plan-action-runtime-requests";
+export { listWorkPlanActionRuntimeRequests } from "./work-plan-action-runtime-requests";
 
 export type WorkPlanGovernanceMode = "workflow" | "direct" | "unavailable" | "legacy_inferred";
 export type WorkPlanGovernanceBindingSource = "created" | "system_generated" | "explicit_migration" | "legacy_inferred";
@@ -53,6 +63,8 @@ export type WorkPlanGovernanceRow = {
   status: string;
   isArchived: boolean;
   okrStage: string;
+  objectiveApprovedAt: Date | null;
+  krApprovedAt: Date | null;
   okrCycleId: number | null;
   okrControlScopeType: string | null;
   okrControlScopeId: string | null;
@@ -68,6 +80,18 @@ export type WorkPlanGovernanceRow = {
   governanceBindingSource: string;
 };
 
+export type WorkPlanGovernanceFactsRow = WorkPlanGovernanceRow & {
+  objectiveApprovedAt: Date | null;
+  krApprovedAt: Date | null;
+};
+
+type WorkPlanGovernanceActor = {
+  userId: number;
+  canDirectWrite?: boolean;
+  canStartWorkflow?: boolean;
+  canProcessWorkflow?: boolean;
+};
+
 export const workPlanGovernanceSelect = {
   id: true,
   targetType: true,
@@ -76,6 +100,8 @@ export const workPlanGovernanceSelect = {
   status: true,
   isArchived: true,
   okrStage: true,
+  objectiveApprovedAt: true,
+  krApprovedAt: true,
   okrCycleId: true,
   okrControlScopeType: true,
   okrControlScopeId: true,
@@ -164,34 +190,116 @@ export async function resolveWorkPlanGovernanceAction(
 export async function resolveWorkPlanActionRuntime(input: {
   plan: WorkPlanGovernanceRow;
   kind: WorkOkrWorkflowActionKind;
-  actor: {
-    userId: number;
-    canDirectWrite?: boolean;
-    canStartWorkflow?: boolean;
-    canProcessWorkflow?: boolean;
-  };
+  actor: WorkPlanGovernanceActor;
   request?: ActionRuntimeRequestSnapshot | null;
 }) {
-  const binding = await resolveWorkPlanGovernanceAction(input.plan, input.kind);
-  return resolveActionRuntime({
-    businessActionKey: binding.businessActionKey,
-    workflowPolicyMode: binding.policy.mode,
-    workflowWhenDisabled: binding.workflowWhenDisabled,
+  const businessActionKey = workOkrWorkflowBusinessActionKey({
+    kind: input.kind,
+    workspaceTargetType: input.plan.targetType,
+  });
+  return resolveBusinessActionRuntime({
+    businessActionKey,
     actor: input.actor,
     request: input.request,
+    resourceKey: getWorkTaskPermissionResourceKey(input.plan.targetType),
+    scopeType: input.plan.targetType,
+    scopeId: businessSpaceScopeId(normalizeWorkTargetType(input.plan.targetType), input.plan.targetId),
   });
+}
+
+export async function resolveWorkPlanOkrGovernance(input: {
+  plan: WorkPlanGovernanceFactsRow;
+  actor: WorkPlanGovernanceActor;
+  requests?: WorkPlanActionRuntimeRequests;
+}) {
+  const requests = input.requests ?? {};
+  const [objectiveSubmit, objectiveRevise, reportSubmit, reportCorrect] = await Promise.all([
+    resolveWorkPlanActionRuntime({ plan: input.plan, kind: "objective_submit", actor: input.actor, request: requests.objective_submit }),
+    resolveWorkPlanActionRuntime({ plan: input.plan, kind: "objective_revise", actor: input.actor, request: requests.objective_revise }),
+    resolveWorkPlanActionRuntime({ plan: input.plan, kind: "report_submit", actor: input.actor, request: requests.report_submit }),
+    resolveWorkPlanActionRuntime({ plan: input.plan, kind: "report_correct", actor: input.actor, request: requests.report_correct }),
+  ]);
+  const governance = resolveWorkOkrGovernancePolicy({
+    canUpdate: input.actor.canDirectWrite === true,
+    isArchived: input.plan.isArchived,
+    lifecycleStatus: input.plan.status,
+    targetConfirmed: input.plan.objectiveApprovedAt !== null,
+    resultConfirmed: input.plan.krApprovedAt !== null,
+    actionRuntimes: {
+      objectiveSubmit,
+      objectiveRevise,
+      reportSubmit,
+      reportCorrect,
+    },
+  });
+  return {
+    governance,
+    actionRuntimes: {
+      objectiveSubmit,
+      objectiveRevise,
+      reportSubmit,
+      reportCorrect,
+      planRevision: objectiveRevise,
+    },
+  };
+}
+
+export async function getWorkPlanOkrGovernance(input: {
+  planId: number;
+  actorUserId: number;
+}) {
+  const plan = await prisma.workPlan.findUnique({
+    where: { id: input.planId },
+    select: workPlanGovernanceSelect,
+  });
+  if (!plan || plan.kind !== "okr") return null;
+  const [permissions, requestsByPlanId] = await Promise.all([
+    getEffectiveWorkTaskActionPermissions(input.actorUserId, plan.targetType, plan.targetId),
+    listWorkPlanActionRuntimeRequests([plan]),
+  ]);
+  const actor: WorkPlanGovernanceActor = {
+    userId: input.actorUserId,
+    canDirectWrite: permissions.canUpdate,
+    canStartWorkflow: permissions.canSubmit,
+    canProcessWorkflow: permissions.canApprove,
+  };
+  return {
+    plan,
+    permissions,
+    ...(await resolveWorkPlanOkrGovernance({
+      plan,
+      actor,
+      requests: requestsByPlanId.get(plan.id),
+    })),
+  };
 }
 
 export async function workPlanPreparedWorkflowBinding(
   plan: WorkPlanGovernanceRow,
   kind: WorkOkrWorkflowActionKind,
 ) {
-  const binding = await resolveWorkPlanGovernanceAction(plan, kind);
+  const businessActionKey = workOkrWorkflowBusinessActionKey({
+    kind,
+    workspaceTargetType: plan.targetType,
+  });
+  const [policy, contract, controlState] = await Promise.all([
+    resolveWorkflowPolicy({
+      businessActionKey,
+      resourceKey: getWorkTaskPermissionResourceKey(plan.targetType),
+      scopeType: plan.targetType,
+      scopeId: businessSpaceScopeId(normalizeWorkTargetType(plan.targetType), plan.targetId),
+    }),
+    Promise.resolve(getActionContractMetadata(businessActionKey)),
+    getWorkOkrControlSettingsState(),
+  ]);
+  if (!contract || contract.workflow.kind !== "configurable") {
+    throw new Error(`OKR 业务行为 ${businessActionKey} 缺少可配置 ActionContract`);
+  }
   return {
-    businessActionKey: binding.businessActionKey,
-    workflowPolicySnapshot: binding.policy,
-    sourceActionContractVersion: binding.actionContractVersion,
-    sourceOkrControlVersion: plan.governanceOkrControlVersion,
+    businessActionKey,
+    workflowPolicySnapshot: resolvedPolicySnapshot(policy),
+    sourceActionContractVersion: contract.version,
+    sourceOkrControlVersion: controlState.version,
   };
 }
 

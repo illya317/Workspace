@@ -3,6 +3,9 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPOSITORY_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+PUBLISH_STARTED_EPOCH_SECONDS="${PUBLISH_STARTED_EPOCH_SECONDS:-$(date +%s)}"
+PUBLISH_STARTED_AT="${PUBLISH_STARTED_AT:-$(date '+%Y-%m-%d %H:%M:%S %z')}"
+export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 if [ "${WORKSPACE_REPO_RUNTIME_READY:-0}" != "1" ]; then
   exec "$REPOSITORY_ROOT/scripts/runtime/run-with-repo-node.sh" "$0" "$@"
 fi
@@ -28,6 +31,7 @@ PRINT_COMMAND_ONLY=0
 DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
 TMP_DIR=""
 TMP_KEY=""
+SERVER_READ_KEY=""
 
 usage() {
   cat <<'EOF'
@@ -52,6 +56,25 @@ cleanup() {
   rm -f "${TMP_KEY:-}"
 }
 trap cleanup EXIT
+
+prepare_server_read_key() {
+  if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
+    SERVER_READ_KEY="$KEY"
+  elif [ -n "${KEY_CONTENT:-}" ]; then
+    TMP_KEY="$(mktemp)"
+    printf '%s\n' "$KEY_CONTENT" > "$TMP_KEY"
+    chmod 600 "$TMP_KEY"
+    SERVER_READ_KEY="$TMP_KEY"
+  else
+    echo "[错误] 缺少生产只读验证所需 KEY/KEY_CONTENT"
+    exit 1
+  fi
+}
+
+format_duration() {
+  local total_seconds="$1"
+  printf '%dm %02ds' "$((total_seconds / 60))" "$((total_seconds % 60))"
+}
 
 while [ "$#" -gt 0 ]; do
   case "$1" in
@@ -119,6 +142,53 @@ if [ -n "$BOOTSTRAP_PRODUCTION_BASE" ]; then
   }
 fi
 
+TMP_DIR="$(mktemp -d)"
+if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+  prepare_server_read_key
+fi
+
+if [ "$PRINT_COMMAND_ONLY" = "0" ] && [ -z "$BOOTSTRAP_PRODUCTION_BASE" ]; then
+  echo "==> 部署前读取生产 canonical 回执与恢复状态..."
+  production_state="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "if [ -e '$REMOTE_DIR/.workspace/maintenance-deploy' ]; then printf maintenance; elif [ -e '$REMOTE_DIR/.workspace/production-bootstrap-in-progress.json' ]; then printf bootstrap; elif [ -f '$REMOTE_DIR/.workspace/deployed-release.json' ]; then printf ready; else printf missing; fi")"
+  case "$production_state" in
+    ready) ;;
+    maintenance)
+      echo "[错误] 生产存在未完成 maintenance-deploy marker；先恢复同一 candidate，拒绝启动新的 full 部署"
+      exit 1
+      ;;
+    bootstrap)
+      echo "[错误] 生产存在未完成 production bootstrap marker；先恢复同一 candidate，拒绝启动新的 full 部署"
+      exit 1
+      ;;
+    missing)
+      echo "[错误] 生产缺少正式 deployed-release 回执；首次接管必须使用 audited production bootstrap"
+      exit 1
+      ;;
+    *)
+      echo "[错误] 无法识别生产部署状态: ${production_state:-<empty>}"
+      exit 1
+      ;;
+  esac
+
+  PRODUCTION_RECEIPT_FILE="$TMP_DIR/deployed-release.json"
+  PREFLIGHT_RESULT_FILE="$TMP_DIR/production-preflight.json"
+  ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "cat '$REMOTE_DIR/.workspace/deployed-release.json'" > "$PRODUCTION_RECEIPT_FILE"
+  node ops/production-deploy-preflight.mjs \
+    --cwd "$SOURCE_DIR" \
+    --receipt "$PRODUCTION_RECEIPT_FILE" \
+    --candidate "$SOURCE_SHA" \
+    --candidate-tree "$SOURCE_TREE" \
+    --expected-repository "$CNB_REPO" > "$PREFLIGHT_RESULT_FILE"
+  node -e '
+    const result = require(process.argv[1]);
+    const migrations = result.migration.changedMigrations.length;
+    const mode = result.migration.requiresMaintenance ? "maintenance" : "expand/none";
+    console.log(`==> 生产预检通过: deployed ${result.production.deployedSha.slice(0, 12)} -> candidate ${result.candidate.commitSha.slice(0, 12)}; migrations ${migrations} (${mode})`);
+  ' "$PREFLIGHT_RESULT_FILE"
+fi
+
 LOCAL_CI_RECEIPT_FILE="$(git rev-parse --git-path workspace-local-full-ci.json)"
 if node scripts/ci/local-full-ci-receipt.mjs verify \
   --tree "$SOURCE_TREE" \
@@ -139,7 +209,6 @@ else
   echo "==> 本地全量 CI 已通过并绑定 tree: ${SOURCE_TREE:0:12}"
 fi
 
-TMP_DIR="$(mktemp -d)"
 METADATA_FILE="$TMP_DIR/cnb-release.json"
 RESULT_FILE="$TMP_DIR/cnb-trigger.json"
 BASELINE_MIGRATION_COUNT=""
@@ -170,14 +239,20 @@ BOOTSTRAP_PRODUCTION_BASE="$BOOTSTRAP_PRODUCTION_BASE" BOOTSTRAP_LEGACY_CNB_COMM
 BOOTSTRAP_LEGACY_RELEASE_ID="$BOOTSTRAP_LEGACY_RELEASE_ID" BOOTSTRAP_LEGACY_CNB_BUILD_SN="$BOOTSTRAP_LEGACY_CNB_BUILD_SN" \
 BOOTSTRAP_LEGACY_RUNTIME_VERSION="$BOOTSTRAP_LEGACY_RUNTIME_VERSION" BOOTSTRAP_LEGACY_BUILD_ID="$BOOTSTRAP_LEGACY_BUILD_ID" \
 BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="$BASELINE_MIGRATION_DIGEST" \
-LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" node <<'NODE'
+LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" node <<'NODE'
 const fs = require('node:fs');
 const localFullCi = JSON.parse(fs.readFileSync(process.env.LOCAL_CI_RECEIPT_FILE, 'utf8'));
+const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
+if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
+  throw new Error('publish start epoch is invalid');
+}
 const metadata = {
   schemaVersion: 1,
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
   localFullCi,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
+  deployment: { startedAtEpochSeconds },
 };
 if (process.env.BOOTSTRAP_PRODUCTION_BASE) {
   metadata.deploymentBootstrap = {
@@ -201,36 +276,34 @@ NODE
 
 release_args=(--metadata "$METADATA_FILE" --result-file "$RESULT_FILE")
 [ "$PRINT_COMMAND_ONLY" = "0" ] || release_args+=(--print-command)
+if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
+  echo "==> 正式部署计时开始: $PUBLISH_STARTED_AT"
+fi
 env -u CNB_TOKEN OPS_ENV_FILE="$OPS_ENV_FILE" "$SCRIPT_DIR/release-to-cnb.sh" "${release_args[@]}"
 [ "$PRINT_COMMAND_ONLY" = "0" ] || exit 0
 
 CNB_SN="$(node -e 'const r=require(process.argv[1]); process.stdout.write(r.sn);' "$RESULT_FILE")"
 echo "==> 等待 CNB $CNB_SN 与生产版本 ${SOURCE_SHA:0:12}（最长 ${DEPLOY_WAIT_SECONDS}s）..."
 
-if [ -n "${KEY:-}" ] && [ -f "$KEY" ]; then
-  SERVER_READ_KEY="$KEY"
-elif [ -n "${KEY_CONTENT:-}" ]; then
-  TMP_KEY="$(mktemp)"
-  printf '%s\n' "$KEY_CONTENT" > "$TMP_KEY"
-  chmod 600 "$TMP_KEY"
-  SERVER_READ_KEY="$TMP_KEY"
-else
-  echo "[错误] 缺少生产只读验证所需 KEY/KEY_CONTENT"; exit 1
-fi
-
 deadline=$(( $(date +%s) + DEPLOY_WAIT_SECONDS ))
 while [ "$(date +%s)" -le "$deadline" ]; do
+  cnb_state="unknown"
   status_file="$TMP_DIR/cnb-status.json"
   if env -u CNB_TOKEN cnb build get-build-status --repo "$CNB_REPO" --sn "$CNB_SN" --verbose > "$status_file" 2>/dev/null; then
-    state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
-    [ "$state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
+    cnb_state="$(node scripts/ci/cnb-build-state.mjs classify-status --input "$status_file" 2>/dev/null || true)"
+    [ "$cnb_state" != "failure" ] || { echo "[错误] CNB build $CNB_SN 已终止失败"; exit 1; }
   fi
   deployed_sha="$(ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
     "python3 -c \"import json; from pathlib import Path; p=Path('$REMOTE_DIR/.workspace/deployed-release.json'); print(json.loads(p.read_text())['source']['commitSha'] if p.exists() else '')\"" 2>/dev/null || true)"
-  if [ "$deployed_sha" = "$SOURCE_SHA" ]; then
+  if [ "$deployed_sha" = "$SOURCE_SHA" ] && [ "$cnb_state" = "success" ]; then
     ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
       "set -e; curl -fsS '$HEALTHCHECK_URL' >/dev/null; test \"\$(curl -fsS http://127.0.0.1:3000/workspace/api/settings/version | node -e 'let s=\"\";process.stdin.on(\"data\",d=>s+=d).on(\"end\",()=>process.stdout.write(JSON.parse(s).version))')\" = '$SOURCE_SHA'"
     echo "==> CNB-native 生产部署完成: $SOURCE_SHA ($CNB_SN)"
+    FORMAL_DEPLOY_FINISHED_EPOCH="$(date +%s)"
+    FORMAL_DEPLOY_FINISHED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
+    FORMAL_DEPLOY_DURATION="$((FORMAL_DEPLOY_FINISHED_EPOCH - PUBLISH_STARTED_EPOCH_SECONDS))"
+    echo "==> 正式部署计时结束: $FORMAL_DEPLOY_FINISHED_AT"
+    echo "==> 正式部署总耗时: $(format_duration "$FORMAL_DEPLOY_DURATION") (${FORMAL_DEPLOY_DURATION}s)"
     exit 0
   fi
   sleep 10

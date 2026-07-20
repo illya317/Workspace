@@ -2,7 +2,7 @@ import "server-only";
 
 import type { NaturalSpaceActionProfile } from "../permission-natural-space-actions";
 import type { PermissionActionSource } from "../permission-actions";
-import { currentOpenEndedDateWhere } from "./fk-registry";
+import { currentOpenEndedDateWhere } from "./relation-registry";
 import { prisma } from "./prisma";
 
 export type NaturalBusinessSpacePermission = {
