@@ -6,6 +6,7 @@ import { selectVisiblePeriods } from "@workspace/core/period";
 import { listWorkReportWeekStarts, normalizeWorkReportWeekStart } from "../../work-report-periods";
 
 export type ReportPeriodType = Exclude<WorkPeriodType, "daily">;
+const WORK_REPORT_MONTH_ANCHOR = "2026-01-01";
 
 export const REPORT_PERIOD_TYPE_OPTIONS: Array<{ value: ReportPeriodType; label: string }> = [
   { value: "yearly", label: "年" },
@@ -37,7 +38,7 @@ export function createReportPeriodRecords(
   const futureBoundary = addMonths(today, 1);
   const seen = new Set<string>();
   const visibleCycles = cycles
-    .filter((cycle) => cycle.periodType === periodType);
+    .filter((cycle) => cycle.periodType === periodType && isWithinReportHistory(periodType, cycle.startDate));
   const records = selectVisiblePeriods(visibleCycles, { today })
     .flatMap((cycle) => {
       const key = reportPeriodRecordKey(periodType, cycle.startDate);
@@ -47,8 +48,13 @@ export function createReportPeriodRecords(
     });
   const activeKey = reportPeriodRecordKey(periodType, normalizeReportPeriodStart(periodType, periodStart));
   if (records.some((record) => record.key === activeKey)) return records;
+  if (!isWithinReportHistory(periodType, periodStart)) return records;
   if (!canShowFallbackPeriod(periodType, periodStart, today, futureBoundary)) return records;
   return [fallbackPeriodRecord(periodType, periodStart, periodStart, today), ...records];
+}
+
+function isWithinReportHistory(periodType: ReportPeriodType, periodStart: string) {
+  return periodType !== "monthly" || normalizeReportPeriodStart(periodType, periodStart) >= WORK_REPORT_MONTH_ANCHOR;
 }
 
 function createWeeklyReportPeriodRecords(periodStart: string, today: string) {
