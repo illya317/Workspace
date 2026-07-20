@@ -300,6 +300,14 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
     setDraft(emptyDefinitionDraft(ownerDepartmentId, space.name));
   }, [ownerDepartmentId, space]);
 
+  const setCreateOpen = useCallback((open: boolean) => {
+    if (open) {
+      beginCreate();
+      return;
+    }
+    setDraft((current) => current?.id ? current : null);
+  }, [beginCreate]);
+
   const beginRevise = useCallback((definition: WorkKpiDefinition) => {
     setDraft({
       id: definition.id,
@@ -323,23 +331,30 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
       await saveWorkKpiDefinition(draft);
       setDraft(null);
       await load();
-      onToast({ message: draft.id ? "KPI 指标新版本已保存" : "KPI 指标已新增", type: "success" });
-    } catch (error) {
-      onToast({ message: error instanceof Error ? error.message : "保存 KPI 指标失败", type: "error" });
     } finally {
       setSaving(false);
     }
-  }, [draft, load, onToast, saving]);
+  }, [draft, load, saving]);
 
-  const formActions: FormSurfaceActionSpec[] = draft ? [
-    { key: "save-definition", action: "save", label: saving ? "保存中..." : draft.id ? "保存新版本" : "新增指标", disabled: saving || !definitionDraftComplete(draft), onClick: () => void save() },
+  const saveRevision = useCallback(async () => {
+    try {
+      await save();
+      onToast({ message: "KPI 指标新版本已保存", type: "success" });
+    } catch (error) {
+      onToast({ message: error instanceof Error ? error.message : "保存 KPI 指标失败", type: "error" });
+    }
+  }, [onToast, save]);
+
+  const formActions: FormSurfaceActionSpec[] = draft?.id ? [
+    { key: "save-definition", action: "save", label: saving ? "保存中..." : "保存新版本", disabled: saving || !definitionDraftComplete(draft), onClick: () => void saveRevision() },
     { key: "cancel-definition", action: "cancel", label: "取消", disabled: saving, onClick: () => setDraft(null) },
   ] : [];
+  const createOpen = Boolean(draft && !draft.id);
   const sections = !space
     ? [createMessageSection("kpi-definition-empty-space", { content: "请选择工作空间", tone: "muted" })]
     : [
         ...(!canMaintain ? [createMessageSection("kpi-definition-readonly", { content: "指标按归口部门维护；当前空间可查看可用指标，切换到有维护权限的部门空间后可新增或修订。", tone: "muted" })] : []),
-        ...(draft ? [createFormSection("kpi-definition-form", {
+        ...(draft?.id ? [createFormSection("kpi-definition-form", {
           kind: "fields",
           content: { items: definitionFields(draft, setDraft, saving), layout: { columns: 3, density: "compact" } },
           actions: formActions,
@@ -357,7 +372,26 @@ export function useWorkKpiDefinitionController({ enabled, space, onToast }: {
             }),
       ];
   return {
-    body: createPageBody([createSectionSection("kpi-definition-section", { title: "指标库", sections: [createMessageSection("kpi-definition-guidance", { content: "指标定义按版本维护；已生效版本不会被周期计分卡的后续修订覆盖。", tone: "muted" }), ...sections] })]),
-    toolbarItems: canMaintain ? [{ kind: "action-group", key: "kpi-definition-create", actions: [{ key: "create-kpi-definition", kind: "update", label: "新增指标", disabled: saving || Boolean(draft), onClick: beginCreate }] }] : [],
+    body: createPageBody([
+      ...(canMaintain ? [{
+        key: "kpi-definition-create",
+        chrome: "plain" as const,
+        body: { kind: "create" as const, create: {
+          id: "kpi-definition-create",
+          trigger: "toolbar" as const,
+          presentation: "block" as const,
+          title: "新增指标",
+          open: createOpen,
+          canCreate: canMaintain,
+          disabled: saving || Boolean(draft?.id),
+          content: { kind: "form" as const, form: { items: createOpen && draft ? definitionFields(draft, setDraft, saving) : [], layout: { columns: 3 as const, density: "compact" as const } } },
+          submission: { action: "save" as const, disabled: saving || !draft || !definitionDraftComplete(draft), execute: save },
+          feedback: { saved: "KPI 指标已新增" },
+          onOpenChange: setCreateOpen,
+        } },
+      }] : []),
+      createSectionSection("kpi-definition-section", { title: "指标库", sections: [createMessageSection("kpi-definition-guidance", { content: "指标定义按版本维护；已生效版本不会被周期计分卡的后续修订覆盖。", tone: "muted" }), ...sections] }),
+    ]),
+    toolbarItems: [],
   };
 }
