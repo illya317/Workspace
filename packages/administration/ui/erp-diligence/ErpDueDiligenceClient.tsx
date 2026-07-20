@@ -110,8 +110,10 @@ export default function ErpDueDiligenceClient({
     }
   }
 
-  const formActions: FormSurfaceActionSpec[] | undefined = canEdit ? [
+  const draftActions: FormSurfaceActionSpec[] | undefined = canEdit ? [
     { key: "save-draft", action: "save", label: saving ? "保存中…" : "保存草稿", disabled: saving, onClick: () => void persist("draft") },
+  ] : undefined;
+  const submissionActions: FormSurfaceActionSpec[] | undefined = canEdit ? [
     { key: "submit", action: "submit", label: saving ? "提交中…" : "提交当前版本", disabled: saving, onClick: () => void persist("submitted") },
   ] : undefined;
 
@@ -121,16 +123,17 @@ export default function ErpDueDiligenceClient({
       ...shared,
       createMessageSection("purpose", { tone: "default", content: "这不是未来ERP需求表，而是现状事实采集。请按今天真实如何做、谁负责、用什么工具、产生什么单据来填写；不知道的内容可以留空并在流程步骤中标注待确认。" }),
       createMessageSection("visibility", { tone: "muted", content: "默认只有你本人能查看和修改这份记录；获得“ERP尽调全量查看”权限的项目负责人可以汇总查看所有提交。" }),
-      createFieldsSection("profile", profileItems(draft, setDraft, canEdit), { layout: { columns: 2 }, header: { title: "填报人和业务范围", description: "先说明你代表哪个部门、岗位和流程环节。" }, actions: formActions }),
+      createFieldsSection("profile", profileItems(draft, setDraft, canEdit), { layout: { columns: 2 }, header: { title: "填报人和业务范围", description: "先说明你代表哪个部门、岗位和流程环节。" }, actions: draftActions }),
     ];
     if (activeTab === "process") return [
       ...shared,
-      createFieldsSection("process-evidence", [...processItems(draft, setDraft, canEdit), ...evidenceItems(draft, setDraft, canEdit)], { layout: { columns: 1 }, actions: formActions }),
+      createFieldsSection("process-evidence", [...processItems(draft, setDraft, canEdit), ...evidenceItems(draft, setDraft, canEdit)], { layout: { columns: 1 }, actions: draftActions }),
     ];
     const tabSections = ERP_DILIGENCE_QUESTION_SECTIONS.filter((section) => section.tab === activeTab);
     return [
       ...shared,
-      createFieldsSection(`questions-${activeTab}`, questionItems(tabSections, draft, setDraft, canEdit), { layout: { columns: 1 }, actions: formActions }),
+      ...(activeTab === "summary" ? [createMessageSection("submission-stage", { tone: "muted", content: "这是本轮尽调的最终检查页。确认前面章节和本页回答已经完整后，再提交当前版本；需要继续补充时，可返回其他章节保存草稿。" })] : []),
+      createFieldsSection(`questions-${activeTab}`, questionItems(tabSections, draft, setDraft, canEdit), { layout: { columns: 1 }, actions: activeTab === "summary" ? submissionActions : draftActions }),
     ];
   }
 
