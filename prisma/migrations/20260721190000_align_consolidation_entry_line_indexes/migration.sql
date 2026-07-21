@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 DROP INDEX IF EXISTS "FinanceConsolidationEntryLine_companyId_statementType_lineC_idx";
 
 ALTER INDEX "FinanceConsolidationEntryLine_entitySnapshotId_statementType_li"

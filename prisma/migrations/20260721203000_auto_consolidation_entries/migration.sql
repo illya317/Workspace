@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceAuxiliaryMember"
   ADD COLUMN "linkedCompanyId" INTEGER,
   ADD COLUMN "companyLinkMethod" TEXT,

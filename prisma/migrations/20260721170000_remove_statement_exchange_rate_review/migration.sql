@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 DROP INDEX IF EXISTS "FinanceStatementExchangeRate_status_idx";
 
 ALTER TABLE "FinanceStatementExchangeRate"

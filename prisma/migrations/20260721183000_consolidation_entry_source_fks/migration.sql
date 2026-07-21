@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceConsolidationEntryLine"
   ADD COLUMN "entitySnapshotId" INTEGER,
   ADD COLUMN "counterpartyEntitySnapshotId" INTEGER,

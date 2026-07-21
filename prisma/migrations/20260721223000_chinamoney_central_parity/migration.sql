@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceStatementExchangeRate"
   ALTER COLUMN "sourceName" SET DEFAULT '中国外汇交易中心',
   ALTER COLUMN "sourceField" SET DEFAULT '人民币汇率中间价';

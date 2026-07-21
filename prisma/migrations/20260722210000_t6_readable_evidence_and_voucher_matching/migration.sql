@@ -1,3 +1,5 @@
+-- workspace:migration-mode=maintenance
+
 ALTER TABLE "FinanceLedgerImport"
   ADD COLUMN "sourcePackageId" INTEGER,
   ADD COLUMN "sourceLedgerMappingId" INTEGER;
