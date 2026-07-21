@@ -192,6 +192,10 @@ export interface DocumentEditorCanvasProps {
   fieldModel: FieldModel;
   computedValues?: Record<string, unknown>;
   editable?: boolean;
+  assistantAction?: {
+    label: string;
+    onClick: () => void;
+  };
   onChange?: (document: EditorDocument) => void;
 }
 

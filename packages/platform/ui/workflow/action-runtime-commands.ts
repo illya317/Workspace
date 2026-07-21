@@ -15,6 +15,7 @@ export type ActionRuntimeCommandHandler = {
   onClick: () => void;
   disabled?: boolean;
   label?: string;
+  presentationKind?: WorkflowActionCommandKind;
 };
 
 export type ActionRuntimeCommandHandlers = Partial<
@@ -58,7 +59,7 @@ export function actionRuntimeCommands(
     const definition = ACTION_COMMANDS[action];
     return [{
       key: action,
-      kind: definition.kind,
+      kind: handler.presentationKind ?? definition.kind,
       label: handler.label ?? definition.label,
       disabled: handler.disabled,
       onClick: handler.onClick,

@@ -8,6 +8,7 @@ export type {
   ActionRuntimeCommandHandlers,
 } from "./action-runtime-commands";
 export {
+  workflowActionHeaderCommands,
   workflowActionSurfaceActions,
   workflowActionSlotSectionSpec,
   workflowRequestTimelineSectionSpec,

@@ -8,6 +8,7 @@ import {
 } from "@workspace/core/ui";
 import {
   createDocumentWorkspaceSection,
+  type DocumentEditorCanvasProps,
   type EditorDocument,
   type FieldModel,
 } from "@workspace/platform/document-editor";
@@ -26,6 +27,7 @@ export function createEditorDetailSection(input: {
   formulaComputation: FormulaComputation;
   message: string | null;
   editable: boolean;
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"];
   setDocumentDraft: (document: EditorDocument) => void;
 }): BodySurfaceSectionSpec {
   const {
@@ -36,6 +38,7 @@ export function createEditorDetailSection(input: {
     formulaComputation,
     message,
     editable,
+    assistantAction,
     setDocumentDraft,
   } = input;
 
@@ -60,6 +63,7 @@ export function createEditorDetailSection(input: {
     fieldModelDraft,
     formulaComputation,
     editable,
+    assistantAction,
     messageSection,
     setDocumentDraft,
   });
@@ -82,10 +86,11 @@ function createPaperTabSection(input: {
   fieldModelDraft: FieldModel;
   formulaComputation: FormulaComputation;
   editable: boolean;
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"];
   messageSection: BodySurfaceSectionSpec[];
   setDocumentDraft: (document: EditorDocument) => void;
 }): BodySurfaceSectionSpec {
-  const { documentDraft, fieldModelDraft, formulaComputation, editable, messageSection, setDocumentDraft } = input;
+  const { documentDraft, fieldModelDraft, formulaComputation, editable, assistantAction, messageSection, setDocumentDraft } = input;
   return {
     key: "docs-editor-paper",
     chrome: "plain" as const,
@@ -102,6 +107,7 @@ function createPaperTabSection(input: {
             fieldModel: fieldModelDraft,
             computedValues: formulaComputation.previewValues,
             editable,
+            assistantAction,
             onChange: setDocumentDraft,
           },
         }),

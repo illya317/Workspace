@@ -7,6 +7,8 @@ test("primary body section owns the card frame", () => {
   assert.match(className, /\bborder\b/);
   assert.match(className, /\brounded-xl\b/);
   assert.match(className, /\bshadow-sm\b/);
+  assert.match(className, /\boverflow-clip\b/);
+  assert.doesNotMatch(className, /\boverflow-hidden\b/);
 });
 
 test("nested body section uses hierarchy without another card frame", () => {

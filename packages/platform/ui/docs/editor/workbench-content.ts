@@ -1,14 +1,13 @@
 import type { Dispatch, SetStateAction } from "react";
 import {
-  createFieldsSection,
   createMessageSection,
   createPageBody,
   createSectionSection,
+  type BodySurfaceCommandSpec,
   type CreateSurfaceSubmissionSpec,
-  type FormSurfaceActionSpec,
   type FormSurfaceItemSpec,
 } from "@workspace/core/ui";
-import type { EditorDocument, FieldModel } from "@workspace/platform/document-editor";
+import type { DocumentEditorCanvasProps, EditorDocument, FieldModel } from "@workspace/platform/document-editor";
 import type {
   EditorSpaceDto,
   EditorTemplateDetailDto,
@@ -66,19 +65,21 @@ export function docsEditorBody(input: {
   createOpen: boolean;
   createTitle: string;
   createSubmission: CreateSurfaceSubmissionSpec | null;
-  detailActions: FormSurfaceActionSpec[];
+  detailHeaderActions: BodySurfaceCommandSpec[];
   detail: EditorTemplateDetailDto | null;
   detailLoading: boolean;
   documentDraft: EditorDocument;
   fieldModelDraft: FieldModel;
   formulaComputation: ReturnType<typeof evaluateFieldModel>;
   canEditTemplateDraft: boolean;
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"];
   setDocumentDraft: Dispatch<SetStateAction<EditorDocument>>;
   onCreateTitleChange: (title: string) => void;
   onCreateOpenChange: (open: boolean) => void;
 }) {
   const templateEditorSection = createSectionSection("docs-editor-template-editor", {
     title: input.detail ? input.detail.title : input.activeSpace ? `${input.activeSpace.title}编辑器` : "模板编辑器",
+    actions: input.detailHeaderActions,
     sections: [
       ...(input.message ? [createMessageSection("docs-editor-list-message", {
         content: input.message,
@@ -118,11 +119,9 @@ export function docsEditorBody(input: {
         formulaComputation: input.formulaComputation,
         message: null,
         editable: input.canEditTemplateDraft,
+        assistantAction: input.assistantAction,
         setDocumentDraft: input.setDocumentDraft,
       }),
-      ...(input.detail && input.detailActions.length > 0
-        ? [createFieldsSection("docs-editor-template-actions", [], { actions: input.detailActions })]
-        : []),
     ],
   });
 

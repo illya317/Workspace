@@ -14,6 +14,7 @@ import {
   BetweenVerticalEnd,
   BetweenVerticalStart,
   Bold,
+  BotMessageSquare,
   CalendarDays,
   CircleCheck,
   Columns3,
@@ -79,6 +80,7 @@ export default function DocumentEditorCanvas({
   document,
   fieldModel,
   editable = true,
+  assistantAction,
   onChange,
 }: DocumentEditorCanvasProps) {
   const [stickyHeaderOffset, setStickyHeaderOffset] = useState(DEFAULT_STICKY_HEADER_OFFSET);
@@ -201,11 +203,11 @@ export default function DocumentEditorCanvas({
         compactLandscape={mobileLayout.compactLandscape}
         stickyHeaderOffset={stickyHeaderOffset}
         desktopTop={<>{renderTableRibbon(editor, editable)}{renderFontRibbon(editor, editable)}{renderParagraphRibbon(editor, editable)}</>}
-        desktopBottom={<>{renderStyleRibbon(editor, editable)}{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}</>}
+        desktopBottom={<>{renderStyleRibbon(editor, editable)}{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true), assistantAction)}</>}
         mobileRibbons={{
           text: <>{renderFontRibbon(editor, editable, true)}{renderStyleRibbon(editor, editable)}</>,
           paragraph: renderParagraphRibbon(editor, editable),
-          insert: <>{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true))}</>,
+          insert: <>{renderInsertRibbon(editor, editable, document)}{renderSpecialRibbon(editor, editable, () => setFormulaHelpOpen(true), assistantAction)}</>,
           table: renderTableRibbon(editor, editable),
         }}
       />
@@ -310,7 +312,12 @@ function renderInsertRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, e
   );
 }
 
-function renderSpecialRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, editable: boolean, onFormulaHelp: () => void) {
+function renderSpecialRibbon(
+  editor: NonNullable<ReturnType<typeof useEditor>>,
+  editable: boolean,
+  onFormulaHelp: () => void,
+  assistantAction?: DocumentEditorCanvasProps["assistantAction"],
+) {
   return (
     <ToolbarGroup label="特殊">
       <ToolbarButton label="公式说明" onClick={onFormulaHelp}>
@@ -319,6 +326,11 @@ function renderSpecialRibbon(editor: NonNullable<ReturnType<typeof useEditor>>, 
       <ToolbarButton label="注释" active={selectionHasAnnotation(editor)} disabled={!editable} onClick={() => toggleAnnotationSelection(editor)}>
         <PrinterX size={16} strokeWidth={1.9} />
       </ToolbarButton>
+      {assistantAction ? (
+        <ToolbarButton label={assistantAction.label} onClick={assistantAction.onClick}>
+          <BotMessageSquare size={16} strokeWidth={1.9} />
+        </ToolbarButton>
+      ) : null}
     </ToolbarGroup>
   );
 }

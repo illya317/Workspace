@@ -6,11 +6,11 @@ import {
   PageSurface,
   usePageAssistant,
   useFeedback,
-  type FormSurfaceActionSpec,
+  type BodySurfaceCommandSpec,
   type SurfaceToolbarItems,
 } from "@workspace/core/ui";
 import { createEmptyEditorDocument, useDocumentEditorMobileLayout, type EditorDocument, type FieldModel } from "@workspace/platform/document-editor";
-import { actionRuntimeCommands, actionRuntimeCreateSubmission, workflowActionSurfaceActions } from "../../workflow";
+import { actionRuntimeCommands, actionRuntimeCreateSubmission, workflowActionHeaderCommands } from "../../workflow";
 import {
   createSpaceKindNavigation,
   createSpaceViewToolbarItem,
@@ -46,7 +46,7 @@ import {
 } from "./model";
 import { createDocsEditorTemplateActions } from "./template-actions";
 
-function namespaceFormActions(actions: readonly FormSurfaceActionSpec[], namespace: string): FormSurfaceActionSpec[] {
+function namespaceHeaderActions(actions: readonly BodySurfaceCommandSpec[], namespace: string): BodySurfaceCommandSpec[] {
   return actions.map((action) => ({ ...action, key: `${namespace}.${action.key}` }));
 }
 
@@ -325,20 +325,6 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
 
   const editorToolbarItems: SurfaceToolbarItems = activeTab === "templates" ? [
     {
-      kind: "action-group",
-      key: "docs-editor-assistant",
-      actions: [{
-        key: "assistant",
-        kind: "assistant",
-        label: detail ? `让 Agent 处理“${detail.title}”` : "页面助手",
-        onClick: () => pageAssistant.openAssistant({
-          ...assistantContext,
-          path: typeof window === "undefined" ? undefined : window.location.pathname,
-          title: detail?.title ?? (typeof document === "undefined" ? undefined : document.title),
-        }),
-      }],
-    },
-    {
       kind: "icon-button",
       key: "export",
       icon: "download",
@@ -352,23 +338,34 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
     disabled: creating || !createTitle.trim(),
     execute: handleCreateTemplate,
   });
-  const detailActions: FormSurfaceActionSpec[] = [
-    ...namespaceFormActions(workflowActionSurfaceActions(actionRuntimeCommands(saveRuntime, {
+  const draftHeaderActions = namespaceHeaderActions(workflowActionHeaderCommands(actionRuntimeCommands(saveRuntime, {
       "record.save": { label: "保存草稿", disabled: busy !== null, onClick: () => void saveDraft() },
       "workflow.request.submit": { label: "提交草稿", disabled: busy !== null, onClick: () => void saveDraft() },
       "form.cancel": { label: "取消修改", disabled: busy !== null, onClick: () => void reloadEditorData() },
-    })), "draft"),
-    ...namespaceFormActions(workflowActionSurfaceActions(actionRuntimeCommands(publishRuntime, {
-      "record.save": { label: "发布", disabled: busy !== null, onClick: () => void publishTemplate() },
+    })), "draft");
+  const publishHeaderActions = namespaceHeaderActions(workflowActionHeaderCommands(actionRuntimeCommands(publishRuntime, {
+      "record.save": { label: "发布", presentationKind: "direct", disabled: busy !== null, onClick: () => void publishTemplate() },
       "workflow.request.submit": { label: "提交发布", disabled: busy !== null, onClick: () => void publishTemplate() },
-    })), "publish"),
+    })), "publish");
+  const lifecycleHeaderActions: BodySurfaceCommandSpec[] = [
+    ...publishHeaderActions,
+    ...draftHeaderActions,
     ...(detail?.status === "draft" && canDeleteTemplate ? [{
-      key: "delete", action: "delete" as const, label: "删除", disabled: busy !== null, onClick: templateActions.deleteTemplate,
+      key: "delete", icon: "delete-bin" as const, label: "删除", variant: "danger" as const, disabled: busy !== null, onClick: templateActions.deleteTemplate,
     }] : []),
     ...(detail?.status === "published" && canArchiveTemplate ? [{
-      key: "archive", action: "archive" as const, label: "归档", disabled: busy !== null, onClick: templateActions.archiveTemplate,
+      key: "archive", icon: "archive" as const, label: "归档", disabled: busy !== null, onClick: templateActions.archiveTemplate,
     }] : []),
   ];
+  const assistantAction = detail ? {
+    label: `让 Agent 处理“${detail.title}”`,
+    onClick: () => pageAssistant.openAssistant({
+      ...assistantContext,
+      path: typeof window === "undefined" ? undefined : window.location.pathname,
+      title: detail.title,
+    }),
+  } : undefined;
+  const detailHeaderActions: BodySurfaceCommandSpec[] = detail ? lifecycleHeaderActions : [];
 
   const left = docsEditorLeftPane({
     activeSpace,
@@ -389,13 +386,14 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
         createOpen,
         createTitle,
         createSubmission,
-        detailActions,
+        detailHeaderActions,
         detail,
         detailLoading,
         documentDraft,
         fieldModelDraft,
         formulaComputation,
         canEditTemplateDraft,
+        assistantAction,
         setDocumentDraft,
         onCreateTitleChange: setCreateTitle,
         onCreateOpenChange: setCreateOpen,
