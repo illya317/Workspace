@@ -20,7 +20,11 @@ interface ModuleReadinessCase {
 }
 
 function any(...locators: Locator[]) {
-  return locators.reduce((combined, locator) => combined.or(locator)).first();
+  return visible(locators.reduce((combined, locator) => combined.or(locator)));
+}
+
+function visible(locator: Locator) {
+  return locator.filter({ visible: true }).first();
 }
 
 const readinessCases: ModuleReadinessCase[] = [
@@ -31,7 +35,7 @@ const readinessCases: ModuleReadinessCase[] = [
     pageTitle: "人事基础资料",
     apiPaths: ["/workspace/api/modules/hr/roster/employees"],
     ready: async (page) => {
-      await expect(page.getByText("员工资料", { exact: true }).first())
+      await expect(visible(page.getByText("员工资料", { exact: true })))
         .toBeVisible({ timeout: READY_BUDGET_MS });
       await expect(any(
         page.getByRole("table"),
@@ -44,7 +48,7 @@ const readinessCases: ModuleReadinessCase[] = [
     label: "Work 主入口",
     path: "/workspace/work",
     pageTitle: "工作管理",
-    ready: (page) => expect(page.getByText("工作空间", { exact: true }).first())
+    ready: (page) => expect(visible(page.getByText("工作空间", { exact: true })))
       .toBeVisible({ timeout: READY_BUDGET_MS }),
   },
   {
@@ -57,7 +61,7 @@ const readinessCases: ModuleReadinessCase[] = [
       "/workspace/api/modules/work/projects/members",
     ],
     ready: async (page) => {
-      await expect(page.getByText("项目列表", { exact: true }).first())
+      await expect(visible(page.getByText("项目列表", { exact: true })))
         .toBeVisible({ timeout: READY_BUDGET_MS });
       await expect(any(
         page.getByText("请选择左侧项目", { exact: true }),
@@ -78,7 +82,7 @@ const readinessCases: ModuleReadinessCase[] = [
     label: "Production QC",
     path: "/workspace/production/qc",
     pageTitle: "批次检验",
-    ready: (page) => expect(page.getByText(/批次队列 · \d+/).first())
+    ready: (page) => expect(visible(page.getByText(/批次队列 · \d+/)))
       .toBeVisible({ timeout: READY_BUDGET_MS }),
   },
   {
@@ -111,7 +115,7 @@ const readinessCases: ModuleReadinessCase[] = [
     path: "/workspace/external/customers",
     pageTitle: "客户管理",
     apiPaths: ["/workspace/api/modules/external/customers"],
-    ready: (page) => expect(page.getByText("客户目录", { exact: true }))
+    ready: (page) => expect(visible(page.getByText("客户目录", { exact: true })))
       .toBeVisible({ timeout: READY_BUDGET_MS }),
   },
   {
@@ -152,7 +156,7 @@ for (const readinessCase of readinessCases) {
         }
       },
       waitUntilReady: async () => {
-        await expect(page.getByText(readinessCase.pageTitle, { exact: true }).first())
+        await expect(visible(page.getByText(readinessCase.pageTitle, { exact: true })))
           .toBeVisible({ timeout: READY_BUDGET_MS });
         await readinessCase.ready(page);
         await expect(page.getByText(/加载(?:.{0,24})失败|Failed to load/i)).toHaveCount(0);

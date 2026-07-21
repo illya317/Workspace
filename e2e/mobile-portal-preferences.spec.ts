@@ -20,8 +20,8 @@ for (const width of [360, 375, 390]) {
       .locator("xpath=ancestor::section[1]");
     await expect(cardsSection.getByRole("button")).toHaveCount(12);
     await expect(shortcutSection.getByRole("button")).toHaveCount(2);
-    await expect(cardsSection.locator('[title="快捷"]')).toHaveCount(0);
-    await expect(shortcutSection.locator('[title="快捷"]')).toHaveCount(2);
+    await expect(cardsSection.getByText("快捷", { exact: true })).toHaveCount(0);
+    await expect(shortcutSection.getByText("快捷", { exact: true })).toHaveCount(2);
     for (const fixedLabel of ["桌面", "消息", "我的"]) {
       await expect(shortcutSection.getByText(fixedLabel, { exact: true })).toBeVisible();
     }

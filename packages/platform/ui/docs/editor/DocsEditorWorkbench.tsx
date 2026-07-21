@@ -418,6 +418,7 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
         onDrawerOpenChange: setDrawerOpen,
         ratio: [0.28, 0.72],
         showControls: false,
+        mobileDetailActive: Boolean(activeTemplateId),
       })}
     />
   );

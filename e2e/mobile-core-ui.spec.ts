@@ -83,16 +83,16 @@ for (const width of [360, 375, 390]) {
     await filterSheet.getByRole("button", { name: "关闭筛选条件", exact: true }).click();
 
     const selector = page.getByRole("button", { name: /当前栏目.*切换/ });
-    await expect(selector).toContainText("工作计划");
+    await expect(selector).toContainText("计划");
     await selector.click();
 
     await expect(page.getByRole("heading", { name: "工作视图", exact: true })).toBeVisible();
-    for (const name of ["工作计划", "工作汇报", "指标计分卡", "目标考核", "甘特图"]) {
+    for (const name of ["计划", "工作汇报", "指标计分卡", "目标考核", "甘特图"]) {
       await expect(page.getByRole("tab", { name, exact: true })).toBeVisible();
     }
 
     await page.getByRole("tab", { name: "周报", exact: true }).click();
-    await page.getByRole("button", { name: "07-13 周 当前 2026-07-13 - 2026-07-19", exact: true }).click();
+    await page.getByRole("button", { name: "07-13 周 2026-07-13 - 2026-07-19", exact: true }).click();
     await expect(page.getByRole("heading", { name: "周度工作汇报", exact: true })).toBeVisible();
 
     await expect(page.locator('[data-mobile-experience="landscape"]')).toHaveCount(0);

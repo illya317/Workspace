@@ -12,12 +12,13 @@ test("模板编辑器竖屏明确要求横屏，横屏按四组工具浏览纸�
   await expect(listPane).toBeVisible();
   await listPane.getByText("移动端横屏模板", { exact: true }).click();
 
-  const portraitEditor = page.locator('[data-document-editor-mobile-state="portrait"]:visible');
-  await expect(portraitEditor.getByText("请横屏编辑", { exact: true })).toBeVisible();
-  await expect(portraitEditor).toBeVisible();
+  const landscapePrompt = page.locator('[data-mobile-experience="landscape"]:visible');
+  await expect(landscapePrompt.getByRole("heading", { name: "横屏使用模板编辑器", exact: true })).toBeVisible();
+  await expect(landscapePrompt.getByRole("button", { name: "进入横屏工作台", exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "加粗", exact: true })).toHaveCount(0);
 
   await page.setViewportSize({ width: 844, height: 390 });
+  await expect(landscapePrompt).toBeHidden();
   const landscapeEditor = page.locator('[data-document-editor-mobile-state="landscape"]:visible');
   await expect(landscapeEditor).toBeVisible();
   await expect(landscapeEditor.getByRole("tab", { name: "文字", exact: true })).toHaveAttribute("aria-selected", "true");

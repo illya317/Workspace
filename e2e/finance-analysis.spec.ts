@@ -36,19 +36,19 @@ test("管理会计六个视图使用真实三表、成本与控制数据", {
     },
   });
   for (const label of ["管理总览", "资金与营运", "预算与预测", "盈利与成本", "投融资", "绩效与风险"]) {
-    await expect(page.getByText(label, { exact: true })).toBeVisible();
+    await expect(page.getByRole("tab", { name: label, exact: true })).toBeVisible();
   }
 
-  await page.getByText("资金与营运", { exact: true }).click();
+  await page.getByRole("tab", { name: "资金与营运", exact: true }).click();
   await expect(page.getByText("营运资金占用与来源", { exact: true })).toBeVisible();
   await expect(page.getByText("现金活动结构", { exact: true })).toBeVisible();
-  await page.getByText("预算与预测", { exact: true }).click();
+  await page.getByRole("tab", { name: "预算与预测", exact: true }).click();
   await expect(page.getByText("实际费用同比控制", { exact: true })).toBeVisible();
   await expect(page.getByText("13周现金运行率情景", { exact: true })).toBeVisible();
-  await page.getByText("盈利与成本", { exact: true }).click();
+  await page.getByRole("tab", { name: "盈利与成本", exact: true }).click();
   await expect(page.getByText("成本费用结构与同比", { exact: true })).toBeVisible();
   await expect(page.getByText("发货产品 Top 10", { exact: true })).toBeVisible();
-  await page.getByText("投融资", { exact: true }).click();
+  await page.getByRole("tab", { name: "投融资", exact: true }).click();
   await expect(page.getByText("投资与筹资活动", { exact: true })).toBeVisible();
   const balanceHeading = page.getByRole("heading", { name: "资本与往来余额信号" });
   const ledgerHeading = page.getByRole("heading", { name: "现金流水融资/投资渠道" });
@@ -64,7 +64,7 @@ test("管理会计六个视图使用真实三表、成本与控制数据", {
     }).length);
     expect(horizontalScrollerCount).toBe(0);
   }
-  await page.getByText("绩效与风险", { exact: true }).click();
+  await page.getByRole("tab", { name: "绩效与风险", exact: true }).click();
   await expect(page.getByText("公司级绩效指标", { exact: true })).toBeVisible();
   await expect(page.getByText("风险发现与管理动作", { exact: true })).toBeVisible();
 
