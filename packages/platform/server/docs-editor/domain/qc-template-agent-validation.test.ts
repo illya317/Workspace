@@ -28,6 +28,16 @@ test("QC template inspection returns only editable text nodes with stable paths"
   ]);
 });
 
+test("QC template inspection uses the shared pinyin-aware search semantics", () => {
+  const result = inspectQcTemplateText({
+    document: { blocks: [{ type: "heading", text: "微生物限度检查" }] },
+    fieldModel: {},
+    query: "weishengwu",
+  });
+
+  assert.equal(result.totalMatches, 1);
+});
+
 test("QC template replacement is deterministic and preserves identifiers", () => {
   const document = {
     id: "microbiology-id",

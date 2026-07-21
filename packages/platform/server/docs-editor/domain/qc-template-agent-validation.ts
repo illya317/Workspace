@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { matchText } from "@workspace/core/search";
 
 import type { QcTemplateStructurePatch } from "./qc-template-agent-structure";
 
@@ -108,11 +109,11 @@ export function inspectQcTemplateText(input: {
   query?: string;
   limit?: number;
 }) {
-  const query = input.query?.trim().toLocaleLowerCase("zh-CN") ?? "";
+  const query = input.query?.trim() ?? "";
   const nodes = [
     ...collectEditableTextNodes(input.document, "/document"),
     ...collectEditableTextNodes(input.fieldModel, "/fieldModel"),
-  ].filter((node) => !query || node.value.toLocaleLowerCase("zh-CN").includes(query));
+  ].filter((node) => !query || matchText(node.value, query));
   const limit = Math.max(1, Math.min(input.limit ?? 80, 200));
   return {
     totalMatches: nodes.length,
