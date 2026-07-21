@@ -1,8 +1,6 @@
 export const HR_AUDIT_ENTITY_TYPES = [
   "Employee",
   "Employment",
-  "Company",
-  "CompanyRelation",
   "Department",
   "Position",
   "EDP",

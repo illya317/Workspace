@@ -5,13 +5,15 @@ KIMI_CLI_VERSION="1.48.0"
 MODE="install"
 RUNTIME_ROOT="${KIMI_AGENT_RUNTIME_DIR:-${WORKSPACE_CONFIG_DIR:-$HOME/.workspace}/runtime/kimi-agent}"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+HOST_OS="$(uname -s)"
 RUNNER_SOURCE="$SCRIPT_DIR/kimi-agent-sandbox-runner.sh"
+DARWIN_PROFILE_SOURCE="$SCRIPT_DIR/kimi-agent-sandbox-darwin.sb"
 
 usage() {
   cat <<'EOF'
 Usage: ops/install-kimi-agent-runtime.sh [--check|--login] [--root DIR]
 
-  --check     Verify bubblewrap, the pinned CLI and sandbox runner.
+  --check     Verify the OS sandbox, pinned CLI and sandbox runner.
   --login     Start official Kimi setup. Choose Kimi Code OAuth or a Moonshot API key.
   --root DIR  Override the runtime root (default: WORKSPACE_CONFIG_DIR/runtime/kimi-agent).
 
@@ -42,8 +44,13 @@ esac
 
 VENV_DIR="$RUNTIME_ROOT/venv"
 RUNNER_TARGET="$RUNTIME_ROOT/bin/kimi-sandbox"
+DARWIN_PROFILE_TARGET="$RUNTIME_ROOT/bin/kimi-sandbox-darwin.sb"
 SANDBOX_BWRAP="/usr/local/lib/workspace-kimi-agent/bwrap"
 APPARMOR_PROFILE="/etc/apparmor.d/workspace-kimi-agent-bwrap"
+
+if [ "$HOST_OS" = "Darwin" ]; then
+  RUNNER_SOURCE="$SCRIPT_DIR/kimi-agent-sandbox-runner-darwin.sh"
+fi
 
 sudo_cmd() {
   if [ "$(id -u)" -eq 0 ]; then
@@ -73,10 +80,18 @@ resolve_python() {
 
 check_runtime() {
   local missing=0
-  if [ -x "$SANDBOX_BWRAP" ]; then
+  if [ "$HOST_OS" = "Linux" ] && [ -x "$SANDBOX_BWRAP" ]; then
     echo "bubblewrap=$SANDBOX_BWRAP"
-  else
+  elif [ "$HOST_OS" = "Linux" ]; then
     echo "[error] dedicated bubblewrap is missing: $SANDBOX_BWRAP"
+    missing=1
+  elif [ "$HOST_OS" = "Darwin" ] && [ -x /usr/bin/sandbox-exec ] && [ -f "$DARWIN_PROFILE_TARGET" ]; then
+    echo "sandbox_exec=/usr/bin/sandbox-exec"
+  elif [ "$HOST_OS" = "Darwin" ]; then
+    echo "[error] macOS sandbox runtime is incomplete"
+    missing=1
+  else
+    echo "[error] unsupported Kimi Agent runtime OS: $HOST_OS"
     missing=1
   fi
   if [ -x "$RUNNER_TARGET" ]; then
@@ -106,7 +121,7 @@ check_runtime() {
         *) echo "[error] sandbox did not execute the pinned Kimi CLI"; missing=1 ;;
       esac
     else
-      echo "[error] Bubblewrap sandbox smoke failed: $sandbox_version"
+      echo "[error] Kimi sandbox smoke failed: $sandbox_version"
       missing=1
     fi
   fi
@@ -200,27 +215,32 @@ if [ "$MODE" = "login" ]; then
     "$VENV_DIR/bin/kimi" login
 fi
 
-if [ "$(uname -s)" != "Linux" ]; then
-  echo "[error] the production Kimi sandbox installer currently supports Linux only"
-  exit 1
-fi
-if ! command -v apt-get >/dev/null 2>&1 || ! command -v dpkg >/dev/null 2>&1; then
-  echo "[error] the production Kimi sandbox installer currently supports Ubuntu/Debian only"
-  exit 1
-fi
-packages=(apparmor bubblewrap python3 python3-venv python3-pip)
-missing_packages=()
-for package in "${packages[@]}"; do
-  if ! dpkg -s "$package" >/dev/null 2>&1; then
-    missing_packages+=("$package")
+if [ "$HOST_OS" = "Linux" ]; then
+  if ! command -v apt-get >/dev/null 2>&1 || ! command -v dpkg >/dev/null 2>&1; then
+    echo "[error] the production Kimi sandbox installer currently supports Ubuntu/Debian only"
+    exit 1
   fi
-done
-if [ "${#missing_packages[@]}" -gt 0 ]; then
-  sudo_cmd apt-get update
-  sudo_cmd env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing_packages[@]}"
+  packages=(apparmor bubblewrap python3 python3-venv python3-pip)
+  missing_packages=()
+  for package in "${packages[@]}"; do
+    if ! dpkg -s "$package" >/dev/null 2>&1; then
+      missing_packages+=("$package")
+    fi
+  done
+  if [ "${#missing_packages[@]}" -gt 0 ]; then
+    sudo_cmd apt-get update
+    sudo_cmd env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing_packages[@]}"
+  fi
+  install_sandbox_bwrap
+elif [ "$HOST_OS" = "Darwin" ]; then
+  if [ ! -x /usr/bin/sandbox-exec ]; then
+    echo "[error] macOS sandbox-exec is unavailable"
+    exit 1
+  fi
+else
+  echo "[error] unsupported Kimi Agent runtime OS: $HOST_OS"
+  exit 1
 fi
-
-install_sandbox_bwrap
 
 PYTHON_BIN="$(resolve_python || true)"
 if [ -z "$PYTHON_BIN" ]; then
@@ -231,6 +251,9 @@ fi
 mkdir -p "$RUNTIME_ROOT/bin" "$RUNTIME_ROOT/home" "$RUNTIME_ROOT/share" "$RUNTIME_ROOT/work" "$RUNTIME_ROOT/config" "$RUNTIME_ROOT/skills"
 chmod 700 "$RUNTIME_ROOT" "$RUNTIME_ROOT/home" "$RUNTIME_ROOT/share" "$RUNTIME_ROOT/work" "$RUNTIME_ROOT/config" "$RUNTIME_ROOT/skills"
 install -m 0755 "$RUNNER_SOURCE" "$RUNNER_TARGET"
+if [ "$HOST_OS" = "Darwin" ]; then
+  install -m 0644 "$DARWIN_PROFILE_SOURCE" "$DARWIN_PROFILE_TARGET"
+fi
 
 if [ ! -x "$VENV_DIR/bin/python" ]; then
   "$PYTHON_BIN" -m venv "$VENV_DIR"

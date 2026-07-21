@@ -7,6 +7,7 @@ import type {
 import { failCommand, okCommand, type DomainValidationResult } from "@workspace/platform/server/domain-validation";
 import { recomputeConsolidatedIncome } from "./consolidation-nci-allocation";
 import { applyConsolidationTaxAdjustments } from "./consolidation-tax-adjustments";
+import { ensureLiabilityGrandTotal } from "./consolidated-output-balance-lines";
 import type { ConsolidationReplayPackage } from "./consolidation-replay";
 
 type FrozenReportLine = Omit<ConsolidatedOutputLine, "sourceAmount" | "adjustmentAmount">;
@@ -105,7 +106,7 @@ function cnyPerForeignUnit(rate: FrozenRate): DomainValidationResult<number> {
   if (rate.baseCurrency.toUpperCase() !== "CAD" || rate.quoteCurrency.toUpperCase() !== "CNY") {
     return failCommand("当前合并输出仅支持 CAD/CNY 冻结汇率", 409, "exchangeRates");
   }
-  const normalized = Number(rate.rate) / 100;
+  const normalized = Number(rate.rate);
   if (!Number.isFinite(normalized) || normalized <= 0) {
     return failCommand("批次冻结汇率不是有效正数", 409, "exchangeRates");
   }
@@ -119,7 +120,7 @@ function entityAppliedRate(
 ): DomainValidationResult<number | null> {
   const matches = replay.exchangeRates.flatMap((rate) => rate.applications
     .filter((application) => (
-      rate.rateKind === "closing"
+      (rate.rateKind === "closing" || rate.rateKind === "centralParity")
       && application.applicationType === "closing"
       && application.periodBasis === periodBasis
       && application.entitySnapshotId === entitySnapshotId
@@ -137,7 +138,7 @@ function entityHistoricalCapitalRate(
 ): DomainValidationResult<number | null> {
   const bindings = replay.exchangeRates.flatMap((rate) => rate.applications
     .filter((application) => (
-      application.applicationType === "historicalInvestment"
+      (application.applicationType === "historicalInvestment" || application.applicationType === "historicalCapital")
       && application.periodBasis === periodBasis
       && application.entitySnapshotId === entitySnapshotId
     ))
@@ -146,12 +147,12 @@ function entityHistoricalCapitalRate(
   let originalAmountTotal = 0;
   let translatedAmountTotal = 0;
   for (const binding of bindings) {
-    if (binding.rate.rateKind !== "historicalInvestment") {
+    if (binding.rate.rateKind !== "historicalInvestment" && binding.rate.rateKind !== "centralParity") {
       return failCommand(`CAD 实体 ${entitySnapshotId} 的投资日应用引用了非历史汇率`, 409, "rateApplications");
     }
-    const originalAmount = binding.application.voucher?.originalAmount;
+    const originalAmount = binding.application.voucher?.originalAmount ?? binding.application.capitalOriginalAmount;
     if (originalAmount === null || originalAmount === undefined || !Number.isFinite(originalAmount) || originalAmount <= 0) {
-      return failCommand(`CAD 实体 ${entitySnapshotId} 的投资凭证缺少有效原币金额`, 409, "rateApplications");
+      return failCommand(`CAD 实体 ${entitySnapshotId} 的权益资本历史汇率缺少有效原币金额`, 409, "rateApplications");
     }
     const normalizedRate = cnyPerForeignUnit(binding.rate);
     if (!normalizedRate.ok) return normalizedRate;
@@ -286,18 +287,22 @@ function applyCadTranslationDifference(
 ): DomainValidationResult<ConsolidatedOutputLine[]> {
   recomputeBalance(lines);
   const byCode = new Map(lines.map((line) => [line.lineCode, line]));
-  const assets = byCode.get("totalAssets")?.amount;
-  const liabilities = byCode.get("totalLiabilities")?.amount;
-  const equity = byCode.get("totalEquity")?.amount;
-  const previousAssets = byCode.get("totalAssets")?.previousAmount;
-  const previousLiabilities = byCode.get("totalLiabilities")?.previousAmount;
-  const previousEquity = byCode.get("totalEquity")?.previousAmount;
-  if (assets === undefined || liabilities === undefined || equity === undefined
-    || previousAssets === undefined || previousLiabilities === undefined || previousEquity === undefined) {
+  const balanceTotal = (lineCode: string, fallbackSections: string[]) => {
+    const line = byCode.get(lineCode);
+    if (line) return { amount: line.amount, previousAmount: line.previousAmount };
+    const sectionTotals = lines.filter((candidate) => candidate.isTotal && fallbackSections.includes(candidate.section));
+    return sectionTotals.length > 0
+      ? sumLines(sectionTotals, () => true)
+      : null;
+  };
+  const assets = balanceTotal("totalAssets", ["currentAssets", "nonCurrentAssets"]);
+  const liabilities = balanceTotal("totalLiabilities", ["currentLiabilities", "nonCurrentLiabilities"]);
+  const equity = balanceTotal("totalEquity", ["equity"]);
+  if (!assets || !liabilities || !equity) {
     return failCommand(`${policy.entityLabel} 缺少计算外币报表折算差额所需的规范合计行`, 409, "translationDifference");
   }
-  const difference = money(assets - liabilities - equity);
-  const previousDifference = money(previousAssets - previousLiabilities - previousEquity);
+  const difference = money(assets.amount - liabilities.amount - equity.amount);
+  const previousDifference = money(assets.previousAmount - liabilities.previousAmount - equity.previousAmount);
   if (difference !== 0 || previousDifference !== 0) {
     const translationLine = byCode.get(TRANSLATION_DIFFERENCE_LINE_CODE);
     if (!translationLine || translationLine.isHeader || translationLine.isTotal || translationLine.isGrandTotal) {
@@ -471,6 +476,7 @@ export function buildConsolidatedReportOutput(
         }
       }
     }
+    if (reportType === "balanceSheet") ensureLiabilityGrandTotal(orderedCodes, outputByCode);
     const lines = orderedCodes.map((lineCode) => outputByCode.get(lineCode)!);
     for (const entry of replay.approvedEntries) {
       for (const entryLine of entry.lines.filter((line) => line.statementType === reportType)) {

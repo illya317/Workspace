@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import InputSurface from "../../InputSurface";
 import type { PaperInputLayoutSpec } from "../../PaperInputSurface.types";
+import { adaptivePaperInputWidth } from "./PaperInputLayout";
 
 function todayValue() {
   const date = new Date();
@@ -29,15 +30,6 @@ function normalizeYear(value: string) {
   const digits = value.replace(/\D/g, "");
   if (digits.length <= 2) return `20${digits.padStart(2, "0")}`;
   return digits.slice(0, 4).padStart(4, "0");
-}
-
-function cssSlotWidth(value: string | undefined) {
-  const width = value?.trim();
-  return width || "3rem";
-}
-
-function dateRootStyle(part: PaperInputLayoutSpec) {
-  return { width: `min(${cssSlotWidth(part.width)}, 100%)`, maxWidth: "100%" };
 }
 
 function dateAlignClass(part: PaperInputLayoutSpec) {
@@ -127,7 +119,7 @@ export default function PaperDateInput({
   return (
     <span
       className={`inline-flex max-w-full items-center whitespace-nowrap text-inherit align-baseline ${dateAlignClass(part)} ${inTable ? "gap-0 leading-7" : "gap-0.5"}`}
-      style={dateRootStyle(part)}
+      style={adaptivePaperInputWidth(part)}
     >
       <DatePartInput label="年" maxLength={4} value={date.year} onChange={(year) => setDate((current) => ({ ...current, year }))} onBlur={() => commit(true)} readOnly={isReadOnly} widthClass="w-[4ch]" />
       <span>年</span>

@@ -20,10 +20,7 @@ import {
 } from "./consolidated-output-snapshots";
 import { buildConsolidationReplayPackage } from "./consolidation-replay";
 import { periodEndDate } from "./consolidation-snapshots";
-import {
-  loadCadInvestmentVoucherFacts,
-  parseConsolidationRateApplications,
-} from "./consolidation-rate-applications";
+import { parseConsolidationRateApplications } from "./consolidation-rate-applications";
 
 const ACTION_KEYS = {
   submit: "finance.statements.consolidationBatch.submit",
@@ -49,10 +46,6 @@ class ConsolidationLifecycleError extends Error {
 
 async function validateSubmissionFacts(batch: NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>) {
   const periodEnd = periodEndDate(batch.year, batch.month);
-  const investments = await loadCadInvestmentVoucherFacts(
-    batch.entities.map((entity) => entity.companyCode),
-    periodEnd,
-  );
   const result = validateConsolidationSubmission({
     entities: batch.entities.map((entity) => ({
       id: entity.id,
@@ -77,8 +70,8 @@ async function validateSubmissionFacts(batch: NonNullable<Awaited<ReturnType<typ
       exchangeRateId: rate.exchangeRateId,
       rateKind: rate.rateKind,
       rateDate: rate.rateDate,
-      verifiedBy: rate.verifiedBy,
-      verifiedAt: rate.verifiedAt?.toISOString() ?? null,
+      recordedBy: rate.recordedBy,
+      recordedAt: rate.recordedAt?.toISOString() ?? null,
       applications: parseConsolidationRateApplications(rate.applications),
     })),
     controlDecisions: batch.controlDecisions.map((decision) => ({
@@ -115,7 +108,7 @@ async function validateSubmissionFacts(batch: NonNullable<Awaited<ReturnType<typ
       balanceSheetLineCode: tax.balanceSheetLineCode,
       counterpartLineCode: tax.counterpartLineCode,
     }))),
-    requiredInvestmentVoucherIds: investments.map((investment) => investment.id),
+    requiredInvestmentVoucherIds: [],
     periodEnd,
   });
   return result.ok ? null : serviceError(result.issue.message, result.issue.status);
@@ -195,7 +188,14 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
       const lifecycleData = command.action === "submit"
         ? { status: transition.data.nextStatus, submittedBy: command.userId, submittedAt: now }
         : command.action === "return"
-          ? { status: transition.data.nextStatus, submittedBy: null, submittedAt: null }
+          ? {
+              status: transition.data.nextStatus,
+              submittedBy: null,
+              submittedAt: null,
+              reviewedBy: null,
+              reviewedAt: null,
+              reviewNote: null,
+            }
           : command.action === "review"
             ? { status: transition.data.nextStatus, reviewedBy: command.userId, reviewedAt: now, reviewNote: command.note }
             : command.action === "lock"
@@ -222,8 +222,15 @@ export async function executeConsolidationBatchLifecycle(command: ConsolidationB
         });
       } else if (command.action === "return") {
         await tx.financeConsolidationEntry.updateMany({
-          where: { batchId: batch.id, status: "submitted" },
-          data: { status: "draft", submittedBy: null, submittedAt: null },
+          where: { batchId: batch.id, status: { in: ["submitted", "approved"] } },
+          data: {
+            status: "draft",
+            submittedBy: null,
+            submittedAt: null,
+            approvedBy: null,
+            approvedAt: null,
+            approvalNote: null,
+          },
         });
       } else if (command.action === "review") {
         await tx.financeConsolidationEntry.updateMany({

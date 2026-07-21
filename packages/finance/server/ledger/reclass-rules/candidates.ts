@@ -2,16 +2,17 @@
  * Group-wide reclassification rule inventory.
  *
  * Source accounts are the union of active accounts across all group companies
- * and years. Voucher movements are intentionally not scanned: they cannot
- * establish a counterparty closing balance.
+ * and years. Only accounts that have ever ended a period on their abnormal
+ * balance side remain actionable without a manual rule.
  */
-import { prisma } from "@workspace/platform/server/prisma";
+import { Prisma, prisma } from "@workspace/platform/server/prisma";
 
 import type { RuleCandidate, ScanCandidatesResult } from "./types";
+import { deriveRuleCandidateDecision } from "./candidate-state";
 import { oppositeBalanceSide, resolveLongestPrefixRule } from "./resolution";
 
 export async function scanCandidates(): Promise<ScanCandidatesResult> {
-  const [accounts, rules] = await Promise.all([
+  const [accounts, rules, historicalAbnormalRows] = await Promise.all([
     prisma.financeAccount.findMany({
       where: { isActive: true },
       select: { code: true, name: true, balanceDirection: true, companyCode: true, year: true },
@@ -22,7 +23,20 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
       where: { enabled: true, source: "manual", confirmedBy: { not: null }, confirmedAt: { not: null } },
       select: { id: true, sourceAccountCode: true, abnormalSide: true, decision: true, targetAccountCode: true, source: true, enabled: true },
     }),
+    prisma.$queryRaw<Array<{ code: string }>>(Prisma.sql`
+      SELECT DISTINCT account."code"
+      FROM "FinanceAccountBalance" AS balance
+      INNER JOIN "FinanceAccount" AS account ON account."id" = balance."accountId"
+      WHERE (
+        account."balanceDirection" = 'credit'
+        AND ROUND(CAST(balance."closingDebit" - balance."closingCredit" AS numeric), 2) > 0
+      ) OR (
+        account."balanceDirection" <> 'credit'
+        AND ROUND(CAST(balance."closingDebit" - balance."closingCredit" AS numeric), 2) < 0
+      )
+    `),
   ]);
+  const historicalAbnormalCodes = new Set(historicalAbnormalRows.map((row) => row.code));
   const accountUnion = new Map<string, { code: string; name: string; balanceDirection: string }>();
   for (const account of accounts) {
     if (!accountUnion.has(account.code)) accountUnion.set(account.code, account);
@@ -32,6 +46,8 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
   for (const account of accountUnion.values()) {
     const candidateSide = oppositeBalanceSide(account.balanceDirection);
     const rule = resolveLongestPrefixRule(account.code, candidateSide, rules);
+    const hasHistoricalAbnormalBalance = historicalAbnormalCodes.has(account.code);
+    const existingDecision = rule?.decision as RuleCandidate["existingDecision"] ?? null;
     if (rule) representedRuleIds.add(rule.id);
     candidates.push({
       accountCode: account.code,
@@ -39,9 +55,11 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
       balanceDirection: account.balanceDirection,
       abnormalSide: (rule?.sourceAccountCode === account.code ? rule.abnormalSide : candidateSide) as RuleCandidate["abnormalSide"],
       abnormalAmount: 0,
+      hasHistoricalAbnormalBalance,
+      effectiveDecision: deriveRuleCandidateDecision(existingDecision, hasHistoricalAbnormalBalance),
       existingRuleId: rule?.id ?? null,
       existingTarget: rule?.targetAccountCode ?? null,
-      existingDecision: rule?.decision as RuleCandidate["existingDecision"] ?? null,
+      existingDecision,
       existingSource: rule?.source ?? null,
       existingRuleSourceAccountCode: rule?.sourceAccountCode ?? null,
       existingEnabled: rule?.enabled ?? null,
@@ -56,6 +74,8 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
       balanceDirection: account?.balanceDirection ?? (rule.abnormalSide === "debit" ? "credit" : "debit"),
       abnormalSide: rule.abnormalSide as RuleCandidate["abnormalSide"],
       abnormalAmount: 0,
+      hasHistoricalAbnormalBalance: historicalAbnormalCodes.has(rule.sourceAccountCode),
+      effectiveDecision: rule.decision as RuleCandidate["effectiveDecision"],
       existingRuleId: rule.id,
       existingTarget: rule.targetAccountCode,
       existingDecision: rule.decision as RuleCandidate["existingDecision"],
@@ -70,9 +90,10 @@ export async function scanCandidates(): Promise<ScanCandidatesResult> {
     candidates,
     stats: {
       totalGroupAccounts: accountUnion.size,
-      reclassified: candidates.filter((candidate) => candidate.existingDecision === "reclassify").length,
-      noReclass: candidates.filter((candidate) => candidate.existingDecision === "no_reclass").length,
-      unconfirmed: candidates.filter((candidate) => candidate.existingDecision === null).length,
+      historicallyAbnormal: [...accountUnion.keys()].filter((code) => historicalAbnormalCodes.has(code)).length,
+      reclassified: candidates.filter((candidate) => candidate.effectiveDecision === "reclassify").length,
+      noReclass: candidates.filter((candidate) => candidate.effectiveDecision === "no_reclass").length,
+      unconfirmed: candidates.filter((candidate) => candidate.effectiveDecision === null).length,
     },
   };
 }

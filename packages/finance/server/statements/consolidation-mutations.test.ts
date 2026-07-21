@@ -6,7 +6,20 @@ import {
   appendConsolidationBatchEvent,
   claimConsolidationBatchRevision,
   immutableAuditSnapshot,
+  resolveConsolidationActorName,
 } from "./consolidation-mutations";
+
+test("uses the employee signature when the root administrator is also employee-bound", () => {
+  assert.equal(resolveConsolidationActorName("张三", true), "张三");
+});
+
+test("allows the root administrator to use the fixed system audit signature", () => {
+  assert.equal(resolveConsolidationActorName(null, true), "系统管理员");
+});
+
+test("keeps employee identity mandatory for ordinary users", () => {
+  assert.equal(resolveConsolidationActorName(null, false), null);
+});
 
 test("claims a batch with id, status, and client revision before incrementing once", async () => {
   let mutation: unknown;

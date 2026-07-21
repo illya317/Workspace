@@ -158,6 +158,21 @@ test("global Agent ceiling can enforce a scoped write action without a static ro
   assert.deepEqual(allowed.tools.map((item) => item.key), [candidate.key]);
 });
 
+test("Work create stays unavailable unless the global Agent ceiling explicitly allows create", async () => {
+  const candidate = tool("work.createWorkItem", "read", true, false, ["create"]);
+  const denied = await resolveAgentToolAccess(requester, [candidate], {
+    agentAllowedActions: ["entry", "read", "update"],
+    permissionEvaluator: async () => true,
+  });
+  const allowed = await resolveAgentToolAccess(requester, [candidate], {
+    agentAllowedActions: ["entry", "read", "create"],
+    permissionEvaluator: async () => true,
+  });
+
+  assert.deepEqual(denied.tools, []);
+  assert.deepEqual(allowed.tools.map((item) => item.key), [candidate.key]);
+});
+
 test("live profile refresh revokes a tool removed after the conversation started", async () => {
   const candidate = tool("source.searchWorkspaceCode");
   const result = await resolveAgentToolAccess(

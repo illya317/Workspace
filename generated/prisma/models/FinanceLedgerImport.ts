@@ -29,6 +29,8 @@ export type AggregateFinanceLedgerImport = {
 export type FinanceLedgerImportAvgAggregateOutputType = {
   id: number | null
   year: number | null
+  sourcePackageId: number | null
+  sourceLedgerMappingId: number | null
   rowCount: number | null
   createdCount: number | null
   updatedCount: number | null
@@ -42,6 +44,8 @@ export type FinanceLedgerImportAvgAggregateOutputType = {
 export type FinanceLedgerImportSumAggregateOutputType = {
   id: number | null
   year: number | null
+  sourcePackageId: number | null
+  sourceLedgerMappingId: number | null
   rowCount: number | null
   createdCount: number | null
   updatedCount: number | null
@@ -66,6 +70,8 @@ export type FinanceLedgerImportMinAggregateOutputType = {
   snapshotDate: string | null
   cutoffDate: string | null
   checksum: string | null
+  sourcePackageId: number | null
+  sourceLedgerMappingId: number | null
   status: string | null
   rowCount: number | null
   createdCount: number | null
@@ -95,6 +101,8 @@ export type FinanceLedgerImportMaxAggregateOutputType = {
   snapshotDate: string | null
   cutoffDate: string | null
   checksum: string | null
+  sourcePackageId: number | null
+  sourceLedgerMappingId: number | null
   status: string | null
   rowCount: number | null
   createdCount: number | null
@@ -124,6 +132,8 @@ export type FinanceLedgerImportCountAggregateOutputType = {
   snapshotDate: number
   cutoffDate: number
   checksum: number
+  sourcePackageId: number
+  sourceLedgerMappingId: number
   controlJson: number
   status: number
   rowCount: number
@@ -145,6 +155,8 @@ export type FinanceLedgerImportCountAggregateOutputType = {
 export type FinanceLedgerImportAvgAggregateInputType = {
   id?: true
   year?: true
+  sourcePackageId?: true
+  sourceLedgerMappingId?: true
   rowCount?: true
   createdCount?: true
   updatedCount?: true
@@ -158,6 +170,8 @@ export type FinanceLedgerImportAvgAggregateInputType = {
 export type FinanceLedgerImportSumAggregateInputType = {
   id?: true
   year?: true
+  sourcePackageId?: true
+  sourceLedgerMappingId?: true
   rowCount?: true
   createdCount?: true
   updatedCount?: true
@@ -182,6 +196,8 @@ export type FinanceLedgerImportMinAggregateInputType = {
   snapshotDate?: true
   cutoffDate?: true
   checksum?: true
+  sourcePackageId?: true
+  sourceLedgerMappingId?: true
   status?: true
   rowCount?: true
   createdCount?: true
@@ -211,6 +227,8 @@ export type FinanceLedgerImportMaxAggregateInputType = {
   snapshotDate?: true
   cutoffDate?: true
   checksum?: true
+  sourcePackageId?: true
+  sourceLedgerMappingId?: true
   status?: true
   rowCount?: true
   createdCount?: true
@@ -240,6 +258,8 @@ export type FinanceLedgerImportCountAggregateInputType = {
   snapshotDate?: true
   cutoffDate?: true
   checksum?: true
+  sourcePackageId?: true
+  sourceLedgerMappingId?: true
   controlJson?: true
   status?: true
   rowCount?: true
@@ -357,6 +377,8 @@ export type FinanceLedgerImportGroupByOutputType = {
   snapshotDate: string | null
   cutoffDate: string | null
   checksum: string | null
+  sourcePackageId: number | null
+  sourceLedgerMappingId: number | null
   controlJson: runtime.JsonValue | null
   status: string
   rowCount: number
@@ -410,6 +432,8 @@ export type FinanceLedgerImportWhereInput = {
   snapshotDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   cutoffDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   checksum?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
+  sourcePackageId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
+  sourceLedgerMappingId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
   controlJson?: Prisma.JsonNullableFilter<"FinanceLedgerImport">
   status?: Prisma.StringFilter<"FinanceLedgerImport"> | string
   rowCount?: Prisma.IntFilter<"FinanceLedgerImport"> | number
@@ -425,6 +449,9 @@ export type FinanceLedgerImportWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinanceLedgerImport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceLedgerImport"> | Date | string
   importer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sourcePackage?: Prisma.XOR<Prisma.FinanceReadableSourcePackageNullableScalarRelationFilter, Prisma.FinanceReadableSourcePackageWhereInput> | null
+  sourceLedgerMapping?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingNullableScalarRelationFilter, Prisma.FinanceSourceLedgerMappingWhereInput> | null
+  runs?: Prisma.FinanceReadableImportRunListRelationFilter
   vouchers?: Prisma.FinanceVoucherListRelationFilter
   items?: Prisma.FinanceVoucherItemListRelationFilter
   sourceBalances?: Prisma.FinanceSourceAccountBalanceListRelationFilter
@@ -435,6 +462,10 @@ export type FinanceLedgerImportWhereInput = {
   openItems?: Prisma.FinanceOpenItemListRelationFilter
   currencies?: Prisma.FinanceCurrencyListRelationFilter
   bankAccounts?: Prisma.FinanceBankAccountListRelationFilter
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementListRelationFilter
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusListRelationFilter
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusListRelationFilter
+  accountLineages?: Prisma.FinanceAccountLineageListRelationFilter
 }
 
 export type FinanceLedgerImportOrderByWithRelationInput = {
@@ -451,6 +482,8 @@ export type FinanceLedgerImportOrderByWithRelationInput = {
   snapshotDate?: Prisma.SortOrderInput | Prisma.SortOrder
   cutoffDate?: Prisma.SortOrderInput | Prisma.SortOrder
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrderInput | Prisma.SortOrder
   controlJson?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
@@ -466,6 +499,9 @@ export type FinanceLedgerImportOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   importer?: Prisma.UserOrderByWithRelationInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageOrderByWithRelationInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingOrderByWithRelationInput
+  runs?: Prisma.FinanceReadableImportRunOrderByRelationAggregateInput
   vouchers?: Prisma.FinanceVoucherOrderByRelationAggregateInput
   items?: Prisma.FinanceVoucherItemOrderByRelationAggregateInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceOrderByRelationAggregateInput
@@ -476,6 +512,10 @@ export type FinanceLedgerImportOrderByWithRelationInput = {
   openItems?: Prisma.FinanceOpenItemOrderByRelationAggregateInput
   currencies?: Prisma.FinanceCurrencyOrderByRelationAggregateInput
   bankAccounts?: Prisma.FinanceBankAccountOrderByRelationAggregateInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementOrderByRelationAggregateInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusOrderByRelationAggregateInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusOrderByRelationAggregateInput
+  accountLineages?: Prisma.FinanceAccountLineageOrderByRelationAggregateInput
 }
 
 export type FinanceLedgerImportWhereUniqueInput = Prisma.AtLeast<{
@@ -495,6 +535,8 @@ export type FinanceLedgerImportWhereUniqueInput = Prisma.AtLeast<{
   snapshotDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   cutoffDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   checksum?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
+  sourcePackageId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
+  sourceLedgerMappingId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
   controlJson?: Prisma.JsonNullableFilter<"FinanceLedgerImport">
   status?: Prisma.StringFilter<"FinanceLedgerImport"> | string
   rowCount?: Prisma.IntFilter<"FinanceLedgerImport"> | number
@@ -510,6 +552,9 @@ export type FinanceLedgerImportWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinanceLedgerImport"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceLedgerImport"> | Date | string
   importer?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  sourcePackage?: Prisma.XOR<Prisma.FinanceReadableSourcePackageNullableScalarRelationFilter, Prisma.FinanceReadableSourcePackageWhereInput> | null
+  sourceLedgerMapping?: Prisma.XOR<Prisma.FinanceSourceLedgerMappingNullableScalarRelationFilter, Prisma.FinanceSourceLedgerMappingWhereInput> | null
+  runs?: Prisma.FinanceReadableImportRunListRelationFilter
   vouchers?: Prisma.FinanceVoucherListRelationFilter
   items?: Prisma.FinanceVoucherItemListRelationFilter
   sourceBalances?: Prisma.FinanceSourceAccountBalanceListRelationFilter
@@ -520,6 +565,10 @@ export type FinanceLedgerImportWhereUniqueInput = Prisma.AtLeast<{
   openItems?: Prisma.FinanceOpenItemListRelationFilter
   currencies?: Prisma.FinanceCurrencyListRelationFilter
   bankAccounts?: Prisma.FinanceBankAccountListRelationFilter
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementListRelationFilter
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusListRelationFilter
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusListRelationFilter
+  accountLineages?: Prisma.FinanceAccountLineageListRelationFilter
 }, "id" | "batchKey">
 
 export type FinanceLedgerImportOrderByWithAggregationInput = {
@@ -536,6 +585,8 @@ export type FinanceLedgerImportOrderByWithAggregationInput = {
   snapshotDate?: Prisma.SortOrderInput | Prisma.SortOrder
   cutoffDate?: Prisma.SortOrderInput | Prisma.SortOrder
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrderInput | Prisma.SortOrder
   controlJson?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
@@ -574,6 +625,8 @@ export type FinanceLedgerImportScalarWhereWithAggregatesInput = {
   snapshotDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceLedgerImport"> | string | null
   cutoffDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceLedgerImport"> | string | null
   checksum?: Prisma.StringNullableWithAggregatesFilter<"FinanceLedgerImport"> | string | null
+  sourcePackageId?: Prisma.IntNullableWithAggregatesFilter<"FinanceLedgerImport"> | number | null
+  sourceLedgerMappingId?: Prisma.IntNullableWithAggregatesFilter<"FinanceLedgerImport"> | number | null
   controlJson?: Prisma.JsonNullableWithAggregatesFilter<"FinanceLedgerImport">
   status?: Prisma.StringWithAggregatesFilter<"FinanceLedgerImport"> | string
   rowCount?: Prisma.IntWithAggregatesFilter<"FinanceLedgerImport"> | number
@@ -617,6 +670,9 @@ export type FinanceLedgerImportCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -627,6 +683,10 @@ export type FinanceLedgerImportCreateInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateInput = {
@@ -643,6 +703,8 @@ export type FinanceLedgerImportUncheckedCreateInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -657,6 +719,7 @@ export type FinanceLedgerImportUncheckedCreateInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -667,6 +730,10 @@ export type FinanceLedgerImportUncheckedCreateInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUpdateInput = {
@@ -696,6 +763,9 @@ export type FinanceLedgerImportUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -706,6 +776,10 @@ export type FinanceLedgerImportUpdateInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateInput = {
@@ -722,6 +796,8 @@ export type FinanceLedgerImportUncheckedUpdateInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -736,6 +812,7 @@ export type FinanceLedgerImportUncheckedUpdateInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -746,6 +823,10 @@ export type FinanceLedgerImportUncheckedUpdateInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateManyInput = {
@@ -762,6 +843,8 @@ export type FinanceLedgerImportCreateManyInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -820,6 +903,8 @@ export type FinanceLedgerImportUncheckedUpdateManyInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -870,6 +955,8 @@ export type FinanceLedgerImportCountOrderByAggregateInput = {
   snapshotDate?: Prisma.SortOrder
   cutoffDate?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrder
   controlJson?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
@@ -889,6 +976,8 @@ export type FinanceLedgerImportCountOrderByAggregateInput = {
 export type FinanceLedgerImportAvgOrderByAggregateInput = {
   id?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   createdCount?: Prisma.SortOrder
   updatedCount?: Prisma.SortOrder
@@ -913,6 +1002,8 @@ export type FinanceLedgerImportMaxOrderByAggregateInput = {
   snapshotDate?: Prisma.SortOrder
   cutoffDate?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   createdCount?: Prisma.SortOrder
@@ -942,6 +1033,8 @@ export type FinanceLedgerImportMinOrderByAggregateInput = {
   snapshotDate?: Prisma.SortOrder
   cutoffDate?: Prisma.SortOrder
   checksum?: Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrder
   status?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   createdCount?: Prisma.SortOrder
@@ -960,6 +1053,8 @@ export type FinanceLedgerImportMinOrderByAggregateInput = {
 export type FinanceLedgerImportSumOrderByAggregateInput = {
   id?: Prisma.SortOrder
   year?: Prisma.SortOrder
+  sourcePackageId?: Prisma.SortOrder
+  sourceLedgerMappingId?: Prisma.SortOrder
   rowCount?: Prisma.SortOrder
   createdCount?: Prisma.SortOrder
   updatedCount?: Prisma.SortOrder
@@ -1086,6 +1181,160 @@ export type FinanceLedgerImportUpdateOneRequiredWithoutOpenItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutOpenItemsInput, Prisma.FinanceLedgerImportUpdateWithoutOpenItemsInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutOpenItemsInput>
 }
 
+export type FinanceLedgerImportCreateNestedManyWithoutSourcePackageInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput> | Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourcePackageInputEnvelope
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+}
+
+export type FinanceLedgerImportUncheckedCreateNestedManyWithoutSourcePackageInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput> | Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourcePackageInputEnvelope
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+}
+
+export type FinanceLedgerImportUpdateManyWithoutSourcePackageNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput> | Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput[]
+  upsert?: Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourcePackageInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourcePackageInputEnvelope
+  set?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  delete?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  update?: Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourcePackageInput[]
+  updateMany?: Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourcePackageInput[]
+  deleteMany?: Prisma.FinanceLedgerImportScalarWhereInput | Prisma.FinanceLedgerImportScalarWhereInput[]
+}
+
+export type FinanceLedgerImportUncheckedUpdateManyWithoutSourcePackageNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput> | Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput[]
+  upsert?: Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourcePackageInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourcePackageInputEnvelope
+  set?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  delete?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  update?: Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourcePackageInput[]
+  updateMany?: Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourcePackageInput | Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourcePackageInput[]
+  deleteMany?: Prisma.FinanceLedgerImportScalarWhereInput | Prisma.FinanceLedgerImportScalarWhereInput[]
+}
+
+export type FinanceLedgerImportCreateNestedOneWithoutRunsInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutRunsInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutRunsInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+}
+
+export type FinanceLedgerImportUpdateOneRequiredWithoutRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutRunsInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutRunsInput
+  upsert?: Prisma.FinanceLedgerImportUpsertWithoutRunsInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutRunsInput, Prisma.FinanceLedgerImportUpdateWithoutRunsInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutRunsInput>
+}
+
+export type FinanceLedgerImportCreateNestedManyWithoutSourceLedgerMappingInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput> | Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInputEnvelope
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+}
+
+export type FinanceLedgerImportUncheckedCreateNestedManyWithoutSourceLedgerMappingInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput> | Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInputEnvelope
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+}
+
+export type FinanceLedgerImportUpdateManyWithoutSourceLedgerMappingNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput> | Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput[]
+  upsert?: Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourceLedgerMappingInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInputEnvelope
+  set?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  delete?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  update?: Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourceLedgerMappingInput[]
+  updateMany?: Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourceLedgerMappingInput[]
+  deleteMany?: Prisma.FinanceLedgerImportScalarWhereInput | Prisma.FinanceLedgerImportScalarWhereInput[]
+}
+
+export type FinanceLedgerImportUncheckedUpdateManyWithoutSourceLedgerMappingNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput> | Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput[] | Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput[]
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput[]
+  upsert?: Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpsertWithWhereUniqueWithoutSourceLedgerMappingInput[]
+  createMany?: Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInputEnvelope
+  set?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  disconnect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  delete?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput | Prisma.FinanceLedgerImportWhereUniqueInput[]
+  update?: Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpdateWithWhereUniqueWithoutSourceLedgerMappingInput[]
+  updateMany?: Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourceLedgerMappingInput | Prisma.FinanceLedgerImportUpdateManyWithWhereWithoutSourceLedgerMappingInput[]
+  deleteMany?: Prisma.FinanceLedgerImportScalarWhereInput | Prisma.FinanceLedgerImportScalarWhereInput[]
+}
+
+export type FinanceLedgerImportCreateNestedOneWithoutAccountRequirementsInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountRequirementsInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutAccountRequirementsInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+}
+
+export type FinanceLedgerImportUpdateOneRequiredWithoutAccountRequirementsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountRequirementsInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutAccountRequirementsInput
+  upsert?: Prisma.FinanceLedgerImportUpsertWithoutAccountRequirementsInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUpdateWithoutAccountRequirementsInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountRequirementsInput>
+}
+
+export type FinanceLedgerImportCreateNestedOneWithoutPeriodStatusesInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutPeriodStatusesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutPeriodStatusesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+}
+
+export type FinanceLedgerImportUpdateOneRequiredWithoutPeriodStatusesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutPeriodStatusesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutPeriodStatusesInput
+  upsert?: Prisma.FinanceLedgerImportUpsertWithoutPeriodStatusesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUpdateWithoutPeriodStatusesInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutPeriodStatusesInput>
+}
+
+export type FinanceLedgerImportCreateNestedOneWithoutSubsystemStatusesInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSubsystemStatusesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSubsystemStatusesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+}
+
+export type FinanceLedgerImportUpdateOneRequiredWithoutSubsystemStatusesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSubsystemStatusesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSubsystemStatusesInput
+  upsert?: Prisma.FinanceLedgerImportUpsertWithoutSubsystemStatusesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUpdateWithoutSubsystemStatusesInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSubsystemStatusesInput>
+}
+
+export type FinanceLedgerImportCreateNestedOneWithoutAccountLineagesInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountLineagesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutAccountLineagesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+}
+
+export type FinanceLedgerImportUpdateOneRequiredWithoutAccountLineagesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountLineagesInput>
+  connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutAccountLineagesInput
+  upsert?: Prisma.FinanceLedgerImportUpsertWithoutAccountLineagesInput
+  connect?: Prisma.FinanceLedgerImportWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceLedgerImportUpdateToOneWithWhereWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUpdateWithoutAccountLineagesInput>, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountLineagesInput>
+}
+
 export type FinanceLedgerImportCreateNestedOneWithoutSourceBalancesInput = {
   create?: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceBalancesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceBalancesInput>
   connectOrCreate?: Prisma.FinanceLedgerImportCreateOrConnectWithoutSourceBalancesInput
@@ -1190,6 +1439,9 @@ export type FinanceLedgerImportCreateWithoutImporterInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -1200,6 +1452,10 @@ export type FinanceLedgerImportCreateWithoutImporterInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutImporterInput = {
@@ -1216,6 +1472,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutImporterInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -1229,6 +1487,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutImporterInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -1239,6 +1498,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutImporterInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutImporterInput = {
@@ -1284,6 +1547,8 @@ export type FinanceLedgerImportScalarWhereInput = {
   snapshotDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   cutoffDate?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
   checksum?: Prisma.StringNullableFilter<"FinanceLedgerImport"> | string | null
+  sourcePackageId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
+  sourceLedgerMappingId?: Prisma.IntNullableFilter<"FinanceLedgerImport"> | number | null
   controlJson?: Prisma.JsonNullableFilter<"FinanceLedgerImport">
   status?: Prisma.StringFilter<"FinanceLedgerImport"> | string
   rowCount?: Prisma.IntFilter<"FinanceLedgerImport"> | number
@@ -1327,6 +1592,9 @@ export type FinanceLedgerImportCreateWithoutCashFlowItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -1336,6 +1604,10 @@ export type FinanceLedgerImportCreateWithoutCashFlowItemsInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutCashFlowItemsInput = {
@@ -1352,6 +1624,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowItemsInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -1366,6 +1640,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowItemsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -1375,6 +1650,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowItemsInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutCashFlowItemsInput = {
@@ -1420,6 +1699,9 @@ export type FinanceLedgerImportUpdateWithoutCashFlowItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -1429,6 +1711,10 @@ export type FinanceLedgerImportUpdateWithoutCashFlowItemsInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowItemsInput = {
@@ -1445,6 +1731,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowItemsInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1459,6 +1747,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowItemsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -1468,6 +1757,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowItemsInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutCashFlowAllocationsInput = {
@@ -1497,6 +1790,9 @@ export type FinanceLedgerImportCreateWithoutCashFlowAllocationsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -1506,6 +1802,10 @@ export type FinanceLedgerImportCreateWithoutCashFlowAllocationsInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutCashFlowAllocationsInput = {
@@ -1522,6 +1822,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowAllocationsInput = 
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -1536,6 +1838,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowAllocationsInput = 
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -1545,6 +1848,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutCashFlowAllocationsInput = 
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutCashFlowAllocationsInput = {
@@ -1590,6 +1897,9 @@ export type FinanceLedgerImportUpdateWithoutCashFlowAllocationsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -1599,6 +1909,10 @@ export type FinanceLedgerImportUpdateWithoutCashFlowAllocationsInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowAllocationsInput = {
@@ -1615,6 +1929,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowAllocationsInput = 
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1629,6 +1945,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowAllocationsInput = 
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -1638,6 +1955,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCashFlowAllocationsInput = 
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutAuxiliaryMembersInput = {
@@ -1667,6 +1988,9 @@ export type FinanceLedgerImportCreateWithoutAuxiliaryMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -1676,6 +2000,10 @@ export type FinanceLedgerImportCreateWithoutAuxiliaryMembersInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryMembersInput = {
@@ -1692,6 +2020,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryMembersInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -1706,6 +2036,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryMembersInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -1715,6 +2046,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryMembersInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutAuxiliaryMembersInput = {
@@ -1760,6 +2095,9 @@ export type FinanceLedgerImportUpdateWithoutAuxiliaryMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -1769,6 +2107,10 @@ export type FinanceLedgerImportUpdateWithoutAuxiliaryMembersInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryMembersInput = {
@@ -1785,6 +2127,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryMembersInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1799,6 +2143,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryMembersInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -1808,6 +2153,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryMembersInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutAuxiliaryBalancesInput = {
@@ -1837,6 +2186,9 @@ export type FinanceLedgerImportCreateWithoutAuxiliaryBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -1846,6 +2198,10 @@ export type FinanceLedgerImportCreateWithoutAuxiliaryBalancesInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryBalancesInput = {
@@ -1862,6 +2218,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryBalancesInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -1876,6 +2234,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryBalancesInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -1885,6 +2244,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutAuxiliaryBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutAuxiliaryBalancesInput = {
@@ -1930,6 +2293,9 @@ export type FinanceLedgerImportUpdateWithoutAuxiliaryBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -1939,6 +2305,10 @@ export type FinanceLedgerImportUpdateWithoutAuxiliaryBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryBalancesInput = {
@@ -1955,6 +2325,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1969,6 +2341,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -1978,6 +2351,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutAuxiliaryBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutOpenItemsInput = {
@@ -2007,6 +2384,9 @@ export type FinanceLedgerImportCreateWithoutOpenItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -2016,6 +2396,10 @@ export type FinanceLedgerImportCreateWithoutOpenItemsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutOpenItemsInput = {
@@ -2032,6 +2416,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutOpenItemsInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2046,6 +2432,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutOpenItemsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -2055,6 +2442,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutOpenItemsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutOpenItemsInput = {
@@ -2100,6 +2491,9 @@ export type FinanceLedgerImportUpdateWithoutOpenItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -2109,10 +2503,283 @@ export type FinanceLedgerImportUpdateWithoutOpenItemsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutOpenItemsInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportCreateWithoutSourcePackageInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutSourcePackageInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput>
+}
+
+export type FinanceLedgerImportCreateManySourcePackageInputEnvelope = {
+  data: Prisma.FinanceLedgerImportCreateManySourcePackageInput | Prisma.FinanceLedgerImportCreateManySourcePackageInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceLedgerImportUpsertWithWhereUniqueWithoutSourcePackageInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSourcePackageInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourcePackageInput>
+}
+
+export type FinanceLedgerImportUpdateWithWhereUniqueWithoutSourcePackageInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSourcePackageInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSourcePackageInput>
+}
+
+export type FinanceLedgerImportUpdateManyWithWhereWithoutSourcePackageInput = {
+  where: Prisma.FinanceLedgerImportScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateManyMutationInput, Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutSourcePackageInput>
+}
+
+export type FinanceLedgerImportCreateWithoutRunsInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutRunsInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutRunsInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutRunsInput>
+}
+
+export type FinanceLedgerImportUpsertWithoutRunsInput = {
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutRunsInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutRunsInput>
+  where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+export type FinanceLedgerImportUpdateToOneWithWhereWithoutRunsInput = {
+  where?: Prisma.FinanceLedgerImportWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutRunsInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutRunsInput>
+}
+
+export type FinanceLedgerImportUpdateWithoutRunsInput = {
   batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -2135,6 +2802,54 @@ export type FinanceLedgerImportUncheckedUpdateWithoutOpenItemsInput = {
   conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
   blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
   warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutRunsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -2146,8 +2861,922 @@ export type FinanceLedgerImportUncheckedUpdateWithoutOpenItemsInput = {
   auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
   cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportCreateWithoutSourceLedgerMappingInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutSourceLedgerMappingInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput>
+}
+
+export type FinanceLedgerImportCreateManySourceLedgerMappingInputEnvelope = {
+  data: Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInput | Prisma.FinanceLedgerImportCreateManySourceLedgerMappingInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceLedgerImportUpsertWithWhereUniqueWithoutSourceLedgerMappingInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSourceLedgerMappingInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSourceLedgerMappingInput>
+}
+
+export type FinanceLedgerImportUpdateWithWhereUniqueWithoutSourceLedgerMappingInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSourceLedgerMappingInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSourceLedgerMappingInput>
+}
+
+export type FinanceLedgerImportUpdateManyWithWhereWithoutSourceLedgerMappingInput = {
+  where: Prisma.FinanceLedgerImportScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateManyMutationInput, Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutSourceLedgerMappingInput>
+}
+
+export type FinanceLedgerImportCreateWithoutAccountRequirementsInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutAccountRequirementsInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutAccountRequirementsInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountRequirementsInput>
+}
+
+export type FinanceLedgerImportUpsertWithoutAccountRequirementsInput = {
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountRequirementsInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountRequirementsInput>
+  where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+export type FinanceLedgerImportUpdateToOneWithWhereWithoutAccountRequirementsInput = {
+  where?: Prisma.FinanceLedgerImportWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutAccountRequirementsInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountRequirementsInput>
+}
+
+export type FinanceLedgerImportUpdateWithoutAccountRequirementsInput = {
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutAccountRequirementsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportCreateWithoutPeriodStatusesInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutPeriodStatusesInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutPeriodStatusesInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutPeriodStatusesInput>
+}
+
+export type FinanceLedgerImportUpsertWithoutPeriodStatusesInput = {
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutPeriodStatusesInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutPeriodStatusesInput>
+  where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+export type FinanceLedgerImportUpdateToOneWithWhereWithoutPeriodStatusesInput = {
+  where?: Prisma.FinanceLedgerImportWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutPeriodStatusesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutPeriodStatusesInput>
+}
+
+export type FinanceLedgerImportUpdateWithoutPeriodStatusesInput = {
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutPeriodStatusesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportCreateWithoutSubsystemStatusesInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutSubsystemStatusesInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutSubsystemStatusesInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSubsystemStatusesInput>
+}
+
+export type FinanceLedgerImportUpsertWithoutSubsystemStatusesInput = {
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSubsystemStatusesInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutSubsystemStatusesInput>
+  where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+export type FinanceLedgerImportUpdateToOneWithWhereWithoutSubsystemStatusesInput = {
+  where?: Prisma.FinanceLedgerImportWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutSubsystemStatusesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutSubsystemStatusesInput>
+}
+
+export type FinanceLedgerImportUpdateWithoutSubsystemStatusesInput = {
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutSubsystemStatusesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportCreateWithoutAccountLineagesInput = {
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportUncheckedCreateWithoutAccountLineagesInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
+  vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
+  items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedCreateNestedManyWithoutImportInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedCreateNestedManyWithoutLatestImportInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
+  currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+}
+
+export type FinanceLedgerImportCreateOrConnectWithoutAccountLineagesInput = {
+  where: Prisma.FinanceLedgerImportWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountLineagesInput>
+}
+
+export type FinanceLedgerImportUpsertWithoutAccountLineagesInput = {
+  update: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountLineagesInput>
+  create: Prisma.XOR<Prisma.FinanceLedgerImportCreateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedCreateWithoutAccountLineagesInput>
+  where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+export type FinanceLedgerImportUpdateToOneWithWhereWithoutAccountLineagesInput = {
+  where?: Prisma.FinanceLedgerImportWhereInput
+  data: Prisma.XOR<Prisma.FinanceLedgerImportUpdateWithoutAccountLineagesInput, Prisma.FinanceLedgerImportUncheckedUpdateWithoutAccountLineagesInput>
+}
+
+export type FinanceLedgerImportUpdateWithoutAccountLineagesInput = {
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutAccountLineagesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutSourceBalancesInput = {
@@ -2177,6 +3806,9 @@ export type FinanceLedgerImportCreateWithoutSourceBalancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
@@ -2186,6 +3818,10 @@ export type FinanceLedgerImportCreateWithoutSourceBalancesInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutSourceBalancesInput = {
@@ -2202,6 +3838,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutSourceBalancesInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2216,6 +3854,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutSourceBalancesInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
@@ -2225,6 +3864,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutSourceBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutSourceBalancesInput = {
@@ -2270,6 +3913,9 @@ export type FinanceLedgerImportUpdateWithoutSourceBalancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
@@ -2279,6 +3925,10 @@ export type FinanceLedgerImportUpdateWithoutSourceBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutSourceBalancesInput = {
@@ -2295,6 +3945,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutSourceBalancesInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2309,6 +3961,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutSourceBalancesInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
@@ -2318,6 +3971,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutSourceBalancesInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutVouchersInput = {
@@ -2347,6 +4004,9 @@ export type FinanceLedgerImportCreateWithoutVouchersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
@@ -2356,6 +4016,10 @@ export type FinanceLedgerImportCreateWithoutVouchersInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutVouchersInput = {
@@ -2372,6 +4036,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutVouchersInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2386,6 +4052,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutVouchersInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
@@ -2395,6 +4062,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutVouchersInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutVouchersInput = {
@@ -2440,6 +4111,9 @@ export type FinanceLedgerImportUpdateWithoutVouchersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
@@ -2449,6 +4123,10 @@ export type FinanceLedgerImportUpdateWithoutVouchersInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutVouchersInput = {
@@ -2465,6 +4143,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutVouchersInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2479,6 +4159,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutVouchersInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
@@ -2488,6 +4169,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutVouchersInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutItemsInput = {
@@ -2517,6 +4202,9 @@ export type FinanceLedgerImportCreateWithoutItemsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLatestImportInput
@@ -2526,6 +4214,10 @@ export type FinanceLedgerImportCreateWithoutItemsInput = {
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutItemsInput = {
@@ -2542,6 +4234,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutItemsInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2556,6 +4250,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutItemsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLatestImportInput
@@ -2565,6 +4260,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutItemsInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutItemsInput = {
@@ -2610,6 +4309,9 @@ export type FinanceLedgerImportUpdateWithoutItemsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
@@ -2619,6 +4321,10 @@ export type FinanceLedgerImportUpdateWithoutItemsInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutItemsInput = {
@@ -2635,6 +4341,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutItemsInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2649,6 +4357,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutItemsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
   auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
@@ -2658,6 +4367,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutItemsInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutCurrenciesInput = {
@@ -2687,6 +4400,9 @@ export type FinanceLedgerImportCreateWithoutCurrenciesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -2696,6 +4412,10 @@ export type FinanceLedgerImportCreateWithoutCurrenciesInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   bankAccounts?: Prisma.FinanceBankAccountCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutCurrenciesInput = {
@@ -2712,6 +4432,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutCurrenciesInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2726,6 +4448,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutCurrenciesInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -2735,6 +4458,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutCurrenciesInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutCurrenciesInput = {
@@ -2780,6 +4507,9 @@ export type FinanceLedgerImportUpdateWithoutCurrenciesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -2789,6 +4519,10 @@ export type FinanceLedgerImportUpdateWithoutCurrenciesInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutCurrenciesInput = {
@@ -2805,6 +4539,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCurrenciesInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2819,6 +4555,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCurrenciesInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -2828,6 +4565,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutCurrenciesInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateWithoutBankAccountsInput = {
@@ -2857,6 +4598,9 @@ export type FinanceLedgerImportCreateWithoutBankAccountsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   importer?: Prisma.UserCreateNestedOneWithoutLedgerImportsInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageCreateNestedOneWithoutImportsInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingCreateNestedOneWithoutImportsInput
+  runs?: Prisma.FinanceReadableImportRunCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceCreateNestedManyWithoutImportInput
@@ -2866,6 +4610,10 @@ export type FinanceLedgerImportCreateWithoutBankAccountsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutImportInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportUncheckedCreateWithoutBankAccountsInput = {
@@ -2882,6 +4630,8 @@ export type FinanceLedgerImportUncheckedCreateWithoutBankAccountsInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -2896,6 +4646,7 @@ export type FinanceLedgerImportUncheckedCreateWithoutBankAccountsInput = {
   importedAt?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedCreateNestedManyWithoutLedgerImportInput
   vouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutImportInput
   items?: Prisma.FinanceVoucherItemUncheckedCreateNestedManyWithoutImportInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedCreateNestedManyWithoutImportInput
@@ -2905,6 +4656,10 @@ export type FinanceLedgerImportUncheckedCreateWithoutBankAccountsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutImportInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutImportInput
   currencies?: Prisma.FinanceCurrencyUncheckedCreateNestedManyWithoutLatestImportInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedCreateNestedManyWithoutImportInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedCreateNestedManyWithoutImportInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedCreateNestedManyWithoutImportInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedCreateNestedManyWithoutImportInput
 }
 
 export type FinanceLedgerImportCreateOrConnectWithoutBankAccountsInput = {
@@ -2950,6 +4705,9 @@ export type FinanceLedgerImportUpdateWithoutBankAccountsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -2959,6 +4717,10 @@ export type FinanceLedgerImportUpdateWithoutBankAccountsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutBankAccountsInput = {
@@ -2975,6 +4737,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutBankAccountsInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2989,6 +4753,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutBankAccountsInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -2998,6 +4763,10 @@ export type FinanceLedgerImportUncheckedUpdateWithoutBankAccountsInput = {
   cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportCreateManyImporterInput = {
@@ -3014,6 +4783,8 @@ export type FinanceLedgerImportCreateManyImporterInput = {
   snapshotDate?: string | null
   cutoffDate?: string | null
   checksum?: string | null
+  sourcePackageId?: number | null
+  sourceLedgerMappingId?: number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: string
   rowCount?: number
@@ -3055,6 +4826,9 @@ export type FinanceLedgerImportUpdateWithoutImporterInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
@@ -3065,6 +4839,10 @@ export type FinanceLedgerImportUpdateWithoutImporterInput = {
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateWithoutImporterInput = {
@@ -3081,6 +4859,8 @@ export type FinanceLedgerImportUncheckedUpdateWithoutImporterInput = {
   snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   status?: Prisma.StringFieldUpdateOperationsInput | string
   rowCount?: Prisma.IntFieldUpdateOperationsInput | number
@@ -3094,6 +4874,7 @@ export type FinanceLedgerImportUncheckedUpdateWithoutImporterInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
   vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
   items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
   sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
@@ -3104,10 +4885,75 @@ export type FinanceLedgerImportUncheckedUpdateWithoutImporterInput = {
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
   currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
   bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
 }
 
 export type FinanceLedgerImportUncheckedUpdateManyWithoutImporterInput = {
   id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceLedgerImportCreateManySourcePackageInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourceLedgerMappingId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceLedgerImportUpdateWithoutSourcePackageInput = {
   batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.StringFieldUpdateOperationsInput | string
   companyCode?: Prisma.StringFieldUpdateOperationsInput | string
@@ -3133,6 +4979,253 @@ export type FinanceLedgerImportUncheckedUpdateManyWithoutImporterInput = {
   importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourceLedgerMapping?: Prisma.FinanceSourceLedgerMappingUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutSourcePackageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateManyWithoutSourcePackageInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedgerMappingId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceLedgerImportCreateManySourceLedgerMappingInput = {
+  id?: number
+  batchKey?: string | null
+  type: string
+  companyCode: string
+  year: number
+  sourceSystem?: string | null
+  sourceLedger?: string | null
+  sourceDatabase?: string | null
+  sourceFile?: string | null
+  sourcePath?: string | null
+  snapshotDate?: string | null
+  cutoffDate?: string | null
+  checksum?: string | null
+  sourcePackageId?: number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: string
+  rowCount?: number
+  createdCount?: number
+  updatedCount?: number
+  skippedCount?: number
+  deletedCount?: number
+  conflictCount?: number
+  blockedCount?: number
+  warnings?: string | null
+  importedBy?: number | null
+  importedAt?: Date | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceLedgerImportUpdateWithoutSourceLedgerMappingInput = {
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  importer?: Prisma.UserUpdateOneWithoutLedgerImportsNestedInput
+  sourcePackage?: Prisma.FinanceReadableSourcePackageUpdateOneWithoutImportsNestedInput
+  runs?: Prisma.FinanceReadableImportRunUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateWithoutSourceLedgerMappingInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  runs?: Prisma.FinanceReadableImportRunUncheckedUpdateManyWithoutLedgerImportNestedInput
+  vouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutImportNestedInput
+  items?: Prisma.FinanceVoucherItemUncheckedUpdateManyWithoutImportNestedInput
+  sourceBalances?: Prisma.FinanceSourceAccountBalanceUncheckedUpdateManyWithoutImportNestedInput
+  auxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedInput
+  auxiliaryBalances?: Prisma.FinanceAuxiliaryBalanceUncheckedUpdateManyWithoutImportNestedInput
+  cashFlowItems?: Prisma.FinanceCashFlowItemUncheckedUpdateManyWithoutLatestImportNestedInput
+  cashFlowAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutImportNestedInput
+  currencies?: Prisma.FinanceCurrencyUncheckedUpdateManyWithoutLatestImportNestedInput
+  bankAccounts?: Prisma.FinanceBankAccountUncheckedUpdateManyWithoutLatestImportNestedInput
+  accountRequirements?: Prisma.FinanceAccountAuxiliaryRequirementUncheckedUpdateManyWithoutImportNestedInput
+  periodStatuses?: Prisma.FinanceSourcePeriodStatusUncheckedUpdateManyWithoutImportNestedInput
+  subsystemStatuses?: Prisma.FinanceSourceSubsystemStatusUncheckedUpdateManyWithoutImportNestedInput
+  accountLineages?: Prisma.FinanceAccountLineageUncheckedUpdateManyWithoutImportNestedInput
+}
+
+export type FinanceLedgerImportUncheckedUpdateManyWithoutSourceLedgerMappingInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLedger?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePath?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  snapshotDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cutoffDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourcePackageId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  controlJson?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  rowCount?: Prisma.IntFieldUpdateOperationsInput | number
+  createdCount?: Prisma.IntFieldUpdateOperationsInput | number
+  updatedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  skippedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  deletedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  conflictCount?: Prisma.IntFieldUpdateOperationsInput | number
+  blockedCount?: Prisma.IntFieldUpdateOperationsInput | number
+  warnings?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  importedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  importedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 
@@ -3141,6 +5234,7 @@ export type FinanceLedgerImportUncheckedUpdateManyWithoutImporterInput = {
  */
 
 export type FinanceLedgerImportCountOutputType = {
+  runs: number
   vouchers: number
   items: number
   sourceBalances: number
@@ -3151,9 +5245,14 @@ export type FinanceLedgerImportCountOutputType = {
   openItems: number
   currencies: number
   bankAccounts: number
+  accountRequirements: number
+  periodStatuses: number
+  subsystemStatuses: number
+  accountLineages: number
 }
 
 export type FinanceLedgerImportCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  runs?: boolean | FinanceLedgerImportCountOutputTypeCountRunsArgs
   vouchers?: boolean | FinanceLedgerImportCountOutputTypeCountVouchersArgs
   items?: boolean | FinanceLedgerImportCountOutputTypeCountItemsArgs
   sourceBalances?: boolean | FinanceLedgerImportCountOutputTypeCountSourceBalancesArgs
@@ -3164,6 +5263,10 @@ export type FinanceLedgerImportCountOutputTypeSelect<ExtArgs extends runtime.Typ
   openItems?: boolean | FinanceLedgerImportCountOutputTypeCountOpenItemsArgs
   currencies?: boolean | FinanceLedgerImportCountOutputTypeCountCurrenciesArgs
   bankAccounts?: boolean | FinanceLedgerImportCountOutputTypeCountBankAccountsArgs
+  accountRequirements?: boolean | FinanceLedgerImportCountOutputTypeCountAccountRequirementsArgs
+  periodStatuses?: boolean | FinanceLedgerImportCountOutputTypeCountPeriodStatusesArgs
+  subsystemStatuses?: boolean | FinanceLedgerImportCountOutputTypeCountSubsystemStatusesArgs
+  accountLineages?: boolean | FinanceLedgerImportCountOutputTypeCountAccountLineagesArgs
 }
 
 /**
@@ -3174,6 +5277,13 @@ export type FinanceLedgerImportCountOutputTypeDefaultArgs<ExtArgs extends runtim
    * Select specific fields to fetch from the FinanceLedgerImportCountOutputType
    */
   select?: Prisma.FinanceLedgerImportCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceLedgerImportCountOutputType without action
+ */
+export type FinanceLedgerImportCountOutputTypeCountRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceReadableImportRunWhereInput
 }
 
 /**
@@ -3246,6 +5356,34 @@ export type FinanceLedgerImportCountOutputTypeCountBankAccountsArgs<ExtArgs exte
   where?: Prisma.FinanceBankAccountWhereInput
 }
 
+/**
+ * FinanceLedgerImportCountOutputType without action
+ */
+export type FinanceLedgerImportCountOutputTypeCountAccountRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAccountAuxiliaryRequirementWhereInput
+}
+
+/**
+ * FinanceLedgerImportCountOutputType without action
+ */
+export type FinanceLedgerImportCountOutputTypeCountPeriodStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceSourcePeriodStatusWhereInput
+}
+
+/**
+ * FinanceLedgerImportCountOutputType without action
+ */
+export type FinanceLedgerImportCountOutputTypeCountSubsystemStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceSourceSubsystemStatusWhereInput
+}
+
+/**
+ * FinanceLedgerImportCountOutputType without action
+ */
+export type FinanceLedgerImportCountOutputTypeCountAccountLineagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAccountLineageWhereInput
+}
+
 
 export type FinanceLedgerImportSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3261,6 +5399,8 @@ export type FinanceLedgerImportSelect<ExtArgs extends runtime.Types.Extensions.I
   snapshotDate?: boolean
   cutoffDate?: boolean
   checksum?: boolean
+  sourcePackageId?: boolean
+  sourceLedgerMappingId?: boolean
   controlJson?: boolean
   status?: boolean
   rowCount?: boolean
@@ -3276,6 +5416,9 @@ export type FinanceLedgerImportSelect<ExtArgs extends runtime.Types.Extensions.I
   createdAt?: boolean
   updatedAt?: boolean
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
+  runs?: boolean | Prisma.FinanceLedgerImport$runsArgs<ExtArgs>
   vouchers?: boolean | Prisma.FinanceLedgerImport$vouchersArgs<ExtArgs>
   items?: boolean | Prisma.FinanceLedgerImport$itemsArgs<ExtArgs>
   sourceBalances?: boolean | Prisma.FinanceLedgerImport$sourceBalancesArgs<ExtArgs>
@@ -3286,6 +5429,10 @@ export type FinanceLedgerImportSelect<ExtArgs extends runtime.Types.Extensions.I
   openItems?: boolean | Prisma.FinanceLedgerImport$openItemsArgs<ExtArgs>
   currencies?: boolean | Prisma.FinanceLedgerImport$currenciesArgs<ExtArgs>
   bankAccounts?: boolean | Prisma.FinanceLedgerImport$bankAccountsArgs<ExtArgs>
+  accountRequirements?: boolean | Prisma.FinanceLedgerImport$accountRequirementsArgs<ExtArgs>
+  periodStatuses?: boolean | Prisma.FinanceLedgerImport$periodStatusesArgs<ExtArgs>
+  subsystemStatuses?: boolean | Prisma.FinanceLedgerImport$subsystemStatusesArgs<ExtArgs>
+  accountLineages?: boolean | Prisma.FinanceLedgerImport$accountLineagesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceLedgerImportCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeLedgerImport"]>
 
@@ -3303,6 +5450,8 @@ export type FinanceLedgerImportSelectCreateManyAndReturn<ExtArgs extends runtime
   snapshotDate?: boolean
   cutoffDate?: boolean
   checksum?: boolean
+  sourcePackageId?: boolean
+  sourceLedgerMappingId?: boolean
   controlJson?: boolean
   status?: boolean
   rowCount?: boolean
@@ -3318,6 +5467,8 @@ export type FinanceLedgerImportSelectCreateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   updatedAt?: boolean
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
 }, ExtArgs["result"]["financeLedgerImport"]>
 
 export type FinanceLedgerImportSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -3334,6 +5485,8 @@ export type FinanceLedgerImportSelectUpdateManyAndReturn<ExtArgs extends runtime
   snapshotDate?: boolean
   cutoffDate?: boolean
   checksum?: boolean
+  sourcePackageId?: boolean
+  sourceLedgerMappingId?: boolean
   controlJson?: boolean
   status?: boolean
   rowCount?: boolean
@@ -3349,6 +5502,8 @@ export type FinanceLedgerImportSelectUpdateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   updatedAt?: boolean
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
 }, ExtArgs["result"]["financeLedgerImport"]>
 
 export type FinanceLedgerImportSelectScalar = {
@@ -3365,6 +5520,8 @@ export type FinanceLedgerImportSelectScalar = {
   snapshotDate?: boolean
   cutoffDate?: boolean
   checksum?: boolean
+  sourcePackageId?: boolean
+  sourceLedgerMappingId?: boolean
   controlJson?: boolean
   status?: boolean
   rowCount?: boolean
@@ -3381,9 +5538,12 @@ export type FinanceLedgerImportSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceLedgerImportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchKey" | "type" | "companyCode" | "year" | "sourceSystem" | "sourceLedger" | "sourceDatabase" | "sourceFile" | "sourcePath" | "snapshotDate" | "cutoffDate" | "checksum" | "controlJson" | "status" | "rowCount" | "createdCount" | "updatedCount" | "skippedCount" | "deletedCount" | "conflictCount" | "blockedCount" | "warnings" | "importedBy" | "importedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeLedgerImport"]>
+export type FinanceLedgerImportOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchKey" | "type" | "companyCode" | "year" | "sourceSystem" | "sourceLedger" | "sourceDatabase" | "sourceFile" | "sourcePath" | "snapshotDate" | "cutoffDate" | "checksum" | "sourcePackageId" | "sourceLedgerMappingId" | "controlJson" | "status" | "rowCount" | "createdCount" | "updatedCount" | "skippedCount" | "deletedCount" | "conflictCount" | "blockedCount" | "warnings" | "importedBy" | "importedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeLedgerImport"]>
 export type FinanceLedgerImportInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
+  runs?: boolean | Prisma.FinanceLedgerImport$runsArgs<ExtArgs>
   vouchers?: boolean | Prisma.FinanceLedgerImport$vouchersArgs<ExtArgs>
   items?: boolean | Prisma.FinanceLedgerImport$itemsArgs<ExtArgs>
   sourceBalances?: boolean | Prisma.FinanceLedgerImport$sourceBalancesArgs<ExtArgs>
@@ -3394,19 +5554,30 @@ export type FinanceLedgerImportInclude<ExtArgs extends runtime.Types.Extensions.
   openItems?: boolean | Prisma.FinanceLedgerImport$openItemsArgs<ExtArgs>
   currencies?: boolean | Prisma.FinanceLedgerImport$currenciesArgs<ExtArgs>
   bankAccounts?: boolean | Prisma.FinanceLedgerImport$bankAccountsArgs<ExtArgs>
+  accountRequirements?: boolean | Prisma.FinanceLedgerImport$accountRequirementsArgs<ExtArgs>
+  periodStatuses?: boolean | Prisma.FinanceLedgerImport$periodStatusesArgs<ExtArgs>
+  subsystemStatuses?: boolean | Prisma.FinanceLedgerImport$subsystemStatusesArgs<ExtArgs>
+  accountLineages?: boolean | Prisma.FinanceLedgerImport$accountLineagesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceLedgerImportCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceLedgerImportIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
 }
 export type FinanceLedgerImportIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   importer?: boolean | Prisma.FinanceLedgerImport$importerArgs<ExtArgs>
+  sourcePackage?: boolean | Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>
+  sourceLedgerMapping?: boolean | Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>
 }
 
 export type $FinanceLedgerImportPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceLedgerImport"
   objects: {
     importer: Prisma.$UserPayload<ExtArgs> | null
+    sourcePackage: Prisma.$FinanceReadableSourcePackagePayload<ExtArgs> | null
+    sourceLedgerMapping: Prisma.$FinanceSourceLedgerMappingPayload<ExtArgs> | null
+    runs: Prisma.$FinanceReadableImportRunPayload<ExtArgs>[]
     vouchers: Prisma.$FinanceVoucherPayload<ExtArgs>[]
     items: Prisma.$FinanceVoucherItemPayload<ExtArgs>[]
     sourceBalances: Prisma.$FinanceSourceAccountBalancePayload<ExtArgs>[]
@@ -3417,6 +5588,10 @@ export type $FinanceLedgerImportPayload<ExtArgs extends runtime.Types.Extensions
     openItems: Prisma.$FinanceOpenItemPayload<ExtArgs>[]
     currencies: Prisma.$FinanceCurrencyPayload<ExtArgs>[]
     bankAccounts: Prisma.$FinanceBankAccountPayload<ExtArgs>[]
+    accountRequirements: Prisma.$FinanceAccountAuxiliaryRequirementPayload<ExtArgs>[]
+    periodStatuses: Prisma.$FinanceSourcePeriodStatusPayload<ExtArgs>[]
+    subsystemStatuses: Prisma.$FinanceSourceSubsystemStatusPayload<ExtArgs>[]
+    accountLineages: Prisma.$FinanceAccountLineagePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3432,6 +5607,8 @@ export type $FinanceLedgerImportPayload<ExtArgs extends runtime.Types.Extensions
     snapshotDate: string | null
     cutoffDate: string | null
     checksum: string | null
+    sourcePackageId: number | null
+    sourceLedgerMappingId: number | null
     controlJson: runtime.JsonValue | null
     status: string
     rowCount: number
@@ -3841,6 +6018,9 @@ readonly fields: FinanceLedgerImportFieldRefs;
 export interface Prisma__FinanceLedgerImportClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   importer<T extends Prisma.FinanceLedgerImport$importerArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$importerArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourcePackage<T extends Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$sourcePackageArgs<ExtArgs>>): Prisma.Prisma__FinanceReadableSourcePackageClient<runtime.Types.Result.GetResult<Prisma.$FinanceReadableSourcePackagePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  sourceLedgerMapping<T extends Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs>>): Prisma.Prisma__FinanceSourceLedgerMappingClient<runtime.Types.Result.GetResult<Prisma.$FinanceSourceLedgerMappingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  runs<T extends Prisma.FinanceLedgerImport$runsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$runsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceReadableImportRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   vouchers<T extends Prisma.FinanceLedgerImport$vouchersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$vouchersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   items<T extends Prisma.FinanceLedgerImport$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sourceBalances<T extends Prisma.FinanceLedgerImport$sourceBalancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$sourceBalancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSourceAccountBalancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3851,6 +6031,10 @@ export interface Prisma__FinanceLedgerImportClient<T, Null = never, ExtArgs exte
   openItems<T extends Prisma.FinanceLedgerImport$openItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$openItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   currencies<T extends Prisma.FinanceLedgerImport$currenciesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$currenciesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCurrencyPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   bankAccounts<T extends Prisma.FinanceLedgerImport$bankAccountsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$bankAccountsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceBankAccountPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accountRequirements<T extends Prisma.FinanceLedgerImport$accountRequirementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$accountRequirementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountAuxiliaryRequirementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  periodStatuses<T extends Prisma.FinanceLedgerImport$periodStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$periodStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSourcePeriodStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  subsystemStatuses<T extends Prisma.FinanceLedgerImport$subsystemStatusesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$subsystemStatusesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceSourceSubsystemStatusPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  accountLineages<T extends Prisma.FinanceLedgerImport$accountLineagesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceLedgerImport$accountLineagesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAccountLineagePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3893,6 +6077,8 @@ export interface FinanceLedgerImportFieldRefs {
   readonly snapshotDate: Prisma.FieldRef<"FinanceLedgerImport", 'String'>
   readonly cutoffDate: Prisma.FieldRef<"FinanceLedgerImport", 'String'>
   readonly checksum: Prisma.FieldRef<"FinanceLedgerImport", 'String'>
+  readonly sourcePackageId: Prisma.FieldRef<"FinanceLedgerImport", 'Int'>
+  readonly sourceLedgerMappingId: Prisma.FieldRef<"FinanceLedgerImport", 'Int'>
   readonly controlJson: Prisma.FieldRef<"FinanceLedgerImport", 'Json'>
   readonly status: Prisma.FieldRef<"FinanceLedgerImport", 'String'>
   readonly rowCount: Prisma.FieldRef<"FinanceLedgerImport", 'Int'>
@@ -4327,6 +6513,68 @@ export type FinanceLedgerImport$importerArgs<ExtArgs extends runtime.Types.Exten
 }
 
 /**
+ * FinanceLedgerImport.sourcePackage
+ */
+export type FinanceLedgerImport$sourcePackageArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceReadableSourcePackage
+   */
+  select?: Prisma.FinanceReadableSourcePackageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceReadableSourcePackage
+   */
+  omit?: Prisma.FinanceReadableSourcePackageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReadableSourcePackageInclude<ExtArgs> | null
+  where?: Prisma.FinanceReadableSourcePackageWhereInput
+}
+
+/**
+ * FinanceLedgerImport.sourceLedgerMapping
+ */
+export type FinanceLedgerImport$sourceLedgerMappingArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceSourceLedgerMapping
+   */
+  select?: Prisma.FinanceSourceLedgerMappingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceSourceLedgerMapping
+   */
+  omit?: Prisma.FinanceSourceLedgerMappingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourceLedgerMappingInclude<ExtArgs> | null
+  where?: Prisma.FinanceSourceLedgerMappingWhereInput
+}
+
+/**
+ * FinanceLedgerImport.runs
+ */
+export type FinanceLedgerImport$runsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceReadableImportRun
+   */
+  select?: Prisma.FinanceReadableImportRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceReadableImportRun
+   */
+  omit?: Prisma.FinanceReadableImportRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceReadableImportRunInclude<ExtArgs> | null
+  where?: Prisma.FinanceReadableImportRunWhereInput
+  orderBy?: Prisma.FinanceReadableImportRunOrderByWithRelationInput | Prisma.FinanceReadableImportRunOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceReadableImportRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceReadableImportRunScalarFieldEnum | Prisma.FinanceReadableImportRunScalarFieldEnum[]
+}
+
+/**
  * FinanceLedgerImport.vouchers
  */
 export type FinanceLedgerImport$vouchersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -4564,6 +6812,102 @@ export type FinanceLedgerImport$bankAccountsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.FinanceBankAccountScalarFieldEnum | Prisma.FinanceBankAccountScalarFieldEnum[]
+}
+
+/**
+ * FinanceLedgerImport.accountRequirements
+ */
+export type FinanceLedgerImport$accountRequirementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountAuxiliaryRequirement
+   */
+  select?: Prisma.FinanceAccountAuxiliaryRequirementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccountAuxiliaryRequirement
+   */
+  omit?: Prisma.FinanceAccountAuxiliaryRequirementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountAuxiliaryRequirementInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountAuxiliaryRequirementWhereInput
+  orderBy?: Prisma.FinanceAccountAuxiliaryRequirementOrderByWithRelationInput | Prisma.FinanceAccountAuxiliaryRequirementOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAccountAuxiliaryRequirementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAccountAuxiliaryRequirementScalarFieldEnum | Prisma.FinanceAccountAuxiliaryRequirementScalarFieldEnum[]
+}
+
+/**
+ * FinanceLedgerImport.periodStatuses
+ */
+export type FinanceLedgerImport$periodStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceSourcePeriodStatus
+   */
+  select?: Prisma.FinanceSourcePeriodStatusSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceSourcePeriodStatus
+   */
+  omit?: Prisma.FinanceSourcePeriodStatusOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourcePeriodStatusInclude<ExtArgs> | null
+  where?: Prisma.FinanceSourcePeriodStatusWhereInput
+  orderBy?: Prisma.FinanceSourcePeriodStatusOrderByWithRelationInput | Prisma.FinanceSourcePeriodStatusOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceSourcePeriodStatusWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceSourcePeriodStatusScalarFieldEnum | Prisma.FinanceSourcePeriodStatusScalarFieldEnum[]
+}
+
+/**
+ * FinanceLedgerImport.subsystemStatuses
+ */
+export type FinanceLedgerImport$subsystemStatusesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceSourceSubsystemStatus
+   */
+  select?: Prisma.FinanceSourceSubsystemStatusSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceSourceSubsystemStatus
+   */
+  omit?: Prisma.FinanceSourceSubsystemStatusOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceSourceSubsystemStatusInclude<ExtArgs> | null
+  where?: Prisma.FinanceSourceSubsystemStatusWhereInput
+  orderBy?: Prisma.FinanceSourceSubsystemStatusOrderByWithRelationInput | Prisma.FinanceSourceSubsystemStatusOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceSourceSubsystemStatusWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceSourceSubsystemStatusScalarFieldEnum | Prisma.FinanceSourceSubsystemStatusScalarFieldEnum[]
+}
+
+/**
+ * FinanceLedgerImport.accountLineages
+ */
+export type FinanceLedgerImport$accountLineagesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAccountLineage
+   */
+  select?: Prisma.FinanceAccountLineageSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAccountLineage
+   */
+  omit?: Prisma.FinanceAccountLineageOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAccountLineageInclude<ExtArgs> | null
+  where?: Prisma.FinanceAccountLineageWhereInput
+  orderBy?: Prisma.FinanceAccountLineageOrderByWithRelationInput | Prisma.FinanceAccountLineageOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAccountLineageWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAccountLineageScalarFieldEnum | Prisma.FinanceAccountLineageScalarFieldEnum[]
 }
 
 /**

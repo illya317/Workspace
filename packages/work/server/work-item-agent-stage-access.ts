@@ -4,13 +4,14 @@ import { assertWorkItemStageAllowed } from "./work-okr-stage";
 
 export async function assertSharedAgentWorkItemStageAllowed(input: {
   execution: AgentExecutionContext;
+  action?: "create" | "update";
   planId: number | null;
   itemType: string;
   changesKrCurrentValue: boolean;
 }) {
   const userIds = [...new Set([input.execution.requester.id, input.execution.actor.id])];
   const results = await Promise.all(userIds.map((actorUserId) => assertWorkItemStageAllowed({
-    action: "update",
+    action: input.action ?? "update",
     planId: input.planId,
     itemType: input.itemType,
     actorUserId,

@@ -87,6 +87,7 @@ model Company {
   parentOfRelations       CompanyRelation[]        @relation("ParentCompany")
   positionReportOverrides PositionReportOverride[]
   reportingEdps           EDP[]                    @relation("EDPReportingCompany")
+  financeAuxiliaryMembers FinanceAuxiliaryMember[] @relation("FinanceAuxiliaryMemberLinkedCompany")
 }
 
 /// 公司间持股关系

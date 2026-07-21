@@ -70,7 +70,11 @@ function fakeClient(
   return client;
 }
 
-function toolReturning(result: Awaited<ReturnType<AgentTool["execute"]>>, mutates: boolean): AgentTool {
+function toolReturning(
+  result: Awaited<ReturnType<AgentTool["execute"]>>,
+  mutates: boolean,
+  writeMode?: AgentTool["writeMode"],
+): AgentTool {
   return {
     key: "finance.testWrite",
     label: "Test write",
@@ -78,6 +82,7 @@ function toolReturning(result: Awaited<ReturnType<AgentTool["execute"]>>, mutate
     parameters: { type: "object", properties: {}, additionalProperties: false },
     requiredPermissions: [],
     mutates,
+    ...(writeMode ? { writeMode } : {}),
     execute: async () => result,
   };
 }
@@ -228,6 +233,15 @@ test("QuestionRequest becomes a user clarification and blocks mutating tools for
     assert.equal(executeCount, 0);
     assert.deepEqual(observedAnswers, { "要写入哪个工作空间？": "等待用户在下一轮确认" });
     assert.equal(response.type, "clarification");
+    assert.deepEqual(response.choices, [{
+      question: "要写入哪个工作空间？",
+      header: "工作空间",
+      options: [
+        { label: "个人空间", description: "写入我的工作" },
+        { label: "部门空间", description: undefined },
+      ],
+      multiSelect: false,
+    }]);
     assert.match(response.message, /工作空间：要写入哪个工作空间/);
     assert.match(response.message, /个人空间（写入我的工作）/);
     assert.match(response.message, /确认完整后我再生成待确认变更/);
@@ -515,6 +529,21 @@ test("mutating Workspace tool is rejected if it does not return a proposal", asy
       history: [],
       images: [],
     }), /未返回 proposal/);
+    const directRuntime = new KimiAgentRuntime({
+      runtimeRoot: root,
+      clientFactory: () => fakeClient(async (tools) => tools[0].handler({}).then(() => undefined)) as never,
+      resolveToolAccess: async (_user, tools) => ({ tools, capabilities: [] }),
+    });
+    const direct = await directRuntime.runTurn({
+      message: "direct write",
+      execution,
+      tools: [toolReturning({ type: "data", message: "done", data: { version: 7 } }, true, "direct")],
+      history: [],
+      images: [],
+    });
+    assert.equal(direct.type, "answer");
+    assert.deepEqual(direct.data, { version: 7 });
+    assert.equal(direct.proposal, undefined);
   } finally {
     await rm(root, { recursive: true, force: true });
   }

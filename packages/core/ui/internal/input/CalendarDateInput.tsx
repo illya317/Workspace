@@ -2,6 +2,7 @@
 
 import { forwardRef, useCallback, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
 import { joinClassNames } from "../common/card-utils";
+import FloatingPortalSurface from "../common/FloatingPortalSurface";
 import { CalendarDatePopover, parseDate, parseMonth, type PickerMode } from "./CalendarDatePopover";
 import FieldShell from "./FieldShell";
 import { useFieldContext } from "./field-context";
@@ -19,7 +20,6 @@ interface CalendarDateInputProps {
   minDate?: string;
   maxDate?: string;
   precision?: "date" | "month";
-  popoverMode?: "absolute" | "fixed";
   style?: CSSProperties;
   title?: string;
   unstyled?: boolean;
@@ -41,7 +41,6 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       minDate,
       maxDate,
       precision = "date",
-      popoverMode = "absolute",
       style,
       title,
       unstyled = false,
@@ -59,7 +58,7 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
     const [viewMonth, setViewMonth] = useState(selected?.monthIndex ?? today.getMonth());
     const wrapperRef = useRef<HTMLDivElement>(null);
     const inputRef = useRef<HTMLInputElement | null>(null);
-    const [fixedPosition, setFixedPosition] = useState<{ left: number; top: number } | null>(null);
+    const popoverRef = useRef<HTMLDivElement | null>(null);
 
     function assignInputRef(node: HTMLInputElement | null) {
       inputRef.current = node;
@@ -70,21 +69,10 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
       }
     }
 
-    const updateFixedPosition = useCallback(() => {
-      if (popoverMode !== "fixed" || !inputRef.current) return;
-      const rect = inputRef.current.getBoundingClientRect();
-      const left = Math.min(rect.left, window.innerWidth - 256);
-      setFixedPosition({
-        left: Math.max(8, left),
-        top: rect.bottom + 6,
-      });
-    }, [popoverMode]);
-
     const openPicker = useCallback(() => {
       if (disabled || readOnly) return;
-      updateFixedPosition();
       setOpen(true);
-    }, [disabled, readOnly, updateFixedPosition]);
+    }, [disabled, readOnly]);
 
     useEffect(() => {
       if (!open) return;
@@ -102,24 +90,18 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
 
     useEffect(() => {
       function handleClickOutside(event: MouseEvent) {
-        if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
+        const target = event.target as Node;
+        if (
+          wrapperRef.current
+          && !wrapperRef.current.contains(target)
+          && !popoverRef.current?.contains(target)
+        ) {
           setOpen(false);
         }
       }
       document.addEventListener("mousedown", handleClickOutside);
       return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
-
-    useEffect(() => {
-      if (!open || popoverMode !== "fixed") return;
-      updateFixedPosition();
-      window.addEventListener("resize", updateFixedPosition);
-      window.addEventListener("scroll", updateFixedPosition, true);
-      return () => {
-        window.removeEventListener("resize", updateFixedPosition);
-        window.removeEventListener("scroll", updateFixedPosition, true);
-      };
-    }, [open, popoverMode, updateFixedPosition]);
 
     const input = (
       <input
@@ -162,7 +144,14 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
             {input}
           </FieldShell>
         )}
-        {open && !disabled && (
+        <FloatingPortalSurface
+          open={open && !disabled}
+          triggerRef={inputRef}
+          surfaceRef={popoverRef}
+          minWidth={240}
+          maxWidth={240}
+          minHeightForFlip={280}
+        >
           <CalendarDatePopover
             value={value}
             minDate={minDate}
@@ -176,13 +165,9 @@ const CalendarDateInput = forwardRef<HTMLInputElement, CalendarDateInputProps>(
             setViewMonth={setViewMonth}
             onChange={onChange}
             onClose={() => setOpen(false)}
-            className={joinClassNames(
-              "z-50 w-60 rounded-lg border border-slate-200 bg-white p-2 shadow-xl",
-              popoverMode === "fixed" ? "fixed" : "absolute left-0 mt-1",
-            )}
-            style={popoverMode === "fixed" && fixedPosition ? fixedPosition : undefined}
+            className="w-60 rounded-lg border border-slate-200 bg-white p-2 shadow-xl"
           />
-        )}
+        </FloatingPortalSurface>
       </div>
     );
   },

@@ -22,9 +22,7 @@
 - `员工信息表`：用于集中修正员工、雇佣、合同、部门岗位数据。四个表统一先进入编辑态，跨行、跨字段修改只形成页面草稿，最后由顶部保存一次提交当前 change set；取消会丢弃整页草稿，不提供逐单元格保存。
 - `花名册`：管理版、尽调版、CSV 导出和 Open API 共用同一生成口径，只纳入当前在职且在职雇佣记录中没有“顾问”职务的人员；离职人员和顾问仍保留在员工资料、分析等独立场景中，不进入花名册。
 
-`员工信息表 → 股权关系` 是 `CompanyRelation` 的 canonical 维护入口，也是 Finance 合并范围唯一主数据源。`parentId/childId` 表达直接法律持股，`shareRatio` 使用 0 到 1 的比例，`isConsolidated` 表示是否纳入并表链，`effectiveFrom/effectiveTo` 表达控制期间。创建和字段更新都校验自持股、比例区间、期间倒置、同一子公司同期多控制方、同一法律关系期间重叠和同期控制环路，并记录编辑人、编辑时间与版本。
-
-股权比例或控制关系发生变化时，不覆盖旧期间事实：先结束原关系的 `effectiveTo`，再新增下一期间关系；同一 parent-child 可以存在多条不重叠期间记录。已生成的 Finance 合并批次冻结当期关系 ID、比例、有效期和版本，之后的 HR 修改不会静默改写已锁定报表。
+法律公司信息与 `CompanyRelation` 的 canonical 维护入口位于 `资本证券 → 治理架构`。HR 只通过只读公司候选接口消费这些主数据，用于合同公司、任职汇报公司和统计口径，不维护直接持股、并表或控制期间。
 
 组织单元的新建和修改统一消费服务端返回的 `ActionRuntime`：入口只打开本地表单，最终动作在 direct 模式显示“保存”，接入流程后显示“提交”。页面不得再用 `hrCanSubmit`、`canSubmitWorkflow` 或其他权限布尔值兜底推断编辑态；runtime 尚未加载或不可执行时保持只读。岗位及说明书当前是 permission-only 写入，继续显示“保存”。
 
@@ -68,7 +66,6 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 | 雇佣记录 | GenericTableTab + employmentConfig | 批量维护雇佣关系 |
 | 员工岗位 | GenericTableTab + edpConfig | 批量维护员工-部门-岗位关系 |
 | 合同信息 | GenericTableTab + contractConfig | 批量维护合同信息 |
-| 股权关系 | GenericTableTab + companyRelationConfig | 分期间维护直接持股与并表控制关系 |
 | 项目 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
 这些 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；API 请求统一使用 `{ changes: [{ id, field, value }] }`。员工、雇佣关系、部门岗位、合同分别在 HR domain service 中做整批校验和事务写入，不能在前端循环调用旧的行级 PUT。离职联动、当前岗位占比合计和主合同互斥仍由各自领域服务负责。

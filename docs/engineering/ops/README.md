@@ -11,7 +11,7 @@ PR/CI remains available for collaboration but is not queried or awaited by the d
 
 Repository-owned runtime dependency contracts:
 
-- [Kimi Agent SDK runtime](./kimi-agent-runtime.md)
+- [Agent runtime: Pi DeepSeek Flash and Kimi](./kimi-agent-runtime.md)
 
 ## PostgreSQL runtime contract
 

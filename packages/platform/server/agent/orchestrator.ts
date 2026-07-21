@@ -1,6 +1,6 @@
 /**
  * Workspace Agent policy boundary.
- * Kimi SDK owns the agent loop; Platform still owns identity, RBAC and concurrency.
+ * The selected runtime owns the model loop; Platform still owns identity, RBAC and concurrency.
  */
 import { resolveAgentToolAccess } from "./capabilities";
 import {
@@ -9,7 +9,7 @@ import {
 } from "./execution";
 import { isAgentIdentityQuestion } from "./identity-context";
 import type { AgentInputImage, AgentResponse, AgentRuntime, HistoryMessage } from "./runtime/contracts";
-import { defaultAgentRuntime } from "./runtime/kimi-runtime";
+import { defaultAgentRuntime } from "./runtime/default-runtime";
 import { runWithAgentTurnLimit } from "./runtime/turn-limiter";
 import type { AgentTool } from "./tools";
 

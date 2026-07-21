@@ -1,4 +1,4 @@
-export type ConsolidationWorkpaperView = "overview" | "ownership" | "sources" | "fx" | "eliminations" | "tax" | "review";
+export type ConsolidationWorkpaperView = "adjustments" | "report";
 
 export interface ConsolidationCapabilities {
   canCreate: boolean;

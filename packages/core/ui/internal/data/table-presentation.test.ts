@@ -1,7 +1,13 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { resolveDataTableScroll, resolveSurfaceFrameClass, resolveTablePresentation } from "./table-presentation";
+import {
+  resolveDataTableLayoutClass,
+  resolveDataTableScroll,
+  resolveStandardTableColumnWidths,
+  resolveSurfaceFrameClass,
+  resolveTablePresentation,
+} from "./table-presentation";
 
 test("locks ordinary long-table headers inside a bounded scroll region", () => {
   const scroll = resolveDataTableScroll();
@@ -29,4 +35,13 @@ test("preserves matrix scrolling defaults and caller overrides", () => {
     y: "auto",
     maxHeight: "sm",
   });
+});
+
+test("balances ordinary columns while keeping numeric and explicit columns compact", () => {
+  assert.match(resolveDataTableLayoutClass(false), /\btable-fixed\b/);
+  assert.deepEqual(resolveStandardTableColumnWidths([
+    {},
+    { numeric: true },
+    { width: "md" },
+  ]), [null, "7rem", "10rem"]);
 });

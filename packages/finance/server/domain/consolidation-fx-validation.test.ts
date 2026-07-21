@@ -41,10 +41,34 @@ test("accepts complete CNY/CAD currency policies and applied rates", () => {
       { id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" },
     ],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", verifiedBy: 10, verifiedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
-      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", verifiedBy: 10, verifiedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
+      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", recordedBy: 10, recordedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88],
+    requiredComparativeEntityIds: [],
+  });
+  assert.equal(result.ok, true);
+});
+
+test("accepts entity-level historical capital evidence without a voucher", () => {
+  const result = validateConsolidationFxFacts({
+    periodEnd: "2026-06-30",
+    comparativePeriodEnd: "2025-06-30",
+    entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
+    rates: [
+      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      { exchangeRateId: 12, rateKind: "historicalInvestment", rateDate: "2025-01-01", recordedBy: 10, recordedAt: "2025-01-02T08:00:00.000Z", applications: [{
+        applicationType: "historicalCapital",
+        periodBasis: "current",
+        entitySnapshotId: 2,
+        voucherItemId: null,
+        targetDate: "2025-01-01",
+        evidence: "出资协议与银行回单",
+        capitalOriginalAmount: 1_000_000,
+        voucher: null,
+      }] },
+    ],
+    requiredInvestmentVoucherIds: [],
     requiredComparativeEntityIds: [],
   });
   assert.equal(result.ok, true);
@@ -69,8 +93,8 @@ test("rejects a historical rate more than seven days before investment", () => {
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", verifiedBy: 10, verifiedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
-      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-01", verifiedBy: 10, verifiedAt: "2025-03-02T08:00:00.000Z", applications: [investmentApplication] },
+      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-01", recordedBy: 10, recordedAt: "2025-03-02T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88],
     requiredComparativeEntityIds: [],
@@ -85,8 +109,8 @@ test("requires an application for every CAD investment voucher", () => {
     comparativePeriodEnd: "2025-06-30",
     entities: [{ id: 2, functionalCurrency: "CAD", currencyEvidence: "加拿大主体经营环境" }],
     rates: [
-      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", verifiedBy: 10, verifiedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
-      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", verifiedBy: 10, verifiedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
+      { exchangeRateId: 10, rateKind: "closing", rateDate: "2026-06-30", recordedBy: 10, recordedAt: "2026-06-30T08:00:00.000Z", applications: [closingApplication] },
+      { exchangeRateId: 11, rateKind: "historicalInvestment", rateDate: "2025-03-14", recordedBy: 10, recordedAt: "2025-03-15T08:00:00.000Z", applications: [investmentApplication] },
     ],
     requiredInvestmentVoucherIds: [88, 89],
     requiredComparativeEntityIds: [],
@@ -96,7 +120,7 @@ test("requires an application for every CAD investment voucher", () => {
 });
 
 
-test("requires frozen rate reviewer evidence", () => {
+test("requires frozen rate recorder evidence", () => {
   const result = validateConsolidationFxFacts({
     periodEnd: "2026-06-30",
     comparativePeriodEnd: "2025-06-30",
@@ -105,8 +129,8 @@ test("requires frozen rate reviewer evidence", () => {
       exchangeRateId: 10,
       rateKind: "closing",
       rateDate: "2026-06-30",
-      verifiedBy: null,
-      verifiedAt: null,
+      recordedBy: null,
+      recordedAt: null,
       applications: [closingApplication],
     }],
     requiredInvestmentVoucherIds: [],

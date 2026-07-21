@@ -35,6 +35,9 @@ model FinanceAccount {
   bankAccounts      FinanceBankAccount[]
   deptBudgets       FinanceBudgetDept[]
   rdBudgets         FinanceBudgetRd[]
+  auxiliaryRequirements FinanceAccountAuxiliaryRequirement[]
+  currentLineages   FinanceAccountLineage[]          @relation("FinanceAccountLineageCurrent")
+  previousLineages  FinanceAccountLineage[]          @relation("FinanceAccountLineagePrevious")
 
   @@unique([code, companyCode, year])
   @@unique([sourceSystem, sourceDatabase, sourceKey])
@@ -64,6 +67,7 @@ model FinancePeriod {
   openItems           FinanceOpenItem[]
   assetPeriodEntries  FinanceAssetPeriodEntry[]
   assetAdjustments    FinanceAssetAdjustment[]
+  sourceStatuses      FinanceSourcePeriodStatus[]
 
   @@unique([companyCode, year, month])
 }
@@ -83,6 +87,23 @@ model FinanceVoucher {
   sourceSystem        String?
   sourceDatabase      String?
   sourceKey           String?
+  voucherTypeCode     String?
+  voucherTypeName     String?
+  isAdjustment        Boolean                     @default(false)
+  preparerName        String?
+  reviewerName        String?
+  posterName          String?
+  cashierName         String?
+  attachmentCount     Int                         @default(0)
+  sourcePosted        Boolean?
+  sourceAudited       Boolean?
+  sourceInvalid       Boolean?
+  externalSourceSystem String?
+  externalSourceDocumentNo String?
+  externalSourceDocumentId String?
+  externalSourceAccountSet String?
+  externalSourceDate  String?
+  sourceMetadata      Json?
   editedBy            Int?
   editedAt            DateTime?
   version             Int                         @default(1)
@@ -128,6 +149,10 @@ model FinanceVoucherItem {
   exchangeRate                   Decimal?                      @db.Decimal(20, 8)
   originalDebit                  Decimal?                      @db.Decimal(20, 2)
   originalCredit                 Decimal?                      @db.Decimal(20, 2)
+  settlementStyle                String?
+  settlementNo                   String?
+  settlementDate                 String?
+  sourceMetadata                 Json?
   /// 关联导入批次
   importId                       Int?
   account                        FinanceAccount                @relation(fields: [accountId], references: [id])
@@ -138,6 +163,8 @@ model FinanceVoucherItem {
   cashFlowOwnerAllocations       FinanceCashFlowAllocation[]   @relation("FinanceCashFlowOwnerItem")
   cashFlowCounterpartAllocations FinanceCashFlowAllocation[]   @relation("FinanceCashFlowCounterpartItem")
   openItems                      FinanceOpenItem[]
+  consolidationEntryLines       FinanceConsolidationEntryLine[]
+  consolidationMatchSources     FinanceConsolidationMatchSource[]
 
   @@unique([voucherId, accountId, sortOrder])
   @@unique([sourceSystem, sourceDatabase, sourceKey])

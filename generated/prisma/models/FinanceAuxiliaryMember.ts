@@ -31,6 +31,7 @@ export type FinanceAuxiliaryMemberAvgAggregateOutputType = {
   firstYear: number | null
   lastYear: number | null
   latestImportId: number | null
+  linkedCompanyId: number | null
 }
 
 export type FinanceAuxiliaryMemberSumAggregateOutputType = {
@@ -38,6 +39,7 @@ export type FinanceAuxiliaryMemberSumAggregateOutputType = {
   firstYear: number | null
   lastYear: number | null
   latestImportId: number | null
+  linkedCompanyId: number | null
 }
 
 export type FinanceAuxiliaryMemberMinAggregateOutputType = {
@@ -58,6 +60,9 @@ export type FinanceAuxiliaryMemberMinAggregateOutputType = {
   firstYear: number | null
   lastYear: number | null
   latestImportId: number | null
+  linkedCompanyId: number | null
+  companyLinkMethod: string | null
+  companyLinkEvidence: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -80,6 +85,9 @@ export type FinanceAuxiliaryMemberMaxAggregateOutputType = {
   firstYear: number | null
   lastYear: number | null
   latestImportId: number | null
+  linkedCompanyId: number | null
+  companyLinkMethod: string | null
+  companyLinkEvidence: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -102,6 +110,9 @@ export type FinanceAuxiliaryMemberCountAggregateOutputType = {
   firstYear: number
   lastYear: number
   latestImportId: number
+  linkedCompanyId: number
+  companyLinkMethod: number
+  companyLinkEvidence: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -113,6 +124,7 @@ export type FinanceAuxiliaryMemberAvgAggregateInputType = {
   firstYear?: true
   lastYear?: true
   latestImportId?: true
+  linkedCompanyId?: true
 }
 
 export type FinanceAuxiliaryMemberSumAggregateInputType = {
@@ -120,6 +132,7 @@ export type FinanceAuxiliaryMemberSumAggregateInputType = {
   firstYear?: true
   lastYear?: true
   latestImportId?: true
+  linkedCompanyId?: true
 }
 
 export type FinanceAuxiliaryMemberMinAggregateInputType = {
@@ -140,6 +153,9 @@ export type FinanceAuxiliaryMemberMinAggregateInputType = {
   firstYear?: true
   lastYear?: true
   latestImportId?: true
+  linkedCompanyId?: true
+  companyLinkMethod?: true
+  companyLinkEvidence?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -162,6 +178,9 @@ export type FinanceAuxiliaryMemberMaxAggregateInputType = {
   firstYear?: true
   lastYear?: true
   latestImportId?: true
+  linkedCompanyId?: true
+  companyLinkMethod?: true
+  companyLinkEvidence?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -184,6 +203,9 @@ export type FinanceAuxiliaryMemberCountAggregateInputType = {
   firstYear?: true
   lastYear?: true
   latestImportId?: true
+  linkedCompanyId?: true
+  companyLinkMethod?: true
+  companyLinkEvidence?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -293,6 +315,9 @@ export type FinanceAuxiliaryMemberGroupByOutputType = {
   firstYear: number | null
   lastYear: number | null
   latestImportId: number | null
+  linkedCompanyId: number | null
+  companyLinkMethod: string | null
+  companyLinkEvidence: string | null
   createdAt: Date
   updatedAt: Date
   _count: FinanceAuxiliaryMemberCountAggregateOutputType | null
@@ -338,9 +363,13 @@ export type FinanceAuxiliaryMemberWhereInput = {
   firstYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   lastYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   latestImportId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  linkedCompanyId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  companyLinkMethod?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
+  companyLinkEvidence?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
+  linkedCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryListRelationFilter
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberListRelationFilter
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryListRelationFilter
@@ -364,9 +393,13 @@ export type FinanceAuxiliaryMemberOrderByWithRelationInput = {
   firstYear?: Prisma.SortOrderInput | Prisma.SortOrder
   lastYear?: Prisma.SortOrderInput | Prisma.SortOrder
   latestImportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyLinkMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyLinkEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   latestImport?: Prisma.FinanceLedgerImportOrderByWithRelationInput
+  linkedCompany?: Prisma.CompanyOrderByWithRelationInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryOrderByRelationAggregateInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberOrderByRelationAggregateInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryOrderByRelationAggregateInput
@@ -394,9 +427,13 @@ export type FinanceAuxiliaryMemberWhereUniqueInput = Prisma.AtLeast<{
   firstYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   lastYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   latestImportId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  linkedCompanyId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  companyLinkMethod?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
+  companyLinkEvidence?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
   latestImport?: Prisma.XOR<Prisma.FinanceLedgerImportNullableScalarRelationFilter, Prisma.FinanceLedgerImportWhereInput> | null
+  linkedCompany?: Prisma.XOR<Prisma.CompanyNullableScalarRelationFilter, Prisma.CompanyWhereInput> | null
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryListRelationFilter
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberListRelationFilter
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryListRelationFilter
@@ -420,6 +457,9 @@ export type FinanceAuxiliaryMemberOrderByWithAggregationInput = {
   firstYear?: Prisma.SortOrderInput | Prisma.SortOrder
   lastYear?: Prisma.SortOrderInput | Prisma.SortOrder
   latestImportId?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyLinkMethod?: Prisma.SortOrderInput | Prisma.SortOrder
+  companyLinkEvidence?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FinanceAuxiliaryMemberCountOrderByAggregateInput
@@ -450,6 +490,9 @@ export type FinanceAuxiliaryMemberScalarWhereWithAggregatesInput = {
   firstYear?: Prisma.IntNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | number | null
   lastYear?: Prisma.IntNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | number | null
   latestImportId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | number | null
+  linkedCompanyId?: Prisma.IntNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | number | null
+  companyLinkMethod?: Prisma.StringNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | string | null
+  companyLinkEvidence?: Prisma.StringNullableWithAggregatesFilter<"FinanceAuxiliaryMember"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceAuxiliaryMember"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceAuxiliaryMember"> | Date | string
 }
@@ -470,9 +513,12 @@ export type FinanceAuxiliaryMemberCreateInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryMembersInput
+  linkedCompany?: Prisma.CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutMemberInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutMemberInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutMemberInput
@@ -496,6 +542,9 @@ export type FinanceAuxiliaryMemberUncheckedCreateInput = {
   firstYear?: number | null
   lastYear?: number | null
   latestImportId?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
@@ -519,9 +568,12 @@ export type FinanceAuxiliaryMemberUpdateInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutAuxiliaryMembersNestedInput
+  linkedCompany?: Prisma.CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutMemberNestedInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutMemberNestedInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutMemberNestedInput
@@ -545,6 +597,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateInput = {
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
@@ -570,6 +625,9 @@ export type FinanceAuxiliaryMemberCreateManyInput = {
   firstYear?: number | null
   lastYear?: number | null
   latestImportId?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -590,6 +648,8 @@ export type FinanceAuxiliaryMemberUpdateManyMutationInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -612,6 +672,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateManyInput = {
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -642,6 +705,9 @@ export type FinanceAuxiliaryMemberCountOrderByAggregateInput = {
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrder
+  companyLinkMethod?: Prisma.SortOrder
+  companyLinkEvidence?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -651,6 +717,7 @@ export type FinanceAuxiliaryMemberAvgOrderByAggregateInput = {
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrder
 }
 
 export type FinanceAuxiliaryMemberMaxOrderByAggregateInput = {
@@ -671,6 +738,9 @@ export type FinanceAuxiliaryMemberMaxOrderByAggregateInput = {
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrder
+  companyLinkMethod?: Prisma.SortOrder
+  companyLinkEvidence?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -693,6 +763,9 @@ export type FinanceAuxiliaryMemberMinOrderByAggregateInput = {
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrder
+  companyLinkMethod?: Prisma.SortOrder
+  companyLinkEvidence?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -702,6 +775,7 @@ export type FinanceAuxiliaryMemberSumOrderByAggregateInput = {
   firstYear?: Prisma.SortOrder
   lastYear?: Prisma.SortOrder
   latestImportId?: Prisma.SortOrder
+  linkedCompanyId?: Prisma.SortOrder
 }
 
 export type FinanceAuxiliaryMemberScalarRelationFilter = {
@@ -803,6 +877,48 @@ export type FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportNestedIn
   deleteMany?: Prisma.FinanceAuxiliaryMemberScalarWhereInput | Prisma.FinanceAuxiliaryMemberScalarWhereInput[]
 }
 
+export type FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput[] | Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput[]
+  createMany?: Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInputEnvelope
+  connect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+}
+
+export type FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput[] | Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput[]
+  createMany?: Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInputEnvelope
+  connect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+}
+
+export type FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput[] | Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput[]
+  upsert?: Prisma.FinanceAuxiliaryMemberUpsertWithWhereUniqueWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpsertWithWhereUniqueWithoutLinkedCompanyInput[]
+  createMany?: Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInputEnvelope
+  set?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  delete?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  connect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  update?: Prisma.FinanceAuxiliaryMemberUpdateWithWhereUniqueWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpdateWithWhereUniqueWithoutLinkedCompanyInput[]
+  updateMany?: Prisma.FinanceAuxiliaryMemberUpdateManyWithWhereWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpdateManyWithWhereWithoutLinkedCompanyInput[]
+  deleteMany?: Prisma.FinanceAuxiliaryMemberScalarWhereInput | Prisma.FinanceAuxiliaryMemberScalarWhereInput[]
+}
+
+export type FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput> | Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput[] | Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput[]
+  connectOrCreate?: Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput[]
+  upsert?: Prisma.FinanceAuxiliaryMemberUpsertWithWhereUniqueWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpsertWithWhereUniqueWithoutLinkedCompanyInput[]
+  createMany?: Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInputEnvelope
+  set?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  disconnect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  delete?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  connect?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput | Prisma.FinanceAuxiliaryMemberWhereUniqueInput[]
+  update?: Prisma.FinanceAuxiliaryMemberUpdateWithWhereUniqueWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpdateWithWhereUniqueWithoutLinkedCompanyInput[]
+  updateMany?: Prisma.FinanceAuxiliaryMemberUpdateManyWithWhereWithoutLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberUpdateManyWithWhereWithoutLinkedCompanyInput[]
+  deleteMany?: Prisma.FinanceAuxiliaryMemberScalarWhereInput | Prisma.FinanceAuxiliaryMemberScalarWhereInput[]
+}
+
 export type FinanceAuxiliaryMemberCreateWithoutVoucherLinksInput = {
   companyCode: string
   sourceSystem: string
@@ -819,9 +935,12 @@ export type FinanceAuxiliaryMemberCreateWithoutVoucherLinksInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryMembersInput
+  linkedCompany?: Prisma.CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutMemberInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutMemberInput
 }
@@ -844,6 +963,9 @@ export type FinanceAuxiliaryMemberUncheckedCreateWithoutVoucherLinksInput = {
   firstYear?: number | null
   lastYear?: number | null
   latestImportId?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutMemberInput
@@ -882,9 +1004,12 @@ export type FinanceAuxiliaryMemberUpdateWithoutVoucherLinksInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutAuxiliaryMembersNestedInput
+  linkedCompany?: Prisma.CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutMemberNestedInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutMemberNestedInput
 }
@@ -907,6 +1032,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateWithoutVoucherLinksInput = {
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutMemberNestedInput
@@ -929,9 +1057,12 @@ export type FinanceAuxiliaryMemberCreateWithoutBalanceLinksInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryMembersInput
+  linkedCompany?: Prisma.CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutMemberInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutMemberInput
 }
@@ -954,6 +1085,9 @@ export type FinanceAuxiliaryMemberUncheckedCreateWithoutBalanceLinksInput = {
   firstYear?: number | null
   lastYear?: number | null
   latestImportId?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
@@ -992,9 +1126,12 @@ export type FinanceAuxiliaryMemberUpdateWithoutBalanceLinksInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutAuxiliaryMembersNestedInput
+  linkedCompany?: Prisma.CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutMemberNestedInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutMemberNestedInput
 }
@@ -1017,6 +1154,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateWithoutBalanceLinksInput = {
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
@@ -1039,9 +1179,12 @@ export type FinanceAuxiliaryMemberCreateWithoutOpenItemLinksInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryMembersInput
+  linkedCompany?: Prisma.CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutMemberInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutMemberInput
 }
@@ -1064,6 +1207,9 @@ export type FinanceAuxiliaryMemberUncheckedCreateWithoutOpenItemLinksInput = {
   firstYear?: number | null
   lastYear?: number | null
   latestImportId?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
@@ -1102,9 +1248,12 @@ export type FinanceAuxiliaryMemberUpdateWithoutOpenItemLinksInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutAuxiliaryMembersNestedInput
+  linkedCompany?: Prisma.CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutMemberNestedInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutMemberNestedInput
 }
@@ -1127,6 +1276,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateWithoutOpenItemLinksInput = {
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
@@ -1149,8 +1301,11 @@ export type FinanceAuxiliaryMemberCreateWithoutLatestImportInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  linkedCompany?: Prisma.CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutMemberInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutMemberInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutMemberInput
@@ -1173,6 +1328,9 @@ export type FinanceAuxiliaryMemberUncheckedCreateWithoutLatestImportInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
@@ -1227,8 +1385,90 @@ export type FinanceAuxiliaryMemberScalarWhereInput = {
   firstYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   lastYear?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
   latestImportId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  linkedCompanyId?: Prisma.IntNullableFilter<"FinanceAuxiliaryMember"> | number | null
+  companyLinkMethod?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
+  companyLinkEvidence?: Prisma.StringNullableFilter<"FinanceAuxiliaryMember"> | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceAuxiliaryMember"> | Date | string
+}
+
+export type FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  dimensionType: string
+  sourceCode: string
+  sourceName: string
+  shortName?: string | null
+  identityNumber?: string | null
+  contactPerson?: string | null
+  phone?: string | null
+  address?: string | null
+  bankName?: string | null
+  bankAccount?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  latestImport?: Prisma.FinanceLedgerImportCreateNestedOneWithoutAuxiliaryMembersInput
+  voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutMemberInput
+  balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberCreateNestedManyWithoutMemberInput
+  openItemLinks?: Prisma.FinanceOpenItemAuxiliaryCreateNestedManyWithoutMemberInput
+}
+
+export type FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  dimensionType: string
+  sourceCode: string
+  sourceName: string
+  shortName?: string | null
+  identityNumber?: string | null
+  contactPerson?: string | null
+  phone?: string | null
+  address?: string | null
+  bankName?: string | null
+  bankAccount?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  latestImportId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
+  balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedCreateNestedManyWithoutMemberInput
+  openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUncheckedCreateNestedManyWithoutMemberInput
+}
+
+export type FinanceAuxiliaryMemberCreateOrConnectWithoutLinkedCompanyInput = {
+  where: Prisma.FinanceAuxiliaryMemberWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput>
+}
+
+export type FinanceAuxiliaryMemberCreateManyLinkedCompanyInputEnvelope = {
+  data: Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInput | Prisma.FinanceAuxiliaryMemberCreateManyLinkedCompanyInput[]
+  skipDuplicates?: boolean
+}
+
+export type FinanceAuxiliaryMemberUpsertWithWhereUniqueWithoutLinkedCompanyInput = {
+  where: Prisma.FinanceAuxiliaryMemberWhereUniqueInput
+  update: Prisma.XOR<Prisma.FinanceAuxiliaryMemberUpdateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedUpdateWithoutLinkedCompanyInput>
+  create: Prisma.XOR<Prisma.FinanceAuxiliaryMemberCreateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedCreateWithoutLinkedCompanyInput>
+}
+
+export type FinanceAuxiliaryMemberUpdateWithWhereUniqueWithoutLinkedCompanyInput = {
+  where: Prisma.FinanceAuxiliaryMemberWhereUniqueInput
+  data: Prisma.XOR<Prisma.FinanceAuxiliaryMemberUpdateWithoutLinkedCompanyInput, Prisma.FinanceAuxiliaryMemberUncheckedUpdateWithoutLinkedCompanyInput>
+}
+
+export type FinanceAuxiliaryMemberUpdateManyWithWhereWithoutLinkedCompanyInput = {
+  where: Prisma.FinanceAuxiliaryMemberScalarWhereInput
+  data: Prisma.XOR<Prisma.FinanceAuxiliaryMemberUpdateManyMutationInput, Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyInput>
 }
 
 export type FinanceAuxiliaryMemberCreateManyLatestImportInput = {
@@ -1248,6 +1488,9 @@ export type FinanceAuxiliaryMemberCreateManyLatestImportInput = {
   bankAccount?: string | null
   firstYear?: number | null
   lastYear?: number | null
+  linkedCompanyId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1268,8 +1511,11 @@ export type FinanceAuxiliaryMemberUpdateWithoutLatestImportInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  linkedCompany?: Prisma.CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutMemberNestedInput
   balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutMemberNestedInput
   openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutMemberNestedInput
@@ -1292,6 +1538,9 @@ export type FinanceAuxiliaryMemberUncheckedUpdateWithoutLatestImportInput = {
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
@@ -1316,6 +1565,110 @@ export type FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLatestImportInput = 
   bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  linkedCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceAuxiliaryMemberCreateManyLinkedCompanyInput = {
+  id?: number
+  companyCode: string
+  sourceSystem: string
+  sourceLedger: string
+  dimensionType: string
+  sourceCode: string
+  sourceName: string
+  shortName?: string | null
+  identityNumber?: string | null
+  contactPerson?: string | null
+  phone?: string | null
+  address?: string | null
+  bankName?: string | null
+  bankAccount?: string | null
+  firstYear?: number | null
+  lastYear?: number | null
+  latestImportId?: number | null
+  companyLinkMethod?: string | null
+  companyLinkEvidence?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceAuxiliaryMemberUpdateWithoutLinkedCompanyInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  dimensionType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  latestImport?: Prisma.FinanceLedgerImportUpdateOneWithoutAuxiliaryMembersNestedInput
+  voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutMemberNestedInput
+  balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUpdateManyWithoutMemberNestedInput
+  openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUpdateManyWithoutMemberNestedInput
+}
+
+export type FinanceAuxiliaryMemberUncheckedUpdateWithoutLinkedCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  dimensionType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  voucherLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
+  balanceLinks?: Prisma.FinanceAuxiliaryBalanceMemberUncheckedUpdateManyWithoutMemberNestedInput
+  openItemLinks?: Prisma.FinanceOpenItemAuxiliaryUncheckedUpdateManyWithoutMemberNestedInput
+}
+
+export type FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceLedger?: Prisma.StringFieldUpdateOperationsInput | string
+  dimensionType?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceName?: Prisma.StringFieldUpdateOperationsInput | string
+  shortName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  identityNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  firstYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lastYear?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  latestImportId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  companyLinkMethod?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  companyLinkEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1387,9 +1740,13 @@ export type FinanceAuxiliaryMemberSelect<ExtArgs extends runtime.Types.Extension
   firstYear?: boolean
   lastYear?: boolean
   latestImportId?: boolean
+  linkedCompanyId?: boolean
+  companyLinkMethod?: boolean
+  companyLinkEvidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
   voucherLinks?: boolean | Prisma.FinanceAuxiliaryMember$voucherLinksArgs<ExtArgs>
   balanceLinks?: boolean | Prisma.FinanceAuxiliaryMember$balanceLinksArgs<ExtArgs>
   openItemLinks?: boolean | Prisma.FinanceAuxiliaryMember$openItemLinksArgs<ExtArgs>
@@ -1414,9 +1771,13 @@ export type FinanceAuxiliaryMemberSelectCreateManyAndReturn<ExtArgs extends runt
   firstYear?: boolean
   lastYear?: boolean
   latestImportId?: boolean
+  linkedCompanyId?: boolean
+  companyLinkMethod?: boolean
+  companyLinkEvidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAuxiliaryMember"]>
 
 export type FinanceAuxiliaryMemberSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1437,9 +1798,13 @@ export type FinanceAuxiliaryMemberSelectUpdateManyAndReturn<ExtArgs extends runt
   firstYear?: boolean
   lastYear?: boolean
   latestImportId?: boolean
+  linkedCompanyId?: boolean
+  companyLinkMethod?: boolean
+  companyLinkEvidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
 }, ExtArgs["result"]["financeAuxiliaryMember"]>
 
 export type FinanceAuxiliaryMemberSelectScalar = {
@@ -1460,13 +1825,17 @@ export type FinanceAuxiliaryMemberSelectScalar = {
   firstYear?: boolean
   lastYear?: boolean
   latestImportId?: boolean
+  linkedCompanyId?: boolean
+  companyLinkMethod?: boolean
+  companyLinkEvidence?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceAuxiliaryMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceSystem" | "sourceLedger" | "dimensionType" | "sourceCode" | "sourceName" | "shortName" | "identityNumber" | "contactPerson" | "phone" | "address" | "bankName" | "bankAccount" | "firstYear" | "lastYear" | "latestImportId" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAuxiliaryMember"]>
+export type FinanceAuxiliaryMemberOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "companyCode" | "sourceSystem" | "sourceLedger" | "dimensionType" | "sourceCode" | "sourceName" | "shortName" | "identityNumber" | "contactPerson" | "phone" | "address" | "bankName" | "bankAccount" | "firstYear" | "lastYear" | "latestImportId" | "linkedCompanyId" | "companyLinkMethod" | "companyLinkEvidence" | "createdAt" | "updatedAt", ExtArgs["result"]["financeAuxiliaryMember"]>
 export type FinanceAuxiliaryMemberInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
   voucherLinks?: boolean | Prisma.FinanceAuxiliaryMember$voucherLinksArgs<ExtArgs>
   balanceLinks?: boolean | Prisma.FinanceAuxiliaryMember$balanceLinksArgs<ExtArgs>
   openItemLinks?: boolean | Prisma.FinanceAuxiliaryMember$openItemLinksArgs<ExtArgs>
@@ -1474,15 +1843,18 @@ export type FinanceAuxiliaryMemberInclude<ExtArgs extends runtime.Types.Extensio
 }
 export type FinanceAuxiliaryMemberIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
 }
 export type FinanceAuxiliaryMemberIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   latestImport?: boolean | Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>
+  linkedCompany?: boolean | Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>
 }
 
 export type $FinanceAuxiliaryMemberPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceAuxiliaryMember"
   objects: {
     latestImport: Prisma.$FinanceLedgerImportPayload<ExtArgs> | null
+    linkedCompany: Prisma.$CompanyPayload<ExtArgs> | null
     voucherLinks: Prisma.$FinanceVoucherItemAuxiliaryPayload<ExtArgs>[]
     balanceLinks: Prisma.$FinanceAuxiliaryBalanceMemberPayload<ExtArgs>[]
     openItemLinks: Prisma.$FinanceOpenItemAuxiliaryPayload<ExtArgs>[]
@@ -1505,6 +1877,9 @@ export type $FinanceAuxiliaryMemberPayload<ExtArgs extends runtime.Types.Extensi
     firstYear: number | null
     lastYear: number | null
     latestImportId: number | null
+    linkedCompanyId: number | null
+    companyLinkMethod: string | null
+    companyLinkEvidence: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["financeAuxiliaryMember"]>
@@ -1902,6 +2277,7 @@ readonly fields: FinanceAuxiliaryMemberFieldRefs;
 export interface Prisma__FinanceAuxiliaryMemberClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   latestImport<T extends Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryMember$latestImportArgs<ExtArgs>>): Prisma.Prisma__FinanceLedgerImportClient<runtime.Types.Result.GetResult<Prisma.$FinanceLedgerImportPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  linkedCompany<T extends Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   voucherLinks<T extends Prisma.FinanceAuxiliaryMember$voucherLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryMember$voucherLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemAuxiliaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   balanceLinks<T extends Prisma.FinanceAuxiliaryMember$balanceLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryMember$balanceLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryBalanceMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   openItemLinks<T extends Prisma.FinanceAuxiliaryMember$openItemLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceAuxiliaryMember$openItemLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemAuxiliaryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -1951,6 +2327,9 @@ export interface FinanceAuxiliaryMemberFieldRefs {
   readonly firstYear: Prisma.FieldRef<"FinanceAuxiliaryMember", 'Int'>
   readonly lastYear: Prisma.FieldRef<"FinanceAuxiliaryMember", 'Int'>
   readonly latestImportId: Prisma.FieldRef<"FinanceAuxiliaryMember", 'Int'>
+  readonly linkedCompanyId: Prisma.FieldRef<"FinanceAuxiliaryMember", 'Int'>
+  readonly companyLinkMethod: Prisma.FieldRef<"FinanceAuxiliaryMember", 'String'>
+  readonly companyLinkEvidence: Prisma.FieldRef<"FinanceAuxiliaryMember", 'String'>
   readonly createdAt: Prisma.FieldRef<"FinanceAuxiliaryMember", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinanceAuxiliaryMember", 'DateTime'>
 }
@@ -2370,6 +2749,25 @@ export type FinanceAuxiliaryMember$latestImportArgs<ExtArgs extends runtime.Type
    */
   include?: Prisma.FinanceLedgerImportInclude<ExtArgs> | null
   where?: Prisma.FinanceLedgerImportWhereInput
+}
+
+/**
+ * FinanceAuxiliaryMember.linkedCompany
+ */
+export type FinanceAuxiliaryMember$linkedCompanyArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Company
+   */
+  select?: Prisma.CompanySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Company
+   */
+  omit?: Prisma.CompanyOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CompanyInclude<ExtArgs> | null
+  where?: Prisma.CompanyWhereInput
 }
 
 /**

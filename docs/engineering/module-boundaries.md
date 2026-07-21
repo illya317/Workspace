@@ -16,7 +16,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 | `@workspace/work` | 业务 | 工作管理：工作计划、项目管理、工作汇报、历史记录 | 直接依赖 HR、Finance、Production、Administration、Library |
 | `@workspace/administration` | 业务 | 行政管理：合同台账等行政能力 | 直接依赖其他业务包 |
 | `@workspace/library` | 业务 | 资料库、资料检索、尽调问卷、生成资料 | 直接依赖其他业务包 |
-| `@workspace/capital-securities` | 业务 | 资本证券：投资人关系、治理架构和资本事务入口 | 直接依赖其他业务包；治理组织写入走 Platform 组织单元服务 |
+| `@workspace/capital-securities` | 业务 | 资本证券：投资人关系、治理架构、法律公司主数据和股权控制关系 | 直接依赖其他业务包；治理组织写入走 Platform 组织单元服务 |
 
 ## 当前落地状态
 
@@ -30,7 +30,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - `packages/hr/constants` 已接收 HR 人力分析维度常量、员工详情字段配置、学校库、HR 字段选项和批量表格 Tab 配置。
 - `packages/hr/utils` 已接收员工身份字段格式化/校验和部门路径格式化 helper。
 - `packages/hr/ui` 已接收 HR 合同分析、编码表、批量表 hook、农历生日 helper、HR 专用字段/选择组件、HR 批量表工具栏，以及员工资料、员工详情、部门岗位、项目资料等第一批 HR UI 页面组件。
-- `packages/hr/server` 已接收 HR autocomplete 与搜索配置、字段校验、创建参数 schema、公司、公司关系、部门、员工、雇佣、合同、EDP、项目、员工项目、名册、岗位、岗位说明书模板、员工详情聚合、员工合同/岗位/项目保存、员工历史记录和岗位说明书查询/保存 service。
+- `packages/hr/server` 已接收 HR autocomplete 与搜索配置、字段校验、创建参数 schema、部门、员工、雇佣、合同、EDP、名册、岗位、岗位说明书模板、员工详情聚合、员工合同/岗位保存、员工历史记录和岗位说明书查询/保存 service。公司与股权关系写服务归 `packages/capital-securities/server`。
 - `packages/hr/server/search.ts` 已接收 HR 员工和 HR 主数据搜索语义。
 - `packages/finance/ui` 已接收财务重分类配置视图及其局部组件、列配置。
 - `packages/finance/ui` 已接收财务页面、分页、导航，以及 `useFinanceFilterToolbarItems`、`useReclass*`、`createImportPreviewSections` 等结构声明 interface；旧 `app/finance/components/*` 和无调用的默认 JSX wrapper 已删除，页面直接组合 Finance builder 与 Core Surface。
@@ -61,7 +61,7 @@ Workspace 采用 `Core -> Platform -> Apps` 三层多包结构。短期仍是一
 - 每个业务包的 `module.ts` 只导出 `moduleDefinition`。`moduleDefinition` 必须来自 `packages/platform/module-registry.ts` 的 `getRegisteredModuleDefinition("@workspace/<domain>")`；`npm run arch:gate` 会校验业务包导出、registry 注册和重复 module key。
 - `packages/platform/ui/docs` 已接收文档中心 UI；个人 API 接入和接口契约展示归 `packages/platform/ui/settings` 的 `/settings/account` 正文。
 - `app/hr/types.ts`、`app/hr/profile/types.ts`、`app/hr/tabConfigs.ts`、`app/hr/tab-configs/*`、`app/hr/profile/fields.ts`、`app/hr/profile/lunar-birthday.ts`、`app/hr/analytics/*`、`app/hr/profile/*`、第一批 `app/hr/components/*` HR 专用字段组件、`app/hr/code/*` 编码表实现和第一批 `app/hr/tabs/*` 大组件已迁入业务包。
-- `app/api/modules/hr/roster/autocomplete`、`app/api/modules/hr/roster/companies`、`app/api/modules/hr/roster/company-relations`、`app/api/modules/hr/roster/contracts`、`app/api/modules/hr/roster/departments`、`app/api/modules/hr/roster/edps`、`app/api/modules/hr/roster/employees`、`app/api/modules/hr/roster/employee-profiles/*`、`app/api/modules/hr/roster/employments`、`app/api/modules/hr/roster/position-description-templates`、`app/api/modules/hr/roster/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/roster/position-descriptions` 已降级为认证/权限/响应壳，业务逻辑下沉到 `@workspace/hr/server`。
+- `app/api/modules/hr/roster/autocomplete`、只读 `app/api/modules/hr/roster/companies`、`app/api/modules/hr/roster/contracts`、`app/api/modules/hr/roster/departments`、`app/api/modules/hr/roster/edps`、`app/api/modules/hr/roster/employees`、`app/api/modules/hr/roster/employee-profiles/*`、`app/api/modules/hr/roster/employments`、`app/api/modules/hr/roster/position-description-templates`、`app/api/modules/hr/roster/positions`、`app/api/modules/hr/roster` 和 `app/api/modules/hr/roster/position-descriptions` 已降级为认证/权限/响应壳。公司及股权关系写路由位于 `app/api/modules/capitalSecurities/governance/*`。
 - 模块注册中的 `href` 与 `routes` 必须使用不带 basePath 的站内绝对路径，例如 `/hr/roster`；禁止写 `@workspace/...` package 名或 `/workspace/...`，这个规则由 `npm run arch:gate` 校验。
 - `moduleDef.href` 必须是 L1 根路径；`children[*].href` 必须是直接 L2 route，并自动成为 page contract。`routes` 只登记 L2 以下真实页面或无 moduleDef 的系统页面；真实 app page 必须命中一个 page contract，不允许靠手写 gate 漏出 registry。
 - 页面源码使用 Next route groups 收口：业务页放 `app/(modules)/*`，平台/设置/管理放 `app/(system)/*`，登录放 `app/(auth)/*`，文档放 `app/(docs)/*`。这些 group 不改变 URL；不要再新增顶层 `app/<module>` 页面目录。

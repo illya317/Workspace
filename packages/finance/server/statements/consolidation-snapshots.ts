@@ -70,8 +70,8 @@ export interface ConsolidationRateFact {
   rate: Prisma.Decimal;
   sourceUrl: string;
   publishedAt: Date | null;
-  verifiedBy: number | null;
-  verifiedAt: Date | null;
+  recordedBy: number | null;
+  recordedAt: Date;
   applications: Prisma.InputJsonValue;
 }
 
@@ -83,6 +83,14 @@ function reportTypeForGenerator(reportType: StatementReportType) {
   if (reportType === "balanceSheet") return "balance" as const;
   if (reportType === "incomeStatement") return "income" as const;
   return "cashflow" as const;
+}
+
+function normalizedCurrencyCode(sourceCode: string, sourceName: string) {
+  const code = sourceCode.trim().toUpperCase();
+  if (code === "RMB" || sourceName.includes("人民币")) return "CNY";
+  if (/^[A-Z]{3}$/.test(code)) return code;
+  if (sourceName.includes("加拿大元") || sourceName.includes("加元")) return "CAD";
+  return null;
 }
 
 async function generateFrozenReportPayload(
@@ -183,6 +191,30 @@ export async function loadConsolidationScopeFacts(parentCompanyId: number, asOfD
   };
   visit(parentCompanyId, new Set([parentCompanyId]));
   if (facts.length === 1) throw new ConsolidationSnapshotError("母公司没有已标记并表的子公司", 409);
+  const baseCurrencies = await prisma.financeCurrency.findMany({
+    where: { companyCode: { in: facts.map((fact) => fact.companyCode) }, isBase: true },
+    select: {
+      companyCode: true,
+      sourceSystem: true,
+      sourceLedger: true,
+      sourceCode: true,
+      sourceName: true,
+      updatedAt: true,
+    },
+    orderBy: [{ updatedAt: "desc" }, { id: "desc" }],
+  });
+  const baseCurrencyByCompany = new Map<string, typeof baseCurrencies[number]>();
+  for (const currency of baseCurrencies) {
+    if (!baseCurrencyByCompany.has(currency.companyCode)) baseCurrencyByCompany.set(currency.companyCode, currency);
+  }
+  for (const fact of facts) {
+    const currency = baseCurrencyByCompany.get(fact.companyCode);
+    if (!currency) continue;
+    fact.functionalCurrency = normalizedCurrencyCode(currency.sourceCode, currency.sourceName);
+    fact.currencyEvidence = fact.functionalCurrency
+      ? `ERP本位币主数据：${currency.sourceSystem}/${currency.sourceLedger} ${currency.sourceCode} ${currency.sourceName}，抓取于 ${currency.updatedAt.toISOString()}`
+      : null;
+  }
   return facts;
 }
 
@@ -392,7 +424,7 @@ export async function assertConsolidationSourceFactsCurrent(
   }
 }
 
-export async function loadVerifiedRateFacts(
+export async function loadAvailableRateFacts(
   periodEnd: string,
   exchangeRateIds?: number[],
 ): Promise<ConsolidationRateFact[]> {
@@ -400,22 +432,22 @@ export async function loadVerifiedRateFacts(
     where: exchangeRateIds
       ? {
           id: { in: exchangeRateIds },
-          status: "verified",
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
+          rateKind: "centralParity",
           rateDate: { lte: periodEnd },
         }
       : {
-          status: "verified",
           baseCurrency: "CAD",
           quoteCurrency: "CNY",
+          rateKind: "centralParity",
           rateDate: { lte: periodEnd },
         },
     orderBy: [{ rateDate: "desc" }, { version: "desc" }],
     take: 200,
   });
   if (exchangeRateIds && rows.length !== exchangeRateIds.length) {
-    throw new ConsolidationSnapshotError("只能冻结已经独立复核的汇率证据版本", 409);
+    throw new ConsolidationSnapshotError("只能冻结当前期间可用的汇率证据版本", 409);
   }
   return rows.map((row) => ({
     exchangeRateId: row.id,
@@ -427,8 +459,8 @@ export async function loadVerifiedRateFacts(
     rate: row.rate,
     sourceUrl: row.sourceUrl,
     publishedAt: row.publishedAt,
-    verifiedBy: row.verifiedBy,
-    verifiedAt: row.verifiedAt,
+    recordedBy: row.updatedBy,
+    recordedAt: row.capturedAt,
     applications: [],
   }));
 }

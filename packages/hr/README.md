@@ -33,9 +33,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `ui/tabs/DepartmentPositionTab.tsx`：部门岗位架构与说明书维护页面。
 - `server/autocomplete.ts` 和 `server/autocomplete-config.ts`：HR FK/autocomplete 查询与搜索字段配置。
 - `server/crud.ts`：HR 字段级 CRUD wrapper，统一注入 HR 权限检查并复用 Platform CRUD 契约。
-- `server/companies.ts`：公司列表、创建、更新和删除。
-- 公司事实查询、编码解析和缓存由共享的 `@workspace/platform/server/company-directory` 提供；HR 只保留公司 CRUD 与领域校验。
-- `server/company-relations.ts`：公司关系列表、创建、更新和删除。
+- 公司事实查询、编码解析和缓存由共享的 `@workspace/platform/server/company-directory` 提供；公司及股权关系维护归资本证券，HR 只消费公司候选。
 - `server/contracts.ts`：合同 JSON 解析、列表、创建、更新、删除和主合同同步。
 - `server/departments.ts`：部门列表、创建、更新、删除和部门说明书保存。
 - `server/edps.ts`：EDP 列表、创建、更新和删除。
@@ -51,7 +49,7 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/positions.ts`：岗位列表、创建、更新和删除。
 - `server/roster.ts`：HR 名册列表、导出和筛选选项。
 - `server/search.ts`：HR 员工和主数据搜索语义。
-- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣、合同、员工详情合同/EDP、公司、公司关系、部门、岗位、EDP 和岗位说明书，统一收口 FK、日期、枚举、百分比、直接上级、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
+- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣、合同、员工详情合同/EDP、部门、岗位、EDP 和岗位说明书，统一收口 FK、日期、枚举、百分比、直接上级、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
 
 旧的 `app/hr/*` 类型和 helper 文件保留为 re-export，避免一次性改动大量页面引用。
 旧的 HR UI 大组件和第一批字段组件路径保留为 re-export，Next route 和现有页面入口保持不变。

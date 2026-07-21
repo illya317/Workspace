@@ -14,7 +14,7 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceConsolidationRateSnapshot
- * 合并批次汇率冻结快照（事实表，来源于已复核 FinanceStatementExchangeRate 版本）。
+ * 合并批次汇率冻结快照（事实表，来源于已保存的 FinanceStatementExchangeRate 版本）。
  */
 export type FinanceConsolidationRateSnapshotModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceConsolidationRateSnapshotPayload>
 
@@ -32,7 +32,7 @@ export type FinanceConsolidationRateSnapshotAvgAggregateOutputType = {
   exchangeRateId: number | null
   exchangeRateVersion: number | null
   rate: runtime.Decimal | null
-  verifiedBy: number | null
+  recordedBy: number | null
 }
 
 export type FinanceConsolidationRateSnapshotSumAggregateOutputType = {
@@ -41,7 +41,7 @@ export type FinanceConsolidationRateSnapshotSumAggregateOutputType = {
   exchangeRateId: number | null
   exchangeRateVersion: number | null
   rate: runtime.Decimal | null
-  verifiedBy: number | null
+  recordedBy: number | null
 }
 
 export type FinanceConsolidationRateSnapshotMinAggregateOutputType = {
@@ -56,8 +56,8 @@ export type FinanceConsolidationRateSnapshotMinAggregateOutputType = {
   rate: runtime.Decimal | null
   sourceUrl: string | null
   publishedAt: Date | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
+  recordedBy: number | null
+  recordedAt: Date | null
   createdAt: Date | null
 }
 
@@ -73,8 +73,8 @@ export type FinanceConsolidationRateSnapshotMaxAggregateOutputType = {
   rate: runtime.Decimal | null
   sourceUrl: string | null
   publishedAt: Date | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
+  recordedBy: number | null
+  recordedAt: Date | null
   createdAt: Date | null
 }
 
@@ -90,8 +90,8 @@ export type FinanceConsolidationRateSnapshotCountAggregateOutputType = {
   rate: number
   sourceUrl: number
   publishedAt: number
-  verifiedBy: number
-  verifiedAt: number
+  recordedBy: number
+  recordedAt: number
   applications: number
   createdAt: number
   _all: number
@@ -104,7 +104,7 @@ export type FinanceConsolidationRateSnapshotAvgAggregateInputType = {
   exchangeRateId?: true
   exchangeRateVersion?: true
   rate?: true
-  verifiedBy?: true
+  recordedBy?: true
 }
 
 export type FinanceConsolidationRateSnapshotSumAggregateInputType = {
@@ -113,7 +113,7 @@ export type FinanceConsolidationRateSnapshotSumAggregateInputType = {
   exchangeRateId?: true
   exchangeRateVersion?: true
   rate?: true
-  verifiedBy?: true
+  recordedBy?: true
 }
 
 export type FinanceConsolidationRateSnapshotMinAggregateInputType = {
@@ -128,8 +128,8 @@ export type FinanceConsolidationRateSnapshotMinAggregateInputType = {
   rate?: true
   sourceUrl?: true
   publishedAt?: true
-  verifiedBy?: true
-  verifiedAt?: true
+  recordedBy?: true
+  recordedAt?: true
   createdAt?: true
 }
 
@@ -145,8 +145,8 @@ export type FinanceConsolidationRateSnapshotMaxAggregateInputType = {
   rate?: true
   sourceUrl?: true
   publishedAt?: true
-  verifiedBy?: true
-  verifiedAt?: true
+  recordedBy?: true
+  recordedAt?: true
   createdAt?: true
 }
 
@@ -162,8 +162,8 @@ export type FinanceConsolidationRateSnapshotCountAggregateInputType = {
   rate?: true
   sourceUrl?: true
   publishedAt?: true
-  verifiedBy?: true
-  verifiedAt?: true
+  recordedBy?: true
+  recordedAt?: true
   applications?: true
   createdAt?: true
   _all?: true
@@ -267,8 +267,8 @@ export type FinanceConsolidationRateSnapshotGroupByOutputType = {
   rate: runtime.Decimal
   sourceUrl: string
   publishedAt: Date | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
+  recordedBy: number | null
+  recordedAt: Date | null
   applications: runtime.JsonValue
   createdAt: Date
   _count: FinanceConsolidationRateSnapshotCountAggregateOutputType | null
@@ -308,8 +308,8 @@ export type FinanceConsolidationRateSnapshotWhereInput = {
   rate?: Prisma.DecimalFilter<"FinanceConsolidationRateSnapshot"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFilter<"FinanceConsolidationRateSnapshot"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
-  verifiedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
+  recordedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
+  recordedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
   applications?: Prisma.JsonFilter<"FinanceConsolidationRateSnapshot">
   createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationRateSnapshot"> | Date | string
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
@@ -327,8 +327,8 @@ export type FinanceConsolidationRateSnapshotOrderByWithRelationInput = {
   rate?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   applications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   batch?: Prisma.FinanceConsolidationBatchOrderByWithRelationInput
@@ -350,8 +350,8 @@ export type FinanceConsolidationRateSnapshotWhereUniqueInput = Prisma.AtLeast<{
   rate?: Prisma.DecimalFilter<"FinanceConsolidationRateSnapshot"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFilter<"FinanceConsolidationRateSnapshot"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
-  verifiedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
+  recordedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
+  recordedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
   applications?: Prisma.JsonFilter<"FinanceConsolidationRateSnapshot">
   createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationRateSnapshot"> | Date | string
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
@@ -369,8 +369,8 @@ export type FinanceConsolidationRateSnapshotOrderByWithAggregationInput = {
   rate?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  recordedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   applications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.FinanceConsolidationRateSnapshotCountOrderByAggregateInput
@@ -395,8 +395,8 @@ export type FinanceConsolidationRateSnapshotScalarWhereWithAggregatesInput = {
   rate?: Prisma.DecimalWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | string
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
-  verifiedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
+  recordedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | number | null
+  recordedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
   applications?: Prisma.JsonWithAggregatesFilter<"FinanceConsolidationRateSnapshot">
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceConsolidationRateSnapshot"> | Date | string
 }
@@ -411,8 +411,8 @@ export type FinanceConsolidationRateSnapshotCreateInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
   batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutExchangeRatesInput
@@ -430,8 +430,8 @@ export type FinanceConsolidationRateSnapshotUncheckedCreateInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -446,8 +446,8 @@ export type FinanceConsolidationRateSnapshotUpdateInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutExchangeRatesNestedInput
@@ -465,8 +465,8 @@ export type FinanceConsolidationRateSnapshotUncheckedUpdateInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -483,8 +483,8 @@ export type FinanceConsolidationRateSnapshotCreateManyInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -499,8 +499,8 @@ export type FinanceConsolidationRateSnapshotUpdateManyMutationInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -517,8 +517,8 @@ export type FinanceConsolidationRateSnapshotUncheckedUpdateManyInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -550,8 +550,8 @@ export type FinanceConsolidationRateSnapshotCountOrderByAggregateInput = {
   rate?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
+  recordedBy?: Prisma.SortOrder
+  recordedAt?: Prisma.SortOrder
   applications?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -562,7 +562,7 @@ export type FinanceConsolidationRateSnapshotAvgOrderByAggregateInput = {
   exchangeRateId?: Prisma.SortOrder
   exchangeRateVersion?: Prisma.SortOrder
   rate?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
+  recordedBy?: Prisma.SortOrder
 }
 
 export type FinanceConsolidationRateSnapshotMaxOrderByAggregateInput = {
@@ -577,8 +577,8 @@ export type FinanceConsolidationRateSnapshotMaxOrderByAggregateInput = {
   rate?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
+  recordedBy?: Prisma.SortOrder
+  recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -594,8 +594,8 @@ export type FinanceConsolidationRateSnapshotMinOrderByAggregateInput = {
   rate?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
+  recordedBy?: Prisma.SortOrder
+  recordedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
 
@@ -605,7 +605,7 @@ export type FinanceConsolidationRateSnapshotSumOrderByAggregateInput = {
   exchangeRateId?: Prisma.SortOrder
   exchangeRateVersion?: Prisma.SortOrder
   rate?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
+  recordedBy?: Prisma.SortOrder
 }
 
 export type FinanceConsolidationRateSnapshotCreateNestedManyWithoutBatchInput = {
@@ -660,8 +660,8 @@ export type FinanceConsolidationRateSnapshotCreateWithoutBatchInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -677,8 +677,8 @@ export type FinanceConsolidationRateSnapshotUncheckedCreateWithoutBatchInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -724,8 +724,8 @@ export type FinanceConsolidationRateSnapshotScalarWhereInput = {
   rate?: Prisma.DecimalFilter<"FinanceConsolidationRateSnapshot"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFilter<"FinanceConsolidationRateSnapshot"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
-  verifiedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
+  recordedBy?: Prisma.IntNullableFilter<"FinanceConsolidationRateSnapshot"> | number | null
+  recordedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationRateSnapshot"> | Date | string | null
   applications?: Prisma.JsonFilter<"FinanceConsolidationRateSnapshot">
   createdAt?: Prisma.DateTimeFilter<"FinanceConsolidationRateSnapshot"> | Date | string
 }
@@ -741,8 +741,8 @@ export type FinanceConsolidationRateSnapshotCreateManyBatchInput = {
   rate: runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl: string
   publishedAt?: Date | string | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
+  recordedBy?: number | null
+  recordedAt?: Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Date | string
 }
@@ -757,8 +757,8 @@ export type FinanceConsolidationRateSnapshotUpdateWithoutBatchInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -774,8 +774,8 @@ export type FinanceConsolidationRateSnapshotUncheckedUpdateWithoutBatchInput = {
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -791,8 +791,8 @@ export type FinanceConsolidationRateSnapshotUncheckedUpdateManyWithoutBatchInput
   rate?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  recordedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   applications?: Prisma.JsonNullValueInput | runtime.InputJsonValue
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -811,8 +811,8 @@ export type FinanceConsolidationRateSnapshotSelect<ExtArgs extends runtime.Types
   rate?: boolean
   sourceUrl?: boolean
   publishedAt?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
+  recordedBy?: boolean
+  recordedAt?: boolean
   applications?: boolean
   createdAt?: boolean
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
@@ -830,8 +830,8 @@ export type FinanceConsolidationRateSnapshotSelectCreateManyAndReturn<ExtArgs ex
   rate?: boolean
   sourceUrl?: boolean
   publishedAt?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
+  recordedBy?: boolean
+  recordedAt?: boolean
   applications?: boolean
   createdAt?: boolean
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
@@ -849,8 +849,8 @@ export type FinanceConsolidationRateSnapshotSelectUpdateManyAndReturn<ExtArgs ex
   rate?: boolean
   sourceUrl?: boolean
   publishedAt?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
+  recordedBy?: boolean
+  recordedAt?: boolean
   applications?: boolean
   createdAt?: boolean
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
@@ -868,13 +868,13 @@ export type FinanceConsolidationRateSnapshotSelectScalar = {
   rate?: boolean
   sourceUrl?: boolean
   publishedAt?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
+  recordedBy?: boolean
+  recordedAt?: boolean
   applications?: boolean
   createdAt?: boolean
 }
 
-export type FinanceConsolidationRateSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "exchangeRateId" | "exchangeRateVersion" | "baseCurrency" | "quoteCurrency" | "rateKind" | "rateDate" | "rate" | "sourceUrl" | "publishedAt" | "verifiedBy" | "verifiedAt" | "applications" | "createdAt", ExtArgs["result"]["financeConsolidationRateSnapshot"]>
+export type FinanceConsolidationRateSnapshotOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "exchangeRateId" | "exchangeRateVersion" | "baseCurrency" | "quoteCurrency" | "rateKind" | "rateDate" | "rate" | "sourceUrl" | "publishedAt" | "recordedBy" | "recordedAt" | "applications" | "createdAt", ExtArgs["result"]["financeConsolidationRateSnapshot"]>
 export type FinanceConsolidationRateSnapshotInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
 }
@@ -902,8 +902,8 @@ export type $FinanceConsolidationRateSnapshotPayload<ExtArgs extends runtime.Typ
     rate: runtime.Decimal
     sourceUrl: string
     publishedAt: Date | null
-    verifiedBy: number | null
-    verifiedAt: Date | null
+    recordedBy: number | null
+    recordedAt: Date | null
     applications: runtime.JsonValue
     createdAt: Date
   }, ExtArgs["result"]["financeConsolidationRateSnapshot"]>
@@ -1341,8 +1341,8 @@ export interface FinanceConsolidationRateSnapshotFieldRefs {
   readonly rate: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'Decimal'>
   readonly sourceUrl: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'String'>
   readonly publishedAt: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'DateTime'>
-  readonly verifiedBy: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'Int'>
-  readonly verifiedAt: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'DateTime'>
+  readonly recordedBy: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'Int'>
+  readonly recordedAt: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'DateTime'>
   readonly applications: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'Json'>
   readonly createdAt: Prisma.FieldRef<"FinanceConsolidationRateSnapshot", 'DateTime'>
 }

@@ -4,6 +4,7 @@ import os from "node:os";
 import path from "node:path";
 import { prisma } from "@workspace/platform/server/prisma";
 import type { SessionUser } from "@workspace/platform/types";
+import type { AgentChoiceQuestion } from "@workspace/platform/agent-conversation-choice";
 
 import type { AgentInputImage, HistoryMessage } from "./runtime/contracts";
 import { AGENT_SESSION_SUMMARY_CHARS, summarizeAgentSessionHistory } from "./session-summary";
@@ -42,6 +43,7 @@ export type AgentStoredMessage = {
   content: string;
   createdAt: string;
   responseType?: "answer" | "error" | "clarification" | "proposal";
+  choices?: AgentChoiceQuestion[];
   attachments?: AgentStoredAttachment[];
   proposal?: {
     id: number;

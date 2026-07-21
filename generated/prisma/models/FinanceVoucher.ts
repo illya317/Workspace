@@ -32,6 +32,7 @@ export type FinanceVoucherAvgAggregateOutputType = {
   totalDebit: number | null
   totalCredit: number | null
   importId: number | null
+  attachmentCount: number | null
   editedBy: number | null
   version: number | null
 }
@@ -42,6 +43,7 @@ export type FinanceVoucherSumAggregateOutputType = {
   totalDebit: number | null
   totalCredit: number | null
   importId: number | null
+  attachmentCount: number | null
   editedBy: number | null
   version: number | null
 }
@@ -60,6 +62,22 @@ export type FinanceVoucherMinAggregateOutputType = {
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceKey: string | null
+  voucherTypeCode: string | null
+  voucherTypeName: string | null
+  isAdjustment: boolean | null
+  preparerName: string | null
+  reviewerName: string | null
+  posterName: string | null
+  cashierName: string | null
+  attachmentCount: number | null
+  sourcePosted: boolean | null
+  sourceAudited: boolean | null
+  sourceInvalid: boolean | null
+  externalSourceSystem: string | null
+  externalSourceDocumentNo: string | null
+  externalSourceDocumentId: string | null
+  externalSourceAccountSet: string | null
+  externalSourceDate: string | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -81,6 +99,22 @@ export type FinanceVoucherMaxAggregateOutputType = {
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceKey: string | null
+  voucherTypeCode: string | null
+  voucherTypeName: string | null
+  isAdjustment: boolean | null
+  preparerName: string | null
+  reviewerName: string | null
+  posterName: string | null
+  cashierName: string | null
+  attachmentCount: number | null
+  sourcePosted: boolean | null
+  sourceAudited: boolean | null
+  sourceInvalid: boolean | null
+  externalSourceSystem: string | null
+  externalSourceDocumentNo: string | null
+  externalSourceDocumentId: string | null
+  externalSourceAccountSet: string | null
+  externalSourceDate: string | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -102,6 +136,23 @@ export type FinanceVoucherCountAggregateOutputType = {
   sourceSystem: number
   sourceDatabase: number
   sourceKey: number
+  voucherTypeCode: number
+  voucherTypeName: number
+  isAdjustment: number
+  preparerName: number
+  reviewerName: number
+  posterName: number
+  cashierName: number
+  attachmentCount: number
+  sourcePosted: number
+  sourceAudited: number
+  sourceInvalid: number
+  externalSourceSystem: number
+  externalSourceDocumentNo: number
+  externalSourceDocumentId: number
+  externalSourceAccountSet: number
+  externalSourceDate: number
+  sourceMetadata: number
   editedBy: number
   editedAt: number
   version: number
@@ -117,6 +168,7 @@ export type FinanceVoucherAvgAggregateInputType = {
   totalDebit?: true
   totalCredit?: true
   importId?: true
+  attachmentCount?: true
   editedBy?: true
   version?: true
 }
@@ -127,6 +179,7 @@ export type FinanceVoucherSumAggregateInputType = {
   totalDebit?: true
   totalCredit?: true
   importId?: true
+  attachmentCount?: true
   editedBy?: true
   version?: true
 }
@@ -145,6 +198,22 @@ export type FinanceVoucherMinAggregateInputType = {
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
+  voucherTypeCode?: true
+  voucherTypeName?: true
+  isAdjustment?: true
+  preparerName?: true
+  reviewerName?: true
+  posterName?: true
+  cashierName?: true
+  attachmentCount?: true
+  sourcePosted?: true
+  sourceAudited?: true
+  sourceInvalid?: true
+  externalSourceSystem?: true
+  externalSourceDocumentNo?: true
+  externalSourceDocumentId?: true
+  externalSourceAccountSet?: true
+  externalSourceDate?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -166,6 +235,22 @@ export type FinanceVoucherMaxAggregateInputType = {
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
+  voucherTypeCode?: true
+  voucherTypeName?: true
+  isAdjustment?: true
+  preparerName?: true
+  reviewerName?: true
+  posterName?: true
+  cashierName?: true
+  attachmentCount?: true
+  sourcePosted?: true
+  sourceAudited?: true
+  sourceInvalid?: true
+  externalSourceSystem?: true
+  externalSourceDocumentNo?: true
+  externalSourceDocumentId?: true
+  externalSourceAccountSet?: true
+  externalSourceDate?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -187,6 +272,23 @@ export type FinanceVoucherCountAggregateInputType = {
   sourceSystem?: true
   sourceDatabase?: true
   sourceKey?: true
+  voucherTypeCode?: true
+  voucherTypeName?: true
+  isAdjustment?: true
+  preparerName?: true
+  reviewerName?: true
+  posterName?: true
+  cashierName?: true
+  attachmentCount?: true
+  sourcePosted?: true
+  sourceAudited?: true
+  sourceInvalid?: true
+  externalSourceSystem?: true
+  externalSourceDocumentNo?: true
+  externalSourceDocumentId?: true
+  externalSourceAccountSet?: true
+  externalSourceDate?: true
+  sourceMetadata?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -295,6 +397,23 @@ export type FinanceVoucherGroupByOutputType = {
   sourceSystem: string | null
   sourceDatabase: string | null
   sourceKey: string | null
+  voucherTypeCode: string | null
+  voucherTypeName: string | null
+  isAdjustment: boolean
+  preparerName: string | null
+  reviewerName: string | null
+  posterName: string | null
+  cashierName: string | null
+  attachmentCount: number
+  sourcePosted: boolean | null
+  sourceAudited: boolean | null
+  sourceInvalid: boolean | null
+  externalSourceSystem: string | null
+  externalSourceDocumentNo: string | null
+  externalSourceDocumentId: string | null
+  externalSourceAccountSet: string | null
+  externalSourceDate: string | null
+  sourceMetadata: runtime.JsonValue | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -339,6 +458,23 @@ export type FinanceVoucherWhereInput = {
   sourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceKey?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeCode?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  isAdjustment?: Prisma.BoolFilter<"FinanceVoucher"> | boolean
+  preparerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  reviewerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  posterName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  cashierName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  attachmentCount?: Prisma.IntFilter<"FinanceVoucher"> | number
+  sourcePosted?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceAudited?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceInvalid?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  externalSourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentNo?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentId?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceAccountSet?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDate?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucher">
   editedBy?: Prisma.IntNullableFilter<"FinanceVoucher"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceVoucher"> | Date | string | null
   version?: Prisma.IntFilter<"FinanceVoucher"> | number
@@ -367,6 +503,23 @@ export type FinanceVoucherOrderByWithRelationInput = {
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherTypeCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherTypeName?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAdjustment?: Prisma.SortOrder
+  preparerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  posterName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashierName?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
+  sourcePosted?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceAudited?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceInvalid?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDocumentNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceAccountSet?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -400,6 +553,23 @@ export type FinanceVoucherWhereUniqueInput = Prisma.AtLeast<{
   sourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceKey?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeCode?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  isAdjustment?: Prisma.BoolFilter<"FinanceVoucher"> | boolean
+  preparerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  reviewerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  posterName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  cashierName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  attachmentCount?: Prisma.IntFilter<"FinanceVoucher"> | number
+  sourcePosted?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceAudited?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceInvalid?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  externalSourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentNo?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentId?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceAccountSet?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDate?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucher">
   editedBy?: Prisma.IntNullableFilter<"FinanceVoucher"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceVoucher"> | Date | string | null
   version?: Prisma.IntFilter<"FinanceVoucher"> | number
@@ -428,6 +598,23 @@ export type FinanceVoucherOrderByWithAggregationInput = {
   sourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherTypeCode?: Prisma.SortOrderInput | Prisma.SortOrder
+  voucherTypeName?: Prisma.SortOrderInput | Prisma.SortOrder
+  isAdjustment?: Prisma.SortOrder
+  preparerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  reviewerName?: Prisma.SortOrderInput | Prisma.SortOrder
+  posterName?: Prisma.SortOrderInput | Prisma.SortOrder
+  cashierName?: Prisma.SortOrderInput | Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
+  sourcePosted?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceAudited?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceInvalid?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceSystem?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDocumentNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDocumentId?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceAccountSet?: Prisma.SortOrderInput | Prisma.SortOrder
+  externalSourceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -457,6 +644,23 @@ export type FinanceVoucherScalarWhereWithAggregatesInput = {
   sourceSystem?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
   sourceDatabase?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
   sourceKey?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  voucherTypeCode?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  voucherTypeName?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  isAdjustment?: Prisma.BoolWithAggregatesFilter<"FinanceVoucher"> | boolean
+  preparerName?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  reviewerName?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  posterName?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  cashierName?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  attachmentCount?: Prisma.IntWithAggregatesFilter<"FinanceVoucher"> | number
+  sourcePosted?: Prisma.BoolNullableWithAggregatesFilter<"FinanceVoucher"> | boolean | null
+  sourceAudited?: Prisma.BoolNullableWithAggregatesFilter<"FinanceVoucher"> | boolean | null
+  sourceInvalid?: Prisma.BoolNullableWithAggregatesFilter<"FinanceVoucher"> | boolean | null
+  externalSourceSystem?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentId?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  externalSourceAccountSet?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  externalSourceDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucher"> | string | null
+  sourceMetadata?: Prisma.JsonNullableWithAggregatesFilter<"FinanceVoucher">
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceVoucher"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceVoucher"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"FinanceVoucher"> | number
@@ -475,6 +679,23 @@ export type FinanceVoucherCreateInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -502,6 +723,23 @@ export type FinanceVoucherUncheckedCreateInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -524,6 +762,23 @@ export type FinanceVoucherUpdateInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -551,6 +806,23 @@ export type FinanceVoucherUncheckedUpdateInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -576,6 +848,23 @@ export type FinanceVoucherCreateManyInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -594,6 +883,23 @@ export type FinanceVoucherUpdateManyMutationInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -614,6 +920,23 @@ export type FinanceVoucherUncheckedUpdateManyInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -667,6 +990,23 @@ export type FinanceVoucherCountOrderByAggregateInput = {
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
+  voucherTypeCode?: Prisma.SortOrder
+  voucherTypeName?: Prisma.SortOrder
+  isAdjustment?: Prisma.SortOrder
+  preparerName?: Prisma.SortOrder
+  reviewerName?: Prisma.SortOrder
+  posterName?: Prisma.SortOrder
+  cashierName?: Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
+  sourcePosted?: Prisma.SortOrder
+  sourceAudited?: Prisma.SortOrder
+  sourceInvalid?: Prisma.SortOrder
+  externalSourceSystem?: Prisma.SortOrder
+  externalSourceDocumentNo?: Prisma.SortOrder
+  externalSourceDocumentId?: Prisma.SortOrder
+  externalSourceAccountSet?: Prisma.SortOrder
+  externalSourceDate?: Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -680,6 +1020,7 @@ export type FinanceVoucherAvgOrderByAggregateInput = {
   totalDebit?: Prisma.SortOrder
   totalCredit?: Prisma.SortOrder
   importId?: Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -698,6 +1039,22 @@ export type FinanceVoucherMaxOrderByAggregateInput = {
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
+  voucherTypeCode?: Prisma.SortOrder
+  voucherTypeName?: Prisma.SortOrder
+  isAdjustment?: Prisma.SortOrder
+  preparerName?: Prisma.SortOrder
+  reviewerName?: Prisma.SortOrder
+  posterName?: Prisma.SortOrder
+  cashierName?: Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
+  sourcePosted?: Prisma.SortOrder
+  sourceAudited?: Prisma.SortOrder
+  sourceInvalid?: Prisma.SortOrder
+  externalSourceSystem?: Prisma.SortOrder
+  externalSourceDocumentNo?: Prisma.SortOrder
+  externalSourceDocumentId?: Prisma.SortOrder
+  externalSourceAccountSet?: Prisma.SortOrder
+  externalSourceDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -719,6 +1076,22 @@ export type FinanceVoucherMinOrderByAggregateInput = {
   sourceSystem?: Prisma.SortOrder
   sourceDatabase?: Prisma.SortOrder
   sourceKey?: Prisma.SortOrder
+  voucherTypeCode?: Prisma.SortOrder
+  voucherTypeName?: Prisma.SortOrder
+  isAdjustment?: Prisma.SortOrder
+  preparerName?: Prisma.SortOrder
+  reviewerName?: Prisma.SortOrder
+  posterName?: Prisma.SortOrder
+  cashierName?: Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
+  sourcePosted?: Prisma.SortOrder
+  sourceAudited?: Prisma.SortOrder
+  sourceInvalid?: Prisma.SortOrder
+  externalSourceSystem?: Prisma.SortOrder
+  externalSourceDocumentNo?: Prisma.SortOrder
+  externalSourceDocumentId?: Prisma.SortOrder
+  externalSourceAccountSet?: Prisma.SortOrder
+  externalSourceDate?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -732,6 +1105,7 @@ export type FinanceVoucherSumOrderByAggregateInput = {
   totalDebit?: Prisma.SortOrder
   totalCredit?: Prisma.SortOrder
   importId?: Prisma.SortOrder
+  attachmentCount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -933,6 +1307,23 @@ export type FinanceVoucherCreateWithoutEditorInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -959,6 +1350,23 @@ export type FinanceVoucherUncheckedCreateWithoutEditorInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1012,6 +1420,23 @@ export type FinanceVoucherScalarWhereInput = {
   sourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceDatabase?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
   sourceKey?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeCode?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  voucherTypeName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  isAdjustment?: Prisma.BoolFilter<"FinanceVoucher"> | boolean
+  preparerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  reviewerName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  posterName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  cashierName?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  attachmentCount?: Prisma.IntFilter<"FinanceVoucher"> | number
+  sourcePosted?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceAudited?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  sourceInvalid?: Prisma.BoolNullableFilter<"FinanceVoucher"> | boolean | null
+  externalSourceSystem?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentNo?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDocumentId?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceAccountSet?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  externalSourceDate?: Prisma.StringNullableFilter<"FinanceVoucher"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucher">
   editedBy?: Prisma.IntNullableFilter<"FinanceVoucher"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"FinanceVoucher"> | Date | string | null
   version?: Prisma.IntFilter<"FinanceVoucher"> | number
@@ -1030,6 +1455,23 @@ export type FinanceVoucherCreateWithoutAssetPeriodEntriesInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1056,6 +1498,23 @@ export type FinanceVoucherUncheckedCreateWithoutAssetPeriodEntriesInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1093,6 +1552,23 @@ export type FinanceVoucherUpdateWithoutAssetPeriodEntriesInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1119,6 +1595,23 @@ export type FinanceVoucherUncheckedUpdateWithoutAssetPeriodEntriesInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1140,6 +1633,23 @@ export type FinanceVoucherCreateWithoutAssetAdjustmentsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1166,6 +1676,23 @@ export type FinanceVoucherUncheckedCreateWithoutAssetAdjustmentsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1203,6 +1730,23 @@ export type FinanceVoucherUpdateWithoutAssetAdjustmentsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1229,6 +1773,23 @@ export type FinanceVoucherUncheckedUpdateWithoutAssetAdjustmentsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1250,6 +1811,23 @@ export type FinanceVoucherCreateWithoutCashFlowAllocationsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1276,6 +1854,23 @@ export type FinanceVoucherUncheckedCreateWithoutCashFlowAllocationsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1313,6 +1908,23 @@ export type FinanceVoucherUpdateWithoutCashFlowAllocationsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1339,6 +1951,23 @@ export type FinanceVoucherUncheckedUpdateWithoutCashFlowAllocationsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1360,6 +1989,23 @@ export type FinanceVoucherCreateWithoutImportInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1385,6 +2031,23 @@ export type FinanceVoucherUncheckedCreateWithoutImportInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1433,6 +2096,23 @@ export type FinanceVoucherCreateWithoutPeriodInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1458,6 +2138,23 @@ export type FinanceVoucherUncheckedCreateWithoutPeriodInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1506,6 +2203,23 @@ export type FinanceVoucherCreateWithoutItemsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1532,6 +2246,23 @@ export type FinanceVoucherUncheckedCreateWithoutItemsInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1569,6 +2300,23 @@ export type FinanceVoucherUpdateWithoutItemsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1595,6 +2343,23 @@ export type FinanceVoucherUncheckedUpdateWithoutItemsInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1619,6 +2384,23 @@ export type FinanceVoucherCreateManyEditorInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
@@ -1636,6 +2418,23 @@ export type FinanceVoucherUpdateWithoutEditorInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1662,6 +2461,23 @@ export type FinanceVoucherUncheckedUpdateWithoutEditorInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1686,6 +2502,23 @@ export type FinanceVoucherUncheckedUpdateManyWithoutEditorInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1705,6 +2538,23 @@ export type FinanceVoucherCreateManyImportInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1723,6 +2573,23 @@ export type FinanceVoucherUpdateWithoutImportInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1748,6 +2615,23 @@ export type FinanceVoucherUncheckedUpdateWithoutImportInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1772,6 +2656,23 @@ export type FinanceVoucherUncheckedUpdateManyWithoutImportInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1792,6 +2693,23 @@ export type FinanceVoucherCreateManyPeriodInput = {
   sourceSystem?: string | null
   sourceDatabase?: string | null
   sourceKey?: string | null
+  voucherTypeCode?: string | null
+  voucherTypeName?: string | null
+  isAdjustment?: boolean
+  preparerName?: string | null
+  reviewerName?: string | null
+  posterName?: string | null
+  cashierName?: string | null
+  attachmentCount?: number
+  sourcePosted?: boolean | null
+  sourceAudited?: boolean | null
+  sourceInvalid?: boolean | null
+  externalSourceSystem?: string | null
+  externalSourceDocumentNo?: string | null
+  externalSourceDocumentId?: string | null
+  externalSourceAccountSet?: string | null
+  externalSourceDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -1810,6 +2728,23 @@ export type FinanceVoucherUpdateWithoutPeriodInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1835,6 +2770,23 @@ export type FinanceVoucherUncheckedUpdateWithoutPeriodInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1859,6 +2811,23 @@ export type FinanceVoucherUncheckedUpdateManyWithoutPeriodInput = {
   sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voucherTypeName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isAdjustment?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  preparerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reviewerName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  posterName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  cashierName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  attachmentCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourcePosted?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceAudited?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  sourceInvalid?: Prisma.NullableBoolFieldUpdateOperationsInput | boolean | null
+  externalSourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDocumentId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceAccountSet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  externalSourceDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1938,6 +2907,23 @@ export type FinanceVoucherSelect<ExtArgs extends runtime.Types.Extensions.Intern
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
+  voucherTypeCode?: boolean
+  voucherTypeName?: boolean
+  isAdjustment?: boolean
+  preparerName?: boolean
+  reviewerName?: boolean
+  posterName?: boolean
+  cashierName?: boolean
+  attachmentCount?: boolean
+  sourcePosted?: boolean
+  sourceAudited?: boolean
+  sourceInvalid?: boolean
+  externalSourceSystem?: boolean
+  externalSourceDocumentNo?: boolean
+  externalSourceDocumentId?: boolean
+  externalSourceAccountSet?: boolean
+  externalSourceDate?: boolean
+  sourceMetadata?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1967,6 +2953,23 @@ export type FinanceVoucherSelectCreateManyAndReturn<ExtArgs extends runtime.Type
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
+  voucherTypeCode?: boolean
+  voucherTypeName?: boolean
+  isAdjustment?: boolean
+  preparerName?: boolean
+  reviewerName?: boolean
+  posterName?: boolean
+  cashierName?: boolean
+  attachmentCount?: boolean
+  sourcePosted?: boolean
+  sourceAudited?: boolean
+  sourceInvalid?: boolean
+  externalSourceSystem?: boolean
+  externalSourceDocumentNo?: boolean
+  externalSourceDocumentId?: boolean
+  externalSourceAccountSet?: boolean
+  externalSourceDate?: boolean
+  sourceMetadata?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1991,6 +2994,23 @@ export type FinanceVoucherSelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
+  voucherTypeCode?: boolean
+  voucherTypeName?: boolean
+  isAdjustment?: boolean
+  preparerName?: boolean
+  reviewerName?: boolean
+  posterName?: boolean
+  cashierName?: boolean
+  attachmentCount?: boolean
+  sourcePosted?: boolean
+  sourceAudited?: boolean
+  sourceInvalid?: boolean
+  externalSourceSystem?: boolean
+  externalSourceDocumentNo?: boolean
+  externalSourceDocumentId?: boolean
+  externalSourceAccountSet?: boolean
+  externalSourceDate?: boolean
+  sourceMetadata?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -2015,6 +3035,23 @@ export type FinanceVoucherSelectScalar = {
   sourceSystem?: boolean
   sourceDatabase?: boolean
   sourceKey?: boolean
+  voucherTypeCode?: boolean
+  voucherTypeName?: boolean
+  isAdjustment?: boolean
+  preparerName?: boolean
+  reviewerName?: boolean
+  posterName?: boolean
+  cashierName?: boolean
+  attachmentCount?: boolean
+  sourcePosted?: boolean
+  sourceAudited?: boolean
+  sourceInvalid?: boolean
+  externalSourceSystem?: boolean
+  externalSourceDocumentNo?: boolean
+  externalSourceDocumentId?: boolean
+  externalSourceAccountSet?: boolean
+  externalSourceDate?: boolean
+  sourceMetadata?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -2022,7 +3059,7 @@ export type FinanceVoucherSelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceVoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherNo" | "date" | "periodId" | "description" | "totalDebit" | "totalCredit" | "status" | "companyCode" | "importId" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeVoucher"]>
+export type FinanceVoucherOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherNo" | "date" | "periodId" | "description" | "totalDebit" | "totalCredit" | "status" | "companyCode" | "importId" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "voucherTypeCode" | "voucherTypeName" | "isAdjustment" | "preparerName" | "reviewerName" | "posterName" | "cashierName" | "attachmentCount" | "sourcePosted" | "sourceAudited" | "sourceInvalid" | "externalSourceSystem" | "externalSourceDocumentNo" | "externalSourceDocumentId" | "externalSourceAccountSet" | "externalSourceDate" | "sourceMetadata" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["financeVoucher"]>
 export type FinanceVoucherInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   editor?: boolean | Prisma.FinanceVoucher$editorArgs<ExtArgs>
   period?: boolean | Prisma.FinancePeriodDefaultArgs<ExtArgs>
@@ -2069,6 +3106,23 @@ export type $FinanceVoucherPayload<ExtArgs extends runtime.Types.Extensions.Inte
     sourceSystem: string | null
     sourceDatabase: string | null
     sourceKey: string | null
+    voucherTypeCode: string | null
+    voucherTypeName: string | null
+    isAdjustment: boolean
+    preparerName: string | null
+    reviewerName: string | null
+    posterName: string | null
+    cashierName: string | null
+    attachmentCount: number
+    sourcePosted: boolean | null
+    sourceAudited: boolean | null
+    sourceInvalid: boolean | null
+    externalSourceSystem: string | null
+    externalSourceDocumentNo: string | null
+    externalSourceDocumentId: string | null
+    externalSourceAccountSet: string | null
+    externalSourceDate: string | null
+    sourceMetadata: runtime.JsonValue | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -2517,6 +3571,23 @@ export interface FinanceVoucherFieldRefs {
   readonly sourceSystem: Prisma.FieldRef<"FinanceVoucher", 'String'>
   readonly sourceDatabase: Prisma.FieldRef<"FinanceVoucher", 'String'>
   readonly sourceKey: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly voucherTypeCode: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly voucherTypeName: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly isAdjustment: Prisma.FieldRef<"FinanceVoucher", 'Boolean'>
+  readonly preparerName: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly reviewerName: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly posterName: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly cashierName: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly attachmentCount: Prisma.FieldRef<"FinanceVoucher", 'Int'>
+  readonly sourcePosted: Prisma.FieldRef<"FinanceVoucher", 'Boolean'>
+  readonly sourceAudited: Prisma.FieldRef<"FinanceVoucher", 'Boolean'>
+  readonly sourceInvalid: Prisma.FieldRef<"FinanceVoucher", 'Boolean'>
+  readonly externalSourceSystem: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly externalSourceDocumentNo: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly externalSourceDocumentId: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly externalSourceAccountSet: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly externalSourceDate: Prisma.FieldRef<"FinanceVoucher", 'String'>
+  readonly sourceMetadata: Prisma.FieldRef<"FinanceVoucher", 'Json'>
   readonly editedBy: Prisma.FieldRef<"FinanceVoucher", 'Int'>
   readonly editedAt: Prisma.FieldRef<"FinanceVoucher", 'DateTime'>
   readonly version: Prisma.FieldRef<"FinanceVoucher", 'Int'>

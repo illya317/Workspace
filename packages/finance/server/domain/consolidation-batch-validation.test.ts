@@ -97,7 +97,7 @@ test("submission requires immutable three-statement snapshots and explicit no-it
   assert.equal(result.ok, true);
 });
 
-test("non-wholly-owned subsidiaries cannot bypass NCI equity and profit allocation", () => {
+test("defers NCI allocation while the active scope is investment and intercompany only", () => {
   const base = {
     entities: [
       { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
@@ -117,49 +117,14 @@ test("non-wholly-owned subsidiaries cannot bypass NCI equity and profit allocati
     }))),
     exchangeRates: [],
     controlDecisions: [
-      ...["investmentEquity", "intercompanyBalance", "internalTrading", "internalLongTermAsset", "incomeDividend", "cashFlow"].map((entryType) => ({ controlKey: `elimination:${entryType}`, decision: "notApplicable", evidence: "本期无该类抵销事项" })),
-      { controlKey: "tax", decision: "notApplicable", evidence: "无抵销故无税务影响" },
+      ...["investmentEquity", "intercompanyBalance"].map((entryType) => ({ controlKey: `elimination:${entryType}`, decision: "notApplicable", evidence: "本期无该类抵销事项" })),
     ],
     taxEffectCount: 0,
     requiredInvestmentVoucherIds: [],
     periodEnd: "2026-06-30",
   };
-  const missing = validateConsolidationSubmission({ ...base, entries: [] });
-  assert.equal(missing.ok, false);
-  if (!missing.ok) assert.equal(missing.issue.field, "elimination:nonControllingInterest");
-
-  const nciEntries = [{
-      entryType: "nonControllingInterest",
-      lines: [
-        { companyId: 102, statementType: "balanceSheet" as const, lineCode: "nonControllingInterests", debit: 0, credit: 25 },
-        { companyId: 101, statementType: "balanceSheet" as const, lineCode: "undistributedProfit", debit: 25, credit: 0 },
-        { companyId: 102, statementType: "incomeStatement" as const, lineCode: "netProfitAttributableToNci", debit: 0, credit: 5 },
-        { companyId: 101, statementType: "incomeStatement" as const, lineCode: "netProfitAttributableToParent", debit: 5, credit: 0 },
-      ],
-    }];
-  const completed = validateConsolidationSubmission({
-    ...base,
-    entries: nciEntries,
-  });
-  assert.equal(completed.ok, true);
-
-  const secondPartialSubsidiary = validateConsolidationSubmission({
-    ...base,
-    entities: [
-      ...base.entities,
-      { id: 3, companyId: 103, role: "subsidiary", shareRatio: 0.8, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
-    ],
-    sources: [
-      ...base.sources,
-      ...base.sources.filter((source) => source.entitySnapshotId === 2).map((source) => ({
-        ...source,
-        entitySnapshotId: 3,
-      })),
-    ],
-    entries: nciEntries,
-  });
-  assert.equal(secondPartialSubsidiary.ok, false);
-  if (!secondPartialSubsidiary.ok) assert.match(secondPartialSubsidiary.issue.message, /103/);
+  const result = validateConsolidationSubmission({ ...base, entries: [] });
+  assert.equal(result.ok, true);
 });
 
 test("return requires a revision, a reason, and an independent executor", () => {
@@ -198,6 +163,15 @@ test("return requires a revision, a reason, and an independent executor", () => 
     contributorUserIds: [9],
   }, "return", 10);
   assert.deepEqual(independent, { ok: true, data: { nextStatus: "draft" } });
+
+  const reviewed = validateConsolidationBatchTransition({
+    status: "reviewed",
+    createdBy: 9,
+    submittedBy: 9,
+    reviewedBy: 10,
+    contributorUserIds: [9],
+  }, "return", 10);
+  assert.deepEqual(reviewed, { ok: true, data: { nextStatus: "draft" } });
 });
 
 test("submission rejects a non-null but invalid ownership ratio", () => {
@@ -218,7 +192,7 @@ test("submission rejects a non-null but invalid ownership ratio", () => {
   if (!result.ok) assert.equal(result.issue.field, "shareRatio");
 });
 
-test("submission requires a verified closing-rate snapshot near period end", () => {
+test("submission requires a saved closing-rate snapshot near period end", () => {
   const baseFacts = {
     entities: [
       { id: 1, companyId: 101, role: "parent", shareRatio: 1, functionalCurrency: "CNY", currencyEvidence: "境内经营" },
@@ -251,8 +225,8 @@ test("submission requires a verified closing-rate snapshot near period end", () 
       exchangeRateId: 10,
       rateKind: "closing",
       rateDate: "2026-06-01",
-      verifiedBy: 10,
-      verifiedAt: "2026-06-02T00:00:00.000Z",
+      recordedBy: 10,
+      recordedAt: "2026-06-02T00:00:00.000Z",
       applications: [{ applicationType: "closing", periodBasis: "current", entitySnapshotId: 2, voucherItemId: null, targetDate: "2026-06-30", evidence: "期末折算", voucher: null }],
     }],
   });
@@ -265,8 +239,8 @@ test("submission requires a verified closing-rate snapshot near period end", () 
       exchangeRateId: 10,
       rateKind: "closing",
       rateDate: "2026-06-30",
-      verifiedBy: 10,
-      verifiedAt: "2026-06-30T08:00:00.000Z",
+      recordedBy: 10,
+      recordedAt: "2026-06-30T08:00:00.000Z",
       applications: [{ applicationType: "closing", periodBasis: "current", entitySnapshotId: 2, voucherItemId: null, targetDate: "2026-06-30", evidence: "期末折算", voucher: null }],
     }],
   });

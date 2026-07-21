@@ -11,6 +11,7 @@ import {
   type SubmitStatementSourcePackageCommand,
   type UploadStatementSourcePackageCommand,
 } from "../domain/statement-source-validation";
+import { matchesStatementSourceCompany } from "./source-company";
 import { parseFinancialStatementWorkbook } from "./source-workbook";
 
 const REPORT_TYPES = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
@@ -71,28 +72,13 @@ function sourcePackageSnapshot(row: SourcePackageRow): StatementSourcePackageSna
   };
 }
 
-function normalizedCompany(value: string) {
-  return value
-    .replace(/[\s　:：]/g, "")
-    .replace(/(有限责任公司|股份有限公司|有限公司)$/g, "")
-    .toLocaleLowerCase("zh-CN");
-}
-
-function matchesCompany(parsedName: string, names: Array<string | null>) {
-  const parsed = normalizedCompany(parsedName);
-  return Boolean(parsed) && names.some((name) => {
-    const candidate = normalizedCompany(name ?? "");
-    return Boolean(candidate) && (parsed.includes(candidate) || candidate.includes(parsed));
-  });
-}
-
 function validateParsedWorkbook(input: {
   parsedCompanyName: string;
   companyNames: Array<string | null>;
   requestedYear: number;
   sheets: Array<{ reportType: string; currentYear: number; lines: unknown[] }>;
 }) {
-  if (!matchesCompany(input.parsedCompanyName, input.companyNames)) {
+  if (!matchesStatementSourceCompany(input.parsedCompanyName, input.companyNames)) {
     return `文件编制单位“${input.parsedCompanyName || "未识别"}”与所选公司不一致`;
   }
   const reportTypes = new Set(input.sheets.map((sheet) => sheet.reportType));

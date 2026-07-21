@@ -26,10 +26,9 @@ export async function saveBalanceReclassAdjustmentChangeSet(input: SaveBalanceRe
     const periodIds = [...new Set(changes.map((change) => change.periodId))];
     const periods = await tx.financePeriod.findMany({
       where: { id: { in: periodIds } },
-      select: { id: true, companyCode: true, year: true, isClosed: true },
+      select: { id: true, companyCode: true, year: true },
     });
     if (periods.length !== periodIds.length) return serviceError("部分会计期间不存在", 404);
-    if (periods.some((period) => period.isClosed)) return serviceError("期间已结账，不能保存重分类调整", 409);
     const periodMap = new Map(periods.map((period) => [period.id, period]));
 
     const accounts = await tx.financeAccount.findMany({

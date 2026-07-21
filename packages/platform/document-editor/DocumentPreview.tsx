@@ -113,6 +113,9 @@ function renderInline(part: EditorInline, context: RenderContext, key: string) {
   const label = value == null || value === "" ? visibleSlotLabel(slotPart) : String(value);
   const width = cssSlotWidth(slotPart.width);
   const autoWidth = width === "auto";
+  const widthStyle: CSSProperties = autoWidth
+    ? { width: "auto", maxWidth: "100%" }
+    : { width: "auto", minWidth: `min(${width}, 100%)`, maxWidth: "100%" };
   const underlined = slotPart.display !== "plain";
   const multiline = label.includes("\n");
   return (
@@ -120,7 +123,7 @@ function renderInline(part: EditorInline, context: RenderContext, key: string) {
       key={key}
       title={slotTitle(slotPart)}
       className={`mx-1 inline-block max-w-full overflow-hidden px-1 leading-[1.25] text-slate-700 align-baseline ${multiline ? "whitespace-pre-line" : "whitespace-nowrap"} ${underlined && !autoWidth ? "border-b border-slate-500" : "border-b-0"} ${annotationClassName(slotPart.metadata)}`}
-      style={{ width: autoWidth ? "auto" : `min(${width}, 100%)`, maxWidth: "100%", textAlign: slotTextAlign(slotPart.align) }}
+      style={{ ...widthStyle, textAlign: slotTextAlign(slotPart.align) }}
     >
       {label}
     </span>

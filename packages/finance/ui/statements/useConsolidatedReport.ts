@@ -17,7 +17,7 @@ export function useConsolidatedReport(batchId: number | null, status: Consolidat
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (batchId === null || (status !== "locked" && status !== "published")) {
+    if (batchId === null) {
       setReport(null);
       setError(null);
       setLoading(false);

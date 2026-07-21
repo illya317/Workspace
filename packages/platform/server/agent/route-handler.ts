@@ -149,6 +149,7 @@ async function executeAgentTurn(
       role: "agent",
       content: response.message,
       responseType: response.type,
+      choices: response.choices,
       proposal: response.proposal,
       proposalStatus: response.proposal ? "pending" : undefined,
     }, execution.requester);

@@ -9,17 +9,17 @@ import type { ConsolidationCapabilities, ConsolidationWorkpaperView } from "./st
 import { STATEMENT_TABS } from "./statement-navigation";
 import { useConsolidationOverview } from "./useConsolidationOverview";
 
-type StatementsView = "workpaper" | "statements" | "consolidated";
+type StatementsView = "consolidation" | "statements";
 
 export default function StatementsClient({ capabilities }: { capabilities: ConsolidationCapabilities }) {
-  const [view, setView] = useState<StatementsView>("workpaper");
-  const [workpaperView, setWorkpaperView] = useState<ConsolidationWorkpaperView>("overview");
-  const consolidation = useConsolidationOverview();
+  const [view, setView] = useState<StatementsView>("consolidation");
+  const [workpaperView, setWorkpaperView] = useState<ConsolidationWorkpaperView>("adjustments");
+  const consolidation = useConsolidationOverview(capabilities.canCreate);
   const navigation = useMemo(() => createPageTabBar({
     items: STATEMENT_TABS,
     active: view,
     onChange: (key) => setView(key as StatementsView),
-    activeChild: view === "workpaper" ? workpaperView : undefined,
+    activeChild: view === "consolidation" ? workpaperView : undefined,
     onChildChange: (key) => setWorkpaperView(key as ConsolidationWorkpaperView),
     ariaLabel: "财务报表视图",
   }), [view, workpaperView]);
@@ -37,9 +37,9 @@ export default function StatementsClient({ capabilities }: { capabilities: Conso
   };
   return (
     <Suspense fallback={<div className="p-8 text-center text-gray-500">加载中...</div>}>
-      {view === "workpaper" ? <ConsolidationWorkpaperTab {...consolidationProps} activeView={workpaperView} /> : null}
+      {view === "consolidation" && workpaperView !== "report" ? <ConsolidationWorkpaperTab {...consolidationProps} /> : null}
+      {view === "consolidation" && workpaperView === "report" ? <ConsolidatedReportTab {...consolidationProps} /> : null}
       {view === "statements" ? <ReportTab navigation={navigation} companyCodes={subsidiaryCodes} /> : null}
-      {view === "consolidated" ? <ConsolidatedReportTab {...consolidationProps} /> : null}
     </Suspense>
   );
 }

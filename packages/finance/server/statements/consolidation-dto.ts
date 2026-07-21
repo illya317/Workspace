@@ -93,8 +93,8 @@ function rateSnapshot(row: ConsolidationBatchRow["exchangeRates"][number]): Cons
     rate: Number(row.rate),
     sourceUrl: row.sourceUrl,
     publishedAt: row.publishedAt?.toISOString() ?? null,
-    verifiedBy: row.verifiedBy,
-    verifiedAt: row.verifiedAt?.toISOString() ?? null,
+    recordedBy: row.recordedBy,
+    recordedAt: row.recordedAt?.toISOString() ?? null,
     applications: Array.isArray(row.applications)
       ? row.applications as unknown as ConsolidationRateReferenceSnapshot["applications"]
       : [],
@@ -111,6 +111,10 @@ function entrySnapshot(row: ConsolidationBatchRow["entries"][number]): Consolida
     evidence: row.evidence,
     matchDifference: row.matchDifference == null ? null : Number(row.matchDifference),
     differenceResolution: row.differenceResolution,
+    origin: row.origin as ConsolidationEntrySnapshot["origin"],
+    generationKey: row.generationKey,
+    generationFingerprint: row.generationFingerprint,
+    generatedAt: row.generatedAt?.toISOString() ?? null,
     status: row.status as ConsolidationEntrySnapshot["status"],
     version: row.version,
     supersedesEntryId: row.supersedesEntryId,
@@ -129,6 +133,7 @@ function entrySnapshot(row: ConsolidationBatchRow["entries"][number]): Consolida
     lines: row.lines.map((line) => ({
       id: line.id,
       lineNo: line.lineNo,
+      entitySnapshotId: line.entitySnapshotId,
       companyId: line.companyId,
       companyCode: line.companyCode,
       statementType: line.statementType as ConsolidationEntrySnapshot["lines"][number]["statementType"],
@@ -145,6 +150,12 @@ function entrySnapshot(row: ConsolidationBatchRow["entries"][number]): Consolida
       sourceFingerprint: line.sourceFingerprint,
       sourceAmount: line.sourceAmount == null ? null : Number(line.sourceAmount),
       sourceCurrency: line.sourceCurrency,
+      sourceRecordId: line.sourceSnapshotId
+        ?? line.sourceAuxiliaryBalanceId
+        ?? line.sourceOpenItemId
+        ?? line.sourceCashFlowAllocationId
+        ?? line.sourceVoucherItemId,
+      counterpartyEntitySnapshotId: line.counterpartyEntitySnapshotId,
       counterpartyCompanyId: line.counterpartyCompanyId,
     })),
     taxEffects: row.taxEffects.map((tax) => ({

@@ -36,6 +36,10 @@ import {
 } from "./work-responsibility-references";
 import { validateWorkItemResponsibility } from "./work-item-service-helpers";
 import { buildUpdateWorkItemRouteCommand } from "./work-task-route-command";
+import {
+  createWorkItemTool,
+  workItemNewNodeProposalExecutors,
+} from "./work-item-agent-create-tool";
 
 const WORK_ENTRY = { resourceKey: "work.tasks", action: "entry" } as const;
 const UPDATE_WORK_ITEM_ACTION = "work.updateWorkItem";
@@ -183,6 +187,7 @@ async function executeUpdateWorkItemProposal(
 }
 
 export const workItemAgentProposalExecutors: ProposalExecutors = {
+  ...workItemNewNodeProposalExecutors,
   [UPDATE_WORK_ITEM_ACTION]: {
     toolKey: UPDATE_WORK_ITEM_ACTION,
     requiredPermissions: [WORK_ENTRY],
@@ -194,10 +199,10 @@ export const workItemAgentProposalExecutors: ProposalExecutors = {
   },
 };
 
-// Create remains intentionally unexposed until its hidden defaults can be derived exactly like WorkTaskForm.
 export const workItemAgentTools: AgentTool[] = [
   getWorkSpaceDetailTool,
   searchWorkReferenceOptionsTool,
+  createWorkItemTool,
   updateWorkItemTool,
 ];
 

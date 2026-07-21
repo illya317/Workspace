@@ -6,7 +6,13 @@ import { ACTION_GLYPH_ACTION_BY_KEY } from "../action/ActionGlyphs";
 import { createDataTableEditActions } from "./DataTableActions";
 import type { DataTableColumn, DataTableProps, DataTableRowAction } from "./DataTable.types";
 import { FieldContextProvider, type FieldContextValue } from "../input/field-context";
-import { resolveTableColumnClass, resolveTablePresentation, resolveTableRowStateClass } from "./table-presentation";
+import {
+  resolveDataTableLayoutClass,
+  resolveStandardTableColumnWidths,
+  resolveTableColumnClass,
+  resolveTablePresentation,
+  resolveTableRowStateClass,
+} from "./table-presentation";
 
 export type {
   ColumnDef,
@@ -150,6 +156,7 @@ export default function DataTable<T>({
           label: actionsColumn?.label ?? "操作",
           required: true,
           align: actionsColumn?.align ?? "center",
+          width: "sm" as const,
           render: (row: T) => {
             const actions = getRowActions(row, rowActions, rowEditActions);
             if (actions.length === 0) return null;
@@ -176,6 +183,8 @@ export default function DataTable<T>({
 
   const resolvedPresentation = tablePresentationForFormat(presentation, format);
   const matrixColWidths = tableFormatColumnWidths(visible.length, format);
+  const matrix = matrixColWidths.length > 0;
+  const columnWidths = matrix ? matrixColWidths : resolveStandardTableColumnWidths(visible);
   const tablePresentation = resolveTablePresentation(
     {
       ...resolvedPresentation,
@@ -183,7 +192,7 @@ export default function DataTable<T>({
     },
     resolvedPresentation?.density,
   );
-  const tableClassName = `${tablePresentation.table} ${matrixColWidths.length ? "table-fixed min-w-max w-full" : ""}`;
+  const tableClassName = `${tablePresentation.table} ${resolveDataTableLayoutClass(matrix)}`;
   const fieldContext = tablePresentation.density === "compact"
     ? { size: "sm" as const, density: "compact" as const }
     : { size: "md" as const, density: "normal" as const };
@@ -196,10 +205,10 @@ export default function DataTable<T>({
   const showMobileList = resolvedMobilePresentation === "list";
 
   const desktopTable = (
-    <table className={tableClassName}>
-      {matrixColWidths.length ? (
+    <table className={tableClassName} style={!matrix ? { minWidth: `${visible.length * 8}rem` } : undefined}>
+      {columnWidths.length ? (
         <colgroup>
-          {matrixColWidths.map((width, index) => <col key={`${width ?? "auto"}-${index}`} style={width ? { width } : undefined} />)}
+          {columnWidths.map((width, index) => <col key={`${width ?? "auto"}-${index}`} style={width ? { width } : undefined} />)}
         </colgroup>
       ) : null}
       <thead className={tablePresentation.head}>
@@ -208,7 +217,7 @@ export default function DataTable<T>({
             <th
               key={col.key}
               onClick={col.onHeaderClick}
-              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, true, matrixColWidths.length > 0)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
+              className={`${tablePresentation.headerCell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, true, matrix)} ${col.onHeaderClick ? "cursor-pointer select-none" : ""}`}
             >
               {col.label}
             </th>
@@ -226,13 +235,13 @@ export default function DataTable<T>({
           return (
             <Fragment key={key}>
               <tr
-                className={`group ${matrixColWidths.length ? "bg-white" : ""} ${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
+                className={`group ${matrix ? "bg-white" : ""} ${tablePresentation.getRowClassName(index)} ${resolveTableRowStateClass(rowState?.(row))}`}
                 onClick={() => onRowClick?.(row)}
               >
                 {visible.map((col, columnIndex) => (
                   <td
                     key={col.key}
-                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrixColWidths.length > 0)}`}
+                    className={`${tablePresentation.cell} ${resolveTableColumnClass(col)} ${matrixPinnedColumnClass(columnIndex, false, matrix)}`}
                   >
                     <div className={tablePresentation.cellContent}>
                       <FieldContextProvider value={fieldContext}>

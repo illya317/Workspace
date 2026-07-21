@@ -17,15 +17,20 @@ model FinanceAuxiliaryMember {
   firstYear      Int?
   lastYear       Int?
   latestImportId Int?
+  linkedCompanyId Int?
+  companyLinkMethod String?
+  companyLinkEvidence String?
   createdAt      DateTime                        @default(now())
   updatedAt      DateTime                        @default(now()) @updatedAt
   latestImport   FinanceLedgerImport?            @relation(fields: [latestImportId], references: [id])
+  linkedCompany  Company?                        @relation("FinanceAuxiliaryMemberLinkedCompany", fields: [linkedCompanyId], references: [id], onDelete: Restrict)
   voucherLinks   FinanceVoucherItemAuxiliary[]
   balanceLinks   FinanceAuxiliaryBalanceMember[]
   openItemLinks  FinanceOpenItemAuxiliary[]
 
   @@unique([companyCode, sourceSystem, sourceLedger, dimensionType, sourceCode])
   @@index([companyCode, dimensionType, sourceName])
+  @@index([linkedCompanyId])
   @@index([latestImportId])
 }
 
@@ -64,6 +69,7 @@ model FinanceAuxiliaryBalance {
   period         FinancePeriod                   @relation(fields: [periodId], references: [id])
   account        FinanceAccount                  @relation(fields: [accountId], references: [id])
   members        FinanceAuxiliaryBalanceMember[]
+  consolidationEntryLines FinanceConsolidationEntryLine[]
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])
@@ -104,6 +110,8 @@ model FinanceOpenItem {
   outstandingDebit  Decimal                    @default(0) @db.Decimal(20, 2)
   outstandingCredit Decimal                    @default(0) @db.Decimal(20, 2)
   status            String                     @default("open")
+  originType        String?
+  sourcePeriodBeginDetailId String?
   createdAt         DateTime                   @default(now())
   updatedAt         DateTime                   @default(now()) @updatedAt
   import            FinanceLedgerImport        @relation(fields: [importId], references: [id], onDelete: Cascade)
@@ -111,6 +119,7 @@ model FinanceOpenItem {
   account           FinanceAccount?            @relation(fields: [accountId], references: [id])
   voucherItem       FinanceVoucherItem?        @relation(fields: [voucherItemId], references: [id])
   members           FinanceOpenItemAuxiliary[]
+  consolidationEntryLines FinanceConsolidationEntryLine[]
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])

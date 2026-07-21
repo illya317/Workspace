@@ -3,6 +3,7 @@ import {
   type EnsureConsolidationBatchCommand,
 } from "../domain/consolidation-batch-validation";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
+import { isRootAdminUser } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { resolveUserEmployeeName } from "@workspace/platform/server/user-identity";
@@ -13,10 +14,11 @@ import {
 } from "./consolidation-dto";
 import {
   ConsolidationSnapshotError,
+  type ConsolidationRateFact,
   assertConsolidationSourceFactsCurrent,
   loadConsolidationScopeFacts,
   loadInitialSourceFacts,
-  loadVerifiedRateFacts,
+  loadAvailableRateFacts,
   periodEndDate,
 } from "./consolidation-snapshots";
 import {
@@ -24,10 +26,22 @@ import {
   consolidationScopeFingerprint,
   consolidationSourceBatchFingerprint,
 } from "./consolidation-fingerprints";
-import { appendConsolidationBatchEvent } from "./consolidation-mutations";
+import {
+  appendConsolidationBatchEvent,
+  resolveConsolidationActorName,
+} from "./consolidation-mutations";
+import {
+  comparativePeriodEndDate,
+  sourceHasNonzeroPreviousAmount,
+} from "./consolidation-comparative";
+import { ChinaMoneyRateError } from "./chinamoney-exchange-rates";
+import { ensureChinaMoneyCentralParityRate } from "./exchange-rates";
 
 function snapshotError(cause: unknown) {
   if (cause instanceof ConsolidationSnapshotError) return serviceError(cause.message, cause.status);
+  if (cause instanceof ChinaMoneyRateError) {
+    return serviceError(cause.message, cause.status, { retryable: true });
+  }
   if (cause instanceof Prisma.PrismaClientKnownRequestError && cause.code === "P2002") {
     const target = JSON.stringify(cause.meta?.target ?? "");
     if (target.includes("predecessorEntryId")
@@ -38,6 +52,12 @@ function snapshotError(cause: unknown) {
     return serviceError("同一期间的合并批次版本已存在，请刷新后重试", 409);
   }
   throw cause;
+}
+
+function latestRateAtOrBefore(rates: ConsolidationRateFact[], targetDate: string) {
+  return rates
+    .filter((rate) => rate.rateKind === "centralParity" && rate.rateDate <= targetDate)
+    .sort((left, right) => right.rateDate.localeCompare(left.rateDate))[0] ?? null;
 }
 
 async function loadBaseBatch(command: EnsureConsolidationBatchCommand) {
@@ -80,6 +100,9 @@ async function loadBaseBatch(command: EnsureConsolidationBatchCommand) {
 function cloneEntryData(
   entry: NonNullable<Awaited<ReturnType<typeof loadConsolidationBatchRow>>>["entries"][number],
   userId: number,
+  snapshotIdByCompany: Map<number, number>,
+  oldEntityCompanyById: Map<number, number>,
+  sourceSnapshotIdByCompanyAndReportType: Map<string, number>,
 ) {
   return {
     entryNo: entry.entryNo,
@@ -95,6 +118,7 @@ function cloneEntryData(
     lines: {
       create: entry.lines.map((line) => ({
         lineNo: line.lineNo,
+        entitySnapshotId: snapshotIdByCompany.get(line.companyId)!,
         companyId: line.companyId,
         companyCode: line.companyCode,
         statementType: line.statementType,
@@ -103,16 +127,42 @@ function cloneEntryData(
         debit: line.debit,
         credit: line.credit,
         currencyCode: line.currencyCode,
+        periodBasis: line.periodBasis,
         note: line.note,
+        matchSide: line.matchSide,
+        sourceKind: line.sourceKind,
+        sourceId: line.sourceId,
+        sourceFingerprint: line.sourceFingerprint,
+        sourceAmount: line.sourceAmount,
+        sourceCurrency: line.sourceCurrency,
+        counterpartyEntitySnapshotId: line.counterpartyCompanyId
+          ? snapshotIdByCompany.get(line.counterpartyCompanyId) ?? null
+          : null,
+        counterpartyCompanyId: line.counterpartyCompanyId,
+        sourceSnapshotId: line.sourceSnapshotId
+          ? sourceSnapshotIdByCompanyAndReportType.get(`${line.companyId}:${line.statementType}`) ?? null
+          : null,
+        sourceAuxiliaryBalanceId: line.sourceAuxiliaryBalanceId,
+        sourceOpenItemId: line.sourceOpenItemId,
+        sourceCashFlowAllocationId: line.sourceCashFlowAllocationId,
+        sourceVoucherItemId: line.sourceVoucherItemId,
       })),
     },
     taxEffects: {
       create: entry.taxEffects.map((tax) => ({
+        entitySnapshotId: tax.entitySnapshotId
+          ? snapshotIdByCompany.get(oldEntityCompanyById.get(tax.entitySnapshotId)!) ?? null
+          : null,
         effectKey: tax.effectKey,
         taxEffectType: tax.taxEffectType,
         differenceAmount: tax.differenceAmount,
         taxRate: tax.taxRate,
         recognition: tax.recognition,
+        periodBasis: tax.periodBasis,
+        jurisdiction: tax.jurisdiction,
+        recognitionLocation: tax.recognitionLocation,
+        balanceSheetLineCode: tax.balanceSheetLineCode,
+        counterpartLineCode: tax.counterpartLineCode,
         reversalPeriod: tax.reversalPeriod,
         recoverabilityConclusion: tax.recoverabilityConclusion,
         evidence: tax.evidence,
@@ -138,14 +188,25 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
       blockedMessage: "合并批次创建已配置为必须走流程，请从统一保存入口提交",
     });
     if (!direct.ok) return direct;
-    const actorName = await resolveUserEmployeeName(command.userId);
-    if (!actorName) return serviceError("当前账号缺少员工身份，不能创建合并批次", 409);
+    const employeeName = await resolveUserEmployeeName(command.userId);
+    const actorName = resolveConsolidationActorName(
+      employeeName,
+      employeeName ? false : await isRootAdminUser(command.userId),
+    );
+    if (!actorName) return serviceError("当前账号缺少员工身份，且不是系统管理员，不能创建合并批次", 409);
+    const selectedPeriodEnd = periodEndDate(command.input.year, command.input.month);
+    const comparativePeriodEnd = comparativePeriodEndDate(selectedPeriodEnd);
     const scope = await loadConsolidationScopeFacts(
       command.input.parentCompanyId,
-      periodEndDate(command.input.year, command.input.month),
+      selectedPeriodEnd,
     );
+    const cadCompanyCodes = scope.filter((entity) => entity.functionalCurrency === "CAD").map((entity) => entity.companyCode);
+    if (cadCompanyCodes.length > 0) {
+      await Promise.all([...new Set([selectedPeriodEnd, comparativePeriodEnd])]
+        .map((targetDate) => ensureChinaMoneyCentralParityRate({ currencyCode: "CAD", targetDate, userId: command.userId })));
+    }
     const sources = await loadInitialSourceFacts(scope, command.input.year, command.input.month);
-    const rates = await loadVerifiedRateFacts(periodEndDate(command.input.year, command.input.month));
+    const rates = cadCompanyCodes.length > 0 ? await loadAvailableRateFacts(selectedPeriodEnd) : [];
     const version = (latest?.version ?? 0) + 1;
     const scopeFingerprint = consolidationScopeFingerprint(scope);
     const sourceFingerprint = consolidationSourceBatchFingerprint(sources);
@@ -208,6 +269,8 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
         batchRevision: 1,
       });
       const snapshotIdByCompany = new Map<number, number>();
+      const sourceSnapshotIdByCompanyAndReportType = new Map<string, number>();
+      const oldEntityCompanyById = new Map(base?.entities.map((entity) => [entity.id, entity.companyId]) ?? []);
       for (const entity of scope) {
         const snapshot = await tx.financeConsolidationEntitySnapshot.create({
           data: {
@@ -232,7 +295,7 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
         snapshotIdByCompany.set(entity.companyId, snapshot.id);
       }
       for (const source of sources) {
-        await tx.financeConsolidationSourceSnapshot.create({
+        const snapshot = await tx.financeConsolidationSourceSnapshot.create({
           data: {
             batchId: batch.id,
             entitySnapshotId: snapshotIdByCompany.get(source.companyId)!,
@@ -260,18 +323,63 @@ export async function ensureConsolidationBatch(rawCommand: EnsureConsolidationBa
             selectedBy: command.userId,
           },
         });
+        sourceSnapshotIdByCompanyAndReportType.set(`${source.companyId}:${source.reportType}`, snapshot.id);
       }
-      if (rates.length > 0) {
+      const currentRate = latestRateAtOrBefore(rates, selectedPeriodEnd);
+      const comparativeRate = latestRateAtOrBefore(rates, comparativePeriodEnd);
+      const comparativeCompanyIds = new Set(sources.filter(sourceHasNonzeroPreviousAmount).map((source) => source.companyId));
+      const appliedRates = rates.map((rate) => {
+        const closingApplications = scope.flatMap((entity) => {
+          if (entity.functionalCurrency !== "CAD") return [];
+          const entitySnapshotId = snapshotIdByCompany.get(entity.companyId)!;
+          const shared = {
+            applicationType: "closing",
+            entitySnapshotId,
+            voucherItemId: null,
+            evidence: `中国外汇交易中心 ${rate.rateDate} 人民币汇率中间价`,
+            capitalOriginalAmount: null,
+            voucher: null,
+          };
+          return [
+            ...(currentRate?.exchangeRateId === rate.exchangeRateId ? [{
+              ...shared,
+              periodBasis: "current",
+              targetDate: selectedPeriodEnd,
+            }] : []),
+            ...(comparativeRate?.exchangeRateId === rate.exchangeRateId && comparativeCompanyIds.has(entity.companyId) ? [{
+              ...shared,
+              periodBasis: "comparative",
+              targetDate: comparativePeriodEnd,
+            }] : []),
+          ];
+        });
+        const applications = closingApplications;
+        return { ...rate, applications: JSON.parse(JSON.stringify(applications)) as Prisma.InputJsonValue };
+      });
+      if (appliedRates.length > 0) {
         await tx.financeConsolidationRateSnapshot.createMany({
-          data: rates.map((rate) => ({
+          data: appliedRates.map((rate) => ({
             batchId: batch.id,
             ...rate,
           })),
         });
       }
+      await tx.financeConsolidationBatch.update({
+        where: { id: batch.id },
+        data: { rateFingerprint: consolidationRateFingerprint(appliedRates) },
+      });
       for (const entry of base?.entries.filter((item) => item.status === "approved") ?? []) {
         await tx.financeConsolidationEntry.create({
-          data: { batchId: batch.id, ...cloneEntryData(entry, command.userId) },
+          data: {
+            batchId: batch.id,
+            ...cloneEntryData(
+              entry,
+              command.userId,
+              snapshotIdByCompany,
+              oldEntityCompanyById,
+              sourceSnapshotIdByCompanyAndReportType,
+            ),
+          },
         });
       }
       return tx.financeConsolidationBatch.findUniqueOrThrow({

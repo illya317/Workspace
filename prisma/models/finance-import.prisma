@@ -13,6 +13,8 @@ model FinanceLedgerImport {
   snapshotDate        String?
   cutoffDate          String?
   checksum            String?
+  sourcePackageId     Int?
+  sourceLedgerMappingId Int?
   controlJson         Json?
   status              String                        @default("completed")
   rowCount            Int                           @default(0)
@@ -28,6 +30,9 @@ model FinanceLedgerImport {
   createdAt           DateTime                      @default(now())
   updatedAt           DateTime                      @default(now()) @updatedAt
   importer            User?                         @relation("FinanceLedgerImportImporter", fields: [importedBy], references: [id])
+  sourcePackage       FinanceReadableSourcePackage? @relation(fields: [sourcePackageId], references: [id], onDelete: Restrict)
+  sourceLedgerMapping FinanceSourceLedgerMapping?   @relation(fields: [sourceLedgerMappingId], references: [id], onDelete: Restrict)
+  runs                FinanceReadableImportRun[]
   vouchers            FinanceVoucher[]
   items               FinanceVoucherItem[]
   sourceBalances      FinanceSourceAccountBalance[]
@@ -38,10 +43,16 @@ model FinanceLedgerImport {
   openItems           FinanceOpenItem[]
   currencies          FinanceCurrency[]
   bankAccounts        FinanceBankAccount[]
+  accountRequirements FinanceAccountAuxiliaryRequirement[]
+  periodStatuses      FinanceSourcePeriodStatus[]
+  subsystemStatuses   FinanceSourceSubsystemStatus[]
+  accountLineages     FinanceAccountLineage[]
 
   @@index([companyCode, year, type])
   @@index([sourceSystem, sourceLedger, year])
   @@index([sourceFile])
+  @@index([sourcePackageId])
+  @@index([sourceLedgerMappingId])
 }
 
 /// ERP 原生科目余额控制事实（与系统计算的 FinanceAccountBalance 展示缓存分离）

@@ -59,7 +59,9 @@ export interface AgentTool {
   delegatedExecution?: boolean;
   /** Explicit opt-in: this tool is unavailable to the profile-less personal assistant. */
   requiresAgentProfile?: boolean;
-  /** true = 涉及写入，只能返回 proposal */
+  /** true = writes Workspace data or creates a pending write proposal. */
   mutates: boolean;
+  /** Mutating tools default to proposal-only; direct writes require an explicit opt-in. */
+  writeMode?: "proposal" | "direct";
   execute: (params: Record<string, unknown>, execution: AgentExecutionContext) => Promise<AgentToolResult>;
 }

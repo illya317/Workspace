@@ -16,6 +16,7 @@ test("Workspace assistant grants stay outside the Agent management resource", ()
   assert.deepEqual(MANAGED_WORKSPACE_RESOURCE_GRANTS, [
     { resourceKey: "agent.assistant", actions: ["entry", "read", "submit"] },
     { resourceKey: "agent.source", actions: ["read", "submit"] },
+    { resourceKey: "docs.editor", actions: ["entry"] },
   ]);
 
   const byEmployeeId = new Map(WORKFORCE.map((employee) => [employee.employeeId, employee]));
@@ -26,6 +27,14 @@ test("Workspace assistant grants stay outside the Agent management resource", ()
     byEmployeeId.get("AI0004")?.workspaceResourceGrants,
     MANAGED_WORKSPACE_RESOURCE_GRANTS,
   );
+  assert.deepEqual(byEmployeeId.get("AI0004")?.runtimeBindings[0].capabilityKeys, [
+    "source.searchWorkspaceCode",
+    "source.proposePullRequest",
+    "docs.searchQcTemplates",
+    "docs.inspectQcTemplate",
+    "docs.updateQcTemplate",
+    "docs.publishQcTemplate",
+  ]);
 });
 
 test("workforce lifecycle uses the inclusive Shanghai business date", () => {

@@ -48,6 +48,12 @@ export function booleanValue(row: JsonRow, ...keys: string[]): boolean {
   return item === true || item === 1 || item === "1" || item === "true";
 }
 
+export function nullableBooleanValue(row: JsonRow, ...keys: string[]): boolean | null {
+  const item = value(row, ...keys);
+  if (item === null || item === undefined || item === "") return null;
+  return item === true || item === 1 || item === "1" || item === "true";
+}
+
 export function optionalText(row: JsonRow, ...keys: string[]): string | undefined {
   return textValue(row, ...keys) || undefined;
 }

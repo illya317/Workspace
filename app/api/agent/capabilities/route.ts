@@ -10,6 +10,7 @@ import { libraryAgentTools } from "@workspace/library/server/agent-tools";
 import { workAgentTools } from "@workspace/work/server/agent-tools";
 import { resolveAgentToolAccess, sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { docsEditorAgentTools } from "@workspace/platform/server/docs-editor";
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
@@ -18,6 +19,6 @@ export async function GET(request: Request) {
   const user = await getSessionUserFromAuthPayload(auth.user);
   if (!user) return jsonErrorResponse("Unauthorized", 401);
 
-  const { capabilities } = await resolveAgentToolAccess(user, [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools]);
+  const { capabilities } = await resolveAgentToolAccess(user, [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools, ...docsEditorAgentTools]);
   return NextResponse.json({ capabilities });
 }

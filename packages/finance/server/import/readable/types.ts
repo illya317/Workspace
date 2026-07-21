@@ -8,7 +8,28 @@ export interface ReadableBatchSpec {
   sourceSystem: SourceSystem;
   sourceLedger: string;
   sourceDatabase: string;
+  mappingMode: "recurring" | "historical";
+  mappingStartYear: number;
+  mappingEndYear?: number;
+  continuationOf?: string;
   includeCurrentOpenItems?: boolean;
+}
+
+export interface ReadableSourcePackageEvidence {
+  packageKey: string;
+  archiveRevision: string;
+  sourcePath: string;
+  snapshotDate: string;
+  cutoffDate: string;
+  isAccountingClose: boolean;
+  previousSnapshot?: string;
+  sourceMapChecksum: string;
+  manifestChecksum: string;
+  validationChecksum: string;
+  selectedDatabaseChecksum: string;
+  validationStatus: "verified";
+  manifestEntryCount: number;
+  validatedTableCount: number;
 }
 
 export interface NormalizedAuxiliaryRef {
@@ -30,6 +51,7 @@ export interface NormalizedAccount {
   isActive: boolean;
   isCash: boolean;
   isBank: boolean;
+  auxiliaryRequirements: Array<{ dimensionType: DimensionType; sourceField: string }>;
 }
 
 export interface NormalizedVoucherItem {
@@ -44,6 +66,10 @@ export interface NormalizedVoucherItem {
   exchangeRate?: number;
   originalDebit?: number;
   originalCredit?: number;
+  settlementStyle?: string;
+  settlementNo?: string;
+  settlementDate?: string;
+  sourceMetadata?: Record<string, string | number | boolean>;
   auxiliaryRefs: NormalizedAuxiliaryRef[];
 }
 
@@ -56,7 +82,63 @@ export interface NormalizedVoucher {
   totalDebit: number;
   totalCredit: number;
   status: "posted" | "draft";
+  voucherTypeCode?: string;
+  voucherTypeName?: string;
+  isAdjustment: boolean;
+  preparerName?: string;
+  reviewerName?: string;
+  posterName?: string;
+  cashierName?: string;
+  attachmentCount: number;
+  sourcePosted: boolean;
+  sourceAudited: boolean;
+  sourceInvalid: boolean;
+  externalSourceSystem?: string;
+  externalSourceDocumentNo?: string;
+  externalSourceDocumentId?: string;
+  externalSourceAccountSet?: string;
+  externalSourceDate?: string;
+  sourceMetadata?: Record<string, string | number | boolean>;
   items: NormalizedVoucherItem[];
+}
+
+export interface NormalizedPeriodStatus {
+  month: number;
+  sourceKey: string;
+  startDate?: string;
+  endDate?: string;
+  glMonthEnd: boolean | null;
+  accountingClosed: boolean | null;
+  moduleStatuses: Record<string, boolean | null>;
+}
+
+export interface NormalizedLedgerMetadata {
+  sourceName: string;
+  startYear?: number;
+  startMonth?: number;
+  baseCurrencyCode?: string;
+  baseCurrencyName?: string;
+  accountingStandard?: string;
+  entityType?: string;
+  masterUser?: string;
+}
+
+export interface NormalizedSubsystemStatus {
+  sourceKey: string;
+  subsystemCode: string;
+  isDeleted: boolean;
+  isYearClosed: boolean | null;
+  lastProcessedPeriod?: number;
+  enabledFrom?: string;
+  sourceUser?: string;
+}
+
+export interface NormalizedAccountLineage {
+  sourceKey: string;
+  currentAccountSourceKey: string;
+  previousAccountSourceKey: string;
+  currentYear: number;
+  previousYear: number;
 }
 
 export interface NormalizedBalance {
@@ -119,6 +201,8 @@ export interface NormalizedOpenItem {
   outstandingDebit: number;
   outstandingCredit: number;
   status: "open" | "closed";
+  originType?: "current" | "periodBegin";
+  sourcePeriodBeginDetailId?: string;
   auxiliaryRefs: NormalizedAuxiliaryRef[];
 }
 
@@ -143,6 +227,8 @@ export interface NormalizedBankAccount {
 
 export interface NormalizedReadableBatch {
   spec: ReadableBatchSpec;
+  sourcePackage: ReadableSourcePackageEvidence;
+  ledgerMetadata: NormalizedLedgerMetadata;
   snapshotDate: string;
   cutoffDate: string;
   accounts: NormalizedAccount[];
@@ -155,6 +241,9 @@ export interface NormalizedReadableBatch {
   openItems: NormalizedOpenItem[];
   currencies: NormalizedCurrency[];
   bankAccounts: NormalizedBankAccount[];
+  periodStatuses: NormalizedPeriodStatus[];
+  subsystemStatuses: NormalizedSubsystemStatus[];
+  accountLineage: NormalizedAccountLineage[];
   closedMonths: Set<number>;
   warnings: string[];
 }

@@ -133,8 +133,8 @@ export function consolidationRateFingerprint(rates: {
   rate: { toString(): string } | number;
   sourceUrl: string;
   publishedAt?: DateFact;
-  verifiedBy: number | null;
-  verifiedAt: DateFact;
+  recordedBy: number | null;
+  recordedAt: DateFact;
   applications: unknown;
 }[]) {
   return consolidationFingerprint([...rates]
@@ -149,8 +149,8 @@ export function consolidationRateFingerprint(rates: {
       rate: Number(rate.rate),
       sourceUrl: rate.sourceUrl,
       publishedAt: dateValue(rate.publishedAt),
-      verifiedBy: rate.verifiedBy,
-      verifiedAt: dateValue(rate.verifiedAt),
+      recordedBy: rate.recordedBy,
+      recordedAt: dateValue(rate.recordedAt),
       applications: Array.isArray(rate.applications)
         ? [...rate.applications].sort((left, right) =>
             consolidationFingerprint(left).localeCompare(consolidationFingerprint(right)),

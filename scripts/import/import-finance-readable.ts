@@ -6,8 +6,6 @@ import {
 } from "../../packages/finance/server/import/readable/index";
 import { selectReadableBatches } from "./finance-readable-source-plan";
 
-const DEFAULT_ROOT = "/Users/koito/Desktop/workspace/input/json/Finance/readable/2026-07-14 5";
-
 function argument(name: string): string | undefined {
   const prefix = `--${name}=`;
   return process.argv.find((item) => item.startsWith(prefix))?.slice(prefix.length);
@@ -15,8 +13,10 @@ function argument(name: string): string | undefined {
 
 async function main() {
   const parsedYear = argument("year");
+  const root = argument("root");
+  if (!root) throw new Error("--root=<validated readable snapshot directory> is required");
   const request = ReadableImportRequestSchema.parse({
-    root: argument("root") || DEFAULT_ROOT,
+    root,
     mode: argument("mode") || "preview",
     companyCode: argument("company"),
     year: parsedYear ? Number(parsedYear) : undefined,

@@ -157,6 +157,9 @@ export function createSlotExtension(name: EditorSlotType) {
       const width = cssSlotWidth(HTMLAttributes.width);
       const content = label || "\u00A0";
       const isAutoWidth = width === "auto";
+      const widthStyle = isAutoWidth
+        ? "width:auto"
+        : `width:auto;min-width:min(${width},100%)`;
       return [
         "span",
         mergeAttributes(HTMLAttributes, {
@@ -164,7 +167,7 @@ export function createSlotExtension(name: EditorSlotType) {
           title: slotTitle(HTMLAttributes, name),
           class: `${slotClassName(name, HTMLAttributes)} ${isAutoWidth ? "border-b-0" : ""} ${annotationClassName(HTMLAttributes.metadata)}`,
           ...annotationDataAttributes(HTMLAttributes.metadata),
-          style: `${isAutoWidth ? "width:auto" : `width:min(${width},100%)`};max-width:100%;min-height:1.1em;line-height:1;text-align:${HTMLAttributes.align || "center"}`,
+          style: `${widthStyle};max-width:100%;min-height:1.1em;line-height:1;text-align:${HTMLAttributes.align || "center"}`,
         }),
         content,
       ];

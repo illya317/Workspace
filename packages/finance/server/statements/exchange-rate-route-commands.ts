@@ -1,16 +1,16 @@
-import type { StatementExchangeRateInput } from "@workspace/finance/types";
-import { buildSaveStatementExchangeRateCommand } from "../domain/statement-exchange-rate-validation";
-import { saveStatementExchangeRate } from "./exchange-rates";
+import type { StatementExchangeRateRefreshInput } from "@workspace/finance/types";
+import { buildRefreshStatementExchangeRateCommand } from "../domain/statement-exchange-rate-validation";
+import { refreshStatementExchangeRate } from "./exchange-rates";
 
-export function buildSaveStatementExchangeRateRouteCommand(
-  input: StatementExchangeRateInput,
+export function buildRefreshStatementExchangeRateRouteCommand(
+  input: StatementExchangeRateRefreshInput,
   userId: number,
 ) {
-  return buildSaveStatementExchangeRateCommand(input, userId);
+  return buildRefreshStatementExchangeRateCommand(input, userId);
 }
 
-export function executeSaveStatementExchangeRateRouteCommand(
-  command: Parameters<typeof saveStatementExchangeRate>[0],
+export function executeRefreshStatementExchangeRateRouteCommand(
+  command: Parameters<typeof refreshStatementExchangeRate>[0],
 ) {
-  return saveStatementExchangeRate(command);
+  return refreshStatementExchangeRate(command);
 }

@@ -4,8 +4,6 @@ import { useCSV, usePageDraft } from "@workspace/core/hooks";
 import { workspacePath } from "@workspace/core/routing";
 import {
   PageSurface,
-  createMessageSection,
-  createMetricsSection,
   createPageBody,
   createPageTableSection,
   createStatusSection,
@@ -14,9 +12,8 @@ import {
 import type { BodySurfaceSectionSpec, PageSurfaceTabBarSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import type { ReclassEntry, ReclassWorkbenchSummary, RuleCandidate, ScanCandidatesResult } from "@workspace/finance/types";
+import type { ReclassEntry, RuleCandidate, ScanCandidatesResult } from "@workspace/finance/types";
 import { useFinanceFilterToolbarItems } from "../components/FinanceFilters";
-import { formatFinanceAmount } from "../formatters";
 import type { FinanceLedgerDefaultScope } from "./defaultScope";
 import {
   createGroupReclassRuleColumns,
@@ -28,23 +25,6 @@ import {
   type ReclassTargetOption,
   type ReclassWorkbenchFilter,
 } from "./reclassWorkbench";
-
-const EMPTY_SUMMARY: ReclassWorkbenchSummary = {
-  total: 0,
-  attention: 0,
-  processed: 0,
-  exempt: 0,
-  historical: 0,
-  attentionAmount: 0,
-  processedAmount: 0,
-};
-
-const EMPTY_RULE_STATS: ScanCandidatesResult["stats"] = {
-  totalGroupAccounts: 0,
-  reclassified: 0,
-  noReclass: 0,
-  unconfirmed: 0,
-};
 
 const NO_RECLASS_VALUE = "__no_reclass__";
 
@@ -69,14 +49,11 @@ export default function ReclassTab({
   const [monthFilter, setMonthFilter] = useState(defaultScope ? String(defaultScope.month) : "");
   const [keyword, setKeyword] = useState("");
   const [statusFilter, setStatusFilter] = useState<ReclassWorkbenchFilter>("attention");
-  const [ruleStatusFilter, setRuleStatusFilter] = useState<GroupRuleStatusFilter>("all");
+  const [ruleStatusFilter, setRuleStatusFilter] = useState<GroupRuleStatusFilter>("unconfirmed");
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(50);
   const [entries, setEntries] = useState<ReclassEntry[]>([]);
-  const [summary, setSummary] = useState<ReclassWorkbenchSummary>(EMPTY_SUMMARY);
-  const [periodClosed, setPeriodClosed] = useState<boolean | null>(null);
   const [ruleCandidates, setRuleCandidates] = useState<RuleCandidate[]>([]);
-  const [ruleStats, setRuleStats] = useState<ScanCandidatesResult["stats"]>(EMPTY_RULE_STATS);
   const [targetOptions, setTargetOptions] = useState<ReclassTargetOption[]>([]);
   const [rulesLoading, setRulesLoading] = useState(false);
   const [adjustmentsLoading, setAdjustmentsLoading] = useState(false);
@@ -95,7 +72,6 @@ export default function ReclassTab({
       }
       const data = await response.json() as ScanCandidatesResult;
       setRuleCandidates(data.candidates ?? []);
-      setRuleStats(data.stats ?? EMPTY_RULE_STATS);
       setTargetOptions((data.accountOptions ?? []).map((account) => ({
         value: account.code,
         label: `${account.code} ${account.name}`,
@@ -111,12 +87,9 @@ export default function ReclassTab({
   const loadAdjustments = useCallback(async () => {
     if (!companyFilter || !yearFilter || !monthFilter) {
       setEntries([]);
-      setSummary(EMPTY_SUMMARY);
-      setPeriodClosed(null);
       return;
     }
     setAdjustmentsLoading(true);
-    setPeriodClosed(null);
     try {
       const query = new URLSearchParams({ companyCode: companyFilter, year: yearFilter, month: monthFilter });
       const response = await fetch(workspacePath(`/api/modules/finance/ledger/schedules/reclassify?${query.toString()}`));
@@ -126,12 +99,8 @@ export default function ReclassTab({
       }
       const data = await response.json() as {
         entries?: ReclassEntry[];
-        summary?: ReclassWorkbenchSummary;
-        isClosed?: boolean;
       };
       setEntries(data.entries ?? []);
-      setSummary(data.summary ?? EMPTY_SUMMARY);
-      setPeriodClosed(data.isClosed !== false);
     } catch {
       feedback.error("网络错误");
     } finally {
@@ -231,10 +200,6 @@ export default function ReclassTab({
 
   const saveAdjustments = useCallback(async () => {
     if (!adjustmentDraft.dirty) return;
-    if (periodClosed !== false) {
-      feedback.error(periodClosed ? "期间已结账，不能保存重分类调整" : "期间状态尚未加载，请稍后重试");
-      return;
-    }
     const rowMap = new Map(entries.map((row) => [adjustmentKey(row), row]));
     const changes = adjustmentDraft.changes.flatMap((change) => {
       const row = rowMap.get(change.key);
@@ -265,7 +230,7 @@ export default function ReclassTab({
     } finally {
       setSaving(false);
     }
-  }, [adjustmentDraft, entries, feedback, loadAdjustments, periodClosed]);
+  }, [adjustmentDraft, entries, feedback, loadAdjustments]);
 
   const ruleTargetOptions = useMemo(() => [
     { value: NO_RECLASS_VALUE, label: "无需重分类", searchText: "无需重分类" },
@@ -276,20 +241,20 @@ export default function ReclassTab({
     canRevise,
     editMode: ruleDraft.editMode,
     targetOptions: ruleTargetOptions,
-    targetValue: (row) => ruleDraft.valueFor(groupRuleKey(row), row.existingDecision === "no_reclass" ? NO_RECLASS_VALUE : row.existingTarget ?? ""),
-    onTargetChange: (row, value) => ruleDraft.setDraft(groupRuleKey(row), row.existingDecision === "no_reclass" ? NO_RECLASS_VALUE : row.existingTarget ?? "", value),
+    targetValue: (row) => ruleDraft.valueFor(groupRuleKey(row), row.effectiveDecision === "no_reclass" ? NO_RECLASS_VALUE : row.existingTarget ?? ""),
+    onTargetChange: (row, value) => ruleDraft.setDraft(groupRuleKey(row), row.effectiveDecision === "no_reclass" ? NO_RECLASS_VALUE : row.existingTarget ?? "", value),
   }), [canRevise, ruleDraft, ruleTargetOptions]);
   const adjustmentColumns = useMemo(() => createReclassWorkbenchColumns({
-    canRevise: canRevise && periodClosed === false,
+    canRevise,
     editMode: adjustmentDraft.editMode,
     targetOptions,
     targetValue: (row) => adjustmentDraft.valueFor(adjustmentKey(row), row.targetAccountCode ?? ""),
     onTargetChange: (row, value) => adjustmentDraft.setDraft(adjustmentKey(row), row.targetAccountCode ?? "", value),
-  }), [adjustmentDraft, canRevise, periodClosed, targetOptions]);
+  }), [adjustmentDraft, canRevise, targetOptions]);
 
   const exportCSV = useCSV(
     `重分类工作台_${companyFilter}_${yearFilter}${monthFilter}.csv`,
-    "科目编码,科目名称,报表应用或候选金额,当前反向余额,是否过期,判断口径,处理状态,目标科目,依据\n",
+    "科目编码,科目名称,报表应用或候选金额,当前反向余额,是否过期,判断口径,处理状态,目标科目\n",
     () => filtered.map((row) => [
       row.accountCode,
       row.accountName,
@@ -299,7 +264,6 @@ export default function ReclassTab({
       row.classification,
       row.status,
       row.targetAccountCode ?? "",
-      row.reason,
     ].map(csvCell).join(",")).join("\n"),
   );
 
@@ -310,10 +274,10 @@ export default function ReclassTab({
       label: "重分类状态",
       value: ruleStatusFilter,
       options: [
-        { value: "all", label: `全部 ${ruleCandidates.length}` },
-        { value: "reclassified", label: `已重分类 ${ruleStats.reclassified}` },
-        { value: "no_reclass", label: `无需重分类 ${ruleStats.noReclass}` },
-        { value: "unconfirmed", label: `未确认 ${ruleStats.unconfirmed}` },
+        { value: "all", label: "全部" },
+        { value: "reclassified", label: "已重分类" },
+        { value: "no_reclass", label: "无需重分类" },
+        { value: "unconfirmed", label: "未确认" },
       ],
       onChange: (value: string) => setRuleStatusFilter(value as GroupRuleStatusFilter),
     },
@@ -343,7 +307,7 @@ export default function ReclassTab({
       key: "reclass-adjustment-edit",
       editMode: adjustmentDraft.editMode,
       dirty: adjustmentDraft.dirty,
-      canEdit: periodClosed === false && filtered.some(isAdjustmentEditable),
+      canEdit: filtered.some(isAdjustmentEditable),
       saving,
       onStartEdit: adjustmentDraft.startEdit,
       onSave: saveAdjustments,
@@ -374,16 +338,6 @@ export default function ReclassTab({
   });
 
   const ruleSections = [
-    createMetricsSection("group-rule-summary", { metrics: [
-      { key: "union", label: "集团科目并集", value: ruleStats.totalGroupAccounts },
-      { key: "saved", label: "已重分类", value: ruleStats.reclassified },
-      { key: "no-reclass", label: "无需重分类", value: ruleStats.noReclass },
-      { key: "unconfirmed", label: "未确认", value: ruleStats.unconfirmed },
-    ] }),
-    createMessageSection("group-rule-guidance", {
-      tone: "muted",
-      content: "集团规则按科目编码统一生效，不区分公司和年度。所有结论均由人工确认并记录：选择目标科目为已重分类，选择“无需重分类”为明确排除；未选择且未保存的科目保持未确认。",
-    }),
     ...(rulesLoading
       ? [createStatusSection("group-rules-loading", { kind: "loading", content: "加载中..." })]
       : filteredRules.length === 0
@@ -397,21 +351,6 @@ export default function ReclassTab({
           })]),
   ];
   const adjustmentSections = [
-    createMetricsSection("reclass-summary", { metrics: [
-      { key: "total", label: "当前事项", value: summary.total },
-      { key: "attention", label: "待处理", value: `${summary.attention} 项 · ¥${formatFinanceAmount(summary.attentionAmount)}` },
-      { key: "processed", label: "已重分类", value: `${summary.processed} 项 · ¥${formatFinanceAmount(summary.processedAmount)}` },
-      { key: "exempt", label: "无需重分类", value: summary.exempt },
-      { key: "historical", label: "历史记录", value: summary.historical },
-    ] }),
-    ...(periodClosed === true ? [createMessageSection("reclass-period-closed", {
-      tone: "warning",
-      content: "当前期间已结账：可查看和复核现有事项，但不能新增或修改重分类调整。",
-    })] : []),
-    createMessageSection("reclass-guidance", {
-      tone: "muted",
-      content: "只按期末余额和辅助核算对象的期末净余额判断；中途单笔凭证的借贷方向不触发自动重分类。凭证仅用于追溯经济实质、人工报表调整或要求更正原凭证。",
-    }),
     ...(adjustmentsLoading
       ? [createStatusSection("reclass-loading", { kind: "loading", content: "加载中..." })]
       : paged.length === 0

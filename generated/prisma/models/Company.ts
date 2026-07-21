@@ -344,6 +344,7 @@ export type CompanyWhereInput = {
   parentOfRelations?: Prisma.CompanyRelationListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   reportingEdps?: Prisma.EDPListRelationFilter
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberListRelationFilter
 }
 
 export type CompanyOrderByWithRelationInput = {
@@ -370,6 +371,7 @@ export type CompanyOrderByWithRelationInput = {
   parentOfRelations?: Prisma.CompanyRelationOrderByRelationAggregateInput
   positionReportOverrides?: Prisma.PositionReportOverrideOrderByRelationAggregateInput
   reportingEdps?: Prisma.EDPOrderByRelationAggregateInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberOrderByRelationAggregateInput
 }
 
 export type CompanyWhereUniqueInput = Prisma.AtLeast<{
@@ -399,6 +401,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   parentOfRelations?: Prisma.CompanyRelationListRelationFilter
   positionReportOverrides?: Prisma.PositionReportOverrideListRelationFilter
   reportingEdps?: Prisma.EDPListRelationFilter
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberListRelationFilter
 }, "id" | "code" | "name">
 
 export type CompanyOrderByWithAggregationInput = {
@@ -476,6 +479,7 @@ export type CompanyCreateInput = {
   parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUncheckedCreateInput = {
@@ -502,6 +506,7 @@ export type CompanyUncheckedCreateInput = {
   parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUpdateInput = {
@@ -527,6 +532,7 @@ export type CompanyUpdateInput = {
   parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateInput = {
@@ -553,6 +559,7 @@ export type CompanyUncheckedUpdateInput = {
   parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyCreateManyInput = {
@@ -618,6 +625,11 @@ export type CompanyUncheckedUpdateManyInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type CompanyNullableScalarRelationFilter = {
+  is?: Prisma.CompanyWhereInput | null
+  isNot?: Prisma.CompanyWhereInput | null
 }
 
 export type CompanyCountOrderByAggregateInput = {
@@ -705,9 +717,20 @@ export type CompanyScalarRelationFilter = {
   isNot?: Prisma.CompanyWhereInput
 }
 
-export type CompanyNullableScalarRelationFilter = {
-  is?: Prisma.CompanyWhereInput | null
-  isNot?: Prisma.CompanyWhereInput | null
+export type CompanyCreateNestedOneWithoutFinanceAuxiliaryMembersInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutFinanceAuxiliaryMembersInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneWithoutFinanceAuxiliaryMembersNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutFinanceAuxiliaryMembersInput
+  upsert?: Prisma.CompanyUpsertWithoutFinanceAuxiliaryMembersInput
+  disconnect?: Prisma.CompanyWhereInput | boolean
+  delete?: Prisma.CompanyWhereInput | boolean
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUpdateWithoutFinanceAuxiliaryMembersInput>, Prisma.CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
 }
 
 export type CompanyCreateNestedOneWithoutChildOfRelationsInput = {
@@ -768,6 +791,124 @@ export type CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput = 
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutPositionReportOverridesInput, Prisma.CompanyUpdateWithoutPositionReportOverridesInput>, Prisma.CompanyUncheckedUpdateWithoutPositionReportOverridesInput>
 }
 
+export type CompanyCreateWithoutFinanceAuxiliaryMembersInput = {
+  code: string
+  name: string
+  fullName?: string | null
+  registeredCapital?: string | null
+  unifiedCode?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  legalPerson?: string | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
+  parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
+  id?: number
+  code: string
+  name: string
+  fullName?: string | null
+  registeredCapital?: string | null
+  unifiedCode?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  legalPerson?: string | null
+  managementGroup?: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
+  parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutFinanceAuxiliaryMembersInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+}
+
+export type CompanyUpsertWithoutFinanceAuxiliaryMembersInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutFinanceAuxiliaryMembersInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutFinanceAuxiliaryMembersInput, Prisma.CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput>
+}
+
+export type CompanyUpdateWithoutFinanceAuxiliaryMembersInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
+  parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  fullName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unifiedCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  legalPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
+  parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+}
+
 export type CompanyCreateWithoutChildOfRelationsInput = {
   code: string
   name: string
@@ -790,6 +931,7 @@ export type CompanyCreateWithoutChildOfRelationsInput = {
   parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutChildOfRelationsInput = {
@@ -815,6 +957,7 @@ export type CompanyUncheckedCreateWithoutChildOfRelationsInput = {
   parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutChildOfRelationsInput = {
@@ -844,6 +987,7 @@ export type CompanyCreateWithoutParentOfRelationsInput = {
   childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutParentOfRelationsInput = {
@@ -869,6 +1013,7 @@ export type CompanyUncheckedCreateWithoutParentOfRelationsInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutParentOfRelationsInput = {
@@ -909,6 +1054,7 @@ export type CompanyUpdateWithoutChildOfRelationsInput = {
   parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutChildOfRelationsInput = {
@@ -934,6 +1080,7 @@ export type CompanyUncheckedUpdateWithoutChildOfRelationsInput = {
   parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUpsertWithoutParentOfRelationsInput = {
@@ -969,6 +1116,7 @@ export type CompanyUpdateWithoutParentOfRelationsInput = {
   childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutParentOfRelationsInput = {
@@ -994,6 +1142,7 @@ export type CompanyUncheckedUpdateWithoutParentOfRelationsInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyCreateWithoutReportingEdpsInput = {
@@ -1018,6 +1167,7 @@ export type CompanyCreateWithoutReportingEdpsInput = {
   childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
   parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
@@ -1043,6 +1193,7 @@ export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
   parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutReportingEdpsInput = {
@@ -1083,6 +1234,7 @@ export type CompanyUpdateWithoutReportingEdpsInput = {
   childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
   parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
@@ -1108,6 +1260,7 @@ export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
   parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyCreateWithoutPositionReportOverridesInput = {
@@ -1132,6 +1285,7 @@ export type CompanyCreateWithoutPositionReportOverridesInput = {
   childOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutChildInput
   parentOfRelations?: Prisma.CompanyRelationCreateNestedManyWithoutParentInput
   reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
@@ -1157,6 +1311,7 @@ export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutChildInput
   parentOfRelations?: Prisma.CompanyRelationUncheckedCreateNestedManyWithoutParentInput
   reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
 }
 
 export type CompanyCreateOrConnectWithoutPositionReportOverridesInput = {
@@ -1197,6 +1352,7 @@ export type CompanyUpdateWithoutPositionReportOverridesInput = {
   childOfRelations?: Prisma.CompanyRelationUpdateManyWithoutChildNestedInput
   parentOfRelations?: Prisma.CompanyRelationUpdateManyWithoutParentNestedInput
   reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
@@ -1222,6 +1378,7 @@ export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
   childOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutChildNestedInput
   parentOfRelations?: Prisma.CompanyRelationUncheckedUpdateManyWithoutParentNestedInput
   reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
 }
 
 
@@ -1234,6 +1391,7 @@ export type CompanyCountOutputType = {
   parentOfRelations: number
   positionReportOverrides: number
   reportingEdps: number
+  financeAuxiliaryMembers: number
 }
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1241,6 +1399,7 @@ export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   parentOfRelations?: boolean | CompanyCountOutputTypeCountParentOfRelationsArgs
   positionReportOverrides?: boolean | CompanyCountOutputTypeCountPositionReportOverridesArgs
   reportingEdps?: boolean | CompanyCountOutputTypeCountReportingEdpsArgs
+  financeAuxiliaryMembers?: boolean | CompanyCountOutputTypeCountFinanceAuxiliaryMembersArgs
 }
 
 /**
@@ -1281,6 +1440,13 @@ export type CompanyCountOutputTypeCountReportingEdpsArgs<ExtArgs extends runtime
   where?: Prisma.EDPWhereInput
 }
 
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountFinanceAuxiliaryMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceAuxiliaryMemberWhereInput
+}
+
 
 export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1306,6 +1472,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Company$positionReportOverridesArgs<ExtArgs>
   reportingEdps?: boolean | Prisma.Company$reportingEdpsArgs<ExtArgs>
+  financeAuxiliaryMembers?: boolean | Prisma.Company$financeAuxiliaryMembersArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["company"]>
 
@@ -1381,6 +1548,7 @@ export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   parentOfRelations?: boolean | Prisma.Company$parentOfRelationsArgs<ExtArgs>
   positionReportOverrides?: boolean | Prisma.Company$positionReportOverridesArgs<ExtArgs>
   reportingEdps?: boolean | Prisma.Company$reportingEdpsArgs<ExtArgs>
+  financeAuxiliaryMembers?: boolean | Prisma.Company$financeAuxiliaryMembersArgs<ExtArgs>
   _count?: boolean | Prisma.CompanyCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CompanyIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1393,6 +1561,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     parentOfRelations: Prisma.$CompanyRelationPayload<ExtArgs>[]
     positionReportOverrides: Prisma.$PositionReportOverridePayload<ExtArgs>[]
     reportingEdps: Prisma.$EDPPayload<ExtArgs>[]
+    financeAuxiliaryMembers: Prisma.$FinanceAuxiliaryMemberPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1812,6 +1981,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   parentOfRelations<T extends Prisma.Company$parentOfRelationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$parentOfRelationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRelationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   positionReportOverrides<T extends Prisma.Company$positionReportOverridesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$positionReportOverridesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverridePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   reportingEdps<T extends Prisma.Company$reportingEdpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$reportingEdpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  financeAuxiliaryMembers<T extends Prisma.Company$financeAuxiliaryMembersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$financeAuxiliaryMembersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceAuxiliaryMemberPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2346,6 +2516,30 @@ export type Company$reportingEdpsArgs<ExtArgs extends runtime.Types.Extensions.I
   take?: number
   skip?: number
   distinct?: Prisma.EDPScalarFieldEnum | Prisma.EDPScalarFieldEnum[]
+}
+
+/**
+ * Company.financeAuxiliaryMembers
+ */
+export type Company$financeAuxiliaryMembersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceAuxiliaryMember
+   */
+  select?: Prisma.FinanceAuxiliaryMemberSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceAuxiliaryMember
+   */
+  omit?: Prisma.FinanceAuxiliaryMemberOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceAuxiliaryMemberInclude<ExtArgs> | null
+  where?: Prisma.FinanceAuxiliaryMemberWhereInput
+  orderBy?: Prisma.FinanceAuxiliaryMemberOrderByWithRelationInput | Prisma.FinanceAuxiliaryMemberOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceAuxiliaryMemberWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceAuxiliaryMemberScalarFieldEnum | Prisma.FinanceAuxiliaryMemberScalarFieldEnum[]
 }
 
 /**

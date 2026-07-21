@@ -1,0 +1,146 @@
+/// ERP readable 来源包切片（不可变事实，来源于 source-map、manifest、validation 和 SHA256SUMS）。
+model FinanceReadableSourcePackage {
+  id                       Int       @id @default(autoincrement())
+  packageKey               String    @unique
+  archiveRevision          String
+  sourceSystem             String
+  sourcePath               String
+  snapshotDate             String
+  cutoffDate               String
+  isAccountingClose        Boolean
+  previousSnapshot         String?
+  sourceMapChecksum        String
+  manifestChecksum         String
+  validationChecksum       String
+  selectedDatabaseChecksum String
+  validationStatus         String
+  manifestEntryCount       Int
+  validatedTableCount      Int
+  createdAt                DateTime  @default(now())
+  imports                  FinanceLedgerImport[]
+  runs                     FinanceReadableImportRun[]
+
+  @@index([sourceSystem, snapshotDate])
+  @@index([selectedDatabaseChecksum])
+}
+
+/// ERP readable 单次导入执行记录（追加式事实；逻辑账套批次可指向最新来源包）。
+model FinanceReadableImportRun {
+  id              Int                          @id @default(autoincrement())
+  runKey          String                       @unique
+  ledgerImportId  Int
+  sourcePackageId Int
+  status          String
+  controlJson     Json?
+  errorMessage    String?
+  startedAt       DateTime                     @default(now())
+  completedAt     DateTime?
+  ledgerImport    FinanceLedgerImport          @relation(fields: [ledgerImportId], references: [id], onDelete: Cascade)
+  sourcePackage   FinanceReadableSourcePackage @relation(fields: [sourcePackageId], references: [id], onDelete: Restrict)
+
+  @@index([ledgerImportId, startedAt])
+  @@index([sourcePackageId])
+}
+
+/// Workspace 公司与 ERP 账套的有效期映射（T6 为持续来源，TPlus 仅为历史衔接）。
+model FinanceSourceLedgerMapping {
+  id                    Int                   @id @default(autoincrement())
+  companyCode           String
+  sourceSystem          String
+  sourceLedger          String
+  sourceName            String
+  mappingMode           String // recurring | historical
+  effectiveFromYear     Int
+  effectiveToYear       Int?
+  successorSourceSystem String?
+  successorSourceLedger String?
+  baseCurrencyCode      String?
+  baseCurrencyName      String?
+  accountingStandard    String?
+  entityType            String?
+  evidence              String
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @default(now()) @updatedAt
+  imports               FinanceLedgerImport[]
+
+  @@unique([companyCode, sourceSystem, sourceLedger, effectiveFromYear])
+  @@index([companyCode, effectiveFromYear, effectiveToYear])
+}
+
+/// 科目要求的 ERP 辅助核算维度（事实，区分“不适用”与“应有但缺失”）。
+model FinanceAccountAuxiliaryRequirement {
+  id             Int                 @id @default(autoincrement())
+  accountId      Int
+  importId       Int
+  dimensionType  String
+  sourceField    String
+  sourceSystem   String
+  sourceDatabase String
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @default(now()) @updatedAt
+  account        FinanceAccount      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  import         FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@unique([accountId, dimensionType])
+  @@index([importId])
+}
+
+/// ERP 会计期间原始结账状态（事实，分别保存总账月结、正式关账和模块状态）。
+model FinanceSourcePeriodStatus {
+  id               Int                 @id @default(autoincrement())
+  importId         Int
+  periodId         Int
+  sourceKey        String
+  glMonthEnd       Boolean?
+  accountingClosed Boolean?
+  moduleStatuses   Json
+  derivationVersion String              @default("t6-bAccClosed-v1")
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @default(now()) @updatedAt
+  import           FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  period           FinancePeriod       @relation(fields: [periodId], references: [id], onDelete: Cascade)
+
+  @@unique([importId, periodId])
+  @@index([periodId, accountingClosed])
+}
+
+/// ERP 子系统年度启用与结账状态（事实，来源于 T6 UA_Account_sub）。
+model FinanceSourceSubsystemStatus {
+  id                  Int                 @id @default(autoincrement())
+  importId            Int
+  sourceKey           String
+  subsystemCode       String
+  isDeleted           Boolean
+  isYearClosed        Boolean?
+  lastProcessedPeriod Int?
+  enabledFrom         String?
+  sourceUser          String?
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @default(now()) @updatedAt
+  import              FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+
+  @@unique([importId, subsystemCode])
+  @@index([subsystemCode, isYearClosed])
+}
+
+/// TPlus 历史科目跨年度衔接（一次性事实，未来 T6 增量不依赖该表）。
+model FinanceAccountLineage {
+  id                Int                 @id @default(autoincrement())
+  importId          Int
+  currentAccountId  Int
+  previousAccountId Int
+  sourceSystem      String
+  sourceDatabase    String
+  sourceKey         String
+  currentYear       Int
+  previousYear      Int
+  relationType      String              @default("yearTransition")
+  createdAt         DateTime            @default(now())
+  import            FinanceLedgerImport @relation(fields: [importId], references: [id], onDelete: Cascade)
+  currentAccount    FinanceAccount      @relation("FinanceAccountLineageCurrent", fields: [currentAccountId], references: [id], onDelete: Restrict)
+  previousAccount   FinanceAccount      @relation("FinanceAccountLineagePrevious", fields: [previousAccountId], references: [id], onDelete: Restrict)
+
+  @@unique([sourceSystem, sourceDatabase, sourceKey])
+  @@index([importId])
+  @@index([previousAccountId, currentAccountId])
+}

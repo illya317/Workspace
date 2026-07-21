@@ -74,6 +74,9 @@ export type FinanceVoucherItemMinAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  settlementStyle: string | null
+  settlementNo: string | null
+  settlementDate: string | null
   importId: number | null
 }
 
@@ -97,6 +100,9 @@ export type FinanceVoucherItemMaxAggregateOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  settlementStyle: string | null
+  settlementNo: string | null
+  settlementDate: string | null
   importId: number | null
 }
 
@@ -120,6 +126,10 @@ export type FinanceVoucherItemCountAggregateOutputType = {
   exchangeRate: number
   originalDebit: number
   originalCredit: number
+  settlementStyle: number
+  settlementNo: number
+  settlementDate: number
+  sourceMetadata: number
   importId: number
   _all: number
 }
@@ -173,6 +183,9 @@ export type FinanceVoucherItemMinAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  settlementStyle?: true
+  settlementNo?: true
+  settlementDate?: true
   importId?: true
 }
 
@@ -196,6 +209,9 @@ export type FinanceVoucherItemMaxAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  settlementStyle?: true
+  settlementNo?: true
+  settlementDate?: true
   importId?: true
 }
 
@@ -219,6 +235,10 @@ export type FinanceVoucherItemCountAggregateInputType = {
   exchangeRate?: true
   originalDebit?: true
   originalCredit?: true
+  settlementStyle?: true
+  settlementNo?: true
+  settlementDate?: true
+  sourceMetadata?: true
   importId?: true
   _all?: true
 }
@@ -329,6 +349,10 @@ export type FinanceVoucherItemGroupByOutputType = {
   exchangeRate: runtime.Decimal | null
   originalDebit: runtime.Decimal | null
   originalCredit: runtime.Decimal | null
+  settlementStyle: string | null
+  settlementNo: string | null
+  settlementDate: string | null
+  sourceMetadata: runtime.JsonValue | null
   importId: number | null
   _count: FinanceVoucherItemCountAggregateOutputType | null
   _avg: FinanceVoucherItemAvgAggregateOutputType | null
@@ -375,6 +399,10 @@ export type FinanceVoucherItemWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucherItem">
   importId?: Prisma.IntNullableFilter<"FinanceVoucherItem"> | number | null
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
@@ -384,6 +412,8 @@ export type FinanceVoucherItemWhereInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   openItems?: Prisma.FinanceOpenItemListRelationFilter
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }
 
 export type FinanceVoucherItemOrderByWithRelationInput = {
@@ -406,6 +436,10 @@ export type FinanceVoucherItemOrderByWithRelationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalDebit?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCredit?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementStyle?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   importId?: Prisma.SortOrderInput | Prisma.SortOrder
   account?: Prisma.FinanceAccountOrderByWithRelationInput
   voucher?: Prisma.FinanceVoucherOrderByWithRelationInput
@@ -415,6 +449,8 @@ export type FinanceVoucherItemOrderByWithRelationInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationOrderByRelationAggregateInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationOrderByRelationAggregateInput
   openItems?: Prisma.FinanceOpenItemOrderByRelationAggregateInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceOrderByRelationAggregateInput
 }
 
 export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
@@ -442,6 +478,10 @@ export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucherItem">
   importId?: Prisma.IntNullableFilter<"FinanceVoucherItem"> | number | null
   account?: Prisma.XOR<Prisma.FinanceAccountScalarRelationFilter, Prisma.FinanceAccountWhereInput>
   voucher?: Prisma.XOR<Prisma.FinanceVoucherScalarRelationFilter, Prisma.FinanceVoucherWhereInput>
@@ -451,6 +491,8 @@ export type FinanceVoucherItemWhereUniqueInput = Prisma.AtLeast<{
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationListRelationFilter
   openItems?: Prisma.FinanceOpenItemListRelationFilter
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }, "id" | "voucherId_accountId_sortOrder" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceVoucherItemOrderByWithAggregationInput = {
@@ -473,6 +515,10 @@ export type FinanceVoucherItemOrderByWithAggregationInput = {
   exchangeRate?: Prisma.SortOrderInput | Prisma.SortOrder
   originalDebit?: Prisma.SortOrderInput | Prisma.SortOrder
   originalCredit?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementStyle?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementNo?: Prisma.SortOrderInput | Prisma.SortOrder
+  settlementDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrderInput | Prisma.SortOrder
   importId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.FinanceVoucherItemCountOrderByAggregateInput
   _avg?: Prisma.FinanceVoucherItemAvgOrderByAggregateInput
@@ -504,6 +550,10 @@ export type FinanceVoucherItemScalarWhereWithAggregatesInput = {
   exchangeRate?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
+  settlementNo?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
+  settlementDate?: Prisma.StringNullableWithAggregatesFilter<"FinanceVoucherItem"> | string | null
+  sourceMetadata?: Prisma.JsonNullableWithAggregatesFilter<"FinanceVoucherItem">
   importId?: Prisma.IntNullableWithAggregatesFilter<"FinanceVoucherItem"> | number | null
 }
 
@@ -524,6 +574,10 @@ export type FinanceVoucherItemCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -532,6 +586,8 @@ export type FinanceVoucherItemCreateInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateInput = {
@@ -554,12 +610,18 @@ export type FinanceVoucherItemUncheckedCreateInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUpdateInput = {
@@ -579,6 +641,10 @@ export type FinanceVoucherItemUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -587,6 +653,8 @@ export type FinanceVoucherItemUpdateInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateInput = {
@@ -609,12 +677,18 @@ export type FinanceVoucherItemUncheckedUpdateInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemCreateManyInput = {
@@ -637,6 +711,10 @@ export type FinanceVoucherItemCreateManyInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
 }
 
@@ -657,6 +735,10 @@ export type FinanceVoucherItemUpdateManyMutationInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FinanceVoucherItemUncheckedUpdateManyInput = {
@@ -679,6 +761,10 @@ export type FinanceVoucherItemUncheckedUpdateManyInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -734,6 +820,10 @@ export type FinanceVoucherItemCountOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  settlementStyle?: Prisma.SortOrder
+  settlementNo?: Prisma.SortOrder
+  settlementDate?: Prisma.SortOrder
+  sourceMetadata?: Prisma.SortOrder
   importId?: Prisma.SortOrder
 }
 
@@ -771,6 +861,9 @@ export type FinanceVoucherItemMaxOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  settlementStyle?: Prisma.SortOrder
+  settlementNo?: Prisma.SortOrder
+  settlementDate?: Prisma.SortOrder
   importId?: Prisma.SortOrder
 }
 
@@ -794,6 +887,9 @@ export type FinanceVoucherItemMinOrderByAggregateInput = {
   exchangeRate?: Prisma.SortOrder
   originalDebit?: Prisma.SortOrder
   originalCredit?: Prisma.SortOrder
+  settlementStyle?: Prisma.SortOrder
+  settlementNo?: Prisma.SortOrder
+  settlementDate?: Prisma.SortOrder
   importId?: Prisma.SortOrder
 }
 
@@ -841,6 +937,36 @@ export type FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNest
   delete?: Prisma.FinanceVoucherItemWhereInput | boolean
   connect?: Prisma.FinanceVoucherItemWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceVoucherItemUpdateToOneWithWhereWithoutCashFlowCounterpartAllocationsInput, Prisma.FinanceVoucherItemUpdateWithoutCashFlowCounterpartAllocationsInput>, Prisma.FinanceVoucherItemUncheckedUpdateWithoutCashFlowCounterpartAllocationsInput>
+}
+
+export type FinanceVoucherItemCreateNestedOneWithoutConsolidationEntryLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutConsolidationEntryLinesInput
+  connect?: Prisma.FinanceVoucherItemWhereUniqueInput
+}
+
+export type FinanceVoucherItemUpdateOneWithoutConsolidationEntryLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutConsolidationEntryLinesInput
+  upsert?: Prisma.FinanceVoucherItemUpsertWithoutConsolidationEntryLinesInput
+  disconnect?: Prisma.FinanceVoucherItemWhereInput | boolean
+  delete?: Prisma.FinanceVoucherItemWhereInput | boolean
+  connect?: Prisma.FinanceVoucherItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceVoucherItemUpdateToOneWithWhereWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUpdateWithoutConsolidationEntryLinesInput>, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceVoucherItemCreateNestedOneWithoutConsolidationMatchSourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutConsolidationMatchSourcesInput
+  connect?: Prisma.FinanceVoucherItemWhereUniqueInput
+}
+
+export type FinanceVoucherItemUpdateOneRequiredWithoutConsolidationMatchSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceVoucherItemCreateOrConnectWithoutConsolidationMatchSourcesInput
+  upsert?: Prisma.FinanceVoucherItemUpsertWithoutConsolidationMatchSourcesInput
+  connect?: Prisma.FinanceVoucherItemWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceVoucherItemUpdateToOneWithWhereWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput>, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInput>
 }
 
 export type FinanceVoucherItemCreateNestedOneWithoutAuxiliaryLinksInput = {
@@ -1032,6 +1158,10 @@ export type FinanceVoucherItemCreateWithoutCashFlowOwnerAllocationsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -1039,6 +1169,8 @@ export type FinanceVoucherItemCreateWithoutCashFlowOwnerAllocationsInput = {
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutCashFlowOwnerAllocationsInput = {
@@ -1061,11 +1193,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutCashFlowOwnerAllocationsInpu
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutCashFlowOwnerAllocationsInput = {
@@ -1090,6 +1228,10 @@ export type FinanceVoucherItemCreateWithoutCashFlowCounterpartAllocationsInput =
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -1097,6 +1239,8 @@ export type FinanceVoucherItemCreateWithoutCashFlowCounterpartAllocationsInput =
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutCashFlowCounterpartAllocationsInput = {
@@ -1119,11 +1263,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutCashFlowCounterpartAllocatio
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutCashFlowCounterpartAllocationsInput = {
@@ -1159,6 +1309,10 @@ export type FinanceVoucherItemUpdateWithoutCashFlowOwnerAllocationsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -1166,6 +1320,8 @@ export type FinanceVoucherItemUpdateWithoutCashFlowOwnerAllocationsInput = {
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowOwnerAllocationsInput = {
@@ -1188,11 +1344,17 @@ export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowOwnerAllocationsInpu
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUpsertWithoutCashFlowCounterpartAllocationsInput = {
@@ -1223,6 +1385,10 @@ export type FinanceVoucherItemUpdateWithoutCashFlowCounterpartAllocationsInput =
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -1230,6 +1396,8 @@ export type FinanceVoucherItemUpdateWithoutCashFlowCounterpartAllocationsInput =
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowCounterpartAllocationsInput = {
@@ -1252,11 +1420,309 @@ export type FinanceVoucherItemUncheckedUpdateWithoutCashFlowCounterpartAllocatio
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
+}
+
+export type FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput = {
+  debit?: number
+  credit?: number
+  description?: string | null
+  relatedEntity?: string | null
+  sortOrder?: number
+  importFingerprint?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  currencyCode?: string | null
+  exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
+  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
+  import?: Prisma.FinanceLedgerImportCreateNestedOneWithoutItemsInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutItemInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
+}
+
+export type FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput = {
+  id?: number
+  voucherId: number
+  accountId: number
+  debit?: number
+  credit?: number
+  description?: string | null
+  relatedEntity?: string | null
+  sortOrder?: number
+  importFingerprint?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  currencyCode?: string | null
+  exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  importId?: number | null
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
+}
+
+export type FinanceVoucherItemCreateOrConnectWithoutConsolidationEntryLinesInput = {
+  where: Prisma.FinanceVoucherItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceVoucherItemUpsertWithoutConsolidationEntryLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceVoucherItemUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationEntryLinesInput>
+  create: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationEntryLinesInput>
+  where?: Prisma.FinanceVoucherItemWhereInput
+}
+
+export type FinanceVoucherItemUpdateToOneWithWhereWithoutConsolidationEntryLinesInput = {
+  where?: Prisma.FinanceVoucherItemWhereInput
+  data: Prisma.XOR<Prisma.FinanceVoucherItemUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceVoucherItemUpdateWithoutConsolidationEntryLinesInput = {
+  debit?: Prisma.FloatFieldUpdateOperationsInput | number
+  credit?: Prisma.FloatFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedEntity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
+  import?: Prisma.FinanceLedgerImportUpdateOneWithoutItemsNestedInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutItemNestedInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
+}
+
+export type FinanceVoucherItemUncheckedUpdateWithoutConsolidationEntryLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  debit?: Prisma.FloatFieldUpdateOperationsInput | number
+  credit?: Prisma.FloatFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedEntity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
+}
+
+export type FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput = {
+  debit?: number
+  credit?: number
+  description?: string | null
+  relatedEntity?: string | null
+  sortOrder?: number
+  importFingerprint?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  currencyCode?: string | null
+  exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
+  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
+  reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
+  import?: Prisma.FinanceLedgerImportCreateNestedOneWithoutItemsInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutItemInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
+  openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+}
+
+export type FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput = {
+  id?: number
+  voucherId: number
+  accountId: number
+  debit?: number
+  credit?: number
+  description?: string | null
+  relatedEntity?: string | null
+  sortOrder?: number
+  importFingerprint?: string | null
+  sourceFile?: string | null
+  sourceSheet?: string | null
+  sourceRow?: number | null
+  sourceSystem?: string | null
+  sourceDatabase?: string | null
+  sourceKey?: string | null
+  currencyCode?: string | null
+  exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  importId?: number | null
+  reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
+  openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+}
+
+export type FinanceVoucherItemCreateOrConnectWithoutConsolidationMatchSourcesInput = {
+  where: Prisma.FinanceVoucherItemWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput>
+}
+
+export type FinanceVoucherItemUpsertWithoutConsolidationMatchSourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInput>
+  create: Prisma.XOR<Prisma.FinanceVoucherItemCreateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedCreateWithoutConsolidationMatchSourcesInput>
+  where?: Prisma.FinanceVoucherItemWhereInput
+}
+
+export type FinanceVoucherItemUpdateToOneWithWhereWithoutConsolidationMatchSourcesInput = {
+  where?: Prisma.FinanceVoucherItemWhereInput
+  data: Prisma.XOR<Prisma.FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput, Prisma.FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInput>
+}
+
+export type FinanceVoucherItemUpdateWithoutConsolidationMatchSourcesInput = {
+  debit?: Prisma.FloatFieldUpdateOperationsInput | number
+  credit?: Prisma.FloatFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedEntity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
+  reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
+  import?: Prisma.FinanceLedgerImportUpdateOneWithoutItemsNestedInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutItemNestedInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
+  openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+}
+
+export type FinanceVoucherItemUncheckedUpdateWithoutConsolidationMatchSourcesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherId?: Prisma.IntFieldUpdateOperationsInput | number
+  accountId?: Prisma.IntFieldUpdateOperationsInput | number
+  debit?: Prisma.FloatFieldUpdateOperationsInput | number
+  credit?: Prisma.FloatFieldUpdateOperationsInput | number
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relatedEntity?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  importFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceFile?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceSheet?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceRow?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceDatabase?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
+  auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
+  cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
+  cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
+  openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemCreateWithoutAuxiliaryLinksInput = {
@@ -1276,6 +1742,10 @@ export type FinanceVoucherItemCreateWithoutAuxiliaryLinksInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -1283,6 +1753,8 @@ export type FinanceVoucherItemCreateWithoutAuxiliaryLinksInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutAuxiliaryLinksInput = {
@@ -1305,11 +1777,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutAuxiliaryLinksInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutAuxiliaryLinksInput = {
@@ -1345,6 +1823,10 @@ export type FinanceVoucherItemUpdateWithoutAuxiliaryLinksInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -1352,6 +1834,8 @@ export type FinanceVoucherItemUpdateWithoutAuxiliaryLinksInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutAuxiliaryLinksInput = {
@@ -1374,11 +1858,17 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAuxiliaryLinksInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemCreateWithoutOpenItemsInput = {
@@ -1398,6 +1888,10 @@ export type FinanceVoucherItemCreateWithoutOpenItemsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -1405,6 +1899,8 @@ export type FinanceVoucherItemCreateWithoutOpenItemsInput = {
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutOpenItemsInput = {
@@ -1427,11 +1923,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutOpenItemsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutOpenItemsInput = {
@@ -1467,6 +1969,10 @@ export type FinanceVoucherItemUpdateWithoutOpenItemsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -1474,6 +1980,8 @@ export type FinanceVoucherItemUpdateWithoutOpenItemsInput = {
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutOpenItemsInput = {
@@ -1496,11 +2004,17 @@ export type FinanceVoucherItemUncheckedUpdateWithoutOpenItemsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemCreateWithoutImportInput = {
@@ -1520,6 +2034,10 @@ export type FinanceVoucherItemCreateWithoutImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
@@ -1527,6 +2045,8 @@ export type FinanceVoucherItemCreateWithoutImportInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutImportInput = {
@@ -1549,11 +2069,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutImportInput = {
@@ -1605,6 +2131,10 @@ export type FinanceVoucherItemScalarWhereInput = {
   exchangeRate?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.DecimalNullableFilter<"FinanceVoucherItem"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementNo?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  settlementDate?: Prisma.StringNullableFilter<"FinanceVoucherItem"> | string | null
+  sourceMetadata?: Prisma.JsonNullableFilter<"FinanceVoucherItem">
   importId?: Prisma.IntNullableFilter<"FinanceVoucherItem"> | number | null
 }
 
@@ -1625,6 +2155,10 @@ export type FinanceVoucherItemCreateWithoutAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
   import?: Prisma.FinanceLedgerImportCreateNestedOneWithoutItemsInput
@@ -1632,6 +2166,8 @@ export type FinanceVoucherItemCreateWithoutAccountInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutAccountInput = {
@@ -1653,12 +2189,18 @@ export type FinanceVoucherItemUncheckedCreateWithoutAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutAccountInput = {
@@ -1704,6 +2246,10 @@ export type FinanceVoucherItemCreateWithoutVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   reclassResults?: Prisma.ReclassResultCreateNestedManyWithoutVoucherItemInput
   import?: Prisma.FinanceLedgerImportCreateNestedOneWithoutItemsInput
@@ -1711,6 +2257,8 @@ export type FinanceVoucherItemCreateWithoutVoucherInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutVoucherInput = {
@@ -1732,12 +2280,18 @@ export type FinanceVoucherItemUncheckedCreateWithoutVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   reclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutVoucherItemInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutVoucherInput = {
@@ -1783,6 +2337,10 @@ export type FinanceVoucherItemCreateWithoutReclassResultsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account: Prisma.FinanceAccountCreateNestedOneWithoutVoucherItemsInput
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutItemsInput
   import?: Prisma.FinanceLedgerImportCreateNestedOneWithoutItemsInput
@@ -1790,6 +2348,8 @@ export type FinanceVoucherItemCreateWithoutReclassResultsInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemUncheckedCreateWithoutReclassResultsInput = {
@@ -1812,11 +2372,17 @@ export type FinanceVoucherItemUncheckedCreateWithoutReclassResultsInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedCreateNestedManyWithoutItemInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutOwnerVoucherItemInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedCreateNestedManyWithoutCounterpartItemInput
   openItems?: Prisma.FinanceOpenItemUncheckedCreateNestedManyWithoutVoucherItemInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceVoucherItemInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutVoucherItemInput
 }
 
 export type FinanceVoucherItemCreateOrConnectWithoutReclassResultsInput = {
@@ -1852,6 +2418,10 @@ export type FinanceVoucherItemUpdateWithoutReclassResultsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   import?: Prisma.FinanceLedgerImportUpdateOneWithoutItemsNestedInput
@@ -1859,6 +2429,8 @@ export type FinanceVoucherItemUpdateWithoutReclassResultsInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutReclassResultsInput = {
@@ -1881,11 +2453,17 @@ export type FinanceVoucherItemUncheckedUpdateWithoutReclassResultsInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemCreateManyImportInput = {
@@ -1908,6 +2486,10 @@ export type FinanceVoucherItemCreateManyImportInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FinanceVoucherItemUpdateWithoutImportInput = {
@@ -1927,6 +2509,10 @@ export type FinanceVoucherItemUpdateWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
@@ -1934,6 +2520,8 @@ export type FinanceVoucherItemUpdateWithoutImportInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutImportInput = {
@@ -1956,11 +2544,17 @@ export type FinanceVoucherItemUncheckedUpdateWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateManyWithoutImportInput = {
@@ -1983,6 +2577,10 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutImportInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
 }
 
 export type FinanceVoucherItemCreateManyAccountInput = {
@@ -2004,6 +2602,10 @@ export type FinanceVoucherItemCreateManyAccountInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
 }
 
@@ -2024,6 +2626,10 @@ export type FinanceVoucherItemUpdateWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
   import?: Prisma.FinanceLedgerImportUpdateOneWithoutItemsNestedInput
@@ -2031,6 +2637,8 @@ export type FinanceVoucherItemUpdateWithoutAccountInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutAccountInput = {
@@ -2052,12 +2660,18 @@ export type FinanceVoucherItemUncheckedUpdateWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateManyWithoutAccountInput = {
@@ -2079,6 +2693,10 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutAccountInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -2101,6 +2719,10 @@ export type FinanceVoucherItemCreateManyVoucherInput = {
   exchangeRate?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: string | null
+  settlementNo?: string | null
+  settlementDate?: string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: number | null
 }
 
@@ -2121,6 +2743,10 @@ export type FinanceVoucherItemUpdateWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   account?: Prisma.FinanceAccountUpdateOneRequiredWithoutVoucherItemsNestedInput
   reclassResults?: Prisma.ReclassResultUpdateManyWithoutVoucherItemNestedInput
   import?: Prisma.FinanceLedgerImportUpdateOneWithoutItemsNestedInput
@@ -2128,6 +2754,8 @@ export type FinanceVoucherItemUpdateWithoutVoucherInput = {
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateWithoutVoucherInput = {
@@ -2149,12 +2777,18 @@ export type FinanceVoucherItemUncheckedUpdateWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   reclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutVoucherItemNestedInput
   auxiliaryLinks?: Prisma.FinanceVoucherItemAuxiliaryUncheckedUpdateManyWithoutItemNestedInput
   cashFlowOwnerAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemNestedInput
   cashFlowCounterpartAllocations?: Prisma.FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemNestedInput
   openItems?: Prisma.FinanceOpenItemUncheckedUpdateManyWithoutVoucherItemNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceVoucherItemNestedInput
+  consolidationMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutVoucherItemNestedInput
 }
 
 export type FinanceVoucherItemUncheckedUpdateManyWithoutVoucherInput = {
@@ -2176,6 +2810,10 @@ export type FinanceVoucherItemUncheckedUpdateManyWithoutVoucherInput = {
   exchangeRate?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalDebit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   originalCredit?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  settlementStyle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementNo?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceMetadata?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
   importId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
 }
 
@@ -2190,6 +2828,8 @@ export type FinanceVoucherItemCountOutputType = {
   cashFlowOwnerAllocations: number
   cashFlowCounterpartAllocations: number
   openItems: number
+  consolidationEntryLines: number
+  consolidationMatchSources: number
 }
 
 export type FinanceVoucherItemCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2198,6 +2838,8 @@ export type FinanceVoucherItemCountOutputTypeSelect<ExtArgs extends runtime.Type
   cashFlowOwnerAllocations?: boolean | FinanceVoucherItemCountOutputTypeCountCashFlowOwnerAllocationsArgs
   cashFlowCounterpartAllocations?: boolean | FinanceVoucherItemCountOutputTypeCountCashFlowCounterpartAllocationsArgs
   openItems?: boolean | FinanceVoucherItemCountOutputTypeCountOpenItemsArgs
+  consolidationEntryLines?: boolean | FinanceVoucherItemCountOutputTypeCountConsolidationEntryLinesArgs
+  consolidationMatchSources?: boolean | FinanceVoucherItemCountOutputTypeCountConsolidationMatchSourcesArgs
 }
 
 /**
@@ -2245,6 +2887,20 @@ export type FinanceVoucherItemCountOutputTypeCountOpenItemsArgs<ExtArgs extends 
   where?: Prisma.FinanceOpenItemWhereInput
 }
 
+/**
+ * FinanceVoucherItemCountOutputType without action
+ */
+export type FinanceVoucherItemCountOutputTypeCountConsolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+}
+
+/**
+ * FinanceVoucherItemCountOutputType without action
+ */
+export type FinanceVoucherItemCountOutputTypeCountConsolidationMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+}
+
 
 export type FinanceVoucherItemSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2266,6 +2922,10 @@ export type FinanceVoucherItemSelect<ExtArgs extends runtime.Types.Extensions.In
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  settlementStyle?: boolean
+  settlementNo?: boolean
+  settlementDate?: boolean
+  sourceMetadata?: boolean
   importId?: boolean
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
@@ -2275,6 +2935,8 @@ export type FinanceVoucherItemSelect<ExtArgs extends runtime.Types.Extensions.In
   cashFlowOwnerAllocations?: boolean | Prisma.FinanceVoucherItem$cashFlowOwnerAllocationsArgs<ExtArgs>
   cashFlowCounterpartAllocations?: boolean | Prisma.FinanceVoucherItem$cashFlowCounterpartAllocationsArgs<ExtArgs>
   openItems?: boolean | Prisma.FinanceVoucherItem$openItemsArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceVoucherItem$consolidationEntryLinesArgs<ExtArgs>
+  consolidationMatchSources?: boolean | Prisma.FinanceVoucherItem$consolidationMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceVoucherItemCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeVoucherItem"]>
 
@@ -2298,6 +2960,10 @@ export type FinanceVoucherItemSelectCreateManyAndReturn<ExtArgs extends runtime.
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  settlementStyle?: boolean
+  settlementNo?: boolean
+  settlementDate?: boolean
+  sourceMetadata?: boolean
   importId?: boolean
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
@@ -2324,6 +2990,10 @@ export type FinanceVoucherItemSelectUpdateManyAndReturn<ExtArgs extends runtime.
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  settlementStyle?: boolean
+  settlementNo?: boolean
+  settlementDate?: boolean
+  sourceMetadata?: boolean
   importId?: boolean
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
@@ -2350,10 +3020,14 @@ export type FinanceVoucherItemSelectScalar = {
   exchangeRate?: boolean
   originalDebit?: boolean
   originalCredit?: boolean
+  settlementStyle?: boolean
+  settlementNo?: boolean
+  settlementDate?: boolean
+  sourceMetadata?: boolean
   importId?: boolean
 }
 
-export type FinanceVoucherItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "accountId" | "debit" | "credit" | "description" | "relatedEntity" | "sortOrder" | "importFingerprint" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "currencyCode" | "exchangeRate" | "originalDebit" | "originalCredit" | "importId", ExtArgs["result"]["financeVoucherItem"]>
+export type FinanceVoucherItemOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "voucherId" | "accountId" | "debit" | "credit" | "description" | "relatedEntity" | "sortOrder" | "importFingerprint" | "sourceFile" | "sourceSheet" | "sourceRow" | "sourceSystem" | "sourceDatabase" | "sourceKey" | "currencyCode" | "exchangeRate" | "originalDebit" | "originalCredit" | "settlementStyle" | "settlementNo" | "settlementDate" | "sourceMetadata" | "importId", ExtArgs["result"]["financeVoucherItem"]>
 export type FinanceVoucherItemInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   account?: boolean | Prisma.FinanceAccountDefaultArgs<ExtArgs>
   voucher?: boolean | Prisma.FinanceVoucherDefaultArgs<ExtArgs>
@@ -2363,6 +3037,8 @@ export type FinanceVoucherItemInclude<ExtArgs extends runtime.Types.Extensions.I
   cashFlowOwnerAllocations?: boolean | Prisma.FinanceVoucherItem$cashFlowOwnerAllocationsArgs<ExtArgs>
   cashFlowCounterpartAllocations?: boolean | Prisma.FinanceVoucherItem$cashFlowCounterpartAllocationsArgs<ExtArgs>
   openItems?: boolean | Prisma.FinanceVoucherItem$openItemsArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceVoucherItem$consolidationEntryLinesArgs<ExtArgs>
+  consolidationMatchSources?: boolean | Prisma.FinanceVoucherItem$consolidationMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceVoucherItemCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceVoucherItemIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2387,6 +3063,8 @@ export type $FinanceVoucherItemPayload<ExtArgs extends runtime.Types.Extensions.
     cashFlowOwnerAllocations: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>[]
     cashFlowCounterpartAllocations: Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>[]
     openItems: Prisma.$FinanceOpenItemPayload<ExtArgs>[]
+    consolidationEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    consolidationMatchSources: Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2420,6 +3098,10 @@ export type $FinanceVoucherItemPayload<ExtArgs extends runtime.Types.Extensions.
     exchangeRate: runtime.Decimal | null
     originalDebit: runtime.Decimal | null
     originalCredit: runtime.Decimal | null
+    settlementStyle: string | null
+    settlementNo: string | null
+    settlementDate: string | null
+    sourceMetadata: runtime.JsonValue | null
     /**
      * 关联导入批次
      */
@@ -2826,6 +3508,8 @@ export interface Prisma__FinanceVoucherItemClient<T, Null = never, ExtArgs exten
   cashFlowOwnerAllocations<T extends Prisma.FinanceVoucherItem$cashFlowOwnerAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItem$cashFlowOwnerAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   cashFlowCounterpartAllocations<T extends Prisma.FinanceVoucherItem$cashFlowCounterpartAllocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItem$cashFlowCounterpartAllocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   openItems<T extends Prisma.FinanceVoucherItem$openItemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItem$openItemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceOpenItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationEntryLines<T extends Prisma.FinanceVoucherItem$consolidationEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItem$consolidationEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  consolidationMatchSources<T extends Prisma.FinanceVoucherItem$consolidationMatchSourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceVoucherItem$consolidationMatchSourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2874,6 +3558,10 @@ export interface FinanceVoucherItemFieldRefs {
   readonly exchangeRate: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
   readonly originalDebit: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
   readonly originalCredit: Prisma.FieldRef<"FinanceVoucherItem", 'Decimal'>
+  readonly settlementStyle: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
+  readonly settlementNo: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
+  readonly settlementDate: Prisma.FieldRef<"FinanceVoucherItem", 'String'>
+  readonly sourceMetadata: Prisma.FieldRef<"FinanceVoucherItem", 'Json'>
   readonly importId: Prisma.FieldRef<"FinanceVoucherItem", 'Int'>
 }
     
@@ -3412,6 +4100,54 @@ export type FinanceVoucherItem$openItemsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.FinanceOpenItemScalarFieldEnum | Prisma.FinanceOpenItemScalarFieldEnum[]
+}
+
+/**
+ * FinanceVoucherItem.consolidationEntryLines
+ */
+export type FinanceVoucherItem$consolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationEntryLine
+   */
+  select?: Prisma.FinanceConsolidationEntryLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationEntryLine
+   */
+  omit?: Prisma.FinanceConsolidationEntryLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationEntryLineInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+  orderBy?: Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput | Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceVoucherItem.consolidationMatchSources
+ */
+export type FinanceVoucherItem$consolidationMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchSource
+   */
+  select?: Prisma.FinanceConsolidationMatchSourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchSource
+   */
+  omit?: Prisma.FinanceConsolidationMatchSourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchSourceInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput | Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchSourceScalarFieldEnum | Prisma.FinanceConsolidationMatchSourceScalarFieldEnum[]
 }
 
 /**

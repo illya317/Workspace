@@ -330,6 +330,7 @@ export type FinanceCashFlowAllocationWhereInput = {
   cashFlowItem?: Prisma.XOR<Prisma.FinanceCashFlowItemScalarRelationFilter, Prisma.FinanceCashFlowItemWhereInput>
   ownerVoucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
   counterpartItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
 }
 
 export type FinanceCashFlowAllocationOrderByWithRelationInput = {
@@ -354,6 +355,7 @@ export type FinanceCashFlowAllocationOrderByWithRelationInput = {
   cashFlowItem?: Prisma.FinanceCashFlowItemOrderByWithRelationInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemOrderByWithRelationInput
   counterpartItem?: Prisma.FinanceVoucherItemOrderByWithRelationInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
 }
 
 export type FinanceCashFlowAllocationWhereUniqueInput = Prisma.AtLeast<{
@@ -382,6 +384,7 @@ export type FinanceCashFlowAllocationWhereUniqueInput = Prisma.AtLeast<{
   cashFlowItem?: Prisma.XOR<Prisma.FinanceCashFlowItemScalarRelationFilter, Prisma.FinanceCashFlowItemWhereInput>
   ownerVoucherItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
   counterpartItem?: Prisma.XOR<Prisma.FinanceVoucherItemNullableScalarRelationFilter, Prisma.FinanceVoucherItemWhereInput> | null
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
 }, "id" | "sourceSystem_sourceDatabase_sourceKey">
 
 export type FinanceCashFlowAllocationOrderByWithAggregationInput = {
@@ -443,6 +446,7 @@ export type FinanceCashFlowAllocationCreateInput = {
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateInput = {
@@ -461,6 +465,7 @@ export type FinanceCashFlowAllocationUncheckedCreateInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUpdateInput = {
@@ -478,6 +483,7 @@ export type FinanceCashFlowAllocationUpdateInput = {
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateInput = {
@@ -496,6 +502,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationCreateManyInput = {
@@ -637,6 +644,11 @@ export type FinanceCashFlowAllocationSumOrderByAggregateInput = {
   amount?: Prisma.SortOrder
 }
 
+export type FinanceCashFlowAllocationNullableScalarRelationFilter = {
+  is?: Prisma.FinanceCashFlowAllocationWhereInput | null
+  isNot?: Prisma.FinanceCashFlowAllocationWhereInput | null
+}
+
 export type FinanceCashFlowAllocationCreateNestedManyWithoutCashFlowItemInput = {
   create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationCreateWithoutCashFlowItemInput, Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutCashFlowItemInput> | Prisma.FinanceCashFlowAllocationCreateWithoutCashFlowItemInput[] | Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutCashFlowItemInput[]
   connectOrCreate?: Prisma.FinanceCashFlowAllocationCreateOrConnectWithoutCashFlowItemInput | Prisma.FinanceCashFlowAllocationCreateOrConnectWithoutCashFlowItemInput[]
@@ -677,6 +689,22 @@ export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutCashFlowItemNeste
   update?: Prisma.FinanceCashFlowAllocationUpdateWithWhereUniqueWithoutCashFlowItemInput | Prisma.FinanceCashFlowAllocationUpdateWithWhereUniqueWithoutCashFlowItemInput[]
   updateMany?: Prisma.FinanceCashFlowAllocationUpdateManyWithWhereWithoutCashFlowItemInput | Prisma.FinanceCashFlowAllocationUpdateManyWithWhereWithoutCashFlowItemInput[]
   deleteMany?: Prisma.FinanceCashFlowAllocationScalarWhereInput | Prisma.FinanceCashFlowAllocationScalarWhereInput[]
+}
+
+export type FinanceCashFlowAllocationCreateNestedOneWithoutConsolidationEntryLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationCreateOrConnectWithoutConsolidationEntryLinesInput
+  connect?: Prisma.FinanceCashFlowAllocationWhereUniqueInput
+}
+
+export type FinanceCashFlowAllocationUpdateOneWithoutConsolidationEntryLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceCashFlowAllocationCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutConsolidationEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceCashFlowAllocationCreateOrConnectWithoutConsolidationEntryLinesInput
+  upsert?: Prisma.FinanceCashFlowAllocationUpsertWithoutConsolidationEntryLinesInput
+  disconnect?: Prisma.FinanceCashFlowAllocationWhereInput | boolean
+  delete?: Prisma.FinanceCashFlowAllocationWhereInput | boolean
+  connect?: Prisma.FinanceCashFlowAllocationWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceCashFlowAllocationUpdateToOneWithWhereWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUpdateWithoutConsolidationEntryLinesInput>, Prisma.FinanceCashFlowAllocationUncheckedUpdateWithoutConsolidationEntryLinesInput>
 }
 
 export type FinanceCashFlowAllocationCreateNestedManyWithoutImportInput = {
@@ -903,6 +931,7 @@ export type FinanceCashFlowAllocationCreateWithoutCashFlowItemInput = {
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutCashFlowAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutCashFlowItemInput = {
@@ -920,6 +949,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutCashFlowItemInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutCashFlowItemInput = {
@@ -969,6 +999,92 @@ export type FinanceCashFlowAllocationScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinanceCashFlowAllocation"> | Date | string
 }
 
+export type FinanceCashFlowAllocationCreateWithoutConsolidationEntryLinesInput = {
+  companyCode: string
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  direction: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  import: Prisma.FinanceLedgerImportCreateNestedOneWithoutCashFlowAllocationsInput
+  period: Prisma.FinancePeriodCreateNestedOneWithoutCashFlowAllocationsInput
+  voucher: Prisma.FinanceVoucherCreateNestedOneWithoutCashFlowAllocationsInput
+  cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
+  ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
+  counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+}
+
+export type FinanceCashFlowAllocationUncheckedCreateWithoutConsolidationEntryLinesInput = {
+  id?: number
+  importId: number
+  companyCode: string
+  periodId: number
+  voucherId: number
+  cashFlowItemId: number
+  ownerVoucherItemId?: number | null
+  counterpartItemId?: number | null
+  sourceSystem: string
+  sourceDatabase: string
+  sourceKey: string
+  direction: string
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinanceCashFlowAllocationCreateOrConnectWithoutConsolidationEntryLinesInput = {
+  where: Prisma.FinanceCashFlowAllocationWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceCashFlowAllocationCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceCashFlowAllocationUpsertWithoutConsolidationEntryLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceCashFlowAllocationUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedUpdateWithoutConsolidationEntryLinesInput>
+  create: Prisma.XOR<Prisma.FinanceCashFlowAllocationCreateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedCreateWithoutConsolidationEntryLinesInput>
+  where?: Prisma.FinanceCashFlowAllocationWhereInput
+}
+
+export type FinanceCashFlowAllocationUpdateToOneWithWhereWithoutConsolidationEntryLinesInput = {
+  where?: Prisma.FinanceCashFlowAllocationWhereInput
+  data: Prisma.XOR<Prisma.FinanceCashFlowAllocationUpdateWithoutConsolidationEntryLinesInput, Prisma.FinanceCashFlowAllocationUncheckedUpdateWithoutConsolidationEntryLinesInput>
+}
+
+export type FinanceCashFlowAllocationUpdateWithoutConsolidationEntryLinesInput = {
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  import?: Prisma.FinanceLedgerImportUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
+  period?: Prisma.FinancePeriodUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
+  voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
+  cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
+  ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
+  counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+}
+
+export type FinanceCashFlowAllocationUncheckedUpdateWithoutConsolidationEntryLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  importId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  periodId?: Prisma.IntFieldUpdateOperationsInput | number
+  voucherId?: Prisma.IntFieldUpdateOperationsInput | number
+  cashFlowItemId?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerVoucherItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  counterpartItemId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceSystem?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceDatabase?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceKey?: Prisma.StringFieldUpdateOperationsInput | string
+  direction?: Prisma.StringFieldUpdateOperationsInput | string
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type FinanceCashFlowAllocationCreateWithoutImportInput = {
   companyCode: string
   sourceSystem: string
@@ -983,6 +1099,7 @@ export type FinanceCashFlowAllocationCreateWithoutImportInput = {
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutImportInput = {
@@ -1000,6 +1117,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutImportInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutImportInput = {
@@ -1042,6 +1160,7 @@ export type FinanceCashFlowAllocationCreateWithoutPeriodInput = {
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutPeriodInput = {
@@ -1059,6 +1178,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutPeriodInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutPeriodInput = {
@@ -1101,6 +1221,7 @@ export type FinanceCashFlowAllocationCreateWithoutVoucherInput = {
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutVoucherInput = {
@@ -1118,6 +1239,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutVoucherInput = {
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutVoucherInput = {
@@ -1160,6 +1282,7 @@ export type FinanceCashFlowAllocationCreateWithoutOwnerVoucherItemInput = {
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutCashFlowAllocationsInput
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   counterpartItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowCounterpartAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutOwnerVoucherItemInput = {
@@ -1177,6 +1300,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutOwnerVoucherItemInput
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutOwnerVoucherItemInput = {
@@ -1203,6 +1327,7 @@ export type FinanceCashFlowAllocationCreateWithoutCounterpartItemInput = {
   voucher: Prisma.FinanceVoucherCreateNestedOneWithoutCashFlowAllocationsInput
   cashFlowItem: Prisma.FinanceCashFlowItemCreateNestedOneWithoutAllocationsInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemCreateNestedOneWithoutCashFlowOwnerAllocationsInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationUncheckedCreateWithoutCounterpartItemInput = {
@@ -1220,6 +1345,7 @@ export type FinanceCashFlowAllocationUncheckedCreateWithoutCounterpartItemInput 
   amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Date | string
   updatedAt?: Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutSourceCashFlowAllocationInput
 }
 
 export type FinanceCashFlowAllocationCreateOrConnectWithoutCounterpartItemInput = {
@@ -1295,6 +1421,7 @@ export type FinanceCashFlowAllocationUpdateWithoutCashFlowItemInput = {
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutCashFlowItemInput = {
@@ -1312,6 +1439,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutCashFlowItemInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutCashFlowItemInput = {
@@ -1362,6 +1490,7 @@ export type FinanceCashFlowAllocationUpdateWithoutImportInput = {
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutImportInput = {
@@ -1379,6 +1508,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutImportInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutImportInput = {
@@ -1429,6 +1559,7 @@ export type FinanceCashFlowAllocationUpdateWithoutPeriodInput = {
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutPeriodInput = {
@@ -1446,6 +1577,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutPeriodInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutPeriodInput = {
@@ -1496,6 +1628,7 @@ export type FinanceCashFlowAllocationUpdateWithoutVoucherInput = {
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutVoucherInput = {
@@ -1513,6 +1646,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutVoucherInput = {
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutVoucherInput = {
@@ -1580,6 +1714,7 @@ export type FinanceCashFlowAllocationUpdateWithoutOwnerVoucherItemInput = {
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   counterpartItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowCounterpartAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutOwnerVoucherItemInput = {
@@ -1597,6 +1732,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutOwnerVoucherItemInput
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutOwnerVoucherItemInput = {
@@ -1630,6 +1766,7 @@ export type FinanceCashFlowAllocationUpdateWithoutCounterpartItemInput = {
   voucher?: Prisma.FinanceVoucherUpdateOneRequiredWithoutCashFlowAllocationsNestedInput
   cashFlowItem?: Prisma.FinanceCashFlowItemUpdateOneRequiredWithoutAllocationsNestedInput
   ownerVoucherItem?: Prisma.FinanceVoucherItemUpdateOneWithoutCashFlowOwnerAllocationsNestedInput
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateWithoutCounterpartItemInput = {
@@ -1647,6 +1784,7 @@ export type FinanceCashFlowAllocationUncheckedUpdateWithoutCounterpartItemInput 
   amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  consolidationEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutSourceCashFlowAllocationNestedInput
 }
 
 export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemInput = {
@@ -1666,6 +1804,35 @@ export type FinanceCashFlowAllocationUncheckedUpdateManyWithoutCounterpartItemIn
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+
+/**
+ * Count Type FinanceCashFlowAllocationCountOutputType
+ */
+
+export type FinanceCashFlowAllocationCountOutputType = {
+  consolidationEntryLines: number
+}
+
+export type FinanceCashFlowAllocationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  consolidationEntryLines?: boolean | FinanceCashFlowAllocationCountOutputTypeCountConsolidationEntryLinesArgs
+}
+
+/**
+ * FinanceCashFlowAllocationCountOutputType without action
+ */
+export type FinanceCashFlowAllocationCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceCashFlowAllocationCountOutputType
+   */
+  select?: Prisma.FinanceCashFlowAllocationCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinanceCashFlowAllocationCountOutputType without action
+ */
+export type FinanceCashFlowAllocationCountOutputTypeCountConsolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+}
 
 
 export type FinanceCashFlowAllocationSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1690,6 +1857,8 @@ export type FinanceCashFlowAllocationSelect<ExtArgs extends runtime.Types.Extens
   cashFlowItem?: boolean | Prisma.FinanceCashFlowItemDefaultArgs<ExtArgs>
   ownerVoucherItem?: boolean | Prisma.FinanceCashFlowAllocation$ownerVoucherItemArgs<ExtArgs>
   counterpartItem?: boolean | Prisma.FinanceCashFlowAllocation$counterpartItemArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceCashFlowAllocation$consolidationEntryLinesArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceCashFlowAllocationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeCashFlowAllocation"]>
 
 export type FinanceCashFlowAllocationSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1766,6 +1935,8 @@ export type FinanceCashFlowAllocationInclude<ExtArgs extends runtime.Types.Exten
   cashFlowItem?: boolean | Prisma.FinanceCashFlowItemDefaultArgs<ExtArgs>
   ownerVoucherItem?: boolean | Prisma.FinanceCashFlowAllocation$ownerVoucherItemArgs<ExtArgs>
   counterpartItem?: boolean | Prisma.FinanceCashFlowAllocation$counterpartItemArgs<ExtArgs>
+  consolidationEntryLines?: boolean | Prisma.FinanceCashFlowAllocation$consolidationEntryLinesArgs<ExtArgs>
+  _count?: boolean | Prisma.FinanceCashFlowAllocationCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceCashFlowAllocationIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   import?: boolean | Prisma.FinanceLedgerImportDefaultArgs<ExtArgs>
@@ -1793,6 +1964,7 @@ export type $FinanceCashFlowAllocationPayload<ExtArgs extends runtime.Types.Exte
     cashFlowItem: Prisma.$FinanceCashFlowItemPayload<ExtArgs>
     ownerVoucherItem: Prisma.$FinanceVoucherItemPayload<ExtArgs> | null
     counterpartItem: Prisma.$FinanceVoucherItemPayload<ExtArgs> | null
+    consolidationEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2210,6 +2382,7 @@ export interface Prisma__FinanceCashFlowAllocationClient<T, Null = never, ExtArg
   cashFlowItem<T extends Prisma.FinanceCashFlowItemDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowItemDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceCashFlowItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceCashFlowItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   ownerVoucherItem<T extends Prisma.FinanceCashFlowAllocation$ownerVoucherItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowAllocation$ownerVoucherItemArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   counterpartItem<T extends Prisma.FinanceCashFlowAllocation$counterpartItemArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowAllocation$counterpartItemArgs<ExtArgs>>): Prisma.Prisma__FinanceVoucherItemClient<runtime.Types.Result.GetResult<Prisma.$FinanceVoucherItemPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  consolidationEntryLines<T extends Prisma.FinanceCashFlowAllocation$consolidationEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceCashFlowAllocation$consolidationEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2690,6 +2863,30 @@ export type FinanceCashFlowAllocation$counterpartItemArgs<ExtArgs extends runtim
    */
   include?: Prisma.FinanceVoucherItemInclude<ExtArgs> | null
   where?: Prisma.FinanceVoucherItemWhereInput
+}
+
+/**
+ * FinanceCashFlowAllocation.consolidationEntryLines
+ */
+export type FinanceCashFlowAllocation$consolidationEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationEntryLine
+   */
+  select?: Prisma.FinanceConsolidationEntryLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationEntryLine
+   */
+  omit?: Prisma.FinanceConsolidationEntryLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationEntryLineInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+  orderBy?: Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput | Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
 }
 
 /**

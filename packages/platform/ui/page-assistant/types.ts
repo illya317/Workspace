@@ -1,4 +1,5 @@
 import type { PageAssistantOpenInput } from "@workspace/core/ui";
+import type { AgentChoiceQuestion, AgentChoiceSubmission } from "@workspace/platform/agent-conversation-choice";
 
 export type AssistantRole = "user" | "agent";
 export type AssistantProposalStatus = "pending" | "executing" | "confirmed" | "cancelled" | "failed" | "expired";
@@ -39,6 +40,8 @@ export type AssistantMessage = {
   attachments?: AssistantAttachment[];
   responseType?: "answer" | "error" | "clarification" | "proposal";
   data?: unknown;
+  choices?: AgentChoiceQuestion[];
+  choiceSubmission?: AgentChoiceSubmission;
   proposal?: AssistantProposal;
   proposalStatus?: AssistantProposalStatus;
 };
@@ -47,6 +50,7 @@ export type AgentResponse = {
   type?: "answer" | "error" | "clarification" | "proposal";
   message?: string;
   data?: unknown;
+  choices?: AgentChoiceQuestion[];
   proposal?: AssistantProposal;
   error?: string;
   session?: {

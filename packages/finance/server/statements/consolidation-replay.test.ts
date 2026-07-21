@@ -181,8 +181,8 @@ test("replay preserves entry and tax-effect audit metadata", () => {
     createdAt: "2026-07-14T23:00:00.000Z",
     updatedAt: "2026-07-15T01:00:00.000Z",
     lines: [
-      { id: 21, lineNo: 1, companyId: 1, companyCode: "01", statementType: "incomeStatement", lineCode: "revenue", accountCode: null, debit: 100, credit: 0, currencyCode: "CNY", note: null },
-      { id: 22, lineNo: 2, companyId: 2, companyCode: "02", statementType: "incomeStatement", lineCode: "cost", accountCode: null, debit: 0, credit: 100, currencyCode: "CNY", note: null },
+      { id: 21, lineNo: 1, entitySnapshotId: 1, companyId: 1, companyCode: "01", statementType: "incomeStatement", lineCode: "revenue", accountCode: null, debit: 100, credit: 0, currencyCode: "CNY", note: null },
+      { id: 22, lineNo: 2, entitySnapshotId: 2, companyId: 2, companyCode: "02", statementType: "incomeStatement", lineCode: "cost", accountCode: null, debit: 0, credit: 100, currencyCode: "CNY", note: null },
     ],
     taxEffects: [{
       id: 30,

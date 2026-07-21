@@ -27,9 +27,10 @@ async function request(path: string, method: "DELETE" | "POST" | "PUT", body: un
   });
   const payload = await response.json().catch(() => null);
   if (!response.ok) {
+    const detail = apiError(payload, fallback);
     const error = new Error(response.status === 409
-      ? "当前合并批次已被其他人更新，页面将刷新；请核对最新版本后重试"
-      : apiError(payload, fallback));
+      ? `${detail}；页面将刷新，请核对最新版本后重试`
+      : detail);
     Object.assign(error, { status: response.status });
     throw error;
   }
@@ -106,6 +107,17 @@ export function useConsolidationCommands(
     ), "抵销分录草稿已保存");
   }
 
+  async function generateEntries() {
+    const batch = data?.batch;
+    if (!batch) return false;
+    return run(() => request(
+      `/api/modules/finance/statements/consolidation/batches/${batch.id}/entries/generate`,
+      "POST",
+      { expectedRevision: batch.revision },
+      "抵销分录自动生成失败",
+    ), "已按双方凭证明细生成抵销分录草稿");
+  }
+
   async function saveTaxEffect(entryId: number, input: Omit<SaveConsolidationTaxEffectInput, "expectedRevision">) {
     const batch = data?.batch;
     if (!batch) return false;
@@ -153,15 +165,6 @@ export function useConsolidationCommands(
     ), "税务影响草稿已删除，审计快照已保留");
   }
 
-  async function reviewRate(rateId: number, note: string) {
-    return run(() => request(
-      `/api/modules/finance/statements/consolidation/exchange-rates/${rateId}/review`,
-      "POST",
-      { note },
-      "汇率独立复核失败",
-    ), "汇率证据已独立复核");
-  }
-
   async function advanceLifecycle(note: string) {
     const batch = data?.batch;
     if (!batch) return false;
@@ -179,7 +182,7 @@ export function useConsolidationCommands(
   async function returnBatch(note: string) {
     const batch = data?.batch;
     const normalizedNote = note.trim();
-    if (!batch || batch.status !== "submitted" || !normalizedNote) return false;
+    if (!batch || (batch.status !== "submitted" && batch.status !== "reviewed") || !normalizedNote) return false;
     const confirmed = await feedback.confirm({
       title: "退回合并批次",
       message: "退回会将批次和已提交分录恢复为草稿，原提交事实仍保留在事件链中。确定继续吗？",
@@ -202,10 +205,10 @@ export function useConsolidationCommands(
     saveSources,
     saveDecision,
     saveEntry,
+    generateEntries,
     deleteEntry,
     saveTaxEffect,
     deleteTaxEffect,
-    reviewRate,
     advanceLifecycle,
     returnBatch,
   };

@@ -33,6 +33,7 @@
 6. `/production/qc/[batchId]/[stageKey]/[testName]` 使用 docs editor document 的检验项目切片展示记录；桌面端保留纸面预览，移动端按标题、表格行和字段模型转换成章节化原生表单。公式、引用、只读、选项、字段值和保存/复核仍由同一 docs field model 与 QC workflow 驱动，不另建移动端数据协议。
 7. `/api/modules/production/qc*` 提供 JSON 批次台账读写接口。
 8. `/docs/editor` 把 `generated/production/qc/template-snapshots` 中的 QC 官方模板快照同步到质量控制部部门空间，负责模板空间、纸面编辑、复制、发布和权限管理。
+9. Workspace 云端 Agent 可通过 Docs Editor 自有工具按自然语言查询、分段检查、完整编辑和发布 QC 官方模板；完整编辑覆盖 `document + fieldModel` 内的章节、表格、行列、字段、公式与引用。写入只在请求人和虚拟员工都具备具体空间权限时直接执行，不创建 Agent 审批提案，也不绕过 Docs Editor 领域校验或必须走流程的业务配置。
 
 QC 批次页面只使用批次固化的 docs editor 模板快照。模板编辑器入口不再通过 Production L2 暴露。
 

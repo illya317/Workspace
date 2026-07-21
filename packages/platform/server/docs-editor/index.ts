@@ -46,6 +46,13 @@ export {
   normalizeDocumentTemplatePayload,
 } from "./domain/document-template-validation";
 export {
+  docsEditorAgentTools,
+  inspectQcTemplateTool,
+  publishQcTemplateTool,
+  searchQcTemplatesTool,
+  updateQcTemplateTool,
+} from "./agent-tools";
+export {
   deleteTemplateContentFiles,
   isStructuredTemplateContentRef,
   planTemplateContentRefs,

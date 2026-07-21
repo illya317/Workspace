@@ -16,7 +16,7 @@ import {
   ConsolidationSnapshotError,
   assertConsolidationSourceFactsCurrent,
   loadSelectedSourceFacts,
-  loadVerifiedRateFacts,
+  loadAvailableRateFacts,
   periodEndDate,
   type ConsolidationScopeFact,
 } from "./consolidation-snapshots";
@@ -92,7 +92,7 @@ export async function saveConsolidationSources(rawCommand: SaveConsolidationSour
       batch.month,
       command.input.selections,
     );
-    const selectedRateFacts = await loadVerifiedRateFacts(
+    const selectedRateFacts = await loadAvailableRateFacts(
       periodEnd,
       command.input.exchangeRateIds,
     );

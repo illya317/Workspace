@@ -6,6 +6,7 @@ import {
   type AgentUpdateWorkItemInput,
   type AgentWorkReferenceOption,
 } from "./domain/agent-work-item-proposal-validation";
+import type { AgentCreateWorkItemInput } from "./domain/agent-work-item-create-validation";
 import { executeWorkReferenceOptionsRouteCommand } from "./work-task-route-command";
 
 type ReferenceField =
@@ -33,6 +34,11 @@ type WorkItemReferenceSnapshot = {
   parentWorkItemId: number | null;
 };
 
+type WorkItemReferenceChanges = Pick<
+  AgentUpdateWorkItemInput,
+  ReferenceField
+>;
+
 type ReferenceValidationResult =
   | { ok: true; labels: AgentWorkReferenceLabels }
   | { ok: false; error: string };
@@ -45,6 +51,27 @@ type CandidateResult =
 export async function validateAgentWorkItemReferenceChanges(input: {
   execution: AgentExecutionContext;
   changes: AgentUpdateWorkItemInput;
+  snapshot: WorkItemReferenceSnapshot;
+}): Promise<ReferenceValidationResult> {
+  return validateAgentWorkItemReferences(input);
+}
+
+/** Applies the same requester/actor candidate intersection to a not-yet-created node. */
+export async function validateAgentCreateWorkItemReferences(input: {
+  execution: AgentExecutionContext;
+  changes: AgentCreateWorkItemInput;
+  snapshot: Omit<WorkItemReferenceSnapshot, "id">;
+}): Promise<ReferenceValidationResult> {
+  return validateAgentWorkItemReferences({
+    execution: input.execution,
+    changes: input.changes,
+    snapshot: { id: 0, ...input.snapshot },
+  });
+}
+
+async function validateAgentWorkItemReferences(input: {
+  execution: AgentExecutionContext;
+  changes: WorkItemReferenceChanges;
   snapshot: WorkItemReferenceSnapshot;
 }): Promise<ReferenceValidationResult> {
   const { changes, snapshot } = input;

@@ -81,8 +81,8 @@ const basePageViewDefinitions: PageViewDefinition[] = [
         key: "reclass",
         label: "重分类",
         children: [
-          { key: "rules", label: "科目规则设置" },
-          { key: "adjustments", label: "凭证重分类调整" },
+          { key: "rules", label: "科目规则" },
+          { key: "adjustments", label: "重分类调整" },
         ],
       },
       {
@@ -234,8 +234,9 @@ const basePageViewDefinitions: PageViewDefinition[] = [
     moduleKey: "capitalSecurities",
     label: "治理架构",
     views: [
-      { key: "governance", label: "组织架构" },
-      { key: "position", label: "岗位摘要" },
+      { key: "governance", label: "治理组织" },
+      { key: "companies", label: "公司信息" },
+      { key: "relations", label: "股权关系" },
     ],
   },
   {

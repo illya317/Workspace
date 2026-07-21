@@ -41,6 +41,7 @@ export type RelationTargetKind =
   | "department"
   | "employee"
   | "financeAccount"
+  | "financeConsolidationEntrySource"
   | "meeting"
   | "meetingActionCandidate"
   | "meetingDecision"
@@ -78,6 +79,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "FinanceAccount", label: "财务科目" },
     search: ({ keyword }) => searchFkFinanceAccounts(keyword),
     resolve: resolveFkFinanceAccount,
+  },
+  financeConsolidationEntrySource: {
+    target: { entity: "FinanceConsolidationEntrySource", label: "抵销业务来源" },
+    search: async () => [],
+    resolve: async () => null,
   },
   meeting: {
     target: { entity: "Meeting", label: "会议" },

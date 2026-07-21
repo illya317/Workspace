@@ -209,6 +209,21 @@ export type FinanceCashFlowItem = Prisma.FinanceCashFlowItemModel
  */
 export type FinanceCashFlowAllocation = Prisma.FinanceCashFlowAllocationModel
 /**
+ * Model FinanceConsolidationEntryLine
+ * 合并抵销分录借贷行（事实表，主体、对方主体和匹配来源均保存真实外键；同时冻结来源审计摘要）。
+ */
+export type FinanceConsolidationEntryLine = Prisma.FinanceConsolidationEntryLineModel
+/**
+ * Model FinanceConsolidationMatchGroup
+ * 合并抵销凭证级匹配组（事实；一组可承载 1:1、1:N、N:1 或 N:N 来源分录）。
+ */
+export type FinanceConsolidationMatchGroup = Prisma.FinanceConsolidationMatchGroupModel
+/**
+ * Model FinanceConsolidationMatchSource
+ * 合并抵销匹配组的凭证分录来源（事实；allocatedAmount 允许同一来源在不同组中拆分）。
+ */
+export type FinanceConsolidationMatchSource = Prisma.FinanceConsolidationMatchSourceModel
+/**
  * Model FinanceConsolidationOutputSnapshot
  * 合并报表正式输出快照。批次锁定成功时事务内生成，发布和查询只读取该不可变事实。
  */
@@ -240,7 +255,7 @@ export type FinanceConsolidationEntitySnapshot = Prisma.FinanceConsolidationEnti
 export type FinanceConsolidationSourceSnapshot = Prisma.FinanceConsolidationSourceSnapshotModel
 /**
  * Model FinanceConsolidationRateSnapshot
- * 合并批次汇率冻结快照（事实表，来源于已复核 FinanceStatementExchangeRate 版本）。
+ * 合并批次汇率冻结快照（事实表，来源于已保存的 FinanceStatementExchangeRate 版本）。
  */
 export type FinanceConsolidationRateSnapshot = Prisma.FinanceConsolidationRateSnapshotModel
 /**
@@ -248,11 +263,6 @@ export type FinanceConsolidationRateSnapshot = Prisma.FinanceConsolidationRateSn
  * 合并抵销分录头（事实表，来源于人工编制与批次复核）。批准后通过新版本或冲销分录修订。
  */
 export type FinanceConsolidationEntry = Prisma.FinanceConsolidationEntryModel
-/**
- * Model FinanceConsolidationEntryLine
- * 合并抵销分录借贷行（事实表，来源于人工编制；同一分录必须借贷平衡）。
- */
-export type FinanceConsolidationEntryLine = Prisma.FinanceConsolidationEntryLineModel
 /**
  * Model FinanceConsolidationTaxEffect
  * 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
@@ -318,6 +328,41 @@ export type FinanceOpenItem = Prisma.FinanceOpenItemModel
  * 未清项与客户、供应商等辅助成员的关联
  */
 export type FinanceOpenItemAuxiliary = Prisma.FinanceOpenItemAuxiliaryModel
+/**
+ * Model FinanceReadableSourcePackage
+ * ERP readable 来源包切片（不可变事实，来源于 source-map、manifest、validation 和 SHA256SUMS）。
+ */
+export type FinanceReadableSourcePackage = Prisma.FinanceReadableSourcePackageModel
+/**
+ * Model FinanceReadableImportRun
+ * ERP readable 单次导入执行记录（追加式事实；逻辑账套批次可指向最新来源包）。
+ */
+export type FinanceReadableImportRun = Prisma.FinanceReadableImportRunModel
+/**
+ * Model FinanceSourceLedgerMapping
+ * Workspace 公司与 ERP 账套的有效期映射（T6 为持续来源，TPlus 仅为历史衔接）。
+ */
+export type FinanceSourceLedgerMapping = Prisma.FinanceSourceLedgerMappingModel
+/**
+ * Model FinanceAccountAuxiliaryRequirement
+ * 科目要求的 ERP 辅助核算维度（事实，区分“不适用”与“应有但缺失”）。
+ */
+export type FinanceAccountAuxiliaryRequirement = Prisma.FinanceAccountAuxiliaryRequirementModel
+/**
+ * Model FinanceSourcePeriodStatus
+ * ERP 会计期间原始结账状态（事实，分别保存总账月结、正式关账和模块状态）。
+ */
+export type FinanceSourcePeriodStatus = Prisma.FinanceSourcePeriodStatusModel
+/**
+ * Model FinanceSourceSubsystemStatus
+ * ERP 子系统年度启用与结账状态（事实，来源于 T6 UA_Account_sub）。
+ */
+export type FinanceSourceSubsystemStatus = Prisma.FinanceSourceSubsystemStatusModel
+/**
+ * Model FinanceAccountLineage
+ * TPlus 历史科目跨年度衔接（一次性事实，未来 T6 增量不依赖该表）。
+ */
+export type FinanceAccountLineage = Prisma.FinanceAccountLineageModel
 /**
  * Model FinanceLedgerImport
  * 财务来源导入批次（统一承载 T6/TPlus 账套级追溯与控制数）
@@ -418,8 +463,8 @@ export type FinanceStatementWorkpaper = Prisma.FinanceStatementWorkpaperModel
 export type FinanceStatementWorkpaperLine = Prisma.FinanceStatementWorkpaperLineModel
 /**
  * Model FinanceStatementExchangeRate
- * 外币报表汇率证据快照（事实表，来源于中国银行牌价页人工录入并复核）
- * 只保存牌价日期、牌价值、来源时间和复核事实；折算金额及折算差额由 service 计算
+ * 外币报表汇率事实，自动抓取中国外汇交易中心人民币汇率中间价
+ * rate 统一保存为人民币/1外币；sourceField/note 保留原始币种对方向与报价单位
  */
 export type FinanceStatementExchangeRate = Prisma.FinanceStatementExchangeRateModel
 /**

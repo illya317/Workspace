@@ -1,4 +1,5 @@
 import type { StatementReportType } from "./statement-shared";
+import type { ConsolidationAdjustmentVoucherSource } from "./consolidation-adjustment";
 
 export type { StatementReportType } from "./statement-shared";
 export type * from "./consolidated-output";
@@ -6,7 +7,7 @@ export type * from "./consolidated-output";
 export type ConsolidationReadinessStatus = "ready" | "attention" | "blocked";
 export type ConsolidationBatchStatus = "draft" | "submitted" | "reviewed" | "locked" | "published";
 export type ConsolidationBatchLifecycleAction = "create" | "submit" | "return" | "review" | "lock" | "publish";
-export type ConsolidationBatchEventAction = ConsolidationBatchLifecycleAction | "entry.delete" | "taxEffect.delete";
+export type ConsolidationBatchEventAction = ConsolidationBatchLifecycleAction | "entry.generate" | "entry.delete" | "taxEffect.delete";
 export type ConsolidationEntryStatus = "draft" | "submitted" | "approved" | "reversed";
 export type ConsolidationEntryType =
   | "investmentEquity"
@@ -24,8 +25,7 @@ export type ConsolidationControlKey =
   | "tax"
   | `elimination:${ConsolidationEntryType}`;
 export type StatementSourceKind = "workpaper" | "system" | "missing";
-export type StatementExchangeRateKind = "closing" | "historicalInvestment";
-export type StatementExchangeRateStatus = "draft" | "verified";
+export type StatementExchangeRateKind = "centralParity" | "closing" | "historicalInvestment";
 
 export interface ConsolidationPeriodOption {
   year: number;
@@ -73,8 +73,28 @@ export interface ConsolidationEntityCoverage {
   status: ConsolidationReadinessStatus;
 }
 
+export interface ConsolidationAdjustmentComparison {
+  key: string;
+  category: "investment" | "intercompany";
+  title: string;
+  entrySummary: string;
+  leftCompany: string;
+  leftAccount: string;
+  leftDirection: "借" | "贷" | "—";
+  leftAmount: number;
+  leftSources: ConsolidationAdjustmentVoucherSource[];
+  rightCompany: string;
+  rightAccount: string;
+  rightDirection: "借" | "贷" | "—";
+  rightAmount: number;
+  rightSources: ConsolidationAdjustmentVoucherSource[];
+  difference: number;
+  status: "equal" | "difference" | "missingCounterpart" | "unresolved";
+  matchingRule: string;
+}
+
 export interface ConsolidationControlResolution {
-  ownerModule: "finance" | "hr";
+  ownerModule: "finance" | "capitalSecurities";
   actionKey: string;
   target: string;
 }
@@ -114,23 +134,13 @@ export interface StatementExchangeRateSnapshot {
   sourceUrl: string;
   publishedAt: string | null;
   capturedAt: string;
-  status: StatementExchangeRateStatus;
   note: string | null;
   updatedBy: number | null;
-  verifiedBy: number | null;
-  verifiedAt: string | null;
 }
 
-export interface StatementExchangeRateInput {
-  baseCurrency: "CAD";
-  quoteCurrency: "CNY";
-  rateKind: StatementExchangeRateKind;
-  rateDate: string;
-  rate: number;
-  sourceUrl: string;
-  publishedAt?: string | null;
-  status: StatementExchangeRateStatus;
-  note?: string | null;
+export interface StatementExchangeRateRefreshInput {
+  currencyCode: string;
+  targetDate: string;
 }
 
 export interface ConsolidationInvestmentEvidence {
@@ -203,12 +213,13 @@ export interface ConsolidationEntitySnapshot {
 }
 
 export interface ConsolidationRateApplicationSnapshot {
-  applicationType: "closing" | "historicalInvestment";
+  applicationType: "closing" | "historicalInvestment" | "historicalCapital";
   periodBasis: "current" | "comparative";
   entitySnapshotId: number;
   voucherItemId: number | null;
   targetDate: string;
   evidence: string;
+  capitalOriginalAmount?: number | null;
   voucher: {
     companyCode: string;
     voucherNo: string;
@@ -232,14 +243,15 @@ export interface ConsolidationRateReferenceSnapshot {
   rate: number;
   sourceUrl: string;
   publishedAt: string | null;
-  verifiedBy: number | null;
-  verifiedAt: string | null;
+  recordedBy: number | null;
+  recordedAt: string | null;
   applications: ConsolidationRateApplicationSnapshot[];
 }
 
 export interface ConsolidationEntryLineSnapshot {
   id: number;
   lineNo: number;
+  entitySnapshotId: number;
   companyId: number;
   companyCode: string;
   statementType: StatementReportType;
@@ -256,6 +268,8 @@ export interface ConsolidationEntryLineSnapshot {
   sourceFingerprint?: string | null;
   sourceAmount?: number | null;
   sourceCurrency?: string | null;
+  sourceRecordId?: number | null;
+  counterpartyEntitySnapshotId?: number | null;
   counterpartyCompanyId?: number | null;
 }
 
@@ -264,8 +278,7 @@ export type ConsolidationMatchSourceKind =
   | "openItem"
   | "cashFlowAllocation"
   | "workpaper"
-  | "voucher"
-  | "other";
+  | "voucher";
 
 export interface ConsolidationTaxEffectSnapshot {
   id: number;
@@ -298,6 +311,10 @@ export interface ConsolidationEntrySnapshot {
   evidence: string;
   matchDifference?: number | null;
   differenceResolution?: string | null;
+  origin?: "manual" | "system";
+  generationKey?: string | null;
+  generationFingerprint?: string | null;
+  generatedAt?: string | null;
   status: ConsolidationEntryStatus;
   version: number;
   supersedesEntryId: number | null;
@@ -315,6 +332,10 @@ export interface ConsolidationEntrySnapshot {
   updatedAt: string;
   lines: ConsolidationEntryLineSnapshot[];
   taxEffects: ConsolidationTaxEffectSnapshot[];
+}
+
+export interface GenerateConsolidationEntriesInput {
+  expectedRevision: number;
 }
 
 export interface ConsolidationControlDecisionSnapshot {
@@ -401,16 +422,18 @@ export interface SaveConsolidationSourcesInput {
   }[];
   rateApplications: {
     exchangeRateId: number;
-    applicationType: "closing" | "historicalInvestment";
+    applicationType: "closing" | "historicalInvestment" | "historicalCapital";
     periodBasis: "current" | "comparative";
     entitySnapshotId: number;
     voucherItemId?: number | null;
+    capitalContributionDate?: string | null;
+    capitalOriginalAmount?: number | null;
     evidence: string;
   }[];
 }
 
 export interface ConsolidationEntryLineInput {
-  companyId: number;
+  entitySnapshotId: number;
   statementType: StatementReportType;
   lineCode: string;
   accountCode?: string | null;
@@ -421,11 +444,8 @@ export interface ConsolidationEntryLineInput {
   note?: string | null;
   matchSide?: "left" | "right" | null;
   sourceKind?: ConsolidationMatchSourceKind | null;
-  sourceId?: string | null;
-  sourceFingerprint?: string | null;
-  sourceAmount?: number | null;
-  sourceCurrency?: string | null;
-  counterpartyCompanyId?: number | null;
+  sourceRecordId?: number | null;
+  counterpartyEntitySnapshotId?: number | null;
 }
 
 export interface SaveConsolidationEntryInput {
@@ -436,7 +456,6 @@ export interface SaveConsolidationEntryInput {
   title: string;
   description?: string | null;
   evidence: string;
-  matchDifference?: number | null;
   differenceResolution?: string | null;
   supersedesEntryId?: number | null;
   reversalOfEntryId?: number | null;
@@ -498,13 +517,14 @@ export interface ConsolidationOverview {
     blockerCount: number;
   };
   entities: ConsolidationEntityCoverage[];
+  adjustmentComparisons: ConsolidationAdjustmentComparison[];
   checks: ConsolidationReadinessCheck[];
   eliminations: ConsolidationEliminationPackage[];
   fxPolicy: {
     pair: "CAD/CNY";
-    sourceName: "中国银行外汇牌价";
-    sourceField: "中行折算价";
-    unit: "人民币/100外币";
+    sourceName: "中国外汇交易中心";
+    sourceField: "人民币汇率中间价";
+    unit: "人民币/1外币";
     sourceUrl: string;
     status: "notConfigured" | "partiallyConfigured" | "ready";
     periodEndDate: string;

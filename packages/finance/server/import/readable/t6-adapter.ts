@@ -1,12 +1,29 @@
 import { join } from "node:path";
 import {
-  booleanValue, dateText, numberValue, optionalText, readJsonLines, roundMoney, splitBalance, textValue,
+  booleanValue, dateText, nullableBooleanValue, numberValue, optionalText, readJsonLines, roundMoney, splitBalance, textValue,
 } from "./read-jsonl";
 import { loadT6CashFlowItems, loadT6Currencies, loadT6Members } from "./t6-masters";
 import type {
   DimensionType, NormalizedAccount, NormalizedAuxiliaryRef, NormalizedBalance,
   NormalizedReadableBatch, NormalizedVoucher, NormalizedVoucherItem, ReadableBatchSpec,
+  ReadableSourcePackageEvidence,
 } from "./types";
+
+const ACCOUNT_REQUIREMENTS: Array<[string, DimensionType]> = [
+  ["bcus", "customer"], ["bsup", "supplier"], ["bperson", "person"],
+  ["bdept", "department"], ["bitem", "project"],
+];
+
+const CLOSE_MODULE_FIELDS = [
+  "AP", "AR", "CA", "FA", "FD", "IA", "PP", "PU", "WA", "ST", "SA", "GS", "WH", "NB", "PM", "CP", "RP", "OM", "CB", "OA",
+];
+
+function populatedMetadata(row: Record<string, unknown>, keys: string[]) {
+  return Object.fromEntries(keys.flatMap((key) => {
+    const item = row[key];
+    return item === null || item === undefined || item === "" ? [] : [[key, item as string | number | boolean]];
+  }));
+}
 
 function category(row: Record<string, unknown>): string {
   const source = textValue(row, "cclass");
@@ -60,6 +77,9 @@ function normalizeAccounts(rows: Record<string, unknown>[]): NormalizedAccount[]
       subjectLevel: numberValue(row, "igrade") || undefined,
       isActive: !booleanValue(row, "bclose"), isCash: booleanValue(row, "bcash"),
       isBank: booleanValue(row, "bbank"),
+      auxiliaryRequirements: ACCOUNT_REQUIREMENTS.flatMap(([sourceField, dimensionType]) => (
+        booleanValue(row, sourceField) ? [{ dimensionType, sourceField }] : []
+      )),
     }];
   });
 }
@@ -68,6 +88,7 @@ function normalizeVouchers(
   rows: Record<string, unknown>[],
   currencyCodes: Map<string, string>,
   accountSources: Map<string, string>,
+  voucherTypes: Map<string, { name: string; isAdjustment: boolean }>,
 ): NormalizedVoucher[] {
   const groups = new Map<string, Record<string, unknown>[]>();
   for (const row of rows) {
@@ -92,16 +113,35 @@ function normalizeVouchers(
         description: optionalText(row, "cdigest"), currencyCode: currencyName ? currencyCodes.get(currencyName) ?? currencyName : undefined,
         exchangeRate: numberValue(row, "nfrat") || undefined,
         originalDebit: numberValue(row, "md_f") || undefined, originalCredit: numberValue(row, "mc_f") || undefined,
+        settlementStyle: optionalText(row, "csettle"), settlementNo: optionalText(row, "cn_id"),
+        settlementDate: dateText(row.dt_date),
+        sourceMetadata: populatedMetadata(row, ["cname", "ccode_equal"]),
         auxiliaryRefs: auxiliaryRefs(row),
       };
     });
     const totalDebit = roundMoney(items.reduce((sum, item) => sum + item.debit, 0));
     const totalCredit = roundMoney(items.reduce((sum, item) => sum + item.credit, 0));
+    const type = voucherTypes.get(sign);
+    const sourcePosted = sorted.every((row) => numberValue(row, "ibook") === 1);
     return {
       sourceKey, voucherNo: `${dateText(first.dbill_date)?.slice(0, 7) ?? `${new Date().getFullYear()}-${String(month).padStart(2, "0")}`}-${sign}-${number}`,
       date: dateText(first.dbill_date) ?? "", month, description: items[0]?.description ?? "",
       totalDebit, totalCredit,
-      status: sorted.every((row) => numberValue(row, "ibook") === 1) ? "posted" : "draft",
+      status: sourcePosted ? "posted" : "draft",
+      voucherTypeCode: sign, voucherTypeName: type?.name, isAdjustment: type?.isAdjustment ?? false,
+      preparerName: optionalText(first, "cbill"), reviewerName: optionalText(first, "ccheck"),
+      posterName: optionalText(first, "cbook"), cashierName: optionalText(first, "ccashier"),
+      attachmentCount: Math.max(0, numberValue(first, "idoc")), sourcePosted,
+      sourceAudited: Boolean(optionalText(first, "ccheck")), sourceInvalid: false,
+      externalSourceSystem: optionalText(first, "coutsysname"),
+      externalSourceDocumentNo: optionalText(first, "coutno_id"),
+      externalSourceDocumentId: optionalText(first, "coutid"),
+      externalSourceAccountSet: optionalText(first, "coutaccset"),
+      externalSourceDate: dateText(first.doutdate) ?? dateText(first.doutbilldate),
+      sourceMetadata: populatedMetadata(first, [
+        "ioutyear", "ioutperiod", "coutsign", "coutbillsign",
+        ...Array.from({ length: 16 }, (_, index) => `cDefine${index + 1}`),
+      ]),
       items,
     };
   });
@@ -129,18 +169,28 @@ function normalizeBalances(
   });
 }
 
-export async function loadT6Batch(root: string, spec: ReadableBatchSpec): Promise<NormalizedReadableBatch> {
+export async function loadT6Batch(
+  root: string,
+  spec: ReadableBatchSpec,
+  sourcePackage: ReadableSourcePackageEvidence,
+): Promise<NormalizedReadableBatch> {
   const dataDir = join(root, "T6", "databases", spec.sourceDatabase, "data");
-  const [accountRows, journalRows, balanceRows, auxBalanceRows, cashRows, closeRows, currencies] = await Promise.all([
+  const systemDir = join(root, "T6", "databases", "UFSystem", "data");
+  const [accountRows, journalRows, balanceRows, auxBalanceRows, cashRows, closeRows, signRows, accountSetRows, subsystemRows, sourcePeriodRows, currencies] = await Promise.all([
     readJsonLines(join(dataDir, "code.jsonl")), readJsonLines(join(dataDir, "GL_accvouch.jsonl")),
     readJsonLines(join(dataDir, "GL_accsum.jsonl")), readJsonLines(join(dataDir, "GL_accass.jsonl")),
     readJsonLines(join(dataDir, "GL_CashTable.jsonl")), readJsonLines(join(dataDir, "GL_mend.jsonl")),
+    readJsonLines(join(dataDir, "dsign.jsonl")), readJsonLines(join(systemDir, "UA_Account.jsonl")),
+    readJsonLines(join(systemDir, "UA_Account_sub.jsonl")), readJsonLines(join(systemDir, "UA_Period.jsonl")),
     loadT6Currencies(dataDir),
   ]);
   const accounts = normalizeAccounts(accountRows);
   const accountSources = new Map(accounts.map((item) => [item.code, item.sourceKey]));
   const currencyCodes = new Map(currencies.map((item) => [item.sourceName, item.sourceCode]));
-  const vouchers = normalizeVouchers(journalRows, currencyCodes, accountSources);
+  const voucherTypes = new Map(signRows.map((row) => [
+    textValue(row, "csign"), { name: textValue(row, "ctext"), isAdjustment: booleanValue(row, "bAdjustSign") },
+  ]));
+  const vouchers = normalizeVouchers(journalRows, currencyCodes, accountSources, voucherTypes);
   const voucherKeys = new Set(vouchers.map((item) => item.sourceKey));
   const cashFlowAllocations = cashRows.flatMap((row) => {
     const month = numberValue(row, "iPeriod");
@@ -154,8 +204,41 @@ export async function loadT6Batch(root: string, spec: ReadableBatchSpec): Promis
       direction: debit ? "inflow" as const : "outflow" as const, amount: debit || credit,
     }];
   });
+  const accountSet = accountSetRows.find((row) => textValue(row, "cAcc_Id") === spec.sourceLedger) ?? {};
+  const sourcePeriods = new Map(sourcePeriodRows.filter((row) => (
+    textValue(row, "cAcc_Id") === spec.sourceLedger && numberValue(row, "iYear") === spec.year && !booleanValue(row, "bIsDelete")
+  )).map((row) => [numberValue(row, "iId"), row]));
+  const periodStatuses = closeRows.flatMap((row) => {
+    const month = numberValue(row, "iperiod");
+    if (month < 1 || month > 12) return [];
+    const sourcePeriod = sourcePeriods.get(month);
+    return [{
+      month, sourceKey: `${spec.sourceDatabase}:${month}`,
+      startDate: dateText(sourcePeriod?.dBegin), endDate: dateText(sourcePeriod?.dEnd),
+      glMonthEnd: nullableBooleanValue(row, "bflag"),
+      accountingClosed: nullableBooleanValue(row, "bAccClosed"),
+      moduleStatuses: Object.fromEntries(CLOSE_MODULE_FIELDS.map((code) => [code, nullableBooleanValue(row, `bflag_${code}`)])),
+    }];
+  });
+  const subsystemStatuses = subsystemRows.filter((row) => (
+    textValue(row, "cAcc_Id") === spec.sourceLedger && numberValue(row, "iYear") === spec.year
+  )).map((row) => ({
+    sourceKey: `${spec.sourceLedger}:${spec.year}:${textValue(row, "cSub_Id")}`,
+    subsystemCode: textValue(row, "cSub_Id"), isDeleted: booleanValue(row, "bIsDelete"),
+    isYearClosed: nullableBooleanValue(row, "bClosing"),
+    lastProcessedPeriod: numberValue(row, "iModiPeri") || undefined,
+    enabledFrom: dateText(row.dSubSysUsed) ?? dateText(row.dSubOriDate), sourceUser: optionalText(row, "cUser_Id"),
+  }));
   return {
-    spec, snapshotDate: "2026-07-14", cutoffDate: "2026-06-30", accounts, vouchers,
+    spec, sourcePackage, snapshotDate: sourcePackage.snapshotDate, cutoffDate: sourcePackage.cutoffDate,
+    ledgerMetadata: {
+      sourceName: textValue(accountSet, "cAcc_Name") || spec.companyName,
+      startYear: numberValue(accountSet, "iYear") || undefined, startMonth: numberValue(accountSet, "iMonth") || undefined,
+      baseCurrencyCode: optionalText(accountSet, "cCurCode"), baseCurrencyName: optionalText(accountSet, "cCurName"),
+      accountingStandard: optionalText(accountSet, "cTradeKind", "cFinType"), entityType: optionalText(accountSet, "cEntType"),
+      masterUser: optionalText(accountSet, "cAcc_Master"),
+    },
+    accounts, vouchers,
     sourceBalances: normalizeBalances(balanceRows, false, accountSources),
     auxiliaryBalances: normalizeBalances(auxBalanceRows, true, accountSources),
     auxiliaryMembers: await loadT6Members(dataDir), cashFlowItems: await loadT6CashFlowItems(dataDir),
@@ -165,10 +248,8 @@ export async function loadT6Batch(root: string, spec: ReadableBatchSpec): Promis
       accountSourceKey: item.sourceKey, accountNo: item.code, currencyCode: item.currency,
       isActive: item.isActive,
     })),
-    closedMonths: new Set(closeRows.filter((row) => {
-      const month = numberValue(row, "iperiod");
-      return month >= 1 && month <= 12 && (booleanValue(row, "bflag") || booleanValue(row, "bAccClosed"));
-    }).map((row) => numberValue(row, "iperiod"))),
+    periodStatuses, subsystemStatuses, accountLineage: [],
+    closedMonths: new Set(periodStatuses.filter((row) => row.accountingClosed === true).map((row) => row.month)),
     warnings: [],
   };
 }

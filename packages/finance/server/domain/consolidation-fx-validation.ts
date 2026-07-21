@@ -17,8 +17,8 @@ export interface ConsolidationFxValidationFacts {
     exchangeRateId: number;
     rateKind: string;
     rateDate: string;
-    verifiedBy: number | null;
-    verifiedAt: string | null;
+    recordedBy: number | null;
+    recordedAt: string | null;
     applications: ConsolidationRateApplicationSnapshot[];
   }[];
   requiredInvestmentVoucherIds: number[];
@@ -47,8 +47,8 @@ export function validateConsolidationFxFacts(
     }
   }
   for (const rate of facts.rates) {
-    if (!rate.verifiedBy || !rate.verifiedAt || !Number.isFinite(Date.parse(rate.verifiedAt))) {
-      return failCommand("批次汇率必须保留独立复核人和复核时间", 409, "exchangeRates");
+    if (!rate.recordedBy || !rate.recordedAt || !Number.isFinite(Date.parse(rate.recordedAt))) {
+      return failCommand("批次汇率必须保留录入人和录入时间", 409, "exchangeRates");
     }
   }
 
@@ -81,13 +81,13 @@ export function validateConsolidationFxFacts(
       }
       if (!expected) continue;
       const { rate, application } = closing[0]!;
-      if (rate.rateKind !== "closing"
+      if ((rate.rateKind !== "closing" && rate.rateKind !== "centralParity")
         || application.targetDate !== targetDate
         || application.voucherItemId !== null
         || application.voucher !== null
         || !validRateDate(targetDate, rate.rateDate)) {
         return failCommand(
-          `CAD ${periodBasis === "current" ? "本期" : "比较期"}期末汇率必须采用对应期末或此前7日内的已复核 closing 牌价`,
+          `CAD ${periodBasis === "current" ? "本期" : "比较期"}期末汇率必须采用对应期末或此前7日内的人民币汇率中间价`,
           409,
           "rateApplications",
         );
@@ -99,6 +99,7 @@ export function validateConsolidationFxFacts(
   const appliedCurrentInvestmentIds = new Set<number>();
   const currentInvestmentById = new Map<number, ConsolidationRateApplicationSnapshot>();
   const comparativeInvestmentById = new Map<number, ConsolidationRateApplicationSnapshot>();
+  const historicalCapitalKeys = new Set<string>();
   for (const { rate, application } of rateApplications) {
     const entity = entityById.get(application.entitySnapshotId);
     if (!entity) return failCommand("汇率应用引用了批次范围外实体", 409, "rateApplications");
@@ -109,15 +110,32 @@ export function validateConsolidationFxFacts(
       return failCommand("汇率应用缺少有效的本期或比较期口径", 409, "rateApplications");
     }
     if (application.applicationType === "closing") continue;
+    if (application.applicationType === "historicalCapital") {
+      const key = `${application.entitySnapshotId}:${application.periodBasis}`;
+      if (historicalCapitalKeys.has(key)) {
+        return failCommand("同一境外实体在同一期间只能绑定一条权益资本历史汇率", 409, "rateApplications");
+      }
+      if ((rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity")
+        || application.voucherItemId !== null
+        || application.voucher !== null
+        || !application.capitalOriginalAmount
+        || application.capitalOriginalAmount <= 0
+        || !validRateDate(application.targetDate, rate.rateDate)
+        || application.periodBasis === "comparative" && application.targetDate > facts.comparativePeriodEnd) {
+        return failCommand("境外权益资本必须绑定出资日或此前7日内的历史牌价及正数原币金额", 409, "rateApplications");
+      }
+      historicalCapitalKeys.add(key);
+      continue;
+    }
     const voucher = application.voucher;
-    if (rate.rateKind !== "historicalInvestment"
+    if ((rate.rateKind !== "historicalInvestment" && rate.rateKind !== "centralParity")
       || !application.voucherItemId
       || !voucher
       || application.targetDate !== voucher.voucherDate
       || voucher.currencyCode?.toUpperCase() !== "CAD"
       || voucher.originalAmount === null
       || !validRateDate(application.targetDate, rate.rateDate)) {
-      return failCommand("投资款必须绑定投资日或此前7日内的已复核 historicalInvestment 牌价及原币凭证", 409, "rateApplications");
+      return failCommand("投资款必须绑定投资日或此前7日内的人民币汇率中间价及原币凭证", 409, "rateApplications");
     }
     if (!requiredInvestmentIds.has(application.voucherItemId)) {
       return failCommand("投资日汇率绑定了当前批次不适用的凭证明细", 409, "rateApplications");

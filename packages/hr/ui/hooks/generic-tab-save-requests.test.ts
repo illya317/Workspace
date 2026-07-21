@@ -18,9 +18,9 @@ test("keeps the collection page-draft adapter as the default", () => {
 test("keeps a configured row delete path out of the atomic page-draft save", () => {
   assert.deepEqual(
     buildGenericTabSaveRequests({
-      apiPath: "/api/modules/hr/roster/company-relations",
-      rowPath: (id) => `/api/modules/hr/roster/company-relations/${id}`,
+      apiPath: "/api/modules/test/records",
+      rowPath: (id) => `/api/modules/test/records/${id}`,
     }, changes),
-    [{ path: "/api/modules/hr/roster/company-relations", body: { changes } }],
+    [{ path: "/api/modules/test/records", body: { changes } }],
   );
 });

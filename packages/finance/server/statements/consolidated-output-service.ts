@@ -18,7 +18,10 @@ import {
   readConsolidatedOutputSnapshot,
   type PreparedConsolidatedOutputSnapshot,
 } from "./consolidated-output-snapshots";
-import { buildConsolidationReplayPackage } from "./consolidation-replay";
+import {
+  buildConsolidationPreviewPackage,
+  buildConsolidationReplayPackage,
+} from "./consolidation-replay";
 
 export type ConsolidatedOutputBuildMode = "official" | "lockCandidate";
 
@@ -49,6 +52,29 @@ export function buildConsolidatedOutputFromBatchSnapshot(
   return buildConsolidatedReportOutput(replay.data, functionalCurrencyByEntitySnapshotId, generatedAt);
 }
 
+export function buildConsolidatedPreviewFromBatchSnapshot(
+  batch: ConsolidationBatchSnapshot,
+  generatedAt = new Date(),
+): DomainValidationResult<ConsolidatedReportOutputPackage> {
+  const functionalCurrencyByEntitySnapshotId = new Map<number, string>();
+  for (const entity of batch.entities) {
+    const functionalCurrency = entity.functionalCurrency?.trim();
+    if (!functionalCurrency) {
+      return failCommand(`合并实体 ${entity.companyCode} 缺少 ERP 本位币主数据，不能生成合并报表`, 409, "functionalCurrency");
+    }
+    functionalCurrencyByEntitySnapshotId.set(entity.id, functionalCurrency);
+  }
+  if ([...functionalCurrencyByEntitySnapshotId.values()].some((currency) => currency.toUpperCase() === "CAD")
+    && batch.exchangeRates.some((rate) => rate.rateKind !== "centralParity")) {
+    return failCommand("当前草稿仍冻结旧汇率来源，请重新生成批次并抓取中国货币网人民币汇率中间价", 409, "exchangeRates");
+  }
+  return buildConsolidatedReportOutput(
+    buildConsolidationPreviewPackage(batch),
+    functionalCurrencyByEntitySnapshotId,
+    generatedAt,
+  );
+}
+
 export function prepareLockedConsolidatedOutputSnapshot(
   batch: ConsolidationBatchSnapshot,
   lockedBy: number,
@@ -71,13 +97,17 @@ export async function loadConsolidatedReportOutput(batchId: number) {
   if (!Number.isInteger(batchId) || batchId <= 0) return serviceError("合并批次 ID 无效", 400);
   const row = await loadConsolidationBatchRow(batchId);
   if (!row) return serviceError("合并批次不存在", 404);
+  const batch = consolidationBatchSnapshot(row);
   if (row.status !== "locked" && row.status !== "published") {
-    return serviceError("只有已锁定或已发布的合并批次可以查看正式报表", 409);
+    const preview = buildConsolidatedPreviewFromBatchSnapshot(batch);
+    return preview.ok
+      ? serviceOk({ report: preview.data, lifecycle: { status: row.status } })
+      : serviceError(preview.issue.message, preview.issue.status);
   }
   const output = readConsolidatedOutputSnapshot(
     row.outputSnapshot,
     batchId,
-    consolidationBatchSnapshot(row),
+    batch,
   );
   return output.ok
     ? serviceOk({

@@ -168,8 +168,8 @@ function frozenRate(
     rate,
     sourceUrl: "https://www.boc.cn/sourcedb/whpj/",
     publishedAt: null,
-    verifiedBy: 9,
-    verifiedAt: "2027-01-02T00:00:00.000Z",
+    recordedBy: 9,
+    recordedAt: "2027-01-02T00:00:00.000Z",
     applications: [rateApplication(
       rateKind,
       entitySnapshotId,
@@ -223,8 +223,8 @@ function replayPackage(entityIds = [101]): ConsolidationReplayPackage {
 test("CAD uses entity closing rates, historical capital, and derives CTA in OCI", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
-    frozenRate(5, "closing", 532, 101),
-    frozenRate(7, "historicalInvestment", 480, 101),
+    frozenRate(5, "closing", 5.32, 101),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
   ];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
   assert.equal(result.ok, true);
@@ -237,13 +237,30 @@ test("CAD uses entity closing rates, historical capital, and derives CTA in OCI"
   assert.equal(income.lines.find((item) => item.lineCode === "revenue")?.amount, 1_064);
 });
 
+test("CAD derives liabilities from section totals when source omits totalLiabilities", () => {
+  const replay = replayPackage();
+  replay.exchangeRates = [
+    frozenRate(5, "closing", 5.32, 101),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
+  ];
+  const payload = replay.sources[0]!.reportPayload as {
+    payload: { liabilities: Array<{ lineCode: string }> };
+  };
+  payload.payload.liabilities = payload.payload.liabilities.filter((item) => item.lineCode !== "totalLiabilities");
+  const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
+  assert.equal(result.ok, true);
+  if (!result.ok) return;
+  const balance = result.data.statements.find((item) => item.reportType === "balanceSheet")!;
+  assert.equal(balance.lines.find((item) => item.lineCode === "totalLiabilities")?.amount, 425.6);
+});
+
 test("two CAD entities use their own closing and historical applications", () => {
   const replay = replayPackage([101, 102]);
   replay.exchangeRates = [
-    frozenRate(11, "closing", 532, 101),
-    frozenRate(13, "historicalInvestment", 480, 101),
-    frozenRate(21, "closing", 480, 102),
-    frozenRate(23, "historicalInvestment", 450, 102),
+    frozenRate(11, "closing", 5.32, 101),
+    frozenRate(13, "historicalInvestment", 4.8, 101),
+    frozenRate(21, "closing", 4.8, 102),
+    frozenRate(23, "historicalInvestment", 4.5, 102),
   ];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"], [102, "CAD"]]));
   assert.equal(result.ok, true);
@@ -256,7 +273,7 @@ test("two CAD entities use their own closing and historical applications", () =>
 
 test("CAD output blocks without an entity closing application", () => {
   const replay = replayPackage();
-  replay.exchangeRates = [frozenRate(7, "historicalInvestment", 480, 101)];
+  replay.exchangeRates = [frozenRate(7, "historicalInvestment", 4.8, 101)];
   const result = buildConsolidatedReportOutput(replay, new Map([[101, "CAD"]]));
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "rateApplications");
@@ -265,8 +282,8 @@ test("CAD output blocks without an entity closing application", () => {
 test("CAD comparative numbers block until prior-period evidence is frozen", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
-    frozenRate(5, "closing", 532, 101),
-    frozenRate(7, "historicalInvestment", 480, 101),
+    frozenRate(5, "closing", 5.32, 101),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
   ];
   const payload = replay.sources[0]!.reportPayload as {
     payload: { assets: Array<{ lineCode: string; previousAmount: number }> };
@@ -280,8 +297,8 @@ test("CAD comparative numbers block until prior-period evidence is frozen", () =
 test("CAD retained earnings follow the user-confirmed closing-rate policy", () => {
   const replay = replayPackage();
   replay.exchangeRates = [
-    frozenRate(5, "closing", 532, 101),
-    frozenRate(7, "historicalInvestment", 480, 101),
+    frozenRate(5, "closing", 5.32, 101),
+    frozenRate(7, "historicalInvestment", 4.8, 101),
   ];
   const payload = replay.sources[0]!.reportPayload as {
     payload: { equity: Array<ReturnType<typeof line>> };

@@ -5,6 +5,7 @@ import type { ConsolidationBatchSnapshot } from "@workspace/finance/types";
 
 import { buildConsolidatedReportOutput } from "./consolidated-output";
 import {
+  buildConsolidatedPreviewFromBatchSnapshot,
   buildConsolidatedOutputFromBatchSnapshot,
   prepareLockedConsolidatedOutputSnapshot,
 } from "./consolidated-output-service";
@@ -251,12 +252,12 @@ function replayPackage(): ConsolidationReplayPackage {
       updatedAt: "2027-01-03T00:00:00.000Z",
       taxEffects: [],
       lines: [
-        { id: 31, lineNo: 1, companyId: 1, companyCode: "01", statementType: "balanceSheet", lineCode: "cash", accountCode: null, debit: 0, credit: 30, currencyCode: "CNY", note: null },
-        { id: 32, lineNo: 2, companyId: 2, companyCode: "02", statementType: "balanceSheet", lineCode: "payables", accountCode: null, debit: 30, credit: 0, currencyCode: "CNY", note: null },
-        { id: 33, lineNo: 3, companyId: 1, companyCode: "01", statementType: "incomeStatement", lineCode: "revenue", accountCode: null, debit: 20, credit: 0, currencyCode: "CNY", note: null },
-        { id: 34, lineNo: 4, companyId: 2, companyCode: "02", statementType: "incomeStatement", lineCode: "cost", accountCode: null, debit: 0, credit: 20, currencyCode: "CNY", note: null },
-        { id: 35, lineNo: 5, companyId: 1, companyCode: "01", statementType: "cashFlow", lineCode: "salesReceipt", accountCode: null, debit: 0, credit: 10, currencyCode: "CNY", note: null },
-        { id: 36, lineNo: 6, companyId: 2, companyCode: "02", statementType: "cashFlow", lineCode: "purchasePayment", accountCode: null, debit: 10, credit: 0, currencyCode: "CNY", note: null },
+        { id: 31, lineNo: 1, entitySnapshotId: 1, companyId: 1, companyCode: "01", statementType: "balanceSheet", lineCode: "cash", accountCode: null, debit: 0, credit: 30, currencyCode: "CNY", note: null },
+        { id: 32, lineNo: 2, entitySnapshotId: 2, companyId: 2, companyCode: "02", statementType: "balanceSheet", lineCode: "payables", accountCode: null, debit: 30, credit: 0, currencyCode: "CNY", note: null },
+        { id: 33, lineNo: 3, entitySnapshotId: 1, companyId: 1, companyCode: "01", statementType: "incomeStatement", lineCode: "revenue", accountCode: null, debit: 20, credit: 0, currencyCode: "CNY", note: null },
+        { id: 34, lineNo: 4, entitySnapshotId: 2, companyId: 2, companyCode: "02", statementType: "incomeStatement", lineCode: "cost", accountCode: null, debit: 0, credit: 20, currencyCode: "CNY", note: null },
+        { id: 35, lineNo: 5, entitySnapshotId: 1, companyId: 1, companyCode: "01", statementType: "cashFlow", lineCode: "salesReceipt", accountCode: null, debit: 0, credit: 10, currencyCode: "CNY", note: null },
+        { id: 36, lineNo: 6, entitySnapshotId: 2, companyId: 2, companyCode: "02", statementType: "cashFlow", lineCode: "purchasePayment", accountCode: null, debit: 10, credit: 0, currencyCode: "CNY", note: null },
       ],
     }],
     controlDecisions: [],
@@ -414,6 +415,27 @@ test("official output only accepts locked or published batches", () => {
   assert.match(reviewed.issue.message, /只有已锁定或已发布/);
   assert.equal(buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("locked")).ok, true);
   assert.equal(buildConsolidatedOutputFromBatchSnapshot(batchSnapshot("published")).ok, true);
+});
+
+test("period preview builds draft batches without manual control conclusions", () => {
+  const draft = batchSnapshot("draft");
+  draft.entries = draft.entries.map((entry) => ({ ...entry, status: "draft" }));
+  draft.controlDecisions = [];
+
+  const preview = buildConsolidatedPreviewFromBatchSnapshot(draft);
+  assert.equal(preview.ok, true);
+  if (!preview.ok) return;
+  assert.equal(preview.data.batch.status, "draft");
+  assert.equal(preview.data.approvedEntryCount, draft.entries.length);
+  assert.equal(preview.data.statements.length, 3);
+});
+
+test("period preview blocks when ERP functional currency facts are missing", () => {
+  const draft = batchSnapshot("draft");
+  draft.entities[0]!.functionalCurrency = null;
+  const preview = buildConsolidatedPreviewFromBatchSnapshot(draft);
+  assert.equal(preview.ok, false);
+  if (!preview.ok) assert.equal(preview.issue.field, "functionalCurrency");
 });
 
 test("lock precheck builds from the reviewed batch entity functional currency", () => {

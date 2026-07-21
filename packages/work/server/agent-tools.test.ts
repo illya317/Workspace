@@ -40,10 +40,11 @@ test("delegated Work context only keeps spaces visible to requester and actor", 
 test("delegated Work context intersects scoped actions", () => {
   const result = intersectWorkSpaces(
     [space("department", 1)],
-    [space("department", 1, { canUpdate: false, canSubmit: false })],
+    [space("department", 1, { canCreate: false, canUpdate: false, canSubmit: false })],
   );
 
   assert.equal(result[0]?.actionPermissions.canRead, true);
+  assert.equal(result[0]?.actionPermissions.canCreate, false);
   assert.equal(result[0]?.actionPermissions.canUpdate, false);
   assert.equal(result[0]?.actionPermissions.canSubmit, false);
 });

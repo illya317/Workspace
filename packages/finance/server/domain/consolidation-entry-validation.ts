@@ -1,6 +1,7 @@
 import type {
   ConsolidationEntryStatus,
   DeleteConsolidationMutationInput,
+  GenerateConsolidationEntriesInput,
   SaveConsolidationEntryInput,
   SaveConsolidationTaxEffectInput,
 } from "@workspace/finance/types";
@@ -21,7 +22,7 @@ const ENTRY_TYPES = [
 ] as const;
 const REPORT_TYPES = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
 const MATCHED_ENTRY_TYPES = new Set(["intercompanyBalance", "internalTrading", "cashFlow"] as const);
-const MATCH_SOURCE_KINDS = ["auxiliaryBalance", "openItem", "cashFlowAllocation", "workpaper", "voucher", "other"] as const;
+const MATCH_SOURCE_KINDS = ["auxiliaryBalance", "openItem", "cashFlowAllocation", "workpaper", "voucher"] as const;
 
 function positiveId(value: unknown) {
   const id = Number(value);
@@ -36,10 +37,29 @@ function moneyCents(value: number) {
   return Math.round(value * 100);
 }
 
+export interface GenerateConsolidationEntriesCommand {
+  batchId: number;
+  userId: number;
+  expectedRevision: number;
+}
+
+export function buildGenerateConsolidationEntriesCommand(
+  batchIdValue: unknown,
+  raw: GenerateConsolidationEntriesInput,
+  userId: number,
+): DomainValidationResult<GenerateConsolidationEntriesCommand> {
+  const batchId = positiveId(batchIdValue);
+  if (!batchId) return failCommand("合并批次ID无效", 400, "batchId");
+  if (!positiveId(userId)) return failCommand("当前用户无效", 401);
+  const expectedRevision = positiveId(raw.expectedRevision);
+  if (!expectedRevision) return failCommand("合并批次修订号无效", 400, "expectedRevision");
+  return okCommand({ batchId, userId, expectedRevision });
+}
+
 type MoneyValue = number | { toString(): string };
 
 interface ConsolidationReversalLineFact {
-  companyId: number;
+  entitySnapshotId: number;
   statementType: string;
   lineCode: string;
   accountCode?: string | null;
@@ -56,7 +76,7 @@ function canonicalReversalLine(
   const debit = moneyCents(Number(reverse ? line.credit : line.debit));
   const credit = moneyCents(Number(reverse ? line.debit : line.credit));
   return JSON.stringify([
-    line.companyId,
+    line.entitySnapshotId,
     line.statementType,
     line.lineCode,
     line.accountCode ?? null,
@@ -146,8 +166,8 @@ export function buildSaveConsolidationEntryCommand(
   let creditCents = 0;
   const lines = [] as SaveConsolidationEntryInput["lines"];
   for (const [index, line] of raw.lines.entries()) {
-    const companyId = positiveId(line.companyId);
-    if (!companyId) return failCommand(`第${index + 1}行公司ID无效`, 400, "companyId");
+    const entitySnapshotId = positiveId(line.entitySnapshotId);
+    if (!entitySnapshotId) return failCommand(`第${index + 1}行合并主体无效`, 400, "entitySnapshotId");
     if (!REPORT_TYPES.includes(line.statementType)) return failCommand(`第${index + 1}行报表类型无效`, 400, "statementType");
     const lineCode = text(line.lineCode);
     if (!lineCode) return failCommand(`第${index + 1}行报表项目不能为空`, 400, "lineCode");
@@ -165,28 +185,25 @@ export function buildSaveConsolidationEntryCommand(
     const sourceKind = MATCH_SOURCE_KINDS.includes(line.sourceKind as typeof MATCH_SOURCE_KINDS[number])
       ? line.sourceKind as typeof MATCH_SOURCE_KINDS[number]
       : null;
-    const sourceId = text(line.sourceId) || null;
-    const sourceFingerprint = text(line.sourceFingerprint) || null;
-    const sourceAmount = line.sourceAmount == null ? null : moneyCents(line.sourceAmount) / 100;
-    const sourceCurrency = text(line.sourceCurrency).toUpperCase() || null;
-    const counterpartyCompanyId = line.counterpartyCompanyId == null ? null : positiveId(line.counterpartyCompanyId);
+    const sourceRecordId = line.sourceRecordId == null ? null : positiveId(line.sourceRecordId);
+    const counterpartyEntitySnapshotId = line.counterpartyEntitySnapshotId == null ? null : positiveId(line.counterpartyEntitySnapshotId);
     const periodBasis = line.periodBasis === "comparative" ? "comparative" : "current";
-    if (line.counterpartyCompanyId != null && !counterpartyCompanyId) {
-      return failCommand(`第${index + 1}行对方公司ID无效`, 400, "counterpartyCompanyId");
+    if (line.sourceRecordId != null && !sourceRecordId) {
+      return failCommand(`第${index + 1}行来源记录无效`, 400, "sourceRecordId");
     }
-    if (sourceAmount !== null && (!Number.isFinite(sourceAmount) || sourceAmount <= 0)) {
-      return failCommand(`第${index + 1}行来源金额必须大于0`, 400, "sourceAmount");
+    if (line.counterpartyEntitySnapshotId != null && !counterpartyEntitySnapshotId) {
+      return failCommand(`第${index + 1}行对方主体无效`, 400, "counterpartyEntitySnapshotId");
     }
     if (MATCHED_ENTRY_TYPES.has(raw.entryType as "intercompanyBalance" | "internalTrading" | "cashFlow")) {
-      if (!matchSide || !sourceKind || !sourceId || !sourceFingerprint || sourceAmount === null || !sourceCurrency || !counterpartyCompanyId) {
-        return failCommand(`第${index + 1}行必须完整记录匹配侧、来源、来源指纹、原币金额和对方主体`, 400, "matching");
+      if (!matchSide || !sourceKind || !sourceRecordId || !counterpartyEntitySnapshotId) {
+        return failCommand(`第${index + 1}行必须选择匹配侧、来源记录和对方主体`, 400, "matching");
       }
-      if (counterpartyCompanyId === companyId) {
-        return failCommand(`第${index + 1}行对方主体不能与本方主体相同`, 400, "counterpartyCompanyId");
+      if (counterpartyEntitySnapshotId === entitySnapshotId) {
+        return failCommand(`第${index + 1}行对方主体不能与本方主体相同`, 400, "counterpartyEntitySnapshotId");
       }
     }
     lines.push({
-      companyId,
+      entitySnapshotId,
       statementType: line.statementType,
       lineCode,
       accountCode: text(line.accountCode) || null,
@@ -197,29 +214,12 @@ export function buildSaveConsolidationEntryCommand(
       note: text(line.note) || null,
       matchSide,
       sourceKind,
-      sourceId,
-      sourceFingerprint,
-      sourceAmount,
-      sourceCurrency,
-      counterpartyCompanyId,
+      sourceRecordId,
+      counterpartyEntitySnapshotId,
     });
   }
   if (debitCents !== creditCents) return failCommand("抵销分录借贷不平衡", 400, "lines");
-  let matchDifference: number | null = null;
-  let differenceResolution = text(raw.differenceResolution) || null;
-  if (MATCHED_ENTRY_TYPES.has(raw.entryType as "intercompanyBalance" | "internalTrading" | "cashFlow")) {
-    const left = lines.filter((line) => line.matchSide === "left").reduce((sum, line) => sum + (line.sourceAmount ?? 0), 0);
-    const right = lines.filter((line) => line.matchSide === "right").reduce((sum, line) => sum + (line.sourceAmount ?? 0), 0);
-    if (left <= 0 || right <= 0) return failCommand("结构化配对必须同时包含左右两侧来源", 400, "matching");
-    matchDifference = moneyCents(Math.abs(left - right)) / 100;
-    if (raw.matchDifference != null && moneyCents(raw.matchDifference) !== moneyCents(matchDifference)) {
-      return failCommand("配对差额与左右来源金额不一致", 400, "matchDifference");
-    }
-    if (matchDifference > 0 && !differenceResolution) {
-      return failCommand("配对存在差额时必须填写差额处置", 400, "differenceResolution");
-    }
-    differenceResolution ??= "双方来源金额一致，无待处置差额";
-  }
+  const differenceResolution = text(raw.differenceResolution) || null;
   return okCommand({
     batchId,
     userId,
@@ -231,7 +231,6 @@ export function buildSaveConsolidationEntryCommand(
       title,
       description,
       evidence,
-      matchDifference,
       differenceResolution,
       supersedesEntryId,
       reversalOfEntryId,

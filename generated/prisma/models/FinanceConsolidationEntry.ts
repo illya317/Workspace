@@ -64,6 +64,10 @@ export type FinanceConsolidationEntryMinAggregateOutputType = {
   evidence: string | null
   matchDifference: runtime.Decimal | null
   differenceResolution: string | null
+  origin: string | null
+  generationKey: string | null
+  generationFingerprint: string | null
+  generatedAt: Date | null
   status: string | null
   version: number | null
   supersedesEntryId: number | null
@@ -91,6 +95,10 @@ export type FinanceConsolidationEntryMaxAggregateOutputType = {
   evidence: string | null
   matchDifference: runtime.Decimal | null
   differenceResolution: string | null
+  origin: string | null
+  generationKey: string | null
+  generationFingerprint: string | null
+  generatedAt: Date | null
   status: string | null
   version: number | null
   supersedesEntryId: number | null
@@ -118,6 +126,10 @@ export type FinanceConsolidationEntryCountAggregateOutputType = {
   evidence: number
   matchDifference: number
   differenceResolution: number
+  origin: number
+  generationKey: number
+  generationFingerprint: number
+  generatedAt: number
   status: number
   version: number
   supersedesEntryId: number
@@ -175,6 +187,10 @@ export type FinanceConsolidationEntryMinAggregateInputType = {
   evidence?: true
   matchDifference?: true
   differenceResolution?: true
+  origin?: true
+  generationKey?: true
+  generationFingerprint?: true
+  generatedAt?: true
   status?: true
   version?: true
   supersedesEntryId?: true
@@ -202,6 +218,10 @@ export type FinanceConsolidationEntryMaxAggregateInputType = {
   evidence?: true
   matchDifference?: true
   differenceResolution?: true
+  origin?: true
+  generationKey?: true
+  generationFingerprint?: true
+  generatedAt?: true
   status?: true
   version?: true
   supersedesEntryId?: true
@@ -229,6 +249,10 @@ export type FinanceConsolidationEntryCountAggregateInputType = {
   evidence?: true
   matchDifference?: true
   differenceResolution?: true
+  origin?: true
+  generationKey?: true
+  generationFingerprint?: true
+  generatedAt?: true
   status?: true
   version?: true
   supersedesEntryId?: true
@@ -343,6 +367,10 @@ export type FinanceConsolidationEntryGroupByOutputType = {
   evidence: string
   matchDifference: runtime.Decimal | null
   differenceResolution: string | null
+  origin: string
+  generationKey: string | null
+  generationFingerprint: string | null
+  generatedAt: Date | null
   status: string
   version: number
   supersedesEntryId: number | null
@@ -393,6 +421,10 @@ export type FinanceConsolidationEntryWhereInput = {
   evidence?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   matchDifference?: Prisma.DecimalNullableFilter<"FinanceConsolidationEntry"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  origin?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  generationKey?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generationFingerprint?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generatedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationEntry"> | Date | string | null
   status?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   version?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   supersedesEntryId?: Prisma.IntNullableFilter<"FinanceConsolidationEntry"> | number | null
@@ -417,6 +449,7 @@ export type FinanceConsolidationEntryWhereInput = {
   successor?: Prisma.XOR<Prisma.FinanceConsolidationEntryNullableScalarRelationFilter, Prisma.FinanceConsolidationEntryWhereInput> | null
   lines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
   taxEffects?: Prisma.FinanceConsolidationTaxEffectListRelationFilter
+  matchGroup?: Prisma.XOR<Prisma.FinanceConsolidationMatchGroupNullableScalarRelationFilter, Prisma.FinanceConsolidationMatchGroupWhereInput> | null
 }
 
 export type FinanceConsolidationEntryOrderByWithRelationInput = {
@@ -429,6 +462,10 @@ export type FinanceConsolidationEntryOrderByWithRelationInput = {
   evidence?: Prisma.SortOrder
   matchDifference?: Prisma.SortOrderInput | Prisma.SortOrder
   differenceResolution?: Prisma.SortOrderInput | Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  generationKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  generatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   supersedesEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -453,6 +490,7 @@ export type FinanceConsolidationEntryOrderByWithRelationInput = {
   successor?: Prisma.FinanceConsolidationEntryOrderByWithRelationInput
   lines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectOrderByRelationAggregateInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput
 }
 
 export type FinanceConsolidationEntryWhereUniqueInput = Prisma.AtLeast<{
@@ -461,6 +499,7 @@ export type FinanceConsolidationEntryWhereUniqueInput = Prisma.AtLeast<{
   reversalOfEntryId?: number
   predecessorEntryId?: number
   batchId_entryNo?: Prisma.FinanceConsolidationEntryBatchIdEntryNoCompoundUniqueInput
+  batchId_generationKey?: Prisma.FinanceConsolidationEntryBatchIdGenerationKeyCompoundUniqueInput
   AND?: Prisma.FinanceConsolidationEntryWhereInput | Prisma.FinanceConsolidationEntryWhereInput[]
   OR?: Prisma.FinanceConsolidationEntryWhereInput[]
   NOT?: Prisma.FinanceConsolidationEntryWhereInput | Prisma.FinanceConsolidationEntryWhereInput[]
@@ -472,6 +511,10 @@ export type FinanceConsolidationEntryWhereUniqueInput = Prisma.AtLeast<{
   evidence?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   matchDifference?: Prisma.DecimalNullableFilter<"FinanceConsolidationEntry"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  origin?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  generationKey?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generationFingerprint?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generatedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationEntry"> | Date | string | null
   status?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   version?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   preparedBy?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
@@ -493,7 +536,8 @@ export type FinanceConsolidationEntryWhereUniqueInput = Prisma.AtLeast<{
   successor?: Prisma.XOR<Prisma.FinanceConsolidationEntryNullableScalarRelationFilter, Prisma.FinanceConsolidationEntryWhereInput> | null
   lines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
   taxEffects?: Prisma.FinanceConsolidationTaxEffectListRelationFilter
-}, "id" | "predecessorEntryId" | "batchId_entryNo" | "supersedesEntryId" | "reversalOfEntryId">
+  matchGroup?: Prisma.XOR<Prisma.FinanceConsolidationMatchGroupNullableScalarRelationFilter, Prisma.FinanceConsolidationMatchGroupWhereInput> | null
+}, "id" | "predecessorEntryId" | "batchId_entryNo" | "batchId_generationKey" | "supersedesEntryId" | "reversalOfEntryId">
 
 export type FinanceConsolidationEntryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -505,6 +549,10 @@ export type FinanceConsolidationEntryOrderByWithAggregationInput = {
   evidence?: Prisma.SortOrder
   matchDifference?: Prisma.SortOrderInput | Prisma.SortOrder
   differenceResolution?: Prisma.SortOrderInput | Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  generationKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  generationFingerprint?: Prisma.SortOrderInput | Prisma.SortOrder
+  generatedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   supersedesEntryId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -540,6 +588,10 @@ export type FinanceConsolidationEntryScalarWhereWithAggregatesInput = {
   evidence?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
   matchDifference?: Prisma.DecimalNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.StringNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | string | null
+  origin?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
+  generationKey?: Prisma.StringNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | string | null
+  generationFingerprint?: Prisma.StringNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | string | null
+  generatedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | Date | string | null
   status?: Prisma.StringWithAggregatesFilter<"FinanceConsolidationEntry"> | string
   version?: Prisma.IntWithAggregatesFilter<"FinanceConsolidationEntry"> | number
   supersedesEntryId?: Prisma.IntNullableWithAggregatesFilter<"FinanceConsolidationEntry"> | number | null
@@ -565,6 +617,10 @@ export type FinanceConsolidationEntryCreateInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -586,6 +642,7 @@ export type FinanceConsolidationEntryCreateInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateInput = {
@@ -598,6 +655,10 @@ export type FinanceConsolidationEntryUncheckedCreateInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -618,6 +679,7 @@ export type FinanceConsolidationEntryUncheckedCreateInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUpdateInput = {
@@ -628,6 +690,10 @@ export type FinanceConsolidationEntryUpdateInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -649,6 +715,7 @@ export type FinanceConsolidationEntryUpdateInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateInput = {
@@ -661,6 +728,10 @@ export type FinanceConsolidationEntryUncheckedUpdateInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -681,6 +752,7 @@ export type FinanceConsolidationEntryUncheckedUpdateInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryCreateManyInput = {
@@ -693,6 +765,10 @@ export type FinanceConsolidationEntryCreateManyInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -718,6 +794,10 @@ export type FinanceConsolidationEntryUpdateManyMutationInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -742,6 +822,10 @@ export type FinanceConsolidationEntryUncheckedUpdateManyInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -759,6 +843,16 @@ export type FinanceConsolidationEntryUncheckedUpdateManyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
+export type FinanceConsolidationEntryScalarRelationFilter = {
+  is?: Prisma.FinanceConsolidationEntryWhereInput
+  isNot?: Prisma.FinanceConsolidationEntryWhereInput
+}
+
+export type FinanceConsolidationEntryNullableScalarRelationFilter = {
+  is?: Prisma.FinanceConsolidationEntryWhereInput | null
+  isNot?: Prisma.FinanceConsolidationEntryWhereInput | null
+}
+
 export type FinanceConsolidationEntryListRelationFilter = {
   every?: Prisma.FinanceConsolidationEntryWhereInput
   some?: Prisma.FinanceConsolidationEntryWhereInput
@@ -769,14 +863,14 @@ export type FinanceConsolidationEntryOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
-export type FinanceConsolidationEntryNullableScalarRelationFilter = {
-  is?: Prisma.FinanceConsolidationEntryWhereInput | null
-  isNot?: Prisma.FinanceConsolidationEntryWhereInput | null
-}
-
 export type FinanceConsolidationEntryBatchIdEntryNoCompoundUniqueInput = {
   batchId: number
   entryNo: string
+}
+
+export type FinanceConsolidationEntryBatchIdGenerationKeyCompoundUniqueInput = {
+  batchId: number
+  generationKey: string
 }
 
 export type FinanceConsolidationEntryCountOrderByAggregateInput = {
@@ -789,6 +883,10 @@ export type FinanceConsolidationEntryCountOrderByAggregateInput = {
   evidence?: Prisma.SortOrder
   matchDifference?: Prisma.SortOrder
   differenceResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  generationKey?: Prisma.SortOrder
+  generationFingerprint?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   supersedesEntryId?: Prisma.SortOrder
@@ -830,6 +928,10 @@ export type FinanceConsolidationEntryMaxOrderByAggregateInput = {
   evidence?: Prisma.SortOrder
   matchDifference?: Prisma.SortOrder
   differenceResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  generationKey?: Prisma.SortOrder
+  generationFingerprint?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   supersedesEntryId?: Prisma.SortOrder
@@ -857,6 +959,10 @@ export type FinanceConsolidationEntryMinOrderByAggregateInput = {
   evidence?: Prisma.SortOrder
   matchDifference?: Prisma.SortOrder
   differenceResolution?: Prisma.SortOrder
+  origin?: Prisma.SortOrder
+  generationKey?: Prisma.SortOrder
+  generationFingerprint?: Prisma.SortOrder
+  generatedAt?: Prisma.SortOrder
   status?: Prisma.SortOrder
   version?: Prisma.SortOrder
   supersedesEntryId?: Prisma.SortOrder
@@ -888,9 +994,34 @@ export type FinanceConsolidationEntrySumOrderByAggregateInput = {
   reversedBy?: Prisma.SortOrder
 }
 
-export type FinanceConsolidationEntryScalarRelationFilter = {
-  is?: Prisma.FinanceConsolidationEntryWhereInput
-  isNot?: Prisma.FinanceConsolidationEntryWhereInput
+export type FinanceConsolidationEntryCreateNestedOneWithoutLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutLinesInput
+  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
+}
+
+export type FinanceConsolidationEntryUpdateOneRequiredWithoutLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutLinesInput
+  upsert?: Prisma.FinanceConsolidationEntryUpsertWithoutLinesInput
+  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateToOneWithWhereWithoutLinesInput, Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput>, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
+}
+
+export type FinanceConsolidationEntryCreateNestedOneWithoutMatchGroupInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutMatchGroupInput
+  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
+}
+
+export type FinanceConsolidationEntryUpdateOneWithoutMatchGroupNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutMatchGroupInput
+  upsert?: Prisma.FinanceConsolidationEntryUpsertWithoutMatchGroupInput
+  disconnect?: Prisma.FinanceConsolidationEntryWhereInput | boolean
+  delete?: Prisma.FinanceConsolidationEntryWhereInput | boolean
+  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateToOneWithWhereWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUpdateWithoutMatchGroupInput>, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput>
 }
 
 export type FinanceConsolidationEntryCreateNestedManyWithoutBatchInput = {
@@ -1099,20 +1230,6 @@ export type FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedI
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateToOneWithWhereWithoutPredecessorInput, Prisma.FinanceConsolidationEntryUpdateWithoutPredecessorInput>, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput>
 }
 
-export type FinanceConsolidationEntryCreateNestedOneWithoutLinesInput = {
-  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
-  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutLinesInput
-  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
-}
-
-export type FinanceConsolidationEntryUpdateOneRequiredWithoutLinesNestedInput = {
-  create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
-  connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutLinesInput
-  upsert?: Prisma.FinanceConsolidationEntryUpsertWithoutLinesInput
-  connect?: Prisma.FinanceConsolidationEntryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateToOneWithWhereWithoutLinesInput, Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput>, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
-}
-
 export type FinanceConsolidationEntryCreateNestedOneWithoutTaxEffectsInput = {
   create?: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutTaxEffectsInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutTaxEffectsInput>
   connectOrCreate?: Prisma.FinanceConsolidationEntryCreateOrConnectWithoutTaxEffectsInput
@@ -1127,7 +1244,7 @@ export type FinanceConsolidationEntryUpdateOneRequiredWithoutTaxEffectsNestedInp
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateToOneWithWhereWithoutTaxEffectsInput, Prisma.FinanceConsolidationEntryUpdateWithoutTaxEffectsInput>, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput>
 }
 
-export type FinanceConsolidationEntryCreateWithoutBatchInput = {
+export type FinanceConsolidationEntryCreateWithoutLinesInput = {
   entryNo: string
   entryType: string
   title: string
@@ -1135,6 +1252,10 @@ export type FinanceConsolidationEntryCreateWithoutBatchInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1147,6 +1268,165 @@ export type FinanceConsolidationEntryCreateWithoutBatchInput = {
   reversedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntriesInput
+  supersedes?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutRevisionsInput
+  revisions?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutSupersedesInput
+  reversalOf?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutReversalEntriesInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutReversalOfInput
+  predecessor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutSuccessorInput
+  successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
+}
+
+export type FinanceConsolidationEntryUncheckedCreateWithoutLinesInput = {
+  id?: number
+  batchId: number
+  entryNo: string
+  entryType: string
+  title: string
+  description?: string | null
+  evidence: string
+  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
+  status?: string
+  version?: number
+  supersedesEntryId?: number | null
+  reversalOfEntryId?: number | null
+  predecessorEntryId?: number | null
+  preparedBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  approvalNote?: string | null
+  reversedBy?: number | null
+  reversedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutSupersedesInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutReversalOfInput
+  successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
+}
+
+export type FinanceConsolidationEntryCreateOrConnectWithoutLinesInput = {
+  where: Prisma.FinanceConsolidationEntryWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
+}
+
+export type FinanceConsolidationEntryUpsertWithoutLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
+  where?: Prisma.FinanceConsolidationEntryWhereInput
+}
+
+export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutLinesInput = {
+  where?: Prisma.FinanceConsolidationEntryWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
+}
+
+export type FinanceConsolidationEntryUpdateWithoutLinesInput = {
+  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  entryType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntriesNestedInput
+  supersedes?: Prisma.FinanceConsolidationEntryUpdateOneWithoutRevisionsNestedInput
+  revisions?: Prisma.FinanceConsolidationEntryUpdateManyWithoutSupersedesNestedInput
+  reversalOf?: Prisma.FinanceConsolidationEntryUpdateOneWithoutReversalEntriesNestedInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutReversalOfNestedInput
+  predecessor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutSuccessorNestedInput
+  successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
+}
+
+export type FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  entryType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversalOfEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  predecessorEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesNestedInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfNestedInput
+  successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
+}
+
+export type FinanceConsolidationEntryCreateWithoutMatchGroupInput = {
+  entryNo: string
+  entryType: string
+  title: string
+  description?: string | null
+  evidence: string
+  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
+  status?: string
+  version?: number
+  preparedBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  approvalNote?: string | null
+  reversedBy?: number | null
+  reversedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntriesInput
   supersedes?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutRevisionsInput
   revisions?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutSupersedesInput
   reversalOf?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutReversalEntriesInput
@@ -1157,8 +1437,9 @@ export type FinanceConsolidationEntryCreateWithoutBatchInput = {
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
 }
 
-export type FinanceConsolidationEntryUncheckedCreateWithoutBatchInput = {
+export type FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput = {
   id?: number
+  batchId: number
   entryNo: string
   entryType: string
   title: string
@@ -1166,6 +1447,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutBatchInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1186,6 +1471,164 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutBatchInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+}
+
+export type FinanceConsolidationEntryCreateOrConnectWithoutMatchGroupInput = {
+  where: Prisma.FinanceConsolidationEntryWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput>
+}
+
+export type FinanceConsolidationEntryUpsertWithoutMatchGroupInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutMatchGroupInput>
+  where?: Prisma.FinanceConsolidationEntryWhereInput
+}
+
+export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutMatchGroupInput = {
+  where?: Prisma.FinanceConsolidationEntryWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutMatchGroupInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput>
+}
+
+export type FinanceConsolidationEntryUpdateWithoutMatchGroupInput = {
+  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  entryType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntriesNestedInput
+  supersedes?: Prisma.FinanceConsolidationEntryUpdateOneWithoutRevisionsNestedInput
+  revisions?: Prisma.FinanceConsolidationEntryUpdateManyWithoutSupersedesNestedInput
+  reversalOf?: Prisma.FinanceConsolidationEntryUpdateOneWithoutReversalEntriesNestedInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutReversalOfNestedInput
+  predecessor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutSuccessorNestedInput
+  successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
+  lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+}
+
+export type FinanceConsolidationEntryUncheckedUpdateWithoutMatchGroupInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
+  entryType?: Prisma.StringFieldUpdateOperationsInput | string
+  title?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  evidence?: Prisma.StringFieldUpdateOperationsInput | string
+  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversalOfEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  predecessorEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  revisions?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesNestedInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfNestedInput
+  successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
+  lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+}
+
+export type FinanceConsolidationEntryCreateWithoutBatchInput = {
+  entryNo: string
+  entryType: string
+  title: string
+  description?: string | null
+  evidence: string
+  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
+  status?: string
+  version?: number
+  preparedBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  approvalNote?: string | null
+  reversedBy?: number | null
+  reversedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersedes?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutRevisionsInput
+  revisions?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutSupersedesInput
+  reversalOf?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutReversalEntriesInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutReversalOfInput
+  predecessor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutSuccessorInput
+  successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
+  lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
+}
+
+export type FinanceConsolidationEntryUncheckedCreateWithoutBatchInput = {
+  id?: number
+  entryNo: string
+  entryType: string
+  title: string
+  description?: string | null
+  evidence: string
+  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
+  status?: string
+  version?: number
+  supersedesEntryId?: number | null
+  reversalOfEntryId?: number | null
+  predecessorEntryId?: number | null
+  preparedBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  approvedBy?: number | null
+  approvedAt?: Date | string | null
+  approvalNote?: string | null
+  reversedBy?: number | null
+  reversedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  revisions?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutSupersedesInput
+  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutReversalOfInput
+  successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
+  lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutBatchInput = {
@@ -1227,6 +1670,10 @@ export type FinanceConsolidationEntryScalarWhereInput = {
   evidence?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   matchDifference?: Prisma.DecimalNullableFilter<"FinanceConsolidationEntry"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  origin?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
+  generationKey?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generationFingerprint?: Prisma.StringNullableFilter<"FinanceConsolidationEntry"> | string | null
+  generatedAt?: Prisma.DateTimeNullableFilter<"FinanceConsolidationEntry"> | Date | string | null
   status?: Prisma.StringFilter<"FinanceConsolidationEntry"> | string
   version?: Prisma.IntFilter<"FinanceConsolidationEntry"> | number
   supersedesEntryId?: Prisma.IntNullableFilter<"FinanceConsolidationEntry"> | number | null
@@ -1252,6 +1699,10 @@ export type FinanceConsolidationEntryCreateWithoutRevisionsInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1272,6 +1723,7 @@ export type FinanceConsolidationEntryCreateWithoutRevisionsInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutRevisionsInput = {
@@ -1284,6 +1736,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutRevisionsInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1303,6 +1759,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutRevisionsInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutRevisionsInput = {
@@ -1318,6 +1775,10 @@ export type FinanceConsolidationEntryCreateWithoutSupersedesInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1338,6 +1799,7 @@ export type FinanceConsolidationEntryCreateWithoutSupersedesInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutSupersedesInput = {
@@ -1350,6 +1812,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSupersedesInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   reversalOfEntryId?: number | null
@@ -1369,6 +1835,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSupersedesInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutSupersedesInput = {
@@ -1389,6 +1856,10 @@ export type FinanceConsolidationEntryCreateWithoutReversalEntriesInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1409,6 +1880,7 @@ export type FinanceConsolidationEntryCreateWithoutReversalEntriesInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutReversalEntriesInput = {
@@ -1421,6 +1893,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalEntriesInput 
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1440,6 +1916,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalEntriesInput 
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutReversalEntriesInput = {
@@ -1455,6 +1932,10 @@ export type FinanceConsolidationEntryCreateWithoutReversalOfInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1475,6 +1956,7 @@ export type FinanceConsolidationEntryCreateWithoutReversalOfInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutReversalOfInput = {
@@ -1487,6 +1969,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalOfInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1506,6 +1992,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutReversalOfInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutReversalOfInput = {
@@ -1526,6 +2013,10 @@ export type FinanceConsolidationEntryCreateWithoutSuccessorInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1546,6 +2037,7 @@ export type FinanceConsolidationEntryCreateWithoutSuccessorInput = {
   predecessor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutSuccessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutSuccessorInput = {
@@ -1558,6 +2050,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSuccessorInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1577,6 +2073,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutSuccessorInput = {
   reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutReversalOfInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutSuccessorInput = {
@@ -1592,6 +2089,10 @@ export type FinanceConsolidationEntryCreateWithoutPredecessorInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -1612,6 +2113,7 @@ export type FinanceConsolidationEntryCreateWithoutPredecessorInput = {
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutPredecessorInput = {
@@ -1624,6 +2126,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutPredecessorInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -1643,6 +2149,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutPredecessorInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutPredecessorInput = {
@@ -1669,6 +2176,10 @@ export type FinanceConsolidationEntryUpdateWithoutRevisionsInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1689,6 +2200,7 @@ export type FinanceConsolidationEntryUpdateWithoutRevisionsInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutRevisionsInput = {
@@ -1701,6 +2213,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutRevisionsInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1720,6 +2236,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutRevisionsInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUpsertWithWhereUniqueWithoutSupersedesInput = {
@@ -1757,6 +2274,10 @@ export type FinanceConsolidationEntryUpdateWithoutReversalEntriesInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1777,6 +2298,7 @@ export type FinanceConsolidationEntryUpdateWithoutReversalEntriesInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalEntriesInput = {
@@ -1789,6 +2311,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalEntriesInput 
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1808,6 +2334,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalEntriesInput 
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUpsertWithWhereUniqueWithoutReversalOfInput = {
@@ -1845,6 +2372,10 @@ export type FinanceConsolidationEntryUpdateWithoutSuccessorInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1865,6 +2396,7 @@ export type FinanceConsolidationEntryUpdateWithoutSuccessorInput = {
   predecessor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutSuccessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutSuccessorInput = {
@@ -1877,6 +2409,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSuccessorInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1896,6 +2432,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSuccessorInput = {
   reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUpsertWithoutPredecessorInput = {
@@ -1917,6 +2454,10 @@ export type FinanceConsolidationEntryUpdateWithoutPredecessorInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1937,6 +2478,7 @@ export type FinanceConsolidationEntryUpdateWithoutPredecessorInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput = {
@@ -1949,6 +2491,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -1968,144 +2514,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutPredecessorInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
-}
-
-export type FinanceConsolidationEntryCreateWithoutLinesInput = {
-  entryNo: string
-  entryType: string
-  title: string
-  description?: string | null
-  evidence: string
-  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  differenceResolution?: string | null
-  status?: string
-  version?: number
-  preparedBy: number
-  submittedBy?: number | null
-  submittedAt?: Date | string | null
-  approvedBy?: number | null
-  approvedAt?: Date | string | null
-  approvalNote?: string | null
-  reversedBy?: number | null
-  reversedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntriesInput
-  supersedes?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutRevisionsInput
-  revisions?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutSupersedesInput
-  reversalOf?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutReversalEntriesInput
-  reversalEntries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutReversalOfInput
-  predecessor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutSuccessorInput
-  successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
-  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntryInput
-}
-
-export type FinanceConsolidationEntryUncheckedCreateWithoutLinesInput = {
-  id?: number
-  batchId: number
-  entryNo: string
-  entryType: string
-  title: string
-  description?: string | null
-  evidence: string
-  matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  differenceResolution?: string | null
-  status?: string
-  version?: number
-  supersedesEntryId?: number | null
-  reversalOfEntryId?: number | null
-  predecessorEntryId?: number | null
-  preparedBy: number
-  submittedBy?: number | null
-  submittedAt?: Date | string | null
-  approvedBy?: number | null
-  approvedAt?: Date | string | null
-  approvalNote?: string | null
-  reversedBy?: number | null
-  reversedAt?: Date | string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  revisions?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutSupersedesInput
-  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutReversalOfInput
-  successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
-  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntryInput
-}
-
-export type FinanceConsolidationEntryCreateOrConnectWithoutLinesInput = {
-  where: Prisma.FinanceConsolidationEntryWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
-}
-
-export type FinanceConsolidationEntryUpsertWithoutLinesInput = {
-  update: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
-  create: Prisma.XOR<Prisma.FinanceConsolidationEntryCreateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedCreateWithoutLinesInput>
-  where?: Prisma.FinanceConsolidationEntryWhereInput
-}
-
-export type FinanceConsolidationEntryUpdateToOneWithWhereWithoutLinesInput = {
-  where?: Prisma.FinanceConsolidationEntryWhereInput
-  data: Prisma.XOR<Prisma.FinanceConsolidationEntryUpdateWithoutLinesInput, Prisma.FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput>
-}
-
-export type FinanceConsolidationEntryUpdateWithoutLinesInput = {
-  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
-  entryType?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  evidence?: Prisma.StringFieldUpdateOperationsInput | string
-  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
-  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntriesNestedInput
-  supersedes?: Prisma.FinanceConsolidationEntryUpdateOneWithoutRevisionsNestedInput
-  revisions?: Prisma.FinanceConsolidationEntryUpdateManyWithoutSupersedesNestedInput
-  reversalOf?: Prisma.FinanceConsolidationEntryUpdateOneWithoutReversalEntriesNestedInput
-  reversalEntries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutReversalOfNestedInput
-  predecessor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutSuccessorNestedInput
-  successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
-  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
-}
-
-export type FinanceConsolidationEntryUncheckedUpdateWithoutLinesInput = {
-  id?: Prisma.IntFieldUpdateOperationsInput | number
-  batchId?: Prisma.IntFieldUpdateOperationsInput | number
-  entryNo?: Prisma.StringFieldUpdateOperationsInput | string
-  entryType?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  evidence?: Prisma.StringFieldUpdateOperationsInput | string
-  matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  version?: Prisma.IntFieldUpdateOperationsInput | number
-  supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reversalOfEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  predecessorEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
-  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  approvedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  approvedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  approvalNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  reversedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  reversedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  revisions?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesNestedInput
-  reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfNestedInput
-  successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
-  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryCreateWithoutTaxEffectsInput = {
@@ -2116,6 +2525,10 @@ export type FinanceConsolidationEntryCreateWithoutTaxEffectsInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   preparedBy: number
@@ -2136,6 +2549,7 @@ export type FinanceConsolidationEntryCreateWithoutTaxEffectsInput = {
   predecessor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutSuccessorInput
   successor?: Prisma.FinanceConsolidationEntryCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryUncheckedCreateWithoutTaxEffectsInput = {
@@ -2148,6 +2562,10 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutTaxEffectsInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -2167,6 +2585,7 @@ export type FinanceConsolidationEntryUncheckedCreateWithoutTaxEffectsInput = {
   reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutReversalOfInput
   successor?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedOneWithoutPredecessorInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntryInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedOneWithoutEntryInput
 }
 
 export type FinanceConsolidationEntryCreateOrConnectWithoutTaxEffectsInput = {
@@ -2193,6 +2612,10 @@ export type FinanceConsolidationEntryUpdateWithoutTaxEffectsInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2213,6 +2636,7 @@ export type FinanceConsolidationEntryUpdateWithoutTaxEffectsInput = {
   predecessor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutSuccessorNestedInput
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput = {
@@ -2225,6 +2649,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2244,6 +2672,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutTaxEffectsInput = {
   reversalEntries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfNestedInput
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryCreateManyBatchInput = {
@@ -2255,6 +2684,10 @@ export type FinanceConsolidationEntryCreateManyBatchInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -2280,6 +2713,10 @@ export type FinanceConsolidationEntryUpdateWithoutBatchInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2300,6 +2737,7 @@ export type FinanceConsolidationEntryUpdateWithoutBatchInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutBatchInput = {
@@ -2311,6 +2749,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutBatchInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2331,6 +2773,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutBatchInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchInput = {
@@ -2342,6 +2785,10 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2369,6 +2816,10 @@ export type FinanceConsolidationEntryCreateManySupersedesInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   reversalOfEntryId?: number | null
@@ -2395,6 +2846,10 @@ export type FinanceConsolidationEntryCreateManyReversalOfInput = {
   evidence: string
   matchDifference?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: string | null
+  origin?: string
+  generationKey?: string | null
+  generationFingerprint?: string | null
+  generatedAt?: Date | string | null
   status?: string
   version?: number
   supersedesEntryId?: number | null
@@ -2419,6 +2874,10 @@ export type FinanceConsolidationEntryUpdateWithoutSupersedesInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2439,6 +2898,7 @@ export type FinanceConsolidationEntryUpdateWithoutSupersedesInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutSupersedesInput = {
@@ -2451,6 +2911,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSupersedesInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   reversalOfEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2470,6 +2934,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutSupersedesInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesInput = {
@@ -2482,6 +2947,10 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutSupersedesInput =
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   reversalOfEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2506,6 +2975,10 @@ export type FinanceConsolidationEntryUpdateWithoutReversalOfInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   preparedBy?: Prisma.IntFieldUpdateOperationsInput | number
@@ -2526,6 +2999,7 @@ export type FinanceConsolidationEntryUpdateWithoutReversalOfInput = {
   successor?: Prisma.FinanceConsolidationEntryUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalOfInput = {
@@ -2538,6 +3012,10 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalOfInput = {
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2557,6 +3035,7 @@ export type FinanceConsolidationEntryUncheckedUpdateWithoutReversalOfInput = {
   successor?: Prisma.FinanceConsolidationEntryUncheckedUpdateOneWithoutPredecessorNestedInput
   lines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntryNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntryNestedInput
+  matchGroup?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateOneWithoutEntryNestedInput
 }
 
 export type FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfInput = {
@@ -2569,6 +3048,10 @@ export type FinanceConsolidationEntryUncheckedUpdateManyWithoutReversalOfInput =
   evidence?: Prisma.StringFieldUpdateOperationsInput | string
   matchDifference?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   differenceResolution?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  origin?: Prisma.StringFieldUpdateOperationsInput | string
+  generationKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generationFingerprint?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  generatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
   version?: Prisma.IntFieldUpdateOperationsInput | number
   supersedesEntryId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
@@ -2653,6 +3136,10 @@ export type FinanceConsolidationEntrySelect<ExtArgs extends runtime.Types.Extens
   evidence?: boolean
   matchDifference?: boolean
   differenceResolution?: boolean
+  origin?: boolean
+  generationKey?: boolean
+  generationFingerprint?: boolean
+  generatedAt?: boolean
   status?: boolean
   version?: boolean
   supersedesEntryId?: boolean
@@ -2677,6 +3164,7 @@ export type FinanceConsolidationEntrySelect<ExtArgs extends runtime.Types.Extens
   successor?: boolean | Prisma.FinanceConsolidationEntry$successorArgs<ExtArgs>
   lines?: boolean | Prisma.FinanceConsolidationEntry$linesArgs<ExtArgs>
   taxEffects?: boolean | Prisma.FinanceConsolidationEntry$taxEffectsArgs<ExtArgs>
+  matchGroup?: boolean | Prisma.FinanceConsolidationEntry$matchGroupArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationEntryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationEntry"]>
 
@@ -2690,6 +3178,10 @@ export type FinanceConsolidationEntrySelectCreateManyAndReturn<ExtArgs extends r
   evidence?: boolean
   matchDifference?: boolean
   differenceResolution?: boolean
+  origin?: boolean
+  generationKey?: boolean
+  generationFingerprint?: boolean
+  generatedAt?: boolean
   status?: boolean
   version?: boolean
   supersedesEntryId?: boolean
@@ -2721,6 +3213,10 @@ export type FinanceConsolidationEntrySelectUpdateManyAndReturn<ExtArgs extends r
   evidence?: boolean
   matchDifference?: boolean
   differenceResolution?: boolean
+  origin?: boolean
+  generationKey?: boolean
+  generationFingerprint?: boolean
+  generatedAt?: boolean
   status?: boolean
   version?: boolean
   supersedesEntryId?: boolean
@@ -2752,6 +3248,10 @@ export type FinanceConsolidationEntrySelectScalar = {
   evidence?: boolean
   matchDifference?: boolean
   differenceResolution?: boolean
+  origin?: boolean
+  generationKey?: boolean
+  generationFingerprint?: boolean
+  generatedAt?: boolean
   status?: boolean
   version?: boolean
   supersedesEntryId?: boolean
@@ -2769,7 +3269,7 @@ export type FinanceConsolidationEntrySelectScalar = {
   updatedAt?: boolean
 }
 
-export type FinanceConsolidationEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "entryNo" | "entryType" | "title" | "description" | "evidence" | "matchDifference" | "differenceResolution" | "status" | "version" | "supersedesEntryId" | "reversalOfEntryId" | "predecessorEntryId" | "preparedBy" | "submittedBy" | "submittedAt" | "approvedBy" | "approvedAt" | "approvalNote" | "reversedBy" | "reversedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeConsolidationEntry"]>
+export type FinanceConsolidationEntryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchId" | "entryNo" | "entryType" | "title" | "description" | "evidence" | "matchDifference" | "differenceResolution" | "origin" | "generationKey" | "generationFingerprint" | "generatedAt" | "status" | "version" | "supersedesEntryId" | "reversalOfEntryId" | "predecessorEntryId" | "preparedBy" | "submittedBy" | "submittedAt" | "approvedBy" | "approvedAt" | "approvalNote" | "reversedBy" | "reversedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeConsolidationEntry"]>
 export type FinanceConsolidationEntryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
   supersedes?: boolean | Prisma.FinanceConsolidationEntry$supersedesArgs<ExtArgs>
@@ -2780,6 +3280,7 @@ export type FinanceConsolidationEntryInclude<ExtArgs extends runtime.Types.Exten
   successor?: boolean | Prisma.FinanceConsolidationEntry$successorArgs<ExtArgs>
   lines?: boolean | Prisma.FinanceConsolidationEntry$linesArgs<ExtArgs>
   taxEffects?: boolean | Prisma.FinanceConsolidationEntry$taxEffectsArgs<ExtArgs>
+  matchGroup?: boolean | Prisma.FinanceConsolidationEntry$matchGroupArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationEntryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceConsolidationEntryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2807,6 +3308,7 @@ export type $FinanceConsolidationEntryPayload<ExtArgs extends runtime.Types.Exte
     successor: Prisma.$FinanceConsolidationEntryPayload<ExtArgs> | null
     lines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
     taxEffects: Prisma.$FinanceConsolidationTaxEffectPayload<ExtArgs>[]
+    matchGroup: Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -2818,6 +3320,10 @@ export type $FinanceConsolidationEntryPayload<ExtArgs extends runtime.Types.Exte
     evidence: string
     matchDifference: runtime.Decimal | null
     differenceResolution: string | null
+    origin: string
+    generationKey: string | null
+    generationFingerprint: string | null
+    generatedAt: Date | null
     status: string
     version: number
     supersedesEntryId: number | null
@@ -3236,6 +3742,7 @@ export interface Prisma__FinanceConsolidationEntryClient<T, Null = never, ExtArg
   successor<T extends Prisma.FinanceConsolidationEntry$successorArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntry$successorArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationEntryClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   lines<T extends Prisma.FinanceConsolidationEntry$linesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntry$linesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   taxEffects<T extends Prisma.FinanceConsolidationEntry$taxEffectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntry$taxEffectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationTaxEffectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  matchGroup<T extends Prisma.FinanceConsolidationEntry$matchGroupArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntry$matchGroupArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationMatchGroupClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3274,6 +3781,10 @@ export interface FinanceConsolidationEntryFieldRefs {
   readonly evidence: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
   readonly matchDifference: Prisma.FieldRef<"FinanceConsolidationEntry", 'Decimal'>
   readonly differenceResolution: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly origin: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly generationKey: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly generationFingerprint: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
+  readonly generatedAt: Prisma.FieldRef<"FinanceConsolidationEntry", 'DateTime'>
   readonly status: Prisma.FieldRef<"FinanceConsolidationEntry", 'String'>
   readonly version: Prisma.FieldRef<"FinanceConsolidationEntry", 'Int'>
   readonly supersedesEntryId: Prisma.FieldRef<"FinanceConsolidationEntry", 'Int'>
@@ -3859,6 +4370,25 @@ export type FinanceConsolidationEntry$taxEffectsArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.FinanceConsolidationTaxEffectScalarFieldEnum | Prisma.FinanceConsolidationTaxEffectScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntry.matchGroup
+ */
+export type FinanceConsolidationEntry$matchGroupArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchGroup
+   */
+  select?: Prisma.FinanceConsolidationMatchGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchGroup
+   */
+  omit?: Prisma.FinanceConsolidationMatchGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchGroupInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
 }
 
 /**

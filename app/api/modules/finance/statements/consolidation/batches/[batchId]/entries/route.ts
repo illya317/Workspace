@@ -8,7 +8,7 @@ import { createCommandRoute } from "@workspace/platform/server/api-route";
 
 const paramsSchema = z.object({ batchId: z.coerce.number().int().positive() });
 const entryLineSchema = z.object({
-  companyId: z.number().int().positive(),
+  entitySnapshotId: z.number().int().positive(),
   statementType: z.enum(["balanceSheet", "incomeStatement", "cashFlow"]),
   lineCode: z.string().trim().min(1).max(200),
   accountCode: z.string().trim().max(100).nullable().optional(),
@@ -18,12 +18,9 @@ const entryLineSchema = z.object({
   periodBasis: z.enum(["current", "comparative"]).optional(),
   note: z.string().trim().max(1000).nullable().optional(),
   matchSide: z.enum(["left", "right"]).nullable().optional(),
-  sourceKind: z.enum(["auxiliaryBalance", "openItem", "cashFlowAllocation", "workpaper", "voucher", "other"]).nullable().optional(),
-  sourceId: z.string().trim().max(300).nullable().optional(),
-  sourceFingerprint: z.string().trim().max(200).nullable().optional(),
-  sourceAmount: z.number().nullable().optional(),
-  sourceCurrency: z.string().trim().min(3).max(3).nullable().optional(),
-  counterpartyCompanyId: z.number().int().positive().nullable().optional(),
+  sourceKind: z.enum(["auxiliaryBalance", "openItem", "cashFlowAllocation", "workpaper", "voucher"]).nullable().optional(),
+  sourceRecordId: z.number().int().positive().nullable().optional(),
+  counterpartyEntitySnapshotId: z.number().int().positive().nullable().optional(),
 });
 const entrySchema = z.object({
   expectedRevision: z.number().int().positive(),
@@ -41,7 +38,6 @@ const entrySchema = z.object({
   title: z.string().trim().min(1).max(500),
   description: z.string().trim().max(2000).nullable().optional(),
   evidence: z.string().trim().min(1).max(4000),
-  matchDifference: z.number().nonnegative().nullable().optional(),
   differenceResolution: z.string().trim().max(2000).nullable().optional(),
   supersedesEntryId: z.number().int().positive().nullable().optional(),
   reversalOfEntryId: z.number().int().positive().nullable().optional(),

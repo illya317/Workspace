@@ -7,6 +7,9 @@ import test from "node:test";
 
 const deploy = readFileSync(new URL("./deploy.sh", import.meta.url), "utf8");
 const kimiSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner.sh", import.meta.url), "utf8");
+const kimiDarwinSandboxRunner = readFileSync(new URL("./kimi-agent-sandbox-runner-darwin.sh", import.meta.url), "utf8");
+const kimiDarwinSandboxProfile = readFileSync(new URL("./kimi-agent-sandbox-darwin.sb", import.meta.url), "utf8");
+const kimiRuntimeInstaller = readFileSync(new URL("./install-kimi-agent-runtime.sh", import.meta.url), "utf8");
 const libraryRuntimeInstaller = readFileSync(new URL("./install-library-runtime-deps.sh", import.meta.url), "utf8");
 const embeddingInstaller = readFileSync(new URL("./install-library-embedding-model.sh", import.meta.url), "utf8");
 const onlyOfficeInstaller = readFileSync(new URL("./install-onlyoffice-runtime.sh", import.meta.url), "utf8");
@@ -215,6 +218,22 @@ test("Kimi sandbox mounts only the validated per-turn agent config", () => {
   assert.match(kimiSandboxRunner, /\"\$ROOT\"\/turns\/\*\/config\/agent\.yaml/);
   assert.match(kimiSandboxRunner, /RESOLVED_AGENT_FILE/);
   assert.match(kimiSandboxRunner, /args\+=\(--ro-bind \"\$AGENT_CONFIG_DIR\" \"\$AGENT_CONFIG_DIR\"\)/);
+});
+
+test("Kimi local macOS runtime keeps a restricted sandbox without changing production Bubblewrap", () => {
+  assert.match(kimiRuntimeInstaller, /HOST_OS="\$\(uname -s\)"/);
+  assert.match(kimiRuntimeInstaller, /Darwin[\s\S]*?kimi-agent-sandbox-runner-darwin\.sh/);
+  assert.match(kimiRuntimeInstaller, /Linux[\s\S]*?install_sandbox_bwrap/);
+  assert.match(kimiDarwinSandboxRunner, /^#!\/usr\/bin\/env -S -i \/bin\/bash/);
+  assert.match(kimiDarwinSandboxRunner, /\/usr\/bin\/sandbox-exec/);
+  assert.match(kimiDarwinSandboxRunner, /\/usr\/bin\/env -i/);
+  assert.match(kimiDarwinSandboxRunner, /ROOT_PARENT_6/);
+  assert.match(kimiDarwinSandboxRunner, /"\$ROOT"\/turns\/\*\/config\/agent\.yaml/);
+  assert.match(kimiDarwinSandboxProfile, /\(allow default\)/);
+  assert.match(kimiDarwinSandboxProfile, /\(deny file-read\*[\s\S]*?require-not[\s\S]*?VENV_DIR[\s\S]*?AGENT_CONFIG_DIR/);
+  assert.match(kimiDarwinSandboxProfile, /literal \(param "ROOT_PARENT_6"\)/);
+  assert.match(kimiDarwinSandboxProfile, /\(deny file-write\*[\s\S]*?HOME_DIR[\s\S]*?SHARE_DIR[\s\S]*?WORK_DIR[\s\S]*?TMP_DIR/);
+  assert.doesNotMatch(kimiDarwinSandboxProfile, /\(allow file-write\*/);
 });
 
 test("ONLYOFFICE derives a public origin only from validated runtime origins", () => {

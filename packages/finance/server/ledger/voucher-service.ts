@@ -41,6 +41,12 @@ const voucherListInclude = {
   },
 } satisfies Prisma.FinanceVoucherInclude;
 
+const voucherChronologicalOrder = [
+  { date: "desc" as const },
+  { voucherNo: "desc" as const },
+  { id: "desc" as const },
+] satisfies Prisma.FinanceVoucherOrderByWithRelationInput[];
+
 type VoucherListRow = Prisma.FinanceVoucherGetPayload<{ include: typeof voucherListInclude }>;
 
 function toVoucherListDto(voucher: VoucherListRow) {
@@ -93,7 +99,7 @@ export async function listVouchers(input: ListVouchersInput) {
   if (input.keyword) {
     const all = await prisma.financeVoucher.findMany({
       where,
-      orderBy: { date: "desc" },
+      orderBy: voucherChronologicalOrder,
       include: voucherListInclude,
     });
     const filtered = all.filter(
@@ -116,7 +122,7 @@ export async function listVouchers(input: ListVouchersInput) {
   const [rows, total] = await Promise.all([
     prisma.financeVoucher.findMany({
       where,
-      orderBy: { date: "desc" },
+      orderBy: voucherChronologicalOrder,
       skip,
       take: input.pageSize,
       include: voucherListInclude,

@@ -9,6 +9,7 @@ import { workAgentTools } from "@workspace/work/server/agent-tools";
 import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/platform/server/auth";
 import { handleParsedAgentMessageStreamRequest, parseAgentRequest, sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { docsEditorAgentTools } from "@workspace/platform/server/docs-editor";
 
 export const runtime = "nodejs";
 export const maxDuration = 900;
@@ -26,7 +27,7 @@ export async function POST(request: Request) {
   return handleParsedAgentMessageStreamRequest(
     parsed,
     user,
-    [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools],
+    [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryAgentTools, ...docsEditorAgentTools],
     request.signal,
   );
 }

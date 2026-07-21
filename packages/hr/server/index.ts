@@ -1,20 +1,4 @@
 export {
-  createCompany,
-  deleteCompany,
-  listCompanies,
-  updateCompanyField,
-  upsertCompany,
-} from "./companies";
-
-export {
-  createCompanyRelation,
-  deleteCompanyRelation,
-  listCompanyRelations,
-  updateCompanyRelationField,
-  updateCompanyRelationPageDraft,
-} from "./company-relations";
-
-export {
   createEmployeeContract,
   deleteContract,
   getContracts,

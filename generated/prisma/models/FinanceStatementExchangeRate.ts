@@ -14,8 +14,8 @@ import type * as Prisma from "../internal/prismaNamespace"
 
 /**
  * Model FinanceStatementExchangeRate
- * 外币报表汇率证据快照（事实表，来源于中国银行牌价页人工录入并复核）
- * 只保存牌价日期、牌价值、来源时间和复核事实；折算金额及折算差额由 service 计算
+ * 外币报表汇率事实，自动抓取中国外汇交易中心人民币汇率中间价
+ * rate 统一保存为人民币/1外币；sourceField/note 保留原始币种对方向与报价单位
  */
 export type FinanceStatementExchangeRateModel = runtime.Types.Result.DefaultSelection<Prisma.$FinanceStatementExchangeRatePayload>
 
@@ -32,7 +32,6 @@ export type FinanceStatementExchangeRateAvgAggregateOutputType = {
   rate: runtime.Decimal | null
   version: number | null
   updatedBy: number | null
-  verifiedBy: number | null
 }
 
 export type FinanceStatementExchangeRateSumAggregateOutputType = {
@@ -40,7 +39,6 @@ export type FinanceStatementExchangeRateSumAggregateOutputType = {
   rate: runtime.Decimal | null
   version: number | null
   updatedBy: number | null
-  verifiedBy: number | null
 }
 
 export type FinanceStatementExchangeRateMinAggregateOutputType = {
@@ -55,12 +53,9 @@ export type FinanceStatementExchangeRateMinAggregateOutputType = {
   sourceUrl: string | null
   publishedAt: Date | null
   capturedAt: Date | null
-  status: string | null
   note: string | null
   version: number | null
   updatedBy: number | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -77,12 +72,9 @@ export type FinanceStatementExchangeRateMaxAggregateOutputType = {
   sourceUrl: string | null
   publishedAt: Date | null
   capturedAt: Date | null
-  status: string | null
   note: string | null
   version: number | null
   updatedBy: number | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -99,12 +91,9 @@ export type FinanceStatementExchangeRateCountAggregateOutputType = {
   sourceUrl: number
   publishedAt: number
   capturedAt: number
-  status: number
   note: number
   version: number
   updatedBy: number
-  verifiedBy: number
-  verifiedAt: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -116,7 +105,6 @@ export type FinanceStatementExchangeRateAvgAggregateInputType = {
   rate?: true
   version?: true
   updatedBy?: true
-  verifiedBy?: true
 }
 
 export type FinanceStatementExchangeRateSumAggregateInputType = {
@@ -124,7 +112,6 @@ export type FinanceStatementExchangeRateSumAggregateInputType = {
   rate?: true
   version?: true
   updatedBy?: true
-  verifiedBy?: true
 }
 
 export type FinanceStatementExchangeRateMinAggregateInputType = {
@@ -139,12 +126,9 @@ export type FinanceStatementExchangeRateMinAggregateInputType = {
   sourceUrl?: true
   publishedAt?: true
   capturedAt?: true
-  status?: true
   note?: true
   version?: true
   updatedBy?: true
-  verifiedBy?: true
-  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -161,12 +145,9 @@ export type FinanceStatementExchangeRateMaxAggregateInputType = {
   sourceUrl?: true
   publishedAt?: true
   capturedAt?: true
-  status?: true
   note?: true
   version?: true
   updatedBy?: true
-  verifiedBy?: true
-  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -183,12 +164,9 @@ export type FinanceStatementExchangeRateCountAggregateInputType = {
   sourceUrl?: true
   publishedAt?: true
   capturedAt?: true
-  status?: true
   note?: true
   version?: true
   updatedBy?: true
-  verifiedBy?: true
-  verifiedAt?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -292,12 +270,9 @@ export type FinanceStatementExchangeRateGroupByOutputType = {
   sourceUrl: string
   publishedAt: Date | null
   capturedAt: Date
-  status: string
   note: string | null
   version: number
   updatedBy: number | null
-  verifiedBy: number | null
-  verifiedAt: Date | null
   createdAt: Date
   updatedAt: Date
   _count: FinanceStatementExchangeRateCountAggregateOutputType | null
@@ -337,12 +312,9 @@ export type FinanceStatementExchangeRateWhereInput = {
   sourceUrl?: Prisma.StringFilter<"FinanceStatementExchangeRate"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementExchangeRate"> | Date | string | null
   capturedAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
-  status?: Prisma.StringFilter<"FinanceStatementExchangeRate"> | string
   note?: Prisma.StringNullableFilter<"FinanceStatementExchangeRate"> | string | null
   version?: Prisma.IntFilter<"FinanceStatementExchangeRate"> | number
   updatedBy?: Prisma.IntNullableFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedBy?: Prisma.IntNullableFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementExchangeRate"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
 }
@@ -359,12 +331,9 @@ export type FinanceStatementExchangeRateOrderByWithRelationInput = {
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
-  status?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -385,12 +354,9 @@ export type FinanceStatementExchangeRateWhereUniqueInput = Prisma.AtLeast<{
   sourceUrl?: Prisma.StringFilter<"FinanceStatementExchangeRate"> | string
   publishedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementExchangeRate"> | Date | string | null
   capturedAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
-  status?: Prisma.StringFilter<"FinanceStatementExchangeRate"> | string
   note?: Prisma.StringNullableFilter<"FinanceStatementExchangeRate"> | string | null
   version?: Prisma.IntFilter<"FinanceStatementExchangeRate"> | number
   updatedBy?: Prisma.IntNullableFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedBy?: Prisma.IntNullableFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableFilter<"FinanceStatementExchangeRate"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinanceStatementExchangeRate"> | Date | string
 }, "id" | "baseCurrency_quoteCurrency_rateKind_rateDate_version">
@@ -407,12 +373,9 @@ export type FinanceStatementExchangeRateOrderByWithAggregationInput = {
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
-  status?: Prisma.SortOrder
   note?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrderInput | Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.FinanceStatementExchangeRateCountOrderByAggregateInput
@@ -437,12 +400,9 @@ export type FinanceStatementExchangeRateScalarWhereWithAggregatesInput = {
   sourceUrl?: Prisma.StringWithAggregatesFilter<"FinanceStatementExchangeRate"> | string
   publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceStatementExchangeRate"> | Date | string | null
   capturedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceStatementExchangeRate"> | Date | string
-  status?: Prisma.StringWithAggregatesFilter<"FinanceStatementExchangeRate"> | string
   note?: Prisma.StringNullableWithAggregatesFilter<"FinanceStatementExchangeRate"> | string | null
   version?: Prisma.IntWithAggregatesFilter<"FinanceStatementExchangeRate"> | number
   updatedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedBy?: Prisma.IntNullableWithAggregatesFilter<"FinanceStatementExchangeRate"> | number | null
-  verifiedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"FinanceStatementExchangeRate"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceStatementExchangeRate"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinanceStatementExchangeRate"> | Date | string
 }
@@ -458,12 +418,9 @@ export type FinanceStatementExchangeRateCreateInput = {
   sourceUrl: string
   publishedAt?: Date | string | null
   capturedAt?: Date | string
-  status?: string
   note?: string | null
   version?: number
   updatedBy?: number | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -480,12 +437,9 @@ export type FinanceStatementExchangeRateUncheckedCreateInput = {
   sourceUrl: string
   publishedAt?: Date | string | null
   capturedAt?: Date | string
-  status?: string
   note?: string | null
   version?: number
   updatedBy?: number | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -501,12 +455,9 @@ export type FinanceStatementExchangeRateUpdateInput = {
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -523,12 +474,9 @@ export type FinanceStatementExchangeRateUncheckedUpdateInput = {
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -545,12 +493,9 @@ export type FinanceStatementExchangeRateCreateManyInput = {
   sourceUrl: string
   publishedAt?: Date | string | null
   capturedAt?: Date | string
-  status?: string
   note?: string | null
   version?: number
   updatedBy?: number | null
-  verifiedBy?: number | null
-  verifiedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -566,12 +511,9 @@ export type FinanceStatementExchangeRateUpdateManyMutationInput = {
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -588,12 +530,9 @@ export type FinanceStatementExchangeRateUncheckedUpdateManyInput = {
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
   publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   capturedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
   note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   updatedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  verifiedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -618,12 +557,9 @@ export type FinanceStatementExchangeRateCountOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
-  status?: Prisma.SortOrder
   note?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -633,7 +569,6 @@ export type FinanceStatementExchangeRateAvgOrderByAggregateInput = {
   rate?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
 }
 
 export type FinanceStatementExchangeRateMaxOrderByAggregateInput = {
@@ -648,12 +583,9 @@ export type FinanceStatementExchangeRateMaxOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
-  status?: Prisma.SortOrder
   note?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -670,12 +602,9 @@ export type FinanceStatementExchangeRateMinOrderByAggregateInput = {
   sourceUrl?: Prisma.SortOrder
   publishedAt?: Prisma.SortOrder
   capturedAt?: Prisma.SortOrder
-  status?: Prisma.SortOrder
   note?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
-  verifiedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -685,7 +614,6 @@ export type FinanceStatementExchangeRateSumOrderByAggregateInput = {
   rate?: Prisma.SortOrder
   version?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
-  verifiedBy?: Prisma.SortOrder
 }
 
 
@@ -702,12 +630,9 @@ export type FinanceStatementExchangeRateSelect<ExtArgs extends runtime.Types.Ext
   sourceUrl?: boolean
   publishedAt?: boolean
   capturedAt?: boolean
-  status?: boolean
   note?: boolean
   version?: boolean
   updatedBy?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["financeStatementExchangeRate"]>
@@ -724,12 +649,9 @@ export type FinanceStatementExchangeRateSelectCreateManyAndReturn<ExtArgs extend
   sourceUrl?: boolean
   publishedAt?: boolean
   capturedAt?: boolean
-  status?: boolean
   note?: boolean
   version?: boolean
   updatedBy?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["financeStatementExchangeRate"]>
@@ -746,12 +668,9 @@ export type FinanceStatementExchangeRateSelectUpdateManyAndReturn<ExtArgs extend
   sourceUrl?: boolean
   publishedAt?: boolean
   capturedAt?: boolean
-  status?: boolean
   note?: boolean
   version?: boolean
   updatedBy?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["financeStatementExchangeRate"]>
@@ -768,17 +687,14 @@ export type FinanceStatementExchangeRateSelectScalar = {
   sourceUrl?: boolean
   publishedAt?: boolean
   capturedAt?: boolean
-  status?: boolean
   note?: boolean
   version?: boolean
   updatedBy?: boolean
-  verifiedBy?: boolean
-  verifiedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type FinanceStatementExchangeRateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "baseCurrency" | "quoteCurrency" | "rateKind" | "rateDate" | "rate" | "sourceName" | "sourceField" | "sourceUrl" | "publishedAt" | "capturedAt" | "status" | "note" | "version" | "updatedBy" | "verifiedBy" | "verifiedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["financeStatementExchangeRate"]>
+export type FinanceStatementExchangeRateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "baseCurrency" | "quoteCurrency" | "rateKind" | "rateDate" | "rate" | "sourceName" | "sourceField" | "sourceUrl" | "publishedAt" | "capturedAt" | "note" | "version" | "updatedBy" | "createdAt" | "updatedAt", ExtArgs["result"]["financeStatementExchangeRate"]>
 
 export type $FinanceStatementExchangeRatePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "FinanceStatementExchangeRate"
@@ -795,12 +711,9 @@ export type $FinanceStatementExchangeRatePayload<ExtArgs extends runtime.Types.E
     sourceUrl: string
     publishedAt: Date | null
     capturedAt: Date
-    status: string
     note: string | null
     version: number
     updatedBy: number | null
-    verifiedBy: number | null
-    verifiedAt: Date | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["financeStatementExchangeRate"]>
@@ -1237,12 +1150,9 @@ export interface FinanceStatementExchangeRateFieldRefs {
   readonly sourceUrl: Prisma.FieldRef<"FinanceStatementExchangeRate", 'String'>
   readonly publishedAt: Prisma.FieldRef<"FinanceStatementExchangeRate", 'DateTime'>
   readonly capturedAt: Prisma.FieldRef<"FinanceStatementExchangeRate", 'DateTime'>
-  readonly status: Prisma.FieldRef<"FinanceStatementExchangeRate", 'String'>
   readonly note: Prisma.FieldRef<"FinanceStatementExchangeRate", 'String'>
   readonly version: Prisma.FieldRef<"FinanceStatementExchangeRate", 'Int'>
   readonly updatedBy: Prisma.FieldRef<"FinanceStatementExchangeRate", 'Int'>
-  readonly verifiedBy: Prisma.FieldRef<"FinanceStatementExchangeRate", 'Int'>
-  readonly verifiedAt: Prisma.FieldRef<"FinanceStatementExchangeRate", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"FinanceStatementExchangeRate", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinanceStatementExchangeRate", 'DateTime'>
 }

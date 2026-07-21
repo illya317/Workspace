@@ -142,40 +142,6 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
       hrefPattern: "/hr/roster",
     },
   },
-  write("hr.roster.company.create", "Company", domain(
-    "packages/hr/server/domain/company-validation.buildCompanyCreateCommand",
-    "packages/hr/server/companies.createCompany",
-  ), { shape: "full_record", commitMode: "activate" }),
-  write("hr.roster.company.update", "Company", {
-    bindings: [
-      domain("packages/hr/server/domain/company-validation.buildCompanyUpsertCommand", "packages/hr/server/companies.upsertCompany"),
-      domain("packages/hr/server/domain/company-validation.buildCompanyFieldUpdateCommand", "packages/hr/server/companies.updateCompanyField"),
-    ],
-  }),
-  lifecycle("hr.roster.company.delete", "Company", domain(
-    "packages/hr/server/domain/company-validation.validateCompanyDeleteCommand",
-    "packages/hr/server/companies.deleteCompany",
-  ), "delete", { versionKey: "expectedVersion", deleteMode: "hard", referencePolicy: "domain" }),
-  governance("hr.roster.companyRelation.create", "CompanyRelation", domain(
-    "packages/hr/server/domain/company-relation-validation.buildCompanyRelationCreateCommand",
-    "packages/hr/server/company-relations.createCompanyRelation",
-  ), "relationship"),
-  governance("hr.roster.companyRelation.update", "CompanyRelation", {
-    bindings: [
-      domain(
-        "packages/hr/server/domain/company-relation-validation.buildCompanyRelationPageDraftCommand",
-        "packages/hr/server/company-relations.updateCompanyRelationPageDraft",
-      ),
-      domain(
-        "packages/hr/server/domain/company-relation-validation.buildCompanyRelationFieldUpdateCommand",
-        "packages/hr/server/company-relations.updateCompanyRelationField",
-      ),
-    ],
-  }, "relationship"),
-  governance("hr.roster.companyRelation.delete", "CompanyRelation", domain(
-    "packages/hr/server/domain/company-relation-validation.validateCompanyRelationDeleteCommand",
-    "packages/hr/server/company-relations.deleteCompanyRelation",
-  ), "relationship"),
   lifecycle("hr.roster.department.archive", "Department", domain(
     "packages/hr/server/domain/department-validation.buildDepartmentUpdateCommand",
     "packages/hr/server/departments.updateDepartment",

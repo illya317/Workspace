@@ -20,9 +20,9 @@ export function groupRuleKey(row: RuleCandidate) {
 export function filterGroupRuleCandidates(rows: readonly RuleCandidate[], keyword: string, status: GroupRuleStatusFilter) {
   return rows.filter((row) => {
     const inStatus = status === "all"
-      || (status === "reclassified" && row.existingDecision === "reclassify")
-      || (status === "no_reclass" && row.existingDecision === "no_reclass")
-      || (status === "unconfirmed" && row.existingDecision === null);
+      || (status === "reclassified" && row.effectiveDecision === "reclassify")
+      || (status === "no_reclass" && row.effectiveDecision === "no_reclass")
+      || (status === "unconfirmed" && row.effectiveDecision === null);
     if (!inStatus) return false;
     if (!keyword) return true;
     return [row.accountCode, row.accountName, row.existingTarget]
@@ -49,6 +49,9 @@ export function createGroupReclassRuleColumns(input: {
         { kind: "text", value: row.accountName },
         ...(row.existingRuleSourceAccountCode && row.existingRuleSourceAccountCode !== row.accountCode
           ? [{ kind: "text" as const, value: `继承规则 ${row.existingRuleSourceAccountCode}`, tone: "muted" as const }]
+          : []),
+        ...(!row.hasHistoricalAbnormalBalance && row.existingDecision === null
+          ? [{ kind: "text" as const, value: "历史未出现异常方向", tone: "muted" as const }]
           : []),
       ] }),
     },
@@ -87,7 +90,7 @@ export function createGroupReclassRuleColumns(input: {
             density: "compact",
           };
         }
-        const target = row.existingDecision === "reclassify" ? row.existingTarget : null;
+        const target = row.effectiveDecision === "reclassify" ? row.existingTarget : null;
         return target ? targetLabels.get(target) ?? target : { kind: "empty" };
       },
     },
@@ -96,9 +99,9 @@ export function createGroupReclassRuleColumns(input: {
       label: "规则状态",
       required: true,
       align: "center",
-      cell: (row) => row.existingDecision === "reclassify"
+      cell: (row) => row.effectiveDecision === "reclassify"
         ? { kind: "badge", label: "已重分类", tone: "green" }
-        : row.existingDecision === "no_reclass"
+        : row.effectiveDecision === "no_reclass"
           ? { kind: "badge", label: "无需重分类", tone: "gray" }
           : { kind: "badge", label: "未确认", tone: "orange" },
     },
@@ -116,7 +119,7 @@ export function filterReclassEntries(entries: readonly ReclassEntry[], filter: R
       || (filter === "historical" && row.status === "historical");
     if (!inFilter) return false;
     if (!keyword) return true;
-    return [row.accountCode, row.accountName, row.targetAccountCode, row.targetAccountName, row.reason]
+    return [row.accountCode, row.accountName, row.targetAccountCode, row.targetAccountName]
       .some((value) => value && matchText(value, keyword));
   });
 }
@@ -232,21 +235,6 @@ export function createReclassWorkbenchColumns(input: {
       align: "center",
       cell: (row) => statusBadge(row),
     },
-    {
-      key: "basis",
-      label: "依据",
-      required: true,
-      width: "lg",
-      wrap: "wrap",
-      cell: (row) => ({
-        kind: "stack",
-        gap: "xs",
-        items: [
-          { kind: "text", value: sourceLabel(row), emphasis: "medium" },
-          { kind: "text", value: row.reason, tone: "muted", wrap: "wrap" },
-        ],
-      }),
-    },
   ];
 }
 
@@ -288,13 +276,4 @@ function statusBadge(row: ReclassEntry) {
 function targetLabel(row: ReclassEntry) {
   if (!row.targetAccountCode) return "";
   return row.targetAccountName ? `${row.targetAccountCode} ${row.targetAccountName}` : row.targetAccountCode;
-}
-
-function sourceLabel(row: ReclassEntry) {
-  if (row.sourceType === "auxiliary_balance") return `辅助余额表${row.detailCount ? ` · ${row.detailCount} 个对象` : ""}`;
-  if (row.sourceType === "reference_workpaper") return "法定报表底稿勾稽";
-  if (row.sourceType === "legacy_voucher") return "历史凭证明细（不参与报表）";
-  if (row.sourceType === "rule") return "集团规则";
-  if (row.sourceType === "manual") return "人工调整";
-  return "期末余额检测";
 }

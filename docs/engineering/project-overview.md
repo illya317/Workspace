@@ -123,7 +123,7 @@ The table below is a routing map, not a replacement for `packages/platform/modul
 | Inventory `inventory` | `@workspace/inventory` domain | `inventory.operations` | material cards, batches, documents, stocktakes, valuation and voucher-link APIs |
 | Production `production` | `@workspace/production` domain | `production.qc` | QC batches module APIs; QC template editing is handled by Docs `docs.editor` |
 | External `external` | `@workspace/external` domain | customers, suppliers | shared ExternalParty CRUD; each role supports organization and individual subject types |
-| Capital Securities `capitalSecurities` | `@workspace/capital-securities` domain | `capitalSecurities.investors`, `capitalSecurities.governance` | governance organization API uses Platform organization-unit service |
+| Capital Securities `capitalSecurities` | `@workspace/capital-securities` domain | `capitalSecurities.investors`, `capitalSecurities.governance` | governance covers G-line organizations, legal-company master data, and equity/control relationships |
 | Docs `docs` | Platform docs module | positions, company, expense | static/product docs pages, no independent business API |
 | Library `library` | `@workspace/library` domain | `library.basicInfo` | basic-info module API |
 | Settings `settings` | Platform | account, admin, api, ui | settings account/admin/api APIs; UI component page is page-only |

@@ -47,30 +47,26 @@ model FinanceStatementWorkpaperLine {
   @@index([workpaperId])
 }
 
-/// 外币报表汇率证据快照（事实表，来源于中国银行牌价页人工录入并复核）
-/// 只保存牌价日期、牌价值、来源时间和复核事实；折算金额及折算差额由 service 计算
+/// 外币报表汇率事实，自动抓取中国外汇交易中心人民币汇率中间价
+/// rate 统一保存为人民币/1外币；sourceField/note 保留原始币种对方向与报价单位
 model FinanceStatementExchangeRate {
   id            Int       @id @default(autoincrement())
   baseCurrency  String
   quoteCurrency String
-  rateKind      String // closing | historicalInvestment | average
+  rateKind      String // centralParity；历史数据可能为 closing | historicalInvestment
   rateDate      String // YYYY-MM-DD
-  rate          Decimal   @db.Decimal(20, 8) // 人民币/100外币
-  sourceName    String    @default("中国银行外汇牌价")
-  sourceField   String    @default("中行折算价")
+  rate          Decimal   @db.Decimal(20, 8) // 人民币/1外币
+  sourceName    String    @default("中国外汇交易中心")
+  sourceField   String    @default("人民币汇率中间价")
   sourceUrl     String
   publishedAt   DateTime?
   capturedAt    DateTime  @default(now())
-  status        String    @default("draft") // draft | verified
   note          String?
   version       Int       @default(1)
   updatedBy     Int?
-  verifiedBy    Int?
-  verifiedAt    DateTime?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @default(now()) @updatedAt
 
   @@unique([baseCurrency, quoteCurrency, rateKind, rateDate, version], map: "FinanceStatementExchangeRate_currency_kind_date_version_key")
   @@index([baseCurrency, quoteCurrency, rateDate], map: "FinanceStatementExchangeRate_currency_date_idx")
-  @@index([status])
 }

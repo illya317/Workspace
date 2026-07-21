@@ -117,7 +117,7 @@ export const page_api_registry_entries = [
   {
     name: "CalendarDateInput",
     description: "日期输入框",
-    composes: ["FieldShell", "getFieldInputClassName"],
+    composes: ["FieldShell", "FloatingPortalSurface", "getFieldInputClassName"],
   },
   {
     name: "CheckboxChip",

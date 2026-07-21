@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   createPageBody,
   PageSurface,
+  usePageAssistant,
   useFeedback,
   type FormSurfaceActionSpec,
   type SurfaceToolbarItems,
@@ -17,6 +18,7 @@ import {
   spaceWorkbenchPanelToolbarItems,
 } from "../../space-workbench";
 import { fetchPreferredDepartmentSettings } from "../../space-preferences";
+import { buildDocsEditorAssistantContext } from "./assistant-context";
 import {
   createEditorTemplateDraft,
   fetchEditorBootstrap,
@@ -69,6 +71,7 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
   const [preferredDepartmentIds, setPreferredDepartmentIds] = useState<number[]>([]);
   const [focusApprovalId, setFocusApprovalId] = useState<number | null>(null);
   const hydratedDefaultSpaceIdRef = useRef<string | null>(null);
+  const pageAssistant = usePageAssistant();
   const feedback = useFeedback();
   const documentEditorLayout = useDocumentEditorMobileLayout();
 
@@ -176,6 +179,12 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
   const canArchiveTemplate = Boolean(detail && detailSpace?.actionPermissions.canArchive);
   const canExportTemplate = Boolean(detail && detailSpace?.actionPermissions.canExport);
   const formulaComputation = useMemo(() => evaluateFieldModel(fieldModelDraft), [fieldModelDraft]);
+  const assistantContext = buildDocsEditorAssistantContext({
+    activeSpaceTitle: activeSpace?.title,
+    activeTab,
+    activeTemplateId,
+    detail,
+  });
 
   const reloadEditorData = useCallback(async () => {
     await loadBootstrap(activeSpaceId);
@@ -315,6 +324,20 @@ export default function DocsEditorWorkbench({ currentUserId, initialTemplateId =
   });
 
   const editorToolbarItems: SurfaceToolbarItems = activeTab === "templates" ? [
+    {
+      kind: "action-group",
+      key: "docs-editor-assistant",
+      actions: [{
+        key: "assistant",
+        kind: "assistant",
+        label: detail ? `让 Agent 处理“${detail.title}”` : "页面助手",
+        onClick: () => pageAssistant.openAssistant({
+          ...assistantContext,
+          path: typeof window === "undefined" ? undefined : window.location.pathname,
+          title: detail?.title ?? (typeof document === "undefined" ? undefined : document.title),
+        }),
+      }],
+    },
     {
       kind: "icon-button",
       key: "export",

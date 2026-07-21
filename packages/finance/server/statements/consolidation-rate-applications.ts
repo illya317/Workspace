@@ -97,13 +97,19 @@ export async function applyConsolidationRatePolicies(input: {
     if (application.applicationType === "historicalInvestment" && !voucher) {
       throw new ConsolidationSnapshotError("投资日汇率必须绑定当前批次范围内的 CAD 长期股权投资凭证", 409);
     }
+    if (application.applicationType === "historicalCapital" && (!application.capitalContributionDate || !application.capitalOriginalAmount)) {
+      throw new ConsolidationSnapshotError("境外权益资本历史汇率必须填写出资日期和原币金额", 409);
+    }
     const snapshot: ConsolidationRateApplicationSnapshot = {
       applicationType: application.applicationType,
       periodBasis: application.periodBasis,
       entitySnapshotId: application.entitySnapshotId,
       voucherItemId: voucher?.id ?? null,
-      targetDate: voucher?.voucherDate ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
+      targetDate: voucher?.voucherDate
+        ?? application.capitalContributionDate
+        ?? (application.periodBasis === "current" ? input.periodEnd : comparativePeriodEnd),
       evidence: application.evidence,
+      capitalOriginalAmount: application.capitalOriginalAmount ?? null,
       voucher: voucher ? {
         companyCode: voucher.companyCode,
         voucherNo: voucher.voucherNo,
@@ -135,11 +141,11 @@ export async function applyConsolidationRatePolicies(input: {
       exchangeRateId: rate.exchangeRateId,
       rateKind: rate.rateKind,
       rateDate: rate.rateDate,
-      verifiedBy: rate.verifiedBy,
-      verifiedAt: rate.verifiedAt?.toISOString() ?? null,
+      recordedBy: rate.recordedBy,
+      recordedAt: rate.recordedAt.toISOString(),
       applications: parseConsolidationRateApplications(rate.applications),
     })),
-    requiredInvestmentVoucherIds: investments.map((investment) => investment.id),
+    requiredInvestmentVoucherIds: [],
     requiredComparativeEntityIds: input.requiredComparativeEntityIds,
   });
   if (!validation.ok) throw new ConsolidationSnapshotError(validation.issue.message, validation.issue.status);

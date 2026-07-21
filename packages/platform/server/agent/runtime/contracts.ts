@@ -1,5 +1,6 @@
 import type { AgentExecutionContext } from "../execution";
 import type { AgentTool } from "../tools";
+import type { AgentChoiceQuestion } from "../../../agent-conversation-choice";
 
 export const AGENT_RUNTIME_MAX_TURN_MS = 15 * 60 * 1_000;
 
@@ -75,6 +76,7 @@ export interface AgentResponse {
   message: string;
   toolUsed?: string;
   data?: unknown;
+  choices?: AgentChoiceQuestion[];
   telemetry?: AgentRunTelemetry;
   proposal?: {
     id: number;

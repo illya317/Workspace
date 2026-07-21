@@ -2,8 +2,6 @@ import type {
   ConsolidationBatchStatus,
   ConsolidationBatchLifecycleAction as ConsolidationBatchLifecycleActionValue,
   ConsolidationBatchLifecycleInput,
-  ConsolidationControlKey,
-  ConsolidationEntryType,
   ConsolidationRateApplicationSnapshot,
   EnsureConsolidationBatchInput,
   SaveConsolidationControlDecisionInput,
@@ -12,29 +10,16 @@ import type {
 } from "@workspace/finance/types";
 import { validateConsolidationFxFacts } from "./consolidation-fx-validation";
 import {
+  ACTIVE_CONSOLIDATION_ENTRY_TYPES,
+  CONSOLIDATION_CONTROL_KEYS,
+} from "./consolidation-batch-constants";
+import {
   failCommand,
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 
 const REPORT_TYPES = ["balanceSheet", "incomeStatement", "cashFlow"] as const;
-const ELIMINATION_TYPES: readonly ConsolidationEntryType[] = [
-  "investmentEquity",
-  "nonControllingInterest",
-  "intercompanyBalance",
-  "internalTrading",
-  "internalLongTermAsset",
-  "incomeDividend",
-  "cashFlow",
-];
-const CONTROL_KEYS: readonly ConsolidationControlKey[] = [
-  "scope",
-  "ownership",
-  "sources",
-  "fx",
-  "tax",
-  ...ELIMINATION_TYPES.map((entryType) => `elimination:${entryType}` as const),
-];
 const DECISIONS = ["completed", "notApplicable"] as const;
 
 function validActor(userId: number) {
@@ -48,6 +33,12 @@ function positiveId(value: unknown) {
 
 function normalizedText(value: unknown) {
   return typeof value === "string" ? value.trim() : "";
+}
+
+function validIsoDate(value: string) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const date = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(date.getTime()) && date.toISOString().slice(0, 10) === value;
 }
 
 export interface EnsureConsolidationBatchCommand {
@@ -155,7 +146,7 @@ export function buildSaveConsolidationSourcesCommand(
       return failCommand("汇率应用必须引用本次冻结的汇率证据", 400, "exchangeRateId");
     }
     if (!entitySnapshotId) return failCommand("汇率应用实体ID无效", 400, "entitySnapshotId");
-    if (application.applicationType !== "closing" && application.applicationType !== "historicalInvestment") {
+    if (!["closing", "historicalInvestment", "historicalCapital"].includes(application.applicationType)) {
       return failCommand("汇率应用类型无效", 400, "applicationType");
     }
     if (application.periodBasis !== "current" && application.periodBasis !== "comparative") {
@@ -166,6 +157,21 @@ export function buildSaveConsolidationSourcesCommand(
     if (application.applicationType === "historicalInvestment" && !voucherItemId) {
       return failCommand("投资日汇率必须绑定投资凭证明细", 400, "voucherItemId");
     }
+    const capitalContributionDate = normalizedText(application.capitalContributionDate) || null;
+    const capitalOriginalAmount = application.capitalOriginalAmount == null ? null : Number(application.capitalOriginalAmount);
+    if (application.applicationType === "historicalCapital" && (
+      voucherItemId
+      || !capitalContributionDate
+      || !validIsoDate(capitalContributionDate)
+      || !capitalOriginalAmount
+      || !Number.isFinite(capitalOriginalAmount)
+      || capitalOriginalAmount <= 0
+    )) {
+      return failCommand("境外权益资本历史汇率必须填写出资日期和正数原币金额，且不能绑定凭证明细", 400, "capitalOriginalAmount");
+    }
+    if (application.applicationType !== "historicalCapital" && (capitalContributionDate || capitalOriginalAmount !== null)) {
+      return failCommand("只有境外权益资本历史汇率可以填写出资日期和原币金额", 400, "capitalOriginalAmount");
+    }
     if (application.applicationType === "closing" && voucherItemId) {
       return failCommand("期末汇率不能绑定投资凭证明细", 400, "voucherItemId");
     }
@@ -173,7 +179,9 @@ export function buildSaveConsolidationSourcesCommand(
     if (!applicationEvidence) return failCommand("汇率应用必须填写采用依据", 400, "evidence");
     const key = application.applicationType === "closing"
       ? `closing:${application.periodBasis}:${entitySnapshotId}`
-      : `historicalInvestment:${application.periodBasis}:${voucherItemId}`;
+      : application.applicationType === "historicalInvestment"
+        ? `historicalInvestment:${application.periodBasis}:${voucherItemId}`
+        : `historicalCapital:${application.periodBasis}:${entitySnapshotId}`;
     if (applicationKeys.has(key)) return failCommand("同一汇率应用目标不能重复", 400, "rateApplications");
     applicationKeys.add(key);
     usedRateIds.add(exchangeRateId);
@@ -183,6 +191,8 @@ export function buildSaveConsolidationSourcesCommand(
       periodBasis: application.periodBasis,
       entitySnapshotId,
       voucherItemId,
+      capitalContributionDate,
+      capitalOriginalAmount,
       evidence: applicationEvidence,
     });
   }
@@ -212,7 +222,7 @@ export function buildSaveConsolidationControlDecisionCommand(
   if (!batchId) return failCommand("合并批次ID无效", 400, "batchId");
   const expectedRevision = positiveId(raw.expectedRevision);
   if (!expectedRevision) return failCommand("合并批次修订号无效", 400, "expectedRevision");
-  if (!CONTROL_KEYS.includes(raw.controlKey)) return failCommand("合并控制点无效", 400, "controlKey");
+  if (!CONSOLIDATION_CONTROL_KEYS.includes(raw.controlKey)) return failCommand("合并控制点无效", 400, "controlKey");
   if (!DECISIONS.includes(raw.decision)) return failCommand("处理结论无效", 400, "decision");
   const conclusion = normalizedText(raw.conclusion);
   const evidence = normalizedText(raw.evidence);
@@ -253,12 +263,12 @@ export function buildConsolidationBatchLifecycleCommand(
   return okCommand({ batchId, userId, action, expectedRevision, note: normalizedNote });
 }
 
-const EXPECTED_STATUS: Record<ConsolidationBatchLifecycleAction, ConsolidationBatchStatus> = {
-  submit: "draft",
-  return: "submitted",
-  review: "submitted",
-  lock: "reviewed",
-  publish: "locked",
+const EXPECTED_STATUSES: Record<ConsolidationBatchLifecycleAction, readonly ConsolidationBatchStatus[]> = {
+  submit: ["draft"],
+  return: ["submitted", "reviewed"],
+  review: ["submitted"],
+  lock: ["reviewed"],
+  publish: ["locked"],
 };
 
 const NEXT_STATUS: Record<ConsolidationBatchLifecycleAction, ConsolidationBatchStatus> = {
@@ -280,7 +290,7 @@ export function validateConsolidationBatchTransition(
   action: ConsolidationBatchLifecycleAction,
   userId: number,
 ): DomainValidationResult<{ nextStatus: ConsolidationBatchStatus }> {
-  if (batch.status !== EXPECTED_STATUS[action]) {
+  if (!EXPECTED_STATUSES[action].includes(batch.status)) {
     return failCommand(`当前批次状态 ${batch.status} 不能执行 ${action}`, 409, "status");
   }
   if ((action === "review" || action === "return") && (
@@ -326,8 +336,8 @@ export interface ConsolidationSubmissionFacts {
     exchangeRateId: number;
     rateKind: string;
     rateDate: string;
-    verifiedBy: number | null;
-    verifiedAt: string | null;
+    recordedBy: number | null;
+    recordedAt: string | null;
     applications: ConsolidationRateApplicationSnapshot[];
   }[];
   controlDecisions: { controlKey: string; decision: string; evidence: string }[];
@@ -447,7 +457,7 @@ export function validateConsolidationSubmission(
   if (!fxValidation.ok) return fxValidation;
   const decisions = new Map(facts.controlDecisions.map((item) => [item.controlKey, item]));
   const companyIds = new Set(facts.entities.map((entity) => entity.companyId));
-  const matchedTypes = new Set(["intercompanyBalance", "internalTrading", "cashFlow"]);
+  const matchedTypes = new Set(["investmentEquity", "intercompanyBalance"]);
   for (const entry of facts.entries) {
     if (entry.lines.some((line) => !companyIds.has(line.companyId))) {
       return failCommand("抵销分录引用了批次范围外公司，必须人工修订后再提交", 409, "entries");
@@ -479,46 +489,13 @@ export function validateConsolidationSubmission(
       }
     }
   }
-  const partialEntities = facts.entities.filter((entity) => (
-    entity.role === "subsidiary"
-    && entity.shareRatio !== null
-    && entity.shareRatio < 1
-  ));
-  if (partialEntities.length > 0) {
-    const nciEntries = facts.entries.filter((entry) => entry.entryType === "nonControllingInterest");
-    if (nciEntries.length === 0) {
-      return failCommand("存在非全资子公司，必须按股权关系表编制少数股东权益和损益分配", 409, "elimination:nonControllingInterest");
-    }
-    for (const entity of partialEntities) {
-      const entityLines = nciEntries.flatMap((entry) => entry.lines)
-        .filter((line) => line.companyId === entity.companyId);
-      const currentLineCodes = new Set(entityLines
-        .filter((line) => (line.periodBasis ?? "current") === "current")
-        .map((line) => line.lineCode));
-      if (!currentLineCodes.has("nonControllingInterests") || !currentLineCodes.has("netProfitAttributableToNci")) {
-        return failCommand(`非全资子公司 ${entity.companyId} 必须同时编制少数股东权益和少数股东损益`, 409, "elimination:nonControllingInterest");
-      }
-      const entityHasComparative = facts.sources.some((source) => (
-        source.entitySnapshotId === entity.id && hasNonZeroComparative(source.reportPayload)
-      ));
-      if (entityHasComparative) {
-        const comparativeLineCodes = new Set(entityLines
-          .filter((line) => line.periodBasis === "comparative")
-          .map((line) => line.lineCode));
-        if (!comparativeLineCodes.has("nonControllingInterests") || !comparativeLineCodes.has("netProfitAttributableToNci")) {
-          return failCommand(`非全资子公司 ${entity.companyId} 存在比较期数，必须补齐比较期少数股东权益和损益分配`, 409, "elimination:nonControllingInterest");
-        }
-      }
-    }
-  }
-  for (const entryType of ELIMINATION_TYPES) {
+  for (const entryType of ACTIVE_CONSOLIDATION_ENTRY_TYPES) {
     const decision = decisions.get(`elimination:${entryType}`);
     if (!facts.entries.some((entry) => entry.entryType === entryType)
       && (decision?.decision !== "notApplicable" || !decision.evidence.trim())) {
       return failCommand(`抵销事项 ${entryType} 必须有分录或明确无适用事项结论`, 409, `elimination:${entryType}`);
     }
   }
-  const taxDecision = decisions.get("tax");
   for (const tax of facts.taxEffects ?? []) {
     if (!tax.entitySnapshotId || !facts.entities.some((entity) => entity.id === tax.entitySnapshotId) || !tax.jurisdiction?.trim()) {
       return failCommand("税务影响必须绑定批次内纳税主体和税辖区", 409, "tax");
@@ -530,10 +507,6 @@ export function validateConsolidationSubmission(
     )) {
       return failCommand("已确认税务影响必须明确递延税及对应损益/权益报表行", 409, "tax");
     }
-  }
-  if (facts.taxEffectCount === 0
-    && (taxDecision?.decision !== "notApplicable" || !taxDecision.evidence.trim())) {
-    return failCommand("无税务影响时必须明确记录无适用事项的结论与依据", 409, "tax");
   }
   return okCommand({ ready: true });
 }

@@ -7,7 +7,6 @@ import {
   PageSurface,
   createFieldsSection,
   createMessageSection,
-  createMetricsSection,
   createPageBody,
   createPageTableSection,
   createStatusSection,
@@ -35,7 +34,6 @@ import {
   emptyAdjustmentDraft,
   emptyAssetDraft,
   editAssetDraft,
-  formatFinanceAmount,
 } from "./assetScheduleUi";
 
 type AssetView = "cards" | "period" | "adjustments" | "reconciliation";
@@ -240,34 +238,16 @@ function buildViewSections({ view, workspace, cards, periodRows, page, pageSize,
   if (!workspace) return [createStatusSection("asset-empty-scope", { kind: "empty", content: "请选择公司、年度和月份" })];
   const pageRows = <T,>(rows: T[]) => rows.slice((page - 1) * pageSize, page * pageSize);
   if (view === "cards") return [
-    createMetricsSection("asset-card-metrics", { metrics: [
-      { key: "count", label: "资产卡片", value: cards.length },
-      { key: "cost", label: "入账原值", value: `¥${formatFinanceAmount(cards.reduce((sum, row) => sum + row.originalCost, 0))}` },
-      { key: "waived", label: "成本免除", value: `¥${formatFinanceAmount(cards.reduce((sum, row) => sum + row.waivedCost, 0))}` },
-    ] }),
     createPageTableSection("asset-cards", { rows: pageRows(cards), columns: assetCardColumns, visibleColumns: assetCardColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无资产卡片", presentation: { density: "compact" }, scroll: { x: true }, rowActions: canEdit ? (row) => [{ key: "edit", kind: "edit", label: "编辑资产", disabled: saving, onClick: () => onEdit(row) }] : undefined }),
   ];
   if (view === "period") return [
-    createMetricsSection("asset-period-metrics", { metrics: [
-      { key: "normal", label: "正常计算", value: `¥${formatFinanceAmount(workspace.metrics.normalAmount)}` },
-      { key: "adjustment", label: "补录调整", value: `¥${formatFinanceAmount(workspace.metrics.adjustmentAmount)}` },
-      { key: "period", label: "本期入账", value: `¥${formatFinanceAmount(workspace.metrics.periodAmount)}` },
-      { key: "difference", label: "凭证差异", value: `¥${formatFinanceAmount(workspace.metrics.difference)}` },
-    ] }),
     createMessageSection("asset-period-rule", { tone: "muted", content: "正常折旧/摊销由资产卡片政策计算；补录金额只进入调整事项，不修改资产原值、期限或未来月份公式。" }),
     createPageTableSection("asset-period-rows", { rows: pageRows(periodRows), columns: assetPeriodColumns, visibleColumns: assetPeriodColumns.map((column) => column.key), rowKey: (row) => row.assetId, emptyText: "本期尚未生成折旧摊销", presentation: { density: "compact" }, scroll: { x: true } }),
   ];
   if (view === "adjustments") return [
-    createMetricsSection("asset-adjustment-metrics", { metrics: [{ key: "count", label: "调整事项", value: workspace.adjustments.length }, { key: "amount", label: "已确认调整", value: `¥${formatFinanceAmount(workspace.metrics.adjustmentAmount)}` }] }),
     createPageTableSection("asset-adjustments", { rows: pageRows(workspace.adjustments), columns: assetAdjustmentColumns, visibleColumns: assetAdjustmentColumns.map((column) => column.key), rowKey: (row) => row.id, emptyText: "暂无调整事项", presentation: { density: "compact" } }),
   ];
   return [
-    createMetricsSection("asset-reconciliation-metrics", { metrics: [
-      { key: "schedule", label: "折旧摊销表", value: `¥${formatFinanceAmount(workspace.metrics.periodAmount)}` },
-      { key: "voucher", label: "关联凭证", value: `¥${formatFinanceAmount(workspace.metrics.voucherAmount)}` },
-      { key: "ledger", label: "总账本期净额", value: `¥${formatFinanceAmount(workspace.metrics.ledgerAmount)}` },
-      { key: "difference", label: "凭证差异", value: `¥${formatFinanceAmount(workspace.metrics.difference)}` },
-    ] }),
     createPageTableSection("asset-reconciliation", { rows: pageRows(workspace.reconciliation), columns: assetReconciliationColumns, visibleColumns: assetReconciliationColumns.map((column) => column.key), rowKey: (row) => row.accountCode, emptyText: "本期暂无可勾稽数据", presentation: { density: "compact" } }),
   ];
 }

@@ -28,6 +28,7 @@ import {
   handleKimiInteractiveRequest,
   type CapturedClarificationQuestion,
 } from "./clarification";
+import { assertAgentToolResultPolicy, runtimeToolDescription } from "./tool-policy";
 import {
   beginTelemetryStep,
   createTurnTelemetryAccumulator,
@@ -63,8 +64,8 @@ You are the internal assistant for one company. The authenticated requester, opt
 - Never merge the requester and virtual employee into one identity. The requester owns the conversation and confirmation; the selected actor performs audited work.
 - Before proposing a write, ask the user when a required field is missing or a reference is ambiguous. Never guess entity, workspace, employee, plan, or relationship IDs.
 - If validation reports missing, ambiguous, or invalid input, ask for the correction. Do not call a mutating external tool until the user has supplied it.
-- A mutating external tool may only create a proposal. It never applies a change. After a proposal is created, stop calling tools and explain that the user must confirm it in Workspace.
-- Do not claim a write succeeded merely because a proposal was created.
+- Mutating tools declare their runtime policy in the tool description. PROPOSAL_ONLY creates a pending proposal; DIRECT_WRITE applies an authorized change immediately without a proposal.
+- After a proposal is created, stop calling tools and explain that the user must confirm it in Workspace. For DIRECT_WRITE, report success only when the tool returns a successful result.
 - Reply in the user's language and keep operational explanations concise.
 `;
 
@@ -201,7 +202,7 @@ async function buildExternalTools(
   }));
   const externalTools: ExternalTool[] = mappings.map(({ tool, name }) => ({
     name,
-    description: tool.description,
+    description: runtimeToolDescription(tool),
     parameters: { ...(tool.parameters ?? defaultToolParameters()) },
     handler: async (params) => {
       if (state.proposal) {
@@ -225,9 +226,7 @@ async function buildExternalTools(
       }
 
       const result = await tool.execute(params, currentAccess.execution ?? input.execution);
-      if (tool.mutates && result.type !== "error" && !proposalFrom(result)) {
-        throw new Error(`写入工具 ${tool.key} 未返回 proposal，已阻止执行结果`);
-      }
+      assertAgentToolResultPolicy(tool, result);
       state.lastToolKey = tool.key;
       state.lastData = result.data;
       state.lastResult = result;
@@ -495,6 +494,7 @@ export class KimiAgentRuntime implements AgentRuntime {
           message: clarificationMessage(state.clarification),
           toolUsed: state.lastToolKey,
           data: state.lastData,
+          choices: state.clarification,
           telemetry: turn.telemetry,
         };
       }
@@ -522,6 +522,7 @@ export class KimiAgentRuntime implements AgentRuntime {
             : state.lastResult?.message || "Agent turn aborted before completion",
           toolUsed: state.lastToolKey,
           data: state.lastData,
+          choices: state.clarification,
           proposal: state.proposal,
           telemetry: error.telemetry,
         }, error.kind);

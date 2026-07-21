@@ -1,11 +1,52 @@
 import type { DataSurfaceColumnSpec, DataSurfaceDisplaySpec } from "@workspace/core/ui";
 import type {
+  ConsolidationAdjustmentComparison,
   ConsolidationEntityCoverage,
   ConsolidationInvestmentEvidence,
   ConsolidationReadinessCheck,
   StatementExchangeRateSnapshot,
   StatementSourceCoverage,
 } from "@workspace/finance/types";
+
+function comparisonSide(
+  company: string,
+  account: string,
+  direction: "借" | "贷" | "—",
+  sources: ConsolidationAdjustmentComparison["leftSources"],
+): DataSurfaceDisplaySpec {
+  return {
+    kind: "stack",
+    gap: "xs",
+    items: [
+      { kind: "text", value: company, emphasis: "medium" },
+      { kind: "text", value: `${account} · ${direction === "—" ? "无余额" : `${direction}方余额`}`, tone: "muted", wrap: "wrap" },
+      ...sources.map((source) => ({
+        kind: "text" as const,
+        value: `${source.voucherDate} · ${source.voucherNo} · ${source.accountCode} ${source.accountName} · ${source.direction} ${source.amount.toLocaleString("zh-CN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} ${source.currencyCode}${source.description ? ` · ${source.description}` : ""}`,
+        tone: "muted" as const,
+        wrap: "wrap" as const,
+      })),
+    ],
+  };
+}
+
+export const adjustmentComparisonColumns: DataSurfaceColumnSpec<ConsolidationAdjustmentComparison>[] = [
+  { key: "entry", label: "抵消分录", required: true, width: "xl", cell: (row) => ({ kind: "stack", gap: "xs", items: [
+    { kind: "text", value: row.title, emphasis: "medium" },
+    { kind: "text", value: row.entrySummary, tone: row.status === "equal" ? "muted" : "danger", wrap: "wrap" },
+    { kind: "text", value: `${row.leftSources.length}:${row.rightSources.length} 笔凭证明细 · ${row.matchingRule}`, tone: "muted", wrap: "wrap" },
+  ] }) },
+  { key: "left", label: "凭证一", required: true, width: "xl", cell: (row) => comparisonSide(row.leftCompany, row.leftAccount, row.leftDirection, row.leftSources) },
+  { key: "leftAmount", label: "金额一", required: true, align: "right", width: "md", cell: (row) => ({ kind: "amount", value: row.leftAmount }) },
+  { key: "right", label: "凭证二", required: true, width: "xl", cell: (row) => comparisonSide(row.rightCompany, row.rightAccount, row.rightDirection, row.rightSources) },
+  { key: "rightAmount", label: "金额二", required: true, align: "right", width: "md", cell: (row) => ({ kind: "amount", value: row.rightAmount }) },
+  { key: "difference", label: "差额", required: true, align: "right", width: "md", cell: (row) => ({ kind: "amount", value: row.difference }) },
+  { key: "status", label: "校验", required: true, width: "sm", cell: (row) => ({
+    kind: "badge",
+    label: row.status === "equal" ? "一致" : row.status === "missingCounterpart" ? "缺少对方" : row.status === "unresolved" ? "待确认" : "不一致",
+    tone: row.status === "equal" ? "green" : "red",
+  }) },
+];
 
 function statusBadge(status: ConsolidationReadinessCheck["status"]): DataSurfaceDisplaySpec {
   if (status === "ready") return { kind: "badge", label: "已就绪", tone: "green" };
@@ -60,19 +101,15 @@ export const consolidationEntityColumns: DataSurfaceColumnSpec<ConsolidationEnti
 ];
 
 const RATE_KIND_LABELS: Record<StatementExchangeRateSnapshot["rateKind"], string> = {
+  centralParity: "人民币汇率中间价",
   closing: "期末折算价",
   historicalInvestment: "投资日历史汇率",
 };
 
 export const exchangeRateColumns: DataSurfaceColumnSpec<StatementExchangeRateSnapshot>[] = [
-  { key: "version", label: "版本", width: "xs", cell: (row) => `v${row.version}` },
   { key: "kind", label: "汇率口径", required: true, width: "md", cell: (row) => RATE_KIND_LABELS[row.rateKind] },
   { key: "date", label: "牌价日期", required: true, width: "sm", cell: (row) => row.rateDate },
-  { key: "rate", label: "中行折算价", required: true, width: "sm", cell: (row) => ({ kind: "number", value: row.rate, minimumFractionDigits: 4, maximumFractionDigits: 8 }) },
-  { key: "unit", label: "单位", width: "md", cell: () => "人民币/100外币" },
-  { key: "published", label: "牌价发布时间", width: "lg", cell: (row) => row.publishedAt ? new Date(row.publishedAt).toLocaleString("zh-CN", { hour12: false }) : "未填写" },
-  { key: "status", label: "复核状态", required: true, width: "sm", cell: (row) => ({ kind: "badge", label: row.status === "verified" ? "已复核" : "草稿", tone: row.status === "verified" ? "green" : "amber" }) },
-  { key: "note", label: "说明", width: "xl", cell: (row) => row.note || "—" },
+  { key: "rate", label: "1 加元 = 人民币", required: true, width: "sm", cell: (row) => ({ kind: "number", value: row.rate, minimumFractionDigits: 2, maximumFractionDigits: 8 }) },
 ];
 
 export const investmentEvidenceColumns: DataSurfaceColumnSpec<ConsolidationInvestmentEvidence>[] = [

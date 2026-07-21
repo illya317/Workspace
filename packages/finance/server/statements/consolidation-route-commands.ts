@@ -2,6 +2,7 @@ import type {
   ConsolidationBatchLifecycleInput,
   DeleteConsolidationMutationInput,
   EnsureConsolidationBatchInput,
+  GenerateConsolidationEntriesInput,
   SaveConsolidationControlDecisionInput,
   SaveConsolidationEntryInput,
   SaveConsolidationSourcesInput,
@@ -16,10 +17,10 @@ import {
 import {
   buildDeleteConsolidationEntryCommand,
   buildDeleteConsolidationTaxEffectCommand,
+  buildGenerateConsolidationEntriesCommand,
   buildSaveConsolidationEntryCommand,
   buildSaveConsolidationTaxEffectCommand,
 } from "../domain/consolidation-entry-validation";
-import { buildReviewStatementExchangeRateCommand } from "../domain/consolidation-exchange-rate-validation";
 import { ensureConsolidationBatch } from "./consolidation-batches";
 import {
   deleteConsolidationEntry,
@@ -27,7 +28,7 @@ import {
   saveConsolidationEntry,
   saveConsolidationTaxEffect,
 } from "./consolidation-entries";
-import { reviewStatementExchangeRate } from "./consolidation-exchange-rate-service";
+import { generateConsolidationEntries } from "./consolidation-entry-generation";
 import { executeConsolidationBatchLifecycle } from "./consolidation-lifecycle";
 import { saveConsolidationControlDecision, saveConsolidationSources } from "./consolidation-sources";
 
@@ -73,6 +74,20 @@ export function buildSaveConsolidationEntryRouteCommand(
 
 export function executeSaveConsolidationEntryRouteCommand(command: Parameters<typeof saveConsolidationEntry>[0]) {
   return saveConsolidationEntry(command);
+}
+
+export function buildGenerateConsolidationEntriesRouteCommand(
+  batchId: unknown,
+  input: GenerateConsolidationEntriesInput,
+  userId: number,
+) {
+  return buildGenerateConsolidationEntriesCommand(batchId, input, userId);
+}
+
+export function executeGenerateConsolidationEntriesRouteCommand(
+  command: Parameters<typeof generateConsolidationEntries>[0],
+) {
+  return generateConsolidationEntries(command);
 }
 
 export function buildSaveConsolidationTaxEffectRouteCommand(
@@ -161,16 +176,4 @@ export function executeConsolidationBatchLifecycleRouteCommand(
   command: Parameters<typeof executeConsolidationBatchLifecycle>[0],
 ) {
   return executeConsolidationBatchLifecycle(command);
-}
-
-export function buildReviewStatementExchangeRateRouteCommand(
-  rateId: unknown,
-  userId: number,
-  note?: string | null,
-) {
-  return buildReviewStatementExchangeRateCommand(rateId, userId, note);
-}
-
-export function executeReviewStatementExchangeRateRouteCommand(command: Parameters<typeof reviewStatementExchangeRate>[0]) {
-  return reviewStatementExchangeRate(command);
 }

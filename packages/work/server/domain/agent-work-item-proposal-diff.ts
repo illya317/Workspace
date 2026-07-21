@@ -1,3 +1,4 @@
+import type { AgentCreateWorkItemInput } from "./agent-work-item-create-validation";
 import type { AgentUpdateWorkItemInput } from "./agent-work-item-proposal-validation";
 
 type ChangeField = Exclude<keyof AgentUpdateWorkItemInput, "workId">;
@@ -67,6 +68,59 @@ const WEEKDAY_LABELS: Record<number, string> = {
   7: "周日",
 };
 
+const ITEM_TYPE_LABELS: Record<AgentCreateWorkItemInput["itemType"], string> = {
+  objective: "目标",
+  key_result: "关键结果",
+  task: "任务",
+};
+
+type AgentCreateReferenceLabels = Partial<Record<
+  "ownerEmployeeId" | "collaborationId" | "parentWorkItemId",
+  string | string[]
+>>;
+
+export function buildAgentWorkItemCreateDiff(input: {
+  spaceName: string;
+  planTitle: string;
+  changes: AgentCreateWorkItemInput;
+  referenceLabels: AgentCreateReferenceLabels;
+}) {
+  const changes = input.changes;
+  const values: Record<string, unknown> = {
+    内容: changes.content,
+    状态: STATUS_LABELS[changes.status ?? "active"],
+  };
+  if (changes.description) values.说明 = changes.description;
+  if (changes.itemType === "task") {
+    values.重要度 = changes.importance ?? 3;
+    values.紧急度 = changes.urgency ?? 3;
+  }
+  if (changes.itemType === "key_result") {
+    addDefined(values, "KR起始值", changes.krStartValue);
+    addDefined(values, "KR目标值", changes.krTargetValue);
+    addDefined(values, "KR当前值", changes.krCurrentValue);
+    addDefined(values, "KR单位", changes.krUnit);
+  }
+  addDefined(values, "负责人", input.referenceLabels.ownerEmployeeId);
+  addDefined(values, "部门协作", input.referenceLabels.collaborationId);
+  addDefined(values, "所属目标", input.referenceLabels.parentWorkItemId);
+  addDefined(values, "实际开始", changes.actualStartDate);
+  addDefined(values, "实际结束", changes.actualEndDate);
+  addDefined(values, "计划开始", changes.plannedStartDate);
+  addDefined(values, "计划结束", changes.plannedEndDate);
+  if (changes.itemType === "objective" && changes.isMilestone !== undefined) {
+    values.是否里程碑 = changes.isMilestone ? "是" : "否";
+    addDefined(values, "里程碑日期", changes.milestoneDate);
+  }
+  return {
+    动作: "创建工作节点",
+    空间: input.spaceName,
+    计划: `${input.planTitle} (#${changes.planId})`,
+    节点类型: ITEM_TYPE_LABELS[changes.itemType],
+    表单值: values,
+  };
+}
+
 /** Produces a stable, human-readable confirmation snapshot before proposal persistence. */
 export function buildAgentWorkItemUpdateDiff(input: {
   spaceName: string;
@@ -106,4 +160,8 @@ function displayValue(field: ChangeField, value: unknown, statusLabels: Record<s
   if (field === "routineRecurrenceWeekday" && typeof value === "number") return WEEKDAY_LABELS[value] ?? value;
   if (field === "isMilestone" && typeof value === "boolean") return value ? "是" : "否";
   return value;
+}
+
+function addDefined(target: Record<string, unknown>, label: string, value: unknown) {
+  if (value !== undefined && value !== null && value !== "") target[label] = value;
 }

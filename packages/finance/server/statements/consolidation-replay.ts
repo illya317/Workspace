@@ -1,5 +1,6 @@
 import type {
   ConsolidationBatchSnapshot,
+  ConsolidationBatchStatus,
   ConsolidationBatchEventSnapshot,
   ConsolidationControlDecisionSnapshot,
   ConsolidationEntitySnapshot,
@@ -38,7 +39,7 @@ export interface ConsolidationReplayPackage {
     month: number;
     version: number;
     revision: number;
-    status: "locked" | "published";
+    status: ConsolidationBatchStatus;
     baseBatchId: number | null;
     parentCompanyCode: string;
     parentCompanyName: string;
@@ -66,6 +67,62 @@ export interface ConsolidationReplayPackage {
     scope: { stored: string; recomputed: string };
     sources: { stored: string; recomputed: string };
     rates: { stored: string; recomputed: string };
+  };
+}
+
+function replayBatchHeader(batch: ConsolidationBatchSnapshot): ConsolidationReplayPackage["batch"] {
+  return {
+    id: batch.id,
+    parentCompanyId: batch.parentCompanyId,
+    year: batch.year,
+    month: batch.month,
+    version: batch.version,
+    revision: batch.revision,
+    status: batch.status,
+    baseBatchId: batch.baseBatchId,
+    parentCompanyCode: batch.parentCompanyCode,
+    parentCompanyName: batch.parentCompanyName,
+    scopeFingerprint: batch.scopeFingerprint,
+    sourceFingerprint: batch.sourceFingerprint,
+    rateFingerprint: batch.rateFingerprint,
+    createdBy: batch.createdBy,
+    submittedBy: batch.submittedBy,
+    submittedAt: batch.submittedAt,
+    reviewedBy: batch.reviewedBy,
+    reviewedAt: batch.reviewedAt,
+    reviewNote: batch.reviewNote,
+    lockedBy: batch.lockedBy,
+    lockedAt: batch.lockedAt,
+    publishedBy: batch.publishedBy,
+    publishedAt: batch.publishedAt,
+  };
+}
+
+export function buildConsolidationPreviewPackage(
+  batch: ConsolidationBatchSnapshot,
+): ConsolidationReplayPackage {
+  const scopeFingerprint = consolidationScopeFingerprint(batch.entities);
+  const entityBySnapshotId = new Map(batch.entities.map((entity) => [entity.id, entity]));
+  const sourceFacts = batch.sources.map((source) => ({
+    companyId: entityBySnapshotId.get(source.entitySnapshotId)?.companyId ?? 0,
+    reportType: source.reportType,
+    fingerprint: source.fingerprint,
+  }));
+  const sourceFingerprint = consolidationSourceBatchFingerprint(sourceFacts);
+  const rateFingerprint = consolidationRateFingerprint(batch.exchangeRates);
+  return {
+    batch: replayBatchHeader(batch),
+    entities: batch.entities,
+    sources: batch.sources,
+    exchangeRates: batch.exchangeRates,
+    approvedEntries: batch.entries.filter((entry) => entry.status !== "reversed"),
+    controlDecisions: batch.controlDecisions,
+    events: batch.events,
+    fingerprintVerification: {
+      scope: { stored: batch.scopeFingerprint, recomputed: scopeFingerprint },
+      sources: { stored: batch.sourceFingerprint, recomputed: sourceFingerprint },
+      rates: { stored: batch.rateFingerprint, recomputed: rateFingerprint },
+    },
   };
 }
 
@@ -160,8 +217,8 @@ export function buildConsolidationReplayPackage(
       exchangeRateId: rate.exchangeRateId,
       rateKind: rate.rateKind,
       rateDate: rate.rateDate,
-      verifiedBy: rate.verifiedBy,
-      verifiedAt: rate.verifiedAt,
+      recordedBy: rate.recordedBy,
+      recordedAt: rate.recordedAt,
       applications: rate.applications,
     })),
     requiredInvestmentVoucherIds: historicalVoucherIds,
@@ -182,31 +239,7 @@ export function buildConsolidationReplayPackage(
     return failCommand("汇率证据指纹不一致，批次不能重放", 409, "rateFingerprint");
   }
   return okCommand({
-    batch: {
-      id: batch.id,
-      parentCompanyId: batch.parentCompanyId,
-      year: batch.year,
-      month: batch.month,
-      version: batch.version,
-      revision: batch.revision,
-      status: batch.status,
-      baseBatchId: batch.baseBatchId,
-      parentCompanyCode: batch.parentCompanyCode,
-      parentCompanyName: batch.parentCompanyName,
-      scopeFingerprint: batch.scopeFingerprint,
-      sourceFingerprint: batch.sourceFingerprint,
-      rateFingerprint: batch.rateFingerprint,
-      createdBy: batch.createdBy,
-      submittedBy: batch.submittedBy,
-      submittedAt: batch.submittedAt,
-      reviewedBy: batch.reviewedBy,
-      reviewedAt: batch.reviewedAt,
-      reviewNote: batch.reviewNote,
-      lockedBy: batch.lockedBy,
-      lockedAt: batch.lockedAt,
-      publishedBy: batch.publishedBy,
-      publishedAt: batch.publishedAt,
-    },
+    batch: replayBatchHeader(batch),
     entities: batch.entities,
     sources: batch.sources,
     exchangeRates: batch.exchangeRates,

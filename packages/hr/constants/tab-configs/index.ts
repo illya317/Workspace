@@ -6,8 +6,6 @@ export {
 } from "./people";
 
 export {
-  companyConfig,
-  companyRelationConfig,
   departmentConfig,
   positionConfig,
 } from "./org";

@@ -21,10 +21,12 @@ const currencyPolicySchema = z.object({
 });
 const rateApplicationSchema = z.object({
   exchangeRateId: z.number().int().positive(),
-  applicationType: z.enum(["closing", "historicalInvestment"]),
+  applicationType: z.enum(["closing", "historicalInvestment", "historicalCapital"]),
   periodBasis: z.enum(["current", "comparative"]),
   entitySnapshotId: z.number().int().positive(),
   voucherItemId: z.number().int().positive().nullable().optional(),
+  capitalContributionDate: z.string().date().nullable().optional(),
+  capitalOriginalAmount: z.number().positive().nullable().optional(),
   evidence: z.string().trim().min(1).max(2000),
 });
 const saveSourcesSchema = z.object({

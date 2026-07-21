@@ -14,6 +14,7 @@ import {
   type CreateSurfaceProps,
   type CreateSurfaceSectionSpec,
   type FormSurfaceItemSpec,
+  type PageSurfaceTabBarSpec,
   type SelectorSurfaceProps,
   type SelectorSurfaceStructuredTreeItemSpec,
 } from "@workspace/core/ui";
@@ -125,9 +126,11 @@ function descendantOrganizationIds(
 export default function GovernanceArchitectureClient({
   canCreate,
   canUpdate,
+  navigation,
 }: {
   canCreate: boolean;
   canUpdate: boolean;
+  navigation?: PageSurfaceTabBarSpec;
 }) {
   const feedback = useFeedback();
   const [loading, setLoading] = useState(true);
@@ -478,6 +481,7 @@ export default function GovernanceArchitectureClient({
 
   return (
     <PageSurface kind="standard"
+      tabbar={navigation}
       body={{
         kind: "section",
         layout: "split",

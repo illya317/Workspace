@@ -8,6 +8,10 @@ function invalidPersistenceEnvelope(message: string): never {
   throw new Error(`合并批次持久化参数无效：${message}`);
 }
 
+export function resolveConsolidationActorName(employeeName: string | null, isRootAdmin: boolean) {
+  return employeeName || (isRootAdmin ? "系统管理员" : null);
+}
+
 export async function claimConsolidationBatchRevision(
   tx: Prisma.TransactionClient,
   input: {

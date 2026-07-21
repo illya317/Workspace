@@ -7,6 +7,7 @@ import { getSessionUserFromAuthPayload, requireApiAccess } from "@workspace/plat
 import { sourceCodeAgentTools } from "@workspace/platform/server/agent";
 import { listAvailableAgentProfiles } from "@workspace/platform/server/agent/profile-directory";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
+import { docsEditorAgentTools } from "@workspace/platform/server/docs-editor";
 
 export async function GET(request: Request) {
   const auth = await requireApiAccess(request);
@@ -20,6 +21,7 @@ export async function GET(request: Request) {
     ...hrAgentTools,
     ...financeAgentTools,
     ...libraryAgentTools,
+    ...docsEditorAgentTools,
   ]);
   return NextResponse.json({
     profiles: profiles.map((profile) => ({

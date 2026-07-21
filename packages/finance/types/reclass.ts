@@ -4,6 +4,8 @@ export interface RuleCandidate {
   balanceDirection: string;
   abnormalSide: "debit" | "credit" | "both";
   abnormalAmount: number;
+  hasHistoricalAbnormalBalance: boolean;
+  effectiveDecision: "reclassify" | "no_reclass" | null;
   existingRuleId: number | null;
   existingTarget: string | null;
   existingDecision: "reclassify" | "no_reclass" | null;
@@ -22,6 +24,7 @@ export interface ScanCandidatesResult {
   candidates: RuleCandidate[];
   stats: {
     totalGroupAccounts: number;
+    historicallyAbnormal: number;
     reclassified: number;
     noReclass: number;
     unconfirmed: number;

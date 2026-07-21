@@ -5,8 +5,13 @@ import {
 import { loadTPlusMasterIndex, tplusAuxiliaryRefs, type TPlusMasterIndex } from "./tplus-masters";
 import type {
   NormalizedAccount, NormalizedBalance, NormalizedOpenItem, NormalizedReadableBatch,
-  NormalizedVoucher, NormalizedVoucherItem, ReadableBatchSpec,
+  NormalizedVoucher, NormalizedVoucherItem, ReadableBatchSpec, ReadableSourcePackageEvidence,
 } from "./types";
+
+const ACCOUNT_REQUIREMENTS = [
+  ["isauxacccustomer", "customer"], ["isauxaccsupplier", "supplier"],
+  ["isauxaccperson", "person"], ["isauxaccdepartment", "department"], ["isauxaccproject", "project"],
+] as const;
 
 function direction(row: Record<string, unknown>): "debit" | "credit" {
   return numberValue(row, "dcdirection") === 653 ? "credit" : "debit";
@@ -34,6 +39,9 @@ function normalizeAccounts(rows: Record<string, unknown>[], index: TPlusMasterIn
       currency: index.currencyCodes.get(numberValue(row, "iddefaultcurrencyDTO")),
       subjectLevel: numberValue(row, "depth") || undefined, isActive: !booleanValue(row, "disabled"),
       isCash: booleanValue(row, "iscash"), isBank: booleanValue(row, "isbank"),
+      auxiliaryRequirements: ACCOUNT_REQUIREMENTS.flatMap(([sourceField, dimensionType]) => (
+        booleanValue(row, sourceField) ? [{ dimensionType, sourceField }] : []
+      )),
     }];
   });
 }
@@ -74,6 +82,7 @@ function normalizeVouchers(
         exchangeRate: numberValue(row, "exchangerate") || undefined,
         originalDebit: numberValue(row, "origAmountDr") || undefined,
         originalCredit: numberValue(row, "OrigAmountCr") || undefined,
+        sourceMetadata: {},
         auxiliaryRefs: tplusAuxiliaryRefs(row, index),
       }];
     });
@@ -82,7 +91,16 @@ function normalizeVouchers(
       date: dateText(doc?.voucherdate) ?? dateText(first.madedate) ?? `${year}-${String(month).padStart(2, "0")}-01`,
       month, description: optionalText(doc ?? {}, "name") ?? items[0]?.description ?? "",
       totalDebit: roundMoney(items.reduce((sum, item) => sum + item.debit, 0)),
-      totalCredit: roundMoney(items.reduce((sum, item) => sum + item.credit, 0)), status: "posted", items,
+      totalCredit: roundMoney(items.reduce((sum, item) => sum + item.credit, 0)), status: "posted",
+      voucherTypeCode: docType, voucherTypeName: docType, isAdjustment: false,
+      preparerName: optionalText(doc ?? {}, "maker"), reviewerName: optionalText(doc ?? {}, "auditor"),
+      posterName: optionalText(doc ?? {}, "bookkeepername"), cashierName: optionalText(doc ?? {}, "cashiername"),
+      attachmentCount: Math.max(0, numberValue(doc ?? {}, "attachedvouchernum")), sourcePosted: true,
+      sourceAudited: Boolean(optionalText(doc ?? {}, "auditor")), sourceInvalid: false,
+      externalSourceSystem: optionalText(doc ?? {}, "SourceType"),
+      externalSourceDocumentNo: optionalText(doc ?? {}, "externalCode"),
+      externalSourceDocumentId: optionalText(doc ?? {}, "transDocId"),
+      externalSourceDate: dateText(doc?.madedate), sourceMetadata: {}, items,
     };
   });
 }
@@ -111,11 +129,12 @@ function normalizeOpenItems(
   allAccounts: Map<number, NormalizedAccount>,
   allJournals: Map<number, Record<string, unknown>>,
   index: TPlusMasterIndex,
+  cutoffDate: string,
 ): NormalizedOpenItem[] {
   return rows.flatMap((row) => {
     const sourceKey = textValue(row, "id");
     const documentDate = dateText(row.docmadedate);
-    if (!sourceKey || (documentDate && documentDate > "2026-06-30")) return [];
+    if (!sourceKey || (documentDate && documentDate > cutoffDate)) return [];
     const account = allAccounts.get(numberValue(row, "idaccount"));
     const original = splitBalance(numberValue(row, "origamount"), direction(row));
     const outstanding = splitBalance(numberValue(row, "writeoffableamount"), direction(row));
@@ -129,19 +148,26 @@ function normalizeOpenItems(
       originalDebit: original.debit, originalCredit: original.credit,
       outstandingDebit: outstanding.debit, outstandingCredit: outstanding.credit,
       status: outstanding.debit || outstanding.credit ? "open" : "closed",
+      originType: numberValue(row, "writeoffjournaltype") === 662 ? "periodBegin" : "current",
+      sourcePeriodBeginDetailId: optionalText(row, "idauxperiodbegindetail"),
       auxiliaryRefs: tplusAuxiliaryRefs(row, index),
     }];
   });
 }
 
-export async function loadTPlusBatch(root: string, spec: ReadableBatchSpec): Promise<NormalizedReadableBatch> {
+export async function loadTPlusBatch(
+  root: string,
+  spec: ReadableBatchSpec,
+  sourcePackage: ReadableSourcePackageEvidence,
+): Promise<NormalizedReadableBatch> {
   const dataDir = join(root, "TPlus", "databases", spec.sourceDatabase, "data");
   const index = await loadTPlusMasterIndex(dataDir);
-  const [accountRows, journalRows, docRows, beginRows, beginDetailRows, cashRows, openRows, bankRows] = await Promise.all([
+  const [accountRows, journalRows, docRows, beginRows, beginDetailRows, cashRows, openRows, bankRows, associationRows] = await Promise.all([
     readJsonLines(join(dataDir, "AA_Account.jsonl")), readJsonLines(join(dataDir, "GL_Journal.jsonl")),
     readJsonLines(join(dataDir, "GL_Doc.jsonl")), readJsonLines(join(dataDir, "GL_AccountPeriodBegin.jsonl")),
     readJsonLines(join(dataDir, "GL_AccountPeriodBeginDetail.jsonl")), readJsonLines(join(dataDir, "GL_CashFlowInfo.jsonl")),
     readJsonLines(join(dataDir, "GL_WriteOffJournal.jsonl")), readJsonLines(join(dataDir, "AA_BankAccount.jsonl")),
+    readJsonLines(join(dataDir, "AA_AccountAssociation.jsonl")),
   ]);
   const allAccounts = normalizeAccounts(accountRows, index);
   const accounts = allAccounts.filter((item) => numberValue(accountRows.find((row) => textValue(row, "id") === item.sourceKey) ?? {}, "accountingyear") === spec.year);
@@ -176,11 +202,29 @@ export async function loadTPlusBatch(root: string, spec: ReadableBatchSpec): Pro
     }];
   });
   const journalById = new Map(journalRows.map((row) => [numberValue(row, "id"), row]));
+  const accountLineage = associationRows.filter((row) => numberValue(row, "currentaccountingyear") === spec.year).flatMap((row) => {
+    const sourceKey = textValue(row, "id");
+    const currentAccountSourceKey = textValue(row, "idcurrentaccountDTO");
+    const previousAccountSourceKey = textValue(row, "idpreaccountDTO");
+    const previousYear = numberValue(row, "preaccountingyear");
+    return sourceKey && currentAccountSourceKey && previousAccountSourceKey && previousYear ? [{
+      sourceKey, currentAccountSourceKey, previousAccountSourceKey,
+      currentYear: spec.year, previousYear,
+    }] : [];
+  });
   return {
-    spec, snapshotDate: "2026-07-14", cutoffDate: "2026-06-30", accounts, vouchers,
+    spec, sourcePackage, snapshotDate: sourcePackage.snapshotDate, cutoffDate: sourcePackage.cutoffDate,
+    ledgerMetadata: {
+      sourceName: spec.companyName,
+      baseCurrencyCode: index.currencies.find((item) => item.isBase)?.sourceCode,
+      baseCurrencyName: index.currencies.find((item) => item.isBase)?.sourceName,
+    },
+    accounts, vouchers,
     sourceBalances: normalizeOpeningBalances(beginRows, accountById, spec.year), auxiliaryBalances,
     auxiliaryMembers: index.members, cashFlowItems: index.cashFlowItems, cashFlowAllocations,
-    openItems: spec.includeCurrentOpenItems ? normalizeOpenItems(openRows, allAccountById, journalById, index) : [],
+    openItems: spec.includeCurrentOpenItems
+      ? normalizeOpenItems(openRows, allAccountById, journalById, index, sourcePackage.cutoffDate)
+      : [],
     currencies: index.currencies,
     bankAccounts: bankRows.flatMap((row) => {
       const sourceKey = textValue(row, "id");
@@ -193,6 +237,11 @@ export async function loadTPlusBatch(root: string, spec: ReadableBatchSpec): Pro
         currencyCode: index.currencyCodes.get(numberValue(row, "idcurrency")), isActive: !booleanValue(row, "disabled"),
       }];
     }),
-    closedMonths: new Set(), warnings: [],
+    periodStatuses: Array.from({ length: 12 }, (_, index) => ({
+      month: index + 1, sourceKey: `${spec.sourceDatabase}:${index + 1}`,
+      glMonthEnd: null, accountingClosed: null, moduleStatuses: {},
+    })),
+    subsystemStatuses: [], accountLineage,
+    closedMonths: new Set(), warnings: ["TPlus 为一次性历史映射；来源包未提供可验证的期间关账状态"],
   };
 }

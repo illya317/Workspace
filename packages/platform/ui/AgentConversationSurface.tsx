@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { ActionGlyph, NavigationContextSelector, type PageAssistantOpenInput } from "@workspace/core/ui";
 import { workspacePath } from "@workspace/core/routing";
+import type { AgentChoiceSubmission } from "@workspace/platform/agent-conversation-choice";
 
 import { PageAssistantComposer } from "./page-assistant/PageAssistantComposer";
 import { AgentConversationEmptyState, PageAssistantMessages } from "./page-assistant/PageAssistantMessages";
@@ -334,6 +335,7 @@ export function AgentConversationSurface({
               content: responseMessage(body),
               responseType: body.type,
               data: body.data,
+              choices: body.choices,
               proposal: body.proposal,
               proposalStatus: body.proposal ? "pending" : undefined,
             }
@@ -365,6 +367,15 @@ export function AgentConversationSurface({
         }
       }
     }
+  }
+
+  async function submitChoices(messageId: string, submission: AgentChoiceSubmission) {
+    if (sending) return;
+    const requestContextKey = activeContextKeyRef.current;
+    updateMessagesForContext(requestContextKey, (current) => current.map((message) => (
+      message.id === messageId ? { ...message, choiceSubmission: submission } : message
+    )));
+    await submitMessage(undefined, submission.reply);
   }
 
   async function settleProposal(messageId: string, proposalId: number, action: "confirm" | "cancel") {
@@ -461,6 +472,7 @@ export function AgentConversationSurface({
           busyProposalId={busyProposalId}
           scrollRef={scrollRef}
           settleProposal={settleProposal}
+          submitChoices={submitChoices}
           emptyState={emptyState}
         />
         {enabled ? (

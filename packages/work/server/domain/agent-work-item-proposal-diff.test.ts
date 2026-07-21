@@ -1,8 +1,46 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 
-import { buildAgentWorkItemUpdateDiff } from "./agent-work-item-proposal-diff";
+import {
+  buildAgentWorkItemCreateDiff,
+  buildAgentWorkItemUpdateDiff,
+} from "./agent-work-item-proposal-diff";
 import { parseAgentUpdateWorkItemInput } from "./agent-work-item-proposal-validation";
+
+test("Work Agent create confirmation shows the normalized business data", () => {
+  const diff = buildAgentWorkItemCreateDiff({
+    spaceName: "运营部",
+    planTitle: "2026 年第三季度",
+    changes: {
+      targetType: "department",
+      targetId: 7,
+      planId: 72,
+      itemType: "task",
+      content: "完成客户交付",
+      parentWorkItemId: 81,
+      ownerEmployeeId: 9,
+    },
+    referenceLabels: {
+      parentWorkItemId: "提升交付质量 (#81)",
+      ownerEmployeeId: "张三 E009 (#9)",
+    },
+  });
+
+  assert.deepEqual(diff, {
+    动作: "创建工作节点",
+    空间: "运营部",
+    计划: "2026 年第三季度 (#72)",
+    节点类型: "任务",
+    表单值: {
+      内容: "完成客户交付",
+      状态: "进行中",
+      重要度: 3,
+      紧急度: 3,
+      负责人: "张三 E009 (#9)",
+      所属目标: "提升交付质量 (#81)",
+    },
+  });
+});
 
 test("Work Agent confirmation diff records localized old and new values", () => {
   const diff = buildAgentWorkItemUpdateDiff({

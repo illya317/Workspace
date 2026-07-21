@@ -2,7 +2,7 @@
 
 ## Scope
 
-资本证券承载投资人关系、治理架构与资本事务入口。v1 不建独立组织表，治理架构继续使用 `Department.hierarchyKind = "G"` 作为组织单元事实源。
+资本证券承载投资人关系、治理架构、法律公司主数据与股权控制关系。治理架构不建独立组织表，继续使用 `Department.hierarchyKind = "G"` 作为组织单元事实源；公司及关系继续使用共享 `Company` / `CompanyRelation` 记录，不复制数据。
 
 ## Route Shell
 
@@ -18,9 +18,12 @@ app/(modules)/capital-securities/
 ## Server Boundary
 
 - 治理架构 API：`/api/modules/capitalSecurities/governance/organizations`
+- 公司信息 API：`/api/modules/capitalSecurities/governance/companies`
+- 股权关系 API：`/api/modules/capitalSecurities/governance/company-relations`
 - 组织单元服务：`@workspace/platform/server/organization-units`
 - 组织单元写入：`Department`、`DepartmentManagerEmployee`、`EditHistory`
 - 岗位、岗位说明书、员工任职仍由 HR 维护，治理架构只读取岗位摘要。
+- HR 的 `/api/modules/hr/roster/companies` 仅保留公司候选 GET 适配；公司和股权关系写入统一进入资本证券 service。
 
 ## Permissions
 
@@ -28,6 +31,7 @@ app/(modules)/capital-securities/
 - 投资人关系：`capitalSecurities.investors`
 - 治理架构：`capitalSecurities.governance`
 - 治理架构 API：`read` 可读，`create` 可新建 G 组织，`update` 可编辑 G 组织基础信息。
+- `create/update` 同时覆盖公司信息和股权关系维护；`delete` 只用于带版本校验的股权关系删除，不开放公司硬删除。
 - 投资人关系当前是 planned/page-only 入口，只开放 `entry/read/grant`，暂无独立业务 API。
 
 前端动作位置和图标约定：
@@ -38,4 +42,4 @@ app/(modules)/capital-securities/
 
 ## Notes
 
-治理架构负责 G 线组织维护；HR 组织架构对 G 组织只读，但 HR 部门岗位模式仍可维护 G 组织下岗位、岗位说明书和任职关系。
+治理架构页面通过 Core TabBar 分为“治理组织 / 公司信息 / 股权关系”。资本证券负责 G 线组织、法律公司资料及直接持股/控制期间；HR 组织架构对 G 组织只读，但 HR 部门岗位模式仍可维护 G 组织下岗位、岗位说明书和任职关系。

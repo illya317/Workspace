@@ -69,8 +69,6 @@ const HR_RELATION_REGISTRATIONS = [
   { key: "hr.position.description", scope: "hr", source: { entity: "Position", field: "positionDescriptionId" }, target: "positionDescription", targetLabel: "岗位说明书", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.employee", scope: "hr", source: { entity: "Any", field: "employeeId" }, target: "employee", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.company", scope: "hr", source: { entity: "Contract", field: "company" }, target: "company", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
-  { key: "hr.companyRelation.parent", scope: "hr", source: { entity: "CompanyRelation", field: "parentId" }, target: "company", targetLabel: "上级公司", nullable: false, permission: { resourceKey: "hr.roster", action: "read" } },
-  { key: "hr.companyRelation.child", scope: "hr", source: { entity: "CompanyRelation", field: "childId" }, target: "company", targetLabel: "下级公司", nullable: false, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "platform.user", scope: "hr", source: { entity: "Any", field: "userId" }, target: "user", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.edp.position", scope: "hr", source: { entity: "EDP", field: "positionId" }, target: "position", nullable: false, permission: { resourceKey: "hr.roster", action: "read" } },
   { key: "hr.edp.reportTo", scope: "hr", source: { entity: "EDP", field: "reportTo", valueKind: "semantic" }, target: "employee", targetLabel: "直接上级", nullable: true, permission: { resourceKey: "hr.roster", action: "read" } },
@@ -79,7 +77,10 @@ const HR_RELATION_REGISTRATIONS = [
 
 const FINANCE_RELATION_REGISTRATIONS = [
   { key: "finance.accounts.parent", scope: "finance", source: { entity: "FinanceAccount", field: "parentId" }, target: "financeAccount", targetLabel: "上级科目", nullable: true, permission: { resourceKey: "finance.ledger", action: "read" } },
+  { key: "finance.statements.consolidation.entrySource", scope: "finance", source: { entity: "FinanceConsolidationEntryLine", field: "sourceRecordId", valueKind: "semantic" }, target: "financeConsolidationEntrySource", targetLabel: "抵销业务来源", nullable: true, permission: { resourceKey: "finance.statements", action: "read" } },
 ] satisfies RelationRegistration[];
+
+const CAPITAL_SECURITIES_RELATION_REGISTRATIONS = [{ key: "capitalSecurities.companyRelation.parent", scope: "capitalSecurities", source: { entity: "CompanyRelation", field: "parentId" }, target: "company", targetLabel: "持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }, { key: "capitalSecurities.companyRelation.child", scope: "capitalSecurities", source: { entity: "CompanyRelation", field: "childId" }, target: "company", targetLabel: "被持股方", nullable: false, permission: { resourceKey: "capitalSecurities.governance", action: "read" } }] satisfies RelationRegistration[];
 
 const DOCS_RELATION_REGISTRATIONS = [] satisfies RelationRegistration[];
 
@@ -343,6 +344,7 @@ export const registeredModuleDefinitions = [
   {
     packageName: "@workspace/capital-securities",
     layer: "domain",
+    relationRegistrations: CAPITAL_SECURITIES_RELATION_REGISTRATIONS,
     moduleDef: {
       key: "capitalSecurities",
       label: "资本证券",
@@ -355,11 +357,11 @@ export const registeredModuleDefinitions = [
       lifecycleStatus: "workspace-owned",
       children: [
         { key: "investors", label: "投资人关系", desc: "投资人信息、沟通记录", href: "/capital-securities/investors", iconKey: "investors", color: "amber", resourceKey: "capitalSecurities.investors", mobileExperience: { strategy: "native" }, lifecycleStatus: "workspace-owned", noApiReason: "当前仅提供页面入口，暂无独立 API" },
-        { key: "governance", label: "治理架构", desc: "G 线组织架构与负责人维护", href: "/capital-securities/governance", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.governance", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/capitalSecurities/governance"] },
+        { key: "governance", label: "治理架构", desc: "治理组织、公司信息与股权关系维护", href: "/capital-securities/governance", iconKey: "company", color: "amber", resourceKey: "capitalSecurities.governance", mobileExperience: { strategy: "native" }, apiPrefixes: ["/api/modules/capitalSecurities/governance"] },
       ],
     },
     apiGuards: [
-      ...apiResourceGuards("/api/modules/capitalSecurities/governance", ["GET", "POST", "PUT"], {
+      ...apiResourceGuards("/api/modules/capitalSecurities/governance", ["GET", "POST", "PUT", "DELETE"], {
         migrationNote: "Legacy camelCase module URL; migrate to /api/modules/capital-securities/governance.",
       }),
     ],

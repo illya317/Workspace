@@ -54,8 +54,8 @@ test("rate fingerprints ignore application order and jsonb key order", () => {
     rate: 5.12,
     sourceUrl: "https://www.boc.cn/sourcedb/whpj/",
     publishedAt: "2025-03-15T01:00:00.000Z",
-    verifiedBy: 9,
-    verifiedAt: "2025-03-16T01:00:00.000Z",
+    recordedBy: 9,
+    recordedAt: "2025-03-16T01:00:00.000Z",
   };
   assert.equal(
     consolidationRateFingerprint([{ ...rate, applications: [{ b: 2, a: 1 }, { y: 2, x: 1 }] }]),

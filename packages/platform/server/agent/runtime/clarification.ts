@@ -1,11 +1,7 @@
 import type { ProtocolClient } from "@moonshot-ai/kimi-agent-sdk";
+import type { AgentChoiceQuestion } from "@workspace/platform/agent-conversation-choice";
 
-export type CapturedClarificationQuestion = {
-  question: string;
-  header?: string;
-  options: Array<{ label: string; description?: string }>;
-  multiSelect: boolean;
-};
+export type CapturedClarificationQuestion = AgentChoiceQuestion;
 
 type WorkspaceQuestionRequest = {
   id?: string;
@@ -50,7 +46,7 @@ export function clarificationMessage(questions: CapturedClarificationQuestion[])
       : "";
     return options ? [heading, options] : [heading];
   });
-  return ["需要你先确认以下信息：", ...lines, "请直接回复所需信息，确认完整后我再生成待确认变更。"].join("\n");
+  return ["需要你先确认以下信息：", ...lines, "请选择下方选项，或直接回复所需信息；确认完整后我再生成待确认变更。"].join("\n");
 }
 
 export async function handleKimiInteractiveRequest(

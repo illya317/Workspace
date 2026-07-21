@@ -12,6 +12,13 @@ export interface CurrencyPolicyDraft {
 
 export type CurrencyPolicyDrafts = Record<number, CurrencyPolicyDraft>;
 export type InvestmentEntitySelections = Partial<Record<number, number>>;
+export interface CapitalRatePolicyDraft {
+  exchangeRateId: number | null;
+  contributionDate: string;
+  originalAmount: number;
+  evidence: string;
+}
+export type CapitalRatePolicyDrafts = Partial<Record<number, CapitalRatePolicyDraft>>;
 
 export interface StatementLineOption {
   value: string;
@@ -90,9 +97,19 @@ function sourceHasNonzeroPreviousAmount(source: ConsolidationBatchSnapshot["sour
   });
 }
 
+function entityHasNonzeroCapital(batch: ConsolidationBatchSnapshot, entitySnapshotId: number, periodBasis: "current" | "comparative") {
+  const source = batch.sources.find((item) => item.entitySnapshotId === entitySnapshotId && item.reportType === "balanceSheet");
+  return source ? payloadRows("balanceSheet", source.reportPayload).some((value) => {
+    const row = object(value);
+    if (!["paidInCapital", "otherEquityInstruments", "capitalReserve", "treasuryStock"].includes(String(row?.lineCode ?? ""))) return false;
+    const amount = Number(periodBasis === "comparative" ? row?.previousAmount ?? 0 : row?.amount ?? 0);
+    return Number.isFinite(amount) && Math.abs(amount) > 0.005;
+  }) : false;
+}
+
 function closestClosingRate(data: ConsolidationOverview, targetDate: string) {
   return data.fxPolicy.rates
-    .filter((rate) => rate.status === "verified" && rate.rateKind === "closing")
+    .filter((rate) => rate.rateKind === "closing" || rate.rateKind === "centralParity")
     .filter((rate) => {
       const days = dateDistanceDays(targetDate, rate.rateDate);
       return Number.isFinite(days) && days >= 0 && days <= 7;
@@ -102,7 +119,7 @@ function closestClosingRate(data: ConsolidationOverview, targetDate: string) {
 
 function closestHistoricalRate(data: ConsolidationOverview, targetDate: string) {
   return data.fxPolicy.rates
-    .filter((rate) => rate.status === "verified" && rate.rateKind === "historicalInvestment")
+    .filter((rate) => rate.rateKind === "historicalInvestment" || rate.rateKind === "centralParity")
     .filter((rate) => {
       const days = dateDistanceDays(targetDate, rate.rateDate);
       return Number.isFinite(days) && days >= 0 && days <= 7;
@@ -115,6 +132,7 @@ export function buildSourceFreezeInput(
   policies: CurrencyPolicyDrafts,
   investmentEntitySelections: InvestmentEntitySelections,
   systemEvidence: string,
+  capitalRatePolicies: CapitalRatePolicyDrafts = {},
 ): { ok: true; input: Omit<SaveConsolidationSourcesInput, "expectedRevision"> } | { ok: false; error: string } {
   const batch = data.batch;
   if (!batch) return { ok: false, error: "请先创建合并批次" };
@@ -164,11 +182,11 @@ export function buildSourceFreezeInput(
   }
   const closingRate = closestClosingRate(data, data.fxPolicy.periodEndDate);
   if (cadEntities.length > 0 && !closingRate) {
-    return { ok: false, error: "CAD 本位币实体必须先独立复核期末中行折算价" };
+    return { ok: false, error: "CAD 本位币实体必须先填写期末汇率" };
   }
   const comparativeClosingRate = closestClosingRate(data, comparativePeriodEnd);
   if (comparativeCadEntityIds.size > 0 && !comparativeClosingRate) {
-    return { ok: false, error: `含非零上期数的 CAD 实体必须先独立复核 ${comparativePeriodEnd} 比较期期末中行折算价` };
+    return { ok: false, error: `含非零上期数的 CAD 实体必须先填写 ${comparativePeriodEnd} 比较期期末汇率` };
   }
   const rateApplications: NonNullable<SaveConsolidationSourcesInput["rateApplications"]> = [];
   for (const entity of cadEntities) {
@@ -177,7 +195,7 @@ export function buildSourceFreezeInput(
       applicationType: "closing",
       periodBasis: "current",
       entitySnapshotId: entity.entitySnapshotId,
-      evidence: `外币三表按 ${closingRate!.rateDate} 中国银行期末中行折算价`,
+      evidence: `外币三表按 ${closingRate!.rateDate} 中国货币网人民币汇率中间价`,
     });
     if (comparativeCadEntityIds.has(entity.entitySnapshotId)) {
       rateApplications.push({
@@ -185,15 +203,35 @@ export function buildSourceFreezeInput(
         applicationType: "closing",
         periodBasis: "comparative",
         entitySnapshotId: entity.entitySnapshotId,
-        evidence: `外币三表上期数按 ${comparativeClosingRate!.rateDate} 中国银行比较期期末中行折算价`,
+        evidence: `外币三表上期数按 ${comparativeClosingRate!.rateDate} 中国货币网人民币汇率中间价`,
       });
+    }
+    if (entityHasNonzeroCapital(batch, entity.entitySnapshotId, "current")) {
+      const capitalPolicy = capitalRatePolicies[entity.entitySnapshotId];
+      const historicalRate = data.fxPolicy.rates.find((rate) => rate.id === capitalPolicy?.exchangeRateId
+        && (rate.rateKind === "historicalInvestment" || rate.rateKind === "centralParity"));
+      if (!capitalPolicy || !historicalRate || !capitalPolicy.contributionDate || capitalPolicy.originalAmount <= 0 || !capitalPolicy.evidence.trim()) {
+        return { ok: false, error: `请为 ${batch.entities.find((item) => item.id === entity.entitySnapshotId)?.companyName ?? "CAD 主体"} 填写权益资本出资日、原币金额、历史汇率和依据` };
+      }
+      const capitalApplication = {
+        exchangeRateId: historicalRate.id,
+        applicationType: "historicalCapital" as const,
+        entitySnapshotId: entity.entitySnapshotId,
+        capitalContributionDate: capitalPolicy.contributionDate,
+        capitalOriginalAmount: capitalPolicy.originalAmount,
+        evidence: capitalPolicy.evidence.trim(),
+      };
+      rateApplications.push({ ...capitalApplication, periodBasis: "current" });
+      if (entityHasNonzeroCapital(batch, entity.entitySnapshotId, "comparative") && capitalPolicy.contributionDate <= comparativePeriodEnd) {
+        rateApplications.push({ ...capitalApplication, periodBasis: "comparative" });
+      }
     }
   }
   for (const investment of data.fxPolicy.investmentEvidence) {
     const investmentLabel = `${investment.companyCode} · ${investment.voucherNo}`;
     const historicalRate = closestHistoricalRate(data, investment.voucherDate);
     if (!historicalRate) {
-      return { ok: false, error: `投资凭证 ${investmentLabel} 缺少投资日或此前7日内已复核中行汇率` };
+      return { ok: false, error: `投资凭证 ${investmentLabel} 缺少投资日或此前7日内中行汇率` };
     }
     rateApplications.push({
       exchangeRateId: historicalRate.id,

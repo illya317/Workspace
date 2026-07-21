@@ -23,17 +23,21 @@ async function upsertPeriods(
 ): Promise<Map<number, number>> {
   const periods = new Map<number, number>();
   for (let month = 1; month <= 12; month += 1) {
-    const dates = periodDates(batch.spec.year, month);
+    const sourceStatus = batch.periodStatuses.find((item) => item.month === month);
+    const dates = sourceStatus?.startDate && sourceStatus.endDate
+      ? { startDate: sourceStatus.startDate, endDate: sourceStatus.endDate }
+      : periodDates(batch.spec.year, month);
+    const sourceClosed = sourceStatus?.accountingClosed ?? null;
     const record = await tx.financePeriod.upsert({
       where: { companyCode_year_month: { companyCode: batch.spec.companyCode, year: batch.spec.year, month } },
       create: {
         companyCode: batch.spec.companyCode, year: batch.spec.year, month, ...dates,
-        isClosed: batch.closedMonths.has(month), sourceClosed: batch.closedMonths.has(month),
+        isClosed: sourceClosed === true, sourceClosed,
         sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
         sourceKey: `${batch.spec.sourceDatabase}:${month}`,
       },
       update: {
-        ...dates, isClosed: batch.closedMonths.has(month), sourceClosed: batch.closedMonths.has(month),
+        ...dates, isClosed: sourceClosed === true, sourceClosed,
         sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
         sourceKey: `${batch.spec.sourceDatabase}:${month}`,
       },
@@ -102,6 +106,17 @@ async function upsertVouchers(
       totalCredit: item.totalCredit, status: item.status, companyCode: batch.spec.companyCode,
       importId, sourceSystem: batch.spec.sourceSystem, sourceDatabase: batch.spec.sourceDatabase,
       sourceKey: item.sourceKey,
+      voucherTypeCode: item.voucherTypeCode ?? null, voucherTypeName: item.voucherTypeName ?? null,
+      isAdjustment: item.isAdjustment, preparerName: item.preparerName ?? null,
+      reviewerName: item.reviewerName ?? null, posterName: item.posterName ?? null,
+      cashierName: item.cashierName ?? null, attachmentCount: item.attachmentCount,
+      sourcePosted: item.sourcePosted, sourceAudited: item.sourceAudited, sourceInvalid: item.sourceInvalid,
+      externalSourceSystem: item.externalSourceSystem ?? null,
+      externalSourceDocumentNo: item.externalSourceDocumentNo ?? null,
+      externalSourceDocumentId: item.externalSourceDocumentId ?? null,
+      externalSourceAccountSet: item.externalSourceAccountSet ?? null,
+      externalSourceDate: item.externalSourceDate ?? null,
+      sourceMetadata: item.sourceMetadata ?? {},
     };
     const record = await tx.financeVoucher.upsert({
       where: { voucherNo_companyCode_periodId: { voucherNo: item.voucherNo, companyCode: batch.spec.companyCode, periodId } },
@@ -152,6 +167,8 @@ async function upsertVoucherItems(
         sourceKey: item.sourceKey, currencyCode: item.currencyCode ?? null,
         exchangeRate: item.exchangeRate ?? null, originalDebit: item.originalDebit ?? null,
         originalCredit: item.originalCredit ?? null,
+        settlementStyle: item.settlementStyle ?? null, settlementNo: item.settlementNo ?? null,
+        settlementDate: item.settlementDate ?? null, sourceMetadata: item.sourceMetadata ?? {},
       };
       const record = await tx.financeVoucherItem.upsert({
         where: { voucherId_accountId_sortOrder: { voucherId, accountId, sortOrder: item.sortOrder } },

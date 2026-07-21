@@ -8,12 +8,10 @@ export default async function HrRosterPage() {
     canArchiveRoster,
     canExportGeneratedRoster,
     canCreateRoster,
-    canDeleteCompanyRelation,
   ] = await Promise.all([
     evaluatePermissionAction(user.id, "hr.roster", "archive"),
     evaluatePermissionAction(user.id, "hr.roster.generated", "export"),
     evaluatePermissionAction(user.id, "hr.roster", "create"),
-    evaluatePermissionAction(user.id, "hr.roster", "delete"),
   ]);
 
   return renderAppShellPage({
@@ -27,8 +25,6 @@ export default async function HrRosterPage() {
         canArchiveRoster={canArchiveRoster}
         canExportGeneratedRoster={canExportGeneratedRoster}
         canCreateEmployee={canCreateRoster}
-        canCreateCompanyRelation={canCreateRoster}
-        canDeleteCompanyRelation={canDeleteCompanyRelation}
       />
     ),
   });

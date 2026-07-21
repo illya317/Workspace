@@ -14,6 +14,11 @@ import { ToolbarPeriodControl } from "./ToolbarPeriodControl";
 import { renderToolbarMenu, resolveToolbarOptionGroupPresentation } from "./Toolbar.menu";
 import ToolbarOptionGroup from "./ToolbarOptionGroup";
 import ToolbarPageSizeControl from "./ToolbarPageSizeControlParts";
+import {
+  getToolbarOptionInputClassName,
+  TOOLBAR_FIXED_CHOICE_WIDTH_CLASS,
+  TOOLBAR_FIXED_SEARCH_WIDTH_CLASS,
+} from "./toolbar-styles";
 import type { ToolbarActionGlyphKind, ToolbarActionKind, ToolbarItem } from "./Toolbar.types";
 
 export function ToolbarDivider() {
@@ -132,21 +137,6 @@ export function resolveToolbarActionIcon(action: ToolbarRenderableAction): Actio
 
 export function resolveToolbarActionVariant(action: ToolbarRenderableAction) {
   return action.variant ?? resolveToolbarSemanticAction(action)?.variant;
-}
-
-const TOOLBAR_FIXED_CHOICE_WIDTH_CLASS = "w-full min-w-0 max-w-none sm:w-[120px] sm:min-w-[120px] sm:max-w-[120px]";
-const TOOLBAR_FIXED_SEARCH_WIDTH_CLASS = "w-full min-w-0 max-w-none sm:w-[180px] sm:min-w-[180px] sm:max-w-[180px]";
-
-function getToolbarOptionInputClassName(size: ControlSize, widthClass = CONTROL_SIZES[size].minWidth) {
-  return [
-    "border border-slate-200 bg-white font-semibold text-slate-700 shadow-sm placeholder:text-slate-400 transition focus:border-sky-500 focus:outline-none focus:ring-1 focus:ring-sky-500 disabled:bg-slate-100 disabled:text-slate-500",
-    CONTROL_SIZES[size].height,
-    CONTROL_SIZES[size].radius,
-    CONTROL_SIZES[size].paddingX,
-    CONTROL_SIZES[size].text,
-    CONTROL_SIZES[size].leading,
-    widthClass,
-  ].join(" ");
 }
 
 export function ToolbarItemRenderer({ item, size = "md" }: { item: ToolbarItem; size?: ControlSize }) {

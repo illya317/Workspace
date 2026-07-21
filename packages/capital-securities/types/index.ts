@@ -53,3 +53,34 @@ export type GovernancePositionSummary = {
   positionDescriptionCode: string | null;
   managerOfDepartmentIds: number[];
 };
+
+export type CompanyRecord = {
+  id: number;
+  code: string;
+  name: string;
+  fullName: string | null;
+  registeredCapital: string | null;
+  unifiedCode: string | null;
+  bankName: string | null;
+  registeredAddress: string | null;
+  registeredDate: string | null;
+  legalPerson: string | null;
+  managementGroup: string;
+  codePoolCode: string | null;
+  isActive: boolean;
+  sortOrder: number;
+  version: number;
+};
+
+export type CompanyRelationRecord = {
+  id: number;
+  parentId: number;
+  parentName: string;
+  childId: number;
+  childName: string;
+  shareRatio: number | null;
+  isConsolidated: boolean;
+  effectiveFrom: string | null;
+  effectiveTo: string | null;
+  version: number;
+};

@@ -5,6 +5,7 @@ export const AGENT_RESOURCE_KEY = "agent.assistant";
 export const MANAGED_WORKSPACE_RESOURCE_GRANTS = [
   { resourceKey: "agent.assistant", actions: ["entry", "read", "submit"] },
   { resourceKey: "agent.source", actions: ["read", "submit"] },
+  { resourceKey: "docs.editor", actions: ["entry"] },
 ];
 export const VIRTUAL_PERSONNEL_TYPE = "虚拟员工";
 export const PROVISIONER_LEDGER_SOURCE = "agent_workforce_provisioner";
@@ -35,7 +36,14 @@ export function isProvisionerCreatedGrantLedgerEvent(event) {
     && event.afterValue === true;
 }
 
-const WORKSPACE_TOOL_KEYS = ["source.searchWorkspaceCode", "source.proposePullRequest"];
+const WORKSPACE_TOOL_KEYS = [
+  "source.searchWorkspaceCode",
+  "source.proposePullRequest",
+  "docs.searchQcTemplates",
+  "docs.inspectQcTemplate",
+  "docs.updateQcTemplate",
+  "docs.publishQcTemplate",
+];
 
 export const WORKFORCE = [
   {
@@ -102,16 +110,16 @@ export const WORKFORCE = [
     displayName: "Workspace 提案助理",
     username: "agent-workspace-assistant",
     profileKey: "workspace.business-assistant",
-    roleName: "AI查询与变更提案助理",
+    roleName: "AI查询与业务处理助理",
     positionCode: "GW-FUN103-07",
-    responsibilities: "负责 Workspace 内已接入能力的只读查询与变更提案；当前接入源码检索与 PR 提案，不承担本地代码开发、直接提交或部署。",
+    responsibilities: "负责 Workspace 内已接入能力的查询、受控变更提案，以及按双方实时权限直接处理 QC 官方模板；不承担本地代码开发、直接提交或部署。",
     workspaceResourceGrants: MANAGED_WORKSPACE_RESOURCE_GRANTS,
     legacyAllowedToolKeys: WORKSPACE_TOOL_KEYS,
     runtimeBindings: [{
       runtimeKind: "workspace",
       interactive: true,
       capabilityKeys: WORKSPACE_TOOL_KEYS,
-      instructions: "仅在 Workspace 页面助手中按请求人与本虚拟员工权限交集执行。当前只允许源码检索与 PR 提案；写操作必须先形成提案并由请求人确认，不承担本地代码开发、直接提交或部署。",
+      instructions: "仅在 Workspace 页面助手中按请求人与本虚拟员工权限交集执行。源码变更必须先形成 PR 提案并由请求人确认；QC 官方模板可按 direct tool contract 直接保存或发布，但仍须通过双方空间权限、版本和领域校验。不承担本地代码开发、直接提交或部署。",
     }],
   },
 ];

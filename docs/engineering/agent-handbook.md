@@ -76,7 +76,7 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 
 ### 页面助手模型上下文与图片
 
-- 页面和企业微信入口统一进入 Platform 的 Kimi Agent SDK runtime；自研 provider 选择、Kimi/DeepSeek 直连和内部 tool-loop 已废弃。会话仍由 Workspace 持久化和压缩，Kimi CLI 只看到专用空工作目录，结束后删除临时 Wire session。
+- 页面和企业微信入口统一进入 Platform 的共享 Agent runtime：Kimi Agent SDK 始终为默认主 runtime；仅当它在输出文本或调用 Workspace 工具前不可用时，配置了 `PI_DEEPSEEK_API_KEY` 的环境才安全回退到 Pi DeepSeek V4 Flash。会话仍由 Workspace 持久化和压缩，Kimi CLI 只看到专用空工作目录，结束后删除临时 Wire session。
 - 两个入口统一消费 `application/x-ndjson` 响应流：`status / delta / heartbeat / result` 是固定事件，heartbeat 每 15 秒产生一次，避免工具调用阶段因没有文本 token 而被反向代理按空闲请求中断。网页原位更新当前消息；企业微信使用同一个 stream id 节流刷新，结束时才发送 `finish=true`。
 - Web 与企业微信共用一个进程级活跃 turn 限流器，硬上限为 3。排队请求不计入活跃数；完成、异常和取消都必须在 `finally` 中释放槽位。OAuth 与 API Key 认证共用同一上限。
 - Kimi 自定义 agent 的内置工具列表固定为空；只有经过 `agentAllowedActions` 与当前 `SessionUser` RBAC 过滤的 Workspace 工具才能通过 Wire 注册，工具真正调用前再次授权。写工具必须只返回 proposal，确认仍走独立 API 并重新鉴权。
@@ -92,7 +92,7 @@ OPS_ENV_FILE=$PRIVATE_OPS_DIR/.env ops/publish.sh deploy
 - 截图、表格和透明图片优先保留 PNG；超过预算后使用抗锯齿缩放和 JPEG 80/60/40/20 质量阶梯，文字类图片使用 4:4:4 色度采样。处理时自动应用 EXIF 方向、转 sRGB、禁止放大，并通过重新编码剥离非必要元数据。
 - GIF/动画 WebP 只有在原始尺寸和字节预算内才直传；超限时明确拒绝并要求转为静态图片，不得静默丢帧。模型副本生成失败时也不得回退发送超限原图。
 
-Kimi SDK/CLI 的固定版本、Coding Plan OAuth / Moonshot API Key 认证和生产校验见 `docs/engineering/ops/kimi-agent-runtime.md`。
+Pi DeepSeek Flash、Kimi SDK/CLI 的固定版本、模型认证和生产校验见 `docs/engineering/ops/kimi-agent-runtime.md`。
 
 ### Agent 接力和文件隔离
 

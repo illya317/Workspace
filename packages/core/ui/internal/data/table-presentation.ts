@@ -53,6 +53,27 @@ function resolveWidthClass(width?: DataSurfaceWidth) {
   return "";
 }
 
+export function resolveTableColumnWidthValue(width?: DataSurfaceWidth) {
+  if (width === undefined) return null;
+  if (typeof width === "number") return `${width}px`;
+  if (width === "xs") return "5rem";
+  if (width === "sm") return "7rem";
+  if (width === "md") return "10rem";
+  if (width === "lg") return "14rem";
+  if (width === "xl") return "18rem";
+  if (width === "content") return "1px";
+  if (width === "wide") return "20rem";
+  return null;
+}
+
+export function resolveStandardTableColumnWidths(columns: Array<{ width?: DataSurfaceWidth; numeric?: boolean }>) {
+  return columns.map((column) => resolveTableColumnWidthValue(column.width ?? (column.numeric ? "sm" : undefined)));
+}
+
+export function resolveDataTableLayoutClass(matrix: boolean) {
+  return matrix ? "table-fixed min-w-max w-full" : "table-fixed w-full";
+}
+
 function resolveWrapClass(wrap?: DataSurfaceWrap) {
   if (wrap === "wrap") return "whitespace-normal break-words";
   if (wrap === "truncate") return "max-w-0 truncate";

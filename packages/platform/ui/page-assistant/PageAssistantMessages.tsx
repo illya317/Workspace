@@ -1,5 +1,12 @@
 import { workspacePath } from "@workspace/core/routing";
 import { ActionGlyph } from "@workspace/core/ui";
+import {
+  agentChoiceQuestionLabel,
+  agentChoiceUsesCards,
+  buildAgentChoiceReply,
+  type AgentChoiceQuestion,
+  type AgentChoiceSubmission,
+} from "@workspace/platform/agent-conversation-choice";
 import { useState, type ReactNode, type RefObject } from "react";
 
 import type { AgentConversationStarter, AssistantMessage } from "./types";
@@ -96,6 +103,7 @@ type Props = {
   scrollRef: RefObject<HTMLDivElement | null>;
   emptyState?: ReactNode;
   settleProposal: (messageId: string, proposalId: number, action: "confirm" | "cancel") => void | Promise<void>;
+  submitChoices: (messageId: string, submission: AgentChoiceSubmission) => void | Promise<void>;
 };
 
 /** @ui-specialized-surface Page Assistant message stream owns chat bubbles, attachments, and proposal settlement. */
@@ -105,6 +113,7 @@ export function PageAssistantMessages({
   busyProposalId,
   scrollRef,
   settleProposal,
+  submitChoices,
   emptyState,
 }: Props) {
   return (
@@ -136,6 +145,11 @@ export function PageAssistantMessages({
               : <div className="whitespace-pre-wrap">{message.content}</div>}
             <MessageAttachments message={message} />
             <MessageData message={message} />
+            <MessageChoices
+              message={message}
+              sending={sending}
+              submitChoices={submitChoices}
+            />
             {message.proposal ? (
               <ProposalBlock
                 message={message}
@@ -147,6 +161,111 @@ export function PageAssistantMessages({
         </article>
       ))}
       {sending ? <div className="text-xs text-slate-500">正在思考...</div> : null}
+    </div>
+  );
+}
+
+function MessageChoices({
+  message,
+  sending,
+  submitChoices,
+}: Pick<Props, "sending" | "submitChoices"> & { message: AssistantMessage }) {
+  if (message.role !== "agent" || !message.choices?.some((question) => question.options.length > 0)) return null;
+  return (
+    <AgentChoicePrompt
+      questions={message.choices}
+      submission={message.choiceSubmission}
+      disabled={sending}
+      onSubmit={(submission) => submitChoices(message.id, submission)}
+    />
+  );
+}
+
+function AgentChoicePrompt({ questions, submission, disabled, onSubmit }: {
+  questions: AgentChoiceQuestion[];
+  submission?: AgentChoiceSubmission;
+  disabled: boolean;
+  onSubmit: (submission: AgentChoiceSubmission) => void | Promise<void>;
+}) {
+  const [selectedLabels, setSelectedLabels] = useState<string[][]>(() => submission?.selectedLabels ?? questions.map(() => []));
+  const [submitting, setSubmitting] = useState(false);
+  const selectableQuestions = questions.filter((question) => question.options.length > 0);
+  const immediateSubmit = questions.length === 1 && selectableQuestions[0]?.multiSelect === false;
+  const locked = disabled || submitting || Boolean(submission);
+  const complete = questions.every((question, index) => question.options.length === 0 || (selectedLabels[index]?.length ?? 0) > 0);
+
+  function selectionAt(questionIndex: number) {
+    return submission?.selectedLabels[questionIndex] ?? selectedLabels[questionIndex] ?? [];
+  }
+
+  function sendSelection(next: string[][]) {
+    const reply = buildAgentChoiceReply(questions, next);
+    if (!reply) return;
+    setSubmitting(true);
+    void onSubmit({ selectedLabels: next, reply });
+  }
+
+  function choose(questionIndex: number, label: string) {
+    if (locked) return;
+    const question = questions[questionIndex];
+    const next = selectedLabels.map((labels) => [...labels]);
+    const current = next[questionIndex] ?? [];
+    next[questionIndex] = question.multiSelect
+      ? current.includes(label) ? current.filter((item) => item !== label) : [...current, label]
+      : [label];
+    setSelectedLabels(next);
+    if (immediateSubmit) sendSelection(next);
+  }
+
+  return (
+    <div className="mt-3 space-y-3 border-t border-slate-100 pt-3">
+      {questions.map((question, questionIndex) => question.options.length > 0 ? (
+        <fieldset key={`${question.question}-${questionIndex}`} disabled={locked} className="min-w-0">
+          <legend className="mb-2 text-xs font-semibold text-slate-700">
+            {agentChoiceQuestionLabel(question)}
+            {question.multiSelect ? <span className="ml-1 font-normal text-slate-400">可多选</span> : null}
+          </legend>
+          <div className={agentChoiceUsesCards(question) ? "space-y-2" : "flex flex-wrap gap-2"}>
+            {question.options.map((option, optionIndex) => {
+              const selected = selectionAt(questionIndex).includes(option.label);
+              const cards = agentChoiceUsesCards(question);
+              return (
+                <button
+                  key={`${option.label}-${optionIndex}`}
+                  type="button"
+                  aria-pressed={selected}
+                  disabled={locked}
+                  onClick={() => choose(questionIndex, option.label)}
+                  className={cards
+                    ? `flex w-full items-start gap-2 rounded-lg border px-3 py-2 text-left transition ${selected ? "border-emerald-500 bg-emerald-50 text-emerald-950" : "border-slate-200 bg-white text-slate-800 hover:border-emerald-300 hover:bg-emerald-50/40"} disabled:cursor-default disabled:opacity-75`
+                    : `inline-flex min-h-8 items-center rounded-full border px-3 py-1 text-xs font-medium transition ${selected ? "border-emerald-500 bg-emerald-50 text-emerald-800" : "border-slate-200 bg-white text-slate-700 hover:border-emerald-300 hover:bg-emerald-50"} disabled:cursor-default disabled:opacity-75`}
+                >
+                  {cards ? (
+                    <span className={`mt-0.5 grid size-4 shrink-0 place-items-center border ${question.multiSelect ? "rounded-sm" : "rounded-full"} ${selected ? "border-emerald-600 bg-emerald-600 text-white" : "border-slate-300 bg-white text-transparent"}`}>
+                      <ActionGlyph kind="approve" className="size-3" />
+                    </span>
+                  ) : null}
+                  <span className="min-w-0">
+                    <span className={cards ? "block text-xs font-semibold" : ""}>{option.label}</span>
+                    {cards && option.description ? <span className="mt-0.5 block text-[11px] leading-5 text-slate-500">{option.description}</span> : null}
+                  </span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : null)}
+      {!immediateSubmit && !submission ? (
+        <button
+          type="button"
+          disabled={locked || !complete}
+          onClick={() => sendSelection(selectedLabels)}
+          className="inline-flex h-8 w-full items-center justify-center rounded-md bg-emerald-600 px-3 text-xs font-semibold text-white hover:bg-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300"
+        >
+          提交选择
+        </button>
+      ) : null}
+      {submission ? <div className="text-xs font-medium text-emerald-700">已提交选择</div> : null}
     </div>
   );
 }

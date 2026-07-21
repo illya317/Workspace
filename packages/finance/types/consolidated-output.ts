@@ -39,7 +39,7 @@ export interface ConsolidatedReportOutputPackage {
     month: number;
     version: number;
     revision: number;
-    status: "locked" | "published";
+    status: "draft" | "submitted" | "reviewed" | "locked" | "published";
     baseBatchId: number | null;
     scopeFingerprint: string;
     sourceFingerprint: string;

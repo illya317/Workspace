@@ -429,6 +429,7 @@ export type FinanceConsolidationBatchWhereInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionListRelationFilter
   events?: Prisma.FinanceConsolidationBatchEventListRelationFilter
   outputSnapshot?: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotNullableScalarRelationFilter, Prisma.FinanceConsolidationOutputSnapshotWhereInput> | null
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
 }
 
 export type FinanceConsolidationBatchOrderByWithRelationInput = {
@@ -466,6 +467,7 @@ export type FinanceConsolidationBatchOrderByWithRelationInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionOrderByRelationAggregateInput
   events?: Prisma.FinanceConsolidationBatchEventOrderByRelationAggregateInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotOrderByWithRelationInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupOrderByRelationAggregateInput
 }
 
 export type FinanceConsolidationBatchWhereUniqueInput = Prisma.AtLeast<{
@@ -507,6 +509,7 @@ export type FinanceConsolidationBatchWhereUniqueInput = Prisma.AtLeast<{
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionListRelationFilter
   events?: Prisma.FinanceConsolidationBatchEventListRelationFilter
   outputSnapshot?: Prisma.XOR<Prisma.FinanceConsolidationOutputSnapshotNullableScalarRelationFilter, Prisma.FinanceConsolidationOutputSnapshotWhereInput> | null
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
 }, "id" | "parentCompanyId_year_month_version">
 
 export type FinanceConsolidationBatchOrderByWithAggregationInput = {
@@ -606,6 +609,7 @@ export type FinanceConsolidationBatchCreateInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateInput = {
@@ -642,6 +646,7 @@ export type FinanceConsolidationBatchUncheckedCreateInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUpdateInput = {
@@ -677,6 +682,7 @@ export type FinanceConsolidationBatchUpdateInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateInput = {
@@ -713,6 +719,7 @@ export type FinanceConsolidationBatchUncheckedUpdateInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateManyInput = {
@@ -938,6 +945,20 @@ export type FinanceConsolidationBatchSumOrderByAggregateInput = {
   publishedBy?: Prisma.SortOrder
 }
 
+export type FinanceConsolidationBatchCreateNestedOneWithoutMatchGroupsInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationBatchCreateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedCreateWithoutMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationBatchCreateOrConnectWithoutMatchGroupsInput
+  connect?: Prisma.FinanceConsolidationBatchWhereUniqueInput
+}
+
+export type FinanceConsolidationBatchUpdateOneRequiredWithoutMatchGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationBatchCreateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedCreateWithoutMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationBatchCreateOrConnectWithoutMatchGroupsInput
+  upsert?: Prisma.FinanceConsolidationBatchUpsertWithoutMatchGroupsInput
+  connect?: Prisma.FinanceConsolidationBatchWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationBatchUpdateToOneWithWhereWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUpdateWithoutMatchGroupsInput>, Prisma.FinanceConsolidationBatchUncheckedUpdateWithoutMatchGroupsInput>
+}
+
 export type FinanceConsolidationBatchCreateNestedOneWithoutOutputSnapshotInput = {
   create?: Prisma.XOR<Prisma.FinanceConsolidationBatchCreateWithoutOutputSnapshotInput, Prisma.FinanceConsolidationBatchUncheckedCreateWithoutOutputSnapshotInput>
   connectOrCreate?: Prisma.FinanceConsolidationBatchCreateOrConnectWithoutOutputSnapshotInput
@@ -1094,6 +1115,164 @@ export type FinanceConsolidationBatchUpdateOneRequiredWithoutEntriesNestedInput 
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationBatchUpdateToOneWithWhereWithoutEntriesInput, Prisma.FinanceConsolidationBatchUpdateWithoutEntriesInput>, Prisma.FinanceConsolidationBatchUncheckedUpdateWithoutEntriesInput>
 }
 
+export type FinanceConsolidationBatchCreateWithoutMatchGroupsInput = {
+  parentCompanyId: number
+  parentCompanyCode: string
+  parentCompanyName: string
+  year: number
+  month: number
+  version: number
+  revision?: number
+  status?: string
+  scopeFingerprint: string
+  sourceFingerprint: string
+  rateFingerprint: string
+  createdBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
+  lockedBy?: number | null
+  lockedAt?: Date | string | null
+  publishedBy?: number | null
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  baseBatch?: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutDerivedBatchesInput
+  derivedBatches?: Prisma.FinanceConsolidationBatchCreateNestedManyWithoutBaseBatchInput
+  entities?: Prisma.FinanceConsolidationEntitySnapshotCreateNestedManyWithoutBatchInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutBatchInput
+  exchangeRates?: Prisma.FinanceConsolidationRateSnapshotCreateNestedManyWithoutBatchInput
+  entries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutBatchInput
+  controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
+  events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
+  outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+}
+
+export type FinanceConsolidationBatchUncheckedCreateWithoutMatchGroupsInput = {
+  id?: number
+  parentCompanyId: number
+  parentCompanyCode: string
+  parentCompanyName: string
+  year: number
+  month: number
+  version: number
+  revision?: number
+  status?: string
+  baseBatchId?: number | null
+  scopeFingerprint: string
+  sourceFingerprint: string
+  rateFingerprint: string
+  createdBy: number
+  submittedBy?: number | null
+  submittedAt?: Date | string | null
+  reviewedBy?: number | null
+  reviewedAt?: Date | string | null
+  reviewNote?: string | null
+  lockedBy?: number | null
+  lockedAt?: Date | string | null
+  publishedBy?: number | null
+  publishedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  derivedBatches?: Prisma.FinanceConsolidationBatchUncheckedCreateNestedManyWithoutBaseBatchInput
+  entities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateNestedManyWithoutBatchInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutBatchInput
+  exchangeRates?: Prisma.FinanceConsolidationRateSnapshotUncheckedCreateNestedManyWithoutBatchInput
+  entries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutBatchInput
+  controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
+  events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
+  outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+}
+
+export type FinanceConsolidationBatchCreateOrConnectWithoutMatchGroupsInput = {
+  where: Prisma.FinanceConsolidationBatchWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationBatchCreateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedCreateWithoutMatchGroupsInput>
+}
+
+export type FinanceConsolidationBatchUpsertWithoutMatchGroupsInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationBatchUpdateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedUpdateWithoutMatchGroupsInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationBatchCreateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedCreateWithoutMatchGroupsInput>
+  where?: Prisma.FinanceConsolidationBatchWhereInput
+}
+
+export type FinanceConsolidationBatchUpdateToOneWithWhereWithoutMatchGroupsInput = {
+  where?: Prisma.FinanceConsolidationBatchWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationBatchUpdateWithoutMatchGroupsInput, Prisma.FinanceConsolidationBatchUncheckedUpdateWithoutMatchGroupsInput>
+}
+
+export type FinanceConsolidationBatchUpdateWithoutMatchGroupsInput = {
+  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  parentCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  scopeFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  rateFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  createdBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  baseBatch?: Prisma.FinanceConsolidationBatchUpdateOneWithoutDerivedBatchesNestedInput
+  derivedBatches?: Prisma.FinanceConsolidationBatchUpdateManyWithoutBaseBatchNestedInput
+  entities?: Prisma.FinanceConsolidationEntitySnapshotUpdateManyWithoutBatchNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutBatchNestedInput
+  exchangeRates?: Prisma.FinanceConsolidationRateSnapshotUpdateManyWithoutBatchNestedInput
+  entries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutBatchNestedInput
+  controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
+  events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
+  outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+}
+
+export type FinanceConsolidationBatchUncheckedUpdateWithoutMatchGroupsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  parentCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  parentCompanyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  parentCompanyName?: Prisma.StringFieldUpdateOperationsInput | string
+  year?: Prisma.IntFieldUpdateOperationsInput | number
+  month?: Prisma.IntFieldUpdateOperationsInput | number
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  revision?: Prisma.IntFieldUpdateOperationsInput | number
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  baseBatchId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  scopeFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  rateFingerprint?: Prisma.StringFieldUpdateOperationsInput | string
+  createdBy?: Prisma.IntFieldUpdateOperationsInput | number
+  submittedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  submittedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  reviewedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  reviewNote?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  lockedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  lockedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  publishedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  derivedBatches?: Prisma.FinanceConsolidationBatchUncheckedUpdateManyWithoutBaseBatchNestedInput
+  entities?: Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutBatchNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutBatchNestedInput
+  exchangeRates?: Prisma.FinanceConsolidationRateSnapshotUncheckedUpdateManyWithoutBatchNestedInput
+  entries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchNestedInput
+  controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
+  events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
+  outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+}
+
 export type FinanceConsolidationBatchCreateWithoutOutputSnapshotInput = {
   parentCompanyId: number
   parentCompanyCode: string
@@ -1126,6 +1305,7 @@ export type FinanceConsolidationBatchCreateWithoutOutputSnapshotInput = {
   entries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutBatchInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutOutputSnapshotInput = {
@@ -1161,6 +1341,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutOutputSnapshotInput =
   entries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutBatchInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutOutputSnapshotInput = {
@@ -1211,6 +1392,7 @@ export type FinanceConsolidationBatchUpdateWithoutOutputSnapshotInput = {
   entries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutBatchNestedInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutOutputSnapshotInput = {
@@ -1246,6 +1428,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutOutputSnapshotInput =
   entries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchNestedInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutDerivedBatchesInput = {
@@ -1280,6 +1463,7 @@ export type FinanceConsolidationBatchCreateWithoutDerivedBatchesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutDerivedBatchesInput = {
@@ -1315,6 +1499,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutDerivedBatchesInput =
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutDerivedBatchesInput = {
@@ -1354,6 +1539,7 @@ export type FinanceConsolidationBatchCreateWithoutBaseBatchInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutBaseBatchInput = {
@@ -1389,6 +1575,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutBaseBatchInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutBaseBatchInput = {
@@ -1444,6 +1631,7 @@ export type FinanceConsolidationBatchUpdateWithoutDerivedBatchesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutDerivedBatchesInput = {
@@ -1479,6 +1667,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutDerivedBatchesInput =
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUpsertWithWhereUniqueWithoutBaseBatchInput = {
@@ -1560,6 +1749,7 @@ export type FinanceConsolidationBatchCreateWithoutEventsInput = {
   entries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutBatchInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutEventsInput = {
@@ -1595,6 +1785,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutEventsInput = {
   entries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutBatchInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutEventsInput = {
@@ -1645,6 +1836,7 @@ export type FinanceConsolidationBatchUpdateWithoutEventsInput = {
   entries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutBatchNestedInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutEventsInput = {
@@ -1680,6 +1872,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutEventsInput = {
   entries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchNestedInput
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutControlDecisionsInput = {
@@ -1714,6 +1907,7 @@ export type FinanceConsolidationBatchCreateWithoutControlDecisionsInput = {
   entries?: Prisma.FinanceConsolidationEntryCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutControlDecisionsInput = {
@@ -1749,6 +1943,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutControlDecisionsInput
   entries?: Prisma.FinanceConsolidationEntryUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutControlDecisionsInput = {
@@ -1799,6 +1994,7 @@ export type FinanceConsolidationBatchUpdateWithoutControlDecisionsInput = {
   entries?: Prisma.FinanceConsolidationEntryUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutControlDecisionsInput = {
@@ -1834,6 +2030,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutControlDecisionsInput
   entries?: Prisma.FinanceConsolidationEntryUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutEntitiesInput = {
@@ -1868,6 +2065,7 @@ export type FinanceConsolidationBatchCreateWithoutEntitiesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutEntitiesInput = {
@@ -1903,6 +2101,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutEntitiesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutEntitiesInput = {
@@ -1953,6 +2152,7 @@ export type FinanceConsolidationBatchUpdateWithoutEntitiesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutEntitiesInput = {
@@ -1988,6 +2188,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutEntitiesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutSourcesInput = {
@@ -2022,6 +2223,7 @@ export type FinanceConsolidationBatchCreateWithoutSourcesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutSourcesInput = {
@@ -2057,6 +2259,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutSourcesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutSourcesInput = {
@@ -2107,6 +2310,7 @@ export type FinanceConsolidationBatchUpdateWithoutSourcesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutSourcesInput = {
@@ -2142,6 +2346,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutSourcesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutExchangeRatesInput = {
@@ -2176,6 +2381,7 @@ export type FinanceConsolidationBatchCreateWithoutExchangeRatesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutExchangeRatesInput = {
@@ -2211,6 +2417,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutExchangeRatesInput = 
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutExchangeRatesInput = {
@@ -2261,6 +2468,7 @@ export type FinanceConsolidationBatchUpdateWithoutExchangeRatesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutExchangeRatesInput = {
@@ -2296,6 +2504,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutExchangeRatesInput = 
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateWithoutEntriesInput = {
@@ -2330,6 +2539,7 @@ export type FinanceConsolidationBatchCreateWithoutEntriesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchUncheckedCreateWithoutEntriesInput = {
@@ -2365,6 +2575,7 @@ export type FinanceConsolidationBatchUncheckedCreateWithoutEntriesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedCreateNestedManyWithoutBatchInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedCreateNestedManyWithoutBatchInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedCreateNestedOneWithoutBatchInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type FinanceConsolidationBatchCreateOrConnectWithoutEntriesInput = {
@@ -2415,6 +2626,7 @@ export type FinanceConsolidationBatchUpdateWithoutEntriesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutEntriesInput = {
@@ -2450,6 +2662,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutEntriesInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchCreateManyBaseBatchInput = {
@@ -2511,6 +2724,7 @@ export type FinanceConsolidationBatchUpdateWithoutBaseBatchInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateWithoutBaseBatchInput = {
@@ -2546,6 +2760,7 @@ export type FinanceConsolidationBatchUncheckedUpdateWithoutBaseBatchInput = {
   controlDecisions?: Prisma.FinanceConsolidationControlDecisionUncheckedUpdateManyWithoutBatchNestedInput
   events?: Prisma.FinanceConsolidationBatchEventUncheckedUpdateManyWithoutBatchNestedInput
   outputSnapshot?: Prisma.FinanceConsolidationOutputSnapshotUncheckedUpdateOneWithoutBatchNestedInput
+  matchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type FinanceConsolidationBatchUncheckedUpdateManyWithoutBaseBatchInput = {
@@ -2588,6 +2803,7 @@ export type FinanceConsolidationBatchCountOutputType = {
   entries: number
   controlDecisions: number
   events: number
+  matchGroups: number
 }
 
 export type FinanceConsolidationBatchCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2598,6 +2814,7 @@ export type FinanceConsolidationBatchCountOutputTypeSelect<ExtArgs extends runti
   entries?: boolean | FinanceConsolidationBatchCountOutputTypeCountEntriesArgs
   controlDecisions?: boolean | FinanceConsolidationBatchCountOutputTypeCountControlDecisionsArgs
   events?: boolean | FinanceConsolidationBatchCountOutputTypeCountEventsArgs
+  matchGroups?: boolean | FinanceConsolidationBatchCountOutputTypeCountMatchGroupsArgs
 }
 
 /**
@@ -2659,6 +2876,13 @@ export type FinanceConsolidationBatchCountOutputTypeCountEventsArgs<ExtArgs exte
   where?: Prisma.FinanceConsolidationBatchEventWhereInput
 }
 
+/**
+ * FinanceConsolidationBatchCountOutputType without action
+ */
+export type FinanceConsolidationBatchCountOutputTypeCountMatchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+}
+
 
 export type FinanceConsolidationBatchSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -2695,6 +2919,7 @@ export type FinanceConsolidationBatchSelect<ExtArgs extends runtime.Types.Extens
   controlDecisions?: boolean | Prisma.FinanceConsolidationBatch$controlDecisionsArgs<ExtArgs>
   events?: boolean | Prisma.FinanceConsolidationBatch$eventsArgs<ExtArgs>
   outputSnapshot?: boolean | Prisma.FinanceConsolidationBatch$outputSnapshotArgs<ExtArgs>
+  matchGroups?: boolean | Prisma.FinanceConsolidationBatch$matchGroupsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationBatchCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationBatch"]>
 
@@ -2795,6 +3020,7 @@ export type FinanceConsolidationBatchInclude<ExtArgs extends runtime.Types.Exten
   controlDecisions?: boolean | Prisma.FinanceConsolidationBatch$controlDecisionsArgs<ExtArgs>
   events?: boolean | Prisma.FinanceConsolidationBatch$eventsArgs<ExtArgs>
   outputSnapshot?: boolean | Prisma.FinanceConsolidationBatch$outputSnapshotArgs<ExtArgs>
+  matchGroups?: boolean | Prisma.FinanceConsolidationBatch$matchGroupsArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationBatchCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceConsolidationBatchIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -2816,6 +3042,7 @@ export type $FinanceConsolidationBatchPayload<ExtArgs extends runtime.Types.Exte
     controlDecisions: Prisma.$FinanceConsolidationControlDecisionPayload<ExtArgs>[]
     events: Prisma.$FinanceConsolidationBatchEventPayload<ExtArgs>[]
     outputSnapshot: Prisma.$FinanceConsolidationOutputSnapshotPayload<ExtArgs> | null
+    matchGroups: Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -3246,6 +3473,7 @@ export interface Prisma__FinanceConsolidationBatchClient<T, Null = never, ExtArg
   controlDecisions<T extends Prisma.FinanceConsolidationBatch$controlDecisionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatch$controlDecisionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationControlDecisionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   events<T extends Prisma.FinanceConsolidationBatch$eventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatch$eventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationBatchEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   outputSnapshot<T extends Prisma.FinanceConsolidationBatch$outputSnapshotArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatch$outputSnapshotArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationOutputSnapshotClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationOutputSnapshotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  matchGroups<T extends Prisma.FinanceConsolidationBatch$matchGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatch$matchGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -3904,6 +4132,30 @@ export type FinanceConsolidationBatch$outputSnapshotArgs<ExtArgs extends runtime
    */
   include?: Prisma.FinanceConsolidationOutputSnapshotInclude<ExtArgs> | null
   where?: Prisma.FinanceConsolidationOutputSnapshotWhereInput
+}
+
+/**
+ * FinanceConsolidationBatch.matchGroups
+ */
+export type FinanceConsolidationBatch$matchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchGroup
+   */
+  select?: Prisma.FinanceConsolidationMatchGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchGroup
+   */
+  omit?: Prisma.FinanceConsolidationMatchGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchGroupInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput | Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchGroupScalarFieldEnum | Prisma.FinanceConsolidationMatchGroupScalarFieldEnum[]
 }
 
 /**

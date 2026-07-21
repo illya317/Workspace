@@ -46,6 +46,7 @@ model FinanceCashFlowAllocation {
   cashFlowItem       FinanceCashFlowItem @relation(fields: [cashFlowItemId], references: [id])
   ownerVoucherItem   FinanceVoucherItem? @relation("FinanceCashFlowOwnerItem", fields: [ownerVoucherItemId], references: [id])
   counterpartItem    FinanceVoucherItem? @relation("FinanceCashFlowCounterpartItem", fields: [counterpartItemId], references: [id])
+  consolidationEntryLines FinanceConsolidationEntryLine[]
 
   @@unique([sourceSystem, sourceDatabase, sourceKey])
   @@index([importId])

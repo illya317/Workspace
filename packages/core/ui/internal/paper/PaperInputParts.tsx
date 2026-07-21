@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import type { PaperInputLayoutSpec } from "../../PaperInputSurface.types";
+import { adaptivePaperInputWidth } from "./PaperInputLayout";
 
 const PAPER_INPUT_TEXT_CLASS = "text-inherit";
 
@@ -27,18 +28,8 @@ function inputWidth(part: PaperInputLayoutSpec): CSSProperties {
   return documentSlotWidth(part);
 }
 
-function adaptiveInputWidth(part: PaperInputLayoutSpec): CSSProperties {
-  return { width: "auto", minWidth: adaptiveMinWidth(part.width), maxWidth: "100%" };
-}
-
 function adaptiveSelectWidth(part: PaperInputLayoutSpec): CSSProperties {
-  return { width: "auto", minWidth: adaptiveMinWidth(part.width), maxWidth: "100%", backgroundImage: "none" };
-}
-
-function adaptiveMinWidth(value: string | undefined) {
-  const configured = cssSlotWidth(value);
-  if (configured === "auto") return "3rem";
-  return `max(${configured}, 3rem)`;
+  return { ...adaptivePaperInputWidth(part), backgroundImage: "none" };
 }
 
 export function paperRangeLabel(part: PaperInputLayoutSpec) {
@@ -120,7 +111,7 @@ export function PaperLineInput({
       type="text"
       title={error}
       className={`${baseClass} ${PAPER_INPUT_TEXT_CLASS} field-sizing-content inline-block h-7 min-w-0 border-0 bg-transparent ${inputPaddingClass()} ${inputAlignClass(part)} align-baseline leading-7 outline-none ${readonlyClass} ${error ? "text-red-700" : ""} ${underlineClass(part, inTable)}`}
-      style={adaptiveInputWidth(part)}
+      style={adaptivePaperInputWidth(part)}
     />
   );
 }

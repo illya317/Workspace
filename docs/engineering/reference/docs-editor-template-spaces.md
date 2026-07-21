@@ -73,3 +73,13 @@ QC 官方模板属于真实部门空间，不再作为虚拟空间或虚拟模�
 - 复制官方模板时，副本清空 `sourceKind/sourceProductKey`，避免用户副本参与官方同步。
 
 Production QC 批次和检验记录仍由 `production.qc` 负责；模板浏览、编辑、复制、发布和授权归 `/docs/editor`。
+
+## Agent 自然语言处理
+
+Workspace 页面助手和单聊企业微信助手注册 Docs Editor 自有的 QC 模板工具，不把模板能力放进 Production package：
+
+- `docs.searchQcTemplates` / `docs.inspectQcTemplate` 只返回请求人和虚拟员工都拥有查看权限的 `sourceKind=production.qc.official` 模板；模型必须先取得真实模板 ID 和版本，不能猜 ID。检查工具支持文本匹配，也支持从 `/document`、`/fieldModel` 开始逐层读取结构 outline 或有大小上限的完整子树。
+- `docs.updateQcTemplate` 可直接修改标题和可编辑文案，也可对 `document + fieldModel` 执行 `test/add/replace/remove/copy/move` 结构补丁，覆盖章节、表格、行列、单元格、字段、公式、引用、附件和分页。结构编辑必须先检查真实路径，优先用 `test` 锁定旧值；路径不能越出模板正文和字段模型，也不能触碰模板归属、权限、状态、审计或系统元数据。
+- 文本替换仍必须携带 `expectedMatches`；结构补丁和文本变更都使用当前模板版本，随后统一走 `buildSaveDraftCommand -> saveDraft` 的模版规范化、版本冲突、公式/引用校验、历史和正文文件写入。
+- `docs.publishQcTemplate` 只有在用户明确要求发布、双方都有当前空间发布权限且版本仍一致时才调用 `publishDraft`。
+- 两个写工具使用 Agent 显式 direct contract，不生成 Agent proposal；Platform 在每次 tool call 前重新检查 Agent 全局动作上限、请求人和虚拟员工权限，Docs Editor service 再检查具体空间权限与业务流程策略。空间配置为必须走流程时，direct tool 必须失败关闭，不能用 Agent 绕过。

@@ -3,9 +3,13 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { prisma } from "@workspace/platform/server/prisma";
 import {
-  buildSaveStatementExchangeRateCommand,
-  type SaveStatementExchangeRateCommand,
+  buildRefreshStatementExchangeRateCommand,
+  type RefreshStatementExchangeRateCommand,
 } from "../domain/statement-exchange-rate-validation";
+import {
+  ChinaMoneyRateError,
+  fetchChinaMoneyCentralParity,
+} from "./chinamoney-exchange-rates";
 
 export function statementExchangeRateSnapshot(row: {
   id: number;
@@ -20,11 +24,8 @@ export function statementExchangeRateSnapshot(row: {
   sourceUrl: string;
   publishedAt: Date | null;
   capturedAt: Date;
-  status: string;
   note: string | null;
   updatedBy: number | null;
-  verifiedBy: number | null;
-  verifiedAt: Date | null;
 }): StatementExchangeRateSnapshot {
   return {
     id: row.id,
@@ -39,16 +40,63 @@ export function statementExchangeRateSnapshot(row: {
     sourceUrl: row.sourceUrl,
     publishedAt: row.publishedAt?.toISOString() ?? null,
     capturedAt: row.capturedAt.toISOString(),
-    status: row.status as StatementExchangeRateSnapshot["status"],
     note: row.note,
     updatedBy: row.updatedBy,
-    verifiedBy: row.verifiedBy,
-    verifiedAt: row.verifiedAt?.toISOString() ?? null,
   };
 }
 
-export async function saveStatementExchangeRate(command: SaveStatementExchangeRateCommand) {
-  const validated = buildSaveStatementExchangeRateCommand(command.input, command.userId);
+export async function ensureChinaMoneyCentralParityRate(input: {
+  currencyCode: string;
+  targetDate: string;
+  userId: number;
+}) {
+  const validated = buildRefreshStatementExchangeRateCommand(input, input.userId);
+  if (!validated.ok) throw new ChinaMoneyRateError(validated.issue.message, validated.issue.status);
+  const { input: normalizedInput, userId } = validated.data;
+  const quote = await fetchChinaMoneyCentralParity(normalizedInput);
+  return prisma.$transaction(async (tx) => {
+    const existing = await tx.financeStatementExchangeRate.findMany({
+      where: {
+        baseCurrency: quote.baseCurrency,
+        quoteCurrency: quote.quoteCurrency,
+        rateKind: "centralParity",
+        rateDate: quote.rateDate,
+      },
+      orderBy: [{ capturedAt: "desc" }, { id: "desc" }],
+      select: { id: true },
+    });
+    const data = {
+      rateKind: "centralParity",
+      rate: quote.rate,
+      sourceName: "中国外汇交易中心",
+      sourceField: `${quote.sourcePair} 人民币汇率中间价（每 ${quote.sourceUnit} ${quote.baseCurrency}）`,
+      sourceUrl: quote.sourceUrl,
+      publishedAt: new Date(`${quote.rateDate}T09:15:00+08:00`),
+      capturedAt: new Date(),
+      note: `原始报价 ${quote.sourcePair}=${quote.price}；系统归一化为 1 ${quote.baseCurrency}=${quote.rate} CNY`,
+      version: 1,
+      updatedBy: userId,
+    };
+    if (existing[0]) {
+      const row = await tx.financeStatementExchangeRate.update({ where: { id: existing[0].id }, data });
+      if (existing.length > 1) {
+        await tx.financeStatementExchangeRate.deleteMany({ where: { id: { in: existing.slice(1).map((item) => item.id) } } });
+      }
+      return row;
+    }
+    return tx.financeStatementExchangeRate.create({
+      data: {
+        baseCurrency: quote.baseCurrency,
+        quoteCurrency: quote.quoteCurrency,
+        rateDate: quote.rateDate,
+        ...data,
+      },
+    });
+  });
+}
+
+export async function refreshStatementExchangeRate(command: RefreshStatementExchangeRateCommand) {
+  const validated = buildRefreshStatementExchangeRateCommand(command.input, command.userId);
   if (!validated.ok) return serviceError(validated.issue.message, validated.issue.status);
   const { input, userId } = validated.data;
   const direct = await assertBusinessActionDirectExecutionAllowed({
@@ -57,31 +105,16 @@ export async function saveStatementExchangeRate(command: SaveStatementExchangeRa
     resourceKey: "finance.statements",
     scopeType: "global",
     scopeId: null,
-    blockedMessage: "汇率证据保存已配置为必须走流程，请从统一保存入口提交",
+    blockedMessage: "汇率自动刷新已配置为必须走流程，请从统一保存入口提交",
   });
   if (!direct.ok) return direct;
-  const row = await prisma.$transaction(async (tx) => {
-    const latest = await tx.financeStatementExchangeRate.findFirst({
-      where: {
-        baseCurrency: input.baseCurrency,
-        quoteCurrency: input.quoteCurrency,
-        rateKind: input.rateKind,
-        rateDate: input.rateDate,
-      },
-      select: { version: true },
-      orderBy: { version: "desc" },
-    });
-    return tx.financeStatementExchangeRate.create({
-      data: {
-        ...input,
-        status: "draft",
-        version: (latest?.version ?? 0) + 1,
-        publishedAt: input.publishedAt ? new Date(input.publishedAt) : null,
-        updatedBy: userId,
-        verifiedBy: null,
-        verifiedAt: null,
-      },
-    });
-  });
-  return serviceOk({ rate: statementExchangeRateSnapshot(row) });
+  try {
+    const row = await ensureChinaMoneyCentralParityRate({ ...input, userId });
+    return serviceOk({ rate: statementExchangeRateSnapshot(row) });
+  } catch (cause) {
+    if (cause instanceof ChinaMoneyRateError) {
+      return serviceError(cause.message, cause.status, { retryable: true });
+    }
+    throw cause;
+  }
 }

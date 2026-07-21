@@ -41,7 +41,6 @@ export const MATCH_SOURCE_OPTIONS = [
   { value: "cashFlowAllocation", label: "现金流分配" },
   { value: "workpaper", label: "人工底稿" },
   { value: "voucher", label: "凭证" },
-  { value: "other", label: "其他可追溯来源" },
 ];
 
 export const MATCHED_ENTRY_TYPES = new Set<ConsolidationEntryType>(["intercompanyBalance", "internalTrading", "cashFlow"]);
@@ -52,25 +51,42 @@ export interface EntryDraft {
   title: string;
   description: string;
   evidence: string;
-  debitCompanyId: number | null;
-  debitReportType: StatementReportType;
-  debitLineCode: string;
-  creditCompanyId: number | null;
-  creditReportType: StatementReportType;
-  creditLineCode: string;
-  amount: number;
-  periodBasis: "current" | "comparative";
-  debitSourceKind: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | "other";
-  debitSourceId: string;
-  debitSourceFingerprint: string;
-  debitSourceAmount: number;
-  debitSourceCurrency: string;
-  creditSourceKind: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher" | "other";
-  creditSourceId: string;
-  creditSourceFingerprint: string;
-  creditSourceAmount: number;
-  creditSourceCurrency: string;
   differenceResolution: string;
+  lines: EntryLineDraft[];
+}
+
+export interface EntryLineDraft {
+  localKey: string;
+  entitySnapshotId: number | null;
+  counterpartyEntitySnapshotId: number | null;
+  statementType: StatementReportType;
+  lineCode: string;
+  periodBasis: "current" | "comparative";
+  note: string;
+  debit: number;
+  credit: number;
+  matchSide: "left" | "right";
+  sourceKind: "auxiliaryBalance" | "openItem" | "cashFlowAllocation" | "workpaper" | "voucher";
+  sourceRecordId: number | null;
+  sourceDisplay: string;
+}
+
+export function newEntryLine(localKey: string, matchSide: "left" | "right" = "left"): EntryLineDraft {
+  return {
+    localKey,
+    entitySnapshotId: null,
+    counterpartyEntitySnapshotId: null,
+    statementType: "balanceSheet",
+    lineCode: "",
+    periodBasis: "current",
+    note: "",
+    debit: 0,
+    credit: 0,
+    matchSide,
+    sourceKind: "auxiliaryBalance",
+    sourceRecordId: null,
+    sourceDisplay: "",
+  };
 }
 
 export function defaultEntry(): EntryDraft {
@@ -80,30 +96,14 @@ export function defaultEntry(): EntryDraft {
     title: "",
     description: "",
     evidence: "",
-    debitCompanyId: null,
-    debitReportType: "balanceSheet",
-    debitLineCode: "",
-    creditCompanyId: null,
-    creditReportType: "balanceSheet",
-    creditLineCode: "",
-    amount: 0,
-    periodBasis: "current",
-    debitSourceKind: "auxiliaryBalance",
-    debitSourceId: "",
-    debitSourceFingerprint: "",
-    debitSourceAmount: 0,
-    debitSourceCurrency: "CNY",
-    creditSourceKind: "auxiliaryBalance",
-    creditSourceId: "",
-    creditSourceFingerprint: "",
-    creditSourceAmount: 0,
-    creditSourceCurrency: "CNY",
     differenceResolution: "",
+    lines: [newEntryLine("line-1", "left"), newEntryLine("line-2", "right")],
   };
 }
 
 export const ENTRY_COLUMNS: DataSurfaceColumnSpec<ConsolidationEntrySnapshot>[] = [
   { key: "entryNo", label: "分录", required: true, width: "sm", cell: (row) => `${row.entryNo} · v${row.version}` },
+  { key: "origin", label: "来源", width: "sm", cell: (row) => ({ kind: "badge", label: row.origin === "system" ? "系统生成" : "人工", tone: row.origin === "system" ? "blue" : "gray" }) },
   { key: "title", label: "事项", required: true, width: "xl", cell: (row) => row.title },
   { key: "type", label: "类别", width: "md", cell: (row) => ENTRY_TYPE_OPTIONS.find((option) => option.value === row.entryType)?.label ?? row.entryType },
   { key: "amount", label: "借贷金额", width: "md", cell: (row) => ({ kind: "amount", value: row.lines.reduce((sum, line) => sum + line.debit, 0) }) },
@@ -157,7 +157,7 @@ export const TAX_EFFECT_COLUMNS: DataSurfaceColumnSpec<TaxEffectRow>[] = [
 
 const EVENT_ACTION_LABELS: Record<ConsolidationBatchEventSnapshot["action"], string> = {
   create: "创建批次", submit: "提交复核", return: "退回修改", review: "独立复核", lock: "锁定批次", publish: "发布报表",
-  "entry.delete": "删除抵销草稿", "taxEffect.delete": "删除税效草稿",
+  "entry.generate": "自动生成抵销草稿", "entry.delete": "删除抵销草稿", "taxEffect.delete": "删除税效草稿",
 };
 
 export const EVENT_COLUMNS: DataSurfaceColumnSpec<ConsolidationBatchEventSnapshot>[] = [

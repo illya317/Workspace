@@ -18,8 +18,8 @@ const balancedEntry = {
   description: "双方余额逐项匹配",
   evidence: "双方对账单 2026-06",
   lines: [
-    { companyId: 1, statementType: "balanceSheet" as const, lineCode: "accountsPayable", debit: 100, credit: 0, matchSide: "left" as const, sourceKind: "auxiliaryBalance" as const, sourceId: "AB-1", sourceFingerprint: "sha256:left", sourceAmount: 100, sourceCurrency: "CNY", counterpartyCompanyId: 2 },
-    { companyId: 2, statementType: "balanceSheet" as const, lineCode: "accountsReceivable", debit: 0, credit: 100, matchSide: "right" as const, sourceKind: "auxiliaryBalance" as const, sourceId: "AB-2", sourceFingerprint: "sha256:right", sourceAmount: 100, sourceCurrency: "CNY", counterpartyCompanyId: 1 },
+    { entitySnapshotId: 1, statementType: "balanceSheet" as const, lineCode: "accountsPayable", debit: 100, credit: 0, matchSide: "left" as const, sourceKind: "auxiliaryBalance" as const, sourceRecordId: 11, counterpartyEntitySnapshotId: 2 },
+    { entitySnapshotId: 2, statementType: "balanceSheet" as const, lineCode: "accountsReceivable", debit: 0, credit: 100, matchSide: "right" as const, sourceKind: "auxiliaryBalance" as const, sourceRecordId: 12, counterpartyEntitySnapshotId: 1 },
   ],
 };
 
@@ -74,23 +74,23 @@ test("requires structured bilateral source facts for internal matching", () => {
   if (!result.ok) assert.equal(result.issue.field, "matching");
 });
 
-test("requires a difference resolution when bilateral source totals differ", () => {
+test("requires a selected source record for each matching side", () => {
   const result = buildSaveConsolidationEntryCommand(7, {
     ...balancedEntry,
-    lines: [balancedEntry.lines[0]!, { ...balancedEntry.lines[1]!, sourceAmount: 95 }],
+    lines: [balancedEntry.lines[0]!, { ...balancedEntry.lines[1]!, sourceRecordId: null }],
   }, 9);
   assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.issue.field, "differenceResolution");
+  if (!result.ok) assert.equal(result.issue.field, "matching");
 });
 
 test("exact reversal compares a currency-aware one-to-one multiset", () => {
   const original = [
-    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
-    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
+    { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
+    { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 100, credit: 0, currencyCode: "CAD" },
   ];
   const exact = [
-    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
-    { companyId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
+    { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
+    { entitySnapshotId: 1, statementType: "balanceSheet", lineCode: "receivable", accountCode: "1122", debit: 0, credit: 100, currencyCode: "CAD" },
   ];
   assert.equal(isExactConsolidationReversal(original, exact), true);
   assert.equal(isExactConsolidationReversal(original, [

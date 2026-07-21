@@ -109,6 +109,8 @@ export async function replaceOpenItems(
         currencyCode: item.currencyCode ?? null, originalDebit: item.originalDebit,
         originalCredit: item.originalCredit, outstandingDebit: item.outstandingDebit,
         outstandingCredit: item.outstandingCredit, status: item.status,
+        originType: item.originType ?? null,
+        sourcePeriodBeginDetailId: item.sourcePeriodBeginDetailId ?? null,
       },
     });
     const links = item.auxiliaryRefs.flatMap((ref) => {

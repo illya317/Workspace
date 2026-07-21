@@ -11,6 +11,7 @@ import {
   wecomGroupConversationTool,
 } from "@workspace/platform/server/agent";
 import { withWecomAgentBridgeAccess } from "@workspace/platform/server/with-auth";
+import { docsEditorAgentTools } from "@workspace/platform/server/docs-editor";
 
 export const runtime = "nodejs";
 export const maxDuration = 900;
@@ -18,7 +19,7 @@ export const maxDuration = 900;
 export const POST = withWecomAgentBridgeAccess(async (request, input, user) => {
   const tools = input.chatType === "group"
     ? [wecomGroupConversationTool]
-    : [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryWecomAgentTools];
+    : [...sourceCodeAgentTools, ...workAgentTools, ...hrAgentTools, ...financeAgentTools, ...libraryWecomAgentTools, ...docsEditorAgentTools];
   return handleParsedAgentMessageStreamRequest(
     toParsedAgentRequest(input),
     user,

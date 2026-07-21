@@ -130,8 +130,8 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - `/work` 是移动端优先的统一 Agent 入口；`/work/me`、`/work/project`、`/work/meeting`、`/work/performance` 继续作为结构化事实、完整编辑和流程状态入口，不复制为另一套 Agent 业务协议。
 - Work Agent 读取工作空间时复用 `work.tasks` 入口能力和各目标空间的 scoped permission。选择虚拟执行身份时，只返回请求人与执行身份共同具备 `read` 的空间，并取双方动作权限交集。
 - Work Agent 可以按名称、关键词或精确节点读取个人、部门和项目空间的计划与工作节点明细；页面当前空间和计划只作为定位提示，服务端工具仍按请求人与执行身份的空间交集重新读取和授权。引用字段必须复用 Work FK registry 搜索候选，不能猜测人员、协作、职责或关系 ID。
-- 当前可靠写入案例只开放“维护已有工作节点”：Agent 根据自然语言反馈逐项补齐缺失或歧义字段，再生成包含字段差异的 proposal；用户显式确认前不写数据库。更新只接受人工编辑表单当前可见、可编辑的字段和条件分支，沿用 1～5 评分、严格 `YYYY-MM-DD`、完成状态、OKR 阶段、职责、证据及关系校验。计划、类别、节点类型、来源、参与人、排序、删除、归档和新建暂不开放，避免通过 Agent contract 绕过人工表单的锁定字段或隐含默认值。
-- 用户确认 proposal 时必须重新校验全局 Agent action ceiling、请求人与执行身份的 scoped `update` 权限以及引用候选；`updatedAt` 快照要贯穿直接保存和审批 payload，最终 Prisma 更新继续做原子版本比较。确认后仍复用网页端 WorkItem command、domain validator、审批策略和 service，并明确区分“已保存”和“已提交审批”。
+- Work Agent 的可靠写入只开放工作节点创建和已有节点维护，两者都必须先生成 proposal，用户显式确认前不写数据库。创建一次只处理一个已有 OKR 计划中的目标、KR 或任务，类别、来源、参与人、排序、周期关系和日常职责字段由服务端按人工表单默认值派生或保持关闭；KR 和任务只能引用已确认存在的同计划根目标。更新继续只接受人工编辑表单当前可见、可编辑的字段和条件分支。删除、归档、计划创建、来源绑定、跨期关系以及任何 Shell、文件、源码、部署或服务器控制能力均不通过 Work Agent 开放。
+- 用户确认 proposal 时必须重新校验全局 Agent action ceiling、请求人与执行身份的 scoped `create/update` 权限、OKR 治理阶段以及引用候选；任一身份权限更窄即拒绝，不能借 Agent 扩权。更新的 `updatedAt` 快照要贯穿直接保存和审批 payload，最终 Prisma 更新继续做原子版本比较。创建和更新都复用网页端 WorkItem command、domain validator、审批策略和 service，并明确区分“已保存”和“已提交审批”。
 - `/work` 当前固定使用本人助手，不展示仅具备源码/PR 能力的通用虚拟执行身份；其他页面助手仍可按其上下文切换有效身份。
 - 本人绩效材料仍由 HR 的 `hr.performance` service 与周期档案模型提供；Agent 只读取当前登录用户本人材料。绩效自评写入必须生成 proposal，用户确认后再次校验 `hr.performance.read + submit`、本人身份、流程状态和版本，再复用现有 HR 绩效草稿与提交流程。
 - Agent 没有权限时 `/work` 不展示可发送的输入框，只保留当前用户原本有权进入的结构化 Work 入口，避免页面能力与 API guard 不一致。

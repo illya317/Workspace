@@ -28,6 +28,7 @@ import {
   claimConsolidationBatchRevision,
   immutableAuditSnapshot,
 } from "./consolidation-mutations";
+import { resolveConsolidationEntrySource } from "./consolidation-entry-sources";
 
 class ConsolidationEntryError extends Error {
   constructor(message: string, readonly status = 400) {
@@ -81,20 +82,50 @@ async function loadVersionTarget(
   return entry;
 }
 
-function lineData(
+async function lineData(
   command: SaveConsolidationEntryCommand,
-  companyCodeById: Map<number, string>,
+  batch: Awaited<ReturnType<typeof loadDraftBatch>>,
 ) {
-  return command.input.lines.map((line, index) => {
-    const companyCode = companyCodeById.get(line.companyId);
-    if (!companyCode) throw new ConsolidationEntryError("抵销分录引用了批次范围外公司", 409);
-    if (line.counterpartyCompanyId && !companyCodeById.has(line.counterpartyCompanyId)) {
+  const entityById = new Map(batch.entities.map((entity) => [entity.id, entity]));
+  const matchedEntry = ["intercompanyBalance", "internalTrading", "cashFlow"].includes(command.input.entryType);
+  const lines = await Promise.all(command.input.lines.map(async (line, index) => {
+    const entity = entityById.get(line.entitySnapshotId);
+    if (!entity) throw new ConsolidationEntryError("抵销分录引用了批次范围外主体", 409);
+    const counterparty = line.counterpartyEntitySnapshotId ? entityById.get(line.counterpartyEntitySnapshotId) : null;
+    if (line.counterpartyEntitySnapshotId && !counterparty) {
       throw new ConsolidationEntryError("结构化配对引用了批次范围外对方主体", 409);
+    }
+    let source = {
+      sourceId: null as string | null,
+      sourceFingerprint: null as string | null,
+      sourceAmount: null as number | null,
+      sourceCurrency: null as string | null,
+      sourceSnapshotId: null as number | null,
+      sourceAuxiliaryBalanceId: null as number | null,
+      sourceOpenItemId: null as number | null,
+      sourceCashFlowAllocationId: null as number | null,
+      sourceVoucherItemId: null as number | null,
+    };
+    if (matchedEntry && line.sourceKind && line.sourceRecordId) {
+      try {
+        source = await resolveConsolidationEntrySource({
+          batchId: batch.id,
+          entitySnapshotId: line.entitySnapshotId,
+          sourceKind: line.sourceKind,
+          sourceRecordId: line.sourceRecordId,
+          reportType: line.statementType,
+          lineCode: line.lineCode,
+          periodBasis: line.periodBasis || "current",
+        });
+      } catch (cause) {
+        throw new ConsolidationEntryError(cause instanceof Error ? cause.message : "匹配来源读取失败", 409);
+      }
     }
     return {
       lineNo: index + 1,
-      companyId: line.companyId,
-      companyCode,
+      entitySnapshotId: entity.id,
+      companyId: entity.companyId,
+      companyCode: entity.companyCode,
       statementType: line.statementType,
       lineCode: line.lineCode,
       accountCode: line.accountCode,
@@ -105,13 +136,24 @@ function lineData(
       note: line.note,
       matchSide: line.matchSide,
       sourceKind: line.sourceKind,
-      sourceId: line.sourceId,
-      sourceFingerprint: line.sourceFingerprint,
-      sourceAmount: line.sourceAmount,
-      sourceCurrency: line.sourceCurrency,
-      counterpartyCompanyId: line.counterpartyCompanyId,
+      ...source,
+      counterpartyEntitySnapshotId: counterparty?.id ?? null,
+      counterpartyCompanyId: counterparty?.companyId ?? null,
     };
-  });
+  }));
+  if (!matchedEntry) return { lines, matchDifference: null, differenceResolution: command.input.differenceResolution };
+  const left = lines.filter((line) => line.matchSide === "left").reduce((sum, line) => sum + (line.sourceAmount ?? 0), 0);
+  const right = lines.filter((line) => line.matchSide === "right").reduce((sum, line) => sum + (line.sourceAmount ?? 0), 0);
+  if (left <= 0 || right <= 0) throw new ConsolidationEntryError("结构化配对必须同时包含左右两侧来源", 409);
+  const matchDifference = Math.round(Math.abs(left - right) * 100) / 100;
+  if (matchDifference > 0 && !command.input.differenceResolution?.trim()) {
+    throw new ConsolidationEntryError("配对存在差额时必须填写差额处置", 409);
+  }
+  return {
+    lines,
+    matchDifference,
+    differenceResolution: command.input.differenceResolution?.trim() || "双方来源金额一致，无待处置差额",
+  };
 }
 
 function reportPayloadLines(reportType: string, value: unknown): Record<string, unknown>[] {
@@ -128,13 +170,11 @@ function reportPayloadLines(reportType: string, value: unknown): Record<string, 
 
 function validateEntryLineTargets(
   batch: Awaited<ReturnType<typeof loadDraftBatch>>,
-  lines: ReturnType<typeof lineData>,
+  lines: Awaited<ReturnType<typeof lineData>>["lines"],
 ) {
-  const entitySnapshotIdByCompanyId = new Map(batch.entities.map((entity) => [entity.companyId, entity.id]));
   for (const line of lines) {
-    const entitySnapshotId = entitySnapshotIdByCompanyId.get(line.companyId);
     const source = batch.sources.find((candidate) => (
-      candidate.entitySnapshotId === entitySnapshotId
+      candidate.entitySnapshotId === line.entitySnapshotId
       && candidate.reportType === line.statementType
     ));
     const target = source && reportPayloadLines(line.statementType, source.reportPayload)
@@ -166,8 +206,8 @@ export async function saveConsolidationEntry(rawCommand: SaveConsolidationEntryC
     if (existing && existing.batchId !== batch.id) throw new ConsolidationEntryError("抵销分录不属于当前批次", 409);
     const writeMode = validateConsolidationEntryWriteMode(batch.status, existing?.status as "draft" | "submitted" | "approved" | "reversed" | null);
     if (!writeMode.ok) return serviceError(writeMode.issue.message, writeMode.issue.status);
-    const companyCodeById = new Map(batch.entities.map((entity) => [entity.companyId, entity.companyCode]));
-    const lines = lineData(command, companyCodeById);
+    const resolved = await lineData(command, batch);
+    const { lines, matchDifference, differenceResolution } = resolved;
     validateEntryLineTargets(batch, lines);
     const supersedes = command.input.supersedesEntryId
       ? await loadVersionTarget(command.input.supersedesEntryId, batch)
@@ -204,8 +244,8 @@ export async function saveConsolidationEntry(rawCommand: SaveConsolidationEntryC
             title: command.input.title,
             description: command.input.description,
             evidence: command.input.evidence,
-            matchDifference: command.input.matchDifference,
-            differenceResolution: command.input.differenceResolution,
+            matchDifference,
+            differenceResolution,
             preparedBy: command.userId,
             lines: { create: lines },
           },
@@ -220,8 +260,8 @@ export async function saveConsolidationEntry(rawCommand: SaveConsolidationEntryC
             title: command.input.title,
             description: command.input.description,
             evidence: command.input.evidence,
-            matchDifference: command.input.matchDifference,
-            differenceResolution: command.input.differenceResolution,
+            matchDifference,
+            differenceResolution,
             version: supersedes || reversal ? (supersedes ?? reversal)!.version + 1 : 1,
             supersedesEntryId: supersedes?.id ?? null,
             reversalOfEntryId: reversal?.id ?? null,

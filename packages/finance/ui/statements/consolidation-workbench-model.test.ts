@@ -74,8 +74,8 @@ test("source freeze maps each investment voucher to its selected CAD entity", ()
     },
     fxPolicy: {
       rates: [
-        { id: 11, status: "verified", rateKind: "closing", rateDate: "2026-12-31" },
-        { id: 12, status: "verified", rateKind: "historicalInvestment", rateDate: "2026-06-28" },
+        { id: 11, rateKind: "closing", rateDate: "2026-12-31" },
+        { id: 12, rateKind: "historicalInvestment", rateDate: "2026-06-28" },
       ],
       investmentEvidence: [
         { id: 101, companyCode: "01", voucherNo: "投-001", voucherDate: "2026-06-30" },
@@ -113,4 +113,46 @@ test("source freeze maps each investment voucher to its selected CAD entity", ()
       { voucherItemId: 102, entitySnapshotId: 3 },
     ],
   );
+});
+
+test("source freeze requires and emits historical capital evidence for nonzero CAD equity", () => {
+  const sources = (["balanceSheet", "incomeStatement", "cashFlow"] as const).map((reportType, index) => ({
+    entitySnapshotId: 2,
+    reportType,
+    sourceKind: "workpaper",
+    workpaperId: 20 + index,
+    evidence: "已提交底稿",
+    reportPayload: reportType === "balanceSheet"
+      ? { payload: { assets: [], liabilities: [], equity: [{ lineCode: "paidInCapital", label: "实收资本", side: "credit", section: "equity", amount: 100, previousAmount: 0 }] } }
+      : { payload: { lines: [] } },
+  }));
+  const data = {
+    batch: { entities: [{ id: 2, companyName: "境外主体", companyCode: "02", role: "subsidiary" }], sources },
+    fxPolicy: {
+      periodEndDate: "2026-12-31",
+      rates: [
+        { id: 11, rateKind: "closing", rateDate: "2026-12-31" },
+        { id: 12, rateKind: "historicalInvestment", rateDate: "2025-01-01" },
+      ],
+      investmentEvidence: [],
+    },
+  } as unknown as ConsolidationOverview;
+  const policies = { 2: { functionalCurrency: "CAD", evidence: "经营环境判断" } } as const;
+  const missing = buildSourceFreezeInput(data, policies, {}, "");
+  assert.equal(missing.ok, false);
+
+  const ready = buildSourceFreezeInput(data, policies, {}, "", {
+    2: { exchangeRateId: 12, contributionDate: "2025-01-01", originalAmount: 100, evidence: "出资协议" },
+  });
+  assert.equal(ready.ok, true);
+  if (!ready.ok) return;
+  assert.deepEqual(ready.input.rateApplications.find((item) => item.applicationType === "historicalCapital"), {
+    exchangeRateId: 12,
+    applicationType: "historicalCapital",
+    entitySnapshotId: 2,
+    capitalContributionDate: "2025-01-01",
+    capitalOriginalAmount: 100,
+    evidence: "出资协议",
+    periodBasis: "current",
+  });
 });

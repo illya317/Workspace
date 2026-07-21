@@ -359,6 +359,12 @@ export type FinanceConsolidationEntitySnapshotWhereInput = {
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
   sources?: Prisma.FinanceConsolidationSourceSnapshotListRelationFilter
   taxEffects?: Prisma.FinanceConsolidationTaxEffectListRelationFilter
+  entryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
+  matchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }
 
 export type FinanceConsolidationEntitySnapshotOrderByWithRelationInput = {
@@ -384,6 +390,12 @@ export type FinanceConsolidationEntitySnapshotOrderByWithRelationInput = {
   batch?: Prisma.FinanceConsolidationBatchOrderByWithRelationInput
   sources?: Prisma.FinanceConsolidationSourceSnapshotOrderByRelationAggregateInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectOrderByRelationAggregateInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineOrderByRelationAggregateInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupOrderByRelationAggregateInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupOrderByRelationAggregateInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceOrderByRelationAggregateInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceOrderByRelationAggregateInput
 }
 
 export type FinanceConsolidationEntitySnapshotWhereUniqueInput = Prisma.AtLeast<{
@@ -413,6 +425,12 @@ export type FinanceConsolidationEntitySnapshotWhereUniqueInput = Prisma.AtLeast<
   batch?: Prisma.XOR<Prisma.FinanceConsolidationBatchScalarRelationFilter, Prisma.FinanceConsolidationBatchWhereInput>
   sources?: Prisma.FinanceConsolidationSourceSnapshotListRelationFilter
   taxEffects?: Prisma.FinanceConsolidationTaxEffectListRelationFilter
+  entryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineListRelationFilter
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupListRelationFilter
+  matchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceListRelationFilter
 }, "id" | "batchId_companyId">
 
 export type FinanceConsolidationEntitySnapshotOrderByWithAggregationInput = {
@@ -488,6 +506,12 @@ export type FinanceConsolidationEntitySnapshotCreateInput = {
   batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
   sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedCreateInput = {
@@ -512,6 +536,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedCreateInput = {
   createdAt?: Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotUpdateInput = {
@@ -535,6 +565,12 @@ export type FinanceConsolidationEntitySnapshotUpdateInput = {
   batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
   sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedUpdateInput = {
@@ -559,6 +595,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateManyInput = {
@@ -623,6 +665,16 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateManyInput = {
   currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type FinanceConsolidationEntitySnapshotScalarRelationFilter = {
+  is?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  isNot?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotNullableScalarRelationFilter = {
+  is?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | null
+  isNot?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | null
 }
 
 export type FinanceConsolidationEntitySnapshotListRelationFilter = {
@@ -728,14 +780,94 @@ export type FinanceConsolidationEntitySnapshotSumOrderByAggregateInput = {
   currencyDecidedBy?: Prisma.SortOrder
 }
 
-export type FinanceConsolidationEntitySnapshotScalarRelationFilter = {
-  is?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
-  isNot?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutEntryLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutEntryLinesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
 }
 
-export type FinanceConsolidationEntitySnapshotNullableScalarRelationFilter = {
-  is?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | null
-  isNot?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | null
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyEntryLinesInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyEntryLinesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutEntryLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutEntryLinesInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutEntryLinesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutEntryLinesInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyEntryLinesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyEntryLinesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyEntryLinesInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutCounterpartyEntryLinesInput
+  disconnect?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  delete?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyEntryLinesInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutLeftMatchGroupsInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutLeftMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutLeftMatchGroupsInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutRightMatchGroupsInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutRightMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutRightMatchGroupsInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutLeftMatchGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutLeftMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutLeftMatchGroupsInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutLeftMatchGroupsInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutLeftMatchGroupsInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutLeftMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneWithoutRightMatchGroupsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutRightMatchGroupsInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutRightMatchGroupsInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutRightMatchGroupsInput
+  disconnect?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  delete?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutRightMatchGroupsInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutRightMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutMatchSourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutMatchSourcesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutCounterpartyMatchSourcesInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyMatchSourcesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneRequiredWithoutMatchSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutMatchSourcesInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutMatchSourcesInput
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutMatchSourcesInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutMatchSourcesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateOneWithoutCounterpartyMatchSourcesNestedInput = {
+  create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyMatchSourcesInput>
+  connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyMatchSourcesInput
+  upsert?: Prisma.FinanceConsolidationEntitySnapshotUpsertWithoutCounterpartyMatchSourcesInput
+  disconnect?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  delete?: Prisma.FinanceConsolidationEntitySnapshotWhereInput | boolean
+  connect?: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyMatchSourcesInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyMatchSourcesInput>
 }
 
 export type FinanceConsolidationEntitySnapshotCreateNestedManyWithoutBatchInput = {
@@ -780,14 +912,6 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutBatchNes
   deleteMany?: Prisma.FinanceConsolidationEntitySnapshotScalarWhereInput | Prisma.FinanceConsolidationEntitySnapshotScalarWhereInput[]
 }
 
-export type NullableDecimalFieldUpdateOperationsInput = {
-  set?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
-  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
-}
-
 export type FinanceConsolidationEntitySnapshotCreateNestedOneWithoutSourcesInput = {
   create?: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutSourcesInput>
   connectOrCreate?: Prisma.FinanceConsolidationEntitySnapshotCreateOrConnectWithoutSourcesInput
@@ -818,6 +942,786 @@ export type FinanceConsolidationEntitySnapshotUpdateOneWithoutTaxEffectsNestedIn
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutTaxEffectsInput, Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutTaxEffectsInput>, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutTaxEffectsInput>
 }
 
+export type FinanceConsolidationEntitySnapshotCreateWithoutEntryLinesInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutEntryLinesInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutEntryLinesInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyEntryLinesInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyEntryLinesInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyEntryLinesInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutEntryLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutEntryLinesInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutEntryLinesInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutEntryLinesInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutEntryLinesInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutEntryLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutCounterpartyEntryLinesInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyEntryLinesInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyEntryLinesInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutCounterpartyEntryLinesInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyEntryLinesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyEntryLinesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyEntryLinesInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyEntryLinesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateWithoutLeftMatchGroupsInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutLeftMatchGroupsInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutLeftMatchGroupsInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutLeftMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotCreateWithoutRightMatchGroupsInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutRightMatchGroupsInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutRightMatchGroupsInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutRightMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutLeftMatchGroupsInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutLeftMatchGroupsInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutLeftMatchGroupsInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutLeftMatchGroupsInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutLeftMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutLeftMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutLeftMatchGroupsInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutLeftMatchGroupsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutRightMatchGroupsInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutRightMatchGroupsInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutRightMatchGroupsInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutRightMatchGroupsInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutRightMatchGroupsInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutRightMatchGroupsInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutRightMatchGroupsInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutRightMatchGroupsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateWithoutMatchSourcesInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutMatchSourcesInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutMatchSourcesInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutMatchSourcesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyMatchSourcesInput = {
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyMatchSourcesInput = {
+  id?: number
+  batchId: number
+  companyId: number
+  companyCode: string
+  companyName: string
+  role: string
+  directParentCompanyId?: number | null
+  directParentCode?: string | null
+  relationId?: number | null
+  relationUpdatedAt?: Date | string | null
+  relationEffectiveFrom?: Date | string | null
+  relationEffectiveTo?: Date | string | null
+  relationVersion?: number | null
+  shareRatio?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: boolean
+  functionalCurrency?: string | null
+  currencyEvidence?: string | null
+  currencyDecidedBy?: number | null
+  createdAt?: Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+}
+
+export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutCounterpartyMatchSourcesInput = {
+  where: Prisma.FinanceConsolidationEntitySnapshotWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyMatchSourcesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutMatchSourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutMatchSourcesInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutMatchSourcesInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutMatchSourcesInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutMatchSourcesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutMatchSourcesInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutMatchSourcesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpsertWithoutCounterpartyMatchSourcesInput = {
+  update: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyMatchSourcesInput>
+  create: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotCreateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedCreateWithoutCounterpartyMatchSourcesInput>
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateToOneWithWhereWithoutCounterpartyMatchSourcesInput = {
+  where?: Prisma.FinanceConsolidationEntitySnapshotWhereInput
+  data: Prisma.XOR<Prisma.FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyMatchSourcesInput, Prisma.FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyMatchSourcesInput>
+}
+
+export type FinanceConsolidationEntitySnapshotUpdateWithoutCounterpartyMatchSourcesInput = {
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+}
+
+export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutCounterpartyMatchSourcesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  batchId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyCode?: Prisma.StringFieldUpdateOperationsInput | string
+  companyName?: Prisma.StringFieldUpdateOperationsInput | string
+  role?: Prisma.StringFieldUpdateOperationsInput | string
+  directParentCompanyId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  directParentCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  relationId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  relationUpdatedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationEffectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relationVersion?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  shareRatio?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  functionalCurrency?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyEvidence?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+}
+
 export type FinanceConsolidationEntitySnapshotCreateWithoutBatchInput = {
   companyId: number
   companyCode: string
@@ -838,6 +1742,12 @@ export type FinanceConsolidationEntitySnapshotCreateWithoutBatchInput = {
   createdAt?: Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutBatchInput = {
@@ -861,6 +1771,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutBatchInput =
   createdAt?: Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutBatchInput = {
@@ -934,6 +1850,12 @@ export type FinanceConsolidationEntitySnapshotCreateWithoutSourcesInput = {
   createdAt?: Date | string
   batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutSourcesInput = {
@@ -957,6 +1879,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutSourcesInput
   currencyDecidedBy?: number | null
   createdAt?: Date | string
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutSourcesInput = {
@@ -995,6 +1923,12 @@ export type FinanceConsolidationEntitySnapshotUpdateWithoutSourcesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutSourcesInput = {
@@ -1018,6 +1952,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutSourcesInput
   currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateWithoutTaxEffectsInput = {
@@ -1040,6 +1980,12 @@ export type FinanceConsolidationEntitySnapshotCreateWithoutTaxEffectsInput = {
   createdAt?: Date | string
   batch: Prisma.FinanceConsolidationBatchCreateNestedOneWithoutEntitiesInput
   sources?: Prisma.FinanceConsolidationSourceSnapshotCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutTaxEffectsInput = {
@@ -1063,6 +2009,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedCreateWithoutTaxEffectsIn
   currencyDecidedBy?: number | null
   createdAt?: Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedCreateNestedManyWithoutEntityInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedCreateNestedManyWithoutCounterpartyEntityInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutLeftEntityInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedCreateNestedManyWithoutRightEntityInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutEntityInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedCreateNestedManyWithoutCounterpartyEntityInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateOrConnectWithoutTaxEffectsInput = {
@@ -1101,6 +2053,12 @@ export type FinanceConsolidationEntitySnapshotUpdateWithoutTaxEffectsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   batch?: Prisma.FinanceConsolidationBatchUpdateOneRequiredWithoutEntitiesNestedInput
   sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutTaxEffectsInput = {
@@ -1124,6 +2082,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutTaxEffectsIn
   currencyDecidedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotCreateManyBatchInput = {
@@ -1167,6 +2131,12 @@ export type FinanceConsolidationEntitySnapshotUpdateWithoutBatchInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUpdateManyWithoutEntityNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutBatchInput = {
@@ -1190,6 +2160,12 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateWithoutBatchInput =
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sources?: Prisma.FinanceConsolidationSourceSnapshotUncheckedUpdateManyWithoutEntityNestedInput
   taxEffects?: Prisma.FinanceConsolidationTaxEffectUncheckedUpdateManyWithoutEntityNestedInput
+  entryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyEntryLines?: Prisma.FinanceConsolidationEntryLineUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
+  leftMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutLeftEntityNestedInput
+  rightMatchGroups?: Prisma.FinanceConsolidationMatchGroupUncheckedUpdateManyWithoutRightEntityNestedInput
+  matchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutEntityNestedInput
+  counterpartyMatchSources?: Prisma.FinanceConsolidationMatchSourceUncheckedUpdateManyWithoutCounterpartyEntityNestedInput
 }
 
 export type FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutBatchInput = {
@@ -1221,11 +2197,23 @@ export type FinanceConsolidationEntitySnapshotUncheckedUpdateManyWithoutBatchInp
 export type FinanceConsolidationEntitySnapshotCountOutputType = {
   sources: number
   taxEffects: number
+  entryLines: number
+  counterpartyEntryLines: number
+  leftMatchGroups: number
+  rightMatchGroups: number
+  matchSources: number
+  counterpartyMatchSources: number
 }
 
 export type FinanceConsolidationEntitySnapshotCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   sources?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountSourcesArgs
   taxEffects?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountTaxEffectsArgs
+  entryLines?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountEntryLinesArgs
+  counterpartyEntryLines?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountCounterpartyEntryLinesArgs
+  leftMatchGroups?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountLeftMatchGroupsArgs
+  rightMatchGroups?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountRightMatchGroupsArgs
+  matchSources?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountMatchSourcesArgs
+  counterpartyMatchSources?: boolean | FinanceConsolidationEntitySnapshotCountOutputTypeCountCounterpartyMatchSourcesArgs
 }
 
 /**
@@ -1252,6 +2240,48 @@ export type FinanceConsolidationEntitySnapshotCountOutputTypeCountTaxEffectsArgs
   where?: Prisma.FinanceConsolidationTaxEffectWhereInput
 }
 
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+}
+
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountCounterpartyEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+}
+
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountLeftMatchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+}
+
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountRightMatchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+}
+
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+}
+
+/**
+ * FinanceConsolidationEntitySnapshotCountOutputType without action
+ */
+export type FinanceConsolidationEntitySnapshotCountOutputTypeCountCounterpartyMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+}
+
 
 export type FinanceConsolidationEntitySnapshotSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1276,6 +2306,12 @@ export type FinanceConsolidationEntitySnapshotSelect<ExtArgs extends runtime.Typ
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
   sources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$sourcesArgs<ExtArgs>
   taxEffects?: boolean | Prisma.FinanceConsolidationEntitySnapshot$taxEffectsArgs<ExtArgs>
+  entryLines?: boolean | Prisma.FinanceConsolidationEntitySnapshot$entryLinesArgs<ExtArgs>
+  counterpartyEntryLines?: boolean | Prisma.FinanceConsolidationEntitySnapshot$counterpartyEntryLinesArgs<ExtArgs>
+  leftMatchGroups?: boolean | Prisma.FinanceConsolidationEntitySnapshot$leftMatchGroupsArgs<ExtArgs>
+  rightMatchGroups?: boolean | Prisma.FinanceConsolidationEntitySnapshot$rightMatchGroupsArgs<ExtArgs>
+  matchSources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$matchSourcesArgs<ExtArgs>
+  counterpartyMatchSources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$counterpartyMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationEntitySnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financeConsolidationEntitySnapshot"]>
 
@@ -1352,6 +2388,12 @@ export type FinanceConsolidationEntitySnapshotInclude<ExtArgs extends runtime.Ty
   batch?: boolean | Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>
   sources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$sourcesArgs<ExtArgs>
   taxEffects?: boolean | Prisma.FinanceConsolidationEntitySnapshot$taxEffectsArgs<ExtArgs>
+  entryLines?: boolean | Prisma.FinanceConsolidationEntitySnapshot$entryLinesArgs<ExtArgs>
+  counterpartyEntryLines?: boolean | Prisma.FinanceConsolidationEntitySnapshot$counterpartyEntryLinesArgs<ExtArgs>
+  leftMatchGroups?: boolean | Prisma.FinanceConsolidationEntitySnapshot$leftMatchGroupsArgs<ExtArgs>
+  rightMatchGroups?: boolean | Prisma.FinanceConsolidationEntitySnapshot$rightMatchGroupsArgs<ExtArgs>
+  matchSources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$matchSourcesArgs<ExtArgs>
+  counterpartyMatchSources?: boolean | Prisma.FinanceConsolidationEntitySnapshot$counterpartyMatchSourcesArgs<ExtArgs>
   _count?: boolean | Prisma.FinanceConsolidationEntitySnapshotCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinanceConsolidationEntitySnapshotIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1367,6 +2409,12 @@ export type $FinanceConsolidationEntitySnapshotPayload<ExtArgs extends runtime.T
     batch: Prisma.$FinanceConsolidationBatchPayload<ExtArgs>
     sources: Prisma.$FinanceConsolidationSourceSnapshotPayload<ExtArgs>[]
     taxEffects: Prisma.$FinanceConsolidationTaxEffectPayload<ExtArgs>[]
+    entryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    counterpartyEntryLines: Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>[]
+    leftMatchGroups: Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>[]
+    rightMatchGroups: Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>[]
+    matchSources: Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>[]
+    counterpartyMatchSources: Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1785,6 +2833,12 @@ export interface Prisma__FinanceConsolidationEntitySnapshotClient<T, Null = neve
   batch<T extends Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationBatchDefaultArgs<ExtArgs>>): Prisma.Prisma__FinanceConsolidationBatchClient<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationBatchPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   sources<T extends Prisma.FinanceConsolidationEntitySnapshot$sourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$sourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationSourceSnapshotPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   taxEffects<T extends Prisma.FinanceConsolidationEntitySnapshot$taxEffectsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$taxEffectsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationTaxEffectPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  entryLines<T extends Prisma.FinanceConsolidationEntitySnapshot$entryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$entryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  counterpartyEntryLines<T extends Prisma.FinanceConsolidationEntitySnapshot$counterpartyEntryLinesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$counterpartyEntryLinesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationEntryLinePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  leftMatchGroups<T extends Prisma.FinanceConsolidationEntitySnapshot$leftMatchGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$leftMatchGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  rightMatchGroups<T extends Prisma.FinanceConsolidationEntitySnapshot$rightMatchGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$rightMatchGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  matchSources<T extends Prisma.FinanceConsolidationEntitySnapshot$matchSourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$matchSourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  counterpartyMatchSources<T extends Prisma.FinanceConsolidationEntitySnapshot$counterpartyMatchSourcesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinanceConsolidationEntitySnapshot$counterpartyMatchSourcesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceConsolidationMatchSourcePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2279,6 +3333,150 @@ export type FinanceConsolidationEntitySnapshot$taxEffectsArgs<ExtArgs extends ru
   take?: number
   skip?: number
   distinct?: Prisma.FinanceConsolidationTaxEffectScalarFieldEnum | Prisma.FinanceConsolidationTaxEffectScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.entryLines
+ */
+export type FinanceConsolidationEntitySnapshot$entryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationEntryLine
+   */
+  select?: Prisma.FinanceConsolidationEntryLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationEntryLine
+   */
+  omit?: Prisma.FinanceConsolidationEntryLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationEntryLineInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+  orderBy?: Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput | Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.counterpartyEntryLines
+ */
+export type FinanceConsolidationEntitySnapshot$counterpartyEntryLinesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationEntryLine
+   */
+  select?: Prisma.FinanceConsolidationEntryLineSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationEntryLine
+   */
+  omit?: Prisma.FinanceConsolidationEntryLineOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationEntryLineInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationEntryLineWhereInput
+  orderBy?: Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput | Prisma.FinanceConsolidationEntryLineOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationEntryLineWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationEntryLineScalarFieldEnum | Prisma.FinanceConsolidationEntryLineScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.leftMatchGroups
+ */
+export type FinanceConsolidationEntitySnapshot$leftMatchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchGroup
+   */
+  select?: Prisma.FinanceConsolidationMatchGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchGroup
+   */
+  omit?: Prisma.FinanceConsolidationMatchGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchGroupInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput | Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchGroupScalarFieldEnum | Prisma.FinanceConsolidationMatchGroupScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.rightMatchGroups
+ */
+export type FinanceConsolidationEntitySnapshot$rightMatchGroupsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchGroup
+   */
+  select?: Prisma.FinanceConsolidationMatchGroupSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchGroup
+   */
+  omit?: Prisma.FinanceConsolidationMatchGroupOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchGroupInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchGroupWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput | Prisma.FinanceConsolidationMatchGroupOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchGroupWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchGroupScalarFieldEnum | Prisma.FinanceConsolidationMatchGroupScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.matchSources
+ */
+export type FinanceConsolidationEntitySnapshot$matchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchSource
+   */
+  select?: Prisma.FinanceConsolidationMatchSourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchSource
+   */
+  omit?: Prisma.FinanceConsolidationMatchSourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchSourceInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput | Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchSourceScalarFieldEnum | Prisma.FinanceConsolidationMatchSourceScalarFieldEnum[]
+}
+
+/**
+ * FinanceConsolidationEntitySnapshot.counterpartyMatchSources
+ */
+export type FinanceConsolidationEntitySnapshot$counterpartyMatchSourcesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinanceConsolidationMatchSource
+   */
+  select?: Prisma.FinanceConsolidationMatchSourceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the FinanceConsolidationMatchSource
+   */
+  omit?: Prisma.FinanceConsolidationMatchSourceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.FinanceConsolidationMatchSourceInclude<ExtArgs> | null
+  where?: Prisma.FinanceConsolidationMatchSourceWhereInput
+  orderBy?: Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput | Prisma.FinanceConsolidationMatchSourceOrderByWithRelationInput[]
+  cursor?: Prisma.FinanceConsolidationMatchSourceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.FinanceConsolidationMatchSourceScalarFieldEnum | Prisma.FinanceConsolidationMatchSourceScalarFieldEnum[]
 }
 
 /**

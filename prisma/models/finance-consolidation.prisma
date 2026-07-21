@@ -35,6 +35,7 @@ model FinanceConsolidationBatch {
   controlDecisions FinanceConsolidationControlDecision[]
   events          FinanceConsolidationBatchEvent[]
   outputSnapshot  FinanceConsolidationOutputSnapshot?
+  matchGroups     FinanceConsolidationMatchGroup[]
 
   @@unique([parentCompanyId, year, month, version])
   @@index([parentCompanyId, year, month, status])
@@ -46,7 +47,7 @@ model FinanceConsolidationBatchEvent {
   id            Int      @id @default(autoincrement())
   batchId       Int
   eventType     String // lifecycle | mutation
-  action        String // create | submit | return | review | lock | publish | entry.delete | taxEffect.delete
+  action        String // create | submit | return | review | lock | publish | entry.generate | entry.delete | taxEffect.delete
   fromStatus    String
   toStatus      String
   note          String?
@@ -108,6 +109,12 @@ model FinanceConsolidationEntitySnapshot {
   batch   FinanceConsolidationBatch           @relation(fields: [batchId], references: [id], onDelete: Cascade)
   sources FinanceConsolidationSourceSnapshot[]
   taxEffects FinanceConsolidationTaxEffect[]
+  entryLines FinanceConsolidationEntryLine[] @relation("ConsolidationEntryLineEntity")
+  counterpartyEntryLines FinanceConsolidationEntryLine[] @relation("ConsolidationEntryLineCounterparty")
+  leftMatchGroups FinanceConsolidationMatchGroup[] @relation("ConsolidationMatchGroupLeftEntity")
+  rightMatchGroups FinanceConsolidationMatchGroup[] @relation("ConsolidationMatchGroupRightEntity")
+  matchSources FinanceConsolidationMatchSource[] @relation("ConsolidationMatchSourceEntity")
+  counterpartyMatchSources FinanceConsolidationMatchSource[] @relation("ConsolidationMatchSourceCounterparty")
 
   @@unique([batchId, companyId])
   @@index([batchId, role])
@@ -145,12 +152,13 @@ model FinanceConsolidationSourceSnapshot {
 
   batch  FinanceConsolidationBatch          @relation(fields: [batchId], references: [id], onDelete: Cascade)
   entity FinanceConsolidationEntitySnapshot @relation(fields: [entitySnapshotId], references: [id], onDelete: Cascade)
+  matchedEntryLines FinanceConsolidationEntryLine[]
 
   @@unique([batchId, entitySnapshotId, reportType])
   @@index([workpaperId, workpaperVersion])
 }
 
-/// 合并批次汇率冻结快照（事实表，来源于已复核 FinanceStatementExchangeRate 版本）。
+/// 合并批次汇率冻结快照（事实表，来源于已保存的 FinanceStatementExchangeRate 版本）。
 model FinanceConsolidationRateSnapshot {
   id                  Int      @id @default(autoincrement())
   batchId             Int
@@ -163,8 +171,8 @@ model FinanceConsolidationRateSnapshot {
   rate                Decimal  @db.Decimal(20, 8)
   sourceUrl           String
   publishedAt         DateTime?
-  verifiedBy          Int?
-  verifiedAt          DateTime?
+  recordedBy          Int?
+  recordedAt          DateTime?
   applications        Json      @default("[]")
   createdAt           DateTime @default(now())
 
@@ -185,6 +193,10 @@ model FinanceConsolidationEntry {
   evidence           String
   matchDifference    Decimal?  @db.Decimal(20, 2)
   differenceResolution String?
+  origin             String    @default("manual") // manual | system
+  generationKey      String?
+  generationFingerprint String?
+  generatedAt        DateTime?
   status             String    @default("draft") // draft | submitted | approved | reversed
   version            Int       @default(1)
   supersedesEntryId  Int?
@@ -210,44 +222,16 @@ model FinanceConsolidationEntry {
   successor          FinanceConsolidationEntry?  @relation("FinanceConsolidationEntryLineage")
   lines              FinanceConsolidationEntryLine[]
   taxEffects         FinanceConsolidationTaxEffect[]
+  matchGroup         FinanceConsolidationMatchGroup?
 
   @@unique([batchId, entryNo])
+  @@unique([batchId, generationKey])
   @@unique([supersedesEntryId])
   @@unique([reversalOfEntryId])
   @@index([batchId, status, entryType])
   @@index([supersedesEntryId])
   @@index([reversalOfEntryId])
   @@index([predecessorEntryId])
-}
-
-/// 合并抵销分录借贷行（事实表，来源于人工编制；同一分录必须借贷平衡）。
-model FinanceConsolidationEntryLine {
-  id            Int      @id @default(autoincrement())
-  entryId       Int
-  lineNo        Int
-  companyId     Int
-  companyCode   String
-  statementType String // balanceSheet | incomeStatement | cashFlow
-  lineCode      String
-  accountCode   String?
-  debit         Decimal  @default(0) @db.Decimal(20, 2)
-  credit        Decimal  @default(0) @db.Decimal(20, 2)
-  currencyCode  String   @default("CNY")
-  periodBasis   String   @default("current") // current | comparative
-  note          String?
-  matchSide     String? // left | right
-  sourceKind    String? // auxiliaryBalance | openItem | cashFlowAllocation | workpaper | voucher | other
-  sourceId      String?
-  sourceFingerprint String?
-  sourceAmount  Decimal? @db.Decimal(20, 2)
-  sourceCurrency String?
-  counterpartyCompanyId Int?
-  createdAt     DateTime @default(now())
-
-  entry FinanceConsolidationEntry @relation(fields: [entryId], references: [id], onDelete: Cascade)
-
-  @@unique([entryId, lineNo])
-  @@index([companyId, statementType, lineCode])
 }
 
 /// 抵销分录税务影响（事实表，保存暂时性差异判断；税额由 service 按差异和税率派生）。
