@@ -98017,6 +98017,42 @@ export const generatedCoreUiSurfaceContracts = {
                               description: "类型：() => void。",
                             },
                             {
+                              name: "picker",
+                              description: "类型：SurfaceToolbarPeriodNavPickerSpec。",
+                              children: [
+                                {
+                                  name: "precision",
+                                  description: "可选值：month / quarter / year。",
+                                  children: [
+                                    {
+                                      name: "month",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "quarter",
+                                      description: "字面量取值。",
+                                    },
+                                    {
+                                      name: "year",
+                                      description: "字面量取值。",
+                                    },
+                                  ],
+                                },
+                                {
+                                  name: "value",
+                                  description: "类型：string。",
+                                },
+                                {
+                                  name: "onChange",
+                                  description: "类型：(value: string) => void。",
+                                },
+                                {
+                                  name: "ariaLabel",
+                                  description: "类型：string。",
+                                },
+                              ],
+                            },
+                            {
                               name: "disabled",
                               description: "类型：boolean。",
                             },

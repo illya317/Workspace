@@ -2,12 +2,13 @@
 
 import { PageSurface, createPageBody, createStatusSection } from "@workspace/core/ui";
 import type { BodySurfaceSectionSpec, SurfaceToolbarItems, VisualizationGanttDependencySpec, VisualizationGanttRowSpec } from "@workspace/core/ui";
-import { WORK_GANTT_ZOOM_OPTIONS, periodLabel, type WorkGanttSurfaceProps, type WorkGanttZoom } from "./model";
+import { WORK_GANTT_ZOOM_OPTIONS, periodLabel, periodValue, type WorkGanttSurfaceProps, type WorkGanttZoom } from "./model";
 
 export type WorkGanttViewportSpec = {
   zoom: WorkGanttZoom;
   periodStart: Date;
   onZoomChange: (zoom: WorkGanttZoom) => void;
+  onPeriodChange: (value: string) => void;
   onPrevious: () => void;
   onNext: () => void;
   zoomAriaLabel?: string;
@@ -60,6 +61,12 @@ export function WorkGanttPage({
       label: periodLabel(viewport.periodStart, viewport.zoom),
       onPrevious: viewport.onPrevious,
       onNext: viewport.onNext,
+      picker: {
+        precision: viewport.zoom,
+        value: periodValue(viewport.periodStart, viewport.zoom),
+        onChange: viewport.onPeriodChange,
+        ariaLabel: "选择甘特期间",
+      },
     },
   ] satisfies SurfaceToolbarItems;
   const section: BodySurfaceSectionSpec = gantt.error

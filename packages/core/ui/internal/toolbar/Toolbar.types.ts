@@ -171,6 +171,13 @@ export interface ToolbarPeriodMonthItem {
   disabled?: boolean;
 }
 
+export interface ToolbarPeriodNavPickerSpec {
+  precision: "year" | "quarter" | "month";
+  value: string;
+  onChange: (value: string) => void;
+  ariaLabel?: string;
+}
+
 export interface ToolbarPeriodNavItem {
   kind: "period";
   key: string;
@@ -180,6 +187,7 @@ export interface ToolbarPeriodNavItem {
   nextLabel?: string;
   onPrevious: () => void;
   onNext: () => void;
+  picker?: ToolbarPeriodNavPickerSpec;
   disabled?: boolean;
 }
 

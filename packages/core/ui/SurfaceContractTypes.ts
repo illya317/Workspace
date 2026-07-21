@@ -262,6 +262,13 @@ export interface SurfaceToolbarPeriodMonthItem {
   disabled?: boolean;
 }
 
+export interface SurfaceToolbarPeriodNavPickerSpec {
+  precision: "year" | "quarter" | "month";
+  value: string;
+  onChange: (value: string) => void;
+  ariaLabel?: string;
+}
+
 export interface SurfaceToolbarPeriodNavItem {
   kind: "period";
   key: string;
@@ -271,6 +278,7 @@ export interface SurfaceToolbarPeriodNavItem {
   nextLabel?: string;
   onPrevious: () => void;
   onNext: () => void;
+  picker?: SurfaceToolbarPeriodNavPickerSpec;
   disabled?: boolean;
 }
 

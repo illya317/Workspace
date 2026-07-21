@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import type { BodySurfaceSectionSpec, SurfaceToolbarItems } from "@workspace/core/ui";
 import { listWorkItems } from "./api";
-import { WORK_GANTT_ZOOM_OPTIONS, periodLabel, useWorkGanttViewport, type WorkGanttZoom } from "../gantt";
+import { WORK_GANTT_ZOOM_OPTIONS, periodLabel, periodValue, useWorkGanttViewport, type WorkGanttZoom } from "../gantt";
 import { createWorkPlanGanttSection } from "./WorkPlanGanttSection";
 import type { WorkItem, WorkPlan, WorkTaskSpace } from "./types";
 
@@ -92,6 +92,12 @@ function createGanttToolbarItems(viewport: ReturnType<typeof useWorkGanttViewpor
       label: periodLabel(viewport.periodStart, viewport.zoom),
       onPrevious: viewport.previousPeriod,
       onNext: viewport.nextPeriod,
+      picker: {
+        precision: viewport.zoom,
+        value: periodValue(viewport.periodStart, viewport.zoom),
+        onChange: viewport.changePeriod,
+        ariaLabel: "选择甘特期间",
+      },
     },
   ];
 }

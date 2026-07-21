@@ -154,6 +154,7 @@ export type {
   SurfaceToolbarActionGroupActionSpec,
   SurfaceToolbarItem,
   SurfaceToolbarItems,
+  SurfaceToolbarPeriodNavPickerSpec,
 } from "./SurfaceContractTypes";
 export { default as FormSurface } from "./FormSurface";
 export type {

@@ -3,9 +3,10 @@ import type { CoreUiComponentRegistration } from "./component-registry-types";
 export const page_api_registry_entries = [
   {
     name: "Toolbar",
-    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，桌面和移动动作均为纯图标，新增固定为 +，移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
+    description: "PageSurface 内部统一工具栏 renderer；每页最多一个桌面固定短宽度搜索且禁止页面覆盖，期间导航可在保留前后切换的同时直接选择年、季度或月，桌面和移动动作均为纯图标，新增固定为 +，移动端自动收口为搜索行、主命令坞和筛选/更多底部面板",
     declares: [
       { name: "edit-group.dirty", description: "编辑态是否存在实际修改；显式为 false 时 Core 禁用保存动作。" },
+      { name: "period.nav.picker", description: "期间导航中间值可声明 year / quarter / month 选择弹层；左右按钮继续按当前粒度切换相邻期间。" },
     ],
     composes: ["ActionButton", "ActionGlyph", "SearchInput", "SearchableOptionInput", "ToolbarOptionGroup", "FieldValueFilter", "DropdownSurface", "FloatingPortalSurface"],
   },

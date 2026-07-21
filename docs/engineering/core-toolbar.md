@@ -65,6 +65,7 @@ primary -> search -> filter -> edit/action -> meta/view
 - `search` 自动进入搜索区。
 - 每个 Toolbar 只允许一个 `search`；需要多条件时合并为页面级搜索，或把字段条件声明为 `field-filter` 等结构化筛选。Core runtime 与 architecture gate 都会阻断多个 `search`。
 - `select`、`grouped-select`、`label`、`option-group`、`field-filter`、`period` 自动进入筛选区。
+- `period mode="nav"` 默认提供上一期/下一期；需要跨期跳转时声明 `picker`，中间期间即可按 `year / quarter / month` 打开对应选择面板。业务页不得另画年份、季度或月份弹层。
 - `icon-button`、`action-group`、`edit-group` 自动进入动作区。
 - `text`、`menu`、`column-toggle`、`page-size` 自动进入右侧 meta/view 区。
 - 列显隐只允许使用 `column-toggle`，不得用 `select`、`menu`、`option-group` 或业务自绘控件代替；结构 gate 会阻断其他声明方式。

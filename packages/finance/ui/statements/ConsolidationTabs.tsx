@@ -29,6 +29,13 @@ import {
   exchangeRateColumns,
   investmentEvidenceColumns,
 } from "./consolidation-columns";
+import {
+  consolidationPeriodLabel,
+  consolidationPeriodValue,
+  parseConsolidationPeriod,
+  shiftConsolidationPeriod,
+  type ConsolidationPeriodKind,
+} from "./consolidation-period";
 import { useConsolidationDecisionWorkspace } from "./useConsolidationDecisionWorkspace";
 import { useStatementSourcePackages } from "./useStatementSourcePackages";
 export interface ConsolidationTabProps {
@@ -66,38 +73,65 @@ function defaultRateDraft(periodEndDate = ""): StatementExchangeRateInput {
 }
 
 export function usePeriodToolbar(props: ConsolidationTabProps): SurfaceToolbarItems {
-  const { data, loading, month, onMonthChange, onYearChange, year } = props;
+  const { loading, month, onMonthChange, onYearChange, year } = props;
+  const [periodKind, setPeriodKind] = useState<ConsolidationPeriodKind>("month");
   return useMemo(() => {
-    const periods = data?.scope.availablePeriods ?? [];
-    const years = [...new Set(periods.map((period) => period.year))];
-    const months = periods.filter((period) => period.year === year).map((period) => period.month);
+    const periodValue = year === null || month === null ? null : consolidationPeriodValue(year, month, periodKind);
+    const changePeriod = (nextYear: number, nextMonth: number) => {
+      onYearChange(nextYear);
+      onMonthChange(nextMonth);
+    };
     return [
       {
-        kind: "select" as const,
-        key: "year",
-        label: "年度",
-        options: years.map((value) => ({ value: String(value), label: String(value) })),
-        value: year === null ? "" : String(year),
-        onChange: (value: string) => onYearChange(Number(value)),
-        placeholder: "选择年度",
+        kind: "option-group" as const,
+        key: "period-kind",
+        value: periodKind,
+        options: [
+          { value: "year", label: "年" },
+          { value: "quarter", label: "季度" },
+          { value: "month", label: "月" },
+        ],
+        onChange: (value: string) => {
+          const nextKind = value as ConsolidationPeriodKind;
+          setPeriodKind(nextKind);
+          if (month === null) return;
+          if (nextKind === "year") onMonthChange(12);
+          if (nextKind === "quarter") onMonthChange(Math.ceil(month / 3) * 3);
+        },
+        ariaLabel: "选择周期类型",
+        presentation: "segmented" as const,
       },
       {
-        kind: "select" as const,
-        key: "month",
-        label: "月份",
-        options: months.map((value) => ({ value: String(value), label: `${value}月` })),
-        value: month === null ? "" : String(month),
-        onChange: (value: string) => onMonthChange(Number(value)),
-        placeholder: "选择月份",
+        kind: "period" as const,
+        key: "accounting-period",
+        mode: "nav" as const,
+        label: year === null || month === null ? "选择期间" : consolidationPeriodLabel(year, month, periodKind),
+        onPrevious: () => {
+          if (year === null || month === null) return;
+          const next = shiftConsolidationPeriod(year, month, periodKind, -1);
+          changePeriod(next.year, next.month);
+        },
+        onNext: () => {
+          if (year === null || month === null) return;
+          const next = shiftConsolidationPeriod(year, month, periodKind, 1);
+          changePeriod(next.year, next.month);
+        },
+        ...(periodValue ? {
+          picker: {
+            precision: periodKind,
+            value: periodValue,
+            onChange: (value: string) => {
+              const next = parseConsolidationPeriod(value, periodKind);
+              if (next) changePeriod(next.year, next.month);
+            },
+            ariaLabel: "选择会计期间",
+          },
+        } : {}),
+        disabled: loading || year === null || month === null,
       },
-      {
-        kind: "text" as const,
-        key: "period",
-        content: data?.scope.periodLabel ?? "等待读取可用期间",
-      },
-      ...(loading ? [{ kind: "text" as const, key: "loading", content: "正在核对合并来源与控制点…" }] : []),
+      ...(loading ? [{ kind: "text" as const, key: "loading", content: "正在读取期间…" }] : []),
     ];
-  }, [data, loading, month, onMonthChange, onYearChange, year]);
+  }, [loading, month, onMonthChange, onYearChange, periodKind, year]);
 }
 
 function fallbackSections(error: string | null, loading: boolean): BodySurfaceSectionSpec[] {

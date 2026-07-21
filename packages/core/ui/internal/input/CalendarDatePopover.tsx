@@ -2,7 +2,8 @@
 
 import { useMemo, type CSSProperties, type Dispatch, type ReactNode, type SetStateAction } from "react";
 
-export type PickerMode = "day" | "month" | "year";
+export type CalendarPrecision = "date" | "month" | "quarter" | "year";
+export type PickerMode = "day" | "month" | "quarter" | "year";
 
 const MONTH_LABELS = ["1月", "2月", "3月", "4月", "5月", "6月", "7月", "8月", "9月", "10月", "11月", "12月"];
 const WEEK_LABELS = ["一", "二", "三", "四", "五", "六", "日"];
@@ -11,7 +12,7 @@ interface CalendarDatePopoverProps {
   value: string | null | undefined;
   minDate?: string;
   maxDate?: string;
-  precision?: "date" | "month";
+  precision?: CalendarPrecision;
   mode: PickerMode;
   viewYear: number;
   viewMonth: number;
@@ -20,6 +21,8 @@ interface CalendarDatePopoverProps {
   setViewMonth: Dispatch<SetStateAction<number>>;
   onChange: (value: string | null) => void;
   onClose: () => void;
+  clearable?: boolean;
+  ariaLabel?: string;
   className?: string;
   style?: CSSProperties;
 }
@@ -34,6 +37,10 @@ function formatDate(year: number, monthIndex: number, day: number) {
 
 function formatMonth(year: number, monthIndex: number) {
   return `${year}-${pad2(monthIndex + 1)}`;
+}
+
+function formatQuarter(year: number, quarter: number) {
+  return `${year}-Q${quarter}`;
 }
 
 export function parseDate(value: string | null | undefined) {
@@ -64,6 +71,23 @@ export function parseMonth(value: string | null | undefined) {
   return { year, monthIndex, day: 1 };
 }
 
+export function parseQuarter(value: string | null | undefined) {
+  if (!value) return null;
+  const match = value.match(/^(\d{4})-Q([1-4])$/);
+  if (!match) return null;
+  const year = Number(match[1]);
+  const quarter = Number(match[2]);
+  if (!Number.isInteger(year)) return null;
+  return { year, monthIndex: (quarter - 1) * 3, day: 1 };
+}
+
+export function parseYear(value: string | null | undefined) {
+  if (!value || !/^\d{4}$/.test(value)) return null;
+  const year = Number(value);
+  if (!Number.isInteger(year)) return null;
+  return { year, monthIndex: 0, day: 1 };
+}
+
 function getMonthDays(year: number, monthIndex: number) {
   const first = new Date(year, monthIndex, 1);
   const offset = (first.getDay() + 6) % 7;
@@ -88,15 +112,21 @@ export function CalendarDatePopover({
   setViewMonth,
   onChange,
   onClose,
+  clearable = true,
+  ariaLabel,
   className,
   style,
 }: CalendarDatePopoverProps) {
   const normalizedMinDate = normalizeBound(minDate, precision);
   const normalizedMaxDate = normalizeBound(maxDate, precision);
   const today = useMemo(() => new Date(), []);
-  const todayValue = precision === "month"
-    ? formatMonth(today.getFullYear(), today.getMonth())
-    : formatDate(today.getFullYear(), today.getMonth(), today.getDate());
+  const todayValue = precision === "year"
+    ? String(today.getFullYear())
+    : precision === "quarter"
+      ? formatQuarter(today.getFullYear(), Math.floor(today.getMonth() / 3) + 1)
+      : precision === "month"
+        ? formatMonth(today.getFullYear(), today.getMonth())
+        : formatDate(today.getFullYear(), today.getMonth(), today.getDate());
   const dayCells = useMemo(() => {
     const { offset, count } = getMonthDays(viewYear, viewMonth);
     return [
@@ -120,6 +150,10 @@ export function CalendarDatePopover({
       setViewYear((current) => current + delta);
       return;
     }
+    if (mode === "quarter") {
+      setViewYear((current) => current + delta);
+      return;
+    }
     const next = new Date(viewYear, viewMonth + delta, 1);
     setViewYear(next.getFullYear());
     setViewMonth(next.getMonth());
@@ -127,6 +161,7 @@ export function CalendarDatePopover({
 
   function headerLabel() {
     if (mode === "year") return `${yearStart} - ${yearStart + 11}`;
+    if (mode === "quarter") return `${viewYear}年`;
     if (mode === "month") return `${viewYear}`;
     return `${viewYear}年 ${MONTH_LABELS[viewMonth]}`;
   }
@@ -147,8 +182,23 @@ export function CalendarDatePopover({
     setMode("day");
   }
 
+  function chooseYear(year: number) {
+    setViewYear(year);
+    if (precision === "year") {
+      onChange(String(year));
+      onClose();
+      return;
+    }
+    setMode(precision === "quarter" ? "quarter" : "month");
+  }
+
   return (
-    <div className={className} style={style}>
+    <div
+      role="dialog"
+      aria-label={ariaLabel ?? pickerAriaLabel(precision)}
+      className={className}
+      style={style}
+    >
       <div className="mb-2 flex items-center gap-1.5">
         <button
           type="button"
@@ -159,7 +209,7 @@ export function CalendarDatePopover({
         </button>
         <button
           type="button"
-          onClick={() => setMode(mode === "year" ? "month" : precision === "month" ? "year" : "month")}
+          onClick={() => setMode(mode === "year" ? modeAfterYearSelection(precision) : "year")}
           className="flex-1 rounded-md px-2 py-1 text-xs font-semibold text-slate-800 hover:bg-slate-50"
         >
           {headerLabel()}
@@ -179,13 +229,29 @@ export function CalendarDatePopover({
             <BoundedPickerButton
               key={year}
               active={year === viewYear}
-              disabled={!rangeOverlapsBounds(`${year}-01-01`, `${year}-12-31`, normalizedMinDate, normalizedMaxDate)}
-              onClick={() => {
-                setViewYear(year);
-                setMode("month");
-              }}
+              disabled={!yearOverlapsBounds(year, normalizedMinDate, normalizedMaxDate, precision)}
+              onClick={() => chooseYear(year)}
             >{year}</BoundedPickerButton>
           ))}
+        </div>
+      )}
+
+      {mode === "quarter" && (
+        <div className="grid grid-cols-2 gap-1.5">
+          {[1, 2, 3, 4].map((quarter) => {
+            const quarterValue = formatQuarter(viewYear, quarter);
+            return (
+              <BoundedPickerButton
+                key={quarterValue}
+                active={value === quarterValue}
+                disabled={isOutsideBounds(quarterValue, normalizedMinDate, normalizedMaxDate)}
+                onClick={() => {
+                  onChange(quarterValue);
+                  onClose();
+                }}
+              >第{quarter}季度</BoundedPickerButton>
+            );
+          })}
         </div>
       )}
 
@@ -225,8 +291,8 @@ export function CalendarDatePopover({
                     dateDisabled
                       ? "cursor-not-allowed text-slate-300"
                       : active
-                        ? "bg-sky-600 font-semibold text-white"
-                        : "text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+                        ? "bg-emerald-600 font-semibold text-white"
+                        : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
                   }`}
                 >
                   {day}
@@ -239,22 +305,34 @@ export function CalendarDatePopover({
         </>
       )}
 
-      <div className="mt-2 flex justify-between border-t border-slate-100 pt-2">
+      <div className={`mt-2 flex border-t border-slate-100 pt-2 ${clearable ? "justify-between" : "justify-end"}`}>
+        {clearable && (
+          <button
+            type="button"
+            onClick={() => {
+              onChange(null);
+              onClose();
+            }}
+            className="text-xs text-slate-500 hover:text-red-600"
+          >
+            清空
+          </button>
+        )}
         <button
           type="button"
           disabled={isOutsideBounds(todayValue, normalizedMinDate, normalizedMaxDate)}
           onClick={() => {
-            onChange(null);
-            onClose();
-          }}
-          className="text-xs text-slate-500 hover:text-red-600"
-        >
-          清空
-        </button>
-        <button
-          type="button"
-          onClick={() => {
             const now = new Date();
+            if (precision === "year") {
+              onChange(String(now.getFullYear()));
+              onClose();
+              return;
+            }
+            if (precision === "quarter") {
+              onChange(formatQuarter(now.getFullYear(), Math.floor(now.getMonth() / 3) + 1));
+              onClose();
+              return;
+            }
             if (precision === "month") {
               onChange(formatMonth(now.getFullYear(), now.getMonth()));
               onClose();
@@ -262,19 +340,44 @@ export function CalendarDatePopover({
             }
             chooseDate(formatDate(now.getFullYear(), now.getMonth(), now.getDate()));
           }}
-          className="text-xs font-medium text-sky-700 hover:text-sky-800 disabled:cursor-not-allowed disabled:text-slate-300"
+          className="text-xs font-medium text-emerald-700 hover:text-emerald-800 disabled:cursor-not-allowed disabled:text-slate-300"
         >
-          {precision === "month" ? "本月" : "今天"}
+          {precision === "year" ? "本年" : precision === "quarter" ? "本季度" : precision === "month" ? "本月" : "今天"}
         </button>
       </div>
     </div>
   );
 }
 
-function normalizeBound(value: string | undefined, precision: "date" | "month") {
+function modeAfterYearSelection(precision: CalendarPrecision): PickerMode {
+  if (precision === "year") return "year";
+  if (precision === "quarter") return "quarter";
+  return "month";
+}
+
+function pickerAriaLabel(precision: CalendarPrecision) {
+  if (precision === "year") return "选择年份";
+  if (precision === "quarter") return "选择季度";
+  if (precision === "month") return "选择月份";
+  return "选择日期";
+}
+
+function normalizeBound(value: string | undefined, precision: CalendarPrecision) {
   if (!value) return null;
-  const normalized = precision === "month" ? value.slice(0, 7) : value.slice(0, 10);
-  const pattern = precision === "month" ? /^\d{4}-\d{2}$/ : /^\d{4}-\d{2}-\d{2}$/;
+  const normalized = precision === "year"
+    ? value.slice(0, 4)
+    : precision === "quarter"
+      ? value.slice(0, 7)
+      : precision === "month"
+        ? value.slice(0, 7)
+        : value.slice(0, 10);
+  const pattern = precision === "year"
+    ? /^\d{4}$/
+    : precision === "quarter"
+      ? /^\d{4}-Q[1-4]$/
+      : precision === "month"
+        ? /^\d{4}-\d{2}$/
+        : /^\d{4}-\d{2}-\d{2}$/;
   return pattern.test(normalized) ? normalized : null;
 }
 
@@ -291,12 +394,24 @@ function monthOverlapsBounds(
   monthIndex: number,
   minDate: string | null,
   maxDate: string | null,
-  precision: "date" | "month",
+  precision: CalendarPrecision,
 ) {
   const month = formatMonth(year, monthIndex);
-  if (precision === "month") return !isOutsideBounds(month, minDate, maxDate);
+  if (precision !== "date") return !isOutsideBounds(month, minDate, maxDate);
   const lastDay = new Date(year, monthIndex + 1, 0).getDate();
   return rangeOverlapsBounds(`${month}-01`, `${month}-${pad2(lastDay)}`, minDate, maxDate);
+}
+
+function yearOverlapsBounds(
+  year: number,
+  minDate: string | null,
+  maxDate: string | null,
+  precision: CalendarPrecision,
+) {
+  if (precision === "year") return !isOutsideBounds(String(year), minDate, maxDate);
+  if (precision === "quarter") return rangeOverlapsBounds(`${year}-Q1`, `${year}-Q4`, minDate, maxDate);
+  if (precision === "month") return rangeOverlapsBounds(`${year}-01`, `${year}-12`, minDate, maxDate);
+  return rangeOverlapsBounds(`${year}-01-01`, `${year}-12-31`, minDate, maxDate);
 }
 
 function BoundedPickerButton({
@@ -319,8 +434,8 @@ function BoundedPickerButton({
         disabled
           ? "cursor-not-allowed text-slate-300"
           : active
-            ? "bg-sky-600 font-semibold text-white"
-            : "text-slate-700 hover:bg-sky-50 hover:text-sky-700"
+            ? "bg-emerald-600 font-semibold text-white"
+            : "text-slate-700 hover:bg-emerald-50 hover:text-emerald-700"
       }`}
     >
       {children}
