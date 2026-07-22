@@ -8,11 +8,11 @@ export type {
   ActionRuntimeCommandHandlers,
 } from "./action-runtime-commands";
 export {
-  workflowActionHeaderCommands,
   workflowActionSurfaceActions,
   workflowActionSlotSectionSpec,
   workflowRequestTimelineSectionSpec,
 } from "./body-surface-adapters";
+export { workflowActionHeaderCommands } from "./workflow-header-commands";
 export { WorkflowRequestModal } from "./WorkflowRequestModal";
 export {
   formatWorkflowDateTime,

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { workflowActionHeaderCommands } from "./body-surface-adapters";
+import { workflowActionHeaderCommands } from "./workflow-header-commands";
 
 test("renders direct publication as a send command without changing its contract key", () => {
   const commands = workflowActionHeaderCommands([{

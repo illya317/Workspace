@@ -1,7 +1,6 @@
 import {
   createFieldsSection,
   createRecordSection,
-  type BodySurfaceCommandSpec,
   type BodySurfaceSectionSpec,
   type FormSurfaceActionSpec,
   type FormSurfaceReadOnlyFieldSpec,
@@ -10,7 +9,7 @@ import {
   getWorkflowFlowTypeLabel,
   getWorkflowStatusLabel,
 } from "../WorkflowStatusBadge";
-import { workflowActionCommandAction, workflowActionCommandIcon } from "./workflow-labels";
+import { workflowActionCommandAction } from "./workflow-labels";
 import type { WorkflowActionCommand, WorkflowActionViewModel, WorkflowRequestTimelineEvent } from "./types";
 
 export function workflowActionSurfaceActions(
@@ -20,19 +19,6 @@ export function workflowActionSurfaceActions(
     key: command.key,
     action: workflowActionCommandAction(command.kind),
     label: typeof command.label === "string" ? command.label : undefined,
-    disabled: command.disabled,
-    onClick: command.onClick,
-  }));
-}
-
-export function workflowActionHeaderCommands(
-  commands: readonly WorkflowActionCommand[],
-): BodySurfaceCommandSpec[] {
-  return commands.map((command) => ({
-    key: command.key,
-    label: command.label,
-    icon: command.icon ?? workflowActionCommandIcon(command.kind),
-    variant: command.variant,
     disabled: command.disabled,
     onClick: command.onClick,
   }));
