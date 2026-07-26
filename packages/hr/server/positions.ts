@@ -90,7 +90,7 @@ export async function getPositionList(
   pageSize: number,
   archived = false,
   summary = false,
-): Promise<{ positions: PositionListItem[]; total: number }> {
+): Promise<{ positions: PositionListItem[]; total: number; asOfDate: string }> {
   const asOfDate = workspaceBusinessDate(new Date());
   const [positions, companyMap] = await Promise.all([
     prisma.position.findMany({
