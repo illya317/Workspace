@@ -6,7 +6,6 @@ import path from "node:path";
 import { promisify } from "node:util";
 import type { AgentExecutionContext } from "./execution";
 import type { ProposalExecutorControl, ProposalExecutors } from "./proposals";
-import { getTenantConfig } from "../tenant-config";
 const execFile = promisify(execFileCallback);
 const DEFAULT_BASE_BRANCH = "main";
 const DEFAULT_BRANCH_PREFIX = "agent/";
@@ -30,8 +29,8 @@ type CnbPrPayload = {
 type GitEnv = Record<string, string | undefined>;
 
 function cnbRepo() {
-  const configured = process.env.CNB_PR_REPO || process.env.AGENT_SOURCE_REPO_SLUG
-    || new URL(getTenantConfig().manifest.sourceRepository).pathname.replace(/^\/+|\.git$/g, "");
+  const configured = process.env.CNB_PR_REPO || process.env.AGENT_SOURCE_REPO_SLUG;
+  if (!configured) throw new Error("CNB_PR_REPO or AGENT_SOURCE_REPO_SLUG is required for CNB proposals");
   return normalizeRepositorySlug(configured);
 }
 function cnbApiBase() {

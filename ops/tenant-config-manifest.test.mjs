@@ -55,7 +55,7 @@ test("tenant config manifest follows profile references and detects drift", (con
   assert.ok(manifest.files.some((file) => file.path === "data/docs-editor/templates/production-qc-snapshots/audit.json"));
   assert.ok(manifest.files.some((file) => file.path === "config/docs/company/员工手册.docx"));
   assert.ok(manifest.files.some((file) => file.path === "config/docs/company/permission-actions.md"));
-  assert.ok(manifest.files.some((file) => file.path === "manifest.json"));
+  assert.equal(manifest.files.some((file) => file.path === "manifest.json"), false);
   verifyTenantConfigManifest(root, manifest);
   writeFileSync(join(root, "config/tenant/companies.json"), "[]\n");
   assert.throws(() => verifyTenantConfigManifest(root, manifest), /differs from deployment manifest/);
@@ -96,6 +96,7 @@ test("tenant config install verifies staging and preserves replaced files in bac
   mkdirSync(join(staging, ".deployment"), { recursive: true });
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, { flag: "wx" });
   writeFileSync(join(target, "config/tenant/companies.json"), "[]\n");
+  writeFileSync(join(target, "manifest.json"), "{\"retired\":true}\n");
   writeFileSync(
     join(target, "data/docs-editor/templates/production-qc-snapshots/stale.json"),
     "{\"stale\":true}\n",
@@ -107,6 +108,8 @@ test("tenant config install verifies staging and preserves replaced files in bac
     manifest.digest,
   );
   assert.equal(readFileSync(join(backup, "config/tenant/companies.json"), "utf8"), "[]\n");
+  assert.equal(readFileSync(join(backup, "manifest.json"), "utf8"), "{\"retired\":true}\n");
+  assert.equal(existsSync(join(target, "manifest.json")), false);
   assert.equal(
     readFileSync(join(backup, "data/docs-editor/templates/production-qc-snapshots/stale.json"), "utf8"),
     "{\"stale\":true}\n",

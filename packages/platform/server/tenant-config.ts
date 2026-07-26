@@ -284,19 +284,6 @@ const permissionReviewSchema = z.object({
   duplicate(value.separationOfDuties, (item) => item.key, "separationOfDuties");
 });
 
-const manifestSchema = z.object({
-  name: nonEmptyString,
-  version: z.number().int().positive(),
-  sourceRepository: nonEmptyString,
-  productionTarget: z.object({
-    domain: nonEmptyString,
-    serverHost: nonEmptyString,
-    remoteDir: nonEmptyString,
-    pm2Name: nonEmptyString,
-    workspaceConfigDir: nonEmptyString,
-  }),
-});
-
 let cached: { signature: string; value: TenantRuntimeConfig } | null = null;
 
 function workspaceConfigDir() {
@@ -344,12 +331,11 @@ function fileSignature(files: string[]) {
 function readTenantConfig(): { signature: string; value: TenantRuntimeConfig } {
   const root = workspaceConfigDir();
   const profilePath = resolveWorkspaceFile(root, "config/tenant/profile.json");
-  const manifestPath = resolveWorkspaceFile(root, "manifest.json");
   const profile = parseConfig(profileSchema, readJson(profilePath), "tenant profile") as TenantProfile;
   const files = Object.fromEntries(
     Object.entries(profile.files).map(([key, value]) => [key, resolveWorkspaceFile(root, value)]),
   ) as Record<keyof TenantProfile["files"], string>;
-  const signature = fileSignature([profilePath, manifestPath, ...Object.values(files)]);
+  const signature = fileSignature([profilePath, ...Object.values(files)]);
   if (cached?.signature === signature) return cached;
 
   const ethnicities = parseConfig(z.object({ ethnicities: stringList, commonEthnicities: stringList }), readJson(files.hrEthnicities), "HR ethnicity config");
@@ -373,7 +359,6 @@ function readTenantConfig(): { signature: string; value: TenantRuntimeConfig } {
     agentWorkforce: parseConfig(agentWorkforceSchema, readJson(files.agentWorkforce), "tenant Agent workforce") as TenantAgentWorkforceConfig,
     permissionReview: parseConfig(permissionReviewSchema, readJson(files.permissionReview), "tenant permission review") as TenantPermissionReviewPolicy,
     financeImports: parseConfig(financeImportsSchema, readJson(files.financeImports), "tenant finance imports") as TenantFinanceImportConfig,
-    manifest: parseConfig(manifestSchema, readJson(manifestPath), "workspace manifest"),
   };
   return { signature, value };
 }

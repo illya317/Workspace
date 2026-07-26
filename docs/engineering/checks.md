@@ -166,7 +166,7 @@ GitHub Actions 先对完整 base/head diff 做 C0–C3 分类，再并行执行 
 
 ### deploy/runtime
 
-deploy/runtime 检查回答目标环境能不能运行，例如 workspace manifest、目标 PostgreSQL 连通性、migration/constraint 状态、核心表数据和 admin 账号。针对真实目标环境的检查不属于 PR CI；PR workflow 中运行的是隔离的一次性 PostgreSQL integration，不读取或修改生产数据。
+deploy/runtime 检查回答目标环境能不能运行，例如租户私有配置、目标 PostgreSQL 连通性、migration/constraint 状态、核心表数据和 admin 账号。针对真实目标环境的检查不属于 PR CI；PR workflow 中运行的是隔离的一次性 PostgreSQL integration，不读取或修改生产数据。
 
 ### hygiene
 

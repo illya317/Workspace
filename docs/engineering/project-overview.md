@@ -194,7 +194,7 @@ Business UI defaults to Feature work and must compose Core/Platform primitives. 
 
 Deletion and archive behavior must be proven at service level: valid target, permission, record existence, scope, status, active references, history/audit, and transaction boundary. Do not rely on DB errors as business validation.
 
-Company-specific facts such as identity, company names/codes, management systems, organization roles, HR option membership, Finance import mappings, Work numbering, Docs/QC products, Agent workforce, repository target, and deployment target must come from `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` plus its referenced files, or from mutable database facts seeded by those inputs. Server code reads the validated Platform tenant seam; client code consumes the root-provided public snapshot. Do not hardcode tenant facts or read tenant files directly in business packages.
+Company-specific facts such as identity, company names/codes, management systems, organization roles, HR option membership, Finance import mappings, Work numbering, Docs/QC products, and Agent workforce must come from `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` plus its referenced files, or from mutable database facts seeded by those inputs. Server code reads the validated Platform tenant seam; client code consumes the root-provided public snapshot. Repository and deployment targets belong only to dedicated private environment variables, not the tenant profile or a root manifest. Do not hardcode tenant facts or read tenant files directly in business packages.
 
 ## 7. Checks And CI
 

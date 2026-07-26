@@ -88,7 +88,7 @@ boundary corruption > validation weakness > abstraction gap > migration debt > d
 | `scripts/arch/*` | Architecture | `scripts/arch/<topic>.ts` | 拆 detector、baseline reader、formatter；保持 `arch:gate` 单入口 |
 | `packages/<domain>/ui/*` | Feature | 同 package 子目录 | 拆业务区块、业务 hook、领域 mapper；只能消费 Core/Platform 已注册入口 |
 | `packages/<domain>/server/*` | Feature/Data | 同 package server 子目录 | 拆 service、schema、DTO、repository adapter；不跨业务包 import |
-| data / generate scripts | Data/Ops | 原脚本同目录或 `.workspace/config/scripts` | 拆数据生成、校验、导入 helper；不改 UI/gate |
+| data / generate scripts | Data/Ops | 原脚本同目录或 `.workspace/tools/qc` | 拆数据生成、校验、导入 helper；不改 UI/gate |
 
 ### 5.1 拆出的函数是否需要注册
 
@@ -132,7 +132,7 @@ baseline 是历史债锁，不是白名单。
 
 - Work 业务包是 `packages/work`，不是 `packages/project`。工作计划、项目管理、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
 - Work Feature 线程可能改 `/work`、`app/(modules)/work/*`、`app/api/modules/work/*`、`packages/work/*`，以及必要的 Core 分栏/页面骨架入口。其他 agent 避免提交这些范围。
-- Production/QC Data 线程可能改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
+- Production/QC Data 线程可能改 `.workspace/tools/qc/generate-product-stage-tests.mjs` 和 pharma-qc 生成物。其他 agent 不要提交、格式化或回滚这些文件。
 - Architecture 线程改文档、gate、registry、API contract 和 baseline。Feature/Data/Operations 不要私自修改这些文件。
 
 ## 8. 收口验证

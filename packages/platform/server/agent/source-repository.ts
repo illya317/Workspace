@@ -5,8 +5,6 @@ import { link, lstat, mkdir, open, realpath, rename, rm, unlink } from "node:fs/
 import os from "node:os";
 import path from "node:path";
 import { promisify } from "node:util";
-import { getTenantConfig } from "../tenant-config";
-
 import type { SourceRepositoryReader } from "./source-route-context";
 import {
   sourceRepositoryErrorCode as errorCode,
@@ -68,7 +66,11 @@ function workspaceConfigDir() {
   return path.join(os.tmpdir(), "workspace-agent-source");
 }
 function sourceRepoUrl() {
-  return process.env.AGENT_SOURCE_REPO_URL?.trim() || getTenantConfig().manifest.sourceRepository;
+  const configured = process.env.AGENT_SOURCE_REPO_URL?.trim();
+  if (!configured) {
+    throw new Error("AGENT_SOURCE_REPO_URL is required when AGENT_SOURCE_WORKTREE is not configured");
+  }
+  return configured;
 }
 function sourceBranch() {
   return process.env.AGENT_SOURCE_BRANCH?.trim() || DEFAULT_BRANCH;

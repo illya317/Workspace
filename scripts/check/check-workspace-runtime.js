@@ -8,6 +8,7 @@
 
 const fs = require("fs");
 const path = require("path");
+const { spawnSync } = require("child_process");
 const { Client } = require("pg");
 
 const ROOT = path.resolve(__dirname, "..", "..");
@@ -121,66 +122,38 @@ function validateOptionalFile(root, relativePath, label) {
   return true;
 }
 
-function parseServerHost(serverValue) {
-  if (!serverValue) return "";
-  const withoutUser = serverValue.includes("@") ? serverValue.split("@").pop() : serverValue;
-  return withoutUser.split(":")[0];
-}
-
-function validateWorkspaceManifest(workspaceDir, opsEnv) {
-  const manifestPath = path.join(workspaceDir, "manifest.json");
-  if (!validateRequiredFile(workspaceDir, "manifest.json", "workspace manifest")) return;
-
-  let manifest;
-  try {
-    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-  } catch (error) {
-    fail(`Cannot parse workspace manifest: ${error.message}`);
+function runPrivateConfigCheck(label, args, workspaceDir) {
+  const result = spawnSync(process.execPath, args, {
+    cwd: ROOT,
+    encoding: "utf8",
+    env: { ...process.env, WORKSPACE_CONFIG_DIR: workspaceDir },
+  });
+  if (result.error || result.status !== 0) {
+    const detail = (result.stderr || result.stdout || result.error?.message || "unknown error").trim();
+    fail(`${label} failed${detail ? `: ${detail}` : ""}`);
     return;
   }
+  ok(label);
+}
 
-  const productionTarget = manifest.productionTarget || {};
-  const requiredKeys = ["serverHost", "remoteDir", "pm2Name"];
-  for (const key of requiredKeys) {
-    if (!productionTarget[key]) {
-      fail(`workspace manifest productionTarget.${key} is missing`);
-    }
-  }
-  if (!manifest.productionTarget) {
-    fail("workspace manifest productionTarget is missing");
-  }
-  if (exitCode === 0) {
-    ok("workspace manifest has productionTarget");
-  }
-
-  if (!opsEnv || opsEnv.size === 0) return;
-
-  const serverHost = parseServerHost(opsEnv.get("SERVER") || "");
-  if (serverHost && productionTarget.serverHost !== serverHost) {
-    fail(
-      `workspace manifest productionTarget.serverHost (${productionTarget.serverHost}) does not match private ops SERVER host (${serverHost})`
-    );
-  } else if (serverHost) {
-    ok("workspace manifest serverHost matches private ops SERVER");
-  }
-
-  const remoteDir = opsEnv.get("REMOTE_DIR") || "";
-  if (remoteDir && productionTarget.remoteDir !== remoteDir) {
-    fail(
-      `workspace manifest productionTarget.remoteDir (${productionTarget.remoteDir}) does not match private ops REMOTE_DIR`
-    );
-  } else if (remoteDir) {
-    ok("workspace manifest remoteDir matches private ops REMOTE_DIR");
-  }
-
-  const pm2Name = opsEnv.get("PM2_NAME") || "";
-  if (pm2Name && productionTarget.pm2Name !== pm2Name) {
-    fail(
-      `workspace manifest productionTarget.pm2Name (${productionTarget.pm2Name}) does not match private ops PM2_NAME`
-    );
-  } else if (pm2Name) {
-    ok("workspace manifest pm2Name matches private ops PM2_NAME");
-  }
+function validateTenantConfiguration(workspaceDir) {
+  runPrivateConfigCheck(
+    "tenant deployment config inputs are valid",
+    [path.join(ROOT, "ops/tenant-config-manifest.mjs"), "validate", "--root", workspaceDir],
+    workspaceDir,
+  );
+  runPrivateConfigCheck(
+    "tenant runtime config is valid",
+    [
+      "--conditions=react-server",
+      "--import",
+      "tsx",
+      path.join(ROOT, "scripts/check/check-tenant-runtime-config.ts"),
+      "--workspace",
+      workspaceDir,
+    ],
+    workspaceDir,
+  );
 }
 
 async function validateDatabase(databaseUrl, workspaceDir) {
@@ -363,7 +336,7 @@ async function main() {
 
   const workspaceEnvPath = path.join(workspaceDir, ".env");
   validateRequiredFile(workspaceDir, ".env", "workspace .env");
-  validateWorkspaceManifest(workspaceDir, opsEnv);
+  validateTenantConfiguration(workspaceDir);
   validateRequiredFile(workspaceDir, "assets/brand/company/logo.png", "company logo");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.ico", "favicon.ico");
   validateRequiredFile(workspaceDir, "assets/brand/favicon.png", "favicon.png");

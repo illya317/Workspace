@@ -45,7 +45,7 @@
 
 - Work 已确定为 `packages/work`，不是 `packages/project`。工作计划、项目管理、工作汇报、历史记录归 Work；不要把 Project / EmployeeProject 修回 HR。
 - Work 项目管理主入口是 `/work/project`；项目空间执行入口是 `/work/project/:projectId/space`。若处理项目页左右分栏体验，只补 Core UI 稳定入口，Work 只接业务数据。
-- Production/QC Data 线程可能修改 `.workspace/config/scripts/generate-product-stage-tests.mjs` 和生成的 pharma-qc JSON/cache。其他 agent 不要提交这些文件。
+- Production/QC Data 线程可能修改 `.workspace/tools/qc/generate-product-stage-tests.mjs` 和生成的 pharma-qc JSON/cache。其他 agent 不要提交这些文件。
 
 ## 5. Structure Scan 使用方式
 
@@ -80,7 +80,7 @@
 动作: refactor
 目标层: api-shell + package
 依赖: 先补 package service，再缩薄 route，最后 ratchet baseline
-禁止触碰: packages/work, .workspace/config/scripts/generate-product-stage-tests.mjs
+禁止触碰: packages/work, .workspace/tools/qc/generate-product-stage-tests.mjs
 验证: npm run arch:gate; npm run typecheck:quick
 风险: medium
 ```

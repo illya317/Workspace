@@ -194,18 +194,6 @@ export type TenantRuntimeConfig = {
   agentWorkforce: TenantAgentWorkforceConfig;
   permissionReview: TenantPermissionReviewPolicy;
   financeImports: TenantFinanceImportConfig;
-  manifest: {
-    name: string;
-    version: number;
-    sourceRepository: string;
-    productionTarget: {
-      domain: string;
-      serverHost: string;
-      remoteDir: string;
-      pm2Name: string;
-      workspaceConfigDir: string;
-    };
-  };
 };
 
 export type TenantPublicConfig = Pick<TenantProfile, "key" | "identity" | "localization" | "organization" | "finance" | "work" | "hr"> & {

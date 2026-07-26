@@ -80,7 +80,7 @@ DB 不等于 Excel，也不等于 normalized JSON。
 
 不确定的原始行可以先放 `rawPayload`，但不能为了还原 Excel 样子把几十个不稳定列都建成 schema。
 
-公司、组织、租户相关的专有事实必须数据化，不能散落在代码里。部署级身份、组织语义、HR 选项、Finance 导入计划、Work 编号、Docs/QC 产品和 Agent 编制以 `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` 及其引用文件为输入；可变公司/组织事实仍以数据库为权威并由租户输入 seed。只有 Platform `tenant-config` 负责路径解析、校验、缓存与 client-safe 快照，业务包只读取语义 accessor/context，不能直接读文件。`company:check` 保持 active baseline 为零并由 Hygiene 定期 strict 复查。
+公司、组织、租户相关的专有事实必须数据化，不能散落在代码里。租户身份、组织语义、HR 选项、Finance 导入计划、Work 编号、Docs/QC 产品和 Agent 编制以 `WORKSPACE_CONFIG_DIR/config/tenant/profile.json` 及其引用文件为输入；可变公司/组织事实仍以数据库为权威并由租户输入 seed。仓库和部署目标只读专用私有环境变量，不进入 profile 或根 manifest。只有 Platform `tenant-config` 负责路径解析、校验、缓存与 client-safe 快照，业务包只读取语义 accessor/context，不能直接读文件。`company:check` 保持 active baseline 为零并由 Hygiene 定期 strict 复查。
 
 ## 5. API 规则
 
@@ -307,7 +307,7 @@ Structure 任务拆解规则：
 动作: refactor
 目标层: api-shell + package
 依赖: 先补 package service -> route 改调用 service -> 删除 route 内 Prisma/业务计算 -> ratchet baseline
-禁止触碰: packages/work, .workspace/config/scripts/generate-product-stage-tests.mjs
+禁止触碰: packages/work, .workspace/tools/qc/generate-product-stage-tests.mjs
 验证: npm run arch:gate; npm run typecheck:scope -- finance
 风险: medium
 ```

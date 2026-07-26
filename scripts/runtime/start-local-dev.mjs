@@ -11,6 +11,7 @@ export const LOCAL_DEV_PORT = 3000;
 const repositoryRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../..");
 const lockPath = path.join(repositoryRoot, ".cache/runtime/local-dev-server.lock");
 const nextCliPath = path.join(repositoryRoot, "node_modules/next/dist/bin/next");
+const workspaceCheckPath = path.join(repositoryRoot, "scripts/check/check-workspace-runtime.js");
 
 export function assertFixedDevArguments(args) {
   if (args.length === 0) return;
@@ -102,6 +103,21 @@ async function acquireDevServerLock() {
   throw new Error("无法取得本地开发服务锁，请确认没有其他 npm run dev 正在启动。");
 }
 
+async function runWorkspacePreflight() {
+  const child = spawn(process.execPath, [workspaceCheckPath], {
+    cwd: repositoryRoot,
+    env: process.env,
+    stdio: "inherit",
+  });
+  const result = await new Promise((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code, signal) => resolve({ code, signal }));
+  });
+  if (result.code !== 0) {
+    throw new Error("Workspace 私有配置检查未通过，本地服务未启动；先完成 npm run workspace:init、租户配置和 npm run workspace:check。");
+  }
+}
+
 async function runNextDev() {
   const child = spawn(process.execPath, [nextCliPath, "dev", "--port", String(LOCAL_DEV_PORT)], {
     cwd: repositoryRoot,
@@ -137,6 +153,7 @@ export async function main(args = process.argv.slice(2)) {
   try {
     if (!(await isPortAvailable())) throw new Error(occupiedPortMessage());
 
+    await runWorkspacePreflight();
     await fs.rm(path.join(repositoryRoot, ".next"), { recursive: true, force: true });
     const result = await runNextDev();
     if (result.code !== null) return result.code;

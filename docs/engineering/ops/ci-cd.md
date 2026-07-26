@@ -132,7 +132,7 @@ OPS_ENV_FILE=/path/to/private/.env ops/publish.sh deploy --shadow-unit finance
 
 - `--deploy-unit <unitId>` 只接受 deploy graph 中的 `active` 单元，把 `activate` 目标写入受 source/tree 约束的 release metadata，再动态生成本次 CNB injection；入口等待 CNB terminal success 与服务器 Gateway active state 同 SHA/tree 后才报告成功并写模块上线通知。`--shadow-unit <unitId>` 接受 candidate/active 单元，只等待同 SHA/tree 的 `shadow-ready` receipt，不切公网 Gateway，也不写“已上线”通知。私有 CNB 模板始终保持空目标，避免上一次模块残留污染下次发布。
 - Library/OCR、Qwen embedding 和 ONLYOFFICE provisioning 采用 source/config digest marker。marker 命中后仍运行轻量版本/文件/健康检查；检查失败、脚本或配置变化时自动回退到完整安装，Qwen 的完整 CPU semantic smoke 仍由首次安装或输入变化触发。
-- `config/tenant/profile.json`、其声明的配置文件和根 `manifest.json` 由 `publish.sh deploy` 自动同步；`--print-command` 只生成 CNB request，不改服务器租户配置。服务器切换前后均按部署 manifest 复验，历史版本保存在 `.workspace.backups/tenant-config/`。
+- `config/tenant/profile.json`、其声明的配置文件和受管目录由 `publish.sh deploy` 自动同步；根 `manifest.json` 已退出契约。`--print-command` 只生成 CNB request，不改服务器租户配置。服务器切换前后均按部署时根据实际文件生成的 tenant-config manifest 复验，历史版本保存在 `.workspace.backups/tenant-config/`。
 - CNB artifact 进入统一部署器后，必须通过 manifest/digest/migration 校验、互斥锁、PostgreSQL/runtime 备份、不可变 release 目录、PM2 切换、健康检查和回滚。`deployed-release.json` 绑定同一个 runtime/canonical source。
 - 已执行 migration 和已写入业务数据不会被后续代码部署自动回退；有持久化变化时，后续 source 必须保持兼容或提供明确的向前修正。
 

@@ -15,7 +15,7 @@ Operations 负责 CI、部署、环境和脚本运行态。
 
 - 维护 GitHub Actions CI、CNB CD、部署流程、环境变量检查和运行脚本。
 - 维护 C0–C3 风险分类、独立 static/Node/type/PostgreSQL/build/E2E job 和稳定的 `CI / required` 聚合门禁；未知变化必须 fail closed 到全量。
-- 区分 PR CI 和 deploy/runtime 检查；真实 DB、workspace manifest、ops env 和部署后验证不进入普通 PR CI。
+- 区分 PR CI 和 deploy/runtime 检查；真实 DB、租户私有配置、ops env 和部署后验证不进入普通 PR CI。
 - 调查 CI 失败、构建失败和部署失败。
 - 维护 CI、check、runtime、deploy、本地开发命令相关文档，确保命令说明和 `package.json` / workflow 一致。
 - 维护 deploy graph 与生成 App 的运行契约：根 `app/`/registry 是事实源，`apps/*` 只通过生成器更新，并由 `deploy:apps:check` 阻断漂移。

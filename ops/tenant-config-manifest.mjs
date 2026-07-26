@@ -30,6 +30,7 @@ const REQUIRED_PROFILE_FILE_KEYS = [
   "hrSchoolWhitelist",
 ];
 const REQUIRED_PROFILE_DIRECTORY_KEYS = ["qcTemplateSnapshots"];
+const RETIRED_TENANT_CONFIG_FILES = ["manifest.json"];
 
 function sha256(buffer) {
   return createHash("sha256").update(buffer).digest("hex");
@@ -135,7 +136,7 @@ function tenantConfigPaths(root) {
     throw new Error("tenant profile file references must be unique");
   }
   const managedFiles = managedDirectories.flatMap((directory) => listRegularDirectoryFiles(root, directory));
-  const files = ["manifest.json", PROFILE_PATH, ...references, ...companyDocumentReferences, ...managedFiles];
+  const files = [PROFILE_PATH, ...references, ...companyDocumentReferences, ...managedFiles];
   for (const relativePath of files) resolveRegularFile(root, relativePath);
   for (const relativePath of files.filter((file) => file.endsWith(".json"))) readJson(root, relativePath);
   const cnbRelease = readFileSync(resolveRegularFile(root, profile.files.cnbRelease), "utf8");
@@ -231,12 +232,25 @@ export function installTenantConfig({ stagingRoot, targetRoot, backupRoot, manif
   verifyTenantConfigManifest(stagingRoot, manifest);
   mkdirSync(backupRoot, { recursive: true });
   const applied = [];
+  const retired = [];
   const sourceManifest = path.resolve(stagingRoot, ".deployment/tenant-config-manifest.json");
   const targetManifest = path.resolve(targetRoot, ".deployment/tenant-config-manifest.json");
   const previousManifest = path.resolve(backupRoot, "previous-deployment-manifest.json");
   let hadPreviousManifest = false;
   const appliedDirectories = [];
   try {
+    for (const relativePath of RETIRED_TENANT_CONFIG_FILES) {
+      const target = path.resolve(targetRoot, relativePath);
+      if (!existsSync(target)) continue;
+      const stat = lstatSync(target);
+      if (stat.isSymbolicLink() || !stat.isFile()) {
+        throw new Error(`retired tenant config target must be a regular file: ${relativePath}`);
+      }
+      const backup = path.resolve(backupRoot, relativePath);
+      mkdirSync(path.dirname(backup), { recursive: true });
+      renameSync(target, backup);
+      retired.push({ path: relativePath, hadPrevious: true });
+    }
     for (const directory of manifest.managedDirectories) {
       const source = resolveRegularDirectory(stagingRoot, directory);
       const target = path.resolve(targetRoot, directory);
@@ -287,6 +301,7 @@ export function installTenantConfig({ stagingRoot, targetRoot, backupRoot, manif
     if (hadPreviousManifest && existsSync(previousManifest)) renameSync(previousManifest, targetManifest);
     restoreInstalledFiles(targetRoot, backupRoot, applied);
     restoreInstalledDirectories(targetRoot, backupRoot, appliedDirectories);
+    restoreInstalledFiles(targetRoot, backupRoot, retired);
     throw error;
   }
 }
@@ -313,6 +328,11 @@ function requireOption(options, key) {
 export function main(argv = process.argv.slice(2)) {
   const [command, ...rest] = argv;
   const options = parseArguments(rest);
+  if (command === "validate") {
+    const manifest = createTenantConfigManifest(requireOption(options, "root"));
+    process.stdout.write(`VALID ${manifest.files.length} ${manifest.digest}\n`);
+    return;
+  }
   if (command === "create") {
     const output = requireOption(options, "output");
     const manifest = createTenantConfigManifest(requireOption(options, "root"));

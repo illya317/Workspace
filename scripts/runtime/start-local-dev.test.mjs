@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 
 import {
@@ -21,4 +22,9 @@ test("local dev rejects forwarded npm arguments", () => {
 test("occupied port guidance forbids switching ports", () => {
   assert.match(occupiedPortMessage(), /复用现有 Workspace dev server/);
   assert.match(occupiedPortMessage(), /禁止改用其他端口/);
+});
+
+test("local dev runs the workspace preflight before clearing the Next build", () => {
+  const source = readFileSync(new URL("./start-local-dev.mjs", import.meta.url), "utf8");
+  assert.match(source, /await runWorkspacePreflight\(\);\n\s+await fs\.rm\(path\.join\(repositoryRoot, "\.next"\)/);
 });

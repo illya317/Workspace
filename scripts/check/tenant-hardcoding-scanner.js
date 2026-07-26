@@ -36,12 +36,12 @@ const STRUCTURAL_RULES = [
   {
     id: "personal-absolute-path",
     pattern: /(?:["'`]|^)(?:\/Users\/[^/\s"'`]+|\/home\/ubuntu)\//,
-    message: "personal or server-specific absolute path must come from workspace manifest/configuration",
+    message: "personal or server-specific absolute path must come from private environment configuration",
   },
   {
     id: "repository-default",
     pattern: /(?:DEFAULT_[A-Z_]*(?:_REPO|_REPOSITORY)\b|fallback[A-Za-z]*(?:Repo|Repository)\b|\?\?\s*["'`]https:\/\/cnb\.cool\/|\|\|\s*["'`]https:\/\/cnb\.cool\/)/,
-    message: "repository fallback must come from workspace manifest/configuration",
+    message: "repository fallback must come from a dedicated private environment variable",
   },
   {
     id: "qc-config-root-default",
@@ -111,14 +111,13 @@ function resolveWorkspaceFile(root, relativePath) {
 
 function loadTenantScanInput(workspaceConfigDir) {
   const profile = readJson(path.join(workspaceConfigDir, "config/tenant/profile.json"));
-  const manifest = readJson(path.join(workspaceConfigDir, "manifest.json"));
   const companies = readJson(resolveWorkspaceFile(workspaceConfigDir, profile.files?.companies));
   const agentWorkforce = readJson(resolveWorkspaceFile(workspaceConfigDir, profile.files?.agentWorkforce));
   const privateSignalsFile = path.join(workspaceConfigDir, "config/tenant/source-code-forbidden-signals.json");
   const sourceCodeForbiddenSignals = fs.existsSync(privateSignalsFile)
     ? readJson(privateSignalsFile)
     : { schemaVersion: 1, signals: [] };
-  return { profile, manifest, companies, agentWorkforce, sourceCodeForbiddenSignals };
+  return { profile, companies, agentWorkforce, sourceCodeForbiddenSignals };
 }
 
 function signal(id, value, mode = "literal", contextPattern) {
@@ -126,7 +125,7 @@ function signal(id, value, mode = "literal", contextPattern) {
   return { id, value, mode, contextPattern };
 }
 
-function collectTenantSignals({ profile, manifest, companies, agentWorkforce, sourceCodeForbiddenSignals }) {
+function collectTenantSignals({ profile, companies, agentWorkforce, sourceCodeForbiddenSignals }) {
   const signals = [];
   const add = (next) => { if (next) signals.push(next); };
 
@@ -196,13 +195,6 @@ function collectTenantSignals({ profile, manifest, companies, agentWorkforce, so
       add(signal(`agent:runtime-instructions:${member.employeeId}:${index}`, binding.instructions, "substring"));
     }
   }
-
-  add(signal("workspace:source-repository", manifest.sourceRepository, "substring"));
-  const repositoryMatch = String(manifest.sourceRepository || "").match(/cnb\.cool\/([^/]+\/[^/.]+)(?:\.git)?$/i);
-  if (repositoryMatch) add(signal("workspace:repository-slug", repositoryMatch[1], "substring"));
-  add(signal("workspace:stable-local-path", manifest.stableLocalPath, "substring"));
-  add(signal("workspace:remote-dir", manifest.productionTarget?.remoteDir, "substring"));
-  add(signal("workspace:remote-config-dir", manifest.productionTarget?.workspaceConfigDir, "substring"));
 
   const unique = new Map();
   for (const item of signals) unique.set(`${item.id}:${item.value}:${item.mode}`, item);
