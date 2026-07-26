@@ -67,6 +67,7 @@ export const CAPITAL_SECURITIES_COMPANIES_ANALYSIS_SOURCE = defineWorkspaceAnaly
     id: field({ label: "公司 ID", description: "公司稳定内部 ID。", valueKind: "integer", sensitivity: "internal" }),
     partyId: field({ label: "主体 ID", description: "公司关联的法定主体内部 ID。", valueKind: "integer", sensitivity: "internal" }),
     partyVersion: field({ label: "主体版本", description: "法定主体聚合版本号。", valueKind: "integer", sensitivity: "internal" }),
+    legalFactRevision: field({ label: "法定事实版本", description: "公司当前法定事实的并发修订号。", valueKind: "integer", sensitivity: "internal" }),
     code: field({ label: "公司编码", description: "公司业务编码。", valueKind: "text", sensitivity: "internal" }),
     name: field({ label: "公司名称", description: "公司主体名称。", valueKind: "text", sensitivity: "confidential" }),
     fullName: field({ label: "公司全称", description: "公司法定全称。", valueKind: "text", sensitivity: "confidential" }),
