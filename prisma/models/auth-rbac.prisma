@@ -69,6 +69,7 @@ model User {
   erpDueDiligenceSubmissions       ErpDueDiligenceSubmission[]          @relation("ErpDueDiligenceRespondent")
   recordedEmployeeLifecycleEvents EmployeeLifecycleEvent[]             @relation("EmployeeLifecycleEventRecorder")
   requestedDataQualityRuns         DataQualityRun[]                     @relation("DataQualityRunRequester")
+  recordedEmploymentAgreementChanges EmploymentAgreementChange[]       @relation("EmploymentAgreementChangeActor")
 }
 
 /// RBAC 资源定义，详见 docs/rbac.md

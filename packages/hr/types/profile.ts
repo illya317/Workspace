@@ -1,3 +1,5 @@
+import type { BusinessTemporalPosition } from "@workspace/platform/contracts/business-temporal";
+
 export type ProfileFieldType =
   | "text"
   | "date"
@@ -33,6 +35,7 @@ export interface ProfileField {
 }
 
 export interface EmployeeProfile {
+  asOfDate: string;
   employee: EmployeeProfileEmployee;
   summary: EmployeeProfileSummary;
   employments: EmploymentRow[];
@@ -89,12 +92,13 @@ export interface EmploymentRow {
   personnelType: string | null;
   rank: string | null;
   title: string | null;
-  isNew?: boolean;
+  temporalState: BusinessTemporalPosition;
 }
 
 export interface ContractRow {
-  id?: number;
-  employmentId?: number;
+  id: string;
+  agreementUid: string | null;
+  employmentId: number;
   employeeId: string;
   employeeName: string;
   company: string;
@@ -114,7 +118,44 @@ export interface ContractRow {
   confidentialityDate: string | null;
   nonCompeteDate: string | null;
   endDate: string | null;
-  isNew?: boolean;
+  recordState: "draft" | "confirmed" | "cancelled" | "superseded" | "voided" | "unknown";
+  temporalState: BusinessTemporalPosition;
+  version: number | null;
+  source: "normalized" | "legacy-json";
+  migrationState: "normalized" | "legacy-read-only" | "legacy-ambiguous";
+  currentRevisionUid: string | null;
+  terms: EmploymentAgreementTermRow[];
+  revisions: EmploymentAgreementRevisionRow[];
+}
+
+export interface EmploymentAgreementTermRow {
+  termUid: string;
+  sequence: number;
+  termKind: "initial" | "renewal" | "permanent" | "legacy";
+  effectiveFrom: string;
+  effectiveThrough: string | null;
+  recordState: "confirmed" | "cancelled" | "superseded" | "voided" | "unknown";
+  temporalState: BusinessTemporalPosition;
+  changeKind: string;
+  reason: string | null;
+}
+
+export interface EmploymentAgreementRevisionRow {
+  revisionUid: string;
+  revisionNo: number;
+  recordState: "draft" | "confirmed" | "cancelled" | "superseded" | "unknown";
+  content: {
+    company: string | null;
+    insuranceStatus: string | null;
+    legalRelation: string | null;
+    contractType: string | null;
+    employmentForm: string | null;
+    confidentialityDate: string | null;
+    nonCompeteDate: string | null;
+  };
+  supersedesRevisionUid: string | null;
+  reason: string | null;
+  createdAt: string;
 }
 
 export interface EdpRow {
@@ -134,7 +175,7 @@ export interface EdpRow {
   reportTo: string | null;
   reportToPositionId: number | null;
   workPercent: string | null;
-  isNew?: boolean;
+  temporalState: BusinessTemporalPosition;
 }
 
 export type EmployeeLifecycleEventType =
@@ -148,7 +189,9 @@ export interface EmployeeLifecycleEventRow {
   id: number;
   eventType: EmployeeLifecycleEventType;
   effectiveDate: string;
-  status: "scheduled" | "effective" | "cancelled";
+  temporalState: "scheduled" | "effective";
+  recordState: "confirmed" | "cancelled" | "unknown";
+  recordStateProvenance: "explicit" | "legacy_inferred" | "unknown";
   reason: string | null;
   details: Record<string, unknown>;
   recordedByUserId: number;

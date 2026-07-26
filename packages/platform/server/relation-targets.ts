@@ -44,6 +44,7 @@ export type RelationTargetKind =
   | "company"
   | "department"
   | "employee"
+  | "employeeProject"
   | "financeAccount"
   | "financeGroupAccount"
   | "financeConsolidationEntrySource"
@@ -55,6 +56,7 @@ export type RelationTargetKind =
   | "positionDescription"
   | "positionResponsibilityNode"
   | "project"
+  | "projectMembershipChange"
   | "projectPlanPhase"
   | "user"
   | "departmentCollaboration"
@@ -80,6 +82,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "Employee", label: "员工" },
     search: ({ keyword, lifecycleScope }) => searchFkEmployees(keyword, lifecycleScope),
     resolve: resolveFkEmployee,
+  },
+  employeeProject: {
+    target: { entity: "EmployeeProject", label: "项目成员版本" },
+    search: async () => [],
+    resolve: async () => null,
   },
   financeAccount: {
     target: { entity: "FinanceAccount", label: "财务科目" },
@@ -135,6 +142,11 @@ const targetSpecs: Record<RelationTargetKind, RelationTargetSpec> = {
     target: { entity: "Project", label: "项目" },
     search: ({ keyword, lifecycleScope }) => searchFkProjects(keyword, lifecycleScope),
     resolve: resolveFkProject,
+  },
+  projectMembershipChange: {
+    target: { entity: "ProjectMembershipChange", label: "项目成员命令" },
+    search: async () => [],
+    resolve: async () => null,
   },
   projectPlanPhase: {
     target: { entity: "ProjectPlanPhase", label: "项目阶段" },

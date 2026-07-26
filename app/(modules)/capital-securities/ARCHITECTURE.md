@@ -2,7 +2,7 @@
 
 ## Scope
 
-资本证券承载投资人关系、注册资本流水、治理架构、法律公司角色与集团控制关系。治理架构不建独立组织表，继续使用 `Department.hierarchyKind = "G"` 作为组织单元事实源；稳定法定主体由共享 `Party` 保存，历史名称写入 `PartyNameHistory`，内部公司角色使用 `Company`，且 `Company.partyId` 一对一指向受治理 Party。股权唯一事实源是 `ShareCapitalEvent + ShareCapitalTransaction/ShareCapitalSnapshotPosition`；`OwnershipInterest` 只是账本生成的有效期投影，不能直接写入。
+资本证券承载投资人关系、注册资本流水、治理架构、法律公司角色与集团控制关系。治理架构不建独立组织表，继续使用 `Department.hierarchyKind = "G"` 作为组织单元事实源；稳定法定主体由共享 `Party` 保存，历史名称写入 `PartyNameHistory`，内部公司角色使用 `Company`，且 `Company.partyId` 一对一指向受治理 Party。股权唯一事实源是 `ShareCapitalEvent + ShareCapitalTransaction/ShareCapitalSnapshotPosition`；`OwnershipInterest` 只是账本生成的有效期投影，不能直接写入。`sourceEventId` 记录打开期间的事件，`closedByEventId` 记录关闭期间的事件，`projectionRunId + projectionGeneration` 指向 `OwnershipProjectionRun` 重建回执。旧投影在 expand migration 后允许这些字段为空，只有按发行主体完成受控重建后才具备完整 provenance；不得用 migration 猜测或补造来源。
 
 ## Route Shell
 
@@ -23,8 +23,9 @@ app/(modules)/capital-securities/
 - 股东主体候选 API：`/api/modules/capitalSecurities/governance/ownership-parties`（只返回中立身份与遮罩证件号，不返回客户/供应商角色资料）
 - 投资人关系查询 API：`/api/modules/capitalSecurities/investors`（公司 + 基准日 -> 当前股东名册、注册资本交易流水和逐轮股权结构表）
 - 股权结构表导出 API：`/api/modules/capitalSecurities/investors/export`（与页面共用同一按日计算服务）
+- 股权投影唯一写服务：`rebuildOwnershipProjection({ issuerCompanyId, ... })`。服务在同一事务中获取发行主体 advisory lock，载入完整事件账本，计算 projector-input SHA-256，调用 `deriveOwnershipPeriods`，整体替换该发行主体的 `OwnershipInterest` 并写入新一代 `OwnershipProjectionRun`。未来事件追加/确认命令必须调用这条服务，不得另写投影表。
 - 组织单元服务：`@workspace/platform/server/organization-units`
-- 组织单元写入：`Department`、`DepartmentManagerEmployee`、`EditHistory`
+- 组织单元写入：`Department`、`EditHistory`；负责人姓名只从 `managerPositionId` 对应的当前 Employment + EDP 占有人派生。
 - 岗位、岗位说明书、员工任职仍由 HR 维护，治理架构只读取岗位摘要。
 - HR 的 `/api/modules/hr/roster/companies` 仅保留公司候选 GET 适配；公司角色写入进入资本证券 service，股权写入只进入股权事件账本。
 
@@ -51,7 +52,7 @@ Capital Securities owner 将治理和投资人两个受保护 GET 的公开读�
 
 ## Notes
 
-治理架构页面通过 Core TabBar 分为“治理组织 / 集团股权 / 公司信息”。“公司信息”维护公司角色资料及可编辑的公司描述；法定全称和当前法人是历史事实的当前投影，只读展示。“集团股权”读取由统一账本生成的 `OwnershipInterest`，页面不提供新增、编辑或删除。每段投影保存有效期、状态与来源引用，供关系图、治理页面和财务合并消费；需要纠错时修改或补充上游股权事件并整体重放投影，不能修补下游期间。
+治理架构页面通过 Core TabBar 分为“治理组织 / 集团股权 / 公司信息”。“公司信息”维护公司角色资料及可编辑的公司描述；法定全称和当前法人是历史事实的当前投影，只读展示。“集团股权”读取由统一账本生成的 `OwnershipInterest`，页面不提供新增、编辑或删除。历史表同时展示来源/关闭事件与投影代次；旧行未重建时明确显示“历史投影（待重建）”。每段投影保存有效期、状态与来源引用，供关系图、治理页面和财务合并消费；需要纠错时修改或补充上游股权事件并整体重放投影，不能修补下游期间。
 
 内部公司不是第二份法定主体：公司目录、HR 公司候选和资本证券页面都从 `Company -> Party` 读取名称与身份。人工新增公司可以把尚无 Company 角色的既有 Party 提升为内部公司；数据发布必须先解析或建立 Party，再创建 Company。相同公司编码指向不同 Party、或同一 Party 被绑定到不同公司编码时必须停止，不能靠覆盖名称合并。
 

@@ -10,7 +10,7 @@ import type {
   RosterGeneratedStatus,
   RosterGeneratedVariant,
 } from "@workspace/hr/types";
-import { buildContractRows, type ContractRow } from "./contract-records";
+import { buildContractRows, type RosterContractRow } from "./contract-records";
 import { primaryContractCompany } from "./employments";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
@@ -291,7 +291,7 @@ function buildGroup(employee: RosterEmployeeRecord, variant: RosterGeneratedVari
   };
 }
 
-function buildExpandedRow(employee: RosterEmployeeRecord, contracts: ContractRow[], index: number): RosterGeneratedRow {
+function buildExpandedRow(employee: RosterEmployeeRecord, contracts: RosterContractRow[], index: number): RosterGeneratedRow {
   const position = employee.positions[index] ?? null;
   const contract = contracts[index] ?? null;
   return {

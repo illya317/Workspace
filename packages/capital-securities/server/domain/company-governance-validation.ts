@@ -61,8 +61,10 @@ export async function buildCompanyUpdateCommand(body: Record<string, unknown>) {
   if (!id.ok) return id;
   const version = Number(body.version);
   const partyVersion = Number(body.partyVersion);
+  const legalFactRevision = Number(body.legalFactRevision);
   if (!Number.isInteger(version) || version < 0) return failCommand("公司版本无效，请刷新后重试", 400, "version");
   if (!Number.isInteger(partyVersion) || partyVersion < 0) return failCommand("主体版本无效，请刷新后重试", 400, "partyVersion");
+  if (!Number.isInteger(legalFactRevision) || legalFactRevision < 0) return failCommand("法定事实版本无效，请刷新后重试", 400, "legalFactRevision");
   const existing = await prisma.company.findUnique({
     where: { id: id.data },
     select: { id: true, party: { select: { fullName: true, legalRepresentative: true } } },
@@ -76,6 +78,6 @@ export async function buildCompanyUpdateCommand(body: Record<string, unknown>) {
     return failCommand("当前法定代表人由法人变更历史生成，请通过变更事实维护", 409, "legalPerson");
   }
   return validated.ok
-    ? okCommand({ id: id.data, version, partyVersion, ...validated.data })
+    ? okCommand({ id: id.data, version, partyVersion, legalFactRevision, ...validated.data })
     : validated;
 }

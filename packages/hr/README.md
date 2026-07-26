@@ -34,14 +34,17 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/autocomplete.ts` 和 `server/autocomplete-config.ts`：HR FK/autocomplete 查询与搜索字段配置。
 - `server/crud.ts`：HR 字段级 CRUD wrapper，统一注入 HR 权限检查并复用 Platform CRUD 契约。
 - 公司事实查询、编码解析和缓存由共享的 `@workspace/platform/server/company-directory` 提供；公司及股权关系维护归资本证券，HR 只消费公司候选。
-- `server/contracts.ts`：合同 JSON 解析、列表、创建、更新、删除和主合同同步。
+- `server/contracts.ts`：合同迁移期只读清单；旧创建、整表覆盖和物理删除入口均为 410 tombstone。
+- `server/employment-agreements.ts`：稳定协议身份、有效期限和不可变条款修订的唯一在线写入 seam，所有命令要求 optimistic `expectedVersion`。
+- `server/employment-agreement-legacy.ts`：`Employment.contracts` JSON 的只读 fingerprint 双读与迁移 preflight；重复或缺关键日期的数据只报告，不猜 stable identity。
 - `server/departments.ts`：部门列表、创建、更新、删除和部门说明书保存。
-- `server/edps.ts`：EDP 列表、创建、更新和删除。
-- `server/employees.ts`：员工列表、创建账号、字段更新、删除和员工搜索。
-- `server/employments.ts`：雇佣列表、创建、字段更新和禁止删除策略。
+- `server/edps.ts`：EDP 只读列表；期间结构写入统一进入员工生命周期 service。
+- `server/employees.ts`：员工列表、创建账号、字段更新和员工搜索；员工身份不提供在线 hard delete。
+- `server/employments.ts`：雇佣列表与非期间资料修正；创建、删除和期间边界修改进入员工生命周期 service。
 - `server/employee-profile.ts`：员工详情聚合 DTO。
-- `server/employee-contracts.ts`：员工合同保存和合同 JSON 校验。
-- `server/employee-edps.ts`：员工部门岗位保存和工作占比校验。
+- `server/employee-contracts.ts`：旧员工详情 whole-array 保存 tombstone；新入口是 `/employee-profiles/:id/agreements`。
+- `server/employee-lifecycle.ts`：入职、调岗、兼岗、汇报关系变化和离职的唯一结构写入 seam。
+- `scripts/check/hr-business-temporal-preflight.ts`：上线前在同一只读快照内扫描 Employment / EDP / EmployeeProject 期间与当前态一致性；开放结束必须为 `null`，通过 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD` 执行。
 - `server/employee-history.ts`：员工详情历史记录聚合。
 - `server/field-validation.ts`：HR 字段日期、选项、身份证、公司名和工作占比校验。
 - `server/position-description-template-store.ts`：岗位说明书视图模板读写。
@@ -49,7 +52,9 @@ import/    # HR 导入解析、清洗和校验流程
 - `server/positions.ts`：岗位列表、创建、更新和删除。
 - `server/roster.ts`：HR 名册列表、导出和筛选选项。
 - `server/search.ts`：HR 员工和主数据搜索语义。
-- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣、合同、员工详情合同/EDP、部门、岗位、EDP 和岗位说明书，统一收口 FK、日期、枚举、百分比、汇报岗位、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
+- `server/domain/*-validation.ts`：HR roster 写服务的 domain command/validator。当前覆盖员工、雇佣非期间修正、雇佣协议 lifecycle、人员生命周期、部门、岗位和岗位说明书，统一收口 FK、日期、枚举、百分比、汇报岗位、合同公司、跨字段/跨行规则和归档/删除引用保护。对应 service 只消费这些 validator 后执行写库和审计，不能重新散落业务规则。
+
+雇佣协议采用 `EmploymentAgreement` anchor + `EmploymentAgreementTerm` 含首尾日有效期间 + append-only `EmploymentAgreementRevision`。create / renew / end / correct / revise / publish / supersede / set-primary / cancel-future 全部经过同一命令 module；条款发布会新增 revision 并移动 anchor 当前指针，旧 revision 永不覆盖。`Employment.contracts` 仅保留为迁移来源；在线路径不得按数组下标更新或删除，也不得把整组前端 rows 覆盖回 JSON。
 
 旧的 `app/hr/*` 类型和 helper 文件保留为 re-export，避免一次性改动大量页面引用。
 旧的 HR UI 大组件和第一批字段组件路径保留为 re-export，Next route 和现有页面入口保持不变。

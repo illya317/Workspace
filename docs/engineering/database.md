@@ -235,6 +235,10 @@
 | createdAt | DateTime | @default(now()) |  |
 | sessionVersion | Int | @default(0) |  |
 | editedContracts | Contract[] | @relation("ContractEditor") |  |
+| archivedContracts | Contract[] | @relation("ContractArchivedBy") |  |
+| uploadedContractAttachments | ContractAttachment[] | @relation("ContractAttachmentUploader") |  |
+| removedContractAttachments | ContractAttachment[] | @relation("ContractAttachmentRemover") |  |
+| createdContractRecords | ContractRecord[] | @relation("ContractRecordCreator") |  |
 | editHistories | EditHistory[] | @relation("EditHistoryEditor") |  |
 | employees | Employee[] | @relation("EmployeeUser") |  |
 | agentProfile | AgentProfile? | @relation("AgentProfileActor") |  |
@@ -283,6 +287,7 @@
 | erpDueDiligenceSubmissions | ErpDueDiligenceSubmission[] | @relation("ErpDueDiligenceRespondent") |  |
 | recordedEmployeeLifecycleEvents | EmployeeLifecycleEvent[] | @relation("EmployeeLifecycleEventRecorder") |  |
 | requestedDataQualityRuns | DataQualityRun[] | @relation("DataQualityRunRequester") |  |
+| recordedEmploymentAgreementChanges | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeActor") |  |
 
 ### Resource
 
@@ -415,12 +420,37 @@
 | sourceType | String? | - |  |
 | sourceLabel | String? | - |  |
 | sourceReference | String? | - |  |
+| sourceEventId | Int? | - |  |
+| closedByEventId | Int? | - |  |
+| projectionRunId | Int? | - |  |
+| projectionGeneration | Int? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | owner | Party | @relation(fields: [ownerPartyId], references: [id], onDelete: Restrict) |  |
+| issuer | Company | @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict) |  |
+| sourceEvent | ShareCapitalEvent? | @relation("OwnershipInterestSourceEvent", fields: [sourceEventId], references: [id], onDelete: Restrict) |  |
+| closedByEvent | ShareCapitalEvent? | @relation("OwnershipInterestClosedByEvent", fields: [closedByEventId], references: [id], onDelete: Restrict) |  |
+| projectionRun | OwnershipProjectionRun? | @relation(fields: [projectionRunId], references: [id], onDelete: Restrict) |  |
+
+### OwnershipProjectionRun
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| issuerCompanyId | Int | - |  |
+| generation | Int | - |  |
+| projectorKey | String | - |  |
+| projectorVersion | Int | - |  |
+| ledgerHash | String | - |  |
+| sourceEventCount | Int | - |  |
+| projectionRowCount | Int | - |  |
+| triggerReason | String? | - |  |
+| triggeredBy | Int? | - |  |
+| projectedAt | DateTime | @default(now()) |  |
+| ownershipInterests | OwnershipInterest[] | - |  |
 | issuer | Company | @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict) |  |
 
 ### CompanyRegistryChange
@@ -499,6 +529,8 @@
 | consolidatedByPartyAfter | Party? | @relation("ShareCapitalEventController", fields: [consolidatedByPartyIdAfter], references: [id], onDelete: Restrict) |  |
 | supersedesEvent | ShareCapitalEvent? | @relation("ShareCapitalEventSupersession", fields: [supersedesEventId], references: [id], onDelete: Restrict) |  |
 | supersededByEvents | ShareCapitalEvent[] | @relation("ShareCapitalEventSupersession") |  |
+| openedOwnershipInterests | OwnershipInterest[] | @relation("OwnershipInterestSourceEvent") |  |
+| closedOwnershipInterests | OwnershipInterest[] | @relation("OwnershipInterestClosedByEvent") |  |
 | transactions | ShareCapitalTransaction[] | - |  |
 | snapshotPositions | ShareCapitalSnapshotPosition[] | - |  |
 
@@ -586,33 +618,194 @@
 | shareholderGroup | ShareholderGroup | @relation(fields: [shareholderGroupId], references: [id], onDelete: Cascade) |  |
 | party | Party | @relation(fields: [partyId], references: [id], onDelete: Restrict) |  |
 
+### ContractRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| revisionUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| contractId | Int | - |  |
+| revisionNo | Int | - |  |
+| recordState | String | @default("draft") |  |
+| changeKind | String | @default("revision") |  |
+| effectiveOn | DateTime | @db.Date |  |
+| effectiveThrough | DateTime? | @db.Date |  |
+| snapshotSchemaVersion | Int | @default(1) |  |
+| snapshotJson | Json | - |  |
+| reason | String? | - |  |
+| sourceRevisionId | Int? | - |  |
+| supersededByRevisionId | Int? | @unique |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| confirmedBy | Int? | - |  |
+| confirmedAt | DateTime? | - |  |
+| cancelledBy | Int? | - |  |
+| cancelledAt | DateTime? | - |  |
+| createIdempotencyKey | String? | @unique |  |
+| createRequestFingerprint | String? | - |  |
+| publishIdempotencyKey | String? | @unique |  |
+| publishRequestFingerprint | String? | - |  |
+| contract | Contract | @relation("ContractRevisions", fields: [contractId], references: [id], onDelete: Cascade) |  |
+| currentForContract | Contract? | @relation("ContractCurrentRevision") |  |
+| sourceRevision | ContractRevision? | @relation("ContractRevisionSource", fields: [sourceRevisionId], references: [id], onDelete: SetNull) |  |
+| derivedRevisions | ContractRevision[] | @relation("ContractRevisionSource") |  |
+| supersededByRevision | ContractRevision? | @relation("ContractRevisionSupersession", fields: [supersededByRevisionId], references: [id], onDelete: SetNull) |  |
+| supersededRevisions | ContractRevision[] | @relation("ContractRevisionSupersession") |  |
+| stateEvents | ContractStateEvent[] | - |  |
+
+### ContractStateEvent
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| eventUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| contractId | Int | - |  |
+| axis | String | - |  |
+| eventKind | String | @default("transition") |  |
+| fromState | String? | - |  |
+| toState | String | - |  |
+| effectiveOn | DateTime | @db.Date |  |
+| recordState | String | @default("confirmed") |  |
+| reason | String? | - |  |
+| sourceRevisionId | Int? | - |  |
+| reversesEventId | Int? | @unique |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| reversedBy | Int? | - |  |
+| reversedAt | DateTime? | - |  |
+| idempotencyKey | String? | @unique |  |
+| requestFingerprint | String? | - |  |
+| contract | Contract | @relation(fields: [contractId], references: [id], onDelete: Cascade) |  |
+| sourceRevision | ContractRevision? | @relation(fields: [sourceRevisionId], references: [id], onDelete: SetNull) |  |
+| reversesEvent | ContractStateEvent? | @relation("ContractStateEventReversal", fields: [reversesEventId], references: [id], onDelete: Restrict) |  |
+| reversedByEvent | ContractStateEvent? | @relation("ContractStateEventReversal") |  |
+
+### ContractCategory
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| name | String | @unique |  |
+| isActive | Boolean | @default(true) |  |
+| sortOrder | Int | @default(0) |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| contracts | Contract[] | - |  |
+
 ### Contract
 
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
+| contractUid | String | @unique @default(uuid()) |  |
 | contractNo | String? | - |  |
 | name | String | - |  |
 | partyA | String? | - |  |
 | partyB | String? | - |  |
 | shareholder | String? | - |  |
-| category | String? | - |  |
+| categoryId | Int | - |  |
 | content | String? | - |  |
+| owningCompanyId | Int? | - |  |
+| ownerDepartmentId | Int? | - |  |
+| partyAId | Int? | - |  |
+| partyBId | Int? | - |  |
 | handlerEmployeeId | Int? | - |  |
-| signDate | String? | - |  |
-| endDate | String? | - |  |
-| status | String? | - |  |
-| amount | Float? | - |  |
-| executedAmount | Float? | - |  |
+| signedOn | DateTime? | @db.Date |  |
+| expiresOn | DateTime? | @db.Date |  |
+| signedOnPrecision | String? | - |  |
+| expiresOnPrecision | String? | - |  |
+| legacySignDateRaw | String? | - |  |
+| legacyEndDateRaw | String? | - |  |
+| lifecycleStatus | String | @default("unknown") |  |
+| signatureStatus | String | @default("unknown") |  |
+| performanceStatus | String | @default("unknown") |  |
+| legacyStatusRaw | String? | - |  |
+| amount | Decimal? | @db.Decimal(20, 2) |  |
+| executedAmount | Decimal? | @db.Decimal(20, 2) |  |
+| currencyCode | String | @default("CNY") |  |
+| confidentialityLevel | Int | @default(2) |  |
 | location | String? | - |  |
 | remark | String? | - |  |
+| approvalSourceKey | String? | - |  |
+| approvalRecordId | String? | - |  |
+| approvalRecordUrl | String? | - |  |
+| approvalStatusSnapshot | String? | - |  |
+| approvedOn | DateTime? | @db.Date |  |
+| approvalSyncedAt | DateTime? | - |  |
+| currentRevisionId | Int? | @unique |  |
+| isArchived | Boolean | @default(false) |  |
+| archivedAt | DateTime? | - |  |
+| archivedBy | Int? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
+| category | ContractCategory | @relation(fields: [categoryId], references: [id], onDelete: Restrict) |  |
+| owningCompany | Company? | @relation("ContractOwningCompany", fields: [owningCompanyId], references: [id], onDelete: Restrict) |  |
+| ownerDepartment | Department? | @relation("ContractOwnerDepartment", fields: [ownerDepartmentId], references: [id], onDelete: Restrict) |  |
+| partyAIdentity | Party? | @relation("ContractPartyA", fields: [partyAId], references: [id], onDelete: Restrict) |  |
+| partyBIdentity | Party? | @relation("ContractPartyB", fields: [partyBId], references: [id], onDelete: Restrict) |  |
 | editor | User? | @relation("ContractEditor", fields: [editedBy], references: [id]) |  |
+| archivedByUser | User? | @relation("ContractArchivedBy", fields: [archivedBy], references: [id]) |  |
 | handlerEmployee | Employee? | @relation("ContractHandlerEmployee", fields: [handlerEmployeeId], references: [id], onDelete: Restrict) |  |
+| currentRevision | ContractRevision? | @relation("ContractCurrentRevision", fields: [currentRevisionId], references: [id], onDelete: SetNull) |  |
+| revisions | ContractRevision[] | @relation("ContractRevisions") |  |
+| stateEvents | ContractStateEvent[] | - |  |
+| attachments | ContractAttachment[] | - |  |
+| records | ContractRecord[] | - |  |
+
+### ContractAttachment
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| attachmentUid | String | @unique @default(uuid()) |  |
+| contractId | Int | - |  |
+| kind | String | @default("signed_contract") |  |
+| fileName | String | - |  |
+| mimeType | String | - |  |
+| originalStoragePath | String | - |  |
+| originalSizeBytes | Int | - |  |
+| originalChecksumSha256 | String | - |  |
+| optimizedStoragePath | String? | - |  |
+| optimizedSizeBytes | Int? | - |  |
+| optimizedChecksumSha256 | String? | - |  |
+| optimizationStatus | String | @default("not_applicable") |  |
+| optimizationError | String? | - |  |
+| compressionSavingsRatio | Decimal? | @db.Decimal(8, 6) |  |
+| pageCount | Int? | - |  |
+| note | String? | - |  |
+| uploadedBy | Int? | - |  |
+| uploadedAt | DateTime | @default(now()) |  |
+| removedBy | Int? | - |  |
+| removedAt | DateTime? | - |  |
+| removalReason | String? | - |  |
+| version | Int | @default(1) |  |
+| contract | Contract | @relation(fields: [contractId], references: [id], onDelete: Restrict) |  |
+| uploader | User? | @relation("ContractAttachmentUploader", fields: [uploadedBy], references: [id], onDelete: SetNull) |  |
+| remover | User? | @relation("ContractAttachmentRemover", fields: [removedBy], references: [id], onDelete: SetNull) |  |
+
+### ContractRecord
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| recordUid | String | @unique @default(uuid()) |  |
+| contractId | Int | - |  |
+| recordType | String | - |  |
+| occurredOn | DateTime | @db.Date |  |
+| title | String | - |  |
+| content | String? | - |  |
+| sourceKey | String? | - |  |
+| externalRecordId | String? | - |  |
+| externalUrl | String? | - |  |
+| statusSnapshot | String? | - |  |
+| attachmentUid | String? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| contract | Contract | @relation(fields: [contractId], references: [id], onDelete: Restrict) |  |
+| creator | User? | @relation("ContractRecordCreator", fields: [createdBy], references: [id], onDelete: SetNull) |  |
 
 ### DataQualityRun
 
@@ -750,6 +943,38 @@
 | space | DocumentTemplateSpace | @relation(fields: [spaceId], references: [id], onDelete: Cascade) |  |
 | productionQcBatches | ProductionQcBatch[] | - |  |
 
+### PartyLegalFactRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| partyId | Int | - |  |
+| revision | Int | - |  |
+| commandKind | String | - |  |
+| effectiveOn | DateTime | @db.Date |  |
+| recordState | String | @default("confirmed") |  |
+| supersedesId | Int? | @unique |  |
+| subjectType | String | - |  |
+| name | String | - |  |
+| fullName | String? | - |  |
+| identityNumber | String | - |  |
+| legalRepresentative | String? | - |  |
+| registeredCapital | String? | - |  |
+| registeredAddress | String? | - |  |
+| registeredDate | String? | - |  |
+| sourceRegistryChangeId | Int? | - |  |
+| sourceType | String? | - |  |
+| sourceLabel | String? | - |  |
+| sourceReference | String? | - |  |
+| reason | String? | - |  |
+| idempotencyKey | String | @unique |  |
+| requestFingerprint | String | - |  |
+| recordedBy | Int? | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| party | Party | @relation(fields: [partyId], references: [id], onDelete: Restrict) |  |
+| supersedes | PartyLegalFactRevision? | @relation("PartyLegalFactSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | PartyLegalFactRevision[] | @relation("PartyLegalFactSupersession") |  |
+
 ### Party
 
 | 字段 | 类型 | 属性 | 说明 |
@@ -768,6 +993,7 @@
 | externalProfile | ExternalPartyProfile? | - |  |
 | externalRoles | ExternalPartyRole[] | - |  |
 | nameHistory | PartyNameHistory[] | - |  |
+| legalFactRevisions | PartyLegalFactRevision[] | - |  |
 | company | Company? | - |  |
 | ownedInterests | OwnershipInterest[] | - |  |
 | shareCapitalOutflows | ShareCapitalTransaction[] | @relation("ShareCapitalTransferor") |  |
@@ -776,6 +1002,8 @@
 | controlledAfterCapitalEvents | ShareCapitalEvent[] | @relation("ShareCapitalEventController") |  |
 | shareholderGroupMemberships | ShareholderGroupMembership[] | - |  |
 | registryOwnershipParticipants | CompanyRegistryOwnershipParticipant[] | - |  |
+| contractsAsPartyA | Contract[] | @relation("ContractPartyA") |  |
+| contractsAsPartyB | Contract[] | @relation("ContractPartyB") |  |
 
 ### PartyNameHistory
 
@@ -833,11 +1061,34 @@
 | taxRate | Float? | - |  |
 | remark | String? | - |  |
 | isActive | Boolean | @default(true) |  |
+| availabilityVersion | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | party | Party | @relation(fields: [partyId], references: [id], onDelete: Restrict) |  |
 | financeShipments | FinanceShipment[] | - |  |
 | sourceMappings | ExternalPartySourceMapping[] | - |  |
+| availabilityPeriods | ExternalPartyRolePeriod[] | - |  |
+
+### ExternalPartyRolePeriod
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| roleId | Int | - |  |
+| sequence | Int | - |  |
+| validFrom | String? | - |  |
+| validThrough | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| commandKind | String | - |  |
+| supersedesId | Int? | @unique |  |
+| idempotencyKey | String | @unique |  |
+| requestFingerprint | String | - |  |
+| reason | String? | - |  |
+| recordedBy | Int? | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| role | ExternalPartyRole | @relation(fields: [roleId], references: [id], onDelete: Restrict) |  |
+| supersedes | ExternalPartyRolePeriod? | @relation("ExternalPartyRolePeriodSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | ExternalPartyRolePeriod[] | @relation("ExternalPartyRolePeriodSupersession") |  |
 
 ### ExternalPartySourceMapping
 
@@ -2672,6 +2923,23 @@
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| updatedAt | DateTime | @default(now()) @updatedAt |  |
+| positions | Position[] | - |  |
+| revisions | PositionDescriptionRevision[] | @relation("PositionDescriptionRevisions") |  |
+| responsibilityNodes | PositionResponsibilityNode[] | - |  |
+
+### PositionDescriptionRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| revisionUid | String | @unique |  |
+| positionDescriptionId | Int | - |  |
+| sequence | Int | - |  |
+| changeKind | String | @default("change") |  |
+| supersedesRevisionId | Int? | - |  |
 | positionPurpose | String? | - |  |
 | summary | String? | - |  |
 | headcount | Int? | - |  |
@@ -2679,12 +2947,99 @@
 | effectiveDate | String? | - |  |
 | sourceFile | String | - |  |
 | details | String? | - |  |
-| editedBy | Int? | - |  |
-| editedAt | DateTime? | - |  |
+| changeReason | String? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| positionDescription | PositionDescription | @relation("PositionDescriptionRevisions", fields: [positionDescriptionId], references: [id], onDelete: Restrict) |  |
+| supersedesRevision | PositionDescriptionRevision? | @relation("PositionDescriptionRevisionSupersedes", fields: [supersedesRevisionId], references: [id], onDelete: Restrict) |  |
+| supersededByRevisions | PositionDescriptionRevision[] | @relation("PositionDescriptionRevisionSupersedes") |  |
+| responsibilityNodes | PositionResponsibilityNode[] | - |  |
+
+### EmploymentAgreement
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| agreementUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| employmentId | Int | - |  |
+| recordState | String | @default("confirmed") |  |
+| isPrimary | Boolean | @default(false) |  |
+| sourceKind | String | @default("workspace") |  |
+| sourceRef | String? | - |  |
+| reason | String? | - |  |
+| version | Int | @default(1) |  |
+| currentPublishedRevisionId | Int? | @unique |  |
+| createdBy | Int? | - |  |
+| updatedBy | Int? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
-| positions | Position[] | - |  |
-| responsibilityNodes | PositionResponsibilityNode[] | - |  |
+| employment | Employment | @relation(fields: [employmentId], references: [id], onDelete: Restrict) |  |
+| currentPublishedRevision | EmploymentAgreementRevision? | @relation("EmploymentAgreementCurrentRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: Restrict) |  |
+| revisions | EmploymentAgreementRevision[] | @relation("EmploymentAgreementRevisions") |  |
+| terms | EmploymentAgreementTerm[] | - |  |
+| changes | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeAgreement") |  |
+
+### EmploymentAgreementTerm
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| termUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| agreementId | Int | - |  |
+| sequence | Int | - |  |
+| termKind | String | @default("initial") |  |
+| effectiveFrom | String | - |  |
+| effectiveThrough | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| changeKind | String | @default("schedule") |  |
+| supersedesId | Int? | - |  |
+| sourceKind | String | @default("workspace") |  |
+| sourceRef | String? | - |  |
+| reason | String? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| agreement | EmploymentAgreement | @relation(fields: [agreementId], references: [id], onDelete: Restrict) |  |
+| supersedes | EmploymentAgreementTerm? | @relation("EmploymentAgreementTermSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | EmploymentAgreementTerm[] | @relation("EmploymentAgreementTermSupersession") |  |
+
+### EmploymentAgreementRevision
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| revisionUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| agreementId | Int | - |  |
+| revisionNo | Int | - |  |
+| recordState | String | @default("draft") |  |
+| contentJson | String | - |  |
+| supersedesRevisionId | Int? | - |  |
+| sourceKind | String | @default("workspace") |  |
+| sourceRef | String? | - |  |
+| reason | String? | - |  |
+| createdBy | Int? | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| agreement | EmploymentAgreement | @relation("EmploymentAgreementRevisions", fields: [agreementId], references: [id], onDelete: Restrict) |  |
+| currentForAgreement | EmploymentAgreement? | @relation("EmploymentAgreementCurrentRevision") |  |
+| supersedes | EmploymentAgreementRevision? | @relation("EmploymentAgreementRevisionSupersession", fields: [supersedesRevisionId], references: [id], onDelete: Restrict) |  |
+| supersededBy | EmploymentAgreementRevision[] | @relation("EmploymentAgreementRevisionSupersession") |  |
+
+### EmploymentAgreementChange
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| employeeId | Int | - |  |
+| agreementId | Int? | - |  |
+| commandKind | String | - |  |
+| idempotencyKey | String | @unique |  |
+| requestFingerprint | String | - |  |
+| expectedVersion | Int? | - |  |
+| effectManifestJson | String | - |  |
+| actorUserId | Int | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| employee | Employee | @relation("EmploymentAgreementChangeEmployee", fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| agreement | EmploymentAgreement? | @relation("EmploymentAgreementChangeAgreement", fields: [agreementId], references: [id], onDelete: Restrict) |  |
+| actorUser | User | @relation("EmploymentAgreementChangeActor", fields: [actorUserId], references: [id], onDelete: Restrict) |  |
 
 ### EmployeeLifecycleEvent
 
@@ -2700,6 +3055,108 @@
 | recordedAt | DateTime | @default(now()) |  |
 | employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
 | recordedBy | User | @relation("EmployeeLifecycleEventRecorder", fields: [recordedByUserId], references: [id], onDelete: Restrict) |  |
+
+### OrganizationStructureChange
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | String | @id @default(uuid()) |  |
+| aggregateType | String | - |  |
+| aggregateId | Int | - |  |
+| commandKind | String | - |  |
+| effectiveOn | String | - |  |
+| expectedSequence | Int | - |  |
+| idempotencyKey | String | @unique |  |
+| requestFingerprint | String | - |  |
+| reason | String? | - |  |
+| effectManifestJson | String | - |  |
+| actorUserId | Int | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| departmentVersions | DepartmentEffectiveVersion[] | - |  |
+| positionVersions | PositionEffectiveVersion[] | - |  |
+| overrideVersions | PositionReportOverrideEffectiveVersion[] | - |  |
+
+### DepartmentEffectiveVersion
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| departmentId | Int | - |  |
+| sequence | Int | - |  |
+| validFrom | String? | - |  |
+| validToExclusive | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| changeKind | String | - |  |
+| supersedesId | Int? | - |  |
+| sourceChangeId | String | - |  |
+| code | String | - |  |
+| name | String | - |  |
+| alias | String? | - |  |
+| hierarchyKind | String | - |  |
+| level | Int | - |  |
+| parentId | Int? | - |  |
+| managerPositionId | Int? | - |  |
+| createdBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| department | Department | @relation("DepartmentEffectiveVersionAggregate", fields: [departmentId], references: [id], onDelete: Restrict) |  |
+| parent | Department? | @relation("DepartmentEffectiveVersionParent", fields: [parentId], references: [id], onDelete: Restrict) |  |
+| managerPosition | Position? | @relation("DepartmentEffectiveVersionManagerPosition", fields: [managerPositionId], references: [id], onDelete: Restrict) |  |
+| sourceChange | OrganizationStructureChange | @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict) |  |
+| supersedes | DepartmentEffectiveVersion? | @relation("DepartmentEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | DepartmentEffectiveVersion[] | @relation("DepartmentEffectiveVersionSupersession") |  |
+
+### PositionEffectiveVersion
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| positionId | Int | - |  |
+| sequence | Int | - |  |
+| validFrom | String? | - |  |
+| validToExclusive | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| changeKind | String | - |  |
+| supersedesId | Int? | - |  |
+| sourceChangeId | String | - |  |
+| code | String | - |  |
+| name | String | - |  |
+| alias | String? | - |  |
+| departmentId | Int? | - |  |
+| reportToPositionId | Int? | - |  |
+| createdBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| position | Position | @relation("PositionEffectiveVersionAggregate", fields: [positionId], references: [id], onDelete: Restrict) |  |
+| department | Department? | @relation("PositionEffectiveVersionDepartment", fields: [departmentId], references: [id], onDelete: Restrict) |  |
+| reportToPosition | Position? | @relation("PositionEffectiveVersionReportTo", fields: [reportToPositionId], references: [id], onDelete: Restrict) |  |
+| sourceChange | OrganizationStructureChange | @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict) |  |
+| supersedes | PositionEffectiveVersion? | @relation("PositionEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | PositionEffectiveVersion[] | @relation("PositionEffectiveVersionSupersession") |  |
+
+### PositionReportOverrideEffectiveVersion
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| positionReportOverrideId | Int | - |  |
+| sequence | Int | - |  |
+| validFrom | String? | - |  |
+| validToExclusive | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| changeKind | String | - |  |
+| supersedesId | Int? | - |  |
+| sourceChangeId | String | - |  |
+| reportToPositionId | Int? | - |  |
+| headcount | Int? | - |  |
+| remark | String? | - |  |
+| departmentId | Int? | - |  |
+| createdBy | Int | - |  |
+| createdAt | DateTime | @default(now()) |  |
+| positionReportOverride | PositionReportOverride | @relation(fields: [positionReportOverrideId], references: [id], onDelete: Restrict, map: "PROEffectiveVersion_anchor_fkey") |  |
+| reportToPosition | Position? | @relation("PositionReportOverrideVersionReportTo", fields: [reportToPositionId], references: [id], onDelete: Restrict) |  |
+| department | Department? | @relation("PositionReportOverrideVersionDepartment", fields: [departmentId], references: [id], onDelete: Restrict) |  |
+| sourceChange | OrganizationStructureChange | @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict) |  |
+| supersedes | PositionReportOverrideEffectiveVersion? | @relation("PositionReportOverrideEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | PositionReportOverrideEffectiveVersion[] | @relation("PositionReportOverrideEffectiveVersionSupersession") |  |
 
 ### HrPerformanceReview
 
@@ -2749,9 +3206,10 @@
 | positions | EDP[] | @relation("EmployeePositions") |  |
 | lifecycleEvents | EmployeeLifecycleEvent[] | - |  |
 | projects | EmployeeProject[] | - |  |
+| projectMembershipChanges | ProjectMembershipChange[] | - |  |
+| employmentAgreementChanges | EmploymentAgreementChange[] | @relation("EmploymentAgreementChangeEmployee") |  |
 | ownedWorkItems | WorkItem[] | @relation("WorkItemOwner") |  |
 | ownedWorkPlans | WorkPlan[] | @relation("WorkPlanOwner") |  |
-| managedDepartments | DepartmentManagerEmployee[] | - |  |
 | employments | Employment[] | - |  |
 | financeSalesSalaries | FinanceSalesSalary[] | - |  |
 | financeShipments | FinanceShipment[] | - |  |
@@ -2782,6 +3240,7 @@
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
 | employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
+| agreements | EmploymentAgreement[] | - |  |
 
 ### Company
 
@@ -2806,6 +3265,7 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | party | Party | @relation(fields: [partyId], references: [id], onDelete: Restrict) |  |
 | issuedOwnerships | OwnershipInterest[] | - |  |
+| ownershipProjectionRuns | OwnershipProjectionRun[] | - |  |
 | shareCapitalEvents | ShareCapitalEvent[] | - |  |
 | shareholderGroups | ShareholderGroup[] | - |  |
 | registryChanges | CompanyRegistryChange[] | - |  |
@@ -2815,6 +3275,7 @@
 | financeVoucherCompanyMappingRules | FinanceVoucherCompanyMappingRule[] | - |  |
 | financeCurrencyPolicy | FinanceCompanyCurrencyPolicy? | - |  |
 | externalPartySourceMappings | ExternalPartySourceMapping[] | - |  |
+| ownedContracts | Contract[] | @relation("ContractOwningCompany") |  |
 
 ### Department
 
@@ -2838,7 +3299,6 @@
 | parent | Department? | @relation("DeptHierarchy", fields: [parentId], references: [id]) |  |
 | children | Department[] | @relation("DeptHierarchy") |  |
 | descriptions | DepartmentDescription[] | - |  |
-| managerEmployees | DepartmentManagerEmployee[] | - |  |
 | resourceActionGrants | DepartmentResourceActionGrant[] | - |  |
 | workAssignees | DepartmentWorkAssignee[] | - |  |
 | responsibleCollaborations | DepartmentCollaboration[] | @relation("DepartmentCollaborationResponsibleDepartment") |  |
@@ -2851,17 +3311,11 @@
 | positions | Position[] | - |  |
 | positionReportOverrides | PositionReportOverride[] | - |  |
 | ownedKpiDefinitions | WorkKpiDefinition[] | - |  |
-
-### DepartmentManagerEmployee
-
-| 字段 | 类型 | 属性 | 说明 |
-|------|------|------|------|
-| id | Int | @id @default(autoincrement()) |  |
-| departmentId | Int | - |  |
-| employeeId | Int | - |  |
-| createdAt | DateTime | @default(now()) |  |
-| department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
-| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
+| ownedContracts | Contract[] | @relation("ContractOwnerDepartment") |  |
+| effectiveVersions | DepartmentEffectiveVersion[] | @relation("DepartmentEffectiveVersionAggregate") |  |
+| effectiveChildVersions | DepartmentEffectiveVersion[] | @relation("DepartmentEffectiveVersionParent") |  |
+| positionEffectiveVersions | PositionEffectiveVersion[] | @relation("PositionEffectiveVersionDepartment") |  |
+| overrideEffectiveVersions | PositionReportOverrideEffectiveVersion[] | @relation("PositionReportOverrideVersionDepartment") |  |
 
 ### Position
 
@@ -2892,6 +3346,10 @@
 | reportOverrides | PositionReportOverride[] | @relation("PositionReportOverrideSource") |  |
 | reportedReportOverrides | PositionReportOverride[] | @relation("PositionReportOverrideReportTo") |  |
 | collaborationPositions | DepartmentCollaborationPosition[] | - |  |
+| effectiveVersions | PositionEffectiveVersion[] | @relation("PositionEffectiveVersionAggregate") |  |
+| effectiveReportees | PositionEffectiveVersion[] | @relation("PositionEffectiveVersionReportTo") |  |
+| effectiveManagedDepartments | DepartmentEffectiveVersion[] | @relation("DepartmentEffectiveVersionManagerPosition") |  |
+| effectiveOverrideReports | PositionReportOverrideEffectiveVersion[] | @relation("PositionReportOverrideVersionReportTo") |  |
 
 ### EDP
 
@@ -2936,11 +3394,13 @@
 | editedAt | DateTime? | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
+| version | Int | @default(1) |  |
 | position | Position | @relation("PositionReportOverrideSource", fields: [positionId], references: [id], onDelete: Cascade) |  |
 | company | Company | @relation(fields: [companyId], references: [id], onDelete: Cascade) |  |
 | department | Department | @relation(fields: [departmentId], references: [id], onDelete: Cascade) |  |
 | reportToPosition | Position? | @relation("PositionReportOverrideReportTo", fields: [reportToPositionId], references: [id]) |  |
 | edps | EDP[] | - |  |
+| effectiveVersions | PositionReportOverrideEffectiveVersion[] | - |  |
 
 ### EditHistory
 
@@ -4591,6 +5051,7 @@
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | leadingDepartment | Department? | @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull) |  |
 | employees | EmployeeProject[] | - |  |
+| membershipChanges | ProjectMembershipChange[] | - |  |
 | enablingDepartments | ProjectEnablingDepartment[] | - |  |
 | planPhases | ProjectPlanPhase[] | @relation("ProjectPlanPhases") |  |
 | planDependencies | ProjectPlanDependency[] | @relation("ProjectPlanDependencies") |  |
@@ -4615,18 +5076,52 @@
 | 字段 | 类型 | 属性 | 说明 |
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
+| membershipUid | String | @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| sequence | Int | @default(1) |  |
 | employeeId | Int | - |  |
 | projectId | Int | - |  |
 | role | String? | - |  |
 | startDate | String? | - |  |
 | endDate | String? | - |  |
+| recordState | String | @default("confirmed") |  |
+| changeKind | String | @default("initial") |  |
+| supersedesId | Int? | - |  |
+| createdByChangeId | Int? | - |  |
+| terminalChangeId | Int? | - |  |
+| reason | String? | - |  |
 | editedBy | Int? | - |  |
 | editedAt | DateTime? | - |  |
 | version | Int | @default(1) |  |
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
-| project | Project | @relation(fields: [projectId], references: [id], onDelete: Cascade) |  |
-| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Cascade) |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| supersedes | EmployeeProject? | @relation("EmployeeProjectSupersession", fields: [supersedesId], references: [id], onDelete: Restrict) |  |
+| supersededBy | EmployeeProject[] | @relation("EmployeeProjectSupersession") |  |
+| createdByChange | ProjectMembershipChange? | @relation("ProjectMembershipCreatedVersions", fields: [createdByChangeId], references: [id], onDelete: Restrict) |  |
+| terminalChange | ProjectMembershipChange? | @relation("ProjectMembershipTerminatedVersions", fields: [terminalChangeId], references: [id], onDelete: Restrict) |  |
+
+### ProjectMembershipChange
+
+| 字段 | 类型 | 属性 | 说明 |
+|------|------|------|------|
+| id | Int | @id @default(autoincrement()) |  |
+| changeUid | String | @unique @default(dbgenerated("(gen_random_uuid())::text")) |  |
+| idempotencyKey | String? | @unique |  |
+| requestFingerprint | String | - |  |
+| membershipUid | String | - |  |
+| employeeId | Int | - |  |
+| projectId | Int | - |  |
+| commandKind | String | - |  |
+| effectiveOn | String? | - |  |
+| reason | String? | - |  |
+| effectsJson | String | - |  |
+| recordedBy | Int? | - |  |
+| recordedAt | DateTime | @default(now()) |  |
+| employee | Employee | @relation(fields: [employeeId], references: [id], onDelete: Restrict) |  |
+| project | Project | @relation(fields: [projectId], references: [id], onDelete: Restrict) |  |
+| createdVersions | EmployeeProject[] | @relation("ProjectMembershipCreatedVersions") |  |
+| terminatedVersions | EmployeeProject[] | @relation("ProjectMembershipTerminatedVersions") |  |
 
 ### ProjectPlanPhase
 
@@ -4763,6 +5258,7 @@
 |------|------|------|------|
 | id | Int | @id @default(autoincrement()) |  |
 | positionDescriptionId | Int | - |  |
+| positionDescriptionRevisionId | Int | - |  |
 | parentId | Int? | - |  |
 | nodeKey | String | @unique |  |
 | nodeType | String | - |  |
@@ -4778,6 +5274,7 @@
 | createdAt | DateTime | @default(now()) |  |
 | updatedAt | DateTime | @default(now()) @updatedAt |  |
 | positionDescription | PositionDescription | @relation(fields: [positionDescriptionId], references: [id], onDelete: Cascade) |  |
+| positionDescriptionRevision | PositionDescriptionRevision | @relation(fields: [positionDescriptionRevisionId], references: [id], onDelete: Restrict) |  |
 | parent | PositionResponsibilityNode? | @relation("PositionResponsibilityNodeTree", fields: [parentId], references: [id], onDelete: SetNull) |  |
 | children | PositionResponsibilityNode[] | @relation("PositionResponsibilityNodeTree") |  |
 | workReferences | WorkResponsibilityReference[] | - |  |
@@ -4980,6 +5477,11 @@
 | status | String | @default("active") |  |
 | sortOrder | Int | @default(0) |  |
 | revision | Int | @default(1) |  |
+| publishedRevision | Int? | - |  |
+| publishedBy | Int? | - |  |
+| publishedAt | DateTime? | - |  |
+| archivedBy | Int? | - |  |
+| archivedAt | DateTime? | - |  |
 | createdBy | Int | - |  |
 | updatedBy | Int | - |  |
 | createdAt | DateTime | @default(now()) |  |
@@ -4993,7 +5495,12 @@
 | id | Int | @id @default(autoincrement()) |  |
 | templateId | Int | - |  |
 | revision | Int | - |  |
+| name | String | - |  |
+| description | String? | - |  |
 | code | String | @db.Text |  |
+| changeKind | String | @default("draft") |  |
+| sourceRevision | Int? | - |  |
+| reason | String? | - |  |
 | createdBy | Int | - |  |
 | createdAt | DateTime | @default(now()) |  |
 | template | WorkspaceAnalysisTemplate | @relation(fields: [templateId], references: [id], onDelete: Cascade) |  |

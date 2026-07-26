@@ -1,28 +1,59 @@
 /// 股权事件账本派生的有效期投影；只读缓存，不允许人工或页面直接维护
 model OwnershipInterest {
-  id              Int       @id @default(autoincrement())
-  ownerPartyId    Int
-  issuerCompanyId Int
-  shareRatio      Float?
-  isConsolidated  Boolean   @default(false)
-  effectiveFrom   DateTime?
-  effectiveTo     DateTime?
-  recordStatus    String    @default("confirmed")
-  changeLabel     String?
-  sourceType      String?
-  sourceLabel     String?
-  sourceReference String?
-  editedBy        Int?
-  editedAt        DateTime?
-  version         Int       @default(1)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @default(now()) @updatedAt
-  owner           Party     @relation(fields: [ownerPartyId], references: [id], onDelete: Restrict)
-  issuer          Company   @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  id                   Int                     @id @default(autoincrement())
+  ownerPartyId         Int
+  issuerCompanyId      Int
+  shareRatio           Float?
+  isConsolidated       Boolean                 @default(false)
+  effectiveFrom        DateTime?
+  effectiveTo          DateTime?
+  recordStatus         String                  @default("confirmed")
+  changeLabel          String?
+  sourceType           String?
+  sourceLabel          String?
+  sourceReference      String?
+  sourceEventId        Int?
+  closedByEventId      Int?
+  projectionRunId      Int?
+  projectionGeneration Int?
+  editedBy             Int?
+  editedAt             DateTime?
+  version              Int                     @default(1)
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @default(now()) @updatedAt
+  owner                Party                   @relation(fields: [ownerPartyId], references: [id], onDelete: Restrict)
+  issuer               Company                 @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+  sourceEvent          ShareCapitalEvent?      @relation("OwnershipInterestSourceEvent", fields: [sourceEventId], references: [id], onDelete: Restrict)
+  closedByEvent        ShareCapitalEvent?      @relation("OwnershipInterestClosedByEvent", fields: [closedByEventId], references: [id], onDelete: Restrict)
+  projectionRun        OwnershipProjectionRun? @relation(fields: [projectionRunId], references: [id], onDelete: Restrict)
 
   @@index([ownerPartyId, issuerCompanyId, effectiveFrom, effectiveTo], map: "OwnershipInterest_owner_issuer_period_idx")
   @@index([issuerCompanyId, isConsolidated, effectiveFrom, effectiveTo], map: "OwnershipInterest_issuer_consolidation_period_idx")
   @@index([issuerCompanyId, recordStatus, effectiveFrom, effectiveTo], map: "OwnershipInterest_issuer_status_period_idx")
+  @@index([sourceEventId], map: "OwnershipInterest_source_event_idx")
+  @@index([closedByEventId], map: "OwnershipInterest_closed_by_event_idx")
+  @@index([projectionRunId], map: "OwnershipInterest_projection_run_idx")
+}
+
+/// 单一发行主体的股权投影全量重建回执；记录账本摘要、投影器版本和生成批次，不是股权事实源
+model OwnershipProjectionRun {
+  id                   Int                 @id @default(autoincrement())
+  issuerCompanyId      Int
+  generation           Int
+  projectorKey         String
+  projectorVersion     Int
+  ledgerHash           String
+  sourceEventCount     Int
+  projectionRowCount   Int
+  triggerReason        String?
+  triggeredBy          Int?
+  projectedAt          DateTime            @default(now())
+  ownershipInterests   OwnershipInterest[]
+  issuer               Company             @relation(fields: [issuerCompanyId], references: [id], onDelete: Restrict)
+
+  @@unique([issuerCompanyId, generation], map: "OwnershipProjectionRun_issuer_generation_key")
+  @@index([issuerCompanyId, projectedAt], map: "OwnershipProjectionRun_issuer_projected_at_idx")
+  @@index([ledgerHash], map: "OwnershipProjectionRun_ledger_hash_idx")
 }
 
 /// 工商变更原始事实（保存名称、法人、董监高与股东变更前后快照；缺少出资额时不得据此覆盖股权比例）
@@ -104,6 +135,8 @@ model ShareCapitalEvent {
   consolidatedByPartyAfter        Party?                         @relation("ShareCapitalEventController", fields: [consolidatedByPartyIdAfter], references: [id], onDelete: Restrict)
   supersedesEvent                 ShareCapitalEvent?             @relation("ShareCapitalEventSupersession", fields: [supersedesEventId], references: [id], onDelete: Restrict)
   supersededByEvents              ShareCapitalEvent[]            @relation("ShareCapitalEventSupersession")
+  openedOwnershipInterests        OwnershipInterest[]             @relation("OwnershipInterestSourceEvent")
+  closedOwnershipInterests        OwnershipInterest[]             @relation("OwnershipInterestClosedByEvent")
   transactions                    ShareCapitalTransaction[]
   snapshotPositions               ShareCapitalSnapshotPosition[]
 

@@ -46,6 +46,8 @@ export type ContractLifecycleStatus = typeof CONTRACT_LIFECYCLE_OPTIONS[number][
 export type ContractSignatureStatus = typeof CONTRACT_SIGNATURE_OPTIONS[number]["value"];
 export type ContractPerformanceStatus = typeof CONTRACT_PERFORMANCE_OPTIONS[number]["value"];
 export type ContractWorkView = "all" | "needs_attention" | "expiring" | "expired";
+export type ContractStateAxis = "lifecycle" | "signature" | "performance";
+export type ContractRevisionState = "draft" | "confirmed" | "superseded" | "cancelled";
 export type ContractAttachmentKind = typeof CONTRACT_ATTACHMENT_KIND_OPTIONS[number]["value"];
 export type ContractRecordInputType = typeof CONTRACT_RECORD_TYPE_OPTIONS[number]["value"];
 
@@ -99,6 +101,7 @@ export interface Contract {
   approvalStatusSnapshot: string | null;
   approvedOn: string | null;
   approvalSyncedAt: string | null;
+  currentRevisionId: number | null;
   isArchived: boolean;
   archivedAt: string | null;
   archivedBy: number | null;
@@ -108,6 +111,44 @@ export interface Contract {
   updatedAt: string;
   dataQualityIssues: string[];
   canHardDelete: boolean;
+}
+
+export interface ContractRevisionSummary {
+  id: number;
+  revisionUid: string;
+  revisionNo: number;
+  recordState: ContractRevisionState;
+  changeKind: "initial" | "revision" | "correction";
+  effectiveOn: string;
+  effectiveThrough: string | null;
+  reason: string | null;
+  sourceRevisionId: number | null;
+  createdAt: string;
+  confirmedAt: string | null;
+}
+
+export interface ContractStateEventSummary {
+  id: number;
+  eventUid: string;
+  axis: ContractStateAxis;
+  eventKind: "baseline" | "transition" | "reversal";
+  fromState: string | null;
+  toState: string;
+  effectiveOn: string;
+  recordState: "confirmed" | "reversed";
+  reason: string | null;
+  reversesEventId: number | null;
+  createdAt: string;
+  reversedAt: string | null;
+}
+
+export interface ContractLifecycleTimeline {
+  contractId: number;
+  currentRevision: ContractRevisionSummary | null;
+  upcomingRevisions: ContractRevisionSummary[];
+  draftRevisions: ContractRevisionSummary[];
+  historicalRevisions: ContractRevisionSummary[];
+  stateEvents: ContractStateEventSummary[];
 }
 
 export interface ContractAttachment {

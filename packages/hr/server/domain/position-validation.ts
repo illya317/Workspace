@@ -9,6 +9,10 @@ import { guardPositionArchive } from "../reference-guards";
 import { HR_FK_REGISTRY } from "../fk-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { validatePositionInOrganizationScope } from "../position-organization-scope";
+import {
+  parseOrganizationLifecycleMeta,
+  type OrganizationLifecycleMeta,
+} from "./organization-effective-version";
 
 export const POSITION_ALLOWED_FIELDS = ["code", "name", "alias", "departmentId", "reportToPositionId", "isArchived", "archivedAt"];
 
@@ -21,6 +25,7 @@ export interface PositionInput {
   positionDescription?: PositionDescriptionInput | null;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
+  lifecycle?: unknown;
 }
 
 export interface PositionDescriptionInput {
@@ -40,6 +45,7 @@ export interface PositionCreateCommand {
   departmentId: number | null;
   reportToPositionId: number | null;
   positionDescription?: PositionDescriptionCreateCommand | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 export interface PositionDescriptionCreateCommand {
@@ -56,6 +62,7 @@ export interface PositionUpdateCommand {
   id: number;
   data: Prisma.PositionUncheckedUpdateInput;
   positionDescription?: PositionDescriptionCreateCommand | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 async function validateDepartment(value: unknown) {
@@ -94,6 +101,14 @@ async function validateReportToPosition(value: unknown, departmentId: number | n
 function trimOptional(value: unknown) {
   const raw = typeof value === "string" ? value.trim() : "";
   return raw || null;
+}
+
+function normalizeLifecycleMeta(input: unknown) {
+  try {
+    return okCommand(parseOrganizationLifecycleMeta(input));
+  } catch (error) {
+    return failCommand(error instanceof Error ? error.message : "岗位生命周期命令无效", 400, "lifecycle");
+  }
 }
 
 async function validatePositionDescriptionCreate(
@@ -138,6 +153,9 @@ export async function buildPositionCreateCommand(input: PositionInput): Promise<
   if (!reportToPosition.ok) return reportToPosition;
   const descriptionCreate = await validatePositionDescriptionCreate(input.positionDescription);
   if (!descriptionCreate.ok) return descriptionCreate;
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (lifecycle.data.kind !== "schedule" || lifecycle.data.expectedSequence !== 0) return failCommand("新建岗位必须使用初始 schedule 命令", 409, "lifecycle");
   return okCommand({
     code: input.code,
     name: input.name,
@@ -145,6 +163,7 @@ export async function buildPositionCreateCommand(input: PositionInput): Promise<
     departmentId: department.data,
     reportToPositionId: reportToPosition.data,
     positionDescription: descriptionCreate.data,
+    lifecycle: lifecycle.data,
   });
 }
 
@@ -203,7 +222,11 @@ export async function buildPositionUpdateCommand(
   }
   const descriptionCreate = await validatePositionDescriptionCreate(body.positionDescription);
   if (!descriptionCreate.ok) return descriptionCreate;
-  return okCommand({ id, data, positionDescription: descriptionCreate.data });
+  const lifecycle = normalizeLifecycleMeta(body.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (Boolean(body.isArchived) && lifecycle.data.kind !== "end-date") return failCommand("归档岗位必须使用 end-date 命令", 409, "lifecycle");
+  if (body.isArchived === false && lifecycle.data.kind !== "schedule") return failCommand("恢复岗位必须使用 schedule 命令", 409, "lifecycle");
+  return okCommand({ id, data, positionDescription: descriptionCreate.data, lifecycle: lifecycle.data });
 }
 
 export async function validatePositionDelete(id: number, actionLabel = "删除岗位") {

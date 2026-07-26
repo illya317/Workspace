@@ -32,6 +32,7 @@ export type ExternalPartyRoleAvgAggregateOutputType = {
   creditLimit: number | null
   creditDays: number | null
   taxRate: number | null
+  availabilityVersion: number | null
 }
 
 export type ExternalPartyRoleSumAggregateOutputType = {
@@ -40,6 +41,7 @@ export type ExternalPartyRoleSumAggregateOutputType = {
   creditLimit: number | null
   creditDays: number | null
   taxRate: number | null
+  availabilityVersion: number | null
 }
 
 export type ExternalPartyRoleMinAggregateOutputType = {
@@ -62,6 +64,7 @@ export type ExternalPartyRoleMinAggregateOutputType = {
   taxRate: number | null
   remark: string | null
   isActive: boolean | null
+  availabilityVersion: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -86,6 +89,7 @@ export type ExternalPartyRoleMaxAggregateOutputType = {
   taxRate: number | null
   remark: string | null
   isActive: boolean | null
+  availabilityVersion: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -110,6 +114,7 @@ export type ExternalPartyRoleCountAggregateOutputType = {
   taxRate: number
   remark: number
   isActive: number
+  availabilityVersion: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -122,6 +127,7 @@ export type ExternalPartyRoleAvgAggregateInputType = {
   creditLimit?: true
   creditDays?: true
   taxRate?: true
+  availabilityVersion?: true
 }
 
 export type ExternalPartyRoleSumAggregateInputType = {
@@ -130,6 +136,7 @@ export type ExternalPartyRoleSumAggregateInputType = {
   creditLimit?: true
   creditDays?: true
   taxRate?: true
+  availabilityVersion?: true
 }
 
 export type ExternalPartyRoleMinAggregateInputType = {
@@ -152,6 +159,7 @@ export type ExternalPartyRoleMinAggregateInputType = {
   taxRate?: true
   remark?: true
   isActive?: true
+  availabilityVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -176,6 +184,7 @@ export type ExternalPartyRoleMaxAggregateInputType = {
   taxRate?: true
   remark?: true
   isActive?: true
+  availabilityVersion?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -200,6 +209,7 @@ export type ExternalPartyRoleCountAggregateInputType = {
   taxRate?: true
   remark?: true
   isActive?: true
+  availabilityVersion?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -311,6 +321,7 @@ export type ExternalPartyRoleGroupByOutputType = {
   taxRate: number | null
   remark: string | null
   isActive: boolean
+  availabilityVersion: number
   createdAt: Date
   updatedAt: Date
   _count: ExternalPartyRoleCountAggregateOutputType | null
@@ -358,11 +369,13 @@ export type ExternalPartyRoleWhereInput = {
   taxRate?: Prisma.FloatNullableFilter<"ExternalPartyRole"> | number | null
   remark?: Prisma.StringNullableFilter<"ExternalPartyRole"> | string | null
   isActive?: Prisma.BoolFilter<"ExternalPartyRole"> | boolean
+  availabilityVersion?: Prisma.IntFilter<"ExternalPartyRole"> | number
   createdAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
   party?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   financeShipments?: Prisma.FinanceShipmentListRelationFilter
   sourceMappings?: Prisma.ExternalPartySourceMappingListRelationFilter
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodListRelationFilter
 }
 
 export type ExternalPartyRoleOrderByWithRelationInput = {
@@ -385,11 +398,13 @@ export type ExternalPartyRoleOrderByWithRelationInput = {
   taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   party?: Prisma.PartyOrderByWithRelationInput
   financeShipments?: Prisma.FinanceShipmentOrderByRelationAggregateInput
   sourceMappings?: Prisma.ExternalPartySourceMappingOrderByRelationAggregateInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodOrderByRelationAggregateInput
 }
 
 export type ExternalPartyRoleWhereUniqueInput = Prisma.AtLeast<{
@@ -417,11 +432,13 @@ export type ExternalPartyRoleWhereUniqueInput = Prisma.AtLeast<{
   taxRate?: Prisma.FloatNullableFilter<"ExternalPartyRole"> | number | null
   remark?: Prisma.StringNullableFilter<"ExternalPartyRole"> | string | null
   isActive?: Prisma.BoolFilter<"ExternalPartyRole"> | boolean
+  availabilityVersion?: Prisma.IntFilter<"ExternalPartyRole"> | number
   createdAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
   party?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   financeShipments?: Prisma.FinanceShipmentListRelationFilter
   sourceMappings?: Prisma.ExternalPartySourceMappingListRelationFilter
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodListRelationFilter
 }, "id" | "partyId_category" | "category_code">
 
 export type ExternalPartyRoleOrderByWithAggregationInput = {
@@ -444,6 +461,7 @@ export type ExternalPartyRoleOrderByWithAggregationInput = {
   taxRate?: Prisma.SortOrderInput | Prisma.SortOrder
   remark?: Prisma.SortOrderInput | Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ExternalPartyRoleCountOrderByAggregateInput
@@ -476,6 +494,7 @@ export type ExternalPartyRoleScalarWhereWithAggregatesInput = {
   taxRate?: Prisma.FloatNullableWithAggregatesFilter<"ExternalPartyRole"> | number | null
   remark?: Prisma.StringNullableWithAggregatesFilter<"ExternalPartyRole"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"ExternalPartyRole"> | boolean
+  availabilityVersion?: Prisma.IntWithAggregatesFilter<"ExternalPartyRole"> | number
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExternalPartyRole"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ExternalPartyRole"> | Date | string
 }
@@ -498,11 +517,13 @@ export type ExternalPartyRoleCreateInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutExternalRolesInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutCustomerInput
   sourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleUncheckedCreateInput = {
@@ -525,10 +546,12 @@ export type ExternalPartyRoleUncheckedCreateInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutCustomerInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleUpdateInput = {
@@ -549,11 +572,13 @@ export type ExternalPartyRoleUpdateInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutExternalRolesNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutCustomerNestedInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleUncheckedUpdateInput = {
@@ -576,10 +601,12 @@ export type ExternalPartyRoleUncheckedUpdateInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutCustomerNestedInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleCreateManyInput = {
@@ -602,6 +629,7 @@ export type ExternalPartyRoleCreateManyInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -624,6 +652,7 @@ export type ExternalPartyRoleUpdateManyMutationInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -648,6 +677,7 @@ export type ExternalPartyRoleUncheckedUpdateManyInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -692,6 +722,7 @@ export type ExternalPartyRoleCountOrderByAggregateInput = {
   taxRate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -702,6 +733,7 @@ export type ExternalPartyRoleAvgOrderByAggregateInput = {
   creditLimit?: Prisma.SortOrder
   creditDays?: Prisma.SortOrder
   taxRate?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
 }
 
 export type ExternalPartyRoleMaxOrderByAggregateInput = {
@@ -724,6 +756,7 @@ export type ExternalPartyRoleMaxOrderByAggregateInput = {
   taxRate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -748,6 +781,7 @@ export type ExternalPartyRoleMinOrderByAggregateInput = {
   taxRate?: Prisma.SortOrder
   remark?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -758,6 +792,7 @@ export type ExternalPartyRoleSumOrderByAggregateInput = {
   creditLimit?: Prisma.SortOrder
   creditDays?: Prisma.SortOrder
   taxRate?: Prisma.SortOrder
+  availabilityVersion?: Prisma.SortOrder
 }
 
 export type ExternalPartyRoleScalarRelationFilter = {
@@ -812,6 +847,20 @@ export type ExternalPartyRoleUncheckedUpdateManyWithoutPartyNestedInput = {
   deleteMany?: Prisma.ExternalPartyRoleScalarWhereInput | Prisma.ExternalPartyRoleScalarWhereInput[]
 }
 
+export type ExternalPartyRoleCreateNestedOneWithoutAvailabilityPeriodsInput = {
+  create?: Prisma.XOR<Prisma.ExternalPartyRoleCreateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedCreateWithoutAvailabilityPeriodsInput>
+  connectOrCreate?: Prisma.ExternalPartyRoleCreateOrConnectWithoutAvailabilityPeriodsInput
+  connect?: Prisma.ExternalPartyRoleWhereUniqueInput
+}
+
+export type ExternalPartyRoleUpdateOneRequiredWithoutAvailabilityPeriodsNestedInput = {
+  create?: Prisma.XOR<Prisma.ExternalPartyRoleCreateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedCreateWithoutAvailabilityPeriodsInput>
+  connectOrCreate?: Prisma.ExternalPartyRoleCreateOrConnectWithoutAvailabilityPeriodsInput
+  upsert?: Prisma.ExternalPartyRoleUpsertWithoutAvailabilityPeriodsInput
+  connect?: Prisma.ExternalPartyRoleWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ExternalPartyRoleUpdateToOneWithWhereWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUpdateWithoutAvailabilityPeriodsInput>, Prisma.ExternalPartyRoleUncheckedUpdateWithoutAvailabilityPeriodsInput>
+}
+
 export type ExternalPartyRoleCreateNestedOneWithoutSourceMappingsInput = {
   create?: Prisma.XOR<Prisma.ExternalPartyRoleCreateWithoutSourceMappingsInput, Prisma.ExternalPartyRoleUncheckedCreateWithoutSourceMappingsInput>
   connectOrCreate?: Prisma.ExternalPartyRoleCreateOrConnectWithoutSourceMappingsInput
@@ -860,10 +909,12 @@ export type ExternalPartyRoleCreateWithoutPartyInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutCustomerInput
   sourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleUncheckedCreateWithoutPartyInput = {
@@ -885,10 +936,12 @@ export type ExternalPartyRoleUncheckedCreateWithoutPartyInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutCustomerInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleCreateOrConnectWithoutPartyInput = {
@@ -940,8 +993,131 @@ export type ExternalPartyRoleScalarWhereInput = {
   taxRate?: Prisma.FloatNullableFilter<"ExternalPartyRole"> | number | null
   remark?: Prisma.StringNullableFilter<"ExternalPartyRole"> | string | null
   isActive?: Prisma.BoolFilter<"ExternalPartyRole"> | boolean
+  availabilityVersion?: Prisma.IntFilter<"ExternalPartyRole"> | number
   createdAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExternalPartyRole"> | Date | string
+}
+
+export type ExternalPartyRoleCreateWithoutAvailabilityPeriodsInput = {
+  category: string
+  code: string
+  classification?: string | null
+  contactPerson?: string | null
+  phone?: string | null
+  email?: string | null
+  bankName?: string | null
+  bankAccount?: string | null
+  address?: string | null
+  invoiceTitle?: string | null
+  invoiceAddressPhone?: string | null
+  settlementTerms?: string | null
+  creditLimit?: number | null
+  creditDays?: number | null
+  taxRate?: number | null
+  remark?: string | null
+  isActive?: boolean
+  availabilityVersion?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutExternalRolesInput
+  financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutCustomerInput
+  sourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutRoleInput
+}
+
+export type ExternalPartyRoleUncheckedCreateWithoutAvailabilityPeriodsInput = {
+  id?: number
+  partyId: number
+  category: string
+  code: string
+  classification?: string | null
+  contactPerson?: string | null
+  phone?: string | null
+  email?: string | null
+  bankName?: string | null
+  bankAccount?: string | null
+  address?: string | null
+  invoiceTitle?: string | null
+  invoiceAddressPhone?: string | null
+  settlementTerms?: string | null
+  creditLimit?: number | null
+  creditDays?: number | null
+  taxRate?: number | null
+  remark?: string | null
+  isActive?: boolean
+  availabilityVersion?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutCustomerInput
+  sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutRoleInput
+}
+
+export type ExternalPartyRoleCreateOrConnectWithoutAvailabilityPeriodsInput = {
+  where: Prisma.ExternalPartyRoleWhereUniqueInput
+  create: Prisma.XOR<Prisma.ExternalPartyRoleCreateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedCreateWithoutAvailabilityPeriodsInput>
+}
+
+export type ExternalPartyRoleUpsertWithoutAvailabilityPeriodsInput = {
+  update: Prisma.XOR<Prisma.ExternalPartyRoleUpdateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedUpdateWithoutAvailabilityPeriodsInput>
+  create: Prisma.XOR<Prisma.ExternalPartyRoleCreateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedCreateWithoutAvailabilityPeriodsInput>
+  where?: Prisma.ExternalPartyRoleWhereInput
+}
+
+export type ExternalPartyRoleUpdateToOneWithWhereWithoutAvailabilityPeriodsInput = {
+  where?: Prisma.ExternalPartyRoleWhereInput
+  data: Prisma.XOR<Prisma.ExternalPartyRoleUpdateWithoutAvailabilityPeriodsInput, Prisma.ExternalPartyRoleUncheckedUpdateWithoutAvailabilityPeriodsInput>
+}
+
+export type ExternalPartyRoleUpdateWithoutAvailabilityPeriodsInput = {
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutExternalRolesNestedInput
+  financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutCustomerNestedInput
+  sourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutRoleNestedInput
+}
+
+export type ExternalPartyRoleUncheckedUpdateWithoutAvailabilityPeriodsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  category?: Prisma.StringFieldUpdateOperationsInput | string
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  classification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  contactPerson?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankAccount?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceTitle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoiceAddressPhone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  settlementTerms?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  creditLimit?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  creditDays?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutCustomerNestedInput
+  sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleCreateWithoutSourceMappingsInput = {
@@ -962,10 +1138,12 @@ export type ExternalPartyRoleCreateWithoutSourceMappingsInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutExternalRolesInput
   financeShipments?: Prisma.FinanceShipmentCreateNestedManyWithoutCustomerInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleUncheckedCreateWithoutSourceMappingsInput = {
@@ -988,9 +1166,11 @@ export type ExternalPartyRoleUncheckedCreateWithoutSourceMappingsInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedCreateNestedManyWithoutCustomerInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleCreateOrConnectWithoutSourceMappingsInput = {
@@ -1027,10 +1207,12 @@ export type ExternalPartyRoleUpdateWithoutSourceMappingsInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutExternalRolesNestedInput
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutCustomerNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleUncheckedUpdateWithoutSourceMappingsInput = {
@@ -1053,9 +1235,11 @@ export type ExternalPartyRoleUncheckedUpdateWithoutSourceMappingsInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutCustomerNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleCreateWithoutFinanceShipmentsInput = {
@@ -1076,10 +1260,12 @@ export type ExternalPartyRoleCreateWithoutFinanceShipmentsInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutExternalRolesInput
   sourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleUncheckedCreateWithoutFinanceShipmentsInput = {
@@ -1102,9 +1288,11 @@ export type ExternalPartyRoleUncheckedCreateWithoutFinanceShipmentsInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutRoleInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedCreateNestedManyWithoutRoleInput
 }
 
 export type ExternalPartyRoleCreateOrConnectWithoutFinanceShipmentsInput = {
@@ -1141,10 +1329,12 @@ export type ExternalPartyRoleUpdateWithoutFinanceShipmentsInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutExternalRolesNestedInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleUncheckedUpdateWithoutFinanceShipmentsInput = {
@@ -1167,9 +1357,11 @@ export type ExternalPartyRoleUncheckedUpdateWithoutFinanceShipmentsInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleCreateManyPartyInput = {
@@ -1191,6 +1383,7 @@ export type ExternalPartyRoleCreateManyPartyInput = {
   taxRate?: number | null
   remark?: string | null
   isActive?: boolean
+  availabilityVersion?: number
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -1213,10 +1406,12 @@ export type ExternalPartyRoleUpdateWithoutPartyInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   financeShipments?: Prisma.FinanceShipmentUpdateManyWithoutCustomerNestedInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleUncheckedUpdateWithoutPartyInput = {
@@ -1238,10 +1433,12 @@ export type ExternalPartyRoleUncheckedUpdateWithoutPartyInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   financeShipments?: Prisma.FinanceShipmentUncheckedUpdateManyWithoutCustomerNestedInput
   sourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutRoleNestedInput
+  availabilityPeriods?: Prisma.ExternalPartyRolePeriodUncheckedUpdateManyWithoutRoleNestedInput
 }
 
 export type ExternalPartyRoleUncheckedUpdateManyWithoutPartyInput = {
@@ -1263,6 +1460,7 @@ export type ExternalPartyRoleUncheckedUpdateManyWithoutPartyInput = {
   taxRate?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  availabilityVersion?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -1275,11 +1473,13 @@ export type ExternalPartyRoleUncheckedUpdateManyWithoutPartyInput = {
 export type ExternalPartyRoleCountOutputType = {
   financeShipments: number
   sourceMappings: number
+  availabilityPeriods: number
 }
 
 export type ExternalPartyRoleCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   financeShipments?: boolean | ExternalPartyRoleCountOutputTypeCountFinanceShipmentsArgs
   sourceMappings?: boolean | ExternalPartyRoleCountOutputTypeCountSourceMappingsArgs
+  availabilityPeriods?: boolean | ExternalPartyRoleCountOutputTypeCountAvailabilityPeriodsArgs
 }
 
 /**
@@ -1306,6 +1506,13 @@ export type ExternalPartyRoleCountOutputTypeCountSourceMappingsArgs<ExtArgs exte
   where?: Prisma.ExternalPartySourceMappingWhereInput
 }
 
+/**
+ * ExternalPartyRoleCountOutputType without action
+ */
+export type ExternalPartyRoleCountOutputTypeCountAvailabilityPeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ExternalPartyRolePeriodWhereInput
+}
+
 
 export type ExternalPartyRoleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1327,11 +1534,13 @@ export type ExternalPartyRoleSelect<ExtArgs extends runtime.Types.Extensions.Int
   taxRate?: boolean
   remark?: boolean
   isActive?: boolean
+  availabilityVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   financeShipments?: boolean | Prisma.ExternalPartyRole$financeShipmentsArgs<ExtArgs>
   sourceMappings?: boolean | Prisma.ExternalPartyRole$sourceMappingsArgs<ExtArgs>
+  availabilityPeriods?: boolean | Prisma.ExternalPartyRole$availabilityPeriodsArgs<ExtArgs>
   _count?: boolean | Prisma.ExternalPartyRoleCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["externalPartyRole"]>
 
@@ -1355,6 +1564,7 @@ export type ExternalPartyRoleSelectCreateManyAndReturn<ExtArgs extends runtime.T
   taxRate?: boolean
   remark?: boolean
   isActive?: boolean
+  availabilityVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
@@ -1380,6 +1590,7 @@ export type ExternalPartyRoleSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   taxRate?: boolean
   remark?: boolean
   isActive?: boolean
+  availabilityVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
@@ -1405,15 +1616,17 @@ export type ExternalPartyRoleSelectScalar = {
   taxRate?: boolean
   remark?: boolean
   isActive?: boolean
+  availabilityVersion?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ExternalPartyRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partyId" | "category" | "code" | "classification" | "contactPerson" | "phone" | "email" | "bankName" | "bankAccount" | "address" | "invoiceTitle" | "invoiceAddressPhone" | "settlementTerms" | "creditLimit" | "creditDays" | "taxRate" | "remark" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["externalPartyRole"]>
+export type ExternalPartyRoleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "partyId" | "category" | "code" | "classification" | "contactPerson" | "phone" | "email" | "bankName" | "bankAccount" | "address" | "invoiceTitle" | "invoiceAddressPhone" | "settlementTerms" | "creditLimit" | "creditDays" | "taxRate" | "remark" | "isActive" | "availabilityVersion" | "createdAt" | "updatedAt", ExtArgs["result"]["externalPartyRole"]>
 export type ExternalPartyRoleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   financeShipments?: boolean | Prisma.ExternalPartyRole$financeShipmentsArgs<ExtArgs>
   sourceMappings?: boolean | Prisma.ExternalPartyRole$sourceMappingsArgs<ExtArgs>
+  availabilityPeriods?: boolean | Prisma.ExternalPartyRole$availabilityPeriodsArgs<ExtArgs>
   _count?: boolean | Prisma.ExternalPartyRoleCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ExternalPartyRoleIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1429,6 +1642,7 @@ export type $ExternalPartyRolePayload<ExtArgs extends runtime.Types.Extensions.I
     party: Prisma.$PartyPayload<ExtArgs>
     financeShipments: Prisma.$FinanceShipmentPayload<ExtArgs>[]
     sourceMappings: Prisma.$ExternalPartySourceMappingPayload<ExtArgs>[]
+    availabilityPeriods: Prisma.$ExternalPartyRolePeriodPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1449,7 +1663,11 @@ export type $ExternalPartyRolePayload<ExtArgs extends runtime.Types.Extensions.I
     creditDays: number | null
     taxRate: number | null
     remark: string | null
+    /**
+     * 当前租户业务日的可用性缓存；权威事实来自 availabilityPeriods。
+     */
     isActive: boolean
+    availabilityVersion: number
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["externalPartyRole"]>
@@ -1849,6 +2067,7 @@ export interface Prisma__ExternalPartyRoleClient<T, Null = never, ExtArgs extend
   party<T extends Prisma.PartyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PartyDefaultArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   financeShipments<T extends Prisma.ExternalPartyRole$financeShipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalPartyRole$financeShipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinanceShipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sourceMappings<T extends Prisma.ExternalPartyRole$sourceMappingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalPartyRole$sourceMappingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalPartySourceMappingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  availabilityPeriods<T extends Prisma.ExternalPartyRole$availabilityPeriodsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ExternalPartyRole$availabilityPeriodsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ExternalPartyRolePeriodPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1897,6 +2116,7 @@ export interface ExternalPartyRoleFieldRefs {
   readonly taxRate: Prisma.FieldRef<"ExternalPartyRole", 'Float'>
   readonly remark: Prisma.FieldRef<"ExternalPartyRole", 'String'>
   readonly isActive: Prisma.FieldRef<"ExternalPartyRole", 'Boolean'>
+  readonly availabilityVersion: Prisma.FieldRef<"ExternalPartyRole", 'Int'>
   readonly createdAt: Prisma.FieldRef<"ExternalPartyRole", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ExternalPartyRole", 'DateTime'>
 }
@@ -2345,6 +2565,30 @@ export type ExternalPartyRole$sourceMappingsArgs<ExtArgs extends runtime.Types.E
   take?: number
   skip?: number
   distinct?: Prisma.ExternalPartySourceMappingScalarFieldEnum | Prisma.ExternalPartySourceMappingScalarFieldEnum[]
+}
+
+/**
+ * ExternalPartyRole.availabilityPeriods
+ */
+export type ExternalPartyRole$availabilityPeriodsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ExternalPartyRolePeriod
+   */
+  select?: Prisma.ExternalPartyRolePeriodSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ExternalPartyRolePeriod
+   */
+  omit?: Prisma.ExternalPartyRolePeriodOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ExternalPartyRolePeriodInclude<ExtArgs> | null
+  where?: Prisma.ExternalPartyRolePeriodWhereInput
+  orderBy?: Prisma.ExternalPartyRolePeriodOrderByWithRelationInput | Prisma.ExternalPartyRolePeriodOrderByWithRelationInput[]
+  cursor?: Prisma.ExternalPartyRolePeriodWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.ExternalPartyRolePeriodScalarFieldEnum | Prisma.ExternalPartyRolePeriodScalarFieldEnum[]
 }
 
 /**

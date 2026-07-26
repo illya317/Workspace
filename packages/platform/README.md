@@ -17,6 +17,7 @@ Workspace 主体包。这里聚合平台模块和业务包注册，生成导航�
 - 提供 `@workspace/platform/server/permission-subjects` 作为 Settings、Docs、Work 共用的 RBAC 主体投影，不由 HR 反向承载平台授权能力
 - 提供 `@workspace/platform/calendar` 作为中国法定节假日与调休工作日查询契约；Core 只负责无事实的日期展示，HR、Work、Finance 等业务包通过该入口判断工作日、节假日和补班日
 - 提供 `@workspace/platform/completion-date-policy` 作为跨业务完成状态与计划/实际日期契约；项目、计划和任务统一使用 canonical date fields，并共享未来实际日期、完成后实际结束、日期顺序和 UI 可编辑状态规则
+- 提供 `@workspace/platform/contracts/business-temporal` 作为跨业务有效时间 Contract；统一业务日期、半开期间计算、对象 policy 登记和 runtime adapter 形状，各业务域继续拥有自己的 source of truth、validator、事务和 UI 组合
 - 提供 `@workspace/platform/workflow-category-registry` 作为流程业务分类的唯一注册表；workflow-eligible business action 必须声明合法的 `workflowCategoryKey`，设置、台账和收件箱不得另建映射
 - 提供 `packages/platform/workflow-management-resources.ts` 作为流程管理授权的唯一投影 interface；它生成 workflow root/category/action capability，并把授权资源反向解析为 effective business action 集合
 - 提供 `packages/platform/api-registry.ts` 作为 API Contract Registry，从 module registry 的 `apiGuards` 与 `apiRoutes` 派生 protected/public/dev/disabled API 契约

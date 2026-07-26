@@ -20,7 +20,7 @@
 - `员工资料`：默认入口，先显示员工列表，再进入 `/hr/roster/employees/[id]` 维护单个员工的多维资料。
 - `组织架构`：通过 `DepartmentPositionTab` 的组织模式维护组织单元树。底层仍使用兼容 Prisma model `Department`，产品语义已收敛为“组织单元”。
 - `部门岗位`：通过 `DepartmentPositionTab` 的岗位模式维护岗位与说明书。
-- `员工信息表`：用于集中修正员工、雇佣、合同、部门岗位数据。四个表统一先进入编辑态，跨行、跨字段修改只形成页面草稿，最后由顶部保存一次提交当前 change set；取消会丢弃整页草稿，不提供逐单元格保存。
+- `员工信息表`：用于集中查看员工、雇佣、合同、部门岗位数据。员工、合同和雇佣非期间字段可先形成页面草稿，再由顶部保存一次提交当前 change set；Employment 的在职/入离职日期和全部 EDP 字段只读，结构变化进入员工详情“生命周期”。
 - `花名册`：管理版、尽调版、CSV 导出和 Open API 共用同一生成口径，只纳入当前在职且在职雇佣记录中没有“顾问”职务的人员；离职人员和顾问仍保留在员工资料、分析等独立场景中，不进入花名册。
 
 法律公司 Party 身份、`Company` 角色与 `OwnershipInterest` 的 canonical 维护入口位于 `资本证券 → 治理架构`。HR 只通过只读公司候选接口消费这些主数据，用于合同公司、任职汇报公司和统计口径，不维护直接持股、并表或控制期间。
@@ -33,13 +33,15 @@
 
 组织负责人分两层：`Department.managerPositionId`（FK 到 `Position`）是唯一可编辑事实源；“组织负责人”是该负责人岗位下当前在职员工的派生名单，允许多人。组织架构、部门岗位、模板空间权限等场景只能读取这条链；`Department.managerUserId`、部门说明书 JSON 和岗位说明书汇报字段不得再承载或编辑负责人。组织架构页的岗位层级展示使用当前组织的负责人岗位：负责人岗位作为本组织顶层，其他直属岗位归到负责人岗位下；没有负责人岗位时只提示未设置，不回退岗位说明书。
 
+`Department`、`Position` 与 `PositionReportOverride` 现在只保留稳定 identity 和当前业务日缓存；名称、代码、组织归属、父级、负责人岗位、默认汇报岗位及特殊汇报属性的权威事实分别位于 `DepartmentEffectiveVersion`、`PositionEffectiveVersion`、`PositionReportOverrideEffectiveVersion`。版本行和 `OrganizationStructureChange` 命令台账只追加不更新/删除，所有在线变化必须提交生效日、幂等键和 expected sequence；纠错、终止与未来取消还必须提交原因。正常变化会在同一 Serializable 事务中替代原切片、保留旧切片并刷新当前缓存，数据库延期约束在提交时拒绝仍有效叶子版本重叠。列表 DTO 固定返回服务端 `asOfDate` 以及 current/upcoming/history，UI 不再把待生效变化放进历史，也不以 `isArchived` / `isActive` 作为第二事实源。
+
 人事说明书是次级资料库，不承载主数据身份事实。岗位说明书的 `Position.code`、`Position.name`、`Position.departmentId -> Department.name` 是岗位编码、岗位名称、所属组织的唯一事实源；部门说明书的 `Department.code`、`Department.name` 是组织编码、组织名称的唯一事实源。说明书页面可以展示这些字段，但不得写入 `PositionDescription` / `DepartmentDescription`。说明书只保存岗位目的、摘要、编制、版本、生效日期、来源文件、原始编码、正文 JSON 等文档事实；岗位说明书的汇报对象使用 `PositionDescription.reportToPositionId -> Position.id`，不得再用字符串岗位名承载关系。
 
 部门说明书正文中的旧 `基本信息.负责人/主管领导/岗位编制/定编岗位` 已通过数据迁移删除；运行时代码不再读取或清洗这些兼容字段。负责人只从 `Department.managerPositionId` 派生，编制只从当前岗位主数据统计。
 
 岗位职责条目从 `PositionDescription.details.duties` 同步到 `PositionResponsibilityNode`。该表只索引职责大类和小类，保存稳定 `nodeKey`、说明书版本、更新时间、JSON 路径和文本 hash；岗位说明书 JSON 仍是正文来源。Work/OKR 引用职责时不得靠 JSON 下标，必须引用职责节点并保存当时的职责文本快照。
 
-FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示岗位主数据归属，所有职能岗位统一归属 FUN 线；特殊应用和跨公司汇报通过 `PositionReportOverride(positionId, companyId, departmentId)` 维护，唯一键是岗位、汇报公司、应用部门。维护入口语义为岗位详情里的“特殊汇报”，组织架构页不承载写入。员工部门岗位保存时先确定 `EDP.reportingCompanyId`（默认从员工当前/主合同公司解析），再选实际部门和岗位；候选岗位 = 本部门岗位 + 对该公司和部门启用的 FUN 特殊汇报岗位。选择 FUN 岗位后 `EDP.departmentId` 写实际部门，`EDP.positionReportOverrideId` 指向命中的特殊汇报规则。员工直接上级优先取 `PositionReportOverride.reportToPositionId`；没有命中特殊汇报时，普通岗位取实际组织的负责人岗位，负责人岗位取上级组织的负责人岗位，不回退 `PositionDescription.reportToPositionId`。
+FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示岗位主数据归属，所有职能岗位统一归属 FUN 线；特殊应用和跨公司汇报通过 `PositionReportOverride(positionId, companyId, departmentId)` 维护，唯一键是岗位、汇报公司、应用部门。维护入口语义为岗位详情里的“特殊汇报”，组织架构页不承载写入。生命周期命令创建员工任职期间时先确定 `EDP.reportingCompanyId`（默认从员工当前/主合同公司解析），再选实际部门和岗位；候选岗位 = 本部门岗位 + 对该公司和部门启用的 FUN 特殊汇报岗位。选择 FUN 岗位后 `EDP.departmentId` 写实际部门，`EDP.positionReportOverrideId` 指向命中的特殊汇报规则。员工直接上级优先取 `PositionReportOverride.reportToPositionId`；没有命中特殊汇报时，普通岗位取实际组织的负责人岗位，负责人岗位取上级组织的负责人岗位，不回退 `PositionDescription.reportToPositionId`。
 
 服务器旧库处理顺序：
 1. 上线前备份数据库，并导出 `PositionDescription` 的旧 `code/name/departmentName/reportTo` 和 `DepartmentDescription` 的旧 `code/name` 作为审计 CSV。
@@ -54,9 +56,11 @@ FUN 职能岗位不复制到应用部门。`Position.departmentId` 继续表示�
 
 `Employment` 是雇佣期间事实，`EDP` 是员工任职期间事实，两个期间均使用包含首尾日的日期区间。入职日 D 从 D 当天生效；调岗、汇报关系变化和兼岗在 D 创建新任职片段，原任职片段自动截止到 D-1；离职事件的生效日 D 表示从 D 起不再在职，因此雇佣、任职和当前项目成员期间截止到 D-1。当前态统一按租户业务时区和期间字段即时派生，只有完全没有入离职日期的旧雇佣记录才回退 `Employment.isActive`，不得依赖定时任务把未来记录翻成当前。
 
-HR 数据质量 Provider 按员工的唯一责任部门拆分异常 fingerprint，并输出 `resourceKey = hr.roster` 与可选 `departmentId`。当前任职能唯一归属部门时（优先唯一主岗）由该部门接收；缺少任职或多部门歧义导致无法确定唯一责任部门时保留为无部门异常，交给 Platform 的未匹配兜底规则。不同部门的 HR 异常不得在同一条通知中聚合。
+HR 数据质量 Provider 按员工的唯一责任部门拆分异常 fingerprint，并输出 `resourceKey = hr.roster` 与可选 `departmentId`。当前任职能唯一归属部门时（优先唯一主岗）由该部门接收；缺少任职或多部门歧义导致无法确定唯一责任部门时保留为无部门异常，交给 Platform 的未匹配兜底规则。不同部门的 HR 异常不得在同一条通知中聚合。生命周期事务提交成功后按 Employee 触发一次数据质量重评，不能在事务提交前发送旧状态。
 
-员工详情的“生命周期”页签是业务变更入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、汇报关系变化和离职。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的工作占比/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。普通雇佣和部门岗位页仍用于资料修正，不得直接删除已保存的任职期间，也不承担生命周期期间拆分。
+员工详情的“生命周期”页签是人员结构变化的唯一在线入口，通过 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle` 登记入职、调岗、兼岗、汇报关系变化和离职。route 只校验请求形状并调用 HR service；domain validator 校验生效日期、来源任职、目标岗位、汇报岗位和所有未来期间边界上的工作占比/唯一主岗，service 在同一事务内拆分 `Employment` / `EDP` 期间并写入不可变 `EmployeeLifecycleEvent` 台账。离职先投影再校验结果；合法未来记录取消，当前记录和非法但仍开放的旧记录均截止到 D-1，避免旧字符串查询在未来重新把脏记录识别为当前。普通 Employment 页面只修正办公地点、人员类型、职级、职务、离职原因与备注；`isActive/joinDate/leaveDate` 只读。EDP 页面整体只读，历史纠错要等带 reason 与 expected revision 的专用 command，不能借普通 CRUD 或审计恢复绕过期间规则。
+
+员工身份当前没有 draft / archived 状态，新建时会立即创建可登录 Workspace 账号，因此不存在可安全 hard delete 的“未启用草稿”。在线员工删除 route 与 action 已移除：离职走生命周期，账号禁用走独立账号管理，不能用删除员工替代任一动作。Employee、Employment、EDP 以及生命周期会联动的 EmployeeProject 审计记录仍可查看，但不能从通用审计界面恢复重建。
 
 汇报关系是岗位关系，不是固定人员关系。`Position.reportToPositionId` 和 `PositionReportOverride.reportToPositionId` 是结构默认值；`EDP.reportToPositionId -> Position.id` 是某段任职期间实际采用的汇报岗位快照。人员只在使用时按业务日期从该岗位的有效 `EDP` 占有人派生，因此汇报岗位换人后无需逐个改下属，历史期间也不会被当前组织结构重写。`EDP.reportTo` 仅保留为旧库兼容列，新写入不再使用。Platform 的 `currentEmploymentDateWhere`、`currentOpenEndedDateWhere` 是 HR、权限、审批和 Work 读取当前人员/任职的共享口径，未来任职不得提前获得权限，已到离职生效日的人员不得继续作为处理人或负责人。
 
@@ -66,23 +70,25 @@ HR 数据质量 Provider 按员工的唯一责任部门拆分异常 fingerprint�
 
 员工详情页的合同与部门岗位使用专用卡片布局：
 
-- 合同：拆分为合同概况、首签、续签一、续签二、长期与协议，标识当前合同/历史合同。
-- 雇佣关系：维护员工层面的在职、入离职、办公地点、人员类型、职级、职务，并在同页维护合同。
-- 部门岗位：只维护员工-部门-岗位关系事实，标识当前岗位/历史岗位，当前岗位工作占比合计必须等于 1。
+- 合同：稳定协议身份下分别展示当前发布条款、草稿、待生效期限和历史；续签、终止、修正、发布、替代、设主协议和取消未来期限走 lifecycle command。
+- 雇佣关系：只读展示在职与入离职日期，可修正办公地点、人员类型、职级、职务、离职原因和备注，并在同页维护合同。
+- 部门岗位：只读展示员工-部门-岗位的当前、待生效、历史与异常期间；新增、调岗、兼岗、汇报变化和结束任职进入生命周期。
 - 生命周期：登记未来生效的入职、调岗、兼岗、汇报关系变化和离职，并查看待生效/已生效事件台账。
 - 历史记录：读取 `EditHistory`，展示编辑人、编辑时间、实体、版本和字段级变更。
+
+发布任何 Employment / EDP 生命周期迁移前必须执行 `npm run hr:temporal:preflight -- --as-of YYYY-MM-DD`。preflight 在同一 `REPEATABLE READ READ ONLY` 快照内报告 Employment、EDP 和 EmployeeProject 的非法/倒置期间与高日期哨兵，检查 Employment 重叠与 stale flag、EDP 同槽位重叠、工作占比、当前雇佣/任职一致性，以及当前项目成员是否存在当前 Employment；包含式开放结束必须为 `null`。发现问题必须先走受控数据发布批次，不能临时恢复普通 EDP CRUD。
 
 `员工信息表` 下每个 Tab 是一个独立的 `*Tab.tsx` 组件：
 
 | Tab | 组件 | 说明 |
 |-----|------|------|
 | 员工信息 | GenericTableTab + employeeConfig | 批量维护员工主数据 |
-| 雇佣记录 | GenericTableTab + employmentConfig | 批量维护雇佣关系 |
-| 员工岗位 | GenericTableTab + edpConfig | 批量维护员工-部门-岗位关系 |
-| 合同信息 | GenericTableTab + contractConfig | 批量维护合同信息 |
+| 雇佣记录 | GenericTableTab + employmentConfig | 批量查看期间并修正非期间资料 |
+| 员工岗位 | GenericTableTab + edpConfig | 只读查看员工-部门-岗位期间 |
+| 合同信息 | GenericTableTab + contractConfig | 只读迁移清单；写入进入员工详情协议 lifecycle |
 | 项目 | - | 已剥离到 `@workspace/work`，HR 不再维护入口 |
 
-这些 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；API 请求统一使用 `{ changes: [{ id, field, value }] }`。员工、雇佣关系、部门岗位、合同分别在 HR domain service 中做整批校验和事务写入，不能在前端循环调用旧的行级 PUT。离职联动、当前岗位占比合计和主合同互斥仍由各自领域服务负责。
+可编辑 Tab 共用 Core `usePageDraft` 与 Toolbar `edit-group` 的页面编辑协议；员工和 Employment 非期间资料使用 `{ changes: [{ id, field, value }] }`。合同 Tab 与 EDP Tab 不形成页面草稿；协议写入和人员结构变化分别由专用 lifecycle command 负责。
 
 ## 核心组件链
 
@@ -103,7 +109,7 @@ roster/page.tsx
 1. **tabConfigs.ts** 定义每个 Tab 的字段配置（FieldConfig[]）、FK 映射、API 端点
 2. **packages/hr/ui/hooks/useGenericTab.ts** 提供 HR 批量表加载、页面草稿、统一保存、搜索、筛选和审计日志 hook
 3. **GenericTableTab.tsx** 消费 hook，渲染表格 + 工具栏 + 弹窗
-4. **API 路由** 在 `app/api/modules/hr/roster/` 下；`employees/employments/edps/contracts` 的 base `PUT` 接收统一 change-set envelope，route 只组 command，HR service 负责领域校验和事务写入
+4. **API 路由** 在 `app/api/modules/hr/roster/` 下；`employees/employments` 的 base `PUT` 接收统一 change-set envelope；`contracts` 与 `edps` base route 只保留 GET；协议命令集中到 `POST employee-profiles/:id/agreements`
 
 HR owner 当前登记 21 个版本化 source：员工、雇佣、部门岗位关系、合同、部门、岗位、公司，部门/岗位说明与负责人，审计条目/变更和岗位汇报覆盖，以及绩效考勤、工作计划、贡献、正式评审、评审详情、归档证据字段、周期与汇报状态。每个 source 都继承对应受保护 GET 的原 `resourceKey + requiredActions` 和对象可见性；经营分析空间权限不会替代 HR 数据权限，`sensitivity` 也不会成为字段二次授权。公开 DTO 中的稳定标量，包括内部 ID、业务编号、版本、时间和离职等敏感业务字段，均可登记查询；嵌套公开结构拆为 child source，凭证、二进制内容和纯流程动作运行态不进入分析源。
 
@@ -111,16 +117,16 @@ HR owner 当前登记 21 个版本化 source：员工、雇佣、部门岗位关
 
 `POST /api/modules/hr/internal/workspace-analysis-sources` 是仅允许 Finance unit 调用的 HMAC internal contract，支持严格的 `catalog` 与 `execute` 两种 operation。两者都会确认 requester 仍存在；catalog 由 HR owner 执行登记的 `hr.roster.read` 判定，只返回当前目标可用且重新通过 canonical/owner 校验的 source definition。execute 还会按精确 `sourceKey + version` 再次授权，强制路径目标部门，使用 HR 私有 adapter 分页，并只返回调用方请求的 canonical rows、pageCount 和 byteCount。请求/响应都不暴露 adapter URL、响应路径、字段原始映射或分页机制；Finance 不得直接 import HR registration/service，也不得把“经营分析空间可读”替代为 HR 数据权限。
 
-默认无搜索/高级筛选的 HR 列表读取必须在 PostgreSQL 先完成计数和分页，再只加载当前页的关系数据；合同列表也必须在数据库内展开 JSON 后分页，不得先 `findMany` 全量员工、雇佣或员工岗位后在 Node 内存分页。需要跨 JSON 合同或组织路径的复杂筛选可以走明确的慢路径，但不能污染打开 Tab 的默认路径。尽调版花名册默认列固定为“姓名、部门、岗位、性别、学历、入职时间”，其他字段由列设置按需开启。
+默认无搜索/高级筛选的 HR 列表读取必须在 PostgreSQL 先完成计数和分页，再只加载当前页的关系数据；迁移期合同清单仍在数据库内展开 legacy JSON 后分页，不得先 `findMany` 全量员工、雇佣或员工岗位后在 Node 内存分页。需要跨 JSON 合同或组织路径的复杂筛选可以走明确的慢路径，但不能污染打开 Tab 的默认路径。尽调版花名册默认列固定为“姓名、部门、岗位、性别、学历、入职时间”，其他字段由列设置按需开启。
 
 员工详情页的数据流：
 
 1. `GET /api/modules/hr/roster/employee-profiles/[id]` 聚合读取员工、雇佣、合同、部门岗位和生命周期台账，并按业务日派生当前状态。
 2. 基本信息保存复用 `PUT /api/modules/hr/roster/employees` 的批量 change set。
-3. 雇佣关系保存复用 `PUT /api/modules/hr/roster/employments` 的批量 change set；合同、部门岗位继续使用员工详情的整组保存 API。
-4. 员工详情页的部门岗位保存走 `PUT /api/modules/hr/roster/employee-profiles/[id]/edps`，按员工整组保存并校验当前岗位工作占比合计为 1。
-5. 合同仍读取并写入 `Employment.contracts` JSON，前端沿用 `employmentId * 1000 + index` 的合成合同 ID。
-6. 生命周期变更走 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle`；HR service 事务化拆分期间并记录 `EmployeeLifecycleEvent`，前端保存成功后重载完整员工档案。
+3. 雇佣关系保存复用 `PUT /api/modules/hr/roster/employments` 的批量 change set，但只接受非期间资料字段；结构字段由 domain validator 返回 409。
+4. 部门岗位只从员工详情和 `GET /api/modules/hr/roster/edps` 读取，不提供普通 POST / PUT / DELETE 或整组保存入口。
+5. 协议读取双读 `EmploymentAgreement / Term / Revision` 与 legacy `Employment.contracts`；legacy 只返回内容 fingerprint 和迁移状态，不接受写入。新建、续签、终止、修正、条款修订/发布/替代、设主协议和取消未来期限统一走 `POST /api/modules/hr/roster/employee-profiles/[id]/agreements`，既有协议命令必须提交 `expectedVersion`。
+6. 人员生命周期变更走 `PUT /api/modules/hr/roster/employee-profiles/[id]/lifecycle`；HR service 事务化拆分期间并记录 `EmployeeLifecycleEvent`，前端保存成功后重载完整员工档案。
 
 ## 考勤绩效工作台
 
@@ -178,11 +184,14 @@ export interface TabConfig {
 
 ## API 路由规范
 
-HR roster API 在 `app/api/modules/hr/roster/` 下，采用统一 CRUD 模板：
-- `GET` — 列表（支持 `?keyword=` 搜索，`?company=` 筛选）
-- `POST` — 创建（body 为 JSON，含必填字段校验）
-- `PUT` — 更新（body 含 `id` + 变更字段）
-- `DELETE` — 删除（`?id=` 参数，已对大部分实体禁用）
+HR roster API 在 `app/api/modules/hr/roster/` 下使用薄 route + typed command；每个聚合只暴露其业务语义允许的方法：
+
+- `GET` — 列表或详情读取（支持各自声明的搜索与筛选）。
+- `POST /employees` — 创建员工身份和账号；不同时伪造 Employment / EDP 期间。
+- `PUT /employees`、`PUT /employments` — 页面 change set；后者只接受非期间资料修正。
+- `GET /edps` — 只读任职期间；不暴露普通 POST / PUT / DELETE。
+- `PUT /employee-profiles/[id]/lifecycle` — 人员结构变化的唯一在线写入口。
+- Employee / Employment 不暴露 hard delete；离职、身份、账号状态分别由对应业务命令处理。
 
 HR performance API 在 `app/api/modules/hr/performance/` 下：
 - `GET /api/modules/hr/performance?view=self|summary` — 返回周期选项、考勤 rows、OKR/工作来源 rows、正式绩效 rows、流程 rows 和指标汇总；缺省为 `self`，`summary` 需独立汇总权限。

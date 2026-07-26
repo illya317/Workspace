@@ -1,0 +1,96 @@
+/// 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，禁止以数组位置充当身份。
+model EmploymentAgreement {
+  id                         Int                           @id @default(autoincrement())
+  agreementUid               String                        @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  employmentId               Int
+  recordState                String                        @default("confirmed")
+  isPrimary                  Boolean                       @default(false)
+  sourceKind                 String                        @default("workspace")
+  sourceRef                  String?
+  reason                     String?
+  version                    Int                           @default(1)
+  currentPublishedRevisionId Int?                          @unique
+  createdBy                  Int?
+  updatedBy                  Int?
+  createdAt                  DateTime                      @default(now())
+  updatedAt                  DateTime                      @default(now()) @updatedAt
+  employment                 Employment                    @relation(fields: [employmentId], references: [id], onDelete: Restrict)
+  currentPublishedRevision   EmploymentAgreementRevision?  @relation("EmploymentAgreementCurrentRevision", fields: [currentPublishedRevisionId], references: [id], onDelete: Restrict)
+  revisions                  EmploymentAgreementRevision[] @relation("EmploymentAgreementRevisions")
+  terms                      EmploymentAgreementTerm[]
+  changes                    EmploymentAgreementChange[]    @relation("EmploymentAgreementChangeAgreement")
+
+  @@index([employmentId, recordState])
+  @@index([employmentId, isPrimary, recordState])
+}
+
+/// 雇佣协议的含首尾日有效期间。修正会新增 superseding 期间，原期间保留为历史证据。
+model EmploymentAgreementTerm {
+  id             Int                        @id @default(autoincrement())
+  termUid        String                     @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  agreementId    Int
+  sequence       Int
+  termKind       String                     @default("initial")
+  effectiveFrom  String
+  effectiveThrough String?
+  recordState    String                     @default("confirmed")
+  changeKind     String                     @default("schedule")
+  supersedesId   Int?
+  sourceKind     String                     @default("workspace")
+  sourceRef      String?
+  reason         String?
+  createdBy      Int?
+  createdAt      DateTime                   @default(now())
+  agreement      EmploymentAgreement        @relation(fields: [agreementId], references: [id], onDelete: Restrict)
+  supersedes     EmploymentAgreementTerm?    @relation("EmploymentAgreementTermSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy   EmploymentAgreementTerm[]   @relation("EmploymentAgreementTermSupersession")
+
+  @@unique([agreementId, sequence])
+  @@index([agreementId, recordState, effectiveFrom, effectiveThrough], map: "EmploymentAgreementTerm_live_period_idx")
+  @@index([supersedesId])
+}
+
+/// 雇佣协议内容的不可变修订。草稿发布和正式替代都新增一行，旧 revision 永不覆盖。
+model EmploymentAgreementRevision {
+  id                     Int                           @id @default(autoincrement())
+  revisionUid            String                        @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  agreementId            Int
+  revisionNo             Int
+  recordState            String                        @default("draft")
+  contentJson            String
+  supersedesRevisionId   Int?
+  sourceKind             String                        @default("workspace")
+  sourceRef              String?
+  reason                 String?
+  createdBy              Int?
+  createdAt              DateTime                      @default(now())
+  agreement              EmploymentAgreement           @relation("EmploymentAgreementRevisions", fields: [agreementId], references: [id], onDelete: Restrict)
+  currentForAgreement    EmploymentAgreement?          @relation("EmploymentAgreementCurrentRevision")
+  supersedes             EmploymentAgreementRevision?  @relation("EmploymentAgreementRevisionSupersession", fields: [supersedesRevisionId], references: [id], onDelete: Restrict)
+  supersededBy           EmploymentAgreementRevision[] @relation("EmploymentAgreementRevisionSupersession")
+
+  @@unique([agreementId, revisionNo])
+  @@index([agreementId, recordState, createdAt], map: "EmploymentAgreementRevision_state_created_idx")
+  @@index([supersedesRevisionId])
+}
+
+/// 雇佣协议生命周期命令台账。重试只返回既有结果，不重复创建期限或修订。
+model EmploymentAgreementChange {
+  id                 String   @id @default(dbgenerated("(gen_random_uuid())::text"))
+  employeeId         Int
+  agreementId        Int?
+  commandKind        String
+  idempotencyKey     String   @unique
+  requestFingerprint String
+  expectedVersion    Int?
+  effectManifestJson String
+  actorUserId        Int
+  recordedAt         DateTime @default(now())
+  employee           Employee @relation("EmploymentAgreementChangeEmployee", fields: [employeeId], references: [id], onDelete: Restrict)
+  agreement          EmploymentAgreement? @relation("EmploymentAgreementChangeAgreement", fields: [agreementId], references: [id], onDelete: Restrict)
+  actorUser          User @relation("EmploymentAgreementChangeActor", fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([employeeId, recordedAt])
+  @@index([agreementId, recordedAt])
+  @@index([actorUserId, recordedAt])
+}

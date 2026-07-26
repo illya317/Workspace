@@ -12,6 +12,7 @@
 | Structure 迁移执行 | `structure-agent-execution.md` | Architecture |
 | Core UI / Toolbar / reusable components | `core-ui-governance.md`, `core-toolbar.md`, `reusable-components.md` | Architecture / UI-system |
 | 通用审批链 | `approvals.md` | Platform / Architecture |
+| 业务有效时间与生命周期 | `business-temporal.md` | Architecture / Platform / Data |
 | 新模块和现有模块能力 | `new-module-checklist.md`, `new-domain-template.md`, `existing-module-feature-checklist.md` | Architecture / Feature |
 | Schema 和 DB | `schema-governance.md`, `database.md` | Data |
 | RBAC 和权限矩阵 | `security/rbac.md`, `security/permission-matrix.md` | Architecture |

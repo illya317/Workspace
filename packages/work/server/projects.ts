@@ -3,6 +3,7 @@ import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { runSerializableTransaction } from "@workspace/platform/server/serializable-transaction";
 import { matchAnyField } from "@workspace/platform/search";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import type { ProjectCreateCommand } from "./domain/project-validation";
 import {
   buildVisibleProjectWhere,
@@ -12,6 +13,7 @@ import {
 } from "./access";
 import { formatDate } from "./project-normalization";
 import { resolveWorkProjectCreateActionRuntime } from "./project-action-runtime";
+import { projectMemberHasActiveEmploymentOnDate } from "./project-access-temporal";
 import {
   buildProjectFieldUpdateCommand,
   validateProjectDeleteCommand,
@@ -23,6 +25,7 @@ import {
   projectMutationRoot,
   type WorkMutationImpactContext,
 } from "./work-mutation-impact";
+import { createProjectMembershipsInTransaction } from "./project-membership-lifecycle-service";
 
 export async function listProjects(input: { userId: number; keyword: string; page: number; pageSize: number; archived?: boolean }) {
   const [visibleWhere, createRuntime] = await Promise.all([
@@ -33,8 +36,20 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     where: { AND: [visibleWhere, { isArchived: Boolean(input.archived) }] },
     orderBy: input.archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
     include: {
-      _count: { select: { employees: true } },
-      employees: { select: { employeeId: true, role: true } },
+      employees: {
+        where: { recordState: "confirmed" },
+        select: {
+          employeeId: true,
+          role: true,
+          startDate: true,
+          endDate: true,
+          employee: {
+            select: {
+              employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+            },
+          },
+        },
+      },
       leadingDepartment: { select: { id: true, code: true, name: true } },
       enablingDepartments: {
         include: { department: { select: { id: true, code: true, name: true } } },
@@ -43,10 +58,12 @@ export async function listProjects(input: { userId: number; keyword: string; pag
     },
   });
 
-  const mapped = await Promise.all(projects.map(async (project) => {
+  const asOfDate = workspaceBusinessDate(new Date());
+  const mapped = (await Promise.all(projects.map(async (project) => {
     const leadingDepartment = project.leadingDepartment;
     const enablingDepartments = project.enablingDepartments.map((entry) => entry.department);
     const permissions = await getProjectPermissions(input.userId, project);
+    if (!permissions.canView) return null;
     const actionPermissions = await getWorkProjectScopedActionPermissions(input.userId, project.id);
     return {
       id: project.id,
@@ -84,9 +101,11 @@ export async function listProjects(input: { userId: number; keyword: string; pag
       actualStartDate: formatDate(project.actualStartDate),
       actualEndDate: formatDate(project.actualEndDate),
       completionPercent: project.completionPercent,
-      employeeCount: project._count.employees,
+      employeeCount: project.employees.filter((entry) => (
+        projectMemberHasActiveEmploymentOnDate(entry, entry.employee.employments, asOfDate)
+      )).length,
     };
-  }));
+  }))).filter(isPresent);
 
   const result = input.keyword ? mapped.filter((project) => matchAnyField(project, input.keyword)) : mapped;
   const total = result.length;
@@ -102,10 +121,15 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     include: {
       leadingDepartment: { select: { id: true, code: true, name: true } },
       employees: {
-        where: { role: { in: ["负责人", "项目负责人"] } },
+        where: { role: { in: ["负责人", "项目负责人"] }, recordState: "confirmed" },
         orderBy: { id: "asc" },
         include: {
-          employee: { select: { name: true } },
+          employee: {
+            select: {
+              name: true,
+              employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+            },
+          },
         },
       },
     },
@@ -126,6 +150,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
     }
   }
 
+  const asOfDate = workspaceBusinessDate(new Date());
   return {
     projects: projects.map((project) => {
       const baseline = baselineByKey.get(`project:${project.id}`);
@@ -140,6 +165,7 @@ export async function listProjectGantt(input: { userId: number; includeTasks?: b
         leadingDepartmentName: project.leadingDepartment?.name ?? null,
         workspaceEnabled: project.workspaceEnabled,
         leaderNames: project.employees
+          .filter((entry) => projectMemberHasActiveEmploymentOnDate(entry, entry.employee.employments, asOfDate))
           .map((entry) => entry.employee.name)
           .filter((name): name is string => Boolean(name)),
         stages: [],
@@ -163,13 +189,11 @@ export async function commitProjectCreateCommand(command: ProjectCreateCommand, 
       });
     }
     if (command.members.length) {
-      await tx.employeeProject.createMany({
-        data: command.members.map((member) => ({
-          employeeId: member.employeeId,
-          projectId: created.id,
-          role: member.role,
-          editedBy: userId,
-        })),
+      await createProjectMembershipsInTransaction(tx, {
+        projectId: created.id,
+        members: command.members,
+        userId,
+        idempotencyPrefix: `project-create:${created.id}`,
       });
     }
     return created;
@@ -324,4 +348,8 @@ function projectImpactContext(
     scopeType: "project",
     scopeId: String(projectId),
   };
+}
+
+function isPresent<T>(value: T | null): value is T {
+  return value !== null;
 }

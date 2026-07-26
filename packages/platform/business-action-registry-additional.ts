@@ -532,4 +532,5 @@ export const ADDITIONAL_BUSINESS_ACTION_REGISTRATIONS = [
   },
   { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.company.create", label: "新建公司", writeKind: "create", targetKind: "Company", directPermissionAction: "create", apiRoutes: [route("POST", "/api/modules/capitalSecurities/governance/companies")] },
   { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.company.update", label: "更新公司", writeKind: "update", targetKind: "Company", directPermissionAction: "update", apiRoutes: [route("PUT", "/api/modules/capitalSecurities/governance/companies")] },
+  { ...CAPITAL_SECURITIES_GOVERNANCE, ...PERMISSION_ONLY, key: "capitalSecurities.governance.ownershipProjection.rebuild", label: "重建股权投影", writeKind: "update", targetKind: "OwnershipInterest", directPermissionAction: "update", apiRoutes: [route("POST", "/api/modules/capitalSecurities/governance/ownership-projections/rebuild")] },
 ] as const;

@@ -13,6 +13,7 @@ const TASKS = {
   "api-response-format": npmScript("check:api-response-format", "API response format"),
   "business-action-registry": npmScript("business-action-registry:check", "Business action registry"),
   "business-identity": npmScript("gate:business-identity", "Business identity boundary"),
+  "business-temporal": npmScript("business-temporal:check", "Business Temporal registry and write seams"),
   "build-next": npmScript("build:next", "Next production build", { cacheable: false }),
   "company-hardcoding-warning": npmScript("company:check", "Company hardcoding", {
     severity: "warning",
@@ -83,6 +84,7 @@ const SUITES = {
   contracts: [
     "api-response-format",
     "history-policy",
+    "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
     "workspace-analysis-sources",

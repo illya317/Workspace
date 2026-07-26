@@ -5,10 +5,16 @@ import {
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
 import { validatePositionInOrganizationScope } from "../position-organization-scope";
+import {
+  parseOrganizationLifecycleMeta,
+  type OrganizationLifecycleMeta,
+} from "./organization-effective-version";
 
 export const FUNCTIONAL_DEPARTMENT_CODE_PREFIX = "FUN";
 
 export interface PositionReportOverrideInput {
+  id?: number | null;
+  version?: number | null;
   companyId: number;
   departmentId: number;
   reportToPositionId?: number | null;
@@ -17,6 +23,8 @@ export interface PositionReportOverrideInput {
 }
 
 export interface PositionReportOverrideCommandRow {
+  id: number | null;
+  version: number;
   companyId: number;
   departmentId: number;
   reportToPositionId: number | null;
@@ -28,6 +36,7 @@ export interface PositionReportOverrideSaveCommand {
   positionId: number;
   overrides: PositionReportOverrideCommandRow[];
   deleteIds: number[];
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 export interface EdpPositionAssignment {
@@ -136,6 +145,8 @@ async function validatePlacementInput(
     }
   }
   return okCommand({
+    id: placement.id ?? null,
+    version: placement.version ?? 0,
     companyId: placement.companyId,
     departmentId: placement.departmentId,
     reportToPositionId: placement.reportToPositionId ?? null,
@@ -147,6 +158,7 @@ async function validatePlacementInput(
 export async function buildPositionReportOverrideSaveCommand(input: {
   positionId: number;
   overrides: PositionReportOverrideInput[];
+  lifecycle?: unknown;
 }): Promise<DomainValidationResult<PositionReportOverrideSaveCommand>> {
   const source = await validateReportOverrideSourcePosition(input.positionId, { strict: true });
   if (!source.ok) return source;
@@ -165,11 +177,30 @@ export async function buildPositionReportOverrideSaveCommand(input: {
   const nextKeys = new Set(overrides.map((override) => `${override.companyId}:${override.departmentId}`));
   const existing = await prisma.positionReportOverride.findMany({
     where: { positionId: input.positionId },
-    select: { id: true, companyId: true, departmentId: true, _count: { select: { edps: true } } },
+    select: { id: true, companyId: true, departmentId: true, version: true, _count: { select: { edps: true } } },
   });
   const protectedPlacements = existing.filter((placement) => !nextKeys.has(`${placement.companyId}:${placement.departmentId}`) && placement._count.edps > 0);
   if (protectedPlacements.length > 0) {
     return failCommand("已有员工任职引用的适用配置不能删除，请先调整员工任职", 409);
+  }
+
+  let lifecycle: OrganizationLifecycleMeta;
+  try {
+    lifecycle = parseOrganizationLifecycleMeta(input.lifecycle);
+  } catch (error) {
+    return failCommand(error instanceof Error ? error.message : "特殊汇报生命周期命令无效", 400, "lifecycle");
+  }
+
+  const existingById = new Map(existing.map((row) => [row.id, row]));
+  for (const override of overrides) {
+    if (!override.id) continue;
+    const current = existingById.get(override.id);
+    if (
+      !current
+      || current.companyId !== override.companyId
+      || current.departmentId !== override.departmentId
+      || override.version !== current.version
+    ) return failCommand("特殊汇报版本已变化，请刷新后重试", 409);
   }
 
   return okCommand({
@@ -178,6 +209,7 @@ export async function buildPositionReportOverrideSaveCommand(input: {
     deleteIds: existing
       .filter((placement) => !nextKeys.has(`${placement.companyId}:${placement.departmentId}`))
       .map((placement) => placement.id),
+    lifecycle,
   });
 }
 

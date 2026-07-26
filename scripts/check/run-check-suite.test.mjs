@@ -9,6 +9,7 @@ test("push suite flattens blockers and changed checks without repeating contract
 
   assert.equal(ids.filter((id) => id === "api-response-format").length, 1);
   assert.equal(ids.filter((id) => id === "history-policy").length, 1);
+  assert.equal(ids.filter((id) => id === "business-temporal").length, 1);
   assert.equal(ids.filter((id) => id === "deploy-graph").length, 1);
   assert.equal(ids.filter((id) => id === "workspace-analysis-sources").length, 1);
   assert.equal(ids.filter((id) => id === "typecheck-entrypoints").length, 1);
@@ -17,7 +18,7 @@ test("push suite flattens blockers and changed checks without repeating contract
   assert.equal(ids.includes("domain-changed"), true);
   assert.equal(ids.includes("domain-architecture"), true);
   assert.equal(new Set(ids).size, ids.length);
-  assert.equal(plan.duplicateReferences, 7);
+  assert.equal(plan.duplicateReferences, 8);
   assert.equal(plan.coveredTaskReferences, 0);
 });
 
@@ -154,6 +155,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "lint-changed",
     "api-response-format",
     "history-policy",
+    "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
     "workspace-analysis-sources",
@@ -168,6 +170,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "lint-changed",
     "api-response-format",
     "history-policy",
+    "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
     "workspace-analysis-sources",
@@ -183,6 +186,7 @@ test("suite coverage snapshots keep the intended fast-path contents explicit", (
     "business-identity",
     "api-response-format",
     "history-policy",
+    "business-temporal",
     "deploy-graph",
     "deploy-unit-apps",
     "workspace-analysis-sources",

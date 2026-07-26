@@ -1,4 +1,11 @@
 export * from "./contracts";
+export * from "./contract-lifecycle";
+export {
+  ContractRevisionCreateSchema,
+  ContractRevisionPublishSchema,
+  ContractStateReverseSchema,
+  ContractStateTransitionSchema,
+} from "./schemas";
 export * from "./contract-package";
 export {
   ContractApprovalReferenceSchema,

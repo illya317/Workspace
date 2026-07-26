@@ -1,12 +1,14 @@
 import { z } from "zod";
 
-import { updateDepartment } from "@workspace/hr/server";
-import { routeIdParamsSchema } from "@workspace/platform/server/api";
+import { organizationStructureLifecycleMetaFromRequest, updateDepartment } from "@workspace/hr/server";
+import { readRequestExpectedVersion, routeIdParamsSchema } from "@workspace/platform/server/api";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { okCommand } from "@workspace/platform/server/domain-validation";
 
 const archiveBodySchema = z.object({
   archived: z.boolean(),
+  effectiveOn: z.string().optional(),
+  reason: z.string().optional().nullable(),
 });
 
 export const POST = createCommandRoute({
@@ -14,10 +16,16 @@ export const POST = createCommandRoute({
   paramsError: "ID 无效",
   bodySchema: archiveBodySchema,
   bodyError: "参数错误",
-  buildCommand: ({ params, body, user }) => okCommand({
+  buildCommand: ({ request, params, body, user }) => okCommand({
     id: params.id,
     archived: body.archived,
     userId: user.userId,
+    lifecycle: organizationStructureLifecycleMetaFromRequest(request, {
+      expectedSequence: readRequestExpectedVersion(request),
+      effectiveOn: body.effectiveOn,
+      kind: body.archived ? "end-date" : "schedule",
+      reason: body.reason,
+    }),
   }),
-  action: ({ id, archived, userId }) => updateDepartment({ id, isArchived: archived }, userId, "lifecycle"),
+  action: ({ id, archived, lifecycle, userId }) => updateDepartment({ id, isArchived: archived, lifecycle }, userId, "lifecycle"),
 });

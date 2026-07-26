@@ -1,7 +1,9 @@
+import { shiftBusinessDate } from "@workspace/platform/contracts/business-temporal";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { businessTemporalRequestFingerprint } from "@workspace/platform/server/business-temporal-idempotency";
 import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { Prisma } from "@workspace/platform/server/prisma";
@@ -11,14 +13,16 @@ import {
 } from "@workspace/platform/server/serializable-transaction";
 import {
   buildEmployeeLifecycleCommand,
-  periodContainsDate,
-  shiftIsoDate,
   validateAssignmentTimeline,
   type EmployeeLifecycleCommand,
   type EmployeeLifecycleInput,
   type LifecycleAssignmentPeriod,
 } from "./domain/employee-lifecycle-validation";
-import { projectEmployeeAssignmentLifecycle } from "./domain/employee-lifecycle-projection";
+import {
+  offboardPeriodDisposition,
+  projectEmployeeAssignmentLifecycle,
+} from "./domain/employee-lifecycle-projection";
+import { queueHrDataQualityEvaluation } from "./data-quality-trigger";
 
 type LifecycleResult = {
   success: true;
@@ -83,7 +87,7 @@ async function updateSourceAssignment(
   const updated = await tx.eDP.updateMany({
     where: { id: source.id, employeeId: source.employeeId, version: source.version },
     data: {
-      endDate: shiftIsoDate(effectiveDate, -1),
+      endDate: shiftBusinessDate(effectiveDate, -1),
       editedBy: userId,
       editedAt: new Date(),
       version: { increment: 1 },
@@ -119,8 +123,12 @@ async function applyAssignmentChange(
       where: { employeeId: command.employeeId },
       select: { id: true, version: true, startDate: true, endDate: true },
     });
-    const cancelledIds = covering.filter((row) => row.startDate && row.startDate >= command.effectiveDate).map((row) => row.id);
-    const closing = covering.filter((row) => !cancelledIds.includes(row.id) && periodContainsDate(row, command.effectiveDate));
+    const cancelledIds = covering
+      .filter((row) => offboardPeriodDisposition(row, command.effectiveDate) === "cancel")
+      .map((row) => row.id);
+    const closing = covering.filter((row) => (
+      offboardPeriodDisposition(row, command.effectiveDate) === "close"
+    ));
     for (const row of [...closing, ...covering.filter((item) => cancelledIds.includes(item.id))]) {
       await ensureEditHistoryBaseline("EDP", row.id, command.userId, tx);
     }
@@ -128,7 +136,7 @@ async function applyAssignmentChange(
       const updated = await tx.eDP.updateMany({
         where: { id: row.id, version: row.version },
         data: {
-          endDate: shiftIsoDate(command.effectiveDate, -1),
+          endDate: shiftBusinessDate(command.effectiveDate, -1),
           editedBy: command.userId,
           editedAt: new Date(),
           version: { increment: 1 },
@@ -147,35 +155,88 @@ async function applyAssignmentChange(
     const projectMemberships = await tx.employeeProject.findMany({
       where: {
         employeeId: command.employeeId,
+        recordState: "confirmed",
         OR: [{ endDate: null }, { endDate: "" }, { endDate: { gte: command.effectiveDate } }],
       },
-      select: { id: true, version: true, startDate: true, endDate: true },
+      select: {
+        id: true,
+        version: true,
+        membershipUid: true,
+        employeeId: true,
+        projectId: true,
+        startDate: true,
+        endDate: true,
+        sequence: true,
+        role: true,
+        recordState: true,
+        changeKind: true,
+        supersedesId: true,
+        createdByChangeId: true,
+        terminalChangeId: true,
+        reason: true,
+        editedBy: true,
+        editedAt: true,
+      },
     });
-    const futureMemberships = projectMemberships.filter((row) => row.startDate && row.startDate >= command.effectiveDate);
+    const futureMemberships = projectMemberships.filter((row) => (
+      offboardPeriodDisposition(row, command.effectiveDate) === "cancel"
+    ));
     const currentMemberships = projectMemberships.filter((row) => (
-      !futureMemberships.some((future) => future.id === row.id)
-      && periodContainsDate(row, command.effectiveDate)
+      offboardPeriodDisposition(row, command.effectiveDate) === "close"
     ));
     for (const membership of [...currentMemberships, ...futureMemberships]) {
-      await ensureEditHistoryBaseline("EmployeeProject", membership.id, command.userId, tx);
-    }
-    for (const membership of currentMemberships) {
-      const updated = await tx.employeeProject.updateMany({
-        where: { id: membership.id, version: membership.version },
+      const cancelFuture = futureMemberships.some((candidate) => candidate.id === membership.id);
+      const commandKind = cancelFuture ? "cancel-future" : "end-date";
+      const requestFingerprint = businessTemporalRequestFingerprint({
+        aggregate: "ProjectMembership",
+        commandKind,
+        request: {
+          recordId: membership.id,
+          effectiveOn: command.effectiveDate,
+          reason: "员工离职联动结束项目成员资格",
+          source: "hr.employee.offboard",
+        },
+      });
+      const change = await tx.projectMembershipChange.create({
         data: {
-          endDate: shiftIsoDate(command.effectiveDate, -1),
+          idempotencyKey: `hr-offboard:${command.employeeId}:${command.effectiveDate}:project-membership:${membership.id}`,
+          membershipUid: membership.membershipUid,
+          employeeId: membership.employeeId,
+          projectId: membership.projectId,
+          requestFingerprint,
+          commandKind,
+          effectiveOn: command.effectiveDate,
+          reason: "员工离职联动结束项目成员资格",
+          effectsJson: JSON.stringify({
+            updatedVersionId: membership.id,
+            recordState: cancelFuture ? "cancelled" : "confirmed",
+            endDate: cancelFuture ? membership.endDate : shiftBusinessDate(command.effectiveDate, -1),
+            source: "hr.employee.offboard",
+            sourceBefore: membership,
+          }),
+          recordedBy: command.userId,
+        },
+        select: { id: true },
+      });
+      const updated = await tx.employeeProject.updateMany({
+        where: { id: membership.id, version: membership.version, recordState: "confirmed" },
+        data: cancelFuture ? {
+          recordState: "cancelled",
+          reason: "员工离职联动取消未来项目成员资格",
+          terminalChangeId: change.id,
+          editedBy: command.userId,
+          editedAt: new Date(),
+          version: { increment: 1 },
+        } : {
+          endDate: shiftBusinessDate(command.effectiveDate, -1),
+          reason: "员工离职联动结束项目成员资格",
+          terminalChangeId: change.id,
           editedBy: command.userId,
           editedAt: new Date(),
           version: { increment: 1 },
         },
       });
       if (updated.count !== 1) throw new LifecycleConcurrentUpdateError();
-      await snapshotHistory("EmployeeProject", membership.id, command.userId, tx);
-    }
-    for (const membership of futureMemberships) {
-      await snapshotHistory("EmployeeProject", membership.id, command.userId, tx);
-      const deleted = await tx.employeeProject.deleteMany({ where: { id: membership.id, version: membership.version } });
-      if (deleted.count !== 1) throw new LifecycleConcurrentUpdateError();
     }
     return {
       createdIds: [],
@@ -202,7 +263,7 @@ async function applyAssignmentChange(
     await createAssignment(tx, target, command.userId),
   ];
   if (command.assignmentEndDate) {
-    const restoreDate = shiftIsoDate(command.assignmentEndDate, 1);
+    const restoreDate = shiftBusinessDate(command.assignmentEndDate, 1);
     if (!source.endDate || restoreDate <= source.endDate) {
       createdIds.push(await createAssignment(tx, { ...source, id: null, version: 0, startDate: restoreDate }, command.userId));
     }
@@ -242,7 +303,7 @@ async function applyEmploymentChange(tx: Prisma.TransactionClient, command: Empl
     where: { id: command.employment.id, employeeId: command.employeeId, version: command.employment.version },
     data: {
       isActive: command.effectiveDate > workspaceBusinessDate(new Date()),
-      leaveDate: shiftIsoDate(command.effectiveDate, -1),
+      leaveDate: shiftBusinessDate(command.effectiveDate, -1),
       leaveReason: command.employmentFields.leaveReason,
       leaveNote: command.employmentFields.leaveNote,
       editedBy: command.userId,
@@ -277,12 +338,13 @@ async function assertAssignmentProjection(
       workPercent: true,
     },
   });
-  const relevantRows = existingRows.filter((row) => !row.endDate || row.endDate >= command.effectiveDate);
+  const projectedRows = projectEmployeeAssignmentLifecycle(command, existingRows);
+  const relevantRows = projectedRows.filter((row) => !row.endDate || row.endDate >= command.effectiveDate);
   if (relevantRows.some((row) => !row.positionId || !row.workPercent)) {
     throw new LifecycleInvariantError("生效日之后存在岗位、工作占比不完整的任职记录，请先修正资料");
   }
   const periods = relevantRows as Array<typeof relevantRows[number] & { positionId: number; workPercent: string }>;
-  const timelineError = validateAssignmentTimeline(projectEmployeeAssignmentLifecycle(command, periods), command.effectiveDate);
+  const timelineError = validateAssignmentTimeline(periods, command.effectiveDate);
   if (timelineError) throw new LifecycleInvariantError(timelineError);
 }
 
@@ -298,7 +360,7 @@ export async function recordEmployeeLifecycleEvent(
   if (!direct.ok) return direct;
 
   try {
-    return await runSerializableTransaction(async (tx) => {
+    const persisted = await runSerializableTransaction(async (tx) => {
       await assertAssignmentProjection(tx, validated.data);
       const employmentId = await applyEmploymentChange(tx, validated.data);
       const assignmentResult = await applyAssignmentChange(tx, validated.data);
@@ -329,6 +391,8 @@ export async function recordEmployeeLifecycleEvent(
         effectiveDate: validated.data.effectiveDate,
       });
     });
+    await queueHrDataQualityEvaluation("Employee", [employeeId]);
+    return persisted;
   } catch (error) {
     if (error instanceof LifecycleInvariantError) return serviceError(error.message, 409);
     if (error instanceof LifecycleConcurrentUpdateError || error instanceof SerializableTransactionConflictError) {

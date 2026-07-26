@@ -3,26 +3,11 @@ import test from "node:test";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
 
 import {
-  buildEmploymentCreateCommand,
   buildEmploymentFieldUpdateCommand,
+  buildEmploymentPageDraftCommand,
   validateEmploymentPersonnelTypeTransition,
-  validateOrdinaryEmploymentTarget,
   VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR,
 } from "./employment-validation";
-
-test("ordinary HR employment creation cannot create a virtual employee identity", async () => {
-  const virtualPersonnelType = getTenantProfile().hr.options.virtualEmployeePersonnelType;
-  const result = await buildEmploymentCreateCommand({ employeeId: 1, personnelType: virtualPersonnelType });
-  assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.issue.message, VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR);
-});
-
-test("ordinary HR employment creation rejects an Agent-linked employee", () => {
-  const result = validateOrdinaryEmploymentTarget("synthetic.agent.profile");
-  assert.equal(result.ok, false);
-  if (!result.ok) assert.equal(result.issue.message, VIRTUAL_EMPLOYEE_PERSONNEL_TYPE_MANAGED_ERROR);
-  assert.equal(validateOrdinaryEmploymentTarget(null).ok, true);
-});
 
 test("ordinary HR employment edits cannot enter or leave the virtual employee identity", async () => {
   const virtualPersonnelType = getTenantProfile().hr.options.virtualEmployeePersonnelType;
@@ -37,4 +22,30 @@ test("ordinary HR employment edits cannot enter or leave the virtual employee id
 test("ordinary personnel type transitions remain valid", () => {
   const result = validateEmploymentPersonnelTypeTransition("ordinary-a", "ordinary-b");
   assert.deepEqual(result, { ok: true, data: { value: "ordinary-b" } });
+});
+
+test("ordinary employment edits reject lifecycle boundary fields", async () => {
+  for (const field of ["isActive", "joinDate", "leaveDate"]) {
+    const result = await buildEmploymentFieldUpdateCommand(field, null);
+    assert.equal(result.ok, false);
+    if (!result.ok) {
+      assert.equal(result.issue.status, 409);
+      assert.equal(result.issue.field, field);
+      assert.match(result.issue.message, /生命周期/);
+    }
+  }
+});
+
+test("employment page drafts accept non-period profile corrections", async () => {
+  const result = await buildEmploymentPageDraftCommand({
+    userId: 9,
+    changes: [{ id: 12, field: "rank", value: null }],
+  });
+  assert.deepEqual(result, {
+    ok: true,
+    data: {
+      userId: 9,
+      changes: [{ id: 12, field: "rank", value: null }],
+    },
+  });
 });

@@ -284,4 +284,13 @@ export const SMALL_MODULE_ACTION_CONTRACT_METADATA = defineActionContractMetadat
     target: "existing_record",
     targetIdKey: "id",
   }),
+  registeredLifecycle({
+    key: "capitalSecurities.governance.ownershipProjection.rebuild",
+    activeEntity: "OwnershipInterest",
+    operation: "custom",
+    domain: d(
+      "packages/capital-securities/server/domain/ownership-projection-rebuild.buildOwnershipProjectionRebuildCommand",
+      "packages/capital-securities/server/ownership-projection.rebuildOwnershipProjection",
+    ),
+  }),
 ]);

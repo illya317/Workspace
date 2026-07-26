@@ -11,3 +11,8 @@ export {
 } from "./department-path";
 export type { DepartmentPathNode } from "./department-path";
 export { deriveDepartmentCodeCascade } from "./department-code-cascade";
+export {
+  compareEmploymentPreference,
+  orderEmploymentsByPreference,
+  preferredEmployment,
+} from "./employment-selection";

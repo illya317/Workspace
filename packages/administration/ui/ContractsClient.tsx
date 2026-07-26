@@ -22,6 +22,7 @@ import {
 } from "@workspace/administration/types";
 import { useContracts } from "./hooks/useContracts";
 import { useContractArchivePackage } from "./hooks/useContractArchivePackage";
+import { useContractLifecycle } from "./hooks/useContractLifecycle";
 import getContractFilterToolbarItems from "./components/ContractFilters";
 import { contractFormSections } from "./components/contract-form";
 
@@ -69,6 +70,11 @@ export default function ContractsClient({
   const [saving, setSaving] = useState(false);
   const [downloading, setDownloading] = useState(false);
 
+  const closeEditor = () => {
+    setEditorMode(null);
+    setEditing({});
+  };
+
   const updateContractApproval = useCallback((
     version: number,
     approval: {
@@ -100,15 +106,24 @@ export default function ContractsClient({
     onContractVersionChange: updateContractApproval,
   });
 
-  const closeEditor = () => {
-    setEditorMode(null);
-    setEditing({});
-  };
+  const updateContractLifecycle = useCallback((record: Pick<Contract,
+    "version" | "currentRevisionId" | "lifecycleStatus" | "signatureStatus" | "performanceStatus"
+  >) => {
+    setEditing((previous) => ({ ...previous, ...record }));
+  }, []);
+
+  const lifecycle = useContractLifecycle({
+    contract: editorMode === "edit" ? editing : null,
+    canUpdate: Boolean(canUpdate),
+    onMutation: updateContractLifecycle,
+    onListRefresh: refresh,
+    onPublication: closeEditor,
+  });
 
   const openCreate = () => {
     if (!canCreate) return;
     setEditing({
-      lifecycleStatus: "active",
+      lifecycleStatus: "draft",
       signatureStatus: "unknown",
       performanceStatus: "not_started",
       currencyCode: "CNY",
@@ -204,6 +219,10 @@ export default function ContractsClient({
       feedback.error("合同名称和合同类型为必填");
       return;
     }
+    if (editing.lifecycleStatus !== "draft" || editing.currentRevisionId) {
+      await lifecycle.createRevision(editing);
+      return;
+    }
     setSaving(true);
     try {
       const response = await fetch(workspacePath(`/api/modules/administration/contracts/${editing.id}`), {
@@ -286,7 +305,7 @@ export default function ContractsClient({
         status: { label: contractOptionLabel(CONTRACT_LIFECYCLE_OPTIONS, contract.lifecycleStatus) },
         active: editorMode === "edit" && editing.id === contract.id,
         actions: [
-          ...(canArchive ? [{
+          ...(canArchive && contract.lifecycleStatus !== "draft" && contract.currentRevisionId ? [{
             key: "archive",
             label: "归档",
             icon: "archive" as const,
@@ -308,7 +327,15 @@ export default function ContractsClient({
   };
 
   const editSections = editorMode === "edit"
-    ? contractFormSections(editing, updateField, { locations, categories, readOnly: !canUpdate }).map<FormSurfaceSectionSpec>((section) => ({
+    ? [
+        ...contractFormSections(editing, updateField, { locations, categories, readOnly: !canUpdate }),
+        ...((editing.lifecycleStatus !== "draft" || editing.currentRevisionId) && canUpdate ? [{
+          key: "revision-meta",
+          title: "修订信息",
+          layout: { columns: 2 as const, density: "compact" as const },
+          items: lifecycle.revisionMetaFields,
+        }] : []),
+      ].map<FormSurfaceSectionSpec>((section) => ({
         kind: "section",
         key: section.key,
         title: section.title,
@@ -349,9 +376,15 @@ export default function ContractsClient({
           submit: canUpdate ? { onSubmit: () => void saveContract() } : undefined,
           actions: canUpdate ? [
             { key: "reset", action: "reset", label: "取消编辑", disabled: saving, onClick: closeEditor },
-            { key: "save", action: "save", label: saving ? "保存中..." : "保存", disabled: saving, onClick: () => void saveContract() },
+            {
+              key: "save",
+              action: "save",
+              label: saving ? "保存中..." : editing.lifecycleStatus === "draft" && !editing.currentRevisionId ? "保存草稿" : "创建修订草稿",
+              disabled: saving || ((editing.lifecycleStatus !== "draft" || editing.currentRevisionId) && !lifecycle.revisionReason.trim()),
+              onClick: () => void saveContract(),
+            },
           ] : [],
-        }), ...archivePackage.sections]
+        }), ...lifecycle.sections, ...archivePackage.sections]
       : [createEmptySection("contract-detail-empty", {
           content: "从左侧选择合同查看详情，或点击新增合同",
           presentation: "card",

@@ -34,6 +34,7 @@ export type PositionReportOverrideAvgAggregateOutputType = {
   reportToPositionId: number | null
   headcount: number | null
   editedBy: number | null
+  version: number | null
 }
 
 export type PositionReportOverrideSumAggregateOutputType = {
@@ -44,6 +45,7 @@ export type PositionReportOverrideSumAggregateOutputType = {
   reportToPositionId: number | null
   headcount: number | null
   editedBy: number | null
+  version: number | null
 }
 
 export type PositionReportOverrideMinAggregateOutputType = {
@@ -59,6 +61,7 @@ export type PositionReportOverrideMinAggregateOutputType = {
   editedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  version: number | null
 }
 
 export type PositionReportOverrideMaxAggregateOutputType = {
@@ -74,6 +77,7 @@ export type PositionReportOverrideMaxAggregateOutputType = {
   editedAt: Date | null
   createdAt: Date | null
   updatedAt: Date | null
+  version: number | null
 }
 
 export type PositionReportOverrideCountAggregateOutputType = {
@@ -89,6 +93,7 @@ export type PositionReportOverrideCountAggregateOutputType = {
   editedAt: number
   createdAt: number
   updatedAt: number
+  version: number
   _all: number
 }
 
@@ -101,6 +106,7 @@ export type PositionReportOverrideAvgAggregateInputType = {
   reportToPositionId?: true
   headcount?: true
   editedBy?: true
+  version?: true
 }
 
 export type PositionReportOverrideSumAggregateInputType = {
@@ -111,6 +117,7 @@ export type PositionReportOverrideSumAggregateInputType = {
   reportToPositionId?: true
   headcount?: true
   editedBy?: true
+  version?: true
 }
 
 export type PositionReportOverrideMinAggregateInputType = {
@@ -126,6 +133,7 @@ export type PositionReportOverrideMinAggregateInputType = {
   editedAt?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
 }
 
 export type PositionReportOverrideMaxAggregateInputType = {
@@ -141,6 +149,7 @@ export type PositionReportOverrideMaxAggregateInputType = {
   editedAt?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
 }
 
 export type PositionReportOverrideCountAggregateInputType = {
@@ -156,6 +165,7 @@ export type PositionReportOverrideCountAggregateInputType = {
   editedAt?: true
   createdAt?: true
   updatedAt?: true
+  version?: true
   _all?: true
 }
 
@@ -258,6 +268,7 @@ export type PositionReportOverrideGroupByOutputType = {
   editedAt: Date | null
   createdAt: Date
   updatedAt: Date
+  version: number
   _count: PositionReportOverrideCountAggregateOutputType | null
   _avg: PositionReportOverrideAvgAggregateOutputType | null
   _sum: PositionReportOverrideSumAggregateOutputType | null
@@ -296,11 +307,13 @@ export type PositionReportOverrideWhereInput = {
   editedAt?: Prisma.DateTimeNullableFilter<"PositionReportOverride"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
+  version?: Prisma.IntFilter<"PositionReportOverride"> | number
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
   reportToPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   edps?: Prisma.EDPListRelationFilter
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
 }
 
 export type PositionReportOverrideOrderByWithRelationInput = {
@@ -316,11 +329,13 @@ export type PositionReportOverrideOrderByWithRelationInput = {
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   position?: Prisma.PositionOrderByWithRelationInput
   company?: Prisma.CompanyOrderByWithRelationInput
   department?: Prisma.DepartmentOrderByWithRelationInput
   reportToPosition?: Prisma.PositionOrderByWithRelationInput
   edps?: Prisma.EDPOrderByRelationAggregateInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionOrderByRelationAggregateInput
 }
 
 export type PositionReportOverrideWhereUniqueInput = Prisma.AtLeast<{
@@ -340,11 +355,13 @@ export type PositionReportOverrideWhereUniqueInput = Prisma.AtLeast<{
   editedAt?: Prisma.DateTimeNullableFilter<"PositionReportOverride"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
+  version?: Prisma.IntFilter<"PositionReportOverride"> | number
   position?: Prisma.XOR<Prisma.PositionScalarRelationFilter, Prisma.PositionWhereInput>
   company?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
   department?: Prisma.XOR<Prisma.DepartmentScalarRelationFilter, Prisma.DepartmentWhereInput>
   reportToPosition?: Prisma.XOR<Prisma.PositionNullableScalarRelationFilter, Prisma.PositionWhereInput> | null
   edps?: Prisma.EDPListRelationFilter
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionListRelationFilter
 }, "id" | "positionId_companyId_departmentId">
 
 export type PositionReportOverrideOrderByWithAggregationInput = {
@@ -360,6 +377,7 @@ export type PositionReportOverrideOrderByWithAggregationInput = {
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
   _count?: Prisma.PositionReportOverrideCountOrderByAggregateInput
   _avg?: Prisma.PositionReportOverrideAvgOrderByAggregateInput
   _max?: Prisma.PositionReportOverrideMaxOrderByAggregateInput
@@ -383,6 +401,7 @@ export type PositionReportOverrideScalarWhereWithAggregatesInput = {
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"PositionReportOverride"> | Date | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"PositionReportOverride"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"PositionReportOverride"> | Date | string
+  version?: Prisma.IntWithAggregatesFilter<"PositionReportOverride"> | number
 }
 
 export type PositionReportOverrideCreateInput = {
@@ -393,11 +412,13 @@ export type PositionReportOverrideCreateInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
   company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
   department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
   edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateInput = {
@@ -413,7 +434,9 @@ export type PositionReportOverrideUncheckedCreateInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUpdateInput = {
@@ -424,11 +447,13 @@ export type PositionReportOverrideUpdateInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
   edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateInput = {
@@ -444,7 +469,9 @@ export type PositionReportOverrideUncheckedUpdateInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideCreateManyInput = {
@@ -460,6 +487,7 @@ export type PositionReportOverrideCreateManyInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
 }
 
 export type PositionReportOverrideUpdateManyMutationInput = {
@@ -470,6 +498,7 @@ export type PositionReportOverrideUpdateManyMutationInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PositionReportOverrideUncheckedUpdateManyInput = {
@@ -485,6 +514,12 @@ export type PositionReportOverrideUncheckedUpdateManyInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type PositionReportOverrideScalarRelationFilter = {
+  is?: Prisma.PositionReportOverrideWhereInput
+  isNot?: Prisma.PositionReportOverrideWhereInput
 }
 
 export type PositionReportOverrideListRelationFilter = {
@@ -521,6 +556,7 @@ export type PositionReportOverrideCountOrderByAggregateInput = {
   editedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type PositionReportOverrideAvgOrderByAggregateInput = {
@@ -531,6 +567,7 @@ export type PositionReportOverrideAvgOrderByAggregateInput = {
   reportToPositionId?: Prisma.SortOrder
   headcount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type PositionReportOverrideMaxOrderByAggregateInput = {
@@ -546,6 +583,7 @@ export type PositionReportOverrideMaxOrderByAggregateInput = {
   editedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type PositionReportOverrideMinOrderByAggregateInput = {
@@ -561,6 +599,7 @@ export type PositionReportOverrideMinOrderByAggregateInput = {
   editedAt?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  version?: Prisma.SortOrder
 }
 
 export type PositionReportOverrideSumOrderByAggregateInput = {
@@ -571,6 +610,21 @@ export type PositionReportOverrideSumOrderByAggregateInput = {
   reportToPositionId?: Prisma.SortOrder
   headcount?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
+  version?: Prisma.SortOrder
+}
+
+export type PositionReportOverrideCreateNestedOneWithoutEffectiveVersionsInput = {
+  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
+  connect?: Prisma.PositionReportOverrideWhereUniqueInput
+}
+
+export type PositionReportOverrideUpdateOneRequiredWithoutEffectiveVersionsNestedInput = {
+  create?: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+  connectOrCreate?: Prisma.PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput
+  upsert?: Prisma.PositionReportOverrideUpsertWithoutEffectiveVersionsInput
+  connect?: Prisma.PositionReportOverrideWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.PositionReportOverrideUpdateToOneWithWhereWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUpdateWithoutEffectiveVersionsInput>, Prisma.PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput>
 }
 
 export type PositionReportOverrideCreateNestedManyWithoutCompanyInput = {
@@ -757,6 +811,88 @@ export type PositionReportOverrideUpdateOneWithoutEdpsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.PositionReportOverrideUpdateToOneWithWhereWithoutEdpsInput, Prisma.PositionReportOverrideUpdateWithoutEdpsInput>, Prisma.PositionReportOverrideUncheckedUpdateWithoutEdpsInput>
 }
 
+export type PositionReportOverrideCreateWithoutEffectiveVersionsInput = {
+  headcount?: number | null
+  isActive?: boolean
+  remark?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
+  company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
+  department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
+  reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
+  edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+}
+
+export type PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput = {
+  id?: number
+  positionId: number
+  companyId: number
+  departmentId: number
+  reportToPositionId?: number | null
+  headcount?: number | null
+  isActive?: boolean
+  remark?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  version?: number
+  edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+}
+
+export type PositionReportOverrideCreateOrConnectWithoutEffectiveVersionsInput = {
+  where: Prisma.PositionReportOverrideWhereUniqueInput
+  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+}
+
+export type PositionReportOverrideUpsertWithoutEffectiveVersionsInput = {
+  update: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput>
+  create: Prisma.XOR<Prisma.PositionReportOverrideCreateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedCreateWithoutEffectiveVersionsInput>
+  where?: Prisma.PositionReportOverrideWhereInput
+}
+
+export type PositionReportOverrideUpdateToOneWithWhereWithoutEffectiveVersionsInput = {
+  where?: Prisma.PositionReportOverrideWhereInput
+  data: Prisma.XOR<Prisma.PositionReportOverrideUpdateWithoutEffectiveVersionsInput, Prisma.PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput>
+}
+
+export type PositionReportOverrideUpdateWithoutEffectiveVersionsInput = {
+  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
+  company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
+  department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
+  reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
+  edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+}
+
+export type PositionReportOverrideUncheckedUpdateWithoutEffectiveVersionsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  positionId?: Prisma.IntFieldUpdateOperationsInput | number
+  companyId?: Prisma.IntFieldUpdateOperationsInput | number
+  departmentId?: Prisma.IntFieldUpdateOperationsInput | number
+  reportToPositionId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  headcount?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  remark?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+}
+
 export type PositionReportOverrideCreateWithoutCompanyInput = {
   headcount?: number | null
   isActive?: boolean
@@ -765,10 +901,12 @@ export type PositionReportOverrideCreateWithoutCompanyInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
   department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
   edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateWithoutCompanyInput = {
@@ -783,7 +921,9 @@ export type PositionReportOverrideUncheckedCreateWithoutCompanyInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideCreateOrConnectWithoutCompanyInput = {
@@ -828,6 +968,7 @@ export type PositionReportOverrideScalarWhereInput = {
   editedAt?: Prisma.DateTimeNullableFilter<"PositionReportOverride"> | Date | string | null
   createdAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"PositionReportOverride"> | Date | string
+  version?: Prisma.IntFilter<"PositionReportOverride"> | number
 }
 
 export type PositionReportOverrideCreateWithoutDepartmentInput = {
@@ -838,10 +979,12 @@ export type PositionReportOverrideCreateWithoutDepartmentInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
   company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
   edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateWithoutDepartmentInput = {
@@ -856,7 +999,9 @@ export type PositionReportOverrideUncheckedCreateWithoutDepartmentInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideCreateOrConnectWithoutDepartmentInput = {
@@ -893,10 +1038,12 @@ export type PositionReportOverrideCreateWithoutPositionInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
   department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
   edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateWithoutPositionInput = {
@@ -911,7 +1058,9 @@ export type PositionReportOverrideUncheckedCreateWithoutPositionInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideCreateOrConnectWithoutPositionInput = {
@@ -932,10 +1081,12 @@ export type PositionReportOverrideCreateWithoutReportToPositionInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
   company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
   department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
   edps?: Prisma.EDPCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateWithoutReportToPositionInput = {
@@ -950,7 +1101,9 @@ export type PositionReportOverrideUncheckedCreateWithoutReportToPositionInput = 
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   edps?: Prisma.EDPUncheckedCreateNestedManyWithoutPositionReportOverrideInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideCreateOrConnectWithoutReportToPositionInput = {
@@ -1003,10 +1156,12 @@ export type PositionReportOverrideCreateWithoutEdpsInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
   position: Prisma.PositionCreateNestedOneWithoutReportOverridesInput
   company: Prisma.CompanyCreateNestedOneWithoutPositionReportOverridesInput
   department: Prisma.DepartmentCreateNestedOneWithoutPositionReportOverridesInput
   reportToPosition?: Prisma.PositionCreateNestedOneWithoutReportedReportOverridesInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideUncheckedCreateWithoutEdpsInput = {
@@ -1022,6 +1177,8 @@ export type PositionReportOverrideUncheckedCreateWithoutEdpsInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedCreateNestedManyWithoutPositionReportOverrideInput
 }
 
 export type PositionReportOverrideCreateOrConnectWithoutEdpsInput = {
@@ -1048,10 +1205,12 @@ export type PositionReportOverrideUpdateWithoutEdpsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateWithoutEdpsInput = {
@@ -1067,6 +1226,8 @@ export type PositionReportOverrideUncheckedUpdateWithoutEdpsInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideCreateManyCompanyInput = {
@@ -1081,6 +1242,7 @@ export type PositionReportOverrideCreateManyCompanyInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
 }
 
 export type PositionReportOverrideUpdateWithoutCompanyInput = {
@@ -1091,10 +1253,12 @@ export type PositionReportOverrideUpdateWithoutCompanyInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
   department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
   edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateWithoutCompanyInput = {
@@ -1109,7 +1273,9 @@ export type PositionReportOverrideUncheckedUpdateWithoutCompanyInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateManyWithoutCompanyInput = {
@@ -1124,6 +1290,7 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutCompanyInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PositionReportOverrideCreateManyDepartmentInput = {
@@ -1138,6 +1305,7 @@ export type PositionReportOverrideCreateManyDepartmentInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
 }
 
 export type PositionReportOverrideUpdateWithoutDepartmentInput = {
@@ -1148,10 +1316,12 @@ export type PositionReportOverrideUpdateWithoutDepartmentInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
   edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateWithoutDepartmentInput = {
@@ -1166,7 +1336,9 @@ export type PositionReportOverrideUncheckedUpdateWithoutDepartmentInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateManyWithoutDepartmentInput = {
@@ -1181,6 +1353,7 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutDepartmentInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PositionReportOverrideCreateManyPositionInput = {
@@ -1195,6 +1368,7 @@ export type PositionReportOverrideCreateManyPositionInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
 }
 
 export type PositionReportOverrideCreateManyReportToPositionInput = {
@@ -1209,6 +1383,7 @@ export type PositionReportOverrideCreateManyReportToPositionInput = {
   editedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  version?: number
 }
 
 export type PositionReportOverrideUpdateWithoutPositionInput = {
@@ -1219,10 +1394,12 @@ export type PositionReportOverrideUpdateWithoutPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   reportToPosition?: Prisma.PositionUpdateOneWithoutReportedReportOverridesNestedInput
   edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateWithoutPositionInput = {
@@ -1237,7 +1414,9 @@ export type PositionReportOverrideUncheckedUpdateWithoutPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateManyWithoutPositionInput = {
@@ -1252,6 +1431,7 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type PositionReportOverrideUpdateWithoutReportToPositionInput = {
@@ -1262,10 +1442,12 @@ export type PositionReportOverrideUpdateWithoutReportToPositionInput = {
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   position?: Prisma.PositionUpdateOneRequiredWithoutReportOverridesNestedInput
   company?: Prisma.CompanyUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   department?: Prisma.DepartmentUpdateOneRequiredWithoutPositionReportOverridesNestedInput
   edps?: Prisma.EDPUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateWithoutReportToPositionInput = {
@@ -1280,7 +1462,9 @@ export type PositionReportOverrideUncheckedUpdateWithoutReportToPositionInput = 
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
   edps?: Prisma.EDPUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
+  effectiveVersions?: Prisma.PositionReportOverrideEffectiveVersionUncheckedUpdateManyWithoutPositionReportOverrideNestedInput
 }
 
 export type PositionReportOverrideUncheckedUpdateManyWithoutReportToPositionInput = {
@@ -1295,6 +1479,7 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutReportToPositionInpu
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  version?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -1304,10 +1489,12 @@ export type PositionReportOverrideUncheckedUpdateManyWithoutReportToPositionInpu
 
 export type PositionReportOverrideCountOutputType = {
   edps: number
+  effectiveVersions: number
 }
 
 export type PositionReportOverrideCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   edps?: boolean | PositionReportOverrideCountOutputTypeCountEdpsArgs
+  effectiveVersions?: boolean | PositionReportOverrideCountOutputTypeCountEffectiveVersionsArgs
 }
 
 /**
@@ -1327,6 +1514,13 @@ export type PositionReportOverrideCountOutputTypeCountEdpsArgs<ExtArgs extends r
   where?: Prisma.EDPWhereInput
 }
 
+/**
+ * PositionReportOverrideCountOutputType without action
+ */
+export type PositionReportOverrideCountOutputTypeCountEffectiveVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.PositionReportOverrideEffectiveVersionWhereInput
+}
+
 
 export type PositionReportOverrideSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1341,11 +1535,13 @@ export type PositionReportOverrideSelect<ExtArgs extends runtime.Types.Extension
   editedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
   reportToPosition?: boolean | Prisma.PositionReportOverride$reportToPositionArgs<ExtArgs>
   edps?: boolean | Prisma.PositionReportOverride$edpsArgs<ExtArgs>
+  effectiveVersions?: boolean | Prisma.PositionReportOverride$effectiveVersionsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionReportOverrideCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["positionReportOverride"]>
 
@@ -1362,6 +1558,7 @@ export type PositionReportOverrideSelectCreateManyAndReturn<ExtArgs extends runt
   editedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
@@ -1381,6 +1578,7 @@ export type PositionReportOverrideSelectUpdateManyAndReturn<ExtArgs extends runt
   editedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
@@ -1400,15 +1598,17 @@ export type PositionReportOverrideSelectScalar = {
   editedAt?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  version?: boolean
 }
 
-export type PositionReportOverrideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionId" | "companyId" | "departmentId" | "reportToPositionId" | "headcount" | "isActive" | "remark" | "editedBy" | "editedAt" | "createdAt" | "updatedAt", ExtArgs["result"]["positionReportOverride"]>
+export type PositionReportOverrideOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "positionId" | "companyId" | "departmentId" | "reportToPositionId" | "headcount" | "isActive" | "remark" | "editedBy" | "editedAt" | "createdAt" | "updatedAt" | "version", ExtArgs["result"]["positionReportOverride"]>
 export type PositionReportOverrideInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   position?: boolean | Prisma.PositionDefaultArgs<ExtArgs>
   company?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
   department?: boolean | Prisma.DepartmentDefaultArgs<ExtArgs>
   reportToPosition?: boolean | Prisma.PositionReportOverride$reportToPositionArgs<ExtArgs>
   edps?: boolean | Prisma.PositionReportOverride$edpsArgs<ExtArgs>
+  effectiveVersions?: boolean | Prisma.PositionReportOverride$effectiveVersionsArgs<ExtArgs>
   _count?: boolean | Prisma.PositionReportOverrideCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type PositionReportOverrideIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1432,6 +1632,7 @@ export type $PositionReportOverridePayload<ExtArgs extends runtime.Types.Extensi
     department: Prisma.$DepartmentPayload<ExtArgs>
     reportToPosition: Prisma.$PositionPayload<ExtArgs> | null
     edps: Prisma.$EDPPayload<ExtArgs>[]
+    effectiveVersions: Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1446,6 +1647,7 @@ export type $PositionReportOverridePayload<ExtArgs extends runtime.Types.Extensi
     editedAt: Date | null
     createdAt: Date
     updatedAt: Date
+    version: number
   }, ExtArgs["result"]["positionReportOverride"]>
   composites: {}
 }
@@ -1845,6 +2047,7 @@ export interface Prisma__PositionReportOverrideClient<T, Null = never, ExtArgs e
   department<T extends Prisma.DepartmentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.DepartmentDefaultArgs<ExtArgs>>): Prisma.Prisma__DepartmentClient<runtime.Types.Result.GetResult<Prisma.$DepartmentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   reportToPosition<T extends Prisma.PositionReportOverride$reportToPositionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionReportOverride$reportToPositionArgs<ExtArgs>>): Prisma.Prisma__PositionClient<runtime.Types.Result.GetResult<Prisma.$PositionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   edps<T extends Prisma.PositionReportOverride$edpsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionReportOverride$edpsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EDPPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  effectiveVersions<T extends Prisma.PositionReportOverride$effectiveVersionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PositionReportOverride$effectiveVersionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$PositionReportOverrideEffectiveVersionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1886,6 +2089,7 @@ export interface PositionReportOverrideFieldRefs {
   readonly editedAt: Prisma.FieldRef<"PositionReportOverride", 'DateTime'>
   readonly createdAt: Prisma.FieldRef<"PositionReportOverride", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"PositionReportOverride", 'DateTime'>
+  readonly version: Prisma.FieldRef<"PositionReportOverride", 'Int'>
 }
     
 
@@ -2327,6 +2531,30 @@ export type PositionReportOverride$edpsArgs<ExtArgs extends runtime.Types.Extens
   take?: number
   skip?: number
   distinct?: Prisma.EDPScalarFieldEnum | Prisma.EDPScalarFieldEnum[]
+}
+
+/**
+ * PositionReportOverride.effectiveVersions
+ */
+export type PositionReportOverride$effectiveVersionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the PositionReportOverrideEffectiveVersion
+   */
+  select?: Prisma.PositionReportOverrideEffectiveVersionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the PositionReportOverrideEffectiveVersion
+   */
+  omit?: Prisma.PositionReportOverrideEffectiveVersionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.PositionReportOverrideEffectiveVersionInclude<ExtArgs> | null
+  where?: Prisma.PositionReportOverrideEffectiveVersionWhereInput
+  orderBy?: Prisma.PositionReportOverrideEffectiveVersionOrderByWithRelationInput | Prisma.PositionReportOverrideEffectiveVersionOrderByWithRelationInput[]
+  cursor?: Prisma.PositionReportOverrideEffectiveVersionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum | Prisma.PositionReportOverrideEffectiveVersionScalarFieldEnum[]
 }
 
 /**

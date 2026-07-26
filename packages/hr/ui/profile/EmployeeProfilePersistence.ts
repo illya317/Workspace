@@ -1,12 +1,9 @@
 import { requestJson } from "@workspace/platform/ui/api-client";
 import {
-  contractFields,
   employeeFields,
   employmentFields,
 } from "@workspace/hr/constants";
 import type {
-  ContractRow,
-  EdpRow,
   EmployeeProfile,
   EmployeeProfileEmployee,
   EmploymentRow,
@@ -14,11 +11,7 @@ import type {
 } from "@workspace/hr/types";
 import { validateChineseIdNumber } from "@workspace/hr/utils/identity";
 import {
-  normalizeContractRow,
   normalizeValue,
-  persistableContractRows,
-  persistableEdpRows,
-  validateCurrentWorkPercent,
   valuesEqual,
   type EditableRecord,
 } from "./EmployeeProfileUtils";
@@ -73,24 +66,6 @@ export async function persistBasic(
 export async function persistEmployments(profile: EmployeeProfile, rows: EmploymentRow[]) {
   const changes: Array<{ id: number; field: string; value: unknown }> = [];
   for (const row of rows) {
-    if (row.isNew) {
-      await requestJson("/api/modules/hr/roster/employments", {
-        method: "POST",
-        body: JSON.stringify({
-          employeeId: profile.employee.id,
-          isActive: row.isActive,
-          joinDate: row.joinDate,
-          leaveDate: row.leaveDate,
-          leaveReason: row.leaveReason,
-          leaveNote: row.leaveNote,
-          officeLocation: row.officeLocation,
-          personnelType: row.personnelType,
-          rank: row.rank,
-          title: row.title,
-        }),
-      });
-      continue;
-    }
     if (!row.id) continue;
     const original = profile.employments.find((item) => item.id === row.id);
     if (!original) continue;
@@ -105,39 +80,5 @@ export async function persistEmployments(profile: EmployeeProfile, rows: Employm
   await requestJson("/api/modules/hr/roster/employments", {
     method: "PUT",
     body: JSON.stringify({ changes }),
-  });
-}
-
-function serializeContract(row: ContractRow) {
-  const normalizedRow = normalizeContractRow(row);
-  return Object.fromEntries(
-    contractFields.map((field) => [
-      field.key,
-      normalizeValue(normalizedRow[field.key as keyof ContractRow]),
-    ]),
-  );
-}
-
-export async function persistContracts(profile: EmployeeProfile, rows: ContractRow[]) {
-  const rowsToPersist = persistableContractRows(rows);
-  await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/contracts`, {
-    method: "PUT",
-    body: JSON.stringify({
-      rows: rowsToPersist.map((row) => ({
-        id: row.id ?? null,
-        employmentId: row.employmentId ?? null,
-        ...serializeContract(row),
-      })),
-    }),
-  });
-}
-
-export async function persistEdps(profile: EmployeeProfile, rows: EdpRow[]) {
-  const rowsToPersist = persistableEdpRows(rows);
-  const percentCheck = validateCurrentWorkPercent(rowsToPersist);
-  if (!percentCheck.ok) throw new Error(percentCheck.message);
-  await requestJson(`/api/modules/hr/roster/employee-profiles/${profile.employee.id}/edps`, {
-    method: "PUT",
-    body: JSON.stringify({ rows: rowsToPersist }),
   });
 }

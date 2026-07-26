@@ -5,8 +5,6 @@ import {
   executeDirectBusinessActionCommand,
 } from "@workspace/platform/server/business-action-executor";
 import {
-  executeDelete,
-  executeUpdateField,
   type CrudDeleteCommand,
   type CrudUpdateFieldCommand,
 } from "./hr-crud";
@@ -15,17 +13,30 @@ import { snapshotHistory } from "@workspace/platform/server/history";
 import { prisma } from "@workspace/platform/server/prisma";
 import { matchAnyField } from "@workspace/platform/search";
 import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import {
+  businessTemporalIdempotencyMatches,
+  businessTemporalRequestFingerprint,
+} from "@workspace/platform/server/business-temporal-idempotency";
 import {
   buildPositionCreateCommand,
   buildPositionUpdateCommand,
-  POSITION_ALLOWED_FIELDS,
   validatePositionDelete,
   validatePositionFieldUpdate,
   type PositionCreateCommand,
   type PositionInput,
   type PositionUpdateCommand,
 } from "./domain/position-validation";
-import { syncPositionDescriptionResponsibilityNodesInTx } from "./position-responsibility-nodes";
+import { createPositionDescriptionInTx } from "./position-description-revision-service";
+import {
+  applyPositionStructureChange,
+  createPositionWithInitialVersion,
+  OrganizationStructureConcurrentUpdateError,
+  OrganizationStructureIdempotencyConflictError,
+  organizationTimeline,
+  runOrganizationStructureTransaction,
+  type PositionStructurePayload,
+} from "./organization-structure-lifecycle-service";
 
 export interface PositionListItem {
   id: number;
@@ -49,6 +60,7 @@ export interface PositionListItem {
   headcountPlan: number | null;
   version: number;
   positionDescriptionVersion: string | null;
+  positionDescriptionSequence: number | null;
   effectiveDate: string | null;
   sourceFile: string | null;
   headcount: number;
@@ -56,18 +68,6 @@ export interface PositionListItem {
   isArchived: boolean;
   archivedAt: string | null;
 }
-
-const POSITION_CONFIG = {
-  entityType: "Position",
-  modelKey: "position" as const,
-  allowedFields: POSITION_ALLOWED_FIELDS,
-  deleteMode: "hard" as const,
-  onBeforeUpdate: validatePositionFieldUpdate,
-  onBeforeDelete: async (id: number) => {
-    const validation = await validatePositionDelete(id, "删除岗位");
-    return validation.ok ? { ok: true as const } : { error: validation.issue.message, status: validation.issue.status };
-  },
-};
 
 function parsePositionDetails(details: string | null): Record<string, unknown> | null {
   if (!details) return null;
@@ -91,34 +91,60 @@ export async function getPositionList(
   archived = false,
   summary = false,
 ): Promise<{ positions: PositionListItem[]; total: number }> {
+  const asOfDate = workspaceBusinessDate(new Date());
   const [positions, companyMap] = await Promise.all([
     prisma.position.findMany({
-      where: { isArchived: archived },
       include: {
         _count: { select: { edps: true, reportOverrides: true } },
         department: { select: { id: true, code: true, name: true } },
         reportToPosition: { select: { name: true } },
         positionDescription: {
-          select: summary
-            ? {
-                id: true,
-                summary: true,
-                positionPurpose: true,
-                headcount: true,
-                version: true,
-                effectiveDate: true,
-                sourceFile: true,
-              }
-            : {
-                id: true,
-                summary: true,
-                positionPurpose: true,
-                headcount: true,
-                version: true,
-                effectiveDate: true,
-                sourceFile: true,
-                details: true,
-              },
+          select: {
+            id: true,
+            revisions: {
+              where: { OR: [{ effectiveDate: null }, { effectiveDate: { lte: asOfDate } }] },
+              orderBy: [{ effectiveDate: { sort: "desc", nulls: "last" } }, { sequence: "desc" }],
+              take: 1,
+              select: summary
+                ? {
+                    sequence: true,
+                    summary: true,
+                    positionPurpose: true,
+                    headcount: true,
+                    version: true,
+                    effectiveDate: true,
+                    sourceFile: true,
+                  }
+                : {
+                    sequence: true,
+                    summary: true,
+                    positionPurpose: true,
+                    headcount: true,
+                    version: true,
+                    effectiveDate: true,
+                    sourceFile: true,
+                    details: true,
+                  },
+            },
+          },
+        },
+        effectiveVersions: {
+          orderBy: { sequence: "asc" },
+          select: {
+            id: true,
+            sequence: true,
+            validFrom: true,
+            validToExclusive: true,
+            recordState: true,
+            changeKind: true,
+            supersedesId: true,
+            code: true,
+            name: true,
+            alias: true,
+            departmentId: true,
+            reportToPositionId: true,
+            sourceChange: { select: { reason: true, recordedAt: true, actorUserId: true } },
+          },
         },
       },
       orderBy: archived ? [{ archivedAt: "desc" }, { id: "desc" }] : { id: "asc" },
@@ -127,49 +153,80 @@ export async function getPositionList(
   ]);
 
   let result = positions.map((position) => {
+    const revision = position.positionDescription?.revisions[0] ?? null;
     let codeRaw: string | null = null;
-    const rawDetails = selectedDetails(position.positionDescription);
+    const rawDetails = selectedDetails(revision);
     const positionDescriptionDetails = parsePositionDetails(rawDetails || null);
     if (rawDetails) {
       codeRaw = typeof positionDescriptionDetails?.code_raw === "string" ? positionDescriptionDetails.code_raw : null;
     }
+    const timeline = organizationTimeline(position.effectiveVersions.map((row) => ({
+      id: row.id,
+      sequence: row.sequence,
+      validFrom: row.validFrom,
+      validToExclusive: row.validToExclusive,
+      recordState: row.recordState,
+      supersedesId: row.supersedesId,
+      payload: positionPayload(row),
+    })), asOfDate);
+    const temporalItems = timeline.map((item) => {
+      const source = position.effectiveVersions.find((row) => row.id === item.id);
+      return {
+        ...item,
+        changeKind: source?.changeKind ?? "unknown",
+        reason: source?.sourceChange.reason ?? null,
+        recordedAt: source?.sourceChange.recordedAt.toISOString() ?? null,
+        recordedBy: source?.sourceChange.actorUserId ?? null,
+      };
+    });
+    const currentTemporal = temporalItems.find((item) => item.isLive && item.temporalState === "current") ?? null;
+    const effective = currentTemporal?.payload ?? positionPayload(position);
     return {
       id: position.id,
-      code: position.code,
+      code: effective.code,
       codeRaw,
-      name: position.name,
-      alias: position.alias || null,
-      company: getCompanyNameSync(companyMap, position.code),
-      departmentId: position.departmentId,
+      name: effective.name,
+      alias: effective.alias || null,
+      company: getCompanyNameSync(companyMap, effective.code),
+      departmentId: effective.departmentId,
       departmentCode: position.department?.code || null,
       departmentName: position.department?.name || null,
       positionDescriptionId: position.positionDescriptionId,
-      positionDescriptionName: position.positionDescription ? position.name : null,
-      positionDescriptionCode: position.positionDescription ? position.code : null,
+      positionDescriptionName: position.positionDescription ? effective.name : null,
+      positionDescriptionCode: position.positionDescription ? effective.code : null,
       positionDescriptionDepartmentName: position.positionDescription ? position.department?.name || null : null,
       positionDescriptionDetails,
       reportTo: position.reportToPosition?.name || null,
-      reportToPositionId: position.reportToPositionId || null,
-      summary: position.positionDescription?.summary || null,
-      positionPurpose: position.positionDescription?.positionPurpose || null,
-      headcountPlan: position.positionDescription?.headcount || null,
+      reportToPositionId: effective.reportToPositionId || null,
+      summary: revision?.summary || null,
+      positionPurpose: revision?.positionPurpose || null,
+      headcountPlan: revision?.headcount || null,
       version: position.version,
-      positionDescriptionVersion: position.positionDescription?.version || null,
-      effectiveDate: position.positionDescription?.effectiveDate || null,
-      sourceFile: position.positionDescription?.sourceFile || null,
+      asOfDate,
+      temporal: {
+        current: currentTemporal,
+        upcoming: temporalItems.filter((item) => item.isLive && item.temporalState === "upcoming"),
+        history: temporalItems.filter((item) => !item.isLive || item.temporalState === "past"),
+      },
+      positionDescriptionVersion: revision?.version || null,
+      positionDescriptionSequence: revision?.sequence ?? null,
+      effectiveDate: revision?.effectiveDate || null,
+      sourceFile: revision?.sourceFile || null,
       headcount: position._count.edps,
       positionReportOverrideCount: position._count.reportOverrides,
       functionalPlacementCount: position._count.reportOverrides,
-      isArchived: position.isArchived,
+      isArchived: currentTemporal === null,
       archivedAt: position.archivedAt?.toISOString() || null,
     };
   });
+
+  result = result.filter((position) => position.isArchived === archived);
 
   if (keyword) result = result.filter((position) => matchAnyField(position, keyword, "Position"));
 
   const total = result.length;
   const start = (page - 1) * pageSize;
-  return { positions: result.slice(start, start + pageSize), total };
+  return { positions: result.slice(start, start + pageSize), total, asOfDate };
 }
 
 export async function commitPositionCreateCommand(
@@ -177,28 +234,37 @@ export async function commitPositionCreateCommand(
   userId: number,
 ): Promise<DomainServiceResult<{ success: true; record: { id: number } }>> {
   try {
-    const record = await prisma.$transaction(async (tx) => {
-      const { positionDescription, ...positionData } = command;
-      const description = await tx.positionDescription.create({
-        data: positionDescription
-          ? { ...positionDescription, editedBy: userId, editedAt: new Date() }
-          : {
-            sourceFile: "",
-            details: "{}",
-            editedBy: userId,
-            editedAt: new Date(),
-          },
+    const record = await runOrganizationStructureTransaction(async (tx) => {
+      const { positionDescription, lifecycle, ...positionData } = command;
+      const requestFingerprint = organizationRouteFingerprint("Position", "create", {
+        positionData,
+        positionDescription,
+        lifecycle,
       });
-      await syncPositionDescriptionResponsibilityNodesInTx(tx, description);
-      const position = await tx.position.create({
-        data: { ...positionData, positionDescriptionId: description.id, editedBy: userId },
-        select: { id: true },
-      });
+      const duplicate = await tx.organizationStructureChange.findUnique({ where: { idempotencyKey: lifecycle.idempotencyKey } });
+      if (duplicate) {
+        if (
+          duplicate.aggregateType !== "Position"
+          || !businessTemporalIdempotencyMatches(duplicate.requestFingerprint, requestFingerprint)
+        ) throw new OrganizationStructureIdempotencyConflictError();
+        return { id: duplicate.aggregateId };
+      }
+      const description = await createPositionDescriptionInTx(tx, positionDescription, userId);
+      const position = await createPositionWithInitialVersion(
+        tx,
+        positionData,
+        lifecycle,
+        userId,
+        { positionDescriptionId: description.id },
+        requestFingerprint,
+      );
       await snapshotHistory("Position", position.id, userId, tx);
-      return position;
+      return { id: position.id };
     });
     return serviceOk({ success: true, record });
   } catch (error: unknown) {
+    if (error instanceof OrganizationStructureConcurrentUpdateError) return serviceError(error.message, 409);
+    if (error instanceof OrganizationStructureIdempotencyConflictError) return serviceError(error.message, 409);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return serviceError("岗位编码已存在", 409);
     }
@@ -210,12 +276,7 @@ export async function commitPositionUpdateCommand(
   command: PositionUpdateCommand,
   userId: number,
 ): Promise<DomainServiceResult<{ success: true; position: unknown }>> {
-  const data: Prisma.PositionUncheckedUpdateInput = {
-    ...command.data,
-    editedBy: userId,
-    editedAt: new Date(),
-    version: { increment: 1 },
-  };
+  const data: Prisma.PositionUncheckedUpdateInput = { ...command.data };
 
   try {
     if (command.positionDescription) {
@@ -223,20 +284,37 @@ export async function commitPositionUpdateCommand(
       if (!current) return serviceError("岗位不存在", 404);
       if (current.positionDescriptionId) return serviceError("岗位已有说明书", 409);
     }
-    const updated = await prisma.$transaction(async (tx) => {
-      if (command.positionDescription) {
-        const description = await tx.positionDescription.create({
-          data: { ...command.positionDescription, editedBy: userId, editedAt: new Date() },
-        });
-        await syncPositionDescriptionResponsibilityNodesInTx(tx, description);
-        data.positionDescriptionId = description.id;
+    const updated = await runOrganizationStructureTransaction(async (tx) => {
+      const requestFingerprint = organizationRouteFingerprint("Position", "update", command as unknown as Record<string, unknown>);
+      const duplicate = await tx.organizationStructureChange.findUnique({ where: { idempotencyKey: command.lifecycle.idempotencyKey } });
+      if (duplicate) {
+        if (
+          duplicate.aggregateType !== "Position"
+          || duplicate.aggregateId !== command.id
+          || !businessTemporalIdempotencyMatches(duplicate.requestFingerprint, requestFingerprint)
+        ) throw new OrganizationStructureIdempotencyConflictError();
+        return tx.position.findUniqueOrThrow({ where: { id: command.id } });
       }
-      const position = await tx.position.update({ where: { id: command.id }, data });
+      const current = await tx.position.findUnique({ where: { id: command.id } });
+      if (!current) throw new Error("岗位不存在");
+      if (command.positionDescription) {
+        const description = await createPositionDescriptionInTx(tx, command.positionDescription, userId);
+        await tx.position.update({ where: { id: command.id }, data: { positionDescriptionId: description.id } });
+      }
+      const position = await applyPositionStructureChange(tx, {
+        positionId: command.id,
+        payload: mergePositionPayload(current, data),
+        meta: command.lifecycle,
+        userId,
+        requestFingerprint,
+      });
       await snapshotHistory("Position", command.id, userId, tx);
       return position;
     });
     return serviceOk({ success: true, position: updated });
   } catch (error: unknown) {
+    if (error instanceof OrganizationStructureConcurrentUpdateError) return serviceError(error.message, 409);
+    if (error instanceof OrganizationStructureIdempotencyConflictError) return serviceError(error.message, 409);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return serviceError("岗位编码已存在", 409);
     }
@@ -245,6 +323,44 @@ export async function commitPositionUpdateCommand(
     }
     throw error;
   }
+}
+
+function organizationRouteFingerprint(aggregate: string, commandKind: string, value: Record<string, unknown>) {
+  const lifecycle = value.lifecycle && typeof value.lifecycle === "object"
+    ? Object.fromEntries(Object.entries(value.lifecycle as Record<string, unknown>).filter(([key]) => key !== "idempotencyKey"))
+    : value.lifecycle;
+  return businessTemporalRequestFingerprint({ aggregate, commandKind, request: { ...value, lifecycle } });
+}
+
+function positionPayload(position: {
+  code: string;
+  name: string;
+  alias: string | null;
+  departmentId: number | null;
+  reportToPositionId: number | null;
+}): PositionStructurePayload {
+  return {
+    code: position.code,
+    name: position.name,
+    alias: position.alias,
+    departmentId: position.departmentId,
+    reportToPositionId: position.reportToPositionId,
+  };
+}
+
+function mergePositionPayload(
+  position: Parameters<typeof positionPayload>[0],
+  data: Prisma.PositionUncheckedUpdateInput,
+): PositionStructurePayload {
+  const raw = data as Record<string, unknown>;
+  const current = positionPayload(position);
+  return {
+    code: typeof raw.code === "string" ? raw.code : current.code,
+    name: typeof raw.name === "string" ? raw.name : current.name,
+    alias: raw.alias === null || typeof raw.alias === "string" ? raw.alias : current.alias,
+    departmentId: raw.departmentId === null || typeof raw.departmentId === "number" ? raw.departmentId : current.departmentId,
+    reportToPositionId: raw.reportToPositionId === null || typeof raw.reportToPositionId === "number" ? raw.reportToPositionId : current.reportToPositionId,
+  };
 }
 
 type PositionCreateInput = { body: PositionInput; userId: number };
@@ -294,10 +410,18 @@ export function updatePosition(id: number, body: PositionInput, userId: number) 
   });
 }
 
-export async function updatePositionField(command: CrudUpdateFieldCommand) {
-  return executeUpdateField(command, POSITION_CONFIG);
+export async function updatePositionField(command: CrudUpdateFieldCommand & { userId: number; lifecycle: PositionInput["lifecycle"] }) {
+  const validation = await validatePositionFieldUpdate(command.field, command.value, command.id);
+  if ("error" in validation) return serviceError(validation.error, validation.status);
+  if (!command.id) return serviceError("岗位不存在", 404);
+  return updatePosition(command.id, {
+    [validation.field]: validation.value,
+    lifecycle: command.lifecycle,
+  } as PositionInput, command.userId);
 }
 
 export async function deletePosition(command: CrudDeleteCommand) {
-  return executeDelete(command, POSITION_CONFIG);
+  const validation = await validatePositionDelete(command.id, "终止岗位");
+  if (!validation.ok) return serviceError(validation.issue.message, validation.issue.status);
+  return serviceError("岗位不允许硬删除，请使用带生效日和原因的 end-date 命令", 409);
 }

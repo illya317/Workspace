@@ -37,6 +37,11 @@ type ExcludedCoverage = {
 type ExplicitCoverage = DerivedCoverage | ExcludedCoverage;
 
 const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
+  "/api/modules/administration/contracts/[id]/lifecycle": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单份合同的修订与状态事件时间线只服务详情和业务回溯，不是有界分页分析数据集。",
+  },
   "/api/modules/administration/contracts/[id]/package": {
     disposition: "excluded",
     reason: "singleRecord",
@@ -98,6 +103,11 @@ const EXPLICIT_ROUTE_COVERAGE: Readonly<Record<string, ExplicitCoverage>> = {
     disposition: "derived",
     sourceKeys: ["hr.audit-entries", "hr.audit-changes"],
     reason: "单员工历史是已登记 HR 审计事实按员工关系过滤后的详情视图。",
+  },
+  "/api/modules/hr/roster/employee-profiles/[id]/agreements": {
+    disposition: "excluded",
+    reason: "singleRecord",
+    description: "单员工协议、期限和修订时间线只服务档案详情；批量分析继续使用已登记的 HR 合同读模型。",
   },
   "/api/modules/hr/roster/position-description-templates": {
     disposition: "excluded",

@@ -12,11 +12,6 @@ import { createDirectPositionPanelSection } from "./navigation-panels";
 import type { Department, DepartmentDescriptionDraft, DepartmentDraft, DepartmentPositionStats, CreatePositionDraft, DescriptionDraft, Position, Selection } from "./types";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
-type ManagerEmployeeTag = {
-  id: number;
-  name: string;
-};
-
 type DepartmentDetailPaneProps = {
   selection: Selection;
   selectedDepartment: Department | undefined;
@@ -105,17 +100,6 @@ export function useDepartmentDetailPaneSection({
         .map(d => ({ value: String(d.id), label: `${d.name}（${d.code}）` })),
     ];
   }, [departmentById, departmentDraft, operatingCommitteeCode, selectedDepartment]);
-  const managerEmployeeTags: ManagerEmployeeTag[] = departmentDraft
-    ? departmentDraft.managerEmployeeIds.map((id, index) => ({
-        id,
-        name: departmentDraft.managerEmployeeNames[index] || String(id),
-      }))
-    : [];
-  function updateManagerEmployees(tags: ManagerEmployeeTag[]) {
-    onUpdateDepartmentDraft("managerEmployeeIds", tags.map((tag) => tag.id));
-    onUpdateDepartmentDraft("managerEmployeeNames", tags.map((tag) => tag.name));
-    onUpdateDepartmentDraft("managerName", tags.map((tag) => tag.name).join("、"));
-  }
   const departmentInfoFields: FormSurfaceItemSpec[] = departmentDraft ? [
     {
       kind: "readonly",
@@ -219,37 +203,50 @@ export function useDepartmentDetailPaneSection({
         const next = option as ReferenceOption | undefined;
         onUpdateDepartmentDraft("managerPositionId", next?.id ?? (value ? departmentDraft.managerPositionId : null));
         onUpdateDepartmentDraft("managerPositionName", next?.name ?? (value ? String(value) : ""));
-        updateManagerEmployees([]);
       },
     },
     {
       key: "managerEmployees",
-      kind: "tagList",
+      kind: "readonly",
       label: "组织负责人",
       span: "wide",
-      items: managerEmployeeTags,
-      getKey: (item) => item.id,
-      getLabel: (item) => item.name,
-      onRemove: (_, index) => updateManagerEmployees(managerEmployeeTags.filter((__, itemIndex) => itemIndex !== index)),
-      disabled: !canEditDepartmentDraft,
-      removeConfirmMessage: (item) => `确定删除「${item.name}」吗？删除后需要保存或提交才会生效。`,
-      shellClassName: "content-start",
-      append: !canEditDepartmentDraft || !departmentDraft.managerPositionId ? undefined : {
-        referenceInput: {
-          key: "managerEmployeeAppend",
-          placeholder: "搜索负责人",
-          fkKey: "hr.department.manager.employee",
-          endpoint: HR_REFERENCE_OPTIONS_ENDPOINT,
-          queryParams: { positionId: departmentDraft.managerPositionId },
-          onAppend: (option) => {
-            if (managerEmployeeTags.some((tag) => tag.id === option.id)) return;
-            updateManagerEmployees([...managerEmployeeTags, { id: option.id, name: option.name }]);
-          },
-          onRemoveLast: () => {
-            if (managerEmployeeTags.length > 0) updateManagerEmployees(managerEmployeeTags.slice(0, -1));
-          },
-        },
+      value: departmentDraft.managerName || "负责人岗位当前无在岗员工",
+    },
+    {
+      key: "effectiveOn",
+      label: "生效日",
+      spec: { valueType: "date", control: "temporal", precision: "date", state: !canEditDepartmentDraft ? "disabled" : "normal" },
+      value: departmentDraft.effectiveOn,
+      onChange: (value) => onUpdateDepartmentDraft("effectiveOn", String(value ?? "")),
+    },
+    {
+      key: "changeKind",
+      label: "变更类型",
+      spec: {
+        valueType: "string",
+        control: "choice",
+        state: !canEditDepartmentDraft ? "disabled" : "normal",
+        options: { source: "static", items: [
+          { value: "schedule", label: "正常变更" },
+          { value: "correct", label: "历史纠错" },
+        ] },
       },
+      value: departmentDraft.changeKind,
+      onChange: (value) => onUpdateDepartmentDraft("changeKind", value === "correct" ? "correct" : "schedule"),
+    },
+    ...(departmentDraft.changeKind === "correct" ? [{
+      key: "changeReason",
+      label: "纠错原因",
+      required: true,
+      span: "wide" as const,
+      spec: { valueType: "string" as const, control: "text" as const, state: !canEditDepartmentDraft ? "disabled" as const : "normal" as const },
+      value: departmentDraft.changeReason,
+      onChange: (value: unknown) => onUpdateDepartmentDraft("changeReason", String(value ?? "")),
+    }] : []),
+    {
+      kind: "note",
+      key: "temporalTimeline",
+      content: organizationTimelineSummary(selectedDepartment),
     },
   ] : [];
   const departmentDescriptionsSection = useDepartmentDescriptionsSection({
@@ -337,6 +334,19 @@ export function useDepartmentDetailPaneSection({
   return createPanelSection("department-detail", {
       sections: detailSections,
     });
+}
+
+function organizationTimelineSummary(department: Department) {
+  const current = department.temporal.current;
+  const lines = [
+    `基准日 ${department.asOfDate}`,
+    current
+      ? `当前 #${current.sequence} · ${current.validFrom || "历史起点未知"} 至 ${current.validToExclusive || "长期"} · ${current.recordState}`
+      : "当前：无有效版本",
+    ...department.temporal.upcoming.map((item) => `待生效 #${item.sequence} · ${item.validFrom || "未定"} · ${item.payload.name}`),
+    ...department.temporal.history.slice(0, 5).map((item) => `历史 #${item.sequence} · ${item.validFrom || "起点未知"} 至 ${item.validToExclusive || "长期"} · ${item.changeKind}${item.reason ? ` · ${item.reason}` : ""}`),
+  ];
+  return lines.join("\n");
 }
 
 export function DepartmentDetailPane(props: DepartmentDetailPaneProps) {

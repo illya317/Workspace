@@ -49,6 +49,7 @@ model Contract {
   approvalStatusSnapshot   String?
   approvedOn               DateTime?         @db.Date
   approvalSyncedAt         DateTime?
+  currentRevisionId        Int?              @unique
   isArchived               Boolean           @default(false)
   archivedAt               DateTime?
   archivedBy               Int?
@@ -65,6 +66,9 @@ model Contract {
   editor                   User?             @relation("ContractEditor", fields: [editedBy], references: [id])
   archivedByUser           User?             @relation("ContractArchivedBy", fields: [archivedBy], references: [id])
   handlerEmployee          Employee?         @relation("ContractHandlerEmployee", fields: [handlerEmployeeId], references: [id], onDelete: Restrict)
+  currentRevision          ContractRevision? @relation("ContractCurrentRevision", fields: [currentRevisionId], references: [id], onDelete: SetNull)
+  revisions                ContractRevision[] @relation("ContractRevisions")
+  stateEvents              ContractStateEvent[]
   attachments              ContractAttachment[]
   records                  ContractRecord[]
 

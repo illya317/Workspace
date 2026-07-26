@@ -15,6 +15,8 @@
     "lint": "env NODE_OPTIONS=--max-old-space-size=4096 node scripts/check/with-check-lock.js -- eslint --cache --cache-location .cache/eslint/.eslintcache",
     "check:api-response-format": "node scripts/check/with-check-lock.js -- node scripts/check/check-api-response-format.js",
     "check:history-policy": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-history-policy-registry.ts",
+    "hr:temporal:preflight": "node --conditions=react-server --import tsx scripts/check/hr-business-temporal-preflight.ts",
+    "business-temporal:check": "node --conditions=react-server --import tsx scripts/check/check-business-temporal-registry.ts && node --import tsx scripts/arch/business-temporal-write-seam.ts",
     "check:contracts": "node scripts/check/with-check-lock.js -- node scripts/check/run-check-suite.mjs contracts",
     "action-registry:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-action-registry.ts",
     "business-action-registry:check": "node scripts/check/with-check-lock.js -- node --import tsx scripts/check/check-business-action-registry.ts",

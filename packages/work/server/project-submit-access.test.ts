@@ -31,7 +31,16 @@ mockModule("@workspace/platform/server/rbac/resource-entry", {
   namedExports: { canEnterResource: async () => entryAllowed },
 });
 mockModule("@workspace/platform/permission-actions", {
-  namedExports: { actionImplies: () => false },
+  namedExports: {
+    actionImplies: () => false,
+    PERMISSION_ACTION_KEYS: [
+      "entry", "read", "create", "update", "delete",
+      "archive", "revise", "reverse", "lock", "unlock",
+      "submit", "approve", "reject",
+      "import", "export", "apiUse", "share",
+      "grant", "configure", "audit",
+    ],
+  },
 });
 mockModule("@workspace/platform/permission-natural-space-actions", {
   namedExports: { getNaturalSpaceActionProfileActionKeys: () => [] },
@@ -126,7 +135,11 @@ mockModule("@workspace/platform/server/auth", {
   namedExports: { authorize: async () => true, canEnterResource: async () => true },
 });
 mockModule("@workspace/platform/server/relation-registry", {
-  namedExports: { normalizeLifecycleScope: () => null, searchFkOptions: async () => [] },
+  namedExports: {
+    employmentIsActiveOnDate: () => true,
+    normalizeLifecycleScope: () => null,
+    searchFkOptions: async () => [],
+  },
 });
 mockModule("./task-reports", {
   namedExports: { getWorkReportDraft: async () => ({}), listWorkReportCollection: async () => [] },

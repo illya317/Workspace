@@ -25,6 +25,10 @@ test("project delete requests carry optimistic versions", async () => {
       role: "执行负责",
       startDate: null,
       endDate: null,
+      membershipUid: "membership-30",
+      sequence: 1,
+      recordState: "confirmed",
+      temporalState: "current",
     } satisfies ProjectMemberEntry]);
     await deleteProjectPlanPhase(25, 9, 2);
   } finally {
@@ -37,7 +41,14 @@ test("project delete requests carry optimistic versions", async () => {
     headers: call.init?.headers,
   })), [
     { path: "/workspace/api/modules/work/projects/25", method: "DELETE", headers: { "If-Match": "4" } },
-    { path: "/workspace/api/modules/work/projects/members/30", method: "DELETE", headers: { "If-Match": "1" } },
+    {
+      path: "/workspace/api/modules/work/projects/members/30",
+      method: "DELETE",
+      headers: {
+        "If-Match": "1",
+        "Idempotency-Key": (calls[1]?.init?.headers as Record<string, string>)?.["Idempotency-Key"],
+      },
+    },
     { path: "/workspace/api/modules/work/projects/25/plan-phases/9", method: "DELETE", headers: { "If-Match": "2" } },
   ]);
 });

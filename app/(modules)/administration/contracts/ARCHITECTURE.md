@@ -13,9 +13,10 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 - 同页工作视图：以“合同台账”为父项，手风琴展开待补全、即将到期、已到期；父项本身即全部台账，视图状态不通过路由跳转同步。
 - Toolbar：关键词、文件位置、合同类型、合同生命周期状态、页容量和导出。
 - 左侧 Selector：合同名称、业务编号或系统标识、签署对方、到期日和生命周期状态。
-- 右侧表单：基本信息、责任归属、签约主体、期限与履行、内容与备注、待核验旧值。
+- 右侧表单：基本信息、责任归属、签约主体、期限与履行、内容与备注、待核验旧值。草稿直接保存；正式合同的编辑只创建修订草稿。
+- 生命周期：展示当前修订、未来/待发布修订、历史修订和三个状态轴事件；发布修订与状态变更都是显式命令。
 - P1 材料包：审批记录引用、合同附件和不可变归档记录以互斥折叠面板呈现。
-- 正式记录只显示归档动作；只有 `lifecycleStatus=draft` 的草稿可以硬删除。
+- 正式记录只显示归档动作；只有从未发布、没有材料/归档记录/状态事件且仅含初始草稿修订的合同可以硬删除。
 
 `待补全` 是服务端根据事实动态计算的工作队列，不持久化派生总数。典型问题包括缺号、重复号、主体未关联、经办人缺失、状态待确认、旧日期精度不足和机密合同责任归属缺失。
 
@@ -34,13 +35,15 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 
 `signedOn/expiresOn` 使用 PostgreSQL `date`。迁移前文本保存在 `legacySignDateRaw/legacyEndDateRaw`，日期精度记录在 `signedOnPrecision/expiresOnPrecision`；只有年份或无法确认到日的来源值不会被强行转换。金额使用 `Decimal(20,2)` 并配套三位 `currencyCode`。
 
-状态拆为三个独立事实：
+`ContractRevision` 是合同法定内容的权威修订，保存完整快照、业务生效日、修订序号、来源修订与取代关系。确认后的修订不可覆盖；新修订发布时，旧修订在新修订生效日前一日结束，`Contract.currentRevisionId` 指向当前正式修订。`Contract` 上的法定字段保留为当前查询投影，便于台账、导出和下游读取，不再是正式合同的直接写入入口。
+
+`ContractStateEvent` 是状态权威事实。状态拆为三个独立轴：
 
 - `lifecycleStatus`: draft / active / terminated / expired / closed / unknown
 - `signatureStatus`: unsigned / signed / unknown
 - `performanceStatus`: not_started / in_progress / fulfilled / breached / waived / unknown
 
-旧自由文本状态保存在 `legacyStatusRaw`。归档由 `isArchived + archivedAt + archivedBy` 审计，不把正式合同物理删除。
+每次状态变化追加事件并更新 `Contract` 当前投影；只能冲销某一状态轴最后一个未冲销事件。旧自由文本状态保存在 `legacyStatusRaw`。归档由 `isArchived + archivedAt + archivedBy` 审计，不把正式合同物理删除。
 
 ## API 与写入链路
 
@@ -50,7 +53,14 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 | `GET /api/modules/administration/contracts/export` | 导出全部匹配且当前用户可见的合同 |
 | `GET /api/modules/administration/contracts/reference-options` | Company / Department / Party / Employee 候选项 |
 | `POST /api/modules/administration/contracts` | 创建合同 |
-| `PATCH /api/modules/administration/contracts/[id]` | 带 `If-Match` 的并发安全更新 |
+| `PATCH /api/modules/administration/contracts/[id]` | 带 `If-Match` 的草稿更新；正式合同拒绝直接覆盖 |
+| `GET /api/modules/administration/contracts/[id]/lifecycle` | 当前、待生效与历史修订及状态事件 |
+| `POST /api/modules/administration/contracts/[id]/revisions` | 创建法定内容修订草稿 |
+| `POST /api/modules/administration/contracts/[id]/revisions/[revisionId]/publish` | 发布修订并取代当前修订 |
+| `POST /api/modules/administration/contracts/[id]/state-events` | 追加一个状态轴变更事件 |
+| `POST /api/modules/administration/contracts/[id]/state-events/[eventId]/reverse` | 冲销最后一个状态事件 |
+
+四个 lifecycle mutation 都必须同时提交 `If-Match` 和 `Idempotency-Key`。修订创建键、发布键与状态事件键分别持久化；网络重试返回既有 timeline，不重复创建修订、发布或状态事件。
 | `POST /api/modules/administration/contracts/[id]/archive` | 带 `If-Match` 的归档 |
 | `DELETE /api/modules/administration/contracts/[id]` | 仅删除带 `If-Match` 的草稿 |
 | `GET /api/modules/administration/contracts/[id]/package` | 读取合同附件和归档记录 |
@@ -61,7 +71,7 @@ Administration Contracts 是公司集中维护的合同主数据和台账，不�
 | `PUT /api/modules/administration/contracts/[id]/approval-reference` | 带 `If-Match` 登记外部审批记录引用 |
 | `POST /api/modules/administration/internal/library-source` | HMAC 内部接口，生成内部级合同台账 XLSX |
 
-所有写入遵守 `Zod schema -> domain validator -> service/Prisma`。Route Handler 只适配参数、当前用户和版本头；domain validator 统一归一金额、日期和 FK；service 在事务内锁定合同、重查记录访问、校验版本、写编辑历史并提交。
+所有写入遵守 `Zod schema -> domain validator -> service/Prisma`。Route Handler 只适配参数、当前用户和版本头；domain validator 统一归一金额、日期、FK、修订和状态命令；service 在事务内锁定合同、重查记录访问、校验版本、追加权威事实、更新当前投影并提交。
 
 ## 权限与记录访问
 
@@ -95,3 +105,5 @@ P1 是审批完成后的归档和记录层，不创建待办、审批节点或�
 `20260726143000_contract_clm_p0` 创建类型字典和新字段，归一可确认到日的日期、旧状态和十进制金额，并仅在名称唯一匹配时关联 Party/Company。模糊值保留为旧值证据，不伪造法律事实。
 
 `20260726165000_contract_clm_p1_archive_package` 增加审批引用字段、`ContractAttachment` 和追加式 `ContractRecord`，并以约束保证审批引用成对、附件存储事实完整和软移除事实一致。
+
+`20260727163000_administration_contract_lifecycle` 独立增加 `ContractRevision`、`ContractStateEvent` 和当前修订指针；既有正式合同回填一份基线修订与三个状态基线事件，既有草稿只回填初始修订草稿。`20260727164000_administration_contract_lifecycle_idempotency` 再为四类 canonical command 增加可审计幂等键。迁移不改写前两份 CLM migration。

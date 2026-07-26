@@ -2,6 +2,7 @@
 model PositionResponsibilityNode {
   id                    Int                           @id @default(autoincrement())
   positionDescriptionId Int
+  positionDescriptionRevisionId Int
   parentId              Int?
   nodeKey               String                        @unique
   nodeType              String
@@ -17,11 +18,13 @@ model PositionResponsibilityNode {
   createdAt             DateTime                      @default(now())
   updatedAt             DateTime                      @default(now()) @updatedAt
   positionDescription   PositionDescription           @relation(fields: [positionDescriptionId], references: [id], onDelete: Cascade)
+  positionDescriptionRevision PositionDescriptionRevision @relation(fields: [positionDescriptionRevisionId], references: [id], onDelete: Restrict)
   parent                PositionResponsibilityNode?   @relation("PositionResponsibilityNodeTree", fields: [parentId], references: [id], onDelete: SetNull)
   children              PositionResponsibilityNode[]  @relation("PositionResponsibilityNodeTree")
   workReferences        WorkResponsibilityReference[]
 
   @@index([positionDescriptionId, nodeType, isActive])
+  @@index([positionDescriptionRevisionId, nodeType, isActive], map: "PositionResponsibilityNode_revision_type_active_idx")
   @@index([positionDescriptionId, parentId, sortOrder])
   @@index([sourceHash])
 }

@@ -140,12 +140,6 @@ async function buildDepartmentHomeData({
           },
         },
       },
-      managerEmployees: {
-        select: {
-          employee: { select: managerEmployeeSelect },
-        },
-        orderBy: { id: "asc" },
-      },
     },
     orderBy: [{ hierarchyKind: "asc" }, { level: "asc" }, { code: "asc" }, { id: "asc" }],
   });
@@ -242,11 +236,9 @@ async function listReadableDepartmentHomeSpaces(userId: number) {
 }
 
 function managerNames(department: {
-  managerEmployees: Array<{ employee: { id: number; name: string } }>;
   managerPosition: { edps: Array<{ employee: { id: number; name: string } }> } | null;
 }) {
-  const selected = department.managerEmployees.map((row) => row.employee);
-  const employees = selected.length > 0 ? selected : department.managerPosition?.edps.map((row) => row.employee) ?? [];
+  const employees = department.managerPosition?.edps.map((row) => row.employee) ?? [];
   return Array.from(new Map(employees.map((employee) => [employee.id, employee.name || "未命名员工"])).values());
 }
 

@@ -88,6 +88,7 @@ export function useProjectTabModel(
   const [preferredDepartmentIds, setPreferredDepartmentIds] = useState<number[]>([]);
   const [projects, setProjects] = useState<ProjectItem[]>([]);
   const [entries, setEntries] = useState<ProjectMemberEntry[]>([]);
+  const [membershipAsOfDate, setMembershipAsOfDate] = useState("");
   const [selection, setSelection] = useState<number | null>(null);
   const [draft, setDraft] = useState<ProjectDraft | null>(null);
   const [baseline, setBaseline] = useState("");
@@ -116,8 +117,16 @@ export function useProjectTabModel(
     [projects, selection]
   );
   const selectedEntries = useMemo(
-    () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
+    () => selectedProject ? entries.filter((entry) => (
+      entry.projectId === selectedProject.id
+      && entry.recordState === "confirmed"
+      && entry.temporalState === "current"
+    )) : [],
     [entries, selectedProject]
+  );
+  const selectedMembershipTimeline = useMemo(
+    () => selectedProject ? entries.filter((entry) => entry.projectId === selectedProject.id) : [],
+    [entries, selectedProject],
   );
   const dirty = draftSnapshot(draft) !== baseline;
   const canCreateDraftProject = draft && !draft.id ? canCreateProjectDraft(draft, projectSpaces, actionPermissions) : false;
@@ -137,7 +146,7 @@ export function useProjectTabModel(
     try {
       const [projectRes, entryRes, spaceData] = await Promise.all([
         fetch(workspacePath("/api/modules/work/projects?pageSize=500")),
-        fetch(workspacePath("/api/modules/work/projects/members?pageSize=500")),
+        fetch(workspacePath("/api/modules/work/projects/members?pageSize=500&lifecycleScope=all")),
         listProjectSpaces(),
       ]);
       if (!projectRes.ok || !entryRes.ok) throw new Error("加载失败");
@@ -148,6 +157,7 @@ export function useProjectTabModel(
       setPreferredDepartmentIds(spaceData.preferredDepartmentIds);
       setProjects(nextProjects);
       setEntries((entryData.entries || []) as ProjectMemberEntry[]);
+      setMembershipAsOfDate(String(entryData.asOfDate || ""));
       const requestedProject = initialProjectId
         ? nextProjects.find((project) => project.id === initialProjectId)
         : null;
@@ -337,7 +347,7 @@ export function useProjectTabModel(
   return {
     canCreateProject: actionPermissions.canCreate, canCreateCurrent, canDeleteCurrent, canDeleteSubresourceCurrent, canEditCurrent, canManageCurrent, canReviseCurrent, canSave, createActionRuntime, creating, dirty, draft, error,
     filteredProjects, loading, preferredDepartmentIds, projectDepartmentFilter, projectDepartmentOptions, projectListDrawerOpen, projectListFilter, projectListOpen, projects, projectSpaces, projectTypeFilter, saving,
-    selectedProject, selection,
+    membershipAsOfDate, selectedMembershipTimeline, selectedProject, selection,
     cancelCreateProject, deleteSelectedProject, saveProject, setCreating, setLeader, startCreateProject,
     setProjectDepartmentFilter, setProjectListDrawerOpen, setProjectListFilter, setProjectListOpen, setProjectTypeFilter, setRoleMembers, setSelection,
     setToast, updateDraft,

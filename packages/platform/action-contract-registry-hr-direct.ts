@@ -150,18 +150,6 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/department-validation.validateDepartmentDelete",
     "packages/hr/server/departments.deleteDepartment",
   ), "delete", { versionKey: "expectedVersion", deleteMode: "hard", referencePolicy: "domain" }),
-  write("hr.roster.edp.create", "EDP", domain(
-    "packages/hr/server/domain/edp-validation.buildEdpCreateCommand",
-    "packages/hr/server/edps.createEdp",
-  ), { shape: "full_record", commitMode: "activate" }),
-  write("hr.roster.edp.update", "EDP", domain(
-    "packages/hr/server/domain/edp-validation.buildEdpPageDraftCommand",
-    "packages/hr/server/edps.updateEdpPageDraft",
-  ), { shape: "change_set", commitMode: "native_transition" }),
-  lifecycle("hr.roster.edp.delete", "EDP", domain(
-    "packages/hr/server/domain/edp-validation.validateEdpDeleteCommand",
-    "packages/hr/server/edps.deleteEdp",
-  ), "delete", { versionKey: "expectedVersion", deleteMode: "hard", referencePolicy: "none" }),
   write("hr.roster.employee.create", "Employee", domain(
     "packages/hr/server/domain/employee-validation.buildEmployeeCreateCommand",
     "packages/hr/server/employees.createEmployeeWithAccount",
@@ -170,38 +158,14 @@ export const HR_DIRECT_ACTION_CONTRACT_METADATA = defineActionContractMetadataLi
     "packages/hr/server/domain/employee-validation.buildEmployeePageDraftCommand",
     "packages/hr/server/employees.updateEmployeePageDraft",
   ), { shape: "change_set", commitMode: "native_transition" }),
-  lifecycle("hr.roster.employee.delete", "Employee", domain(
-    "packages/hr/server/domain/employee-validation.validateEmployeeDeleteCommand",
-    "packages/hr/server/employees.deleteEmployee",
-  ), "delete", { versionKey: "expectedVersion", deleteMode: "hard", referencePolicy: "domain" }),
-  write("hr.roster.employeeContract.create", "Employment.contracts", domain(
-    "packages/hr/server/domain/contract-validation.buildContractCreateCommand",
-    "packages/hr/server/contracts.createEmployeeContract",
-  ), { shape: "full_record", commitMode: "activate" }),
-  write("hr.roster.employeeContract.update", "Employment.contracts", domain(
-    "packages/hr/server/domain/contract-validation.buildContractPageDraftCommand",
-    "packages/hr/server/contracts.updateContractPageDraft",
-  ), { shape: "change_set", commitMode: "native_transition" }),
-  lifecycle("hr.roster.employeeContract.delete", "Employment.contracts", domain(
-    "packages/hr/server/domain/contract-validation.buildContractDeleteCommand",
-    "packages/hr/server/contracts.deleteContract",
-  ), "delete", { targetIdKey: "contractId", referencePolicy: "none" }),
-  write("hr.roster.employeeProfile.contracts.save", "Employment.contracts", domain(
-    "packages/hr/server/domain/contract-validation.buildEmployeeProfileContractsCommand",
-    "packages/hr/server/employee-contracts.updateEmployeeProfileContracts",
-  ), { shape: "change_set", targetIdKey: "employeeId", commitMode: "native_transition" }),
-  write("hr.roster.employeeProfile.edps.save", "EDP", domain(
-    "packages/hr/server/domain/employee-edp-validation.buildSaveEmployeeEdpsCommand",
-    "packages/hr/server/employee-edps.updateEmployeeProfileEdps",
-  ), { shape: "change_set", targetIdKey: "employeeId", commitMode: "native_transition" }),
+  lifecycle("hr.roster.employmentAgreement.command", "EmploymentAgreement", domain(
+    "packages/hr/server/domain/employment-agreement-validation.buildEmploymentAgreementCommand",
+    "packages/hr/server/employment-agreements.executeEmploymentAgreementCommand",
+  ), "custom", { targetIdKey: "employeeId", versionKey: "expectedVersion", referencePolicy: "domain" }),
   write("hr.roster.employeeProfile.lifecycle.record", "EmployeeLifecycleEvent", domain(
     "packages/hr/server/domain/employee-lifecycle-validation.buildEmployeeLifecycleCommand",
     "packages/hr/server/employee-lifecycle.recordEmployeeLifecycleEvent",
   ), { shape: "full_record", targetIdKey: "employeeId", commitMode: "native_transition" }),
-  write("hr.roster.employment.create", "Employment", domain(
-    "packages/hr/server/domain/employment-validation.buildEmploymentCreateCommand",
-    "packages/hr/server/employments.createEmploymentRecord",
-  ), { shape: "full_record", commitMode: "activate" }),
   write("hr.roster.employment.update", "Employment", domain(
     "packages/hr/server/domain/employment-validation.buildEmploymentPageDraftCommand",
     "packages/hr/server/employments.updateEmploymentPageDraft",

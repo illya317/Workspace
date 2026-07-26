@@ -6,6 +6,8 @@ import { createEmptySection, createFormSection, createPageBody, createSectionSec
 import type { ReferenceOption } from "@workspace/core/ui";
 import { canEditActualEndDate, todayDateString } from "@workspace/platform/completion-date-policy";
 import { actionRuntimeCreateSubmission } from "@workspace/platform/ui";
+import { createBusinessTemporalView } from "@workspace/platform/ui";
+import { WORK_PROJECT_MEMBERSHIP_TEMPORAL } from "@workspace/work/business-temporal";
 import type { ActionRuntime } from "@workspace/platform/workflow-action-runtime";
 import {
   MULTI_PROJECT_ROLES,
@@ -21,6 +23,7 @@ import {
   type MultiProjectRole,
   type ProjectDraft,
   type ProjectItem,
+  type ProjectMemberEntry,
 } from "./model";
 import { WORK_REFERENCE_OPTIONS_ENDPOINT } from "./reference-options";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
@@ -45,6 +48,8 @@ type ProjectDetailEditorProps = {
   onDraftChange: <K extends keyof ProjectDraft>(key: K, value: ProjectDraft[K]) => void;
   onLeaderChange: (option?: ReferenceOption) => void;
   onRoleMembersChange: (role: MultiProjectRole, members: EmployeeTag[]) => void;
+  membershipTimeline?: ProjectMemberEntry[];
+  membershipAsOfDate?: string;
 };
 
 export function useProjectDetailEditorSection({
@@ -66,6 +71,8 @@ export function useProjectDetailEditorSection({
   onDraftChange,
   onLeaderChange,
   onRoleMembersChange,
+  membershipTimeline = [],
+  membershipAsOfDate,
 }: ProjectDetailEditorProps): BodySurfaceSectionBodyProps {
   const [addingMemberRole, setAddingMemberRole] = useState<MultiProjectRole | null>(null);
   const tenantConfig = useTenantConfig();
@@ -266,8 +273,27 @@ export function useProjectDetailEditorSection({
     content: "暂无可编辑项目。请选择左侧项目，或新建项目后维护资料。"
   })]);
 
+  const membershipTimelineView = selectedProject && membershipAsOfDate
+    ? createBusinessTemporalView({
+        kind: "effective-period",
+        registration: WORK_PROJECT_MEMBERSHIP_TEMPORAL,
+        asOfDate: membershipAsOfDate,
+        items: membershipTimeline.map((entry) => ({
+          key: entry.id,
+          title: entry.employeeName,
+          description: entry.role || "执行负责",
+          validFrom: entry.startDate,
+          validThrough: entry.endDate,
+          temporalState: entry.temporalState,
+          recordState: entry.recordState,
+          meta: `${entry.startDate || "未注明"} — ${entry.endDate || "长期"} · 版本 ${entry.sequence}`,
+        })),
+      })
+    : null;
+
   return createPageBody([
     createFormSection("overview-fields", { kind: "fields", content: { items: overviewFields }, actions: actions.length ? actions : undefined }),
+    ...(membershipTimelineView?.body.sections ?? []),
   ]);
 }
 

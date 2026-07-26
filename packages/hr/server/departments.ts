@@ -7,7 +7,12 @@ import { currentEmploymentDateWhere, currentOpenEndedDateWhere } from "@workspac
 import { matchAnyField } from "@workspace/platform/search";
 import { deriveDepartmentCodeCascade } from "@workspace/hr/utils/department-code-cascade";
 import { getCompanyNameSync, loadCompanyMap } from "@workspace/platform/server/company-directory";
-import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import {
+  businessTemporalIdempotencyMatches,
+  businessTemporalRequestFingerprint,
+} from "@workspace/platform/server/business-temporal-idempotency";
+import { type CrudDeleteCommand } from "./hr-crud";
 import {
   buildDepartmentUpdateCommand,
   validateDepartmentDelete,
@@ -19,16 +24,17 @@ import {
   resolveHrDepartmentActionRuntime,
   type DepartmentMutationAuthorization,
 } from "./department-action-runtime";
-
-const DEPARTMENT_CONFIG = {
-  entityType: "Department",
-  modelKey: "department" as const,
-  deleteMode: "hard" as const,
-  onBeforeDelete: async (id: number) => {
-    const command = await validateDepartmentDelete(id, "删除组织");
-    return command.ok ? { ok: true as const } : { error: command.issue.message, status: command.issue.status };
-  },
-};
+import {
+  applyDepartmentStructureChange,
+  applyPositionStructureChange,
+  createDepartmentWithInitialVersion,
+  OrganizationStructureConcurrentUpdateError,
+  OrganizationStructureIdempotencyConflictError,
+  runOrganizationStructureTransaction,
+  organizationTimeline,
+  type DepartmentStructurePayload,
+  type PositionStructurePayload,
+} from "./organization-structure-lifecycle-service";
 
 function parseDetails(details: string | null) {
   if (!details) return null;
@@ -98,24 +104,10 @@ function managerEmployeeNames(
   return Array.from(byEmployee.values());
 }
 
-function managerEmployeesFromRows(rows: Array<{
-  employee: {
-    id: number;
-    name: string;
-    userId: number | null;
-  };
-}>) {
-  return rows.map((row) => ({
-    employeeId: row.employee.id,
-    userId: row.employee.userId,
-    name: row.employee.name || "未命名员工",
-  }));
-}
-
 export async function listDepartments(input: { keyword: string; page: number; pageSize: number; archived?: boolean; summary?: boolean; userId?: number }) {
+  const asOfDate = workspaceBusinessDate(new Date());
   const [depts, companyMap, actionRuntimes] = await Promise.all([
     prisma.department.findMany({
-      where: { isArchived: Boolean(input.archived) },
       include: {
         _count: { select: { edps: true } },
         parent: { select: { id: true, name: true } },
@@ -136,17 +128,31 @@ export async function listDepartments(input: { keyword: string; page: number; pa
             },
           },
         },
-        managerEmployees: {
-          select: {
-            employee: { select: managerEmployeeSelect },
-          },
-          orderBy: { id: "asc" },
-        },
         descriptions: {
           select: input.summary
             ? { id: true, sourceFile: true, codeRaw: true }
             : { id: true, sourceFile: true, codeRaw: true, details: true },
           orderBy: { id: "asc" },
+        },
+        effectiveVersions: {
+          orderBy: { sequence: "asc" },
+          select: {
+            id: true,
+            sequence: true,
+            validFrom: true,
+            validToExclusive: true,
+            recordState: true,
+            changeKind: true,
+            supersedesId: true,
+            code: true,
+            name: true,
+            alias: true,
+            hierarchyKind: true,
+            level: true,
+            parentId: true,
+            managerPositionId: true,
+            sourceChange: { select: { reason: true, recordedAt: true, actorUserId: true } },
+          },
         },
       },
       orderBy: input.archived ? [{ archivedAt: "desc" }, { id: "desc" }] : [{ hierarchyKind: "asc" }, { level: "asc" }, { id: "asc" }],
@@ -161,62 +167,84 @@ export async function listDepartments(input: { keyword: string; page: number; pa
   ]);
 
   let departments = depts.map((department) => {
-    const selectedManagers = managerEmployeesFromRows(department.managerEmployees);
-    const managers = selectedManagers.length > 0 ? selectedManagers : managerEmployeeNames(department.managerPosition);
+    const managers = managerEmployeeNames(department.managerPosition);
     const managerNames = managers.map((manager) => manager.name);
+    const timeline = organizationTimeline(department.effectiveVersions.map((row) => ({
+      id: row.id,
+      sequence: row.sequence,
+      validFrom: row.validFrom,
+      validToExclusive: row.validToExclusive,
+      recordState: row.recordState,
+      supersedesId: row.supersedesId,
+      payload: departmentPayload(row),
+    })), asOfDate);
+    const temporal = temporalView(timeline, department.effectiveVersions);
+    const effective = temporal.current?.payload ?? departmentPayload(department);
     return {
       id: department.id,
-      code: department.code,
-      name: department.name,
-      alias: department.alias || null,
-      company: getCompanyNameSync(companyMap, department.code),
-      hierarchyKind: hierarchyKind(department.hierarchyKind),
-      level: department.level,
-      levelCode: organizationLevelCode(department),
-      levelLabel: organizationLevelLabel(department),
-      parentId: department.parentId,
+      code: effective.code,
+      name: effective.name,
+      alias: effective.alias || null,
+      company: getCompanyNameSync(companyMap, effective.code),
+      hierarchyKind: hierarchyKind(effective.hierarchyKind),
+      level: effective.level,
+      levelCode: organizationLevelCode(effective),
+      levelLabel: organizationLevelLabel(effective),
+      parentId: effective.parentId,
       parentName: department.parent?.name || null,
-      managerPositionId: department.managerPositionId,
+      managerPositionId: effective.managerPositionId,
       managerPositionName: department.managerPosition?.name ?? null,
       managerEmployeeIds: managers.map((manager) => manager.employeeId),
       managerEmployeeNames: managerNames,
       managerNames,
       managerName: managerNames.join("、") || null,
-      isArchived: department.isArchived,
+      isArchived: temporal.current === null,
       archivedAt: department.archivedAt?.toISOString() || null,
       version: department.version,
+      asOfDate,
+      temporal,
       headcount: department._count.edps,
       children: department.children.map((child) => ({ id: child.id, name: child.name })),
       descriptions: department.descriptions.map((description) => ({
         id: description.id,
-        code: department.code,
-        name: department.name,
+        code: effective.code,
+        name: effective.name,
         sourceFile: description.sourceFile,
         codeRaw: description.codeRaw,
         details: parseDetails(selectedDetails(description)),
       })),
     };
   });
+  departments = departments.filter((department) => department.isArchived === Boolean(input.archived));
   if (input.keyword) departments = departments.filter((department) => matchAnyField(department, input.keyword, "Department"));
 
   const total = departments.length;
   const start = (input.page - 1) * input.pageSize;
-  return { departments: departments.slice(start, start + input.pageSize), total, actionRuntimes };
+  return { departments: departments.slice(start, start + input.pageSize), total, asOfDate, actionRuntimes };
 }
 
 export async function commitDepartmentCreateCommand(
   command: DepartmentCreateCommand,
   userId: number,
 ) {
-  const { descriptions, managerEmployeeIds, ...departmentData } = command;
+  const { descriptions, lifecycle, ...departmentData } = command;
+  const requestFingerprint = organizationRouteFingerprint("Department", "create", {
+    departmentData,
+    descriptions: descriptions ?? null,
+    lifecycle,
+  });
   try {
-    const record = await prisma.$transaction(async (tx) => {
-      const department = await tx.department.create({
-        data: { ...departmentData, editedBy: userId },
+    const replay = await findDepartmentCommandReplay(lifecycle.idempotencyKey, requestFingerprint);
+    if (replay) return serviceOk({ success: true, record: replay });
+    const outcome = await runOrganizationStructureTransaction(async (tx) => {
+      const previous = await tx.organizationStructureChange.findUnique({
+        where: { idempotencyKey: lifecycle.idempotencyKey },
       });
-      for (const employeeId of managerEmployeeIds) {
-        await tx.departmentManagerEmployee.create({ data: { departmentId: department.id, employeeId } });
+      if (previous) {
+        const replayId = assertDepartmentCommandReplay(previous, requestFingerprint);
+        return { department: await tx.department.findUniqueOrThrow({ where: { id: replayId } }) };
       }
+      const department = await createDepartmentWithInitialVersion(tx, departmentData, lifecycle, userId, requestFingerprint);
       const descriptionList = descriptions && descriptions.length > 0
         ? descriptions.map((d) => ({ ...d, departmentId: department.id }))
         : [{
@@ -226,14 +254,28 @@ export async function commitDepartmentCreateCommand(
             editedBy: userId,
             editedAt: new Date(),
           }];
-      for (const descriptionData of descriptionList) {
-        await tx.departmentDescription.create({ data: { ...descriptionData, editedBy: userId, editedAt: new Date() } });
+      const existingDescription = await tx.departmentDescription.findFirst({ where: { departmentId: department.id }, select: { id: true } });
+      if (!existingDescription) {
+        for (const descriptionData of descriptionList) {
+          await tx.departmentDescription.create({ data: { ...descriptionData, editedBy: userId, editedAt: new Date() } });
+        }
       }
       await snapshotHistory("Department", department.id, userId, tx);
-      return department;
+      return { department };
     });
-    return serviceOk({ success: true, record });
+    return serviceOk({ success: true, record: outcome.department });
   } catch (error: unknown) {
+    try {
+      const replay = await findDepartmentCommandReplay(lifecycle.idempotencyKey, requestFingerprint);
+      if (replay) return serviceOk({ success: true, record: replay });
+    } catch (replayError) {
+      if (replayError instanceof OrganizationStructureIdempotencyConflictError) {
+        return serviceError(replayError.message, 409);
+      }
+      throw replayError;
+    }
+    if (error instanceof OrganizationStructureConcurrentUpdateError) return serviceError(error.message, 409);
+    if (error instanceof OrganizationStructureIdempotencyConflictError) return serviceError(error.message, 409);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2003") {
       return serviceError("上级组织、负责人岗位或组织负责人不存在");
     }
@@ -245,11 +287,22 @@ export async function commitDepartmentUpdateCommand(
   command: DepartmentUpdateCommand,
   userId: number,
 ) {
-  const { id, managerEmployeeIds, descriptions } = command;
+  const { id, descriptions, lifecycle } = command;
   const data: Prisma.DepartmentUncheckedUpdateInput = { ...command.data };
-  data.editedBy = userId;
-  data.editedAt = new Date();
-  data.version = { increment: 1 };
+  const requestFingerprint = organizationRouteFingerprint("Department", "update", {
+    id,
+    data,
+    descriptions: descriptions ?? null,
+    lifecycle,
+  });
+
+  try {
+    const replay = await findDepartmentCommandReplay(lifecycle.idempotencyKey, requestFingerprint, id);
+    if (replay) return serviceOk({ success: true, department: replay });
+  } catch (error) {
+    if (error instanceof OrganizationStructureIdempotencyConflictError) return serviceError(error.message, 409);
+    throw error;
+  }
 
   let cascade: ReturnType<typeof deriveDepartmentCodeCascade> | null = null;
   if (data.code !== undefined) {
@@ -285,28 +338,51 @@ export async function commitDepartmentUpdateCommand(
   }
 
   try {
-    const updated = await prisma.$transaction(async (tx) => {
-      const department = await tx.department.update({ where: { id }, data });
-      if (managerEmployeeIds !== undefined) {
-        await tx.departmentManagerEmployee.deleteMany({ where: { departmentId: id } });
-        for (const employeeId of managerEmployeeIds) {
-          await tx.departmentManagerEmployee.create({ data: { departmentId: id, employeeId } });
-        }
-      } else if (data.managerPositionId !== undefined) {
-        await tx.departmentManagerEmployee.deleteMany({ where: { departmentId: id } });
+    const outcome = await runOrganizationStructureTransaction(async (tx) => {
+      const previous = await tx.organizationStructureChange.findUnique({
+        where: { idempotencyKey: lifecycle.idempotencyKey },
+      });
+      if (previous) {
+        assertDepartmentCommandReplay(previous, requestFingerprint, id);
+        return { department: await tx.department.findUniqueOrThrow({ where: { id } }) };
       }
+      const existing = await tx.department.findUnique({ where: { id } });
+      if (!existing) throw new Error("组织不存在");
+      const department = await applyDepartmentStructureChange(tx, {
+        departmentId: id,
+        payload: mergeDepartmentPayload(existing, data),
+        meta: lifecycle,
+        userId,
+        requestFingerprint,
+      });
       if (cascade) {
         for (const { id: deptId, code } of cascade.departments) {
           if (deptId === id) continue;
-          await tx.department.update({
-            where: { id: deptId },
-            data: { code, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
+          const child = await tx.department.findUnique({ where: { id: deptId } });
+          if (!child) continue;
+          await applyDepartmentStructureChange(tx, {
+            departmentId: deptId,
+            payload: { ...departmentPayload(child), code },
+            meta: {
+              ...lifecycle,
+              expectedSequence: child.version,
+              idempotencyKey: `${lifecycle.idempotencyKey}:department:${deptId}`,
+            },
+            userId,
           });
         }
         for (const { id: posId, code } of cascade.positions) {
-          await tx.position.update({
-            where: { id: posId },
-            data: { code, editedBy: userId, editedAt: new Date(), version: { increment: 1 } },
+          const position = await tx.position.findUnique({ where: { id: posId } });
+          if (!position) continue;
+          await applyPositionStructureChange(tx, {
+            positionId: posId,
+            payload: { ...positionPayload(position), code },
+            meta: {
+              ...lifecycle,
+              expectedSequence: position.version,
+              idempotencyKey: `${lifecycle.idempotencyKey}:position:${posId}`,
+            },
+            userId,
           });
         }
       }
@@ -325,10 +401,21 @@ export async function commitDepartmentUpdateCommand(
         }
       }
       await snapshotHistory("Department", id, userId, tx);
-      return department;
+      return { department };
     });
-    return serviceOk({ success: true, department: updated });
+    return serviceOk({ success: true, department: outcome.department });
   } catch (error: unknown) {
+    try {
+      const replay = await findDepartmentCommandReplay(lifecycle.idempotencyKey, requestFingerprint, id);
+      if (replay) return serviceOk({ success: true, department: replay });
+    } catch (replayError) {
+      if (replayError instanceof OrganizationStructureIdempotencyConflictError) {
+        return serviceError(replayError.message, 409);
+      }
+      throw replayError;
+    }
+    if (error instanceof OrganizationStructureConcurrentUpdateError) return serviceError(error.message, 409);
+    if (error instanceof OrganizationStructureIdempotencyConflictError) return serviceError(error.message, 409);
     if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return serviceError("编码已存在", 409);
     }
@@ -337,6 +424,110 @@ export async function commitDepartmentUpdateCommand(
     }
     throw error;
   }
+}
+
+async function findDepartmentCommandReplay(
+  idempotencyKey: string,
+  requestFingerprint: string,
+  departmentId?: number,
+) {
+  const previous = await prisma.organizationStructureChange.findUnique({ where: { idempotencyKey } });
+  if (!previous) return null;
+  const replayId = assertDepartmentCommandReplay(previous, requestFingerprint, departmentId);
+  return prisma.department.findUniqueOrThrow({ where: { id: replayId } });
+}
+
+function assertDepartmentCommandReplay(
+  previous: { aggregateType: string; aggregateId: number; requestFingerprint: string },
+  requestFingerprint: string,
+  departmentId?: number,
+) {
+  const mismatch = previous.aggregateType !== "Department"
+    || (departmentId !== undefined && previous.aggregateId !== departmentId)
+    || !businessTemporalIdempotencyMatches(previous.requestFingerprint, requestFingerprint);
+  if (mismatch) throw new OrganizationStructureIdempotencyConflictError();
+  return previous.aggregateId;
+}
+function organizationRouteFingerprint(aggregate: string, commandKind: string, value: Record<string, unknown>) {
+  const lifecycle = value.lifecycle && typeof value.lifecycle === "object"
+    ? Object.fromEntries(Object.entries(value.lifecycle as Record<string, unknown>).filter(([key]) => key !== "idempotencyKey"))
+    : value.lifecycle;
+  return businessTemporalRequestFingerprint({ aggregate, commandKind, request: { ...value, lifecycle } });
+}
+
+function departmentPayload(department: {
+  code: string;
+  name: string;
+  alias: string | null;
+  hierarchyKind: string;
+  level: number;
+  parentId: number | null;
+  managerPositionId: number | null;
+}): DepartmentStructurePayload {
+  return {
+    code: department.code,
+    name: department.name,
+    alias: department.alias,
+    hierarchyKind: department.hierarchyKind,
+    level: department.level,
+    parentId: department.parentId,
+    managerPositionId: department.managerPositionId,
+  };
+}
+
+function mergeDepartmentPayload(
+  department: Parameters<typeof departmentPayload>[0],
+  data: Prisma.DepartmentUncheckedUpdateInput,
+): DepartmentStructurePayload {
+  const raw = data as Record<string, unknown>;
+  const current = departmentPayload(department);
+  return {
+    code: typeof raw.code === "string" ? raw.code : current.code,
+    name: typeof raw.name === "string" ? raw.name : current.name,
+    alias: raw.alias === null || typeof raw.alias === "string" ? raw.alias : current.alias,
+    hierarchyKind: typeof raw.hierarchyKind === "string" ? raw.hierarchyKind : current.hierarchyKind,
+    level: typeof raw.level === "number" ? raw.level : current.level,
+    parentId: raw.parentId === null || typeof raw.parentId === "number" ? raw.parentId : current.parentId,
+    managerPositionId: raw.managerPositionId === null || typeof raw.managerPositionId === "number" ? raw.managerPositionId : current.managerPositionId,
+  };
+}
+
+function positionPayload(position: {
+  code: string;
+  name: string;
+  alias: string | null;
+  departmentId: number | null;
+  reportToPositionId: number | null;
+}): PositionStructurePayload {
+  return {
+    code: position.code,
+    name: position.name,
+    alias: position.alias,
+    departmentId: position.departmentId,
+    reportToPositionId: position.reportToPositionId,
+  };
+}
+
+function temporalView<TPayload, TSource extends { id: number; changeKind: string; sourceChange: { reason: string | null; recordedAt: Date; actorUserId: number } }>(
+  timeline: ReturnType<typeof organizationTimeline<TPayload>>,
+  sources: readonly TSource[],
+) {
+  const sourceById = new Map(sources.map((source) => [source.id, source]));
+  const items = timeline.map((item) => {
+    const source = sourceById.get(item.id);
+    return {
+      ...item,
+      changeKind: source?.changeKind ?? "unknown",
+      reason: source?.sourceChange.reason ?? null,
+      recordedAt: source?.sourceChange.recordedAt.toISOString() ?? null,
+      recordedBy: source?.sourceChange.actorUserId ?? null,
+    };
+  });
+  return {
+    current: items.find((item) => item.isLive && item.temporalState === "current") ?? null,
+    upcoming: items.filter((item) => item.isLive && item.temporalState === "upcoming"),
+    history: items.filter((item) => !item.isLive || item.temporalState === "past"),
+  };
 }
 
 export async function updateDepartment(
@@ -353,5 +544,7 @@ export async function updateDepartment(
 }
 
 export async function deleteDepartment(command: CrudDeleteCommand) {
-  return executeDelete(command, DEPARTMENT_CONFIG);
+  const validation = await validateDepartmentDelete(command.id, "终止组织");
+  if (!validation.ok) return serviceError(validation.issue.message, validation.issue.status);
+  return serviceError("组织不允许硬删除，请使用带生效日和原因的 end-date 命令", 409);
 }

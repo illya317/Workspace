@@ -4,6 +4,13 @@ export { default as ModuleHome } from "./ModuleHome";
 export { default as NavLink } from "./NavLink";
 export { useDeployUnitNavigation } from "./useDeployUnitNavigation";
 export { default as PortalClient } from "./PortalClient";
+export {
+  createBusinessTemporalView,
+  type BusinessTemporalViewBaseSpec,
+  type BusinessTemporalViewItemSpec,
+  type BusinessTemporalViewResult,
+  type BusinessTemporalViewSpec,
+} from "./business-temporal-view";
 export * from "./period-dossier";
 export { renderPortalPage } from "./portal-page";
 export {

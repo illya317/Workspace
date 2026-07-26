@@ -4,6 +4,7 @@ import {
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
 import { prisma } from "@workspace/platform/server/prisma";
+import { parseBusinessDate } from "@workspace/platform/contracts/business-temporal";
 
 export interface PositionDescriptionUpdateInput {
   id?: unknown;
@@ -14,14 +15,22 @@ export interface PositionDescriptionUpdateInput {
   effectiveDate?: unknown;
   sourceFile?: unknown;
   details?: unknown;
+  revisionUid?: unknown;
+  expectedSequence?: unknown;
+  changeKind?: unknown;
+  changeReason?: unknown;
 }
 
 export interface PositionDescriptionUpdateCommand {
   id: number;
-  data: {
+  revisionUid: string;
+  expectedSequence: number;
+  changeKind: "change" | "correction";
+  changeReason: string | null;
+  revision: {
     positionPurpose: string | null;
     summary: string | null;
-    headcount: number;
+    headcount: number | null;
     version: string | null;
     effectiveDate: string | null;
     sourceFile: string;
@@ -32,6 +41,17 @@ export interface PositionDescriptionUpdateCommand {
 function nullableText(value: unknown) {
   if (value === undefined || value === null || value === "") return null;
   return String(value);
+}
+
+export function assertPositionDescriptionRevisionDraft(input: PositionDescriptionUpdateCommand["revision"] | null | undefined) {
+  if (!input) return;
+  if (input.headcount !== null && (!Number.isInteger(input.headcount) || input.headcount < 1)) {
+    throw new Error("岗位说明书编制必须是正整数");
+  }
+  if (input.effectiveDate && !parseBusinessDate(input.effectiveDate)) {
+    throw new Error("岗位说明书生效日期无效");
+  }
+  if (input.details !== undefined && input.details !== null) JSON.parse(input.details);
 }
 
 export async function buildPositionDescriptionUpdateCommand(
@@ -46,10 +66,21 @@ export async function buildPositionDescriptionUpdateCommand(
   });
   if (!ownerPosition) return failCommand("岗位说明书未绑定岗位", 404);
 
+  const revisionUid = String(input.revisionUid || "").trim();
+  if (!revisionUid) return failCommand("缺少 Idempotency-Key", 400);
+  const expectedSequence = Number(input.expectedSequence);
+  if (!Number.isInteger(expectedSequence) || expectedSequence < 1) return failCommand("缺少或无效的当前修订序号", 409);
+  const changeKind = input.changeKind === "correction" ? "correction" : "change";
+  const changeReason = nullableText(input.changeReason);
+  if (changeKind === "correction" && !changeReason) return failCommand("纠错必须填写原因", 400);
+
   const headcount = input.headcount === null || input.headcount === undefined || input.headcount === "" ? null : Number(input.headcount);
-  if (headcount === null || !Number.isInteger(headcount) || headcount < 1) {
+  if (headcount !== null && (!Number.isInteger(headcount) || headcount < 1)) {
     return failCommand("编制必须是正整数");
   }
+
+  const effectiveDate = nullableText(input.effectiveDate);
+  if (effectiveDate && !parseBusinessDate(effectiveDate)) return failCommand("生效日期必须是合法 YYYY-MM-DD 业务日期", 400);
 
   const hasDetailsInput = input.details !== undefined;
   let details: string | null | undefined;
@@ -67,12 +98,16 @@ export async function buildPositionDescriptionUpdateCommand(
 
   return okCommand({
     id: descriptionId,
-    data: {
+    revisionUid,
+    expectedSequence,
+    changeKind,
+    changeReason,
+    revision: {
       positionPurpose: nullableText(input.positionPurpose),
       summary: nullableText(input.summary),
       headcount,
       version: nullableText(input.version),
-      effectiveDate: nullableText(input.effectiveDate),
+      effectiveDate,
       sourceFile: input.sourceFile ? String(input.sourceFile) : "",
       ...(hasDetailsInput ? { details } : {}),
     },

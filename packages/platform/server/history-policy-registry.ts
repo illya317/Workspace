@@ -259,7 +259,7 @@ export const historyPolicyRegistry = {
     displayName: { field: "name", fallback: "未知员工" },
     fieldLabels: employeeLabels,
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
   },
   Employment: {
     entityType: "Employment",
@@ -268,7 +268,7 @@ export const historyPolicyRegistry = {
     baseline: "before-first-update",
     displayName: { fallback: "未知雇佣", resolveNames: resolveEmploymentNames },
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
     summarizeChanges: summarizeEmploymentChanges,
   },
   Company: {
@@ -331,7 +331,7 @@ export const historyPolicyRegistry = {
     baseline: "before-first-update",
     displayName: { field: "name", fallback: "未知部门" },
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
   },
   Position: {
     entityType: "Position",
@@ -340,7 +340,7 @@ export const historyPolicyRegistry = {
     baseline: "before-first-update",
     displayName: { field: "name", fallback: "未知岗位" },
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
   },
   EDP: {
     entityType: "EDP",
@@ -349,8 +349,9 @@ export const historyPolicyRegistry = {
     baseline: "before-first-update",
     displayName: { fallback: "未知关联", resolveNames: resolveEdpNames },
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
   },
+  PositionReportOverride: nonRestorableHistoryPolicy("PositionReportOverride", "positionReportOverride", { fallback: "未知岗位汇报覆盖" }),
   Project: {
     entityType: "Project",
     modelKey: "project",
@@ -386,7 +387,7 @@ export const historyPolicyRegistry = {
     baseline: "before-first-update",
     displayName: { fallback: "未知关联", resolveNames: resolveEmployeeProjectNames },
     ignoredFields: AUDIT_FIELDS,
-    restore: RESTORE_UPDATE_OR_CREATE,
+    restore: false,
   },
   ProjectPlanPhase: nonRestorableHistoryPolicy("ProjectPlanPhase", "projectPlanPhase", { field: "name", fallback: "未知项目阶段" }),
   Meeting: nonRestorableHistoryPolicy("Meeting", "meeting", { field: "title", fallback: "未知会议" }),
@@ -476,7 +477,6 @@ export function getRestorableHistoryPolicy(entityType: string): (HistoryPolicy &
   if (!policy || policy.restore === false) return undefined;
   return policy as HistoryPolicy & { restore: HistoryRestorePolicy };
 }
-
 export function labelHistoryField(entityType: string, field: string) {
   const policy = getHistoryPolicy(entityType);
   return policy?.fieldLabels?.[field] ?? FIELD_LABELS[field] ?? field;

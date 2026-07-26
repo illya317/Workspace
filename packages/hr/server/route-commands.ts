@@ -66,6 +66,7 @@ export async function executePositionDescriptionQuery(command: {
   positionId?: string;
   tree?: string;
   search?: string;
+  asOf?: string;
 }): Promise<unknown> {
   if (command.tree === "1") return getPositionDescriptionTree();
   if (command.id || command.positionId || command.code) {
@@ -73,6 +74,7 @@ export async function executePositionDescriptionQuery(command: {
       id: command.id,
       positionId: command.positionId,
       code: command.code,
+      asOf: command.asOf,
     });
   }
   return listPositionDescriptions(command.search || "");

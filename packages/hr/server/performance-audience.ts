@@ -36,7 +36,10 @@ const projectSelect = {
   projectType: true,
   projectLevel: true,
   leadingDepartment: { select: { name: true } },
-  employees: { select: { employeeId: true, startDate: true, endDate: true } },
+  employees: {
+    where: { recordState: "confirmed" },
+    select: { employeeId: true, startDate: true, endDate: true },
+  },
 } satisfies Prisma.ProjectSelect;
 
 export type HrPerformanceAudienceEmployee = Prisma.EmployeeGetPayload<{ include: typeof employeeInclude }>;

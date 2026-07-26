@@ -85,6 +85,9 @@ export function createDraft(position: Position): PositionDraft {
     departmentId: position.departmentId,
     reportTo: position.reportTo || "",
     reportToPositionId: position.reportToPositionId,
+    effectiveOn: position.asOfDate,
+    changeKind: "schedule",
+    changeReason: "",
   };
 }
 
@@ -92,6 +95,7 @@ export function createDescriptionDraft(position: Position): DescriptionDraft | n
   if (!position.positionDescriptionId) {
     return {
       id: 0,
+      sequence: 0,
       code: position.code,
       name: position.name,
       departmentName: position.departmentName || "",
@@ -102,10 +106,13 @@ export function createDescriptionDraft(position: Position): DescriptionDraft | n
       effectiveDate: "",
       sourceFile: "",
       details: "{}",
+      changeKind: "change",
+      changeReason: "",
     };
   }
   return {
     id: position.positionDescriptionId,
+    sequence: position.positionDescriptionSequence ?? 1,
     code: position.positionDescriptionCode || "",
     name: position.positionDescriptionName || "",
     departmentName: position.positionDescriptionDepartmentName || "",
@@ -116,6 +123,8 @@ export function createDescriptionDraft(position: Position): DescriptionDraft | n
     effectiveDate: position.effectiveDate || "",
     sourceFile: position.sourceFile || "",
     details: JSON.stringify(position.positionDescriptionDetails || {}, null, 2),
+    changeKind: "change",
+    changeReason: "",
   };
 }
 
@@ -144,6 +153,9 @@ export function createDepartmentDraft(department: Department): DepartmentDraft {
     managerEmployeeIds: department.managerEmployeeIds || [],
     managerEmployeeNames: department.managerEmployeeNames?.length ? department.managerEmployeeNames : department.managerNames || [],
     managerName: department.managerName || "",
+    effectiveOn: department.asOfDate,
+    changeKind: "schedule",
+    changeReason: "",
   };
 }
 
@@ -155,6 +167,11 @@ export function draftPayload(draft: PositionDraft) {
     alias: serializeAlias(draft.alias || ""),
     departmentId: draft.departmentId,
     reportToPositionId: draft.reportToPositionId,
+    lifecycle: {
+      kind: draft.changeKind,
+      effectiveOn: draft.effectiveOn,
+      reason: draft.changeReason.trim() || null,
+    },
   };
 }
 
@@ -163,14 +180,7 @@ export function normalizeDraftForCompare(draft: PositionDraft) {
 }
 
 export function normalizePositionForCompare(position: Position) {
-  return JSON.stringify({
-    id: position.id,
-    code: position.code,
-    name: position.name,
-    alias: position.alias || null,
-    departmentId: position.departmentId,
-    reportToPositionId: position.reportToPositionId,
-  });
+  return JSON.stringify(draftPayload(createDraft(position)));
 }
 
 export function descriptionPayload(draft: DescriptionDraft) {
@@ -184,6 +194,8 @@ export function descriptionPayload(draft: DescriptionDraft) {
     effectiveDate: meta.effectiveDate.trim() || null,
     sourceFile: draft.sourceFile.trim(),
     details: draft.details.trim() || null,
+    changeKind: draft.changeKind,
+    changeReason: draft.changeReason.trim() || null,
   };
 }
 
@@ -225,7 +237,11 @@ export function departmentDraftPayload(draft: DepartmentDraft) {
     level: draft.level,
     parentId: draft.parentId,
     managerPositionId: draft.managerPositionId,
-    managerEmployeeIds: draft.managerEmployeeIds,
+    lifecycle: {
+      kind: draft.changeKind,
+      effectiveOn: draft.effectiveOn,
+      reason: draft.changeReason.trim() || null,
+    },
   };
 }
 

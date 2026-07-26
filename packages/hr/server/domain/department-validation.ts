@@ -4,14 +4,18 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { currentEmploymentDateWhere, currentOpenEndedDateWhere, validateFkValue } from "@workspace/platform/server/relation-registry";
+import { validateFkValue } from "@workspace/platform/server/relation-registry";
 import { prisma } from "@workspace/platform/server/prisma";
 import { HR_FK_REGISTRY } from "../fk-registry";
 import { getManagerPositionScopeDepartmentIds } from "../department-manager-positions";
 import { guardDepartmentArchive } from "../reference-guards";
 import { getTenantProfile } from "@workspace/platform/server/tenant-config";
+import {
+  parseOrganizationLifecycleMeta,
+  type OrganizationLifecycleMeta,
+} from "./organization-effective-version";
 
-export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "hierarchyKind", "level", "levelLabel", "levelCode", "parentId", "managerPositionId", "managerEmployeeIds", "isArchived", "archivedAt"];
+export const DEPARTMENT_ALLOWED_FIELDS = ["code", "name", "alias", "hierarchyKind", "level", "levelLabel", "levelCode", "parentId", "managerPositionId", "isArchived", "archivedAt"];
 
 type DepartmentHierarchyKind = "G" | "M";
 
@@ -22,9 +26,9 @@ export interface DepartmentCreateInput {
   level?: unknown;
   parentId?: unknown;
   managerPositionId?: unknown;
-  managerEmployeeIds?: unknown;
   alias?: unknown;
   descriptions?: unknown;
+  lifecycle?: unknown;
 }
 
 export interface DepartmentUpdateInput {
@@ -36,17 +40,17 @@ export interface DepartmentUpdateInput {
   level?: number;
   parentId?: number | string | null;
   managerPositionId?: number | string | null;
-  managerEmployeeIds?: unknown;
   isArchived?: boolean;
   archivedAt?: Date | string | null;
   descriptions?: unknown;
+  lifecycle?: unknown;
 }
 
 export interface DepartmentUpdateCommand {
   id: number;
   data: Prisma.DepartmentUncheckedUpdateInput;
-  managerEmployeeIds?: number[];
   descriptions: Array<{ id?: number; sourceFile: string; codeRaw?: string | null; details?: string | null }> | null;
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 export interface DepartmentCreateCommand {
@@ -57,8 +61,8 @@ export interface DepartmentCreateCommand {
   level: number;
   parentId: number | null;
   managerPositionId: number | null;
-  managerEmployeeIds: number[];
   descriptions: DepartmentUpdateCommand["descriptions"];
+  lifecycle: OrganizationLifecycleMeta;
 }
 
 function departmentPrefix(code: string) {
@@ -139,36 +143,6 @@ async function validateManagerPosition(value: unknown, departmentId: number) {
   return managerPosition;
 }
 
-function normalizeManagerEmployeeIds(value: unknown): DomainValidationResult<number[] | undefined> {
-  if (value === undefined) return okCommand(undefined);
-  if (value === null || value === "") return okCommand([]);
-  const rawItems = Array.isArray(value) ? value : [value];
-  const ids: number[] = [];
-  for (const item of rawItems) {
-    const id = Number(item);
-    if (!Number.isInteger(id) || id <= 0) return failCommand("组织负责人无效", 400);
-    if (!ids.includes(id)) ids.push(id);
-  }
-  return okCommand(ids);
-}
-
-async function validateManagerEmployees(value: unknown, managerPositionId: number | null) {
-  const normalized = normalizeManagerEmployeeIds(value);
-  if (!normalized.ok || normalized.data === undefined) return normalized;
-  if (normalized.data.length === 0) return okCommand([]);
-  if (!managerPositionId) return failCommand("请先选择负责人岗位", 400);
-  const employees = await prisma.employee.findMany({
-    where: {
-      id: { in: normalized.data },
-      employments: { some: currentEmploymentDateWhere() },
-      positions: { some: currentOpenEndedDateWhere({ positionId: managerPositionId }) },
-    },
-    select: { id: true },
-  });
-  if (employees.length !== normalized.data.length) return failCommand("组织负责人必须来自负责人岗位的在岗员工", 400);
-  return okCommand(normalized.data);
-}
-
 async function hasCyclicParent(id: number, parentId: number | null): Promise<boolean> {
   if (!parentId) return false;
   const visited = new Set<number>();
@@ -209,6 +183,14 @@ function normalizeDescriptionList(descriptions: unknown): DomainValidationResult
   return okCommand(result);
 }
 
+function normalizeLifecycleMeta(input: unknown) {
+  try {
+    return okCommand(parseOrganizationLifecycleMeta(input));
+  } catch (error) {
+    return failCommand(error instanceof Error ? error.message : "组织结构生命周期命令无效", 400, "lifecycle");
+  }
+}
+
 export async function buildDepartmentCreateCommand(
   input: DepartmentCreateInput,
 ): Promise<DomainValidationResult<DepartmentCreateCommand>> {
@@ -220,8 +202,6 @@ export async function buildDepartmentCreateCommand(
   const alias = input.alias == null || input.alias === "" ? null : String(input.alias).trim();
   const managerPositionId = input.managerPositionId == null || input.managerPositionId === "" ? null : Number(input.managerPositionId);
   if (managerPositionId !== null && (!Number.isInteger(managerPositionId) || managerPositionId <= 0)) return failCommand("负责人岗位无效", 400);
-  const managerEmployeeIds = await validateManagerEmployees(input.managerEmployeeIds, managerPositionId);
-  if (!managerEmployeeIds.ok) return managerEmployeeIds;
   if (!name) return failCommand("组织名不能为空");
   if (![1, 2, 3].includes(level)) return failCommand("组织层级不合法");
   if (await prisma.department.findFirst({ where: { code }, select: { id: true } })) return failCommand("组织编码已存在", 409);
@@ -229,7 +209,10 @@ export async function buildDepartmentCreateCommand(
   if (typeof parent === "string") return failCommand(parent);
   const descriptions = normalizeDescriptionList(input.descriptions);
   if (!descriptions.ok) return descriptions;
-  return okCommand({ code, name, alias, hierarchyKind, level, parentId: parent.parentId, managerPositionId, managerEmployeeIds: managerEmployeeIds.data ?? [], descriptions: descriptions.data });
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (lifecycle.data.kind !== "schedule" || lifecycle.data.expectedSequence !== 0) return failCommand("新建组织必须使用初始 schedule 命令", 409, "lifecycle");
+  return okCommand({ code, name, alias, hierarchyKind, level, parentId: parent.parentId, managerPositionId, descriptions: descriptions.data, lifecycle: lifecycle.data });
 }
 
 export async function buildDepartmentFieldUpdateCommand(field: string, value: unknown, id?: number) {
@@ -243,11 +226,7 @@ export async function buildDepartmentFieldUpdateCommand(field: string, value: un
     return managerPosition.ok ? okCommand({ field, value: managerPosition.data }) : managerPosition;
   }
   if (field === "managerEmployeeIds") {
-    if (!id) return failCommand("缺少组织ID");
-    const department = await prisma.department.findUnique({ where: { id }, select: { managerPositionId: true } });
-    if (!department) return failCommand("组织不存在", 404);
-    const managers = await validateManagerEmployees(value, department.managerPositionId);
-    return managers.ok ? okCommand({ field, value: managers.data }) : managers;
+    return failCommand("组织负责人由负责人岗位的当前任职自动派生，请维护负责人岗位或任职记录", 409);
   }
   if (field === "isArchived") {
     const archived = Boolean(value);
@@ -302,15 +281,11 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
 
   if (await hasCyclicParent(id, parentId)) return failCommand("不能将当前组织或其子孙组织设为上级", 409);
 
-  let managerPositionId = existing.managerPositionId;
   if (input.managerPositionId !== undefined) {
     const managerPosition = await validateManagerPosition(input.managerPositionId, id);
     if (!managerPosition.ok) return managerPosition;
     data.managerPositionId = managerPosition.data;
-    managerPositionId = managerPosition.data;
   }
-  const managerEmployees = await validateManagerEmployees(input.managerEmployeeIds, managerPositionId);
-  if (!managerEmployees.ok) return managerEmployees;
   if (input.isArchived !== undefined) {
     const archived = Boolean(input.isArchived);
     if (archived) {
@@ -323,7 +298,11 @@ export async function buildDepartmentUpdateCommand(input: DepartmentUpdateInput)
 
   const descriptions = normalizeDescriptionList(input.descriptions);
   if (!descriptions.ok) return descriptions;
-  return okCommand({ id, data, managerEmployeeIds: managerEmployees.data, descriptions: descriptions.data });
+  const lifecycle = normalizeLifecycleMeta(input.lifecycle);
+  if (!lifecycle.ok) return lifecycle;
+  if (Boolean(input.isArchived) && lifecycle.data.kind !== "end-date") return failCommand("归档组织必须使用 end-date 命令", 409, "lifecycle");
+  if (input.isArchived === false && lifecycle.data.kind !== "schedule") return failCommand("恢复组织必须使用 schedule 命令", 409, "lifecycle");
+  return okCommand({ id, data, descriptions: descriptions.data, lifecycle: lifecycle.data });
 }
 
 export async function validateDepartmentDelete(id: number, actionLabel = "删除组织") {

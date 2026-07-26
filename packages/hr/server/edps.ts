@@ -1,55 +1,8 @@
-import { checkHRUpdate } from "@workspace/platform/server/auth";
-import { assertBusinessActionDirectExecutionAllowed } from "@workspace/platform/server/business-action-executor";
-import { serviceError, serviceOk } from "@workspace/platform/server/api";
-import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
-import { mapValidationToServiceResult, type DomainServiceResult } from "@workspace/platform/server/domain-validation";
-import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
 import { matchSearchFields } from "@workspace/platform/search";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
-import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
-import {
-  buildEdpCreateCommand,
-  buildEdpPageDraftCommand,
-  EDP_ALLOWED_FIELDS,
-  validateEdpDeleteCommand,
-  type EdpCreateInput,
-} from "./domain/edp-validation";
-import { validateEdpCreateCurrentTotal } from "./domain/edp-total-validation";
 import { primaryContractCompany } from "./employments";
-import { queueHrDataQualityEvaluation } from "./data-quality-trigger";
-
-const EDP_CONFIG = {
-  entityType: "EDP",
-  modelKey: "eDP" as const,
-  allowedFields: EDP_ALLOWED_FIELDS,
-  deleteMode: "hard" as const,
-  deleteReferencePolicy: "none" as const,
-  onBeforeDelete: normalizeEdpDelete,
-};
-
-async function normalizeEdpDelete(id: number, context: DeleteGuardContext) {
-  const command = await validateEdpDeleteCommand(id);
-  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
-  const row = await context.tx.eDP.findUnique({
-    where: { id: command.data.id },
-    select: {
-      employee: {
-        select: {
-          user: { select: { agentProfile: { select: { key: true } } } },
-        },
-      },
-    },
-  });
-  if (row?.employee?.user?.agentProfile) {
-    return {
-      error: `Agent 虚拟员工 ${row.employee.user.agentProfile.key} 的岗位记录不能直接删除，请通过结束日期维护生命周期`,
-      status: 409,
-    };
-  }
-  return { ok: true as const };
-}
 
 function activeFilterValue(value: string | null | undefined) {
   if (value === "true") return true;
@@ -200,82 +153,4 @@ export async function listEdps(input: {
     positions: rows.slice(start, start + input.pageSize).map(({ employeeEmployments: _employeeEmployments, ...row }) => row),
     total,
   };
-}
-
-export async function createEdp(
-  input: EdpCreateInput,
-  userId: number,
-): Promise<DomainServiceResult<{ success: true; record: { id: number } }>> {
-  const command = mapValidationToServiceResult(await buildEdpCreateCommand(input));
-  if (!command.ok) return command;
-  const currentTotal = mapValidationToServiceResult(await validateEdpCreateCurrentTotal(command.data));
-  if (!currentTotal.ok) return currentTotal;
-
-  const record = await prisma.eDP.create({
-    data: {
-      employeeId: command.data.employeeId,
-      reportingCompanyId: command.data.reportingCompanyId,
-      departmentId: command.data.departmentId,
-      positionId: command.data.positionId,
-      positionReportOverrideId: command.data.positionReportOverrideId,
-      isPrimary: command.data.isPrimary,
-      startDate: command.data.startDate,
-      endDate: command.data.endDate,
-      reportTo: command.data.reportTo,
-      reportToPositionId: command.data.reportToPositionId,
-      workPercent: command.data.workPercent,
-      editedBy: userId,
-    },
-    select: { id: true },
-  });
-  await snapshotHistory("EDP", record.id, userId);
-  await queueHrDataQualityEvaluation("EDP", [record.id]);
-  return serviceOk({ success: true, record });
-}
-
-export async function updateEdpPageDraft(input: {
-  userId: number;
-  changes: Array<{ id: number; field: string; value: unknown }>;
-}) {
-  const command = mapValidationToServiceResult(await buildEdpPageDraftCommand(input));
-  if (!command.ok) return command;
-  if (!(await checkHRUpdate(command.data.userId, "hr.roster"))) return serviceError("无权限", 403);
-  const direct = await assertBusinessActionDirectExecutionAllowed({
-    businessActionKey: "hr.roster.edp.update",
-    actorUserId: command.data.userId,
-    resourceKey: "hr.roster",
-    scopeType: "global",
-    scopeId: null,
-    blockedMessage: "部门岗位更新已配置为必须走流程，请从统一保存入口提交",
-  });
-  if (!direct.ok) return direct;
-
-  const changesById = new Map<number, Record<string, unknown>>();
-  for (const change of command.data.changes) {
-    changesById.set(change.id, { ...(changesById.get(change.id) ?? {}), ...change.data });
-  }
-  const ids = Array.from(changesById.keys());
-  await prisma.$transaction(async (tx) => {
-    for (const id of ids) {
-      await ensureEditHistoryBaseline("EDP", id, command.data.userId, tx);
-      await tx.eDP.update({
-        where: { id },
-        data: {
-          ...changesById.get(id),
-          editedBy: command.data.userId,
-          editedAt: new Date(),
-          version: { increment: 1 },
-        },
-      });
-      await snapshotHistory("EDP", id, command.data.userId, tx);
-    }
-  });
-  await queueHrDataQualityEvaluation("EDP", ids);
-  return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
-}
-
-export async function deleteEdp(command: CrudDeleteCommand) {
-  const result = await executeDelete(command, EDP_CONFIG);
-  if (result.ok) await queueHrDataQualityEvaluation("EDP", [command.id]);
-  return result;
 }

@@ -104,7 +104,6 @@ mockModule("./contracts", {
 });
 mockModule("./domain/employment-validation", {
   namedExports: {
-    buildEmploymentCreateCommand: () => ({ ok: true, data: {} }),
     buildEmploymentPageDraftCommand: () => ({ ok: true, data: {} }),
     validateEmploymentPersonnelTypeTransition: (_current: unknown, next: unknown) => ({
       ok: true,
@@ -114,18 +113,6 @@ mockModule("./domain/employment-validation", {
 });
 mockModule("./employee-position-filters", {
   namedExports: { employeePositionFilterInclude: {}, employeePositionMatches: () => true },
-});
-mockModule("./hr-crud", { namedExports: { executeDelete: async () => ({ ok: true }) } });
-mockModule("./domain/edp-validation", {
-  namedExports: {
-    buildEdpCreateCommand: async () => ({ ok: true, data: {} }),
-    buildEdpPageDraftCommand: async () => ({ ok: true, data: {} }),
-    EDP_ALLOWED_FIELDS: [],
-    validateEdpDeleteCommand: async () => ({ ok: true, data: {} }),
-  },
-});
-mockModule("./domain/edp-total-validation", {
-  namedExports: { validateEdpCreateCurrentTotal: async () => ({ ok: true, data: {} }) },
 });
 
 const { listEmployments } = await import("./employments");

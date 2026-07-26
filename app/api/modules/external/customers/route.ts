@@ -1,5 +1,5 @@
 import { createCommandRoute } from "@workspace/platform/server/api-route";
-import { okCommand } from "@workspace/platform/server/domain-validation";
+import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
 import {
   executeCreateExternalPartyCommand,
   ExternalPartyCreateSchema,
@@ -15,6 +15,11 @@ export const GET = createCommandRoute({
 
 export const POST = createCommandRoute({
   bodySchema: ExternalPartyCreateSchema,
-  buildCommand: ({ body, user }) => okCommand({ category: "customer" as const, body, userId: user.userId }),
+  buildCommand: ({ body, user, request }) => {
+    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
+    return idempotencyKey
+      ? okCommand({ category: "customer" as const, body, userId: user.userId, idempotencyKey })
+      : failCommand("缺少 Idempotency-Key 请求头");
+  },
   action: executeCreateExternalPartyCommand,
 });

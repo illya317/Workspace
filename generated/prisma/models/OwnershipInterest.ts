@@ -31,6 +31,10 @@ export type OwnershipInterestAvgAggregateOutputType = {
   ownerPartyId: number | null
   issuerCompanyId: number | null
   shareRatio: number | null
+  sourceEventId: number | null
+  closedByEventId: number | null
+  projectionRunId: number | null
+  projectionGeneration: number | null
   editedBy: number | null
   version: number | null
 }
@@ -40,6 +44,10 @@ export type OwnershipInterestSumAggregateOutputType = {
   ownerPartyId: number | null
   issuerCompanyId: number | null
   shareRatio: number | null
+  sourceEventId: number | null
+  closedByEventId: number | null
+  projectionRunId: number | null
+  projectionGeneration: number | null
   editedBy: number | null
   version: number | null
 }
@@ -57,6 +65,10 @@ export type OwnershipInterestMinAggregateOutputType = {
   sourceType: string | null
   sourceLabel: string | null
   sourceReference: string | null
+  sourceEventId: number | null
+  closedByEventId: number | null
+  projectionRunId: number | null
+  projectionGeneration: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -77,6 +89,10 @@ export type OwnershipInterestMaxAggregateOutputType = {
   sourceType: string | null
   sourceLabel: string | null
   sourceReference: string | null
+  sourceEventId: number | null
+  closedByEventId: number | null
+  projectionRunId: number | null
+  projectionGeneration: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number | null
@@ -97,6 +113,10 @@ export type OwnershipInterestCountAggregateOutputType = {
   sourceType: number
   sourceLabel: number
   sourceReference: number
+  sourceEventId: number
+  closedByEventId: number
+  projectionRunId: number
+  projectionGeneration: number
   editedBy: number
   editedAt: number
   version: number
@@ -111,6 +131,10 @@ export type OwnershipInterestAvgAggregateInputType = {
   ownerPartyId?: true
   issuerCompanyId?: true
   shareRatio?: true
+  sourceEventId?: true
+  closedByEventId?: true
+  projectionRunId?: true
+  projectionGeneration?: true
   editedBy?: true
   version?: true
 }
@@ -120,6 +144,10 @@ export type OwnershipInterestSumAggregateInputType = {
   ownerPartyId?: true
   issuerCompanyId?: true
   shareRatio?: true
+  sourceEventId?: true
+  closedByEventId?: true
+  projectionRunId?: true
+  projectionGeneration?: true
   editedBy?: true
   version?: true
 }
@@ -137,6 +165,10 @@ export type OwnershipInterestMinAggregateInputType = {
   sourceType?: true
   sourceLabel?: true
   sourceReference?: true
+  sourceEventId?: true
+  closedByEventId?: true
+  projectionRunId?: true
+  projectionGeneration?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -157,6 +189,10 @@ export type OwnershipInterestMaxAggregateInputType = {
   sourceType?: true
   sourceLabel?: true
   sourceReference?: true
+  sourceEventId?: true
+  closedByEventId?: true
+  projectionRunId?: true
+  projectionGeneration?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -177,6 +213,10 @@ export type OwnershipInterestCountAggregateInputType = {
   sourceType?: true
   sourceLabel?: true
   sourceReference?: true
+  sourceEventId?: true
+  closedByEventId?: true
+  projectionRunId?: true
+  projectionGeneration?: true
   editedBy?: true
   editedAt?: true
   version?: true
@@ -284,6 +324,10 @@ export type OwnershipInterestGroupByOutputType = {
   sourceType: string | null
   sourceLabel: string | null
   sourceReference: string | null
+  sourceEventId: number | null
+  closedByEventId: number | null
+  projectionRunId: number | null
+  projectionGeneration: number | null
   editedBy: number | null
   editedAt: Date | null
   version: number
@@ -327,6 +371,10 @@ export type OwnershipInterestWhereInput = {
   sourceType?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
   sourceReference?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  closedByEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionRunId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionGeneration?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
   editedBy?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
   version?: Prisma.IntFilter<"OwnershipInterest"> | number
@@ -334,6 +382,9 @@ export type OwnershipInterestWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
   owner?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   issuer?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  sourceEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
+  closedByEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
+  projectionRun?: Prisma.XOR<Prisma.OwnershipProjectionRunNullableScalarRelationFilter, Prisma.OwnershipProjectionRunWhereInput> | null
 }
 
 export type OwnershipInterestOrderByWithRelationInput = {
@@ -349,6 +400,10 @@ export type OwnershipInterestOrderByWithRelationInput = {
   sourceType?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrderInput | Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -356,6 +411,9 @@ export type OwnershipInterestOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   owner?: Prisma.PartyOrderByWithRelationInput
   issuer?: Prisma.CompanyOrderByWithRelationInput
+  sourceEvent?: Prisma.ShareCapitalEventOrderByWithRelationInput
+  closedByEvent?: Prisma.ShareCapitalEventOrderByWithRelationInput
+  projectionRun?: Prisma.OwnershipProjectionRunOrderByWithRelationInput
 }
 
 export type OwnershipInterestWhereUniqueInput = Prisma.AtLeast<{
@@ -374,6 +432,10 @@ export type OwnershipInterestWhereUniqueInput = Prisma.AtLeast<{
   sourceType?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
   sourceLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
   sourceReference?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  closedByEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionRunId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionGeneration?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
   editedBy?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
   editedAt?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
   version?: Prisma.IntFilter<"OwnershipInterest"> | number
@@ -381,6 +443,9 @@ export type OwnershipInterestWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
   owner?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   issuer?: Prisma.XOR<Prisma.CompanyScalarRelationFilter, Prisma.CompanyWhereInput>
+  sourceEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
+  closedByEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
+  projectionRun?: Prisma.XOR<Prisma.OwnershipProjectionRunNullableScalarRelationFilter, Prisma.OwnershipProjectionRunWhereInput> | null
 }, "id">
 
 export type OwnershipInterestOrderByWithAggregationInput = {
@@ -396,6 +461,10 @@ export type OwnershipInterestOrderByWithAggregationInput = {
   sourceType?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceLabel?: Prisma.SortOrderInput | Prisma.SortOrder
   sourceReference?: Prisma.SortOrderInput | Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrderInput | Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrderInput | Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrderInput | Prisma.SortOrder
   editedBy?: Prisma.SortOrderInput | Prisma.SortOrder
   editedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -424,6 +493,10 @@ export type OwnershipInterestScalarWhereWithAggregatesInput = {
   sourceType?: Prisma.StringNullableWithAggregatesFilter<"OwnershipInterest"> | string | null
   sourceLabel?: Prisma.StringNullableWithAggregatesFilter<"OwnershipInterest"> | string | null
   sourceReference?: Prisma.StringNullableWithAggregatesFilter<"OwnershipInterest"> | string | null
+  sourceEventId?: Prisma.IntNullableWithAggregatesFilter<"OwnershipInterest"> | number | null
+  closedByEventId?: Prisma.IntNullableWithAggregatesFilter<"OwnershipInterest"> | number | null
+  projectionRunId?: Prisma.IntNullableWithAggregatesFilter<"OwnershipInterest"> | number | null
+  projectionGeneration?: Prisma.IntNullableWithAggregatesFilter<"OwnershipInterest"> | number | null
   editedBy?: Prisma.IntNullableWithAggregatesFilter<"OwnershipInterest"> | number | null
   editedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"OwnershipInterest"> | Date | string | null
   version?: Prisma.IntWithAggregatesFilter<"OwnershipInterest"> | number
@@ -441,6 +514,7 @@ export type OwnershipInterestCreateInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -448,6 +522,9 @@ export type OwnershipInterestCreateInput = {
   updatedAt?: Date | string
   owner: Prisma.PartyCreateNestedOneWithoutOwnedInterestsInput
   issuer: Prisma.CompanyCreateNestedOneWithoutIssuedOwnershipsInput
+  sourceEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput
+  closedByEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput
+  projectionRun?: Prisma.OwnershipProjectionRunCreateNestedOneWithoutOwnershipInterestsInput
 }
 
 export type OwnershipInterestUncheckedCreateInput = {
@@ -463,6 +540,10 @@ export type OwnershipInterestUncheckedCreateInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -480,6 +561,7 @@ export type OwnershipInterestUpdateInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -487,6 +569,9 @@ export type OwnershipInterestUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.PartyUpdateOneRequiredWithoutOwnedInterestsNestedInput
   issuer?: Prisma.CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput
+  sourceEvent?: Prisma.ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput
+  closedByEvent?: Prisma.ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput
+  projectionRun?: Prisma.OwnershipProjectionRunUpdateOneWithoutOwnershipInterestsNestedInput
 }
 
 export type OwnershipInterestUncheckedUpdateInput = {
@@ -502,6 +587,10 @@ export type OwnershipInterestUncheckedUpdateInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -522,6 +611,10 @@ export type OwnershipInterestCreateManyInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -539,6 +632,7 @@ export type OwnershipInterestUpdateManyMutationInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -559,6 +653,10 @@ export type OwnershipInterestUncheckedUpdateManyInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -579,6 +677,10 @@ export type OwnershipInterestCountOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
   sourceReference?: Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -591,6 +693,10 @@ export type OwnershipInterestAvgOrderByAggregateInput = {
   ownerPartyId?: Prisma.SortOrder
   issuerCompanyId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -608,6 +714,10 @@ export type OwnershipInterestMaxOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
   sourceReference?: Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -628,6 +738,10 @@ export type OwnershipInterestMinOrderByAggregateInput = {
   sourceType?: Prisma.SortOrder
   sourceLabel?: Prisma.SortOrder
   sourceReference?: Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   editedAt?: Prisma.SortOrder
   version?: Prisma.SortOrder
@@ -640,6 +754,10 @@ export type OwnershipInterestSumOrderByAggregateInput = {
   ownerPartyId?: Prisma.SortOrder
   issuerCompanyId?: Prisma.SortOrder
   shareRatio?: Prisma.SortOrder
+  sourceEventId?: Prisma.SortOrder
+  closedByEventId?: Prisma.SortOrder
+  projectionRunId?: Prisma.SortOrder
+  projectionGeneration?: Prisma.SortOrder
   editedBy?: Prisma.SortOrder
   version?: Prisma.SortOrder
 }
@@ -652,6 +770,132 @@ export type OwnershipInterestListRelationFilter = {
 
 export type OwnershipInterestOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type OwnershipInterestCreateNestedManyWithoutProjectionRunInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput> | Prisma.OwnershipInterestCreateWithoutProjectionRunInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput | Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyProjectionRunInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestUncheckedCreateNestedManyWithoutProjectionRunInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput> | Prisma.OwnershipInterestCreateWithoutProjectionRunInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput | Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyProjectionRunInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestUpdateManyWithoutProjectionRunNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput> | Prisma.OwnershipInterestCreateWithoutProjectionRunInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput | Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutProjectionRunInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutProjectionRunInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyProjectionRunInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutProjectionRunInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutProjectionRunInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutProjectionRunInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutProjectionRunInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutProjectionRunNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput> | Prisma.OwnershipInterestCreateWithoutProjectionRunInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput | Prisma.OwnershipInterestCreateOrConnectWithoutProjectionRunInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutProjectionRunInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutProjectionRunInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyProjectionRunInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutProjectionRunInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutProjectionRunInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutProjectionRunInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutProjectionRunInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+}
+
+export type OwnershipInterestCreateNestedManyWithoutSourceEventInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput> | Prisma.OwnershipInterestCreateWithoutSourceEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManySourceEventInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestCreateNestedManyWithoutClosedByEventInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput> | Prisma.OwnershipInterestCreateWithoutClosedByEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyClosedByEventInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput> | Prisma.OwnershipInterestCreateWithoutSourceEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManySourceEventInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput> | Prisma.OwnershipInterestCreateWithoutClosedByEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyClosedByEventInputEnvelope
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+}
+
+export type OwnershipInterestUpdateManyWithoutSourceEventNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput> | Prisma.OwnershipInterestCreateWithoutSourceEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutSourceEventInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutSourceEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManySourceEventInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutSourceEventInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutSourceEventInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutSourceEventInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutSourceEventInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+}
+
+export type OwnershipInterestUpdateManyWithoutClosedByEventNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput> | Prisma.OwnershipInterestCreateWithoutClosedByEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutClosedByEventInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutClosedByEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyClosedByEventInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutClosedByEventInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutClosedByEventInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutClosedByEventInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutClosedByEventInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput> | Prisma.OwnershipInterestCreateWithoutSourceEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutSourceEventInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutSourceEventInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutSourceEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManySourceEventInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutSourceEventInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutSourceEventInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutSourceEventInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutSourceEventInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput = {
+  create?: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput> | Prisma.OwnershipInterestCreateWithoutClosedByEventInput[] | Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput[]
+  connectOrCreate?: Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput | Prisma.OwnershipInterestCreateOrConnectWithoutClosedByEventInput[]
+  upsert?: Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutClosedByEventInput | Prisma.OwnershipInterestUpsertWithWhereUniqueWithoutClosedByEventInput[]
+  createMany?: Prisma.OwnershipInterestCreateManyClosedByEventInputEnvelope
+  set?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  disconnect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  delete?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  connect?: Prisma.OwnershipInterestWhereUniqueInput | Prisma.OwnershipInterestWhereUniqueInput[]
+  update?: Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutClosedByEventInput | Prisma.OwnershipInterestUpdateWithWhereUniqueWithoutClosedByEventInput[]
+  updateMany?: Prisma.OwnershipInterestUpdateManyWithWhereWithoutClosedByEventInput | Prisma.OwnershipInterestUpdateManyWithWhereWithoutClosedByEventInput[]
+  deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
 }
 
 export type OwnershipInterestCreateNestedManyWithoutOwnerInput = {
@@ -738,6 +982,246 @@ export type OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput = {
   deleteMany?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
 }
 
+export type OwnershipInterestCreateWithoutProjectionRunInput = {
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.PartyCreateNestedOneWithoutOwnedInterestsInput
+  issuer: Prisma.CompanyCreateNestedOneWithoutIssuedOwnershipsInput
+  sourceEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput
+  closedByEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput
+}
+
+export type OwnershipInterestUncheckedCreateWithoutProjectionRunInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestCreateOrConnectWithoutProjectionRunInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput>
+}
+
+export type OwnershipInterestCreateManyProjectionRunInputEnvelope = {
+  data: Prisma.OwnershipInterestCreateManyProjectionRunInput | Prisma.OwnershipInterestCreateManyProjectionRunInput[]
+  skipDuplicates?: boolean
+}
+
+export type OwnershipInterestUpsertWithWhereUniqueWithoutProjectionRunInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  update: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedUpdateWithoutProjectionRunInput>
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedCreateWithoutProjectionRunInput>
+}
+
+export type OwnershipInterestUpdateWithWhereUniqueWithoutProjectionRunInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutProjectionRunInput, Prisma.OwnershipInterestUncheckedUpdateWithoutProjectionRunInput>
+}
+
+export type OwnershipInterestUpdateManyWithWhereWithoutProjectionRunInput = {
+  where: Prisma.OwnershipInterestScalarWhereInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateManyMutationInput, Prisma.OwnershipInterestUncheckedUpdateManyWithoutProjectionRunInput>
+}
+
+export type OwnershipInterestScalarWhereInput = {
+  AND?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+  OR?: Prisma.OwnershipInterestScalarWhereInput[]
+  NOT?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
+  id?: Prisma.IntFilter<"OwnershipInterest"> | number
+  ownerPartyId?: Prisma.IntFilter<"OwnershipInterest"> | number
+  issuerCompanyId?: Prisma.IntFilter<"OwnershipInterest"> | number
+  shareRatio?: Prisma.FloatNullableFilter<"OwnershipInterest"> | number | null
+  isConsolidated?: Prisma.BoolFilter<"OwnershipInterest"> | boolean
+  effectiveFrom?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
+  effectiveTo?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
+  recordStatus?: Prisma.StringFilter<"OwnershipInterest"> | string
+  changeLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceType?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceReference?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
+  sourceEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  closedByEventId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionRunId?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  projectionGeneration?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  editedBy?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
+  editedAt?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
+  version?: Prisma.IntFilter<"OwnershipInterest"> | number
+  createdAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
+}
+
+export type OwnershipInterestCreateWithoutSourceEventInput = {
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.PartyCreateNestedOneWithoutOwnedInterestsInput
+  issuer: Prisma.CompanyCreateNestedOneWithoutIssuedOwnershipsInput
+  closedByEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput
+  projectionRun?: Prisma.OwnershipProjectionRunCreateNestedOneWithoutOwnershipInterestsInput
+}
+
+export type OwnershipInterestUncheckedCreateWithoutSourceEventInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestCreateOrConnectWithoutSourceEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput>
+}
+
+export type OwnershipInterestCreateManySourceEventInputEnvelope = {
+  data: Prisma.OwnershipInterestCreateManySourceEventInput | Prisma.OwnershipInterestCreateManySourceEventInput[]
+  skipDuplicates?: boolean
+}
+
+export type OwnershipInterestCreateWithoutClosedByEventInput = {
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  owner: Prisma.PartyCreateNestedOneWithoutOwnedInterestsInput
+  issuer: Prisma.CompanyCreateNestedOneWithoutIssuedOwnershipsInput
+  sourceEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput
+  projectionRun?: Prisma.OwnershipProjectionRunCreateNestedOneWithoutOwnershipInterestsInput
+}
+
+export type OwnershipInterestUncheckedCreateWithoutClosedByEventInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  sourceEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestCreateOrConnectWithoutClosedByEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput>
+}
+
+export type OwnershipInterestCreateManyClosedByEventInputEnvelope = {
+  data: Prisma.OwnershipInterestCreateManyClosedByEventInput | Prisma.OwnershipInterestCreateManyClosedByEventInput[]
+  skipDuplicates?: boolean
+}
+
+export type OwnershipInterestUpsertWithWhereUniqueWithoutSourceEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  update: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedUpdateWithoutSourceEventInput>
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutSourceEventInput>
+}
+
+export type OwnershipInterestUpdateWithWhereUniqueWithoutSourceEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutSourceEventInput, Prisma.OwnershipInterestUncheckedUpdateWithoutSourceEventInput>
+}
+
+export type OwnershipInterestUpdateManyWithWhereWithoutSourceEventInput = {
+  where: Prisma.OwnershipInterestScalarWhereInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateManyMutationInput, Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventInput>
+}
+
+export type OwnershipInterestUpsertWithWhereUniqueWithoutClosedByEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  update: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedUpdateWithoutClosedByEventInput>
+  create: Prisma.XOR<Prisma.OwnershipInterestCreateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedCreateWithoutClosedByEventInput>
+}
+
+export type OwnershipInterestUpdateWithWhereUniqueWithoutClosedByEventInput = {
+  where: Prisma.OwnershipInterestWhereUniqueInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateWithoutClosedByEventInput, Prisma.OwnershipInterestUncheckedUpdateWithoutClosedByEventInput>
+}
+
+export type OwnershipInterestUpdateManyWithWhereWithoutClosedByEventInput = {
+  where: Prisma.OwnershipInterestScalarWhereInput
+  data: Prisma.XOR<Prisma.OwnershipInterestUpdateManyMutationInput, Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventInput>
+}
+
 export type OwnershipInterestCreateWithoutOwnerInput = {
   shareRatio?: number | null
   isConsolidated?: boolean
@@ -748,12 +1232,16 @@ export type OwnershipInterestCreateWithoutOwnerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   issuer: Prisma.CompanyCreateNestedOneWithoutIssuedOwnershipsInput
+  sourceEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput
+  closedByEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput
+  projectionRun?: Prisma.OwnershipProjectionRunCreateNestedOneWithoutOwnershipInterestsInput
 }
 
 export type OwnershipInterestUncheckedCreateWithoutOwnerInput = {
@@ -768,6 +1256,10 @@ export type OwnershipInterestUncheckedCreateWithoutOwnerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -801,29 +1293,6 @@ export type OwnershipInterestUpdateManyWithWhereWithoutOwnerInput = {
   data: Prisma.XOR<Prisma.OwnershipInterestUpdateManyMutationInput, Prisma.OwnershipInterestUncheckedUpdateManyWithoutOwnerInput>
 }
 
-export type OwnershipInterestScalarWhereInput = {
-  AND?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
-  OR?: Prisma.OwnershipInterestScalarWhereInput[]
-  NOT?: Prisma.OwnershipInterestScalarWhereInput | Prisma.OwnershipInterestScalarWhereInput[]
-  id?: Prisma.IntFilter<"OwnershipInterest"> | number
-  ownerPartyId?: Prisma.IntFilter<"OwnershipInterest"> | number
-  issuerCompanyId?: Prisma.IntFilter<"OwnershipInterest"> | number
-  shareRatio?: Prisma.FloatNullableFilter<"OwnershipInterest"> | number | null
-  isConsolidated?: Prisma.BoolFilter<"OwnershipInterest"> | boolean
-  effectiveFrom?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
-  effectiveTo?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
-  recordStatus?: Prisma.StringFilter<"OwnershipInterest"> | string
-  changeLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
-  sourceType?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
-  sourceLabel?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
-  sourceReference?: Prisma.StringNullableFilter<"OwnershipInterest"> | string | null
-  editedBy?: Prisma.IntNullableFilter<"OwnershipInterest"> | number | null
-  editedAt?: Prisma.DateTimeNullableFilter<"OwnershipInterest"> | Date | string | null
-  version?: Prisma.IntFilter<"OwnershipInterest"> | number
-  createdAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"OwnershipInterest"> | Date | string
-}
-
 export type OwnershipInterestCreateWithoutIssuerInput = {
   shareRatio?: number | null
   isConsolidated?: boolean
@@ -834,12 +1303,16 @@ export type OwnershipInterestCreateWithoutIssuerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
   owner: Prisma.PartyCreateNestedOneWithoutOwnedInterestsInput
+  sourceEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput
+  closedByEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput
+  projectionRun?: Prisma.OwnershipProjectionRunCreateNestedOneWithoutOwnershipInterestsInput
 }
 
 export type OwnershipInterestUncheckedCreateWithoutIssuerInput = {
@@ -854,6 +1327,10 @@ export type OwnershipInterestUncheckedCreateWithoutIssuerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -887,6 +1364,279 @@ export type OwnershipInterestUpdateManyWithWhereWithoutIssuerInput = {
   data: Prisma.XOR<Prisma.OwnershipInterestUpdateManyMutationInput, Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerInput>
 }
 
+export type OwnershipInterestCreateManyProjectionRunInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestUpdateWithoutProjectionRunInput = {
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.PartyUpdateOneRequiredWithoutOwnedInterestsNestedInput
+  issuer?: Prisma.CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput
+  sourceEvent?: Prisma.ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput
+  closedByEvent?: Prisma.ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput
+}
+
+export type OwnershipInterestUncheckedUpdateWithoutProjectionRunInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutProjectionRunInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OwnershipInterestCreateManySourceEventInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestCreateManyClosedByEventInput = {
+  id?: number
+  ownerPartyId: number
+  issuerCompanyId: number
+  shareRatio?: number | null
+  isConsolidated?: boolean
+  effectiveFrom?: Date | string | null
+  effectiveTo?: Date | string | null
+  recordStatus?: string
+  changeLabel?: string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  sourceEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type OwnershipInterestUpdateWithoutSourceEventInput = {
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.PartyUpdateOneRequiredWithoutOwnedInterestsNestedInput
+  issuer?: Prisma.CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput
+  closedByEvent?: Prisma.ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput
+  projectionRun?: Prisma.OwnershipProjectionRunUpdateOneWithoutOwnershipInterestsNestedInput
+}
+
+export type OwnershipInterestUncheckedUpdateWithoutSourceEventInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutSourceEventInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OwnershipInterestUpdateWithoutClosedByEventInput = {
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  owner?: Prisma.PartyUpdateOneRequiredWithoutOwnedInterestsNestedInput
+  issuer?: Prisma.CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput
+  sourceEvent?: Prisma.ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput
+  projectionRun?: Prisma.OwnershipProjectionRunUpdateOneWithoutOwnershipInterestsNestedInput
+}
+
+export type OwnershipInterestUncheckedUpdateWithoutClosedByEventInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type OwnershipInterestUncheckedUpdateManyWithoutClosedByEventInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  ownerPartyId?: Prisma.IntFieldUpdateOperationsInput | number
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  shareRatio?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  isConsolidated?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  effectiveFrom?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveTo?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  changeLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type OwnershipInterestCreateManyOwnerInput = {
   id?: number
   issuerCompanyId: number
@@ -899,6 +1649,10 @@ export type OwnershipInterestCreateManyOwnerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -916,12 +1670,16 @@ export type OwnershipInterestUpdateWithoutOwnerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuer?: Prisma.CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput
+  sourceEvent?: Prisma.ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput
+  closedByEvent?: Prisma.ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput
+  projectionRun?: Prisma.OwnershipProjectionRunUpdateOneWithoutOwnershipInterestsNestedInput
 }
 
 export type OwnershipInterestUncheckedUpdateWithoutOwnerInput = {
@@ -936,6 +1694,10 @@ export type OwnershipInterestUncheckedUpdateWithoutOwnerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -955,6 +1717,10 @@ export type OwnershipInterestUncheckedUpdateManyWithoutOwnerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -974,6 +1740,10 @@ export type OwnershipInterestCreateManyIssuerInput = {
   sourceType?: string | null
   sourceLabel?: string | null
   sourceReference?: string | null
+  sourceEventId?: number | null
+  closedByEventId?: number | null
+  projectionRunId?: number | null
+  projectionGeneration?: number | null
   editedBy?: number | null
   editedAt?: Date | string | null
   version?: number
@@ -991,12 +1761,16 @@ export type OwnershipInterestUpdateWithoutIssuerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   owner?: Prisma.PartyUpdateOneRequiredWithoutOwnedInterestsNestedInput
+  sourceEvent?: Prisma.ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput
+  closedByEvent?: Prisma.ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput
+  projectionRun?: Prisma.OwnershipProjectionRunUpdateOneWithoutOwnershipInterestsNestedInput
 }
 
 export type OwnershipInterestUncheckedUpdateWithoutIssuerInput = {
@@ -1011,6 +1785,10 @@ export type OwnershipInterestUncheckedUpdateWithoutIssuerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1030,6 +1808,10 @@ export type OwnershipInterestUncheckedUpdateManyWithoutIssuerInput = {
   sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  closedByEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionRunId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  projectionGeneration?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   version?: Prisma.IntFieldUpdateOperationsInput | number
@@ -1052,6 +1834,10 @@ export type OwnershipInterestSelect<ExtArgs extends runtime.Types.Extensions.Int
   sourceType?: boolean
   sourceLabel?: boolean
   sourceReference?: boolean
+  sourceEventId?: boolean
+  closedByEventId?: boolean
+  projectionRunId?: boolean
+  projectionGeneration?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1059,6 +1845,9 @@ export type OwnershipInterestSelect<ExtArgs extends runtime.Types.Extensions.Int
   updatedAt?: boolean
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }, ExtArgs["result"]["ownershipInterest"]>
 
 export type OwnershipInterestSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1074,6 +1863,10 @@ export type OwnershipInterestSelectCreateManyAndReturn<ExtArgs extends runtime.T
   sourceType?: boolean
   sourceLabel?: boolean
   sourceReference?: boolean
+  sourceEventId?: boolean
+  closedByEventId?: boolean
+  projectionRunId?: boolean
+  projectionGeneration?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1081,6 +1874,9 @@ export type OwnershipInterestSelectCreateManyAndReturn<ExtArgs extends runtime.T
   updatedAt?: boolean
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }, ExtArgs["result"]["ownershipInterest"]>
 
 export type OwnershipInterestSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1096,6 +1892,10 @@ export type OwnershipInterestSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   sourceType?: boolean
   sourceLabel?: boolean
   sourceReference?: boolean
+  sourceEventId?: boolean
+  closedByEventId?: boolean
+  projectionRunId?: boolean
+  projectionGeneration?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1103,6 +1903,9 @@ export type OwnershipInterestSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   updatedAt?: boolean
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }, ExtArgs["result"]["ownershipInterest"]>
 
 export type OwnershipInterestSelectScalar = {
@@ -1118,6 +1921,10 @@ export type OwnershipInterestSelectScalar = {
   sourceType?: boolean
   sourceLabel?: boolean
   sourceReference?: boolean
+  sourceEventId?: boolean
+  closedByEventId?: boolean
+  projectionRunId?: boolean
+  projectionGeneration?: boolean
   editedBy?: boolean
   editedAt?: boolean
   version?: boolean
@@ -1125,18 +1932,27 @@ export type OwnershipInterestSelectScalar = {
   updatedAt?: boolean
 }
 
-export type OwnershipInterestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerPartyId" | "issuerCompanyId" | "shareRatio" | "isConsolidated" | "effectiveFrom" | "effectiveTo" | "recordStatus" | "changeLabel" | "sourceType" | "sourceLabel" | "sourceReference" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["ownershipInterest"]>
+export type OwnershipInterestOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "ownerPartyId" | "issuerCompanyId" | "shareRatio" | "isConsolidated" | "effectiveFrom" | "effectiveTo" | "recordStatus" | "changeLabel" | "sourceType" | "sourceLabel" | "sourceReference" | "sourceEventId" | "closedByEventId" | "projectionRunId" | "projectionGeneration" | "editedBy" | "editedAt" | "version" | "createdAt" | "updatedAt", ExtArgs["result"]["ownershipInterest"]>
 export type OwnershipInterestInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }
 export type OwnershipInterestIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }
 export type OwnershipInterestIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   owner?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuer?: boolean | Prisma.CompanyDefaultArgs<ExtArgs>
+  sourceEvent?: boolean | Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>
+  closedByEvent?: boolean | Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>
+  projectionRun?: boolean | Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>
 }
 
 export type $OwnershipInterestPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1144,6 +1960,9 @@ export type $OwnershipInterestPayload<ExtArgs extends runtime.Types.Extensions.I
   objects: {
     owner: Prisma.$PartyPayload<ExtArgs>
     issuer: Prisma.$CompanyPayload<ExtArgs>
+    sourceEvent: Prisma.$ShareCapitalEventPayload<ExtArgs> | null
+    closedByEvent: Prisma.$ShareCapitalEventPayload<ExtArgs> | null
+    projectionRun: Prisma.$OwnershipProjectionRunPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -1158,6 +1977,10 @@ export type $OwnershipInterestPayload<ExtArgs extends runtime.Types.Extensions.I
     sourceType: string | null
     sourceLabel: string | null
     sourceReference: string | null
+    sourceEventId: number | null
+    closedByEventId: number | null
+    projectionRunId: number | null
+    projectionGeneration: number | null
     editedBy: number | null
     editedAt: Date | null
     version: number
@@ -1559,6 +2382,9 @@ export interface Prisma__OwnershipInterestClient<T, Null = never, ExtArgs extend
   readonly [Symbol.toStringTag]: "PrismaPromise"
   owner<T extends Prisma.PartyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PartyDefaultArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   issuer<T extends Prisma.CompanyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.CompanyDefaultArgs<ExtArgs>>): Prisma.Prisma__CompanyClient<runtime.Types.Result.GetResult<Prisma.$CompanyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  sourceEvent<T extends Prisma.OwnershipInterest$sourceEventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OwnershipInterest$sourceEventArgs<ExtArgs>>): Prisma.Prisma__ShareCapitalEventClient<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  closedByEvent<T extends Prisma.OwnershipInterest$closedByEventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OwnershipInterest$closedByEventArgs<ExtArgs>>): Prisma.Prisma__ShareCapitalEventClient<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  projectionRun<T extends Prisma.OwnershipInterest$projectionRunArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.OwnershipInterest$projectionRunArgs<ExtArgs>>): Prisma.Prisma__OwnershipProjectionRunClient<runtime.Types.Result.GetResult<Prisma.$OwnershipProjectionRunPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1600,6 +2426,10 @@ export interface OwnershipInterestFieldRefs {
   readonly sourceType: Prisma.FieldRef<"OwnershipInterest", 'String'>
   readonly sourceLabel: Prisma.FieldRef<"OwnershipInterest", 'String'>
   readonly sourceReference: Prisma.FieldRef<"OwnershipInterest", 'String'>
+  readonly sourceEventId: Prisma.FieldRef<"OwnershipInterest", 'Int'>
+  readonly closedByEventId: Prisma.FieldRef<"OwnershipInterest", 'Int'>
+  readonly projectionRunId: Prisma.FieldRef<"OwnershipInterest", 'Int'>
+  readonly projectionGeneration: Prisma.FieldRef<"OwnershipInterest", 'Int'>
   readonly editedBy: Prisma.FieldRef<"OwnershipInterest", 'Int'>
   readonly editedAt: Prisma.FieldRef<"OwnershipInterest", 'DateTime'>
   readonly version: Prisma.FieldRef<"OwnershipInterest", 'Int'>
@@ -2003,6 +2833,63 @@ export type OwnershipInterestDeleteManyArgs<ExtArgs extends runtime.Types.Extens
    * Limit how many OwnershipInterests to delete.
    */
   limit?: number
+}
+
+/**
+ * OwnershipInterest.sourceEvent
+ */
+export type OwnershipInterest$sourceEventArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShareCapitalEvent
+   */
+  select?: Prisma.ShareCapitalEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShareCapitalEvent
+   */
+  omit?: Prisma.ShareCapitalEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShareCapitalEventInclude<ExtArgs> | null
+  where?: Prisma.ShareCapitalEventWhereInput
+}
+
+/**
+ * OwnershipInterest.closedByEvent
+ */
+export type OwnershipInterest$closedByEventArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ShareCapitalEvent
+   */
+  select?: Prisma.ShareCapitalEventSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the ShareCapitalEvent
+   */
+  omit?: Prisma.ShareCapitalEventOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ShareCapitalEventInclude<ExtArgs> | null
+  where?: Prisma.ShareCapitalEventWhereInput
+}
+
+/**
+ * OwnershipInterest.projectionRun
+ */
+export type OwnershipInterest$projectionRunArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OwnershipProjectionRun
+   */
+  select?: Prisma.OwnershipProjectionRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OwnershipProjectionRun
+   */
+  omit?: Prisma.OwnershipProjectionRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OwnershipProjectionRunInclude<ExtArgs> | null
+  where?: Prisma.OwnershipProjectionRunWhereInput
 }
 
 /**

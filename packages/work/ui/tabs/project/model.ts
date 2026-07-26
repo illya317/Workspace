@@ -81,6 +81,10 @@ export type ProjectMemberEntry = {
   startDate: string | null;
   endDate: string | null;
   confirmationStatus?: "pending" | "confirmed";
+  membershipUid: string;
+  sequence: number;
+  recordState: "confirmed" | "cancelled" | "superseded" | "voided";
+  temporalState: "past" | "current" | "upcoming" | "invalid";
 };
 
 export type EmployeeTag = {

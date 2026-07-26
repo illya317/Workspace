@@ -9,6 +9,7 @@ import type { Position } from "./types";
 type PlacementRow = {
   clientKey: string;
   id: number | null;
+  version: number;
   companyId: number | null;
   companyName: string;
   departmentId: number | null;
@@ -18,10 +19,12 @@ type PlacementRow = {
   headcount: string;
   isActive: boolean;
   edpCount: number;
+  temporalSummary: string;
 };
 
 type PlacementApiRow = {
   id: number;
+  version?: number;
   companyId?: number | null;
   companyName?: string | null;
   companyCode?: string | null;
@@ -33,12 +36,18 @@ type PlacementApiRow = {
   headcount?: number | null;
   isActive?: boolean | null;
   edpCount?: number | null;
+  temporal?: {
+    current?: { sequence: number; validFrom: string | null; validToExclusive: string | null } | null;
+    upcoming?: Array<{ sequence: number; validFrom: string | null }>;
+    history?: Array<{ sequence: number }>;
+  };
 };
 
 function newPlacementRow(index: number, clientKey = `new-${index}`): PlacementRow {
   return {
     clientKey,
     id: null,
+    version: 0,
     companyId: null,
     companyName: "",
     departmentId: null,
@@ -48,11 +57,14 @@ function newPlacementRow(index: number, clientKey = `new-${index}`): PlacementRo
     headcount: "",
     isActive: true,
     edpCount: 0,
+    temporalSummary: "尚未保存",
   };
 }
 
 function normalizeRows(rows: PlacementRow[]) {
   return rows.map((row) => ({
+    id: row.id,
+    version: row.version,
     companyId: row.companyId,
     departmentId: row.departmentId,
     reportToPositionId: row.reportToPositionId,
@@ -80,6 +92,10 @@ export function usePositionReportOverridesSection(position: Position | null | un
   const rowRefs = useRef(new Map<string, HTMLDivElement>());
   const [pendingScrollKey, setPendingScrollKey] = useState<string | null>(null);
   const [newRowCounter, setNewRowCounter] = useState(0);
+  const [asOfDate, setAsOfDate] = useState("");
+  const [effectiveOn, setEffectiveOn] = useState("");
+  const [changeKind, setChangeKind] = useState<"schedule" | "correct">("schedule");
+  const [changeReason, setChangeReason] = useState("");
   const dirty = useMemo(() => JSON.stringify(normalizeRows(rows)) !== baseline, [baseline, rows]);
 
   const loadPlacements = useCallback(async (positionId: number, cancelled?: () => boolean) => {
@@ -92,6 +108,7 @@ export function usePositionReportOverridesSection(position: Position | null | un
       const nextRows = (Array.isArray(data.overrides) ? data.overrides : []).map((row: PlacementApiRow) => ({
         clientKey: String(row.id),
         id: row.id,
+        version: row.version ?? 1,
         companyId: row.companyId ?? null,
         companyName: row.companyName || row.companyCode || "",
         departmentId: row.departmentId,
@@ -101,7 +118,13 @@ export function usePositionReportOverridesSection(position: Position | null | un
         headcount: row.headcount == null ? "" : String(row.headcount),
         isActive: row.isActive ?? true,
         edpCount: row.edpCount ?? 0,
+        temporalSummary: summarizeTemporal(row.temporal),
       }));
+      const nextAsOfDate = typeof data.asOfDate === "string" ? data.asOfDate : "";
+      setAsOfDate(nextAsOfDate);
+      setEffectiveOn(nextAsOfDate);
+      setChangeKind("schedule");
+      setChangeReason("");
       setRows(nextRows);
       setBaseline(JSON.stringify(normalizeRows(nextRows)));
     } catch (loadError) {
@@ -116,6 +139,8 @@ export function usePositionReportOverridesSection(position: Position | null | un
       setRows([]);
       setBaseline("[]");
       setLoading(false);
+      setAsOfDate("");
+      setEffectiveOn("");
       return;
     }
     let cancelled = false;
@@ -145,14 +170,19 @@ export function usePositionReportOverridesSection(position: Position | null | un
 
   async function savePlacements() {
     if (!position?.id) return;
+    if (changeKind === "correct" && !changeReason.trim()) {
+      feedback.error("历史纠错必须填写原因");
+      return;
+    }
     setSaving(true);
     try {
       const response = await fetch(workspacePath("/api/modules/hr/roster/position-report-overrides"), {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({
           positionId: position.id,
           overrides: normalizeRows(rows),
+          lifecycle: { kind: changeKind, effectiveOn: effectiveOn || asOfDate, reason: changeReason.trim() || null },
         }),
       });
       const data = await readJsonSafely(response);
@@ -255,6 +285,11 @@ export function usePositionReportOverridesSection(position: Position | null | un
         inputMode: "numeric",
         onChange: (value) => updateRow(index, { headcount: String(value ?? "").replace(/\D/g, "") }),
       },
+      {
+        kind: "note",
+        key: `timeline-${row.clientKey}`,
+        content: row.temporalSummary,
+      },
     ];
     return {
       key: row.clientKey,
@@ -326,6 +361,39 @@ export function usePositionReportOverridesSection(position: Position | null | un
           content: {
             items: [
               {
+                kind: "section",
+                key: "lifecycle-meta",
+                items: [{
+                  key: "effectiveOn",
+                  label: "生效日",
+                  spec: { valueType: "date", control: "temporal", precision: "date", state: saving ? "disabled" : "normal" },
+                  value: effectiveOn || asOfDate,
+                  onChange: (value) => setEffectiveOn(String(value ?? "")),
+                }, {
+                  key: "changeKind",
+                  label: "变更类型",
+                  spec: {
+                    valueType: "string",
+                    control: "choice",
+                    state: saving ? "disabled" : "normal",
+                    options: { source: "static", items: [
+                      { value: "schedule", label: "正常变更" },
+                      { value: "correct", label: "历史纠错" },
+                    ] },
+                  },
+                  value: changeKind,
+                  onChange: (value) => setChangeKind(value === "correct" ? "correct" : "schedule"),
+                }, ...(changeKind === "correct" ? [{
+                  key: "changeReason",
+                  label: "纠错原因",
+                  required: true,
+                  spec: { valueType: "string" as const, control: "text" as const, state: saving ? "disabled" as const : "normal" as const },
+                  value: changeReason,
+                  onChange: (value: unknown) => setChangeReason(String(value ?? "")),
+                }] : [])],
+                layout: { columns: 2 },
+              },
+              {
                 kind: "repeatable",
                 key: "overrides",
                 items: repeatableItems,
@@ -338,4 +406,13 @@ export function usePositionReportOverridesSection(position: Position | null | un
       },
     }],
   });
+}
+
+function summarizeTemporal(temporal: PlacementApiRow["temporal"]) {
+  const current = temporal?.current;
+  return [
+    current ? `当前 #${current.sequence} · ${current.validFrom || "起点未知"} 至 ${current.validToExclusive || "长期"}` : "当前：无有效版本",
+    `待生效 ${temporal?.upcoming?.length ?? 0} 条`,
+    `历史 ${temporal?.history?.length ?? 0} 条`,
+  ].join(" · ");
 }

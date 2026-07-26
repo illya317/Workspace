@@ -15,8 +15,8 @@ test("splits legal subject fields from customer role fields", () => {
     identityNumber: " 9132x ",
     contactPerson: " 客户联系人 ",
     creditDays: 30,
-    isActive: true,
-  }, 7);
+    availabilityFrom: "2026-08-01",
+  }, 7, "create-customer-1");
 
   assert.equal(result.ok, true);
   if (!result.ok) return;
@@ -30,8 +30,9 @@ test("splits legal subject fields from customer role fields", () => {
     code: "C-001",
     contactPerson: "客户联系人",
     creditDays: 30,
-    isActive: true,
   });
+  assert.equal(result.data.availabilityFrom, "2026-08-01");
+  assert.equal(result.data.availabilityThrough, null);
 });
 
 test("accepts an explicit existing subject when adding a second role", () => {
@@ -40,7 +41,7 @@ test("accepts an explicit existing subject when adding a second role", () => {
     code: "V-009",
     name: "示例公司",
     identityNumber: "9132X",
-  }, 7);
+  }, 7, "create-supplier-42");
 
   assert.equal(result.ok, true);
   if (result.ok) assert.equal(result.data.existingPartyId, 42);
@@ -51,14 +52,14 @@ test("requires a unified code or identity number for a new role record", () => {
     code: "C-002",
     name: "缺少统一代码的单位",
     identityNumber: "",
-  }, 7);
+  }, 7, "create-customer-2");
 
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "identityNumber");
 });
 
 test("keeps aggregate version mandatory for role updates", () => {
-  const result = buildExternalPartyUpdateCommand(42, "supplier", { code: "V-010" }, 7);
+  const result = buildExternalPartyUpdateCommand(42, "supplier", { code: "V-010" }, 7, undefined, "update-supplier-42");
   assert.equal(result.ok, false);
   if (!result.ok) assert.equal(result.issue.field, "expectedVersion");
 });

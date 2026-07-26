@@ -14,6 +14,11 @@ import { employmentIsActiveOnDate } from "@workspace/platform/server/relation-re
 import type { Contract, ContractWorkView } from "@workspace/administration/types";
 import { buildContractRecordAccessWhere, canOwnContractScope } from "./contract-access";
 import { renderContractsCsv } from "./contract-csv";
+import { commitDeleteContractCommand } from "./contract-draft-delete";
+import {
+  createInitialContractDraftRevision,
+  refreshInitialContractDraftRevision,
+} from "./contract-revisions";
 import {
   buildContractCreateCommand,
   buildContractTargetCommand,
@@ -22,7 +27,9 @@ import {
   type ContractTargetCommand,
   type ContractWriteCommand,
 } from "./domain/administration-contract-validation";
+import { canHardDeleteContractFacts } from "./domain/contract-lifecycle-policy";
 import type { ContractCreateInput, ContractUpdateInput } from "./schemas";
+export { commitDeleteContractCommand } from "./contract-draft-delete";
 export { ContractCreateSchema, ContractUpdateSchema } from "./schemas";
 export { renderContractsCsv } from "./contract-csv";
 export type { ContractCreateInput, ContractUpdateInput } from "./schemas";
@@ -76,6 +83,8 @@ const CONTRACT_INCLUDE = {
       employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
     },
   },
+  revisions: { select: { recordState: true } },
+  _count: { select: { attachments: true, records: true, stateEvents: true } },
 } satisfies Prisma.ContractInclude;
 
 type ContractRecord = Prisma.ContractGetPayload<{ include: typeof CONTRACT_INCLUDE }>;
@@ -118,6 +127,8 @@ function toContractDto(contract: ContractRecord, duplicateContractNumbers: Reado
     partyAIdentity,
     partyBIdentity,
     handlerEmployee,
+    revisions,
+    _count,
     amount,
     executedAmount,
     signedOn,
@@ -150,7 +161,16 @@ function toContractDto(contract: ContractRecord, duplicateContractNumbers: Reado
     handlerEmployeeActive:
       handlerEmployee?.employments.some((employment) => employmentIsActiveOnDate(employment, workspaceBusinessDate(new Date()))) ?? null,
     dataQualityIssues: dataQualityIssues(contract, duplicateContractNumbers),
-    canHardDelete: contract.lifecycleStatus === "draft" && !contract.isArchived,
+    canHardDelete: canHardDeleteContractFacts({
+      lifecycleStatus: contract.lifecycleStatus,
+      isArchived: contract.isArchived,
+      currentRevisionId: contract.currentRevisionId,
+      approvalSourceKey: contract.approvalSourceKey,
+      attachmentCount: _count.attachments,
+      recordCount: _count.records,
+      stateEventCount: _count.stateEvents,
+      revisionStates: revisions.map((revision) => revision.recordState),
+    }),
   };
 }
 
@@ -364,12 +384,17 @@ export async function commitCreateContractCommand(command: ContractWriteCommand)
       const record = await tx.contract.create({
         data: {
           ...command.data as Prisma.ContractUncheckedCreateInput,
+          lifecycleStatus: "draft",
+          signatureStatus: "unknown",
+          performanceStatus: "not_started",
           editedBy: command.userId,
           editedAt: new Date(),
         },
         include: CONTRACT_INCLUDE,
       });
-      return serviceOk({ success: true, record: toContractDto(record) });
+      await createInitialContractDraftRevision(tx, record as unknown as Record<string, unknown> & { id: number; createdAt: Date; signedOn?: Date | null }, command.userId);
+      const created = await tx.contract.findUniqueOrThrow({ where: { id: record.id }, include: CONTRACT_INCLUDE });
+      return serviceOk({ success: true, record: toContractDto(created) });
     });
   } catch (error) {
     return mapWriteError(error);
@@ -384,6 +409,9 @@ export async function commitUpdateContractCommand(command: ContractTargetCommand
   });
   if (!current) return serviceError("合同不存在", 404);
   if (current.version !== command.expectedVersion) return serviceError("合同已被其他人修改，请刷新后重试", 409);
+  if (current.lifecycleStatus !== "draft" || current.currentRevisionId !== null) {
+    return serviceError("正式合同不能直接覆盖，请创建合同修订草稿", 409);
+  }
   const nextState = {
     signedOn: (command.data.signedOn === undefined ? current.signedOn : command.data.signedOn) as Date | null,
     expiresOn: (command.data.expiresOn === undefined ? current.expiresOn : command.data.expiresOn) as Date | null,
@@ -401,6 +429,9 @@ export async function commitUpdateContractCommand(command: ContractTargetCommand
       });
       if (!locked) return serviceError("合同不存在", 404);
       if (locked.version !== command.expectedVersion) return serviceError("合同已被其他人修改，请刷新后重试", 409);
+      if (locked.lifecycleStatus !== "draft" || locked.currentRevisionId !== null) {
+        return serviceError("正式合同不能直接覆盖，请创建合同修订草稿", 409);
+      }
       await lockContractNumber(command.data.contractNo, tx);
       if (await contractNumberConflict(command.data.contractNo, command.id, tx)) return serviceError("合同编号已存在", 409);
       await ensureEditHistoryBaseline("Contract", command.id, command.userId, tx);
@@ -413,6 +444,10 @@ export async function commitUpdateContractCommand(command: ContractTargetCommand
           version: { increment: 1 },
         },
       });
+      const draftContract = await tx.contract.findUniqueOrThrow({ where: { id: command.id } });
+      if (!await refreshInitialContractDraftRevision(tx, draftContract as unknown as Record<string, unknown> & { id: number; createdAt: Date; signedOn?: Date | null })) {
+        return serviceError("合同初始修订草稿不存在", 409);
+      }
       await snapshotHistory("Contract", command.id, command.userId, tx);
       const updated = await tx.contract.findUniqueOrThrow({ where: { id: command.id }, include: CONTRACT_INCLUDE });
       return serviceOk({ success: true, record: toContractDto(updated) });
@@ -438,39 +473,18 @@ export async function commitArchiveContractCommand(command: ContractTargetComman
       scopeGuard: async (context) => {
         const visible = await context.tx.contract.findFirst({
           where: { AND: [{ id: command.id }, accessWhere] },
-          select: { id: true },
+          select: { id: true, lifecycleStatus: true, currentRevisionId: true },
         });
-        return visible ? { ok: true } : { error: "合同不存在", status: 404 };
+        if (!visible) return { error: "合同不存在", status: 404 };
+        return visible.lifecycleStatus !== "draft" && visible.currentRevisionId
+          ? { ok: true }
+          : { error: "合同草稿不能归档，请继续编辑或删除草稿", status: 409 };
       },
     });
     return result.ok ? serviceOk({ success: true }) : serviceError(result.error, result.status || 400);
   } catch (error) {
     return mapWriteError(error);
   }
-}
-
-export async function commitDeleteContractCommand(command: ContractTargetCommand) {
-  const accessWhere = await buildContractRecordAccessWhere(command.userId);
-  const visible = await prisma.contract.findFirst({
-    where: { AND: [{ id: command.id }, accessWhere] },
-    select: { lifecycleStatus: true, version: true },
-  });
-  if (!visible) return serviceError("合同不存在", 404);
-  if (visible.lifecycleStatus !== "draft") return serviceError("正式合同不能删除，请改用归档", 409);
-  const result = await guardedDelete({
-    entityType: "Contract",
-    modelKey: "contract",
-    id: command.id,
-    userId: command.userId,
-    expectedVersion: command.expectedVersion,
-    deleteMode: "hard",
-    referencePolicy: "none",
-    transactionIsolation: "serializable",
-    onBeforeDelete: (_id, context) => context.record.lifecycleStatus === "draft"
-      ? { ok: true }
-      : { error: "正式合同不能删除，请改用归档", status: 409 },
-  });
-  return result.ok ? serviceOk({ success: true }) : serviceError(result.error, result.status || 400);
 }
 
 const createContractAdapter = defineBusinessActionCommandAdapter({

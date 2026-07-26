@@ -43,12 +43,9 @@ export async function getDepartmentNaturalSpaceActionProfile(
 export async function isDepartmentResponsiblePositionUser(userId: number, departmentId: number) {
   const department = await prisma.department.findUnique({
     where: { id: departmentId },
-    select: { managerPositionId: true, managerEmployees: { select: { employee: { select: { userId: true, employments: { where: currentEmploymentDateWhere(), select: { id: true }, take: 1 } } } } } },
+    select: { managerPositionId: true },
   });
   if (!department) return false;
-  if (department.managerEmployees.length > 0) {
-    return department.managerEmployees.some((manager) => manager.employee.userId === userId && manager.employee.employments.length > 0);
-  }
   return Boolean(department.managerPositionId && await isActivePositionUser(userId, department.managerPositionId));
 }
 
@@ -73,10 +70,7 @@ export async function listDepartmentIdsManagedByUserPosition(userId: number) {
   const departments = await prisma.department.findMany({
     where: {
       isArchived: false,
-      OR: [
-        { managerEmployees: { some: { employee: { userId, employments: { some: currentEmploymentDateWhere() } } } } },
-        ...(positionIds.length > 0 ? [{ managerEmployees: { none: {} }, managerPositionId: { in: positionIds } }] : []),
-      ],
+      managerPositionId: { in: positionIds.length > 0 ? positionIds : [-1] },
     },
     select: { id: true },
   });
@@ -155,18 +149,6 @@ export async function listDepartmentNaturalSpacePermissions(
     prisma.department.findUnique({
       where: { id: departmentId },
       select: {
-        managerEmployees: {
-          select: {
-            employee: {
-              select: {
-                name: true,
-                userId: true,
-                employments: { where: currentEmploymentDateWhere(), select: { id: true }, take: 1 },
-                user: { select: userSelect },
-              },
-            },
-          },
-        },
         managerPosition: {
           select: {
             edps: {
@@ -208,10 +190,8 @@ export async function listDepartmentNaturalSpacePermissions(
   ]);
 
   const rows: NaturalBusinessSpacePermission[] = [];
-  const managerEmployees = department?.managerEmployees.length
-    ? department.managerEmployees.map((row) => row.employee)
-    : (department?.managerPosition?.edps ?? []).map((edp) => edp.employee);
-  for (const employee of managerEmployees) {
+  const responsibleEmployees = (department?.managerPosition?.edps ?? []).map((edp) => edp.employee);
+  for (const employee of responsibleEmployees) {
     const manager = employee.user;
     if (!employee.userId || !manager || employee.employments.length === 0) continue;
     rows.push({
@@ -219,7 +199,7 @@ export async function listDepartmentNaturalSpacePermissions(
       userName: employee.name || userName(manager),
       actionProfile: "allBusiness",
       sourceLabel: "部门负责人",
-      actionSource: department?.managerEmployees.length ? "implicit" : "position",
+      actionSource: "position",
     });
   }
 

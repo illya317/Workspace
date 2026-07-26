@@ -20,6 +20,7 @@ import {
 } from "./work-mutation-impact-runtime";
 import { workPilotInboundImpactAdapters } from "./work-pilot-inbound-impact-adapters";
 import { projectMutationImpactAdapters } from "./work-project-mutation-impact-adapters";
+import { projectMembershipHistoryImpactAdapters } from "./project-membership-mutation-impact-adapters";
 
 export const WORK_MUTATION_IMPACT_POLICY_REVISION = "work-mutation-impact-v1";
 export const WORK_PLAN_ITEMS_RELATION = "work.plan.items";
@@ -490,6 +491,7 @@ function workMutationImpactAdapters(): MutationImpactAdapter<WorkMutationImpactC
     ...workKpiMutationImpactAdapters(),
     ...workPilotInboundImpactAdapters(),
     ...projectMutationImpactAdapters({ workItemRevision }),
+    ...projectMembershipHistoryImpactAdapters(),
     restoreProvenanceAdapter(),
     staleRestoreItemsAdapter(),
     planReferenceBlocker({ relationKey: "work.tasks.source.plan", field: "sourcePlanId", reason: "存在由该计划派生的计划" }),

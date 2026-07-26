@@ -31,14 +31,14 @@
 <body>
 <div class="container">
 <h1>Workspace API Reference</h1>
-<p class="subtitle">456 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
+<p class="subtitle">455 endpoints across 8 groups；访问标记来自 API contract 与 route wrapper</p>
 <div class="summary">
   <div class="summary-grid">
-    <div class="summary-item"><div class="num">184</div><div class="label">GET</div></div>
-    <div class="summary-item"><div class="num">155</div><div class="label">POST</div></div>
-    <div class="summary-item"><div class="num">67</div><div class="label">PUT</div></div>
+    <div class="summary-item"><div class="num">186</div><div class="label">GET</div></div>
+    <div class="summary-item"><div class="num">160</div><div class="label">POST</div></div>
+    <div class="summary-item"><div class="num">63</div><div class="label">PUT</div></div>
     <div class="summary-item"><div class="num">13</div><div class="label">PATCH</div></div>
-    <div class="summary-item"><div class="num">37</div><div class="label">DELETE</div></div>
+    <div class="summary-item"><div class="num">33</div><div class="label">DELETE</div></div>
   </div>
 </div>
 
@@ -429,6 +429,12 @@
 </div>
 <div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/administration/contracts/:id/lifecycle</span>
+  <span class="auth">登录 + administration.contracts.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/administration/contracts/:id/package</span>
   <span class="auth">登录 + administration.contracts.read</span>
   <span class="desc"></span>
@@ -437,6 +443,30 @@
   <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/administration/contracts/:id/records</span>
   <span class="auth">登录 + administration.contracts.update</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/administration/contracts/:id/revisions</span>
+  <span class="auth">登录 + administration.contracts.create</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/administration/contracts/:id/revisions/:revisionId/publish</span>
+  <span class="auth">登录 + administration.contracts.create</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/administration/contracts/:id/state-events</span>
+  <span class="auth">登录 + administration.contracts.create</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/administration/contracts/:id/state-events/:eventId/reverse</span>
+  <span class="auth">登录 + administration.contracts.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -539,6 +569,12 @@
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/capitalSecurities/governance/ownership-parties</span>
   <span class="auth">登录 + capitalSecurities.governance.read</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/capitalSecurities/governance/ownership-projections/rebuild</span>
+  <span class="auth">登录 + capitalSecurities.governance.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -723,6 +759,12 @@
 </div>
 <div class="endpoint">
   <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/external/customers/:id/availability</span>
+  <span class="auth">登录 + external.customers.create</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
   <span class="path">/api/modules/external/internal/workspace-analysis-sources</span>
   <span class="auth">内部服务鉴权</span>
   <span class="desc"></span>
@@ -749,6 +791,12 @@
   <span class="method" style="background:#7c3aed">PATCH</span>
   <span class="path">/api/modules/external/suppliers/:id</span>
   <span class="auth">登录 + external.suppliers.update</span>
+  <span class="desc"></span>
+</div>
+<div class="endpoint">
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/external/suppliers/:id/availability</span>
+  <span class="auth">登录 + external.suppliers.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -1466,24 +1514,6 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/contracts</span>
-  <span class="auth">登录 + hr.roster.create</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/contracts</span>
-  <span class="auth">登录 + hr.roster.update</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/contracts/:id</span>
-  <span class="auth">登录 + hr.roster.delete</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#dc2626">DELETE</span>
   <span class="path">/api/modules/hr/roster/department-codes</span>
   <span class="auth">登录 + hr.roster.delete</span>
@@ -1550,39 +1580,21 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/edps</span>
-  <span class="auth">登录 + hr.roster.create</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/edps</span>
-  <span class="auth">登录 + hr.roster.update</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/edps/:id</span>
-  <span class="auth">登录 + hr.roster.delete</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/hr/roster/employee-profiles/:id</span>
   <span class="auth">登录 + hr.roster.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/employee-profiles/:id/contracts</span>
-  <span class="auth">登录 + hr.roster.update</span>
+  <span class="method" style="background:#2563eb">GET</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id/agreements</span>
+  <span class="auth">登录 + hr.roster.read</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#d97706">PUT</span>
-  <span class="path">/api/modules/hr/roster/employee-profiles/:id/edps</span>
-  <span class="auth">登录 + hr.roster.update</span>
+  <span class="method" style="background:#059669">POST</span>
+  <span class="path">/api/modules/hr/roster/employee-profiles/:id/agreements</span>
+  <span class="auth">登录 + hr.roster.create</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">
@@ -1616,12 +1628,6 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/employees/:id</span>
-  <span class="auth">登录 + hr.roster.delete</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#2563eb">GET</span>
   <span class="path">/api/modules/hr/roster/employees/search</span>
   <span class="auth">登录 + hr.roster.read</span>
@@ -1634,21 +1640,9 @@
   <span class="desc"></span>
 </div>
 <div class="endpoint">
-  <span class="method" style="background:#059669">POST</span>
-  <span class="path">/api/modules/hr/roster/employments</span>
-  <span class="auth">登录 + hr.roster.create</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
   <span class="method" style="background:#d97706">PUT</span>
   <span class="path">/api/modules/hr/roster/employments</span>
   <span class="auth">登录 + hr.roster.update</span>
-  <span class="desc"></span>
-</div>
-<div class="endpoint">
-  <span class="method" style="background:#dc2626">DELETE</span>
-  <span class="path">/api/modules/hr/roster/employments/:id</span>
-  <span class="auth">登录 + hr.roster.delete</span>
   <span class="desc"></span>
 </div>
 <div class="endpoint">

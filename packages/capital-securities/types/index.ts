@@ -50,6 +50,7 @@ export type CompanyRecord = {
   id: number;
   partyId: number;
   partyVersion: number;
+  legalFactRevision: number;
   code: string;
   name: string;
   fullName: string | null;
@@ -106,6 +107,17 @@ export type OwnershipInterestRecord = {
   sourceType: string | null;
   sourceLabel: string | null;
   sourceReference: string | null;
+  sourceEventId: number | null;
+  sourceEventName: string | null;
+  sourceEventEffectiveDate: string | null;
+  closedByEventId: number | null;
+  closedByEventName: string | null;
+  projectionRunId: number | null;
+  projectionGeneration: number | null;
+  projectorKey: string | null;
+  projectorVersion: number | null;
+  ledgerHash: string | null;
+  projectedAt: string | null;
   version: number;
 };
 

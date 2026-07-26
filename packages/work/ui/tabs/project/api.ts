@@ -105,7 +105,7 @@ export async function deleteProject(projectId: number, version: number) {
 async function createMember(projectId: number, member: EmployeeTag, role: string | null) {
   const res = await fetch(workspacePath("/api/modules/work/projects/members"), {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: { "Content-Type": "application/json", "Idempotency-Key": crypto.randomUUID() },
     body: JSON.stringify({ employeeNumber: member.employeeNumber, projectId, role }),
   });
   if (!res.ok) {
@@ -114,10 +114,14 @@ async function createMember(projectId: number, member: EmployeeTag, role: string
   }
 }
 
-async function updateMemberRole(entryId: number, role: string | null) {
+async function updateMemberRole(entryId: number, version: number, role: string | null) {
   const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
     method: "PUT",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "If-Match": String(version),
+      "Idempotency-Key": crypto.randomUUID(),
+    },
     body: JSON.stringify({ field: "role", value: role }),
   });
   if (!res.ok) {
@@ -129,7 +133,7 @@ async function updateMemberRole(entryId: number, role: string | null) {
 async function deleteMember(entryId: number, version: number) {
   const res = await fetch(workspacePath(`/api/modules/work/projects/members/${entryId}`), {
     method: "DELETE",
-    headers: { "If-Match": String(version) },
+    headers: { "If-Match": String(version), "Idempotency-Key": crypto.randomUUID() },
   });
   if (!res.ok) {
     const data = await res.json().catch(() => ({}));
@@ -138,7 +142,11 @@ async function deleteMember(entryId: number, version: number) {
 }
 
 export async function syncMembers(projectId: number, nextDraft: ProjectDraft, entries: ProjectMemberEntry[]) {
-  const currentEntries = entries.filter((entry) => entry.projectId === projectId);
+  const currentEntries = entries.filter((entry) => (
+    entry.projectId === projectId
+    && entry.recordState === "confirmed"
+    && entry.temporalState === "current"
+  ));
   const targets = [
     ...(nextDraft.leader ? [{ member: nextDraft.leader, role: "负责人" as ProjectRole }] : []),
     ...MULTI_PROJECT_ROLES.flatMap((role) =>
@@ -161,7 +169,7 @@ export async function syncMembers(projectId: number, nextDraft: ProjectDraft, en
     if (!entry) {
       await createMember(projectId, member, role);
     } else if (normalizeProjectRole(entry.role) !== role) {
-      await updateMemberRole(entry.id, role);
+      await updateMemberRole(entry.id, entry.version, role);
     }
   }
 }

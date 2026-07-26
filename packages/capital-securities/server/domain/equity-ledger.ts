@@ -70,6 +70,7 @@ export type DerivedOwnershipPeriod = {
   effectiveFrom: Date | null;
   effectiveTo: Date | null;
   sourceEventId: number;
+  closedByEventId: number | null;
   sourceEventName: string;
   sourceType: string | null;
   sourceLabel: string | null;
@@ -140,6 +141,7 @@ export function deriveOwnershipPeriods(
       const replacement = next.get(partyId);
       if (replacement?.signature === current.signature) continue;
       current.effectiveTo = snapshot.effectiveDate ? previousDay(snapshot.effectiveDate) : null;
+      current.closedByEventId = event.id;
       periods.push(withoutSignature(current));
       open.delete(partyId);
     }
@@ -152,6 +154,7 @@ export function deriveOwnershipPeriods(
         effectiveFrom: snapshot.effectiveDate,
         effectiveTo: null,
         sourceEventId: event.id,
+        closedByEventId: null,
         sourceEventName: event.eventName ?? event.eventType,
         sourceType: event.sourceType ?? null,
         sourceLabel: event.sourceLabel ?? null,

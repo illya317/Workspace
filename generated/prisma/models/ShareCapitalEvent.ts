@@ -400,6 +400,8 @@ export type ShareCapitalEventWhereInput = {
   consolidatedByPartyAfter?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   supersedesEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
   supersededByEvents?: Prisma.ShareCapitalEventListRelationFilter
+  openedOwnershipInterests?: Prisma.OwnershipInterestListRelationFilter
+  closedOwnershipInterests?: Prisma.OwnershipInterestListRelationFilter
   transactions?: Prisma.ShareCapitalTransactionListRelationFilter
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionListRelationFilter
 }
@@ -433,6 +435,8 @@ export type ShareCapitalEventOrderByWithRelationInput = {
   consolidatedByPartyAfter?: Prisma.PartyOrderByWithRelationInput
   supersedesEvent?: Prisma.ShareCapitalEventOrderByWithRelationInput
   supersededByEvents?: Prisma.ShareCapitalEventOrderByRelationAggregateInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestOrderByRelationAggregateInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestOrderByRelationAggregateInput
   transactions?: Prisma.ShareCapitalTransactionOrderByRelationAggregateInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionOrderByRelationAggregateInput
 }
@@ -470,6 +474,8 @@ export type ShareCapitalEventWhereUniqueInput = Prisma.AtLeast<{
   consolidatedByPartyAfter?: Prisma.XOR<Prisma.PartyNullableScalarRelationFilter, Prisma.PartyWhereInput> | null
   supersedesEvent?: Prisma.XOR<Prisma.ShareCapitalEventNullableScalarRelationFilter, Prisma.ShareCapitalEventWhereInput> | null
   supersededByEvents?: Prisma.ShareCapitalEventListRelationFilter
+  openedOwnershipInterests?: Prisma.OwnershipInterestListRelationFilter
+  closedOwnershipInterests?: Prisma.OwnershipInterestListRelationFilter
   transactions?: Prisma.ShareCapitalTransactionListRelationFilter
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionListRelationFilter
 }, "id" | "sourceKey" | "issuerCompanyId_sequence">
@@ -561,6 +567,8 @@ export type ShareCapitalEventCreateInput = {
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
@@ -591,6 +599,8 @@ export type ShareCapitalEventUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
@@ -620,6 +630,8 @@ export type ShareCapitalEventUpdateInput = {
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
@@ -650,6 +662,8 @@ export type ShareCapitalEventUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
@@ -859,6 +873,38 @@ export type ShareCapitalEventScalarRelationFilter = {
   isNot?: Prisma.ShareCapitalEventWhereInput
 }
 
+export type ShareCapitalEventCreateNestedOneWithoutOpenedOwnershipInterestsInput = {
+  create?: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutOpenedOwnershipInterestsInput>
+  connectOrCreate?: Prisma.ShareCapitalEventCreateOrConnectWithoutOpenedOwnershipInterestsInput
+  connect?: Prisma.ShareCapitalEventWhereUniqueInput
+}
+
+export type ShareCapitalEventCreateNestedOneWithoutClosedOwnershipInterestsInput = {
+  create?: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutClosedOwnershipInterestsInput>
+  connectOrCreate?: Prisma.ShareCapitalEventCreateOrConnectWithoutClosedOwnershipInterestsInput
+  connect?: Prisma.ShareCapitalEventWhereUniqueInput
+}
+
+export type ShareCapitalEventUpdateOneWithoutOpenedOwnershipInterestsNestedInput = {
+  create?: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutOpenedOwnershipInterestsInput>
+  connectOrCreate?: Prisma.ShareCapitalEventCreateOrConnectWithoutOpenedOwnershipInterestsInput
+  upsert?: Prisma.ShareCapitalEventUpsertWithoutOpenedOwnershipInterestsInput
+  disconnect?: Prisma.ShareCapitalEventWhereInput | boolean
+  delete?: Prisma.ShareCapitalEventWhereInput | boolean
+  connect?: Prisma.ShareCapitalEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShareCapitalEventUpdateToOneWithWhereWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUpdateWithoutOpenedOwnershipInterestsInput>, Prisma.ShareCapitalEventUncheckedUpdateWithoutOpenedOwnershipInterestsInput>
+}
+
+export type ShareCapitalEventUpdateOneWithoutClosedOwnershipInterestsNestedInput = {
+  create?: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutClosedOwnershipInterestsInput>
+  connectOrCreate?: Prisma.ShareCapitalEventCreateOrConnectWithoutClosedOwnershipInterestsInput
+  upsert?: Prisma.ShareCapitalEventUpsertWithoutClosedOwnershipInterestsInput
+  disconnect?: Prisma.ShareCapitalEventWhereInput | boolean
+  delete?: Prisma.ShareCapitalEventWhereInput | boolean
+  connect?: Prisma.ShareCapitalEventWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ShareCapitalEventUpdateToOneWithWhereWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUpdateWithoutClosedOwnershipInterestsInput>, Prisma.ShareCapitalEventUncheckedUpdateWithoutClosedOwnershipInterestsInput>
+}
+
 export type ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput = {
   create?: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutSupersededByEventsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutSupersededByEventsInput>
   connectOrCreate?: Prisma.ShareCapitalEventCreateOrConnectWithoutSupersededByEventsInput
@@ -1037,6 +1083,282 @@ export type ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput = {
   deleteMany?: Prisma.ShareCapitalEventScalarWhereInput | Prisma.ShareCapitalEventScalarWhereInput[]
 }
 
+export type ShareCapitalEventCreateWithoutOpenedOwnershipInterestsInput = {
+  sourceKey?: string | null
+  sequence: number
+  eventType: string
+  eventName: string
+  effectiveDate?: Date | string | null
+  effectiveDatePrecision?: string
+  ledgerMode?: string
+  dataCompleteness?: string
+  registeredCapitalCheckpointYuan?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: string
+  sourceObservedDate?: Date | string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  notes?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuer: Prisma.CompanyCreateNestedOneWithoutShareCapitalEventsInput
+  consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
+  supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
+  supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
+  transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
+}
+
+export type ShareCapitalEventUncheckedCreateWithoutOpenedOwnershipInterestsInput = {
+  id?: number
+  sourceKey?: string | null
+  issuerCompanyId: number
+  sequence: number
+  eventType: string
+  eventName: string
+  effectiveDate?: Date | string | null
+  effectiveDatePrecision?: string
+  ledgerMode?: string
+  dataCompleteness?: string
+  registeredCapitalCheckpointYuan?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: string
+  sourceObservedDate?: Date | string | null
+  consolidatedByPartyIdAfter?: number | null
+  supersedesEventId?: number | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  notes?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
+  transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
+}
+
+export type ShareCapitalEventCreateOrConnectWithoutOpenedOwnershipInterestsInput = {
+  where: Prisma.ShareCapitalEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutOpenedOwnershipInterestsInput>
+}
+
+export type ShareCapitalEventCreateWithoutClosedOwnershipInterestsInput = {
+  sourceKey?: string | null
+  sequence: number
+  eventType: string
+  eventName: string
+  effectiveDate?: Date | string | null
+  effectiveDatePrecision?: string
+  ledgerMode?: string
+  dataCompleteness?: string
+  registeredCapitalCheckpointYuan?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: string
+  sourceObservedDate?: Date | string | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  notes?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuer: Prisma.CompanyCreateNestedOneWithoutShareCapitalEventsInput
+  consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
+  supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
+  supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
+}
+
+export type ShareCapitalEventUncheckedCreateWithoutClosedOwnershipInterestsInput = {
+  id?: number
+  sourceKey?: string | null
+  issuerCompanyId: number
+  sequence: number
+  eventType: string
+  eventName: string
+  effectiveDate?: Date | string | null
+  effectiveDatePrecision?: string
+  ledgerMode?: string
+  dataCompleteness?: string
+  registeredCapitalCheckpointYuan?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: string
+  sourceObservedDate?: Date | string | null
+  consolidatedByPartyIdAfter?: number | null
+  supersedesEventId?: number | null
+  sourceType?: string | null
+  sourceLabel?: string | null
+  sourceReference?: string | null
+  notes?: string | null
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
+}
+
+export type ShareCapitalEventCreateOrConnectWithoutClosedOwnershipInterestsInput = {
+  where: Prisma.ShareCapitalEventWhereUniqueInput
+  create: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutClosedOwnershipInterestsInput>
+}
+
+export type ShareCapitalEventUpsertWithoutOpenedOwnershipInterestsInput = {
+  update: Prisma.XOR<Prisma.ShareCapitalEventUpdateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedUpdateWithoutOpenedOwnershipInterestsInput>
+  create: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutOpenedOwnershipInterestsInput>
+  where?: Prisma.ShareCapitalEventWhereInput
+}
+
+export type ShareCapitalEventUpdateToOneWithWhereWithoutOpenedOwnershipInterestsInput = {
+  where?: Prisma.ShareCapitalEventWhereInput
+  data: Prisma.XOR<Prisma.ShareCapitalEventUpdateWithoutOpenedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedUpdateWithoutOpenedOwnershipInterestsInput>
+}
+
+export type ShareCapitalEventUpdateWithoutOpenedOwnershipInterestsInput = {
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventName?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveDatePrecision?: Prisma.StringFieldUpdateOperationsInput | string
+  ledgerMode?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
+  registeredCapitalCheckpointYuan?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceObservedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuer?: Prisma.CompanyUpdateOneRequiredWithoutShareCapitalEventsNestedInput
+  consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
+  supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
+  supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
+  transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
+}
+
+export type ShareCapitalEventUncheckedUpdateWithoutOpenedOwnershipInterestsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventName?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveDatePrecision?: Prisma.StringFieldUpdateOperationsInput | string
+  ledgerMode?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
+  registeredCapitalCheckpointYuan?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceObservedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidatedByPartyIdAfter?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supersedesEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
+  transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
+}
+
+export type ShareCapitalEventUpsertWithoutClosedOwnershipInterestsInput = {
+  update: Prisma.XOR<Prisma.ShareCapitalEventUpdateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedUpdateWithoutClosedOwnershipInterestsInput>
+  create: Prisma.XOR<Prisma.ShareCapitalEventCreateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedCreateWithoutClosedOwnershipInterestsInput>
+  where?: Prisma.ShareCapitalEventWhereInput
+}
+
+export type ShareCapitalEventUpdateToOneWithWhereWithoutClosedOwnershipInterestsInput = {
+  where?: Prisma.ShareCapitalEventWhereInput
+  data: Prisma.XOR<Prisma.ShareCapitalEventUpdateWithoutClosedOwnershipInterestsInput, Prisma.ShareCapitalEventUncheckedUpdateWithoutClosedOwnershipInterestsInput>
+}
+
+export type ShareCapitalEventUpdateWithoutClosedOwnershipInterestsInput = {
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventName?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveDatePrecision?: Prisma.StringFieldUpdateOperationsInput | string
+  ledgerMode?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
+  registeredCapitalCheckpointYuan?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceObservedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuer?: Prisma.CompanyUpdateOneRequiredWithoutShareCapitalEventsNestedInput
+  consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
+  supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
+  supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
+}
+
+export type ShareCapitalEventUncheckedUpdateWithoutClosedOwnershipInterestsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  issuerCompanyId?: Prisma.IntFieldUpdateOperationsInput | number
+  sequence?: Prisma.IntFieldUpdateOperationsInput | number
+  eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  eventName?: Prisma.StringFieldUpdateOperationsInput | string
+  effectiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  effectiveDatePrecision?: Prisma.StringFieldUpdateOperationsInput | string
+  ledgerMode?: Prisma.StringFieldUpdateOperationsInput | string
+  dataCompleteness?: Prisma.StringFieldUpdateOperationsInput | string
+  registeredCapitalCheckpointYuan?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  recordStatus?: Prisma.StringFieldUpdateOperationsInput | string
+  sourceObservedDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  consolidatedByPartyIdAfter?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  supersedesEventId?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  sourceType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceLabel?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  sourceReference?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
+  snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
+}
+
 export type ShareCapitalEventCreateWithoutSupersededByEventsInput = {
   sourceKey?: string | null
   sequence: number
@@ -1061,6 +1383,8 @@ export type ShareCapitalEventCreateWithoutSupersededByEventsInput = {
   issuer: Prisma.CompanyCreateNestedOneWithoutShareCapitalEventsInput
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
@@ -1090,6 +1414,8 @@ export type ShareCapitalEventUncheckedCreateWithoutSupersededByEventsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
@@ -1123,6 +1449,8 @@ export type ShareCapitalEventCreateWithoutSupersedesEventInput = {
   issuer: Prisma.CompanyCreateNestedOneWithoutShareCapitalEventsInput
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
@@ -1152,6 +1480,8 @@ export type ShareCapitalEventUncheckedCreateWithoutSupersedesEventInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
@@ -1201,6 +1531,8 @@ export type ShareCapitalEventUpdateWithoutSupersededByEventsInput = {
   issuer?: Prisma.CompanyUpdateOneRequiredWithoutShareCapitalEventsNestedInput
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
@@ -1230,6 +1562,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutSupersededByEventsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
@@ -1305,6 +1639,8 @@ export type ShareCapitalEventCreateWithoutTransactionsInput = {
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
 
@@ -1334,6 +1670,8 @@ export type ShareCapitalEventUncheckedCreateWithoutTransactionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
 
@@ -1378,6 +1716,8 @@ export type ShareCapitalEventUpdateWithoutTransactionsInput = {
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
 
@@ -1407,6 +1747,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutTransactionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
 
@@ -1435,6 +1777,8 @@ export type ShareCapitalEventCreateWithoutSnapshotPositionsInput = {
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
 }
 
@@ -1464,6 +1808,8 @@ export type ShareCapitalEventUncheckedCreateWithoutSnapshotPositionsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
 }
 
@@ -1508,6 +1854,8 @@ export type ShareCapitalEventUpdateWithoutSnapshotPositionsInput = {
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
 }
 
@@ -1537,6 +1885,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutSnapshotPositionsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
 }
 
@@ -1564,6 +1914,8 @@ export type ShareCapitalEventCreateWithoutConsolidatedByPartyAfterInput = {
   issuer: Prisma.CompanyCreateNestedOneWithoutShareCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
@@ -1593,6 +1945,8 @@ export type ShareCapitalEventUncheckedCreateWithoutConsolidatedByPartyAfterInput
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
@@ -1647,6 +2001,8 @@ export type ShareCapitalEventCreateWithoutIssuerInput = {
   consolidatedByPartyAfter?: Prisma.PartyCreateNestedOneWithoutControlledAfterCapitalEventsInput
   supersedesEvent?: Prisma.ShareCapitalEventCreateNestedOneWithoutSupersededByEventsInput
   supersededByEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionCreateNestedManyWithoutEventInput
 }
@@ -1676,6 +2032,8 @@ export type ShareCapitalEventUncheckedCreateWithoutIssuerInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutSupersedesEventInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutSourceEventInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutClosedByEventInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedCreateNestedManyWithoutEventInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedCreateNestedManyWithoutEventInput
 }
@@ -1756,6 +2114,8 @@ export type ShareCapitalEventUpdateWithoutSupersedesEventInput = {
   issuer?: Prisma.CompanyUpdateOneRequiredWithoutShareCapitalEventsNestedInput
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
@@ -1785,6 +2145,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutSupersedesEventInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
@@ -1865,6 +2227,8 @@ export type ShareCapitalEventUpdateWithoutConsolidatedByPartyAfterInput = {
   issuer?: Prisma.CompanyUpdateOneRequiredWithoutShareCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
@@ -1894,6 +2258,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutConsolidatedByPartyAfterInput
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
@@ -1974,6 +2340,8 @@ export type ShareCapitalEventUpdateWithoutIssuerInput = {
   consolidatedByPartyAfter?: Prisma.PartyUpdateOneWithoutControlledAfterCapitalEventsNestedInput
   supersedesEvent?: Prisma.ShareCapitalEventUpdateOneWithoutSupersededByEventsNestedInput
   supersededByEvents?: Prisma.ShareCapitalEventUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUpdateManyWithoutEventNestedInput
 }
@@ -2003,6 +2371,8 @@ export type ShareCapitalEventUncheckedUpdateWithoutIssuerInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   supersededByEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutSupersedesEventNestedInput
+  openedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutSourceEventNestedInput
+  closedOwnershipInterests?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutClosedByEventNestedInput
   transactions?: Prisma.ShareCapitalTransactionUncheckedUpdateManyWithoutEventNestedInput
   snapshotPositions?: Prisma.ShareCapitalSnapshotPositionUncheckedUpdateManyWithoutEventNestedInput
 }
@@ -2040,12 +2410,16 @@ export type ShareCapitalEventUncheckedUpdateManyWithoutIssuerInput = {
 
 export type ShareCapitalEventCountOutputType = {
   supersededByEvents: number
+  openedOwnershipInterests: number
+  closedOwnershipInterests: number
   transactions: number
   snapshotPositions: number
 }
 
 export type ShareCapitalEventCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   supersededByEvents?: boolean | ShareCapitalEventCountOutputTypeCountSupersededByEventsArgs
+  openedOwnershipInterests?: boolean | ShareCapitalEventCountOutputTypeCountOpenedOwnershipInterestsArgs
+  closedOwnershipInterests?: boolean | ShareCapitalEventCountOutputTypeCountClosedOwnershipInterestsArgs
   transactions?: boolean | ShareCapitalEventCountOutputTypeCountTransactionsArgs
   snapshotPositions?: boolean | ShareCapitalEventCountOutputTypeCountSnapshotPositionsArgs
 }
@@ -2065,6 +2439,20 @@ export type ShareCapitalEventCountOutputTypeDefaultArgs<ExtArgs extends runtime.
  */
 export type ShareCapitalEventCountOutputTypeCountSupersededByEventsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.ShareCapitalEventWhereInput
+}
+
+/**
+ * ShareCapitalEventCountOutputType without action
+ */
+export type ShareCapitalEventCountOutputTypeCountOpenedOwnershipInterestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OwnershipInterestWhereInput
+}
+
+/**
+ * ShareCapitalEventCountOutputType without action
+ */
+export type ShareCapitalEventCountOutputTypeCountClosedOwnershipInterestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OwnershipInterestWhereInput
 }
 
 /**
@@ -2111,6 +2499,8 @@ export type ShareCapitalEventSelect<ExtArgs extends runtime.Types.Extensions.Int
   consolidatedByPartyAfter?: boolean | Prisma.ShareCapitalEvent$consolidatedByPartyAfterArgs<ExtArgs>
   supersedesEvent?: boolean | Prisma.ShareCapitalEvent$supersedesEventArgs<ExtArgs>
   supersededByEvents?: boolean | Prisma.ShareCapitalEvent$supersededByEventsArgs<ExtArgs>
+  openedOwnershipInterests?: boolean | Prisma.ShareCapitalEvent$openedOwnershipInterestsArgs<ExtArgs>
+  closedOwnershipInterests?: boolean | Prisma.ShareCapitalEvent$closedOwnershipInterestsArgs<ExtArgs>
   transactions?: boolean | Prisma.ShareCapitalEvent$transactionsArgs<ExtArgs>
   snapshotPositions?: boolean | Prisma.ShareCapitalEvent$snapshotPositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ShareCapitalEventCountOutputTypeDefaultArgs<ExtArgs>
@@ -2209,6 +2599,8 @@ export type ShareCapitalEventInclude<ExtArgs extends runtime.Types.Extensions.In
   consolidatedByPartyAfter?: boolean | Prisma.ShareCapitalEvent$consolidatedByPartyAfterArgs<ExtArgs>
   supersedesEvent?: boolean | Prisma.ShareCapitalEvent$supersedesEventArgs<ExtArgs>
   supersededByEvents?: boolean | Prisma.ShareCapitalEvent$supersededByEventsArgs<ExtArgs>
+  openedOwnershipInterests?: boolean | Prisma.ShareCapitalEvent$openedOwnershipInterestsArgs<ExtArgs>
+  closedOwnershipInterests?: boolean | Prisma.ShareCapitalEvent$closedOwnershipInterestsArgs<ExtArgs>
   transactions?: boolean | Prisma.ShareCapitalEvent$transactionsArgs<ExtArgs>
   snapshotPositions?: boolean | Prisma.ShareCapitalEvent$snapshotPositionsArgs<ExtArgs>
   _count?: boolean | Prisma.ShareCapitalEventCountOutputTypeDefaultArgs<ExtArgs>
@@ -2231,6 +2623,8 @@ export type $ShareCapitalEventPayload<ExtArgs extends runtime.Types.Extensions.I
     consolidatedByPartyAfter: Prisma.$PartyPayload<ExtArgs> | null
     supersedesEvent: Prisma.$ShareCapitalEventPayload<ExtArgs> | null
     supersededByEvents: Prisma.$ShareCapitalEventPayload<ExtArgs>[]
+    openedOwnershipInterests: Prisma.$OwnershipInterestPayload<ExtArgs>[]
+    closedOwnershipInterests: Prisma.$OwnershipInterestPayload<ExtArgs>[]
     transactions: Prisma.$ShareCapitalTransactionPayload<ExtArgs>[]
     snapshotPositions: Prisma.$ShareCapitalSnapshotPositionPayload<ExtArgs>[]
   }
@@ -2657,6 +3051,8 @@ export interface Prisma__ShareCapitalEventClient<T, Null = never, ExtArgs extend
   consolidatedByPartyAfter<T extends Prisma.ShareCapitalEvent$consolidatedByPartyAfterArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$consolidatedByPartyAfterArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supersedesEvent<T extends Prisma.ShareCapitalEvent$supersedesEventArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$supersedesEventArgs<ExtArgs>>): Prisma.Prisma__ShareCapitalEventClient<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   supersededByEvents<T extends Prisma.ShareCapitalEvent$supersededByEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$supersededByEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  openedOwnershipInterests<T extends Prisma.ShareCapitalEvent$openedOwnershipInterestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$openedOwnershipInterestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OwnershipInterestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  closedOwnershipInterests<T extends Prisma.ShareCapitalEvent$closedOwnershipInterestsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$closedOwnershipInterestsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OwnershipInterestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   transactions<T extends Prisma.ShareCapitalEvent$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareCapitalTransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   snapshotPositions<T extends Prisma.ShareCapitalEvent$snapshotPositionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ShareCapitalEvent$snapshotPositionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareCapitalSnapshotPositionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -3172,6 +3568,54 @@ export type ShareCapitalEvent$supersededByEventsArgs<ExtArgs extends runtime.Typ
   take?: number
   skip?: number
   distinct?: Prisma.ShareCapitalEventScalarFieldEnum | Prisma.ShareCapitalEventScalarFieldEnum[]
+}
+
+/**
+ * ShareCapitalEvent.openedOwnershipInterests
+ */
+export type ShareCapitalEvent$openedOwnershipInterestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OwnershipInterest
+   */
+  select?: Prisma.OwnershipInterestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OwnershipInterest
+   */
+  omit?: Prisma.OwnershipInterestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OwnershipInterestInclude<ExtArgs> | null
+  where?: Prisma.OwnershipInterestWhereInput
+  orderBy?: Prisma.OwnershipInterestOrderByWithRelationInput | Prisma.OwnershipInterestOrderByWithRelationInput[]
+  cursor?: Prisma.OwnershipInterestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OwnershipInterestScalarFieldEnum | Prisma.OwnershipInterestScalarFieldEnum[]
+}
+
+/**
+ * ShareCapitalEvent.closedOwnershipInterests
+ */
+export type ShareCapitalEvent$closedOwnershipInterestsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OwnershipInterest
+   */
+  select?: Prisma.OwnershipInterestSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OwnershipInterest
+   */
+  omit?: Prisma.OwnershipInterestOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OwnershipInterestInclude<ExtArgs> | null
+  where?: Prisma.OwnershipInterestWhereInput
+  orderBy?: Prisma.OwnershipInterestOrderByWithRelationInput | Prisma.OwnershipInterestOrderByWithRelationInput[]
+  cursor?: Prisma.OwnershipInterestWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OwnershipInterestScalarFieldEnum | Prisma.OwnershipInterestScalarFieldEnum[]
 }
 
 /**

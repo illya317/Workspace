@@ -228,6 +228,7 @@ function preparedDepartmentPayload(
           id: normalized.id,
           ...normalized.data,
           descriptions: normalized.descriptions,
+          lifecycle: normalized.lifecycle,
         }
       : normalized;
   return {

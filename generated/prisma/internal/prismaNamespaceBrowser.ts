@@ -70,6 +70,7 @@ export const ModelName = {
   PermissionGrantLedgerEvent: 'PermissionGrantLedgerEvent',
   Notification: 'Notification',
   OwnershipInterest: 'OwnershipInterest',
+  OwnershipProjectionRun: 'OwnershipProjectionRun',
   CompanyRegistryChange: 'CompanyRegistryChange',
   CompanyRegistryOwnershipParticipant: 'CompanyRegistryOwnershipParticipant',
   ShareCapitalEvent: 'ShareCapitalEvent',
@@ -77,6 +78,8 @@ export const ModelName = {
   ShareCapitalSnapshotPosition: 'ShareCapitalSnapshotPosition',
   ShareholderGroup: 'ShareholderGroup',
   ShareholderGroupMembership: 'ShareholderGroupMembership',
+  ContractRevision: 'ContractRevision',
+  ContractStateEvent: 'ContractStateEvent',
   ContractCategory: 'ContractCategory',
   Contract: 'Contract',
   ContractAttachment: 'ContractAttachment',
@@ -88,10 +91,12 @@ export const ModelName = {
   DataQualityEvaluationRequest: 'DataQualityEvaluationRequest',
   DocumentTemplateSpace: 'DocumentTemplateSpace',
   DocumentTemplate: 'DocumentTemplate',
+  PartyLegalFactRevision: 'PartyLegalFactRevision',
   Party: 'Party',
   PartyNameHistory: 'PartyNameHistory',
   ExternalPartyProfile: 'ExternalPartyProfile',
   ExternalPartyRole: 'ExternalPartyRole',
+  ExternalPartyRolePeriod: 'ExternalPartyRolePeriod',
   ExternalPartySourceMapping: 'ExternalPartySourceMapping',
   FinanceAssetCard: 'FinanceAssetCard',
   FinanceAssetCostLine: 'FinanceAssetCostLine',
@@ -169,13 +174,21 @@ export const ModelName = {
   FinanceBankAccount: 'FinanceBankAccount',
   DepartmentDescription: 'DepartmentDescription',
   PositionDescription: 'PositionDescription',
+  PositionDescriptionRevision: 'PositionDescriptionRevision',
+  EmploymentAgreement: 'EmploymentAgreement',
+  EmploymentAgreementTerm: 'EmploymentAgreementTerm',
+  EmploymentAgreementRevision: 'EmploymentAgreementRevision',
+  EmploymentAgreementChange: 'EmploymentAgreementChange',
   EmployeeLifecycleEvent: 'EmployeeLifecycleEvent',
+  OrganizationStructureChange: 'OrganizationStructureChange',
+  DepartmentEffectiveVersion: 'DepartmentEffectiveVersion',
+  PositionEffectiveVersion: 'PositionEffectiveVersion',
+  PositionReportOverrideEffectiveVersion: 'PositionReportOverrideEffectiveVersion',
   HrPerformanceReview: 'HrPerformanceReview',
   Employee: 'Employee',
   Employment: 'Employment',
   Company: 'Company',
   Department: 'Department',
-  DepartmentManagerEmployee: 'DepartmentManagerEmployee',
   Position: 'Position',
   EDP: 'EDP',
   PositionReportOverride: 'PositionReportOverride',
@@ -263,6 +276,7 @@ export const ModelName = {
   Project: 'Project',
   ProjectEnablingDepartment: 'ProjectEnablingDepartment',
   EmployeeProject: 'EmployeeProject',
+  ProjectMembershipChange: 'ProjectMembershipChange',
   ProjectPlanPhase: 'ProjectPlanPhase',
   ProjectPlanDependency: 'ProjectPlanDependency',
   ProjectPlanBaseline: 'ProjectPlanBaseline',
@@ -673,6 +687,10 @@ export const OwnershipInterestScalarFieldEnum = {
   sourceType: 'sourceType',
   sourceLabel: 'sourceLabel',
   sourceReference: 'sourceReference',
+  sourceEventId: 'sourceEventId',
+  closedByEventId: 'closedByEventId',
+  projectionRunId: 'projectionRunId',
+  projectionGeneration: 'projectionGeneration',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -681,6 +699,23 @@ export const OwnershipInterestScalarFieldEnum = {
 } as const
 
 export type OwnershipInterestScalarFieldEnum = (typeof OwnershipInterestScalarFieldEnum)[keyof typeof OwnershipInterestScalarFieldEnum]
+
+
+export const OwnershipProjectionRunScalarFieldEnum = {
+  id: 'id',
+  issuerCompanyId: 'issuerCompanyId',
+  generation: 'generation',
+  projectorKey: 'projectorKey',
+  projectorVersion: 'projectorVersion',
+  ledgerHash: 'ledgerHash',
+  sourceEventCount: 'sourceEventCount',
+  projectionRowCount: 'projectionRowCount',
+  triggerReason: 'triggerReason',
+  triggeredBy: 'triggeredBy',
+  projectedAt: 'projectedAt'
+} as const
+
+export type OwnershipProjectionRunScalarFieldEnum = (typeof OwnershipProjectionRunScalarFieldEnum)[keyof typeof OwnershipProjectionRunScalarFieldEnum]
 
 
 export const CompanyRegistryChangeScalarFieldEnum = {
@@ -834,6 +869,59 @@ export const ShareholderGroupMembershipScalarFieldEnum = {
 export type ShareholderGroupMembershipScalarFieldEnum = (typeof ShareholderGroupMembershipScalarFieldEnum)[keyof typeof ShareholderGroupMembershipScalarFieldEnum]
 
 
+export const ContractRevisionScalarFieldEnum = {
+  id: 'id',
+  revisionUid: 'revisionUid',
+  contractId: 'contractId',
+  revisionNo: 'revisionNo',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  effectiveOn: 'effectiveOn',
+  effectiveThrough: 'effectiveThrough',
+  snapshotSchemaVersion: 'snapshotSchemaVersion',
+  snapshotJson: 'snapshotJson',
+  reason: 'reason',
+  sourceRevisionId: 'sourceRevisionId',
+  supersededByRevisionId: 'supersededByRevisionId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  confirmedBy: 'confirmedBy',
+  confirmedAt: 'confirmedAt',
+  cancelledBy: 'cancelledBy',
+  cancelledAt: 'cancelledAt',
+  createIdempotencyKey: 'createIdempotencyKey',
+  createRequestFingerprint: 'createRequestFingerprint',
+  publishIdempotencyKey: 'publishIdempotencyKey',
+  publishRequestFingerprint: 'publishRequestFingerprint'
+} as const
+
+export type ContractRevisionScalarFieldEnum = (typeof ContractRevisionScalarFieldEnum)[keyof typeof ContractRevisionScalarFieldEnum]
+
+
+export const ContractStateEventScalarFieldEnum = {
+  id: 'id',
+  eventUid: 'eventUid',
+  contractId: 'contractId',
+  axis: 'axis',
+  eventKind: 'eventKind',
+  fromState: 'fromState',
+  toState: 'toState',
+  effectiveOn: 'effectiveOn',
+  recordState: 'recordState',
+  reason: 'reason',
+  sourceRevisionId: 'sourceRevisionId',
+  reversesEventId: 'reversesEventId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  reversedBy: 'reversedBy',
+  reversedAt: 'reversedAt',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint'
+} as const
+
+export type ContractStateEventScalarFieldEnum = (typeof ContractStateEventScalarFieldEnum)[keyof typeof ContractStateEventScalarFieldEnum]
+
+
 export const ContractCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -883,6 +971,7 @@ export const ContractScalarFieldEnum = {
   approvalStatusSnapshot: 'approvalStatusSnapshot',
   approvedOn: 'approvedOn',
   approvalSyncedAt: 'approvalSyncedAt',
+  currentRevisionId: 'currentRevisionId',
   isArchived: 'isArchived',
   archivedAt: 'archivedAt',
   archivedBy: 'archivedBy',
@@ -1074,6 +1163,36 @@ export const DocumentTemplateScalarFieldEnum = {
 export type DocumentTemplateScalarFieldEnum = (typeof DocumentTemplateScalarFieldEnum)[keyof typeof DocumentTemplateScalarFieldEnum]
 
 
+export const PartyLegalFactRevisionScalarFieldEnum = {
+  id: 'id',
+  partyId: 'partyId',
+  revision: 'revision',
+  commandKind: 'commandKind',
+  effectiveOn: 'effectiveOn',
+  recordState: 'recordState',
+  supersedesId: 'supersedesId',
+  subjectType: 'subjectType',
+  name: 'name',
+  fullName: 'fullName',
+  identityNumber: 'identityNumber',
+  legalRepresentative: 'legalRepresentative',
+  registeredCapital: 'registeredCapital',
+  registeredAddress: 'registeredAddress',
+  registeredDate: 'registeredDate',
+  sourceRegistryChangeId: 'sourceRegistryChangeId',
+  sourceType: 'sourceType',
+  sourceLabel: 'sourceLabel',
+  sourceReference: 'sourceReference',
+  reason: 'reason',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint',
+  recordedBy: 'recordedBy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type PartyLegalFactRevisionScalarFieldEnum = (typeof PartyLegalFactRevisionScalarFieldEnum)[keyof typeof PartyLegalFactRevisionScalarFieldEnum]
+
+
 export const PartyScalarFieldEnum = {
   id: 'id',
   subjectType: 'subjectType',
@@ -1144,11 +1263,31 @@ export const ExternalPartyRoleScalarFieldEnum = {
   taxRate: 'taxRate',
   remark: 'remark',
   isActive: 'isActive',
+  availabilityVersion: 'availabilityVersion',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type ExternalPartyRoleScalarFieldEnum = (typeof ExternalPartyRoleScalarFieldEnum)[keyof typeof ExternalPartyRoleScalarFieldEnum]
+
+
+export const ExternalPartyRolePeriodScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  sequence: 'sequence',
+  validFrom: 'validFrom',
+  validThrough: 'validThrough',
+  recordState: 'recordState',
+  commandKind: 'commandKind',
+  supersedesId: 'supersedesId',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint',
+  reason: 'reason',
+  recordedBy: 'recordedBy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type ExternalPartyRolePeriodScalarFieldEnum = (typeof ExternalPartyRolePeriodScalarFieldEnum)[keyof typeof ExternalPartyRolePeriodScalarFieldEnum]
 
 
 export const ExternalPartySourceMappingScalarFieldEnum = {
@@ -2793,6 +2932,21 @@ export type DepartmentDescriptionScalarFieldEnum = (typeof DepartmentDescription
 
 export const PositionDescriptionScalarFieldEnum = {
   id: 'id',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type PositionDescriptionScalarFieldEnum = (typeof PositionDescriptionScalarFieldEnum)[keyof typeof PositionDescriptionScalarFieldEnum]
+
+
+export const PositionDescriptionRevisionScalarFieldEnum = {
+  id: 'id',
+  revisionUid: 'revisionUid',
+  positionDescriptionId: 'positionDescriptionId',
+  sequence: 'sequence',
+  changeKind: 'changeKind',
+  supersedesRevisionId: 'supersedesRevisionId',
   positionPurpose: 'positionPurpose',
   summary: 'summary',
   headcount: 'headcount',
@@ -2800,13 +2954,87 @@ export const PositionDescriptionScalarFieldEnum = {
   effectiveDate: 'effectiveDate',
   sourceFile: 'sourceFile',
   details: 'details',
-  editedBy: 'editedBy',
-  editedAt: 'editedAt',
+  changeReason: 'changeReason',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type PositionDescriptionRevisionScalarFieldEnum = (typeof PositionDescriptionRevisionScalarFieldEnum)[keyof typeof PositionDescriptionRevisionScalarFieldEnum]
+
+
+export const EmploymentAgreementScalarFieldEnum = {
+  id: 'id',
+  agreementUid: 'agreementUid',
+  employmentId: 'employmentId',
+  recordState: 'recordState',
+  isPrimary: 'isPrimary',
+  sourceKind: 'sourceKind',
+  sourceRef: 'sourceRef',
+  reason: 'reason',
+  version: 'version',
+  currentPublishedRevisionId: 'currentPublishedRevisionId',
+  createdBy: 'createdBy',
+  updatedBy: 'updatedBy',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
-export type PositionDescriptionScalarFieldEnum = (typeof PositionDescriptionScalarFieldEnum)[keyof typeof PositionDescriptionScalarFieldEnum]
+export type EmploymentAgreementScalarFieldEnum = (typeof EmploymentAgreementScalarFieldEnum)[keyof typeof EmploymentAgreementScalarFieldEnum]
+
+
+export const EmploymentAgreementTermScalarFieldEnum = {
+  id: 'id',
+  termUid: 'termUid',
+  agreementId: 'agreementId',
+  sequence: 'sequence',
+  termKind: 'termKind',
+  effectiveFrom: 'effectiveFrom',
+  effectiveThrough: 'effectiveThrough',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  supersedesId: 'supersedesId',
+  sourceKind: 'sourceKind',
+  sourceRef: 'sourceRef',
+  reason: 'reason',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type EmploymentAgreementTermScalarFieldEnum = (typeof EmploymentAgreementTermScalarFieldEnum)[keyof typeof EmploymentAgreementTermScalarFieldEnum]
+
+
+export const EmploymentAgreementRevisionScalarFieldEnum = {
+  id: 'id',
+  revisionUid: 'revisionUid',
+  agreementId: 'agreementId',
+  revisionNo: 'revisionNo',
+  recordState: 'recordState',
+  contentJson: 'contentJson',
+  supersedesRevisionId: 'supersedesRevisionId',
+  sourceKind: 'sourceKind',
+  sourceRef: 'sourceRef',
+  reason: 'reason',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type EmploymentAgreementRevisionScalarFieldEnum = (typeof EmploymentAgreementRevisionScalarFieldEnum)[keyof typeof EmploymentAgreementRevisionScalarFieldEnum]
+
+
+export const EmploymentAgreementChangeScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  agreementId: 'agreementId',
+  commandKind: 'commandKind',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint',
+  expectedVersion: 'expectedVersion',
+  effectManifestJson: 'effectManifestJson',
+  actorUserId: 'actorUserId',
+  recordedAt: 'recordedAt'
+} as const
+
+export type EmploymentAgreementChangeScalarFieldEnum = (typeof EmploymentAgreementChangeScalarFieldEnum)[keyof typeof EmploymentAgreementChangeScalarFieldEnum]
 
 
 export const EmployeeLifecycleEventScalarFieldEnum = {
@@ -2821,6 +3049,91 @@ export const EmployeeLifecycleEventScalarFieldEnum = {
 } as const
 
 export type EmployeeLifecycleEventScalarFieldEnum = (typeof EmployeeLifecycleEventScalarFieldEnum)[keyof typeof EmployeeLifecycleEventScalarFieldEnum]
+
+
+export const OrganizationStructureChangeScalarFieldEnum = {
+  id: 'id',
+  aggregateType: 'aggregateType',
+  aggregateId: 'aggregateId',
+  commandKind: 'commandKind',
+  effectiveOn: 'effectiveOn',
+  expectedSequence: 'expectedSequence',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint',
+  reason: 'reason',
+  effectManifestJson: 'effectManifestJson',
+  actorUserId: 'actorUserId',
+  recordedAt: 'recordedAt'
+} as const
+
+export type OrganizationStructureChangeScalarFieldEnum = (typeof OrganizationStructureChangeScalarFieldEnum)[keyof typeof OrganizationStructureChangeScalarFieldEnum]
+
+
+export const DepartmentEffectiveVersionScalarFieldEnum = {
+  id: 'id',
+  departmentId: 'departmentId',
+  sequence: 'sequence',
+  validFrom: 'validFrom',
+  validToExclusive: 'validToExclusive',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  supersedesId: 'supersedesId',
+  sourceChangeId: 'sourceChangeId',
+  code: 'code',
+  name: 'name',
+  alias: 'alias',
+  hierarchyKind: 'hierarchyKind',
+  level: 'level',
+  parentId: 'parentId',
+  managerPositionId: 'managerPositionId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type DepartmentEffectiveVersionScalarFieldEnum = (typeof DepartmentEffectiveVersionScalarFieldEnum)[keyof typeof DepartmentEffectiveVersionScalarFieldEnum]
+
+
+export const PositionEffectiveVersionScalarFieldEnum = {
+  id: 'id',
+  positionId: 'positionId',
+  sequence: 'sequence',
+  validFrom: 'validFrom',
+  validToExclusive: 'validToExclusive',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  supersedesId: 'supersedesId',
+  sourceChangeId: 'sourceChangeId',
+  code: 'code',
+  name: 'name',
+  alias: 'alias',
+  departmentId: 'departmentId',
+  reportToPositionId: 'reportToPositionId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type PositionEffectiveVersionScalarFieldEnum = (typeof PositionEffectiveVersionScalarFieldEnum)[keyof typeof PositionEffectiveVersionScalarFieldEnum]
+
+
+export const PositionReportOverrideEffectiveVersionScalarFieldEnum = {
+  id: 'id',
+  positionReportOverrideId: 'positionReportOverrideId',
+  sequence: 'sequence',
+  validFrom: 'validFrom',
+  validToExclusive: 'validToExclusive',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  supersedesId: 'supersedesId',
+  sourceChangeId: 'sourceChangeId',
+  reportToPositionId: 'reportToPositionId',
+  headcount: 'headcount',
+  remark: 'remark',
+  departmentId: 'departmentId',
+  createdBy: 'createdBy',
+  createdAt: 'createdAt'
+} as const
+
+export type PositionReportOverrideEffectiveVersionScalarFieldEnum = (typeof PositionReportOverrideEffectiveVersionScalarFieldEnum)[keyof typeof PositionReportOverrideEffectiveVersionScalarFieldEnum]
 
 
 export const HrPerformanceReviewScalarFieldEnum = {
@@ -2943,16 +3256,6 @@ export const DepartmentScalarFieldEnum = {
 export type DepartmentScalarFieldEnum = (typeof DepartmentScalarFieldEnum)[keyof typeof DepartmentScalarFieldEnum]
 
 
-export const DepartmentManagerEmployeeScalarFieldEnum = {
-  id: 'id',
-  departmentId: 'departmentId',
-  employeeId: 'employeeId',
-  createdAt: 'createdAt'
-} as const
-
-export type DepartmentManagerEmployeeScalarFieldEnum = (typeof DepartmentManagerEmployeeScalarFieldEnum)[keyof typeof DepartmentManagerEmployeeScalarFieldEnum]
-
-
 export const PositionScalarFieldEnum = {
   id: 'id',
   code: 'code',
@@ -3005,7 +3308,8 @@ export const PositionReportOverrideScalarFieldEnum = {
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  version: 'version'
 } as const
 
 export type PositionReportOverrideScalarFieldEnum = (typeof PositionReportOverrideScalarFieldEnum)[keyof typeof PositionReportOverrideScalarFieldEnum]
@@ -4564,11 +4868,19 @@ export type ProjectEnablingDepartmentScalarFieldEnum = (typeof ProjectEnablingDe
 
 export const EmployeeProjectScalarFieldEnum = {
   id: 'id',
+  membershipUid: 'membershipUid',
+  sequence: 'sequence',
   employeeId: 'employeeId',
   projectId: 'projectId',
   role: 'role',
   startDate: 'startDate',
   endDate: 'endDate',
+  recordState: 'recordState',
+  changeKind: 'changeKind',
+  supersedesId: 'supersedesId',
+  createdByChangeId: 'createdByChangeId',
+  terminalChangeId: 'terminalChangeId',
+  reason: 'reason',
   editedBy: 'editedBy',
   editedAt: 'editedAt',
   version: 'version',
@@ -4577,6 +4889,25 @@ export const EmployeeProjectScalarFieldEnum = {
 } as const
 
 export type EmployeeProjectScalarFieldEnum = (typeof EmployeeProjectScalarFieldEnum)[keyof typeof EmployeeProjectScalarFieldEnum]
+
+
+export const ProjectMembershipChangeScalarFieldEnum = {
+  id: 'id',
+  changeUid: 'changeUid',
+  idempotencyKey: 'idempotencyKey',
+  requestFingerprint: 'requestFingerprint',
+  membershipUid: 'membershipUid',
+  employeeId: 'employeeId',
+  projectId: 'projectId',
+  commandKind: 'commandKind',
+  effectiveOn: 'effectiveOn',
+  reason: 'reason',
+  effectsJson: 'effectsJson',
+  recordedBy: 'recordedBy',
+  recordedAt: 'recordedAt'
+} as const
+
+export type ProjectMembershipChangeScalarFieldEnum = (typeof ProjectMembershipChangeScalarFieldEnum)[keyof typeof ProjectMembershipChangeScalarFieldEnum]
 
 
 export const ProjectPlanPhaseScalarFieldEnum = {
@@ -4704,6 +5035,7 @@ export type WorkReportItemScalarFieldEnum = (typeof WorkReportItemScalarFieldEnu
 export const PositionResponsibilityNodeScalarFieldEnum = {
   id: 'id',
   positionDescriptionId: 'positionDescriptionId',
+  positionDescriptionRevisionId: 'positionDescriptionRevisionId',
   parentId: 'parentId',
   nodeKey: 'nodeKey',
   nodeType: 'nodeType',

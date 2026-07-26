@@ -3,7 +3,6 @@ import {
   okCommand,
   type DomainValidationResult,
 } from "@workspace/platform/server/domain-validation";
-import { prisma } from "@workspace/platform/server/prisma";
 import { serializeHrMajorItems } from "@workspace/hr/constants/field-options";
 import { normalizeHrSchoolValue } from "@workspace/hr/constants/school-options";
 import { getTenantConfig } from "@workspace/platform/server/tenant-config";
@@ -109,12 +108,4 @@ export function buildEmployeePageDraftCommand(input: HrPageDraftInput) {
     changes.push({ id: change.id, field: field.data.field, value: field.data.value });
   }
   return okCommand({ userId: envelope.data.userId, changes });
-}
-
-export async function validateEmployeeDeleteCommand(id: unknown): Promise<DomainValidationResult<{ id: number }>> {
-  const employeeId = Number(id);
-  if (!Number.isInteger(employeeId) || employeeId <= 0) return failCommand("员工ID无效");
-  const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true } });
-  if (!employee) return failCommand("员工不存在", 404);
-  return okCommand({ id: employeeId });
 }

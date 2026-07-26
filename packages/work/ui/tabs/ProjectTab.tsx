@@ -169,6 +169,8 @@ function ProjectLedgerTab({
     onDraftChange: model.updateDraft,
     onLeaderChange: model.setLeader,
     onRoleMembersChange: model.setRoleMembers,
+    membershipTimeline: [],
+    membershipAsOfDate: model.membershipAsOfDate,
   });
   const projectDetailBody = useProjectDetailEditorSection({
     editorTitle: "项目总览",
@@ -190,6 +192,8 @@ function ProjectLedgerTab({
     onDraftChange: model.updateDraft,
     onLeaderChange: model.setLeader,
     onRoleMembersChange: model.setRoleMembers,
+    membershipTimeline: model.selectedMembershipTimeline,
+    membershipAsOfDate: model.membershipAsOfDate,
   });
   const isProjectDetail = Boolean(model.selectedProject && !model.creating);
   const navigationItems = isProjectDetail ? projectDetailViewItems : projectViewItems;

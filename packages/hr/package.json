@@ -5,6 +5,7 @@
   "type": "module",
   "exports": {
     ".": "./index.ts",
+    "./business-temporal": "./business-temporal.ts",
     "./constants": "./constants/index.ts",
     "./constants/*": "./constants/*.ts",
     "./constants/tab-configs": "./constants/tab-configs/index.ts",

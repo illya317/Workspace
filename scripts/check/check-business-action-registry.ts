@@ -71,7 +71,6 @@ const EXPLICIT_NON_BUSINESS_WRITE_ROUTES = new Map<string, NonBusinessWriteRoute
   ["POST /api/modules/work/tasks/submissions/:id/reject", workflowLifecycle("Rejects a Work request.")],
   ["POST /api/modules/work/tasks/submissions/:id/cancel", workflowLifecycle("Cancels a Work request.")],
   ["POST /api/modules/work/tasks/submissions/:id/comment", workflowLifecycle("Adds Work workflow discussion without committing the selected record.")],
-  ["DELETE /api/modules/hr/roster/employments/:id", { kind: "non_mutating_command", reason: "Rejects unsupported deletion and performs no mutation." }],
   ["POST /api/modules/finance/internal/library-source", { kind: "internal_rpc", reason: "Signed read-only transport returns a verified Finance snapshot to the Library unit without mutating business facts." }],
   ["POST /api/modules/hr/internal/library-source", { kind: "internal_rpc", reason: "Signed read-only transport returns HR organization or due-diligence roster snapshots to the Library unit." }],
   ["POST /api/modules/hr/internal/data-quality", { kind: "internal_rpc", reason: "Signed read-only transport evaluates HR-owned data-quality rules; Platform owns finding persistence and alert delivery." }],

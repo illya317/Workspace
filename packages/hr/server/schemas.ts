@@ -1,5 +1,13 @@
 import { z } from "zod";
 
+export const OrganizationStructureLifecycleSchema = z.object({
+  kind: z.enum(["schedule", "correct", "end-date", "cancel-future"]).optional(),
+  effectiveOn: z.string().optional(),
+  expectedSequence: z.coerce.number().int().min(0).optional(),
+  reason: z.string().optional().nullable(),
+  targetVersionId: z.coerce.number().int().positive().optional().nullable(),
+}).optional();
+
 export const EmployeeCreateSchema = z.object({
   employeeId: z.string().min(1, "员工编号必填"),
   name: z.string().min(1, "姓名必填"),
@@ -28,7 +36,7 @@ export const DepartmentCreateSchema = z.object({
   level: z.number().optional().nullable(),
   parentId: z.coerce.number().optional().nullable(),
   managerPositionId: z.coerce.number().optional().nullable(),
-  managerEmployeeIds: z.array(z.coerce.number()).optional().nullable(),
+  lifecycle: OrganizationStructureLifecycleSchema,
 });
 
 export const PositionCreateSchema = z.object({
@@ -46,19 +54,7 @@ export const PositionCreateSchema = z.object({
     sourceFile: z.string().optional().nullable(),
     details: z.string().optional().nullable(),
   }).optional().nullable(),
-});
-
-export const EDPCreateSchema = z.object({
-  employeeId: z.coerce.number().min(1, "员工ID必填"),
-  reportingCompanyId: z.coerce.number().optional().nullable(),
-  departmentId: z.coerce.number().optional().nullable(),
-  positionId: z.coerce.number().optional().nullable(),
-  positionReportOverrideId: z.coerce.number().optional().nullable(),
-  isPrimary: z.union([z.boolean(), z.string()]).optional().nullable(),
-  startDate: z.string().optional().nullable(),
-  endDate: z.string().optional().nullable(),
-  reportToPositionId: z.coerce.number().optional().nullable(),
-  workPercent: z.string().optional().nullable(),
+  lifecycle: OrganizationStructureLifecycleSchema,
 });
 
 export const ProjectCreateSchema = z.object({

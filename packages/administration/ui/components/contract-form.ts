@@ -3,9 +3,6 @@
 import type { CreateSurfaceSectionSpec, FormSurfaceFieldSpec, ReferenceOption } from "@workspace/core/ui";
 import {
   CONTRACT_CONFIDENTIALITY_OPTIONS,
-  CONTRACT_LIFECYCLE_OPTIONS,
-  CONTRACT_PERFORMANCE_OPTIONS,
-  CONTRACT_SIGNATURE_OPTIONS,
   type Contract,
   type ContractCategoryOption,
 } from "@workspace/administration/types";
@@ -119,7 +116,6 @@ export function contractFormFields(
       true,
       true,
     ),
-    staticChoice("lifecycleStatus", "合同状态", editing.lifecycleStatus, CONTRACT_LIFECYCLE_OPTIONS, onChange, readOnly, true),
     referenceField({
       key: "owningCompanyId",
       label: "归属公司",
@@ -193,8 +189,6 @@ export function contractFormFields(
         onChange("handlerEmployeeName", option?.name ?? null);
       },
     }),
-    staticChoice("signatureStatus", "签署状态", editing.signatureStatus, CONTRACT_SIGNATURE_OPTIONS, onChange, readOnly, true),
-    staticChoice("performanceStatus", "履行状态", editing.performanceStatus, CONTRACT_PERFORMANCE_OPTIONS, onChange, readOnly, true),
     {
       key: "signedOn",
       label: "签订日期",
@@ -239,10 +233,10 @@ export function contractFormFields(
 }
 
 const CONTRACT_FORM_SECTION_KEYS = [
-  { key: "identity", title: "基本信息", fields: ["contractNo", "name", "categoryId", "lifecycleStatus"] },
+  { key: "identity", title: "基本信息", fields: ["contractNo", "name", "categoryId"] },
   { key: "ownership", title: "责任归属", fields: ["owningCompanyId", "ownerDepartmentId", "handlerEmployeeId", "confidentialityLevel"] },
   { key: "parties", title: "签约主体", fields: ["partyAId", "partyA", "partyBId", "partyB", "shareholder"] },
-  { key: "execution", title: "期限与履行", fields: ["signatureStatus", "performanceStatus", "signedOn", "expiresOn", "amount", "executedAmount", "currencyCode", "location"] },
+  { key: "execution", title: "期限与履行", fields: ["signedOn", "expiresOn", "amount", "executedAmount", "currencyCode", "location"] },
   { key: "notes", title: "内容与备注", fields: ["content", "remark"] },
   { key: "legacy", title: "待核验旧值", fields: ["legacySignDateRaw", "legacyEndDateRaw", "legacyStatusRaw"] },
 ] as const;

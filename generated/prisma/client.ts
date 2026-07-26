@@ -139,6 +139,11 @@ export type Notification = Prisma.NotificationModel
  */
 export type OwnershipInterest = Prisma.OwnershipInterestModel
 /**
+ * Model OwnershipProjectionRun
+ * 单一发行主体的股权投影全量重建回执；记录账本摘要、投影器版本和生成批次，不是股权事实源
+ */
+export type OwnershipProjectionRun = Prisma.OwnershipProjectionRunModel
+/**
  * Model CompanyRegistryChange
  * 工商变更原始事实（保存名称、法人、董监高与股东变更前后快照；缺少出资额时不得据此覆盖股权比例）
  */
@@ -173,6 +178,16 @@ export type ShareholderGroup = Prisma.ShareholderGroupModel
  * 股东与阵营的有效期关系（事实表，来源于股权结构文件或人工维护；历史通过期间而非覆盖快照表达）
  */
 export type ShareholderGroupMembership = Prisma.ShareholderGroupMembershipModel
+/**
+ * Model ContractRevision
+ * 合同法定内容的不可变修订快照。草稿可重建；确认后只允许被后续修订取代。
+ */
+export type ContractRevision = Prisma.ContractRevisionModel
+/**
+ * Model ContractStateEvent
+ * 合同三个状态轴的追加式事件。Contract 上的状态字段只是当前投影。
+ */
+export type ContractStateEvent = Prisma.ContractStateEventModel
 /**
  * Model ContractCategory
  * 合同类型字典；历史自由文本在迁移时归一到稳定 ID
@@ -229,6 +244,11 @@ export type DocumentTemplateSpace = Prisma.DocumentTemplateSpaceModel
  */
 export type DocumentTemplate = Prisma.DocumentTemplateModel
 /**
+ * Model PartyLegalFactRevision
+ * 法定主体事实变更点台账（事实表，来源于人工治理、工商变更或受控主数据导入；只追加，不原地覆盖）
+ */
+export type PartyLegalFactRevision = Prisma.PartyLegalFactRevisionModel
+/**
  * Model Party
  * 中立法定主体主数据（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
  */
@@ -248,6 +268,11 @@ export type ExternalPartyProfile = Prisma.ExternalPartyProfileModel
  * 外部往来主体的客户或供应商角色资料（事实表，来源于 Workspace 人工录入或经审核的主数据导入）
  */
 export type ExternalPartyRole = Prisma.ExternalPartyRoleModel
+/**
+ * Model ExternalPartyRolePeriod
+ * 外部往来角色的不可变可用期间修订；终止、取消和纠错均追加新行并链接被替代行
+ */
+export type ExternalPartyRolePeriod = Prisma.ExternalPartyRolePeriodModel
 /**
  * Model ExternalPartySourceMapping
  * 外部往来角色的公司/来源主数据映射（事实表，来源于受治理的客户、供应商和业务事实导入）
@@ -639,14 +664,59 @@ export type FinanceBankAccount = Prisma.FinanceBankAccountModel
 export type DepartmentDescription = Prisma.DepartmentDescriptionModel
 /**
  * Model PositionDescription
- * 岗位说明书（原始 JSON 导入，details 为 JSON blob）
+ * 岗位说明书稳定身份；正文只存在于不可变 revision 中。
  */
 export type PositionDescription = Prisma.PositionDescriptionModel
+/**
+ * Model PositionDescriptionRevision
+ * 岗位说明书不可变修订；正常变更和纠错都新增 revision，禁止覆盖旧正文。
+ */
+export type PositionDescriptionRevision = Prisma.PositionDescriptionRevisionModel
+/**
+ * Model EmploymentAgreement
+ * 雇佣协议稳定身份。期限与内容版本分别由 Term / Revision 承载，禁止以数组位置充当身份。
+ */
+export type EmploymentAgreement = Prisma.EmploymentAgreementModel
+/**
+ * Model EmploymentAgreementTerm
+ * 雇佣协议的含首尾日有效期间。修正会新增 superseding 期间，原期间保留为历史证据。
+ */
+export type EmploymentAgreementTerm = Prisma.EmploymentAgreementTermModel
+/**
+ * Model EmploymentAgreementRevision
+ * 雇佣协议内容的不可变修订。草稿发布和正式替代都新增一行，旧 revision 永不覆盖。
+ */
+export type EmploymentAgreementRevision = Prisma.EmploymentAgreementRevisionModel
+/**
+ * Model EmploymentAgreementChange
+ * 雇佣协议生命周期命令台账。重试只返回既有结果，不重复创建期限或修订。
+ */
+export type EmploymentAgreementChange = Prisma.EmploymentAgreementChangeModel
 /**
  * Model EmployeeLifecycleEvent
  * 人员生命周期操作账本（事实表，来源于 HR 人员生命周期表单；记录未来生效的入职、调岗、兼岗、汇报变化和离职）
  */
 export type EmployeeLifecycleEvent = Prisma.EmployeeLifecycleEventModel
+/**
+ * Model OrganizationStructureChange
+ * 组织结构生命周期命令台账；幂等键在 HR 组织事实范围内全局唯一。
+ */
+export type OrganizationStructureChange = Prisma.OrganizationStructureChangeModel
+/**
+ * Model DepartmentEffectiveVersion
+ * Department 稳定身份下的不可变有效版本。Department 上同名字段仅是当前业务日缓存。
+ */
+export type DepartmentEffectiveVersion = Prisma.DepartmentEffectiveVersionModel
+/**
+ * Model PositionEffectiveVersion
+ * Position 稳定身份下的不可变有效版本。说明书 identity 仍留在稳定头上。
+ */
+export type PositionEffectiveVersion = Prisma.PositionEffectiveVersionModel
+/**
+ * Model PositionReportOverrideEffectiveVersion
+ * 特殊汇报稳定槽位下的不可变有效版本。
+ */
+export type PositionReportOverrideEffectiveVersion = Prisma.PositionReportOverrideEffectiveVersionModel
 /**
  * Model HrPerformanceReview
  * 员工周期绩效评审事实表（来源于 HR 绩效流程归档；Work/OKR/KPI 证据以快照 JSON 固化）
@@ -672,11 +742,6 @@ export type Company = Prisma.CompanyModel
  * 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
  */
 export type Department = Prisma.DepartmentModel
-/**
- * Model DepartmentManagerEmployee
- * 部门负责人关系（事实表，来源于组织架构维护；负责人必须来自部门负责人岗位的在岗员工）
- */
-export type DepartmentManagerEmployee = Prisma.DepartmentManagerEmployeeModel
 /**
  * Model Position
  * 岗位定义
@@ -1113,9 +1178,14 @@ export type Project = Prisma.ProjectModel
 export type ProjectEnablingDepartment = Prisma.ProjectEnablingDepartmentModel
 /**
  * Model EmployeeProject
- * 员工-项目关联
+ * 项目成员资格的有效期版本（事实表；只能由项目成员生命周期命令写入）
  */
 export type EmployeeProject = Prisma.EmployeeProjectModel
+/**
+ * Model ProjectMembershipChange
+ * 项目成员生命周期命令台账（事实表；记录业务生效日、原因、幂等键和效果摘要）
+ */
+export type ProjectMembershipChange = Prisma.ProjectMembershipChangeModel
 /**
  * Model ProjectPlanPhase
  * 项目计划阶段（串行计划段）

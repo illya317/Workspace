@@ -1,8 +1,13 @@
 import { prisma } from "@workspace/platform/server/prisma";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
-import { employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
-import { buildContractRows } from "./contracts";
+import { listEmploymentAgreementsForEmployee } from "./employment-agreements";
 import { employeeWhereFromKey } from "./employee-profile-key";
+import {
+  assignmentTemporalPosition,
+  classifyEmploymentsByPreference,
+  employmentSummaryState,
+} from "./domain/employee-business-temporal";
+import { employeeLifecycleEventState, strictIntegerArray } from "./domain/employee-lifecycle-state";
 
 export { employeeWhereFromKey } from "./employee-profile-key";
 
@@ -37,8 +42,9 @@ export async function getEmployeeProfileByKey(key: string) {
   });
   if (!employee) return { status: "not_found" as const };
   const employeeId = employee.id;
+  const businessDate = workspaceBusinessDate(new Date());
 
-  const [employments, edps, lifecycleEvents] = await Promise.all([
+  const [employments, edps, lifecycleEvents, contracts] = await Promise.all([
     prisma.employment.findMany({
       where: { employeeId },
       orderBy: [{ isActive: "desc" }, { id: "desc" }],
@@ -67,35 +73,34 @@ export async function getEmployeeProfileByKey(key: string) {
       orderBy: [{ effectiveDate: "desc" }, { id: "desc" }],
       take: 100,
     }),
+    listEmploymentAgreementsForEmployee(employeeId, businessDate),
   ]);
-
-  const contracts = buildContractRows(
-    employments.map((employment) => ({
-      id: employment.id,
-      contracts: employment.contracts,
-      employee: employment.employee,
-    })),
-  );
-
-  const businessDate = workspaceBusinessDate(new Date());
-  const activeEmployment = employments.find((item) => employmentIsActiveOnDate(item, businessDate)) ?? null;
+  const classifiedEmployments = classifyEmploymentsByPreference(employments, businessDate);
+  const classifiedEdps = edps.map((edp) => ({
+    edp,
+    temporalState: assignmentTemporalPosition(edp, businessDate),
+  }));
+  const employmentState = employmentSummaryState(classifiedEmployments.map((item) => item.temporalState));
+  const preferredEmployment = classifiedEmployments[0]?.employment ?? null;
   const currentCompany =
-    findPrimaryContractCompany(contracts, activeEmployment?.id) ??
-    findPrimaryContractCompany(contracts) ??
-    activeEmployment?.currentCompany ??
+    findPrimaryContractCompany(contracts, preferredEmployment?.id) ??
+    preferredEmployment?.currentCompany ??
     null;
   const reportingCompany = await findCompanyByNameOrCode(currentCompany);
-  const activeEdps = edps.filter((item) => (
-    (!item.startDate || item.startDate <= businessDate)
-    && (!item.endDate || item.endDate >= businessDate)
-  ));
+  const activeEdps = classifiedEdps
+    .filter((item) => item.temporalState === "current")
+    .map((item) => item.edp);
   const primaryEdp = activeEdps.find((item) => item.isPrimary) ?? activeEdps[0] ?? null;
   const parsedLifecycleEvents = lifecycleEvents.map((event) => ({ event, details: parseLifecycleDetails(event.detailsJson) }));
-  const cancelledAssignmentIds = new Set(parsedLifecycleEvents.flatMap(({ details }) => numberArray(details.cancelledAssignmentIds)));
+  const cancelledAssignmentIds = new Set(parsedLifecycleEvents.flatMap(({ details }) => {
+    const parsed = strictIntegerArray(details.cancelledAssignmentIds);
+    return parsed.valid ? parsed.items : [];
+  }));
 
   return {
     status: "ok" as const,
     data: {
+      asOfDate: businessDate,
       employee: {
         id: employee.id,
         employeeId: employee.employeeId,
@@ -119,11 +124,13 @@ export async function getEmployeeProfileByKey(key: string) {
         username: employee.user?.username ?? null,
       },
       summary: {
-        status: activeEmployment
-          ? "在职"
-          : employments.some((item) => item.joinDate && item.joinDate > businessDate)
-            ? "待入职"
-            : "离职",
+        status: employmentState === "invalid"
+          ? "日期异常"
+          : employmentState === "active"
+            ? "在职"
+            : employmentState === "upcoming"
+              ? "待入职"
+              : "离职",
         currentCompany,
         reportingCompanyId: reportingCompany?.id ?? null,
         reportingCompanyName: reportingCompany?.name ?? currentCompany,
@@ -133,10 +140,10 @@ export async function getEmployeeProfileByKey(key: string) {
         positionId: primaryEdp?.positionId ?? null,
         positionName: primaryEdp?.position?.name ?? null,
       },
-      employments: employments.map((employment) => ({
+      employments: classifiedEmployments.map(({ employment, temporalState }) => ({
         id: employment.id,
         employeeId: employment.employeeId,
-        isActive: employmentIsActiveOnDate(employment, businessDate),
+        isActive: temporalState === "current",
         currentCompany: findPrimaryContractCompany(contracts, employment.id) ?? employment.currentCompany,
         joinDate: employment.joinDate,
         leaveDate: employment.leaveDate,
@@ -146,9 +153,10 @@ export async function getEmployeeProfileByKey(key: string) {
         personnelType: employment.personnelType,
         rank: employment.rank,
         title: employment.title,
+        temporalState,
       })),
       contracts,
-      edps: edps.map((edp) => ({
+      edps: classifiedEdps.map(({ edp, temporalState }) => ({
         id: edp.id,
         employeeId: edp.employeeId,
         reportingCompanyId: edp.reportingCompanyId,
@@ -165,12 +173,18 @@ export async function getEmployeeProfileByKey(key: string) {
         reportToPositionId: edp.reportToPositionId,
         reportTo: edp.reportToPosition?.name ?? null,
         workPercent: edp.workPercent,
+        temporalState,
       })),
       lifecycleEvents: parsedLifecycleEvents.map(({ event, details }) => ({
         id: event.id,
         eventType: event.eventType,
         effectiveDate: event.effectiveDate,
-        status: lifecycleEventStatus(event.effectiveDate, details, cancelledAssignmentIds, businessDate),
+        ...employeeLifecycleEventState(
+          event.effectiveDate,
+          details,
+          cancelledAssignmentIds,
+          businessDate,
+        ),
         reason: event.reason,
         details,
         recordedByUserId: event.recordedByUserId,
@@ -188,22 +202,4 @@ function parseLifecycleDetails(value: string) {
   } catch {
     return {};
   }
-}
-
-function numberArray(value: unknown) {
-  return Array.isArray(value)
-    ? value.filter((item): item is number => typeof item === "number" && Number.isInteger(item))
-    : [];
-}
-
-function lifecycleEventStatus(
-  effectiveDate: string,
-  details: Record<string, unknown>,
-  cancelledAssignmentIds: Set<number>,
-  businessDate: string,
-) {
-  if (effectiveDate <= businessDate) return "effective" as const;
-  const createdIds = numberArray(details.createdAssignmentIds);
-  if (createdIds.length > 0 && createdIds.every((id) => cancelledAssignmentIds.has(id))) return "cancelled" as const;
-  return "scheduled" as const;
 }

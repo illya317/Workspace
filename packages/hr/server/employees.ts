@@ -1,5 +1,4 @@
 import { mapValidationToServiceResult } from "@workspace/platform/server/domain-validation";
-import type { DeleteGuardContext } from "@workspace/platform/server/delete-guard";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import { currentEmploymentDateWhere, currentOpenEndedDateWhere, employmentIsActiveOnDate } from "@workspace/platform/server/relation-registry";
 import { ensureEditHistoryBaseline, snapshotHistory } from "@workspace/platform/server/history";
@@ -8,18 +7,15 @@ import { checkHRUpdate } from "@workspace/platform/server/auth";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import { Prisma, prisma } from "@workspace/platform/server/prisma";
 import { uniqueUsernameFromName } from "@workspace/platform/server/usernames";
-import { executeDelete, type CrudDeleteCommand } from "./hr-crud";
 import { matchAnyField, matchEmployee, matchText } from "@workspace/platform/search";
 import {
   buildEmployeeCreateCommand,
   buildEmployeePageDraftCommand,
-  validateEmployeeDeleteCommand,
 } from "./domain/employee-validation";
 import { primaryContractCompany } from "./employments";
 import { employeePositionFilterInclude, employeePositionMatches } from "./employee-position-filters";
 import { jsonErrorResponse } from "@workspace/platform/server/api";
 import { logEmployeeListDiagnostics, startEmployeeListDiagnostics } from "./employee-list-diagnostics";
-import { queueHrDataQualityEvaluation } from "./data-quality-trigger";
 
 const EMPLOYEE_ID_PATTERN = /^\d{5}$/;
 const EMPLOYEE_DIRECTORY_FILTER_FIELDS = new Set(["gender", "education", "positionName", "directDepartmentName"]);
@@ -54,50 +50,6 @@ function formatAlias(value: string | null) {
   } catch {
     return value;
   }
-}
-
-async function normalizeEmployeeDelete(id: number, context: DeleteGuardContext) {
-  const command = await validateEmployeeDeleteCommand(id);
-  if (!command.ok) return { error: command.issue.message, status: command.issue.status };
-  const employee = await context.tx.employee.findUnique({
-    where: { id: command.data.id },
-    select: { employeeId: true, userId: true },
-  });
-  const agentProfile = !employee
-    ? null
-    : await context.tx.agentProfile.findFirst({
-      where: {
-        OR: [
-          ...(employee.userId == null ? [] : [{ actorUserId: employee.userId }]),
-          { actorUser: { employeeId: employee.employeeId } },
-        ],
-      },
-      select: { key: true },
-    });
-  if (agentProfile) {
-    return {
-      error: `Agent 虚拟员工 ${agentProfile.key} 不能通过普通 HR 删除，请使用 Agent 生命周期管理`,
-      status: 409,
-    };
-  }
-  const [salaryCount, shipmentCount, workshopCount, projectMemberCount] = await Promise.all([
-    context.tx.financeSalesSalary.count({ where: { employeeId: command.data.id } }),
-    context.tx.financeShipment.count({ where: { employeeId: command.data.id } }),
-    context.tx.financeWorkshopReport.count({ where: { employeeId: command.data.id } }),
-    context.tx.employeeProject.count({ where: currentOpenEndedDateWhere({ employeeId: command.data.id }) }),
-  ]);
-  const blocks = [
-    salaryCount > 0 ? `财务销售工资 ${salaryCount} 条` : null,
-    shipmentCount > 0 ? `财务发货明细 ${shipmentCount} 条` : null,
-    workshopCount > 0 ? `财务车间日报 ${workshopCount} 条` : null,
-    projectMemberCount > 0 ? `现用项目成员记录 ${projectMemberCount} 条` : null,
-  ].filter(Boolean);
-  if (blocks.length > 0) {
-    return { error: `不能删除员工，请先处理引用：${blocks.join("、")}`, status: 409 };
-  }
-  await context.tx.employment.deleteMany({ where: { employeeId: command.data.id } });
-  await context.tx.eDP.deleteMany({ where: { employeeId: command.data.id } });
-  return { ok: true as const };
 }
 
 function getEmployeeDirectoryFilterValue(employee: Record<string, unknown>, field: string) {
@@ -393,17 +345,6 @@ export async function updateEmployeePageDraft(input: {
     }
   });
   return serviceOk({ success: true, updatedCount: ids.length, changeCount: command.data.changes.length });
-}
-
-export async function deleteEmployee(command: CrudDeleteCommand) {
-  const result = await executeDelete(command, {
-    entityType: "Employee",
-    modelKey: "employee" as const,
-    deleteMode: "hard" as const,
-    onBeforeDelete: normalizeEmployeeDelete,
-  });
-  if (result.ok) await queueHrDataQualityEvaluation("Employee", [command.id]);
-  return result;
 }
 
 export async function searchEmployeesForAccountLink(q: string) {

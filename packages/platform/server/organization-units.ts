@@ -12,7 +12,6 @@ type GovernanceOrganizationInput = {
   alias?: unknown;
   parentId?: unknown;
   managerPositionId?: unknown;
-  managerEmployeeIds?: unknown;
   descriptions?: unknown;
 };
 
@@ -23,7 +22,6 @@ type GovernanceOrganizationCommand = {
   alias: string | null;
   parentId: number | null;
   managerPositionId: number | null;
-  managerEmployeeIds: number[];
   descriptions: Array<{ id?: number; sourceFile: string; codeRaw?: string | null; details?: string | null }> | null;
 };
 
@@ -41,16 +39,6 @@ function optionalNumber(value: unknown): number | null {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
   return Number.isInteger(parsed) && parsed > 0 ? parsed : null;
-}
-
-function numberList(value: unknown): number[] {
-  if (!Array.isArray(value)) return [];
-  const seen = new Set<number>();
-  for (const item of value) {
-    const parsed = Number(item);
-    if (Number.isInteger(parsed) && parsed > 0) seen.add(parsed);
-  }
-  return Array.from(seen);
 }
 
 function normalizeAliasValue(value: unknown) {
@@ -135,20 +123,6 @@ function managerEmployeeNames(
   return Array.from(byEmployee.values());
 }
 
-function managerEmployeesFromRows(rows: Array<{
-  employee: {
-    id: number;
-    name: string;
-    userId: number | null;
-  };
-}>) {
-  return rows.map((row) => ({
-    employeeId: row.employee.id,
-    userId: row.employee.userId,
-    name: row.employee.name || "未命名员工",
-  }));
-}
-
 function descendantIds(departmentId: number, childrenByParent: Map<number | null, number[]>) {
   const result = new Set<number>();
   function visit(id: number) {
@@ -182,7 +156,6 @@ function parseGovernanceInput(input: GovernanceOrganizationInput): DomainValidat
     alias: normalizeAliasValue(input.alias),
     parentId,
     managerPositionId,
-    managerEmployeeIds: numberList(input.managerEmployeeIds),
     descriptions: descriptions.data,
   });
 }
@@ -259,21 +232,6 @@ async function validateGovernanceReferences(input: GovernanceOrganizationCommand
     if (!position) return { error: "负责人岗位必须来自现用 G 组织岗位" };
   }
 
-  if (input.managerEmployeeIds.length > 0) {
-    if (!input.managerPositionId) return { error: "选择组织负责人前必须先选择负责人岗位" };
-    const employees = await prisma.employee.findMany({
-      where: {
-        id: { in: input.managerEmployeeIds },
-        employments: { some: currentEmploymentDateWhere() },
-        positions: { some: currentOpenEndedDateWhere({ positionId: input.managerPositionId }) },
-      },
-      select: { id: true },
-    });
-    if (employees.length !== input.managerEmployeeIds.length) {
-      return { error: "组织负责人必须是负责人岗位的在岗员工" };
-    }
-  }
-
   return { hierarchy };
 }
 
@@ -300,10 +258,6 @@ export async function listGovernanceOrganizations() {
             orderBy: [{ isPrimary: "desc" }, { id: "asc" }],
           },
         },
-      },
-      managerEmployees: {
-        select: { employee: { select: employeeSelect } },
-        orderBy: { id: "asc" },
       },
       descriptions: {
         select: { id: true, sourceFile: true, codeRaw: true, details: true },
@@ -343,8 +297,7 @@ export async function listGovernanceOrganizations() {
   }
 
   const organizations = departments.map((department) => {
-    const selectedManagers = managerEmployeesFromRows(department.managerEmployees);
-    const managers = selectedManagers.length > 0 ? selectedManagers : managerEmployeeNames(department.managerPosition);
+    const managers = managerEmployeeNames(department.managerPosition);
     const managerNames = managers.map((manager) => manager.name);
     const subtree = new Set([department.id, ...descendantIds(department.id, childrenByParent)]);
     const subtreeDepartments = Array.from(subtree).map((id) => byId.get(id)).filter((item): item is NonNullable<typeof item> => Boolean(item));
@@ -426,9 +379,6 @@ export async function createGovernanceOrganization(input: GovernanceOrganization
           editedAt: new Date(),
         },
       });
-      for (const employeeId of input.managerEmployeeIds) {
-        await tx.departmentManagerEmployee.create({ data: { departmentId: department.id, employeeId } });
-      }
       const descriptionList = input.descriptions && input.descriptions.length > 0
         ? input.descriptions.map((description) => ({ ...description, departmentId: department.id }))
         : [{
@@ -478,10 +428,6 @@ export async function updateGovernanceOrganization(input: GovernanceOrganization
           version: { increment: 1 },
         },
       });
-      await tx.departmentManagerEmployee.deleteMany({ where: { departmentId: input.id } });
-      for (const employeeId of input.managerEmployeeIds) {
-        await tx.departmentManagerEmployee.create({ data: { departmentId: input.id, employeeId } });
-      }
       if (input.descriptions) {
         for (const descriptionData of input.descriptions) {
           if (descriptionData.id) {

@@ -60,6 +60,7 @@ app route 不能新增业务计算、表格实现、hook、Prisma 写入。写�
 - `ProjectPlanPhase` / `ProjectPlanBaseline`：存量项目甘特兼容模型；不再作为 `/work/project` 的任务编辑入口。
 
 `Project` / `EmployeeProject` 表名保留是存量 schema 命名，不代表项目仍归 HR；业务归属是 Work。
+`EmployeeProject.startDate/endDate` 是项目角色的包含式有效期间。项目列表可见性、对象 view/edit/manage/delete、项目甘特负责人和系统计划 owner 都只消费业务日有效成员，并同时要求成员员工存在当前 Employment；非管理员的项目创建者特权也要求当前 Employment。岗位/部门 scoped grant 的主体也只能从同一业务日有效的 Employment + EDP 派生，历史或非法任职不得继续携带授权。离职从生效日 D 起停止授予项目角色、创建者特权和历史岗位/部门授权，但历史成员记录继续保留。账号停用是独立动作，不能靠忽略成员期间来维持权限。
 `/work/project` 是项目库和项目组合管理入口，仅用于项目新建、项目列表、总览和存量阶段排期；“阶段排期”作为 `/work/project/:projectId` 内的独立 tab 展示。真正的执行甘特位于 `/work/project/:projectId/space` 的“计划 → 甘特图”，使用 `targetType=project` 和 `targetId=projectId`，并与部门空间复用同一套 Work Tasks 工作台。项目工作台的读写权限先由项目自身成员/负责人权限派生。
 
 ### 工作计划

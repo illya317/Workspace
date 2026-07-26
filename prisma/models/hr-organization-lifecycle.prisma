@@ -1,0 +1,121 @@
+/// 组织结构生命周期命令台账；幂等键在 HR 组织事实范围内全局唯一。
+model OrganizationStructureChange {
+  id                 String   @id @default(uuid())
+  aggregateType      String
+  aggregateId        Int
+  commandKind        String
+  effectiveOn        String
+  expectedSequence   Int
+  idempotencyKey     String   @unique
+  requestFingerprint String
+  reason             String?
+  effectManifestJson String
+  actorUserId        Int
+  recordedAt         DateTime @default(now())
+  departmentVersions DepartmentEffectiveVersion[]
+  positionVersions   PositionEffectiveVersion[]
+  overrideVersions   PositionReportOverrideEffectiveVersion[]
+
+  @@index([aggregateType, aggregateId, recordedAt], map: "OrganizationStructureChange_aggregate_recorded_idx")
+  @@index([actorUserId, recordedAt])
+}
+
+/// Department 稳定身份下的不可变有效版本。Department 上同名字段仅是当前业务日缓存。
+model DepartmentEffectiveVersion {
+  id                Int       @id @default(autoincrement())
+  departmentId      Int
+  sequence          Int
+  validFrom         String?
+  validToExclusive  String?
+  recordState       String    @default("confirmed")
+  changeKind        String
+  supersedesId      Int?
+  sourceChangeId    String
+  code              String
+  name              String
+  alias             String?
+  hierarchyKind     String
+  level             Int
+  parentId          Int?
+  managerPositionId Int?
+  createdBy         Int
+  createdAt         DateTime  @default(now())
+  department        Department @relation("DepartmentEffectiveVersionAggregate", fields: [departmentId], references: [id], onDelete: Restrict)
+  parent            Department? @relation("DepartmentEffectiveVersionParent", fields: [parentId], references: [id], onDelete: Restrict)
+  managerPosition   Position? @relation("DepartmentEffectiveVersionManagerPosition", fields: [managerPositionId], references: [id], onDelete: Restrict)
+  sourceChange      OrganizationStructureChange @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict)
+  supersedes        DepartmentEffectiveVersion? @relation("DepartmentEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy      DepartmentEffectiveVersion[] @relation("DepartmentEffectiveVersionSupersession")
+
+  @@unique([departmentId, sequence])
+  @@index([departmentId, validFrom, validToExclusive], map: "DepartmentEffectiveVersion_anchor_period_idx")
+  @@index([parentId])
+  @@index([managerPositionId])
+  @@index([sourceChangeId])
+  @@index([supersedesId])
+}
+
+/// Position 稳定身份下的不可变有效版本。说明书 identity 仍留在稳定头上。
+model PositionEffectiveVersion {
+  id                 Int       @id @default(autoincrement())
+  positionId         Int
+  sequence           Int
+  validFrom          String?
+  validToExclusive   String?
+  recordState        String    @default("confirmed")
+  changeKind         String
+  supersedesId       Int?
+  sourceChangeId     String
+  code               String
+  name               String
+  alias              String?
+  departmentId       Int?
+  reportToPositionId Int?
+  createdBy          Int
+  createdAt          DateTime  @default(now())
+  position           Position @relation("PositionEffectiveVersionAggregate", fields: [positionId], references: [id], onDelete: Restrict)
+  department         Department? @relation("PositionEffectiveVersionDepartment", fields: [departmentId], references: [id], onDelete: Restrict)
+  reportToPosition   Position? @relation("PositionEffectiveVersionReportTo", fields: [reportToPositionId], references: [id], onDelete: Restrict)
+  sourceChange       OrganizationStructureChange @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict)
+  supersedes         PositionEffectiveVersion? @relation("PositionEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy       PositionEffectiveVersion[] @relation("PositionEffectiveVersionSupersession")
+
+  @@unique([positionId, sequence])
+  @@index([positionId, validFrom, validToExclusive], map: "PositionEffectiveVersion_anchor_period_idx")
+  @@index([departmentId])
+  @@index([reportToPositionId])
+  @@index([sourceChangeId])
+  @@index([supersedesId])
+}
+
+/// 特殊汇报稳定槽位下的不可变有效版本。
+model PositionReportOverrideEffectiveVersion {
+  id                       Int       @id @default(autoincrement())
+  positionReportOverrideId Int
+  sequence                 Int
+  validFrom                String?
+  validToExclusive         String?
+  recordState              String    @default("confirmed")
+  changeKind               String
+  supersedesId             Int?
+  sourceChangeId           String
+  reportToPositionId       Int?
+  headcount                Int?
+  remark                   String?
+  departmentId             Int?
+  createdBy                Int
+  createdAt                DateTime  @default(now())
+  positionReportOverride   PositionReportOverride @relation(fields: [positionReportOverrideId], references: [id], onDelete: Restrict, map: "PROEffectiveVersion_anchor_fkey")
+  reportToPosition         Position? @relation("PositionReportOverrideVersionReportTo", fields: [reportToPositionId], references: [id], onDelete: Restrict)
+  department               Department? @relation("PositionReportOverrideVersionDepartment", fields: [departmentId], references: [id], onDelete: Restrict)
+  sourceChange             OrganizationStructureChange @relation(fields: [sourceChangeId], references: [id], onDelete: Restrict)
+  supersedes               PositionReportOverrideEffectiveVersion? @relation("PositionReportOverrideEffectiveVersionSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy             PositionReportOverrideEffectiveVersion[] @relation("PositionReportOverrideEffectiveVersionSupersession")
+
+  @@unique([positionReportOverrideId, sequence], map: "PROEffectiveVersion_anchor_sequence_key")
+  @@index([positionReportOverrideId, validFrom, validToExclusive], map: "PROEffectiveVersion_anchor_period_idx")
+  @@index([reportToPositionId])
+  @@index([departmentId])
+  @@index([sourceChangeId])
+  @@index([supersedesId])
+}

@@ -7,6 +7,8 @@ import { isValidProjectPlanDateValue, normalizeProjectPlanText, validateProjectP
 import { formatDate, parseDate } from "./project-normalization";
 import { jsonErrorResponse, serviceError, serviceOk } from "@workspace/platform/server/api";
 import { validateCompletionSchedule } from "@workspace/platform/completion-date-policy";
+import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
+import { projectMemberHasActiveEmploymentOnDate } from "./project-access-temporal";
 
 export const PLAN_ITEM_KINDS = ["project", "phase"] as const;
 export type PlanItemKind = (typeof PLAN_ITEM_KINDS)[number];
@@ -76,9 +78,16 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
         include: { items: true },
       },
       employees: {
-        where: { role: { in: ["负责人", "项目负责人"] } },
+        where: { role: { in: ["负责人", "项目负责人"] }, recordState: "confirmed" },
         orderBy: { id: "asc" },
-        include: { employee: { select: { name: true } } },
+        include: {
+          employee: {
+            select: {
+              name: true,
+              employments: { select: { isActive: true, joinDate: true, leaveDate: true } },
+            },
+          },
+        },
       },
     },
   });
@@ -86,6 +95,7 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
 
   const activeBaseline = project.planBaselines[0] || null;
   const phaseBaseline = derivePhaseBaseline(project.planPhases);
+  const asOfDate = workspaceBusinessDate(new Date());
   return serviceOk({
       projectId: input.projectId,
       permissions,
@@ -110,7 +120,10 @@ export async function listProjectPlanGantt(input: { userId: number; projectId: n
           status: project.status,
           projectLevel: project.projectLevel,
           isMilestone: true,
-          ownerNames: project.employees.map((entry) => entry.employee.name).filter(Boolean),
+          ownerNames: project.employees
+            .filter((entry) => projectMemberHasActiveEmploymentOnDate(entry, entry.employee.employments, asOfDate))
+            .map((entry) => entry.employee.name)
+            .filter(Boolean),
           actualStartDate: formatDate(project.actualStartDate),
           actualEndDate: formatDate(project.actualEndDate),
           plannedStartDate: formatDate(project.plannedStartDate ?? phaseBaseline.plannedStartDate),

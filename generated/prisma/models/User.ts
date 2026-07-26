@@ -361,6 +361,7 @@ export type UserWhereInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventListRelationFilter
   requestedDataQualityRuns?: Prisma.DataQualityRunListRelationFilter
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -433,6 +434,7 @@ export type UserOrderByWithRelationInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionOrderByRelationAggregateInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventOrderByRelationAggregateInput
   requestedDataQualityRuns?: Prisma.DataQualityRunOrderByRelationAggregateInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -508,6 +510,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionListRelationFilter
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventListRelationFilter
   requestedDataQualityRuns?: Prisma.DataQualityRunListRelationFilter
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeListRelationFilter
 }, "id" | "wxUserId" | "username" | "apiKeyHash">
 
 export type UserOrderByWithAggregationInput = {
@@ -625,6 +628,7 @@ export type UserCreateInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -697,6 +701,7 @@ export type UserUncheckedCreateInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUpdateInput = {
@@ -768,6 +773,7 @@ export type UserUpdateInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -840,6 +846,7 @@ export type UserUncheckedUpdateInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -1329,6 +1336,20 @@ export type UserUpdateOneWithoutEditedWorkpapersNestedInput = {
   delete?: Prisma.UserWhereInput | boolean
   connect?: Prisma.UserWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEditedWorkpapersInput, Prisma.UserUpdateWithoutEditedWorkpapersInput>, Prisma.UserUncheckedUpdateWithoutEditedWorkpapersInput>
+}
+
+export type UserCreateNestedOneWithoutRecordedEmploymentAgreementChangesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordedEmploymentAgreementChangesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRecordedEmploymentAgreementChangesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordedEmploymentAgreementChangesInput
+  upsert?: Prisma.UserUpsertWithoutRecordedEmploymentAgreementChangesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUpdateWithoutRecordedEmploymentAgreementChangesInput>, Prisma.UserUncheckedUpdateWithoutRecordedEmploymentAgreementChangesInput>
 }
 
 export type UserCreateNestedOneWithoutRecordedEmployeeLifecycleEventsInput = {
@@ -1855,6 +1876,7 @@ export type UserCreateWithoutErpDueDiligenceSubmissionsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
@@ -1926,6 +1948,7 @@ export type UserUncheckedCreateWithoutErpDueDiligenceSubmissionsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutErpDueDiligenceSubmissionsInput = {
@@ -2012,6 +2035,7 @@ export type UserUpdateWithoutErpDueDiligenceSubmissionsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
@@ -2083,6 +2107,7 @@ export type UserUncheckedUpdateWithoutErpDueDiligenceSubmissionsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutAgentProfileInput = {
@@ -2153,6 +2178,7 @@ export type UserCreateWithoutAgentProfileInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutAgentProfileInput = {
@@ -2224,6 +2250,7 @@ export type UserUncheckedCreateWithoutAgentProfileInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutAgentProfileInput = {
@@ -2310,6 +2337,7 @@ export type UserUpdateWithoutAgentProfileInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAgentProfileInput = {
@@ -2381,6 +2409,7 @@ export type UserUncheckedUpdateWithoutAgentProfileInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutSubmittedApprovalRequestsInput = {
@@ -2451,6 +2480,7 @@ export type UserCreateWithoutSubmittedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
@@ -2522,6 +2552,7 @@ export type UserUncheckedCreateWithoutSubmittedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutSubmittedApprovalRequestsInput = {
@@ -2597,6 +2628,7 @@ export type UserCreateWithoutResolvedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
@@ -2668,6 +2700,7 @@ export type UserUncheckedCreateWithoutResolvedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutResolvedApprovalRequestsInput = {
@@ -2754,6 +2787,7 @@ export type UserUpdateWithoutSubmittedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
@@ -2825,6 +2859,7 @@ export type UserUncheckedUpdateWithoutSubmittedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutResolvedApprovalRequestsInput = {
@@ -2906,6 +2941,7 @@ export type UserUpdateWithoutResolvedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
@@ -2977,6 +3013,7 @@ export type UserUncheckedUpdateWithoutResolvedApprovalRequestsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutApprovalEventsInput = {
@@ -3047,6 +3084,7 @@ export type UserCreateWithoutApprovalEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovalEventsInput = {
@@ -3118,6 +3156,7 @@ export type UserUncheckedCreateWithoutApprovalEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovalEventsInput = {
@@ -3204,6 +3243,7 @@ export type UserUpdateWithoutApprovalEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovalEventsInput = {
@@ -3275,6 +3315,7 @@ export type UserUncheckedUpdateWithoutApprovalEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutResourceActionGrantsInput = {
@@ -3345,6 +3386,7 @@ export type UserCreateWithoutResourceActionGrantsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
@@ -3416,6 +3458,7 @@ export type UserUncheckedCreateWithoutResourceActionGrantsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutResourceActionGrantsInput = {
@@ -3502,6 +3545,7 @@ export type UserUpdateWithoutResourceActionGrantsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
@@ -3573,6 +3617,7 @@ export type UserUncheckedUpdateWithoutResourceActionGrantsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
@@ -3643,6 +3688,7 @@ export type UserCreateWithoutPermissionGrantLedgerEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
@@ -3714,6 +3760,7 @@ export type UserUncheckedCreateWithoutPermissionGrantLedgerEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutPermissionGrantLedgerEventsInput = {
@@ -3800,6 +3847,7 @@ export type UserUpdateWithoutPermissionGrantLedgerEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
@@ -3871,6 +3919,7 @@ export type UserUncheckedUpdateWithoutPermissionGrantLedgerEventsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutNotificationsInput = {
@@ -3941,6 +3990,7 @@ export type UserCreateWithoutNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -4012,6 +4062,7 @@ export type UserUncheckedCreateWithoutNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -4087,6 +4138,7 @@ export type UserCreateWithoutCreatedNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
@@ -4158,6 +4210,7 @@ export type UserUncheckedCreateWithoutCreatedNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedNotificationsInput = {
@@ -4244,6 +4297,7 @@ export type UserUpdateWithoutNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -4315,6 +4369,7 @@ export type UserUncheckedUpdateWithoutNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutCreatedNotificationsInput = {
@@ -4396,6 +4451,7 @@ export type UserUpdateWithoutCreatedNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
@@ -4467,6 +4523,7 @@ export type UserUncheckedUpdateWithoutCreatedNotificationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedContractsInput = {
@@ -4537,6 +4594,7 @@ export type UserCreateWithoutEditedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedContractsInput = {
@@ -4608,6 +4666,7 @@ export type UserUncheckedCreateWithoutEditedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedContractsInput = {
@@ -4683,6 +4742,7 @@ export type UserCreateWithoutArchivedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutArchivedContractsInput = {
@@ -4754,6 +4814,7 @@ export type UserUncheckedCreateWithoutArchivedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutArchivedContractsInput = {
@@ -4840,6 +4901,7 @@ export type UserUpdateWithoutEditedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedContractsInput = {
@@ -4911,6 +4973,7 @@ export type UserUncheckedUpdateWithoutEditedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutArchivedContractsInput = {
@@ -4992,6 +5055,7 @@ export type UserUpdateWithoutArchivedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutArchivedContractsInput = {
@@ -5063,6 +5127,7 @@ export type UserUncheckedUpdateWithoutArchivedContractsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutUploadedContractAttachmentsInput = {
@@ -5133,6 +5198,7 @@ export type UserCreateWithoutUploadedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutUploadedContractAttachmentsInput = {
@@ -5204,6 +5270,7 @@ export type UserUncheckedCreateWithoutUploadedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutUploadedContractAttachmentsInput = {
@@ -5279,6 +5346,7 @@ export type UserCreateWithoutRemovedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutRemovedContractAttachmentsInput = {
@@ -5350,6 +5418,7 @@ export type UserUncheckedCreateWithoutRemovedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutRemovedContractAttachmentsInput = {
@@ -5436,6 +5505,7 @@ export type UserUpdateWithoutUploadedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUploadedContractAttachmentsInput = {
@@ -5507,6 +5577,7 @@ export type UserUncheckedUpdateWithoutUploadedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutRemovedContractAttachmentsInput = {
@@ -5588,6 +5659,7 @@ export type UserUpdateWithoutRemovedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRemovedContractAttachmentsInput = {
@@ -5659,6 +5731,7 @@ export type UserUncheckedUpdateWithoutRemovedContractAttachmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedContractRecordsInput = {
@@ -5729,6 +5802,7 @@ export type UserCreateWithoutCreatedContractRecordsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedContractRecordsInput = {
@@ -5800,6 +5874,7 @@ export type UserUncheckedCreateWithoutCreatedContractRecordsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedContractRecordsInput = {
@@ -5886,6 +5961,7 @@ export type UserUpdateWithoutCreatedContractRecordsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedContractRecordsInput = {
@@ -5957,6 +6033,7 @@ export type UserUncheckedUpdateWithoutCreatedContractRecordsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutRequestedDataQualityRunsInput = {
@@ -6027,6 +6104,7 @@ export type UserCreateWithoutRequestedDataQualityRunsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutRequestedDataQualityRunsInput = {
@@ -6098,6 +6176,7 @@ export type UserUncheckedCreateWithoutRequestedDataQualityRunsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutRequestedDataQualityRunsInput = {
@@ -6184,6 +6263,7 @@ export type UserUpdateWithoutRequestedDataQualityRunsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRequestedDataQualityRunsInput = {
@@ -6255,6 +6335,7 @@ export type UserUncheckedUpdateWithoutRequestedDataQualityRunsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutLedgerImportsInput = {
@@ -6325,6 +6406,7 @@ export type UserCreateWithoutLedgerImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutLedgerImportsInput = {
@@ -6396,6 +6478,7 @@ export type UserUncheckedCreateWithoutLedgerImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutLedgerImportsInput = {
@@ -6482,6 +6565,7 @@ export type UserUpdateWithoutLedgerImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutLedgerImportsInput = {
@@ -6553,6 +6637,7 @@ export type UserUncheckedUpdateWithoutLedgerImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceAccountsInput = {
@@ -6623,6 +6708,7 @@ export type UserCreateWithoutEditedFinanceAccountsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
@@ -6694,6 +6780,7 @@ export type UserUncheckedCreateWithoutEditedFinanceAccountsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceAccountsInput = {
@@ -6780,6 +6867,7 @@ export type UserUpdateWithoutEditedFinanceAccountsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
@@ -6851,6 +6939,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceAccountsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedFinanceVouchersInput = {
@@ -6921,6 +7010,7 @@ export type UserCreateWithoutEditedFinanceVouchersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
@@ -6992,6 +7082,7 @@ export type UserUncheckedCreateWithoutEditedFinanceVouchersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedFinanceVouchersInput = {
@@ -7078,6 +7169,7 @@ export type UserUpdateWithoutEditedFinanceVouchersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
@@ -7149,6 +7241,7 @@ export type UserUncheckedUpdateWithoutEditedFinanceVouchersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutSnapshotImportsInput = {
@@ -7219,6 +7312,7 @@ export type UserCreateWithoutSnapshotImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotImportsInput = {
@@ -7290,6 +7384,7 @@ export type UserUncheckedCreateWithoutSnapshotImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotImportsInput = {
@@ -7365,6 +7460,7 @@ export type UserCreateWithoutSnapshotEditsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutSnapshotEditsInput = {
@@ -7436,6 +7532,7 @@ export type UserUncheckedCreateWithoutSnapshotEditsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutSnapshotEditsInput = {
@@ -7522,6 +7619,7 @@ export type UserUpdateWithoutSnapshotImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
@@ -7593,6 +7691,7 @@ export type UserUncheckedUpdateWithoutSnapshotImportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutSnapshotEditsInput = {
@@ -7674,6 +7773,7 @@ export type UserUpdateWithoutSnapshotEditsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
@@ -7745,6 +7845,7 @@ export type UserUncheckedUpdateWithoutSnapshotEditsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutConfirmedReclassRulesInput = {
@@ -7815,6 +7916,7 @@ export type UserCreateWithoutConfirmedReclassRulesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
@@ -7886,6 +7988,7 @@ export type UserUncheckedCreateWithoutConfirmedReclassRulesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutConfirmedReclassRulesInput = {
@@ -7972,6 +8075,7 @@ export type UserUpdateWithoutConfirmedReclassRulesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
@@ -8043,6 +8147,7 @@ export type UserUncheckedUpdateWithoutConfirmedReclassRulesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutReviewedReclassResultsInput = {
@@ -8113,6 +8218,7 @@ export type UserCreateWithoutReviewedReclassResultsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
@@ -8184,6 +8290,7 @@ export type UserUncheckedCreateWithoutReviewedReclassResultsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedReclassResultsInput = {
@@ -8270,6 +8377,7 @@ export type UserUpdateWithoutReviewedReclassResultsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
@@ -8341,6 +8449,7 @@ export type UserUncheckedUpdateWithoutReviewedReclassResultsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedWorkpapersInput = {
@@ -8411,6 +8520,7 @@ export type UserCreateWithoutEditedWorkpapersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
@@ -8482,6 +8592,7 @@ export type UserUncheckedCreateWithoutEditedWorkpapersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedWorkpapersInput = {
@@ -8568,6 +8679,7 @@ export type UserUpdateWithoutEditedWorkpapersInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
@@ -8621,6 +8733,309 @@ export type UserUncheckedUpdateWithoutEditedWorkpapersInput = {
   reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
   confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
   ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUncheckedUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUncheckedUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
+}
+
+export type UserCreateWithoutRecordedEmploymentAgreementChangesInput = {
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentCreateNestedManyWithoutRemoverInput
+  createdContractRecords?: Prisma.ContractRecordCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+}
+
+export type UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput = {
+  id?: number
+  wxUserId?: string | null
+  username: string
+  password?: string | null
+  avatar?: string | null
+  alias?: string | null
+  phone?: string | null
+  routineItems?: string | null
+  preferredDepartmentIds?: string | null
+  preferredProjectIds?: string | null
+  portalSlots?: string | null
+  canLogin?: boolean
+  apiKeyHash?: string | null
+  employeeId?: string | null
+  createdAt?: Date | string
+  sessionVersion?: number
+  editedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutEditorInput
+  archivedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutArchivedByUserInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutUploaderInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedCreateNestedManyWithoutRemoverInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedCreateNestedManyWithoutCreatorInput
+  editHistories?: Prisma.EditHistoryUncheckedCreateNestedManyWithoutEditorInput
+  employees?: Prisma.EmployeeUncheckedCreateNestedManyWithoutUserInput
+  agentProfile?: Prisma.AgentProfileUncheckedCreateNestedOneWithoutActorUserInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedCreateNestedManyWithoutEditorInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedCreateNestedManyWithoutEditorInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedCreateNestedManyWithoutEditorInput
+  stockOperations?: Prisma.StockOperationUncheckedCreateNestedManyWithoutEditorInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedCreateNestedManyWithoutEditorInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedCreateNestedManyWithoutEditorInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutImporterInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedCreateNestedManyWithoutEditorInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutEditorInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutOwnerInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedCreateNestedManyWithoutReviewerInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedCreateNestedManyWithoutCreatorInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedCreateNestedManyWithoutReviewerInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedCreateNestedManyWithoutRequesterInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutCreatorInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedCreateNestedManyWithoutReviewerInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedCreateNestedManyWithoutUserInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedCreateNestedManyWithoutUserInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedCreateNestedManyWithoutCreatedByInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedCreateNestedManyWithoutRespondedByInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedCreateNestedManyWithoutReviewerInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedCreateNestedManyWithoutConfirmerInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedCreateNestedManyWithoutImporterInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedCreateNestedManyWithoutEditorInput
+  notifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutRecipientInput
+  createdNotifications?: Prisma.NotificationUncheckedCreateNestedManyWithoutActorInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedCreateNestedManyWithoutActorInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutSubmitterInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUncheckedCreateNestedManyWithoutResolverInput
+  approvalEvents?: Prisma.ApprovalEventUncheckedCreateNestedManyWithoutActorInput
+  workReports?: Prisma.WorkReportUncheckedCreateNestedManyWithoutSubmitterInput
+  ownedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutOwnerInput
+  secretariedMeetings?: Prisma.MeetingUncheckedCreateNestedManyWithoutSecretaryInput
+  meetingParticipations?: Prisma.MeetingParticipantUncheckedCreateNestedManyWithoutUserInput
+  meetingVotes?: Prisma.MeetingVoteUncheckedCreateNestedManyWithoutVoterInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUncheckedCreateNestedManyWithoutActorInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUncheckedCreateNestedManyWithoutCreatedByUserInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUncheckedCreateNestedManyWithoutUpdatedByUserInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+}
+
+export type UserCreateOrConnectWithoutRecordedEmploymentAgreementChangesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput>
+}
+
+export type UserUpsertWithoutRecordedEmploymentAgreementChangesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedUpdateWithoutRecordedEmploymentAgreementChangesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedCreateWithoutRecordedEmploymentAgreementChangesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRecordedEmploymentAgreementChangesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRecordedEmploymentAgreementChangesInput, Prisma.UserUncheckedUpdateWithoutRecordedEmploymentAgreementChangesInput>
+}
+
+export type UserUpdateWithoutRecordedEmploymentAgreementChangesInput = {
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUpdateManyWithoutRemoverNestedInput
+  createdContractRecords?: Prisma.ContractRecordUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUpdateManyWithoutEditorNestedInput
+  notifications?: Prisma.NotificationUpdateManyWithoutRecipientNestedInput
+  createdNotifications?: Prisma.NotificationUpdateManyWithoutActorNestedInput
+  permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUpdateManyWithoutActorNestedInput
+  submittedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutSubmitterNestedInput
+  resolvedApprovalRequests?: Prisma.ApprovalRequestUpdateManyWithoutResolverNestedInput
+  approvalEvents?: Prisma.ApprovalEventUpdateManyWithoutActorNestedInput
+  workReports?: Prisma.WorkReportUpdateManyWithoutSubmitterNestedInput
+  ownedMeetings?: Prisma.MeetingUpdateManyWithoutOwnerNestedInput
+  secretariedMeetings?: Prisma.MeetingUpdateManyWithoutSecretaryNestedInput
+  meetingParticipations?: Prisma.MeetingParticipantUpdateManyWithoutUserNestedInput
+  meetingVotes?: Prisma.MeetingVoteUpdateManyWithoutVoterNestedInput
+  mutationImpactBatches?: Prisma.MutationImpactBatchUpdateManyWithoutActorNestedInput
+  createdKpiDefinitions?: Prisma.WorkKpiDefinitionUpdateManyWithoutCreatedByUserNestedInput
+  updatedKpiAssignments?: Prisma.WorkKpiAssignmentUpdateManyWithoutUpdatedByUserNestedInput
+  approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
+  erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
+  recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
+  requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRecordedEmploymentAgreementChangesInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  wxUserId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  password?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  avatar?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  alias?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  phone?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  routineItems?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredDepartmentIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  preferredProjectIds?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  portalSlots?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  canLogin?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  apiKeyHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  employeeId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessionVersion?: Prisma.IntFieldUpdateOperationsInput | number
+  editedContracts?: Prisma.ContractUncheckedUpdateManyWithoutEditorNestedInput
+  archivedContracts?: Prisma.ContractUncheckedUpdateManyWithoutArchivedByUserNestedInput
+  uploadedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutUploaderNestedInput
+  removedContractAttachments?: Prisma.ContractAttachmentUncheckedUpdateManyWithoutRemoverNestedInput
+  createdContractRecords?: Prisma.ContractRecordUncheckedUpdateManyWithoutCreatorNestedInput
+  editHistories?: Prisma.EditHistoryUncheckedUpdateManyWithoutEditorNestedInput
+  employees?: Prisma.EmployeeUncheckedUpdateManyWithoutUserNestedInput
+  agentProfile?: Prisma.AgentProfileUncheckedUpdateOneWithoutActorUserNestedInput
+  editedFinanceAccounts?: Prisma.FinanceAccountUncheckedUpdateManyWithoutEditorNestedInput
+  editedFinanceVouchers?: Prisma.FinanceVoucherUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockFinishedGoods?: Prisma.StockFinishedGoodsUncheckedUpdateManyWithoutEditorNestedInput
+  stockOperations?: Prisma.StockOperationUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockPackagings?: Prisma.StockPackagingUncheckedUpdateManyWithoutEditorNestedInput
+  editedStockRawMaterials?: Prisma.StockRawMaterialUncheckedUpdateManyWithoutEditorNestedInput
+  snapshotImports?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutImporterNestedInput
+  snapshotEdits?: Prisma.FinanceBalanceSnapshotUncheckedUpdateManyWithoutEditorNestedInput
+  editedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutEditorNestedInput
+  ownedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutOwnerNestedInput
+  reviewedLibraryDocuments?: Prisma.LibraryDocumentUncheckedUpdateManyWithoutReviewerNestedInput
+  createdLibraryVersions?: Prisma.LibraryDocumentVersionUncheckedUpdateManyWithoutCreatorNestedInput
+  createdLibraryDocumentTags?: Prisma.LibraryDocumentTagUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryTagCandidates?: Prisma.LibraryTagCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  reviewedLibraryMetadataCandidates?: Prisma.LibraryMetadataCandidateUncheckedUpdateManyWithoutReviewerNestedInput
+  requestedLibraryExports?: Prisma.LibraryExportJobUncheckedUpdateManyWithoutRequesterNestedInput
+  createdLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutCreatorNestedInput
+  reviewedLibraryEvaluationCases?: Prisma.LibraryEvaluationCaseUncheckedUpdateManyWithoutReviewerNestedInput
+  resourceActionGrants?: Prisma.UserResourceActionGrantUncheckedUpdateManyWithoutUserNestedInput
+  departmentAssignees?: Prisma.DepartmentWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  projectAssignees?: Prisma.ProjectWorkAssigneeUncheckedUpdateManyWithoutUserNestedInput
+  createdDepartmentCollaborations?: Prisma.DepartmentCollaborationUncheckedUpdateManyWithoutCreatedByNestedInput
+  departmentCollaborationResponses?: Prisma.DepartmentCollaborationDepartmentUncheckedUpdateManyWithoutRespondedByNestedInput
+  reviewedReclassResults?: Prisma.ReclassResultUncheckedUpdateManyWithoutReviewerNestedInput
+  confirmedReclassRules?: Prisma.FinanceReclassRuleUncheckedUpdateManyWithoutConfirmerNestedInput
+  ledgerImports?: Prisma.FinanceLedgerImportUncheckedUpdateManyWithoutImporterNestedInput
+  editedWorkpapers?: Prisma.FinanceStatementWorkpaperUncheckedUpdateManyWithoutEditorNestedInput
   notifications?: Prisma.NotificationUncheckedUpdateManyWithoutRecipientNestedInput
   createdNotifications?: Prisma.NotificationUncheckedUpdateManyWithoutActorNestedInput
   permissionGrantLedgerEvents?: Prisma.PermissionGrantLedgerEventUncheckedUpdateManyWithoutActorNestedInput
@@ -8709,6 +9124,7 @@ export type UserCreateWithoutRecordedEmployeeLifecycleEventsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotCreateNestedManyWithoutApprovedByUserInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutRecordedEmployeeLifecycleEventsInput = {
@@ -8780,6 +9196,7 @@ export type UserUncheckedCreateWithoutRecordedEmployeeLifecycleEventsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedCreateNestedManyWithoutApprovedByUserInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutRecordedEmployeeLifecycleEventsInput = {
@@ -8866,6 +9283,7 @@ export type UserUpdateWithoutRecordedEmployeeLifecycleEventsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUpdateManyWithoutApprovedByUserNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRecordedEmployeeLifecycleEventsInput = {
@@ -8937,6 +9355,7 @@ export type UserUncheckedUpdateWithoutRecordedEmployeeLifecycleEventsInput = {
   approvedKpiResultSnapshots?: Prisma.WorkKpiResultSnapshotUncheckedUpdateManyWithoutApprovedByUserNestedInput
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEmployeesInput = {
@@ -9007,6 +9426,7 @@ export type UserCreateWithoutEmployeesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEmployeesInput = {
@@ -9078,6 +9498,7 @@ export type UserUncheckedCreateWithoutEmployeesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEmployeesInput = {
@@ -9164,6 +9585,7 @@ export type UserUpdateWithoutEmployeesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEmployeesInput = {
@@ -9235,6 +9657,7 @@ export type UserUncheckedUpdateWithoutEmployeesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditHistoriesInput = {
@@ -9305,6 +9728,7 @@ export type UserCreateWithoutEditHistoriesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditHistoriesInput = {
@@ -9376,6 +9800,7 @@ export type UserUncheckedCreateWithoutEditHistoriesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditHistoriesInput = {
@@ -9462,6 +9887,7 @@ export type UserUpdateWithoutEditHistoriesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditHistoriesInput = {
@@ -9533,6 +9959,7 @@ export type UserUncheckedUpdateWithoutEditHistoriesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockRawMaterialsInput = {
@@ -9603,6 +10030,7 @@ export type UserCreateWithoutEditedStockRawMaterialsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
@@ -9674,6 +10102,7 @@ export type UserUncheckedCreateWithoutEditedStockRawMaterialsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockRawMaterialsInput = {
@@ -9760,6 +10189,7 @@ export type UserUpdateWithoutEditedStockRawMaterialsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
@@ -9831,6 +10261,7 @@ export type UserUncheckedUpdateWithoutEditedStockRawMaterialsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockPackagingsInput = {
@@ -9901,6 +10332,7 @@ export type UserCreateWithoutEditedStockPackagingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
@@ -9972,6 +10404,7 @@ export type UserUncheckedCreateWithoutEditedStockPackagingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockPackagingsInput = {
@@ -10058,6 +10491,7 @@ export type UserUpdateWithoutEditedStockPackagingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
@@ -10129,6 +10563,7 @@ export type UserUncheckedUpdateWithoutEditedStockPackagingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedStockFinishedGoodsInput = {
@@ -10199,6 +10634,7 @@ export type UserCreateWithoutEditedStockFinishedGoodsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
@@ -10270,6 +10706,7 @@ export type UserUncheckedCreateWithoutEditedStockFinishedGoodsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedStockFinishedGoodsInput = {
@@ -10356,6 +10793,7 @@ export type UserUpdateWithoutEditedStockFinishedGoodsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
@@ -10427,6 +10865,7 @@ export type UserUncheckedUpdateWithoutEditedStockFinishedGoodsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutStockOperationsInput = {
@@ -10497,6 +10936,7 @@ export type UserCreateWithoutStockOperationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutStockOperationsInput = {
@@ -10568,6 +11008,7 @@ export type UserUncheckedCreateWithoutStockOperationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutStockOperationsInput = {
@@ -10654,6 +11095,7 @@ export type UserUpdateWithoutStockOperationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStockOperationsInput = {
@@ -10725,6 +11167,7 @@ export type UserUncheckedUpdateWithoutStockOperationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
@@ -10795,6 +11238,7 @@ export type UserCreateWithoutReviewedLibraryTagCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
@@ -10866,6 +11310,7 @@ export type UserUncheckedCreateWithoutReviewedLibraryTagCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryTagCandidatesInput = {
@@ -10952,6 +11397,7 @@ export type UserUpdateWithoutReviewedLibraryTagCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
@@ -11023,6 +11469,7 @@ export type UserUncheckedUpdateWithoutReviewedLibraryTagCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -11093,6 +11540,7 @@ export type UserCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -11164,6 +11612,7 @@ export type UserUncheckedCreateWithoutReviewedLibraryMetadataCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -11250,6 +11699,7 @@ export type UserUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
@@ -11321,6 +11771,7 @@ export type UserUncheckedUpdateWithoutReviewedLibraryMetadataCandidatesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -11391,6 +11842,7 @@ export type UserCreateWithoutCreatedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -11462,6 +11914,7 @@ export type UserUncheckedCreateWithoutCreatedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryEvaluationCasesInput = {
@@ -11537,6 +11990,7 @@ export type UserCreateWithoutReviewedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
@@ -11608,6 +12062,7 @@ export type UserUncheckedCreateWithoutReviewedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryEvaluationCasesInput = {
@@ -11694,6 +12149,7 @@ export type UserUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
@@ -11765,6 +12221,7 @@ export type UserUncheckedUpdateWithoutCreatedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutReviewedLibraryEvaluationCasesInput = {
@@ -11846,6 +12303,7 @@ export type UserUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
@@ -11917,6 +12375,7 @@ export type UserUncheckedUpdateWithoutReviewedLibraryEvaluationCasesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutRequestedLibraryExportsInput = {
@@ -11987,6 +12446,7 @@ export type UserCreateWithoutRequestedLibraryExportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
@@ -12058,6 +12518,7 @@ export type UserUncheckedCreateWithoutRequestedLibraryExportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutRequestedLibraryExportsInput = {
@@ -12144,6 +12605,7 @@ export type UserUpdateWithoutRequestedLibraryExportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
@@ -12215,6 +12677,7 @@ export type UserUncheckedUpdateWithoutRequestedLibraryExportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutEditedLibraryDocumentsInput = {
@@ -12285,6 +12748,7 @@ export type UserCreateWithoutEditedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
@@ -12356,6 +12820,7 @@ export type UserUncheckedCreateWithoutEditedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutEditedLibraryDocumentsInput = {
@@ -12431,6 +12896,7 @@ export type UserCreateWithoutOwnedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
@@ -12502,6 +12968,7 @@ export type UserUncheckedCreateWithoutOwnedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutOwnedLibraryDocumentsInput = {
@@ -12577,6 +13044,7 @@ export type UserCreateWithoutReviewedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
@@ -12648,6 +13116,7 @@ export type UserUncheckedCreateWithoutReviewedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutReviewedLibraryDocumentsInput = {
@@ -12734,6 +13203,7 @@ export type UserUpdateWithoutEditedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
@@ -12805,6 +13275,7 @@ export type UserUncheckedUpdateWithoutEditedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutOwnedLibraryDocumentsInput = {
@@ -12886,6 +13357,7 @@ export type UserUpdateWithoutOwnedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
@@ -12957,6 +13429,7 @@ export type UserUncheckedUpdateWithoutOwnedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutReviewedLibraryDocumentsInput = {
@@ -13038,6 +13511,7 @@ export type UserUpdateWithoutReviewedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
@@ -13109,6 +13583,7 @@ export type UserUncheckedUpdateWithoutReviewedLibraryDocumentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryVersionsInput = {
@@ -13179,6 +13654,7 @@ export type UserCreateWithoutCreatedLibraryVersionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
@@ -13250,6 +13726,7 @@ export type UserUncheckedCreateWithoutCreatedLibraryVersionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryVersionsInput = {
@@ -13336,6 +13813,7 @@ export type UserUpdateWithoutCreatedLibraryVersionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
@@ -13407,6 +13885,7 @@ export type UserUncheckedUpdateWithoutCreatedLibraryVersionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
@@ -13477,6 +13956,7 @@ export type UserCreateWithoutCreatedLibraryDocumentTagsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
@@ -13548,6 +14028,7 @@ export type UserUncheckedCreateWithoutCreatedLibraryDocumentTagsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedLibraryDocumentTagsInput = {
@@ -13634,6 +14115,7 @@ export type UserUpdateWithoutCreatedLibraryDocumentTagsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
@@ -13705,6 +14187,7 @@ export type UserUncheckedUpdateWithoutCreatedLibraryDocumentTagsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutMutationImpactBatchesInput = {
@@ -13775,6 +14258,7 @@ export type UserCreateWithoutMutationImpactBatchesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
@@ -13846,6 +14330,7 @@ export type UserUncheckedCreateWithoutMutationImpactBatchesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutMutationImpactBatchesInput = {
@@ -13932,6 +14417,7 @@ export type UserUpdateWithoutMutationImpactBatchesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
@@ -14003,6 +14489,7 @@ export type UserUncheckedUpdateWithoutMutationImpactBatchesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
@@ -14073,6 +14560,7 @@ export type UserCreateWithoutCreatedDepartmentCollaborationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
@@ -14144,6 +14632,7 @@ export type UserUncheckedCreateWithoutCreatedDepartmentCollaborationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedDepartmentCollaborationsInput = {
@@ -14230,6 +14719,7 @@ export type UserUpdateWithoutCreatedDepartmentCollaborationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
@@ -14301,6 +14791,7 @@ export type UserUncheckedUpdateWithoutCreatedDepartmentCollaborationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
@@ -14371,6 +14862,7 @@ export type UserCreateWithoutDepartmentCollaborationResponsesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
@@ -14442,6 +14934,7 @@ export type UserUncheckedCreateWithoutDepartmentCollaborationResponsesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentCollaborationResponsesInput = {
@@ -14528,6 +15021,7 @@ export type UserUpdateWithoutDepartmentCollaborationResponsesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
@@ -14599,6 +15093,7 @@ export type UserUncheckedUpdateWithoutDepartmentCollaborationResponsesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutCreatedKpiDefinitionsInput = {
@@ -14669,6 +15164,7 @@ export type UserCreateWithoutCreatedKpiDefinitionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutCreatedKpiDefinitionsInput = {
@@ -14740,6 +15236,7 @@ export type UserUncheckedCreateWithoutCreatedKpiDefinitionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutCreatedKpiDefinitionsInput = {
@@ -14826,6 +15323,7 @@ export type UserUpdateWithoutCreatedKpiDefinitionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput = {
@@ -14897,6 +15395,7 @@ export type UserUncheckedUpdateWithoutCreatedKpiDefinitionsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutUpdatedKpiAssignmentsInput = {
@@ -14967,6 +15466,7 @@ export type UserCreateWithoutUpdatedKpiAssignmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput = {
@@ -15038,6 +15538,7 @@ export type UserUncheckedCreateWithoutUpdatedKpiAssignmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutUpdatedKpiAssignmentsInput = {
@@ -15124,6 +15625,7 @@ export type UserUpdateWithoutUpdatedKpiAssignmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput = {
@@ -15195,6 +15697,7 @@ export type UserUncheckedUpdateWithoutUpdatedKpiAssignmentsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutApprovedKpiResultSnapshotsInput = {
@@ -15265,6 +15768,7 @@ export type UserCreateWithoutApprovedKpiResultSnapshotsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput = {
@@ -15336,6 +15840,7 @@ export type UserUncheckedCreateWithoutApprovedKpiResultSnapshotsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutApprovedKpiResultSnapshotsInput = {
@@ -15422,6 +15927,7 @@ export type UserUpdateWithoutApprovedKpiResultSnapshotsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput = {
@@ -15493,6 +15999,7 @@ export type UserUncheckedUpdateWithoutApprovedKpiResultSnapshotsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutOwnedMeetingsInput = {
@@ -15563,6 +16070,7 @@ export type UserCreateWithoutOwnedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
@@ -15634,6 +16142,7 @@ export type UserUncheckedCreateWithoutOwnedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutOwnedMeetingsInput = {
@@ -15709,6 +16218,7 @@ export type UserCreateWithoutSecretariedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
@@ -15780,6 +16290,7 @@ export type UserUncheckedCreateWithoutSecretariedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutSecretariedMeetingsInput = {
@@ -15866,6 +16377,7 @@ export type UserUpdateWithoutOwnedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
@@ -15937,6 +16449,7 @@ export type UserUncheckedUpdateWithoutOwnedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUpsertWithoutSecretariedMeetingsInput = {
@@ -16018,6 +16531,7 @@ export type UserUpdateWithoutSecretariedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
@@ -16089,6 +16603,7 @@ export type UserUncheckedUpdateWithoutSecretariedMeetingsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutMeetingParticipationsInput = {
@@ -16159,6 +16674,7 @@ export type UserCreateWithoutMeetingParticipationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
@@ -16230,6 +16746,7 @@ export type UserUncheckedCreateWithoutMeetingParticipationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutMeetingParticipationsInput = {
@@ -16316,6 +16833,7 @@ export type UserUpdateWithoutMeetingParticipationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
@@ -16387,6 +16905,7 @@ export type UserUncheckedUpdateWithoutMeetingParticipationsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutMeetingVotesInput = {
@@ -16457,6 +16976,7 @@ export type UserCreateWithoutMeetingVotesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutMeetingVotesInput = {
@@ -16528,6 +17048,7 @@ export type UserUncheckedCreateWithoutMeetingVotesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutMeetingVotesInput = {
@@ -16614,6 +17135,7 @@ export type UserUpdateWithoutMeetingVotesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutMeetingVotesInput = {
@@ -16685,6 +17207,7 @@ export type UserUncheckedUpdateWithoutMeetingVotesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutWorkReportsInput = {
@@ -16755,6 +17278,7 @@ export type UserCreateWithoutWorkReportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutWorkReportsInput = {
@@ -16826,6 +17350,7 @@ export type UserUncheckedCreateWithoutWorkReportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutWorkReportsInput = {
@@ -16912,6 +17437,7 @@ export type UserUpdateWithoutWorkReportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutWorkReportsInput = {
@@ -16983,6 +17509,7 @@ export type UserUncheckedUpdateWithoutWorkReportsInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutDepartmentAssigneesInput = {
@@ -17053,6 +17580,7 @@ export type UserCreateWithoutDepartmentAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
@@ -17124,6 +17652,7 @@ export type UserUncheckedCreateWithoutDepartmentAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutDepartmentAssigneesInput = {
@@ -17210,6 +17739,7 @@ export type UserUpdateWithoutDepartmentAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
@@ -17281,6 +17811,7 @@ export type UserUncheckedUpdateWithoutDepartmentAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserCreateWithoutProjectAssigneesInput = {
@@ -17351,6 +17882,7 @@ export type UserCreateWithoutProjectAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeCreateNestedManyWithoutActorUserInput
 }
 
 export type UserUncheckedCreateWithoutProjectAssigneesInput = {
@@ -17422,6 +17954,7 @@ export type UserUncheckedCreateWithoutProjectAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedCreateNestedManyWithoutRespondentInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedCreateNestedManyWithoutRecordedByInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedCreateNestedManyWithoutRequestedByInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedCreateNestedManyWithoutActorUserInput
 }
 
 export type UserCreateOrConnectWithoutProjectAssigneesInput = {
@@ -17508,6 +18041,7 @@ export type UserUpdateWithoutProjectAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUpdateManyWithoutActorUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
@@ -17579,6 +18113,7 @@ export type UserUncheckedUpdateWithoutProjectAssigneesInput = {
   erpDueDiligenceSubmissions?: Prisma.ErpDueDiligenceSubmissionUncheckedUpdateManyWithoutRespondentNestedInput
   recordedEmployeeLifecycleEvents?: Prisma.EmployeeLifecycleEventUncheckedUpdateManyWithoutRecordedByNestedInput
   requestedDataQualityRuns?: Prisma.DataQualityRunUncheckedUpdateManyWithoutRequestedByNestedInput
+  recordedEmploymentAgreementChanges?: Prisma.EmploymentAgreementChangeUncheckedUpdateManyWithoutActorUserNestedInput
 }
 
 
@@ -17639,6 +18174,7 @@ export type UserCountOutputType = {
   erpDueDiligenceSubmissions: number
   recordedEmployeeLifecycleEvents: number
   requestedDataQualityRuns: number
+  recordedEmploymentAgreementChanges: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -17694,6 +18230,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   erpDueDiligenceSubmissions?: boolean | UserCountOutputTypeCountErpDueDiligenceSubmissionsArgs
   recordedEmployeeLifecycleEvents?: boolean | UserCountOutputTypeCountRecordedEmployeeLifecycleEventsArgs
   requestedDataQualityRuns?: boolean | UserCountOutputTypeCountRequestedDataQualityRunsArgs
+  recordedEmploymentAgreementChanges?: boolean | UserCountOutputTypeCountRecordedEmploymentAgreementChangesArgs
 }
 
 /**
@@ -18070,6 +18607,13 @@ export type UserCountOutputTypeCountRequestedDataQualityRunsArgs<ExtArgs extends
   where?: Prisma.DataQualityRunWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRecordedEmploymentAgreementChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmploymentAgreementChangeWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -18141,6 +18685,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   erpDueDiligenceSubmissions?: boolean | Prisma.User$erpDueDiligenceSubmissionsArgs<ExtArgs>
   recordedEmployeeLifecycleEvents?: boolean | Prisma.User$recordedEmployeeLifecycleEventsArgs<ExtArgs>
   requestedDataQualityRuns?: boolean | Prisma.User$requestedDataQualityRunsArgs<ExtArgs>
+  recordedEmploymentAgreementChanges?: boolean | Prisma.User$recordedEmploymentAgreementChangesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -18256,6 +18801,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   erpDueDiligenceSubmissions?: boolean | Prisma.User$erpDueDiligenceSubmissionsArgs<ExtArgs>
   recordedEmployeeLifecycleEvents?: boolean | Prisma.User$recordedEmployeeLifecycleEventsArgs<ExtArgs>
   requestedDataQualityRuns?: boolean | Prisma.User$requestedDataQualityRunsArgs<ExtArgs>
+  recordedEmploymentAgreementChanges?: boolean | Prisma.User$recordedEmploymentAgreementChangesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -18317,6 +18863,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     erpDueDiligenceSubmissions: Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>[]
     recordedEmployeeLifecycleEvents: Prisma.$EmployeeLifecycleEventPayload<ExtArgs>[]
     requestedDataQualityRuns: Prisma.$DataQualityRunPayload<ExtArgs>[]
+    recordedEmploymentAgreementChanges: Prisma.$EmploymentAgreementChangePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: number
@@ -18782,6 +19329,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   erpDueDiligenceSubmissions<T extends Prisma.User$erpDueDiligenceSubmissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$erpDueDiligenceSubmissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ErpDueDiligenceSubmissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   recordedEmployeeLifecycleEvents<T extends Prisma.User$recordedEmployeeLifecycleEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recordedEmployeeLifecycleEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeLifecycleEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   requestedDataQualityRuns<T extends Prisma.User$requestedDataQualityRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$requestedDataQualityRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$DataQualityRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  recordedEmploymentAgreementChanges<T extends Prisma.User$recordedEmploymentAgreementChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recordedEmploymentAgreementChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmploymentAgreementChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -20484,6 +21032,30 @@ export type User$requestedDataQualityRunsArgs<ExtArgs extends runtime.Types.Exte
   take?: number
   skip?: number
   distinct?: Prisma.DataQualityRunScalarFieldEnum | Prisma.DataQualityRunScalarFieldEnum[]
+}
+
+/**
+ * User.recordedEmploymentAgreementChanges
+ */
+export type User$recordedEmploymentAgreementChangesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmploymentAgreementChange
+   */
+  select?: Prisma.EmploymentAgreementChangeSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmploymentAgreementChange
+   */
+  omit?: Prisma.EmploymentAgreementChangeOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmploymentAgreementChangeInclude<ExtArgs> | null
+  where?: Prisma.EmploymentAgreementChangeWhereInput
+  orderBy?: Prisma.EmploymentAgreementChangeOrderByWithRelationInput | Prisma.EmploymentAgreementChangeOrderByWithRelationInput[]
+  cursor?: Prisma.EmploymentAgreementChangeWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmploymentAgreementChangeScalarFieldEnum | Prisma.EmploymentAgreementChangeScalarFieldEnum[]
 }
 
 /**

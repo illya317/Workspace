@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { okCommand } from "@workspace/platform/server/domain-validation";
+import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
 import { createCommandRoute } from "@workspace/platform/server/api-route";
 import { canUseProject, createProjectMemberAction, listProjectMembers } from "@workspace/work/server";
 
@@ -27,6 +27,8 @@ const listProjectMembersQuerySchema = z.object({
   keyword: z.string().optional(),
   page: optionalPositiveIntSchema,
   pageSize: optionalPositiveIntSchema,
+  lifecycleScope: z.enum(["current", "all"]).optional(),
+  asOfDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/).optional(),
 }).passthrough();
 
 export const GET = createCommandRoute({
@@ -38,15 +40,19 @@ export const GET = createCommandRoute({
       keyword: query.keyword || "",
       page: Math.max(1, query.page ?? 1),
       pageSize: Math.min(500, Math.max(1, query.pageSize ?? 50)),
+      lifecycleScope: query.lifecycleScope ?? "current",
+      asOfDate: query.asOfDate,
   }),
   action: listProjectMembers,
 });
 
 export const POST = createCommandRoute({
   bodySchema: createProjectMemberSchema,
-  buildCommand: ({ user, body }) => okCommand({
-    userId: user.userId,
-    body: body as Record<string, unknown>,
-  }),
+  buildCommand: ({ user, body, request }) => {
+    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
+    return idempotencyKey
+      ? okCommand({ userId: user.userId, body: body as Record<string, unknown>, idempotencyKey })
+      : failCommand("缺少 Idempotency-Key 请求头");
+  },
   action: createProjectMemberAction,
 });

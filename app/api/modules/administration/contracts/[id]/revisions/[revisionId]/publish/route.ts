@@ -1,0 +1,31 @@
+import { z } from "zod";
+import { readRequestExpectedVersion } from "@workspace/platform/server/api";
+import { createCommandRoute } from "@workspace/platform/server/api-route";
+import { failCommand, okCommand } from "@workspace/platform/server/domain-validation";
+import {
+  ContractRevisionPublishSchema,
+  executePublishContractRevision,
+} from "@workspace/administration/server";
+
+const paramsSchema = z.object({
+  id: z.coerce.number().int().positive(),
+  revisionId: z.coerce.number().int().positive(),
+});
+
+export const POST = createCommandRoute({
+  paramsSchema,
+  bodySchema: ContractRevisionPublishSchema,
+  paramsError: "无效ID",
+  buildCommand: ({ params, body, request, user }) => {
+    const idempotencyKey = request.headers.get("idempotency-key")?.trim();
+    return idempotencyKey ? okCommand({
+      contractId: params.id,
+      revisionId: params.revisionId,
+      body,
+      userId: user.userId,
+      expectedVersion: readRequestExpectedVersion(request),
+      idempotencyKey,
+    }) : failCommand("缺少 Idempotency-Key 请求头");
+  },
+  action: executePublishContractRevision,
+});

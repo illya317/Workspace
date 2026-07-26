@@ -1,6 +1,13 @@
 import { matchText } from "@workspace/core/search";
 import type { PermissionActionKey } from "@workspace/platform/permission-actions";
-import { workspaceBusinessDate } from "./business-date";
+import {
+  currentEmploymentPeriodWhere,
+  currentInclusiveBusinessPeriodWhere,
+  employmentPeriodContains,
+  employmentPeriodWhereAt,
+  inclusiveBusinessPeriodWhere,
+} from "./business-temporal-prisma";
+import { requireBusinessDate } from "@workspace/platform/contracts/business-temporal";
 
 export type LifecycleScope = "active" | "all" | "archived";
 export type RelationUsage = "selector" | "governance" | "both";
@@ -165,55 +172,26 @@ export function effectiveDateIntervalWhere<T extends Record<string, unknown>>(
   endField: string,
   date: string,
 ) {
-  const { AND: existingAnd, ...rest } = extra;
-  const previousAnd = existingAnd === undefined
-    ? []
-    : Array.isArray(existingAnd)
-      ? existingAnd
-      : [existingAnd];
-  return {
-    ...rest,
-    AND: [
-      ...previousAnd,
-      { OR: [{ [startField]: null }, { [startField]: "" }, { [startField]: { lte: date } }] },
-      { OR: [{ [endField]: null }, { [endField]: "" }, { [endField]: { gte: date } }] },
-    ],
-  };
+  return inclusiveBusinessPeriodWhere(extra, startField, endField, requireBusinessDate(date));
 }
 
 export function currentOpenEndedDateWhere<T extends Record<string, unknown>>(extra: T = {} as T, at = new Date()) {
-  return effectiveDateIntervalWhere(extra, "startDate", "endDate", workspaceBusinessDate(at));
+  return currentInclusiveBusinessPeriodWhere(extra, "startDate", "endDate", at);
 }
 
 export function currentEmploymentDateWhere<T extends Record<string, unknown>>(extra: T = {} as T, at = new Date()) {
-  return employmentDateWhereAt(extra, workspaceBusinessDate(at));
+  return currentEmploymentPeriodWhere(extra, at);
 }
 
 export function employmentDateWhereAt<T extends Record<string, unknown>>(extra: T = {} as T, date: string) {
-  const where = effectiveDateIntervalWhere(extra, "joinDate", "leaveDate", date);
-  return {
-    ...where,
-    AND: [
-      ...where.AND,
-      {
-        OR: [
-          { AND: [{ joinDate: { not: null } }, { joinDate: { not: "" } }] },
-          { AND: [{ leaveDate: { not: null } }, { leaveDate: { not: "" } }] },
-          { isActive: true },
-        ],
-      },
-    ],
-  };
+  return employmentPeriodWhereAt(extra, requireBusinessDate(date));
 }
 
 export function employmentIsActiveOnDate(
   employment: { isActive: boolean; joinDate?: string | null; leaveDate?: string | null },
   date: string,
 ) {
-  const joinDate = employment.joinDate?.trim() || null;
-  const leaveDate = employment.leaveDate?.trim() || null;
-  if (!joinDate && !leaveDate) return employment.isActive;
-  return (!joinDate || joinDate <= date) && (!leaveDate || leaveDate >= date);
+  return employmentPeriodContains(employment, requireBusinessDate(date));
 }
 
 export async function searchFkOptions(

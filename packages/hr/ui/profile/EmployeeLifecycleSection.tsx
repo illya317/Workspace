@@ -14,11 +14,13 @@ import {
 import { edpFields, employmentFields, withTenantProfileFieldOptions } from "@workspace/hr/constants";
 import type {
   EdpRow,
+  EmployeeLifecycleEventRow,
   EmployeeLifecycleEventType,
   EmployeeProfile,
   ProfileField,
 } from "@workspace/hr/types";
 import { requestJson } from "@workspace/platform/ui/api-client";
+import { inclusiveBusinessPeriodContains } from "@workspace/platform/contracts/business-temporal";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 import { profileFieldSpec } from "./EmployeeProfileFieldSpecs";
 import { updateProfileRow, type EditableRecord } from "./EmployeeProfileUtils";
@@ -67,12 +69,11 @@ function businessDate(timeZone: string) {
   return `${value.year}-${value.month}-${value.day}`;
 }
 
-function containsDate(row: Pick<EdpRow, "startDate" | "endDate">, date: string) {
-  return (!row.startDate || row.startDate <= date) && (!row.endDate || row.endDate >= date);
-}
-
 function eligibleSources(profile: EmployeeProfile | null, date: string) {
-  return (profile?.edps ?? []).filter((row) => row.id && containsDate(row, date) && (!row.startDate || row.startDate < date));
+  return (profile?.edps ?? []).filter((row) => row.id && inclusiveBusinessPeriodContains({
+    validFrom: row.startDate,
+    validThrough: row.endDate,
+  }, date) && (!row.startDate || row.startDate < date));
 }
 
 function applySource(draft: LifecycleDraft, source: EdpRow | null): LifecycleDraft {
@@ -126,6 +127,28 @@ function eventLabel(type: EmployeeLifecycleEventType) {
   return EVENT_OPTIONS.find((option) => option.value === type)?.label ?? type;
 }
 
+function lifecycleEventBadges(event: EmployeeLifecycleEventRow) {
+  const confirmed = event.recordState === "confirmed";
+  const temporalBadge = {
+    key: `temporal-${event.temporalState}`,
+    label: confirmed
+      ? event.temporalState === "scheduled" ? "待生效" : "已生效"
+      : event.temporalState === "scheduled" ? "原生效日未到" : "原生效日已到",
+    tone: confirmed
+      ? event.temporalState === "scheduled" ? "warning" as const : "success" as const
+      : "muted" as const,
+  };
+  if (confirmed) return [temporalBadge];
+  return [
+    temporalBadge,
+    {
+      key: `record-${event.recordState}`,
+      label: event.recordState === "cancelled" ? "推断已取消" : "记录状态未知",
+      tone: "muted" as const,
+    },
+  ];
+}
+
 function periodLabel(row: EdpRow) {
   return `${row.positionName || "未命名岗位"} · ${row.departmentName || "未设置部门"} · ${row.startDate || "不限"} 至 ${row.endDate || "长期"}`;
 }
@@ -140,7 +163,7 @@ export function useEmployeeLifecycleSections({
   onSaved: () => Promise<void>;
 }): BodySurfaceSectionSpec[] {
   const tenantConfig = useTenantConfig();
-  const today = businessDate(tenantConfig.localization.businessTimeZone);
+  const today = profile?.asOfDate ?? businessDate(tenantConfig.localization.businessTimeZone);
   const [draft, setDraft] = useState<LifecycleDraft>(() => initialDraft(profile, today));
   const [saving, setSaving] = useState(false);
   const feedback = useFeedback();
@@ -302,11 +325,7 @@ export function useEmployeeLifecycleSections({
           title: `${eventLabel(event.eventType)} · ${event.effectiveDate}`,
           description: event.reason || "未填写变更说明",
           meta: `${event.recordedByName} · 登记于 ${new Intl.DateTimeFormat("zh-CN", { timeZone: tenantConfig.localization.businessTimeZone, dateStyle: "medium", timeStyle: "short" }).format(new Date(event.recordedAt))}`,
-          badges: [{
-            key: event.status,
-            label: event.status === "cancelled" ? "已取消" : event.status === "scheduled" ? "待生效" : "已生效",
-            tone: event.status === "cancelled" ? "muted" : event.status === "scheduled" ? "warning" : "success",
-          }],
+          badges: lifecycleEventBadges(event),
         })),
       })],
     }),

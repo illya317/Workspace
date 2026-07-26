@@ -3,9 +3,11 @@ import "dotenv/config";
 import fs from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
+import { randomUUID } from "node:crypto";
 import * as XLSX from "xlsx";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../../generated/prisma/client";
+import { businessTemporalRequestFingerprint } from "../../packages/platform/server/business-temporal-idempotency";
 
 type StructuredTask = {
   sortOrder: number;
@@ -280,22 +282,10 @@ async function importProjects(prisma: PrismaClient, projects: StructuredProject[
       });
 
     if (project.ownerEmployeeId) {
-      await prisma.employeeProject.upsert({
-        where: {
-          employeeId_projectId: {
-            employeeId: project.ownerEmployeeId,
-            projectId: record.id,
-          },
-        },
-        update: {
-          role: "负责人",
-          editedAt: new Date(),
-        },
-        create: {
-          employeeId: project.ownerEmployeeId,
-          projectId: record.id,
-          role: "负责人",
-        },
+      await importProjectOwnerMembership(prisma, {
+        projectId: record.id,
+        projectCode: project.code,
+        employeeId: project.ownerEmployeeId,
       });
     }
 
@@ -303,6 +293,94 @@ async function importProjects(prisma: PrismaClient, projects: StructuredProject[
   }
 
   return importedCodes;
+}
+
+async function importProjectOwnerMembership(
+  prisma: PrismaClient,
+  input: { projectId: number; projectCode: string; employeeId: number },
+) {
+  const idempotencyKey = `priority-project-import:${input.projectCode}:${input.employeeId}:负责人`;
+  const requestFingerprint = businessTemporalRequestFingerprint({
+    aggregate: "ProjectMembership",
+    commandKind: "import-owner",
+    request: input,
+  });
+  await prisma.$transaction(async (tx) => {
+    const duplicate = await tx.projectMembershipChange.findUnique({
+      where: { idempotencyKey },
+      select: { requestFingerprint: true },
+    });
+    if (duplicate) {
+      if (duplicate.requestFingerprint !== requestFingerprint) throw new Error("项目成员导入幂等键已用于不同请求");
+      return;
+    }
+    const current = await tx.employeeProject.findFirst({
+      where: {
+        employeeId: input.employeeId,
+        projectId: input.projectId,
+        recordState: "confirmed",
+      },
+      orderBy: [{ sequence: "desc" }, { id: "desc" }],
+    });
+    if (current?.role === "负责人") return;
+
+    const membershipUid = current?.membershipUid ?? randomUUID();
+    const change = await tx.projectMembershipChange.create({
+      data: {
+        idempotencyKey,
+        requestFingerprint,
+        membershipUid,
+        employeeId: input.employeeId,
+        projectId: input.projectId,
+        commandKind: current ? "correct" : "schedule",
+        effectiveOn: current?.startDate ?? null,
+        reason: "公司重点项目来源导入",
+        effectsJson: "{}",
+      },
+      select: { id: true, changeUid: true },
+    });
+    if (current) {
+      const updated = await tx.employeeProject.updateMany({
+        where: { id: current.id, version: current.version, recordState: "confirmed" },
+        data: {
+          recordState: "superseded",
+          terminalChangeId: change.id,
+          reason: "公司重点项目来源纠正负责人",
+          editedAt: new Date(),
+          version: { increment: 1 },
+        },
+      });
+      if (updated.count !== 1) throw new Error("项目成员在导入期间发生变化，请重试");
+    }
+    const created = await tx.employeeProject.create({
+      data: {
+        membershipUid,
+        sequence: (current?.sequence ?? 0) + 1,
+        employeeId: input.employeeId,
+        projectId: input.projectId,
+        role: "负责人",
+        startDate: current?.startDate ?? null,
+        endDate: current?.endDate ?? null,
+        recordState: "confirmed",
+        changeKind: current ? "correction" : "initial",
+        supersedesId: current?.id ?? null,
+        createdByChangeId: change.id,
+        reason: "公司重点项目来源导入",
+      },
+      select: { id: true },
+    });
+    await tx.projectMembershipChange.update({
+      where: { id: change.id },
+      data: {
+        effectsJson: JSON.stringify({
+          changeUid: change.changeUid,
+          createdVersionId: created.id,
+          supersededVersionId: current?.id ?? null,
+          sourceBefore: current ?? null,
+        }),
+      },
+    });
+  });
 }
 
 async function confirmImport(prisma: PrismaClient, importedCodes: string[]) {

@@ -22,6 +22,7 @@ import {
 } from "./company-governance-ui";
 import { useCompanyGovernanceData } from "./useCompanyGovernanceData";
 import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
+import { requestJson } from "@workspace/platform/ui/api-client";
 
 export default function GovernanceOwnershipClient({ navigation }: {
   navigation: PageSurfaceTabBarSpec;
@@ -31,6 +32,8 @@ export default function GovernanceOwnershipClient({ navigation }: {
   const deferredKeyword = useDeferredValue(keyword);
   const [selectedCompanyId, setSelectedCompanyId] = useState<number | null>(null);
   const [mobileDetailActive, setMobileDetailActive] = useState(false);
+  const [rebuilding, setRebuilding] = useState(false);
+  const [rebuildMessage, setRebuildMessage] = useState("");
   const { companies, ownershipInterests, companyTotal, loading, error, load } = useCompanyGovernanceData(deferredKeyword);
 
   const selectedCompany = companies.find((company) => company.id === selectedCompanyId) ?? companies[0] ?? null;
@@ -110,7 +113,18 @@ export default function GovernanceOwnershipClient({ navigation }: {
     }
     return [createPanelSection("governance-ownership", {
       title: `${selectedCompany.name} · 集团股权结构`,
+      actions: [{
+        key: "rebuild",
+        label: rebuilding ? "重建中..." : "重建投影",
+        disabled: rebuilding,
+        onClick: () => void rebuildSelectedProjection(),
+      }],
       sections: [
+        ...(rebuildMessage ? [createEmptySection("governance-ownership-rebuild-message", {
+          presentation: "plain",
+          content: rebuildMessage,
+          compact: true,
+        })] : []),
         createAnalysisSection("governance-current-ownership", {
           title: "当前集团股权",
           sections: [createPageTableSection("governance-current-ownership-table", {
@@ -137,6 +151,25 @@ export default function GovernanceOwnershipClient({ navigation }: {
         }),
       ],
     })];
+  }
+
+  async function rebuildSelectedProjection() {
+    if (!selectedCompany || rebuilding) return;
+    setRebuilding(true);
+    setRebuildMessage("");
+    try {
+      await requestJson("/api/modules/capitalSecurities/governance/ownership-projections/rebuild", {
+        method: "POST",
+        body: JSON.stringify({ issuerCompanyId: selectedCompany.id, triggerReason: "manual governance rebuild" }),
+        fallbackMessage: "股权投影重建失败",
+      });
+      await load();
+      setRebuildMessage("股权投影已按事件账本重建");
+    } catch (cause) {
+      setRebuildMessage(cause instanceof Error ? cause.message : "股权投影重建失败");
+    } finally {
+      setRebuilding(false);
+    }
   }
 
 }

@@ -1,0 +1,68 @@
+/// 合同法定内容的不可变修订快照。草稿可重建；确认后只允许被后续修订取代。
+model ContractRevision {
+  id                       Int               @id @default(autoincrement())
+  revisionUid              String            @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  contractId               Int
+  revisionNo               Int
+  recordState              String            @default("draft")
+  changeKind               String            @default("revision")
+  effectiveOn              DateTime           @db.Date
+  effectiveThrough         DateTime?          @db.Date
+  snapshotSchemaVersion    Int                @default(1)
+  snapshotJson             Json
+  reason                   String?
+  sourceRevisionId         Int?
+  supersededByRevisionId   Int?              @unique
+  createdBy                Int?
+  createdAt                DateTime           @default(now())
+  confirmedBy              Int?
+  confirmedAt              DateTime?
+  cancelledBy              Int?
+  cancelledAt              DateTime?
+  createIdempotencyKey     String?           @unique
+  createRequestFingerprint String?
+  publishIdempotencyKey    String?           @unique
+  publishRequestFingerprint String?
+  contract                 Contract           @relation("ContractRevisions", fields: [contractId], references: [id], onDelete: Cascade)
+  currentForContract       Contract?          @relation("ContractCurrentRevision")
+  sourceRevision           ContractRevision?  @relation("ContractRevisionSource", fields: [sourceRevisionId], references: [id], onDelete: SetNull)
+  derivedRevisions         ContractRevision[] @relation("ContractRevisionSource")
+  supersededByRevision     ContractRevision?  @relation("ContractRevisionSupersession", fields: [supersededByRevisionId], references: [id], onDelete: SetNull)
+  supersededRevisions      ContractRevision[] @relation("ContractRevisionSupersession")
+  stateEvents              ContractStateEvent[]
+
+  @@unique([contractId, revisionNo])
+  @@index([contractId, recordState, effectiveOn])
+  @@index([sourceRevisionId])
+  @@index([createdAt])
+}
+
+/// 合同三个状态轴的追加式事件。Contract 上的状态字段只是当前投影。
+model ContractStateEvent {
+  id                Int                    @id @default(autoincrement())
+  eventUid          String                 @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  contractId        Int
+  axis              String
+  eventKind         String                 @default("transition")
+  fromState         String?
+  toState           String
+  effectiveOn       DateTime               @db.Date
+  recordState       String                 @default("confirmed")
+  reason            String?
+  sourceRevisionId  Int?
+  reversesEventId   Int?                   @unique
+  createdBy         Int?
+  createdAt         DateTime               @default(now())
+  reversedBy        Int?
+  reversedAt        DateTime?
+  idempotencyKey    String?                  @unique
+  requestFingerprint String?
+  contract          Contract               @relation(fields: [contractId], references: [id], onDelete: Cascade)
+  sourceRevision    ContractRevision?      @relation(fields: [sourceRevisionId], references: [id], onDelete: SetNull)
+  reversesEvent     ContractStateEvent?     @relation("ContractStateEventReversal", fields: [reversesEventId], references: [id], onDelete: Restrict)
+  reversedByEvent   ContractStateEvent?     @relation("ContractStateEventReversal")
+
+  @@index([contractId, axis, effectiveOn, createdAt])
+  @@index([contractId, recordState, createdAt])
+  @@index([sourceRevisionId])
+}

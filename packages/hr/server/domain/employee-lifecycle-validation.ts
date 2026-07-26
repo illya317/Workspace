@@ -1,3 +1,9 @@
+import {
+  businessDateWindowContains,
+  inclusiveBusinessPeriodToWindow,
+  LATEST_INCLUSIVE_BUSINESS_DATE,
+  parseBusinessDate,
+} from "@workspace/platform/contracts/business-temporal";
 import { workspaceBusinessDate } from "@workspace/platform/server/business-date";
 import {
   failCommand,
@@ -10,8 +16,9 @@ import {
   resolveDefaultEdpReportToPositionId,
   validateEdpReportToPosition,
 } from "../edp-report-to";
-import { isValidDateValue, parseWorkPercent, validateEmploymentOption } from "../field-validation";
+import { parseWorkPercent, validateEmploymentOption } from "../field-validation";
 import { resolveEdpPositionAssignment } from "./position-report-override-validation";
+import { assignmentPeriodContainsDate } from "./employee-business-temporal";
 
 export const EMPLOYEE_LIFECYCLE_EVENT_TYPES = [
   "onboard",
@@ -99,19 +106,6 @@ function positiveInteger(value: unknown) {
   return Number.isInteger(parsed) && parsed > 0 ? parsed : Number.NaN;
 }
 
-export function shiftIsoDate(date: string, days: number) {
-  const value = new Date(`${date}T00:00:00.000Z`);
-  value.setUTCDate(value.getUTCDate() + days);
-  return value.toISOString().slice(0, 10);
-}
-
-export function periodContainsDate(
-  period: { startDate?: string | null; endDate?: string | null },
-  date: string,
-) {
-  return (!period.startDate || period.startDate <= date) && (!period.endDate || period.endDate >= date);
-}
-
 function employmentContainsDate(
   employment: { isActive: boolean; joinDate: string | null; leaveDate: string | null },
   date: string,
@@ -131,27 +125,51 @@ function employmentPeriodsOverlap(
   return !employment.leaveDate || employment.leaveDate >= startDate;
 }
 
-function normalizeDate(value: unknown, label: string, required: boolean) {
+function normalizeDate(
+  value: unknown,
+  label: string,
+  required: boolean,
+  options: { inclusiveEnd?: boolean } = {},
+) {
   const normalized = text(value);
   if (!normalized && !required) return okCommand<string | null>(null);
-  if (!normalized || !isValidDateValue(normalized)) return failCommand(`${label}格式无效`);
-  return okCommand(normalized);
+  const parsed = parseBusinessDate(normalized);
+  if (!parsed) return failCommand(`${label}格式无效`);
+  if (options.inclusiveEnd && parsed > LATEST_INCLUSIVE_BUSINESS_DATE) {
+    return failCommand(`${label}不能晚于 ${LATEST_INCLUSIVE_BUSINESS_DATE}；开放结束请留空`);
+  }
+  return okCommand(parsed);
 }
 
 export function validateAssignmentTimeline(rows: TimelineRow[], fromDate: string) {
+  const normalizedFromDate = parseBusinessDate(fromDate);
+  if (!normalizedFromDate) return "岗位期间校验基准日期格式无效";
+  const periods = rows.map((row) => ({
+    row,
+    window: inclusiveBusinessPeriodToWindow({
+      validFrom: row.startDate,
+      validThrough: row.endDate,
+    }),
+  }));
   for (const row of rows) {
+    if ((row.startDate && !parseBusinessDate(row.startDate)) || (row.endDate && !parseBusinessDate(row.endDate))) {
+      return "岗位期间日期格式无效";
+    }
     if (row.startDate && row.endDate && row.startDate > row.endDate) return "岗位期间的开始日期不能晚于结束日期";
   }
-  const boundaries = new Set<string>([fromDate]);
-  for (const row of rows) {
-    if (row.startDate && row.startDate >= fromDate) boundaries.add(row.startDate);
-    if (row.endDate) {
-      const next = shiftIsoDate(row.endDate, 1);
-      if (next >= fromDate) boundaries.add(next);
-    }
+  if (periods.some((period) => !period.window)) {
+    return `岗位期间的包含式结束日期不能晚于 ${LATEST_INCLUSIVE_BUSINESS_DATE}；开放结束请留空`;
+  }
+  const boundaries = new Set<string>([normalizedFromDate]);
+  for (const period of periods) {
+    const window = period.window!;
+    if (window.validFrom && window.validFrom >= normalizedFromDate) boundaries.add(window.validFrom);
+    if (window.validToExclusive && window.validToExclusive >= normalizedFromDate) boundaries.add(window.validToExclusive);
   }
   for (const date of [...boundaries].sort()) {
-    const active = rows.filter((row) => periodContainsDate(row, date));
+    const active = periods
+      .filter((period) => businessDateWindowContains(period.window!, date))
+      .map((period) => period.row);
     if (active.length === 0) continue;
     const percentages = active.map((row) => parseWorkPercent(row.workPercent));
     if (percentages.some((value) => value === null || Number.isNaN(value))) {
@@ -250,7 +268,12 @@ export async function buildEmployeeLifecycleCommand(
   if (!effectiveDate) return failCommand("生效日期必填");
   const today = workspaceBusinessDate(new Date());
   if (effectiveDate < today) return failCommand("生效日期不能早于当前业务日期");
-  const assignmentEndDateResult = normalizeDate(input.assignmentEndDate, "兼岗结束日期", false);
+  const assignmentEndDateResult = normalizeDate(
+    input.assignmentEndDate,
+    "兼岗结束日期",
+    false,
+    { inclusiveEnd: true },
+  );
   if (!assignmentEndDateResult.ok) return assignmentEndDateResult;
   const assignmentEndDate = assignmentEndDateResult.data;
   if (assignmentEndDate && assignmentEndDate < effectiveDate) return failCommand("兼岗结束日期不能早于生效日期");
@@ -290,7 +313,7 @@ export async function buildEmployeeLifecycleCommand(
     : null;
   if (eventType !== "onboard" && eventType !== "offboard") {
     if (!source || !source.positionId || !source.workPercent) return failCommand("请选择生效日覆盖中的来源岗位", 400, "sourceAssignmentId");
-    if (!periodContainsDate(source, effectiveDate)) return failCommand("来源岗位在生效日不处于有效期间");
+    if (!assignmentPeriodContainsDate(source, effectiveDate)) return failCommand("来源岗位在生效日不处于有效期间");
     if (source.startDate && source.startDate >= effectiveDate) return failCommand("生效日必须晚于来源岗位开始日期");
   }
   const sourceAssignment: LifecycleAssignmentPeriod | null = source?.positionId && source.workPercent

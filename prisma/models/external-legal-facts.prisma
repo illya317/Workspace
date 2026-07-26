@@ -1,0 +1,35 @@
+/// 法定主体事实变更点台账（事实表，来源于人工治理、工商变更或受控主数据导入；只追加，不原地覆盖）
+model PartyLegalFactRevision {
+  id                     Int                      @id @default(autoincrement())
+  partyId                Int
+  revision               Int
+  commandKind            String
+  effectiveOn            DateTime                 @db.Date
+  recordState            String                   @default("confirmed")
+  supersedesId           Int?                     @unique
+  subjectType            String
+  name                   String
+  fullName               String?
+  identityNumber         String
+  legalRepresentative    String?
+  registeredCapital      String?
+  registeredAddress      String?
+  registeredDate         String?
+  sourceRegistryChangeId Int?
+  sourceType             String?
+  sourceLabel            String?
+  sourceReference        String?
+  reason                 String?
+  idempotencyKey         String                   @unique
+  requestFingerprint    String
+  recordedBy             Int?
+  recordedAt             DateTime                 @default(now())
+  party                  Party                    @relation(fields: [partyId], references: [id], onDelete: Restrict)
+  supersedes             PartyLegalFactRevision?  @relation("PartyLegalFactSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy           PartyLegalFactRevision[] @relation("PartyLegalFactSupersession")
+
+  @@unique([partyId, revision], map: "PartyLegalFactRevision_party_revision_key")
+  @@index([partyId, effectiveOn, revision], map: "PartyLegalFactRevision_party_effective_revision_idx")
+  @@index([supersedesId], map: "PartyLegalFactRevision_supersedes_idx")
+  @@index([sourceRegistryChangeId], map: "PartyLegalFactRevision_registry_change_idx")
+}

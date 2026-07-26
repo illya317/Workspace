@@ -65,7 +65,10 @@ export function emptyExternalPartyDraft(): ExternalPartyDraft {
     creditDays: null,
     taxRate: null,
     remark: null,
-    isActive: true,
+    availabilityFrom: null,
+    availabilityThrough: null,
+    effectiveOn: "",
+    legalFactReason: null,
   };
 }
 
@@ -221,26 +224,30 @@ export function externalPartyFormSections(
           readOnly: subjectReadOnly,
         }),
         ...(!individual ? [textField("legalRepresentative", "法定代表人", draft, onChange, { readOnly: subjectReadOnly })] : []),
+        ...(draft.id ? [{
+          key: "effectiveOn",
+          label: "法定事实生效日",
+          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
+          value: draft.effectiveOn || "",
+          disabled: subjectReadOnly,
+          onChange: (value: unknown) => onChange("effectiveOn", String(value || "")),
+        }, textField("legalFactReason", "变更原因", draft, onChange, { readOnly: subjectReadOnly })] : []),
         textField("classification", "业务分类", draft, onChange, { readOnly }),
-        {
-          key: "isActive",
-          label: "状态",
-          spec: {
-            valueType: "string",
-            control: "choice",
-            options: {
-              source: "static",
-              items: [
-                { value: "开启", label: "开启" },
-                { value: "关闭", label: "关闭" },
-              ],
-              visibleCount: 2,
-            },
-          },
-          value: draft.isActive ? "开启" : "关闭",
+        ...(!draft.id ? [{
+          key: "availabilityFrom",
+          label: "角色启用日",
+          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
+          value: draft.availabilityFrom || "",
           disabled: readOnly,
-          onChange: (value) => onChange("isActive", value === "开启"),
-        },
+          onChange: (value: unknown) => onChange("availabilityFrom", String(value || "") || null),
+        }, {
+          key: "availabilityThrough",
+          label: "角色结束日",
+          spec: { valueType: "date" as const, control: "temporal" as const, precision: "date" as const },
+          value: draft.availabilityThrough || "",
+          disabled: readOnly,
+          onChange: (value: unknown) => onChange("availabilityThrough", String(value || "") || null),
+        }] : []),
       ],
     },
     {

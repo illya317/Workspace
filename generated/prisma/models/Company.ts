@@ -330,6 +330,7 @@ export type CompanyWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   party?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   issuedOwnerships?: Prisma.OwnershipInterestListRelationFilter
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunListRelationFilter
   shareCapitalEvents?: Prisma.ShareCapitalEventListRelationFilter
   shareholderGroups?: Prisma.ShareholderGroupListRelationFilter
   registryChanges?: Prisma.CompanyRegistryChangeListRelationFilter
@@ -362,6 +363,7 @@ export type CompanyOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   party?: Prisma.PartyOrderByWithRelationInput
   issuedOwnerships?: Prisma.OwnershipInterestOrderByRelationAggregateInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunOrderByRelationAggregateInput
   shareCapitalEvents?: Prisma.ShareCapitalEventOrderByRelationAggregateInput
   shareholderGroups?: Prisma.ShareholderGroupOrderByRelationAggregateInput
   registryChanges?: Prisma.CompanyRegistryChangeOrderByRelationAggregateInput
@@ -397,6 +399,7 @@ export type CompanyWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Company"> | Date | string
   party?: Prisma.XOR<Prisma.PartyScalarRelationFilter, Prisma.PartyWhereInput>
   issuedOwnerships?: Prisma.OwnershipInterestListRelationFilter
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunListRelationFilter
   shareCapitalEvents?: Prisma.ShareCapitalEventListRelationFilter
   shareholderGroups?: Prisma.ShareholderGroupListRelationFilter
   registryChanges?: Prisma.CompanyRegistryChangeListRelationFilter
@@ -475,6 +478,7 @@ export type CompanyCreateInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -506,6 +510,7 @@ export type CompanyUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -536,6 +541,7 @@ export type CompanyUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -567,6 +573,7 @@ export type CompanyUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -735,6 +742,20 @@ export type CompanyUpdateOneRequiredWithoutIssuedOwnershipsNestedInput = {
   upsert?: Prisma.CompanyUpsertWithoutIssuedOwnershipsInput
   connect?: Prisma.CompanyWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutIssuedOwnershipsInput, Prisma.CompanyUpdateWithoutIssuedOwnershipsInput>, Prisma.CompanyUncheckedUpdateWithoutIssuedOwnershipsInput>
+}
+
+export type CompanyCreateNestedOneWithoutOwnershipProjectionRunsInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOwnershipProjectionRunsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+}
+
+export type CompanyUpdateOneRequiredWithoutOwnershipProjectionRunsNestedInput = {
+  create?: Prisma.XOR<Prisma.CompanyCreateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput>
+  connectOrCreate?: Prisma.CompanyCreateOrConnectWithoutOwnershipProjectionRunsInput
+  upsert?: Prisma.CompanyUpsertWithoutOwnershipProjectionRunsInput
+  connect?: Prisma.CompanyWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CompanyUpdateToOneWithWhereWithoutOwnershipProjectionRunsInput, Prisma.CompanyUpdateWithoutOwnershipProjectionRunsInput>, Prisma.CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput>
 }
 
 export type CompanyCreateNestedOneWithoutRegistryChangesInput = {
@@ -932,6 +953,7 @@ export type CompanyCreateWithoutIssuedOwnershipsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -962,6 +984,7 @@ export type CompanyUncheckedCreateWithoutIssuedOwnershipsInput = {
   version?: number
   createdAt?: Date | string
   updatedAt?: Date | string
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -1007,6 +1030,7 @@ export type CompanyUpdateWithoutIssuedOwnershipsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -1037,6 +1061,145 @@ export type CompanyUncheckedUpdateWithoutIssuedOwnershipsInput = {
   version?: Prisma.IntFieldUpdateOperationsInput | number
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUncheckedUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedUpdateManyWithoutLinkedCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedUpdateOneWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUncheckedUpdateManyWithoutOwningCompanyNestedInput
+}
+
+export type CompanyCreateWithoutOwnershipProjectionRunsInput = {
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  party: Prisma.PartyCreateNestedOneWithoutCompanyInput
+  issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberCreateNestedManyWithoutLinkedCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleCreateNestedManyWithoutLinkedCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyCreateNestedOneWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractCreateNestedManyWithoutOwningCompanyInput
+}
+
+export type CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput = {
+  id?: number
+  partyId: number
+  code: string
+  description?: string | null
+  registeredCapital?: string | null
+  bankName?: string | null
+  registeredAddress?: string | null
+  registeredDate?: string | null
+  managementGroup: string
+  codePoolCode?: string | null
+  isActive?: boolean
+  sortOrder?: number
+  editedBy?: number | null
+  editedAt?: Date | string | null
+  version?: number
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
+  shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
+  registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
+  reportingEdps?: Prisma.EDPUncheckedCreateNestedManyWithoutReportingCompanyInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUncheckedCreateNestedManyWithoutLinkedCompanyInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUncheckedCreateNestedOneWithoutCompanyInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUncheckedCreateNestedManyWithoutCompanyInput
+  ownedContracts?: Prisma.ContractUncheckedCreateNestedManyWithoutOwningCompanyInput
+}
+
+export type CompanyCreateOrConnectWithoutOwnershipProjectionRunsInput = {
+  where: Prisma.CompanyWhereUniqueInput
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput>
+}
+
+export type CompanyUpsertWithoutOwnershipProjectionRunsInput = {
+  update: Prisma.XOR<Prisma.CompanyUpdateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput>
+  create: Prisma.XOR<Prisma.CompanyCreateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedCreateWithoutOwnershipProjectionRunsInput>
+  where?: Prisma.CompanyWhereInput
+}
+
+export type CompanyUpdateToOneWithWhereWithoutOwnershipProjectionRunsInput = {
+  where?: Prisma.CompanyWhereInput
+  data: Prisma.XOR<Prisma.CompanyUpdateWithoutOwnershipProjectionRunsInput, Prisma.CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput>
+}
+
+export type CompanyUpdateWithoutOwnershipProjectionRunsInput = {
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
+  issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
+  shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
+  registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
+  positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
+  reportingEdps?: Prisma.EDPUpdateManyWithoutReportingCompanyNestedInput
+  financeAuxiliaryMembers?: Prisma.FinanceAuxiliaryMemberUpdateManyWithoutLinkedCompanyNestedInput
+  financeVoucherCompanyMappingRules?: Prisma.FinanceVoucherCompanyMappingRuleUpdateManyWithoutLinkedCompanyNestedInput
+  financeCurrencyPolicy?: Prisma.FinanceCompanyCurrencyPolicyUpdateOneWithoutCompanyNestedInput
+  externalPartySourceMappings?: Prisma.ExternalPartySourceMappingUpdateManyWithoutCompanyNestedInput
+  ownedContracts?: Prisma.ContractUpdateManyWithoutOwningCompanyNestedInput
+}
+
+export type CompanyUncheckedUpdateWithoutOwnershipProjectionRunsInput = {
+  id?: Prisma.IntFieldUpdateOperationsInput | number
+  partyId?: Prisma.IntFieldUpdateOperationsInput | number
+  code?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredCapital?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  bankName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredAddress?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  registeredDate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  managementGroup?: Prisma.StringFieldUpdateOperationsInput | string
+  codePoolCode?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  sortOrder?: Prisma.IntFieldUpdateOperationsInput | number
+  editedBy?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  editedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  version?: Prisma.IntFieldUpdateOperationsInput | number
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1067,6 +1230,7 @@ export type CompanyCreateWithoutRegistryChangesInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
@@ -1097,6 +1261,7 @@ export type CompanyUncheckedCreateWithoutRegistryChangesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
@@ -1142,6 +1307,7 @@ export type CompanyUpdateWithoutRegistryChangesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
@@ -1172,6 +1338,7 @@ export type CompanyUncheckedUpdateWithoutRegistryChangesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1201,6 +1368,7 @@ export type CompanyCreateWithoutShareCapitalEventsInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
@@ -1231,6 +1399,7 @@ export type CompanyUncheckedCreateWithoutShareCapitalEventsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
@@ -1276,6 +1445,7 @@ export type CompanyUpdateWithoutShareCapitalEventsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
@@ -1306,6 +1476,7 @@ export type CompanyUncheckedUpdateWithoutShareCapitalEventsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1335,6 +1506,7 @@ export type CompanyCreateWithoutShareholderGroupsInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideCreateNestedManyWithoutCompanyInput
@@ -1365,6 +1537,7 @@ export type CompanyUncheckedCreateWithoutShareholderGroupsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedCreateNestedManyWithoutCompanyInput
@@ -1410,6 +1583,7 @@ export type CompanyUpdateWithoutShareholderGroupsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUpdateManyWithoutCompanyNestedInput
@@ -1440,6 +1614,7 @@ export type CompanyUncheckedUpdateWithoutShareholderGroupsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
   positionReportOverrides?: Prisma.PositionReportOverrideUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1469,6 +1644,7 @@ export type CompanyCreateWithoutOwnedContractsInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -1499,6 +1675,7 @@ export type CompanyUncheckedCreateWithoutOwnedContractsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -1544,6 +1721,7 @@ export type CompanyUpdateWithoutOwnedContractsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -1574,6 +1752,7 @@ export type CompanyUncheckedUpdateWithoutOwnedContractsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1602,6 +1781,7 @@ export type CompanyCreateWithoutPartyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -1632,6 +1812,7 @@ export type CompanyUncheckedCreateWithoutPartyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -1677,6 +1858,7 @@ export type CompanyUpdateWithoutPartyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -1707,6 +1889,7 @@ export type CompanyUncheckedUpdateWithoutPartyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1737,6 +1920,7 @@ export type CompanyCreateWithoutExternalPartySourceMappingsInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -1767,6 +1951,7 @@ export type CompanyUncheckedCreateWithoutExternalPartySourceMappingsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -1812,6 +1997,7 @@ export type CompanyUpdateWithoutExternalPartySourceMappingsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -1842,6 +2028,7 @@ export type CompanyUncheckedUpdateWithoutExternalPartySourceMappingsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -1871,6 +2058,7 @@ export type CompanyCreateWithoutFinanceVoucherCompanyMappingRulesInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -1901,6 +2089,7 @@ export type CompanyUncheckedCreateWithoutFinanceVoucherCompanyMappingRulesInput 
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -1946,6 +2135,7 @@ export type CompanyUpdateWithoutFinanceVoucherCompanyMappingRulesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -1976,6 +2166,7 @@ export type CompanyUncheckedUpdateWithoutFinanceVoucherCompanyMappingRulesInput 
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2005,6 +2196,7 @@ export type CompanyCreateWithoutFinanceCurrencyPolicyInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -2035,6 +2227,7 @@ export type CompanyUncheckedCreateWithoutFinanceCurrencyPolicyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -2080,6 +2273,7 @@ export type CompanyUpdateWithoutFinanceCurrencyPolicyInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -2110,6 +2304,7 @@ export type CompanyUncheckedUpdateWithoutFinanceCurrencyPolicyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2139,6 +2334,7 @@ export type CompanyCreateWithoutFinanceAuxiliaryMembersInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -2169,6 +2365,7 @@ export type CompanyUncheckedCreateWithoutFinanceAuxiliaryMembersInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -2214,6 +2411,7 @@ export type CompanyUpdateWithoutFinanceAuxiliaryMembersInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -2244,6 +2442,7 @@ export type CompanyUncheckedUpdateWithoutFinanceAuxiliaryMembersInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2273,6 +2472,7 @@ export type CompanyCreateWithoutReportingEdpsInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -2303,6 +2503,7 @@ export type CompanyUncheckedCreateWithoutReportingEdpsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -2348,6 +2549,7 @@ export type CompanyUpdateWithoutReportingEdpsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -2378,6 +2580,7 @@ export type CompanyUncheckedUpdateWithoutReportingEdpsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2407,6 +2610,7 @@ export type CompanyCreateWithoutPositionReportOverridesInput = {
   updatedAt?: Date | string
   party: Prisma.PartyCreateNestedOneWithoutCompanyInput
   issuedOwnerships?: Prisma.OwnershipInterestCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeCreateNestedManyWithoutCompanyInput
@@ -2437,6 +2641,7 @@ export type CompanyUncheckedCreateWithoutPositionReportOverridesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedCreateNestedManyWithoutIssuerInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedCreateNestedManyWithoutIssuerInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedCreateNestedManyWithoutIssuerInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedCreateNestedManyWithoutIssuerInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedCreateNestedManyWithoutCompanyInput
@@ -2482,6 +2687,7 @@ export type CompanyUpdateWithoutPositionReportOverridesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   party?: Prisma.PartyUpdateOneRequiredWithoutCompanyNestedInput
   issuedOwnerships?: Prisma.OwnershipInterestUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUpdateManyWithoutCompanyNestedInput
@@ -2512,6 +2718,7 @@ export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   issuedOwnerships?: Prisma.OwnershipInterestUncheckedUpdateManyWithoutIssuerNestedInput
+  ownershipProjectionRuns?: Prisma.OwnershipProjectionRunUncheckedUpdateManyWithoutIssuerNestedInput
   shareCapitalEvents?: Prisma.ShareCapitalEventUncheckedUpdateManyWithoutIssuerNestedInput
   shareholderGroups?: Prisma.ShareholderGroupUncheckedUpdateManyWithoutIssuerNestedInput
   registryChanges?: Prisma.CompanyRegistryChangeUncheckedUpdateManyWithoutCompanyNestedInput
@@ -2530,6 +2737,7 @@ export type CompanyUncheckedUpdateWithoutPositionReportOverridesInput = {
 
 export type CompanyCountOutputType = {
   issuedOwnerships: number
+  ownershipProjectionRuns: number
   shareCapitalEvents: number
   shareholderGroups: number
   registryChanges: number
@@ -2543,6 +2751,7 @@ export type CompanyCountOutputType = {
 
 export type CompanyCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   issuedOwnerships?: boolean | CompanyCountOutputTypeCountIssuedOwnershipsArgs
+  ownershipProjectionRuns?: boolean | CompanyCountOutputTypeCountOwnershipProjectionRunsArgs
   shareCapitalEvents?: boolean | CompanyCountOutputTypeCountShareCapitalEventsArgs
   shareholderGroups?: boolean | CompanyCountOutputTypeCountShareholderGroupsArgs
   registryChanges?: boolean | CompanyCountOutputTypeCountRegistryChangesArgs
@@ -2569,6 +2778,13 @@ export type CompanyCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Exte
  */
 export type CompanyCountOutputTypeCountIssuedOwnershipsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   where?: Prisma.OwnershipInterestWhereInput
+}
+
+/**
+ * CompanyCountOutputType without action
+ */
+export type CompanyCountOutputTypeCountOwnershipProjectionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.OwnershipProjectionRunWhereInput
 }
 
 /**
@@ -2655,6 +2871,7 @@ export type CompanySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   updatedAt?: boolean
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuedOwnerships?: boolean | Prisma.Company$issuedOwnershipsArgs<ExtArgs>
+  ownershipProjectionRuns?: boolean | Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>
   shareCapitalEvents?: boolean | Prisma.Company$shareCapitalEventsArgs<ExtArgs>
   shareholderGroups?: boolean | Prisma.Company$shareholderGroupsArgs<ExtArgs>
   registryChanges?: boolean | Prisma.Company$registryChangesArgs<ExtArgs>
@@ -2734,6 +2951,7 @@ export type CompanyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
 export type CompanyInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   party?: boolean | Prisma.PartyDefaultArgs<ExtArgs>
   issuedOwnerships?: boolean | Prisma.Company$issuedOwnershipsArgs<ExtArgs>
+  ownershipProjectionRuns?: boolean | Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>
   shareCapitalEvents?: boolean | Prisma.Company$shareCapitalEventsArgs<ExtArgs>
   shareholderGroups?: boolean | Prisma.Company$shareholderGroupsArgs<ExtArgs>
   registryChanges?: boolean | Prisma.Company$registryChangesArgs<ExtArgs>
@@ -2758,6 +2976,7 @@ export type $CompanyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     party: Prisma.$PartyPayload<ExtArgs>
     issuedOwnerships: Prisma.$OwnershipInterestPayload<ExtArgs>[]
+    ownershipProjectionRuns: Prisma.$OwnershipProjectionRunPayload<ExtArgs>[]
     shareCapitalEvents: Prisma.$ShareCapitalEventPayload<ExtArgs>[]
     shareholderGroups: Prisma.$ShareholderGroupPayload<ExtArgs>[]
     registryChanges: Prisma.$CompanyRegistryChangePayload<ExtArgs>[]
@@ -3183,6 +3402,7 @@ export interface Prisma__CompanyClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   party<T extends Prisma.PartyDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.PartyDefaultArgs<ExtArgs>>): Prisma.Prisma__PartyClient<runtime.Types.Result.GetResult<Prisma.$PartyPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   issuedOwnerships<T extends Prisma.Company$issuedOwnershipsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$issuedOwnershipsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OwnershipInterestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  ownershipProjectionRuns<T extends Prisma.Company$ownershipProjectionRunsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$ownershipProjectionRunsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$OwnershipProjectionRunPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareCapitalEvents<T extends Prisma.Company$shareCapitalEventsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$shareCapitalEventsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareCapitalEventPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   shareholderGroups<T extends Prisma.Company$shareholderGroupsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$shareholderGroupsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ShareholderGroupPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   registryChanges<T extends Prisma.Company$registryChangesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Company$registryChangesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CompanyRegistryChangePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
@@ -3661,6 +3881,30 @@ export type Company$issuedOwnershipsArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   distinct?: Prisma.OwnershipInterestScalarFieldEnum | Prisma.OwnershipInterestScalarFieldEnum[]
+}
+
+/**
+ * Company.ownershipProjectionRuns
+ */
+export type Company$ownershipProjectionRunsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the OwnershipProjectionRun
+   */
+  select?: Prisma.OwnershipProjectionRunSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the OwnershipProjectionRun
+   */
+  omit?: Prisma.OwnershipProjectionRunOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.OwnershipProjectionRunInclude<ExtArgs> | null
+  where?: Prisma.OwnershipProjectionRunWhereInput
+  orderBy?: Prisma.OwnershipProjectionRunOrderByWithRelationInput | Prisma.OwnershipProjectionRunOrderByWithRelationInput[]
+  cursor?: Prisma.OwnershipProjectionRunWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.OwnershipProjectionRunScalarFieldEnum | Prisma.OwnershipProjectionRunScalarFieldEnum[]
 }
 
 /**

@@ -53,6 +53,7 @@
 | 新模块接入 | `docs/engineering/new-module-checklist.md`, `docs/engineering/new-domain-template.md` | Architecture |
 | 现有模块新增能力 | `docs/engineering/existing-module-feature-checklist.md` | Feature |
 | ActionContract | `docs/engineering/action-contracts.md` | Architecture / Platform |
+| 业务有效时间与生命周期 | `docs/engineering/business-temporal.md` | Architecture / Platform / Data |
 | 通用审批链 | `docs/engineering/approvals.md` | Platform / Architecture |
 | 数据库和 schema | `docs/engineering/schema-governance.md`, `docs/engineering/database.md` | Data |
 | 生成文档说明 | `docs/generated/README.md`, `docs/generated/*` | Data |

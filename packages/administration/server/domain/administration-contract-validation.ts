@@ -133,9 +133,6 @@ function buildContractData(
     ...(data.handlerEmployeeId !== undefined ? { handlerEmployeeId: references.handlerEmployeeId } : {}),
     ...(data.signedOn !== undefined ? { signedOn: signedOn.data, signedOnPrecision: signedOn.data ? "day" : null } : {}),
     ...(data.expiresOn !== undefined ? { expiresOn: expiresOn.data, expiresOnPrecision: expiresOn.data ? "day" : null } : {}),
-    ...(data.lifecycleStatus !== undefined ? { lifecycleStatus: data.lifecycleStatus } : {}),
-    ...(data.signatureStatus !== undefined ? { signatureStatus: data.signatureStatus } : {}),
-    ...(data.performanceStatus !== undefined ? { performanceStatus: data.performanceStatus } : {}),
     ...(data.amount !== undefined ? { amount: amount.data } : {}),
     ...(data.executedAmount !== undefined ? { executedAmount: executedAmount.data } : {}),
     ...(data.currencyCode !== undefined ? { currencyCode: data.currencyCode.trim().toUpperCase() } : {}),
@@ -152,13 +149,7 @@ export function validateContractState(input: { signedOn?: Date | null; expiresOn
   return okCommand(input);
 }
 
-export async function buildContractCreateCommand(
-  data: ContractCreateInput,
-  userId: number,
-): Promise<DomainValidationResult<ContractWriteCommand>> {
-  const validUserId = positiveInt(userId, "userId");
-  if (!validUserId.ok) return validUserId;
-  if (!data.name?.trim()) return failCommand("合同名称必填", 400, "name");
+export async function normalizeContractLegalInput(data: ContractCreateInput | ContractUpdateInput) {
   const categoryId = await validateCategoryId(data.categoryId);
   if (!categoryId.ok) return categoryId;
   const references = await normalizeReferences(data);
@@ -166,7 +157,18 @@ export async function buildContractCreateCommand(
   const normalized = buildContractData(data, references.data);
   if (!normalized.ok) return normalized;
   const state = validateContractState(normalized.data);
-  if (!state.ok) return state;
+  return state.ok ? normalized : state;
+}
+
+export async function buildContractCreateCommand(
+  data: ContractCreateInput,
+  userId: number,
+): Promise<DomainValidationResult<ContractWriteCommand>> {
+  const validUserId = positiveInt(userId, "userId");
+  if (!validUserId.ok) return validUserId;
+  if (!data.name?.trim()) return failCommand("合同名称必填", 400, "name");
+  const normalized = await normalizeContractLegalInput(data);
+  if (!normalized.ok) return normalized;
   return okCommand({ userId: validUserId.data, data: normalized.data });
 }
 
@@ -184,11 +186,7 @@ export async function buildContractUpdateCommand(
   if (!validVersion.ok) return validVersion;
   if (Object.keys(data).length === 0) return failCommand("无更新内容", 400);
   if (data.name !== undefined && !data.name.trim()) return failCommand("合同名称必填", 400, "name");
-  const categoryId = await validateCategoryId(data.categoryId);
-  if (!categoryId.ok) return categoryId;
-  const references = await normalizeReferences(data);
-  if (!references.ok) return references;
-  const normalized = buildContractData(data, references.data);
+  const normalized = await normalizeContractLegalInput(data);
   if (!normalized.ok) return normalized;
   return okCommand({
     id: validId.data,

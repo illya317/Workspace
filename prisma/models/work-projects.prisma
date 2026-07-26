@@ -32,6 +32,7 @@ model Project {
   updatedAt           DateTime                    @default(now()) @updatedAt
   leadingDepartment   Department?                 @relation("ProjectLeadingDepartment", fields: [leadingDepartmentId], references: [id], onDelete: SetNull)
   employees           EmployeeProject[]
+  membershipChanges   ProjectMembershipChange[]
   enablingDepartments ProjectEnablingDepartment[]
   planPhases          ProjectPlanPhase[]          @relation("ProjectPlanPhases")
   planDependencies    ProjectPlanDependency[]     @relation("ProjectPlanDependencies")
@@ -59,23 +60,63 @@ model ProjectEnablingDepartment {
   @@index([departmentId])
 }
 
-/// 员工-项目关联
+/// 项目成员资格的有效期版本（事实表；只能由项目成员生命周期命令写入）
 model EmployeeProject {
-  id         Int       @id @default(autoincrement())
-  employeeId Int
-  projectId  Int
-  role       String?
-  startDate  String?
-  endDate    String?
-  editedBy   Int?
-  editedAt   DateTime?
-  version    Int       @default(1)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @default(now()) @updatedAt
-  project    Project   @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  employee   Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  id                Int                      @id @default(autoincrement())
+  membershipUid     String                   @default(dbgenerated("(gen_random_uuid())::text"))
+  sequence          Int                      @default(1)
+  employeeId        Int
+  projectId         Int
+  role              String?
+  startDate         String?
+  endDate           String?
+  recordState       String                   @default("confirmed")
+  changeKind        String                   @default("initial")
+  supersedesId      Int?
+  createdByChangeId Int?
+  terminalChangeId  Int?
+  reason            String?
+  editedBy          Int?
+  editedAt          DateTime?
+  version           Int                      @default(1)
+  createdAt         DateTime                 @default(now())
+  updatedAt         DateTime                 @default(now()) @updatedAt
+  project           Project                  @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  employee          Employee                 @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  supersedes        EmployeeProject?         @relation("EmployeeProjectSupersession", fields: [supersedesId], references: [id], onDelete: Restrict)
+  supersededBy      EmployeeProject[]        @relation("EmployeeProjectSupersession")
+  createdByChange   ProjectMembershipChange? @relation("ProjectMembershipCreatedVersions", fields: [createdByChangeId], references: [id], onDelete: Restrict)
+  terminalChange    ProjectMembershipChange? @relation("ProjectMembershipTerminatedVersions", fields: [terminalChangeId], references: [id], onDelete: Restrict)
 
-  @@unique([employeeId, projectId])
+  @@unique([membershipUid, sequence])
+  @@index([employeeId, projectId, recordState, startDate, endDate], map: "EmployeeProject_live_period_idx")
+  @@index([supersedesId])
+  @@index([createdByChangeId])
+  @@index([terminalChangeId])
+}
+
+/// 项目成员生命周期命令台账（事实表；记录业务生效日、原因、幂等键和效果摘要）
+model ProjectMembershipChange {
+  id                 Int               @id @default(autoincrement())
+  changeUid          String            @unique @default(dbgenerated("(gen_random_uuid())::text"))
+  idempotencyKey     String?           @unique
+  requestFingerprint String
+  membershipUid      String
+  employeeId         Int
+  projectId          Int
+  commandKind        String
+  effectiveOn        String?
+  reason             String?
+  effectsJson        String
+  recordedBy         Int?
+  recordedAt         DateTime          @default(now())
+  employee           Employee          @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  project            Project           @relation(fields: [projectId], references: [id], onDelete: Restrict)
+  createdVersions    EmployeeProject[] @relation("ProjectMembershipCreatedVersions")
+  terminatedVersions EmployeeProject[] @relation("ProjectMembershipTerminatedVersions")
+
+  @@index([membershipUid, recordedAt])
+  @@index([employeeId, projectId, recordedAt])
 }
 
 /// 项目计划阶段（串行计划段）

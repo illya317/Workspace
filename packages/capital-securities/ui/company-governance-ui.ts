@@ -5,11 +5,12 @@ import type {
 } from "@workspace/core/ui";
 import type { CompanyRecord, CompanyRegistryChangeRecord, OwnershipInterestRecord } from "../types";
 
-export type CompanyDraft = Omit<CompanyRecord, "id" | "version" | "partyId" | "partyVersion" | "registryChanges"> & {
+export type CompanyDraft = Omit<CompanyRecord, "id" | "version" | "partyId" | "partyVersion" | "legalFactRevision" | "registryChanges"> & {
   id?: number;
   version?: number;
   partyId?: number;
   partyVersion?: number;
+  legalFactRevision?: number;
 };
 
 export const COMPANY_REGISTRY_CHANGE_COLUMNS: DataSurfaceColumnSpec<CompanyRegistryChangeRecord>[] = [
@@ -176,6 +177,24 @@ export const OWNERSHIP_HISTORY_COLUMNS: DataSurfaceColumnSpec<OwnershipInterestR
     width: "xl",
     wrap: "nowrap",
     cell: (row) => `${row.effectiveFrom ?? "未注明"} 至 ${row.effectiveTo ?? "今"}`,
+  },
+  {
+    key: "sourceEvent",
+    label: "来源事件",
+    width: "xl",
+    wrap: "nowrap",
+    cell: (row) => row.sourceEventId === null
+      ? "历史投影（待重建）"
+      : `${row.sourceEventName ?? "股本事件"} · #${row.sourceEventId}${row.closedByEventId === null ? "" : ` → #${row.closedByEventId}`}`,
+  },
+  {
+    key: "projectionRun",
+    label: "投影批次",
+    width: "xl",
+    wrap: "nowrap",
+    cell: (row) => row.projectionRunId === null
+      ? "—"
+      : `第 ${row.projectionGeneration ?? "?"} 代 · ${row.projectorKey ?? "capital.ownership"} v${row.projectorVersion ?? "?"}`,
   },
 ];
 

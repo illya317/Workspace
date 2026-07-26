@@ -254,7 +254,6 @@ export default function GovernanceArchitectureClient({
       alias: serializeGovernanceAlias(draft.alias),
       parentId: draft.parentId,
       managerPositionId: draft.managerPositionId,
-      managerEmployeeIds: draft.managerEmployeeIds,
       descriptions: draft.descriptions.map(descriptionPayload),
     };
     setSaving(true);
@@ -362,11 +361,7 @@ export default function GovernanceArchitectureClient({
         },
         value: draft.managerPositionId == null ? "" : String(draft.managerPositionId),
         placeholder: "无",
-        onChange: (value) => {
-          updateDraft("managerPositionId", value === "" ? null : Number(value));
-          updateDraft("managerEmployeeIds", []);
-          updateDraft("managerEmployeeNames", []);
-        },
+        onChange: (value) => updateDraft("managerPositionId", value === "" ? null : Number(value)),
       },
       {
         kind: "tagList",

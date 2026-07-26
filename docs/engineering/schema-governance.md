@@ -37,7 +37,7 @@
 | `finance-treasury.prisma` | 币种与银行账户 | FinanceCurrency, FinanceBankAccount |
 | `hr-documents.prisma` | 部门与岗位说明书 | DepartmentDescription, PositionDescription |
 | `hr-performance.prisma` | HR 绩效评审 | HrPerformanceReview |
-| `hr.prisma` | 人事、组织与公司治理共享角色 | Employee, Employment, Company, Department, DepartmentManagerEmployee, Position, EDP, PositionReportOverride, EditHistory |
+| `hr.prisma` | 人事、组织与公司治理共享角色 | Employee, Employment, Company, Department, Position, EDP, PositionReportOverride, EditHistory |
 | `hr-lifecycle.prisma` | 人员生效日与生命周期事件台账 | EmployeeLifecycleEvent |
 | `inventory-operations.prisma` | 库存主档、单据、流水、盘点与导入 | InventoryItem, InventoryUnitConversion, InventoryWarehouse, InventoryBatch, InventoryDocument, InventoryDocumentLine, InventoryLedgerEntry, InventoryStocktake, InventoryStocktakeLine, InventoryPeriodClose, InventoryImportBatch |
 | `inventory-receipts.prisma` | 成品入库报单 | InventoryReceiptReport, InventoryReceiptProductWorkPoint, InventoryReceiptReportEvent, InventoryReceiptBatch, InventoryReceiptOutput |

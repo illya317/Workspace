@@ -29,14 +29,18 @@
 |--------|------|------|-------------|
 | **GET** | `/api/modules/hr/roster` | 登录 + HR权限 | 花名册（含岗位信息扁平化、Excel导出） |
 | **GET** | `/api/modules/hr/roster/employees` | 登录 + HR权限 | 员工列表（分页） |
+| **POST** | `/api/modules/hr/roster/employees` | 登录 + HR写权限 | 创建员工身份与 Workspace 账号 |
+| **PUT** | `/api/modules/hr/roster/employees` | 登录 + HR写权限 | 批量修正员工基础信息 |
 | **GET** | `/api/modules/hr/roster/employees/search` | 登录 + 系统管理员 | 员工搜索（姓名/工号/拼音） |
-| **PUT** | `/api/modules/hr/roster/employees/:id` | 登录 + HR权限 | 更新员工基础信息 |
 | **GET** | `/api/modules/hr/roster/autocomplete` | 登录 + HR权限 | 通用自动补全（部门/岗位/员工/项目） |
 | **GET** | `/api/modules/hr/roster/positions` | 登录 + HR权限 | 岗位列表（分页） |
 | **POST** | `/api/modules/hr/roster/positions` | 登录 + HR写权限 | 创建岗位 |
 | **PUT** | `/api/modules/hr/roster/positions/:id` | 登录 + HR写权限 | 更新岗位 |
 | **DELETE** | `/api/modules/hr/roster/positions/:id` | 登录 + HR删权限 | 删除岗位 |
-| **GET** | `/api/modules/hr/roster/edps` | 登录 + HR权限 | 员工-部门-岗位关联列表 |
+| **GET** | `/api/modules/hr/roster/employments` | 登录 + HR权限 | 雇佣期间列表 |
+| **PUT** | `/api/modules/hr/roster/employments` | 登录 + HR写权限 | 修正雇佣非期间资料 |
+| **GET** | `/api/modules/hr/roster/edps` | 登录 + HR权限 | 只读员工任职期间列表 |
+| **PUT** | `/api/modules/hr/roster/employee-profiles/:id/lifecycle` | 登录 + HR写权限 | 登记人员生命周期变更 |
 | **GET** | `/api/modules/hr/roster/departments` | 登录 + 系统管理员 | 部门列表 |
 | **POST** | `/api/modules/hr/roster/departments` | 登录 + 系统管理员 | 创建部门 |
 | **PUT** | `/api/modules/hr/roster/departments/:id` | 登录 + 系统管理员 | 更新部门 |
@@ -51,7 +55,7 @@
 | **GET** | `/api/modules/hr/roster/employees/search` | `/api/modules/hr/roster/employees/search` |
 | **GET** | `/api/modules/hr/roster/autocomplete` | `/api/modules/hr/roster/autocomplete` |
 | **GET/POST/PUT/DELETE** | `/api/modules/hr/roster/positions` | `/api/modules/hr/roster/positions` |
-| **GET/POST** | `/api/modules/hr/roster/edps` | `/api/modules/hr/roster/edps` |
+| **GET** | `/api/modules/hr/roster/edps` | `/api/modules/hr/roster/edps` |
 | **GET/POST/PUT/DELETE** | `/api/modules/hr/roster/departments` | `/api/modules/hr/roster/departments` |
 
 ## 项目管理

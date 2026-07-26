@@ -67,7 +67,7 @@ function resolution(
   const batchTarget = batchId ? `/api/modules/finance/statements/consolidation/batches/${batchId}` : "/api/modules/finance/statements/consolidation/batches";
   if (key === "scope" || key === "ownership") return {
     ownerModule: "capitalSecurities" as const,
-    actionKey: "capitalSecurities.governance.ownershipInterest.update",
+    actionKey: "capitalSecurities.governance.ownershipProjection.rebuild",
     target: "/capital-securities/governance",
   };
   if (key === "fx") return {

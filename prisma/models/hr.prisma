@@ -27,9 +27,10 @@ model Employee {
   positions              EDP[]                       @relation("EmployeePositions")
   lifecycleEvents        EmployeeLifecycleEvent[]
   projects               EmployeeProject[]
+  projectMembershipChanges ProjectMembershipChange[]
+  employmentAgreementChanges EmploymentAgreementChange[] @relation("EmploymentAgreementChangeEmployee")
   ownedWorkItems         WorkItem[]                  @relation("WorkItemOwner")
   ownedWorkPlans         WorkPlan[]                  @relation("WorkPlanOwner")
-  managedDepartments     DepartmentManagerEmployee[]
   employments            Employment[]
   financeSalesSalaries   FinanceSalesSalary[]
   financeShipments       FinanceShipment[]
@@ -38,7 +39,6 @@ model Employee {
   ownedKpiAssignments    WorkKpiAssignment[]
   handledContracts       Contract[]                  @relation("ContractHandlerEmployee")
 }
-
 /// 员工雇佣信息（在职状态、入职/离职日期等事实字段）
 model Employment {
   id             Int       @id @default(autoincrement())
@@ -59,6 +59,7 @@ model Employment {
   editedAt       DateTime?
   version        Int       @default(1)
   employee       Employee  @relation(fields: [employeeId], references: [id], onDelete: Cascade)
+  agreements     EmploymentAgreement[]
 
   @@index([employeeId])
   @@index([isActive])
@@ -85,6 +86,7 @@ model Company {
   updatedAt                         DateTime                           @default(now()) @updatedAt
   party                             Party                              @relation(fields: [partyId], references: [id], onDelete: Restrict)
   issuedOwnerships                  OwnershipInterest[]
+  ownershipProjectionRuns           OwnershipProjectionRun[]
   shareCapitalEvents                ShareCapitalEvent[]
   shareholderGroups                 ShareholderGroup[]
   registryChanges                   CompanyRegistryChange[]
@@ -96,7 +98,6 @@ model Company {
   externalPartySourceMappings       ExternalPartySourceMapping[]
   ownedContracts                    Contract[]                         @relation("ContractOwningCompany")
 }
-
 /// 组织单元树（兼容名 Department；含 G/M 层级关系与负责人岗位）
 model Department {
   id                        Int                                 @id @default(autoincrement())
@@ -117,7 +118,6 @@ model Department {
   parent                    Department?                         @relation("DeptHierarchy", fields: [parentId], references: [id])
   children                  Department[]                        @relation("DeptHierarchy")
   descriptions              DepartmentDescription[]
-  managerEmployees          DepartmentManagerEmployee[]
   resourceActionGrants      DepartmentResourceActionGrant[]
   workAssignees             DepartmentWorkAssignee[]
   responsibleCollaborations DepartmentCollaboration[]           @relation("DepartmentCollaborationResponsibleDepartment")
@@ -131,24 +131,15 @@ model Department {
   positionReportOverrides   PositionReportOverride[]
   ownedKpiDefinitions       WorkKpiDefinition[]
   ownedContracts            Contract[]                        @relation("ContractOwnerDepartment")
+  effectiveVersions         DepartmentEffectiveVersion[]      @relation("DepartmentEffectiveVersionAggregate")
+  effectiveChildVersions    DepartmentEffectiveVersion[]      @relation("DepartmentEffectiveVersionParent")
+  positionEffectiveVersions PositionEffectiveVersion[]        @relation("PositionEffectiveVersionDepartment")
+  overrideEffectiveVersions PositionReportOverrideEffectiveVersion[] @relation("PositionReportOverrideVersionDepartment")
 
   @@index([code])
   @@index([name])
   @@index([hierarchyKind, level])
   @@index([managerPositionId])
-}
-
-/// 部门负责人关系（事实表，来源于组织架构维护；负责人必须来自部门负责人岗位的在岗员工）
-model DepartmentManagerEmployee {
-  id           Int        @id @default(autoincrement())
-  departmentId Int
-  employeeId   Int
-  createdAt    DateTime   @default(now())
-  department   Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
-  employee     Employee   @relation(fields: [employeeId], references: [id], onDelete: Cascade)
-
-  @@unique([departmentId, employeeId])
-  @@index([employeeId])
 }
 
 /// 岗位定义
@@ -178,6 +169,10 @@ model Position {
   reportOverrides         PositionReportOverride[]          @relation("PositionReportOverrideSource")
   reportedReportOverrides PositionReportOverride[]          @relation("PositionReportOverrideReportTo")
   collaborationPositions  DepartmentCollaborationPosition[]
+  effectiveVersions       PositionEffectiveVersion[]          @relation("PositionEffectiveVersionAggregate")
+  effectiveReportees      PositionEffectiveVersion[]          @relation("PositionEffectiveVersionReportTo")
+  effectiveManagedDepartments DepartmentEffectiveVersion[]    @relation("DepartmentEffectiveVersionManagerPosition")
+  effectiveOverrideReports PositionReportOverrideEffectiveVersion[] @relation("PositionReportOverrideVersionReportTo")
 
   @@unique([positionDescriptionId])
   @@index([code])
@@ -234,11 +229,13 @@ model PositionReportOverride {
   editedAt           DateTime?
   createdAt          DateTime   @default(now())
   updatedAt          DateTime   @default(now()) @updatedAt
+  version            Int        @default(1)
   position           Position   @relation("PositionReportOverrideSource", fields: [positionId], references: [id], onDelete: Cascade)
   company            Company    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   department         Department @relation(fields: [departmentId], references: [id], onDelete: Cascade)
   reportToPosition   Position?  @relation("PositionReportOverrideReportTo", fields: [reportToPositionId], references: [id])
   edps               EDP[]
+  effectiveVersions  PositionReportOverrideEffectiveVersion[]
 
   @@unique([positionId, companyId, departmentId])
   @@index([companyId])
