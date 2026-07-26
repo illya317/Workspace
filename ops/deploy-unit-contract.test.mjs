@@ -52,6 +52,7 @@ test("server apply checks control plane before PM2 and commits Gateway only afte
   assert.match(apply, /state-rollback/);
   assert.match(apply, /safe_extract_artifact/);
   assert.match(apply, /PG_POOL_MAX="\$database_pool_max"/);
+  assert.match(apply, /WORKSPACE_INTERNAL_ORIGIN="\$\{WORKSPACE_INTERNAL_ORIGIN:-\$\{WORKSPACE_PUBLIC_ORIGIN:-http:\/\/127\.0\.0\.1\}\}"/);
   assert.match(apply, /internal-unit-identity\.mjs" ensure/);
   assert.match(apply, /WORKSPACE_DEPLOY_UNIT_ID="\$UNIT_ID"/);
   assert.match(apply, /WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE="\$INTERNAL_SIGNING_PRIVATE_KEY_FILE"/);

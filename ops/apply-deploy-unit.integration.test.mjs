@@ -265,6 +265,7 @@ case "$1" in
       printf '%s' "\${WORKSPACE_DEPLOY_UNIT_ID:-}" > "$FAKE_RUNTIME_ROOT/identity-unit-$process_name"
       printf '%s' "\${WORKSPACE_INTERNAL_SIGNING_PRIVATE_KEY_FILE:-}" > "$FAKE_RUNTIME_ROOT/identity-private-$process_name"
       printf '%s' "\${WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE:-}" > "$FAKE_RUNTIME_ROOT/identity-registry-$process_name"
+      printf '%s' "\${WORKSPACE_INTERNAL_ORIGIN:-}" > "$FAKE_RUNTIME_ROOT/internal-origin-$process_name"
     fi
     ;;
   delete)
@@ -337,6 +338,21 @@ test("prepare starts the inactive slot and writes a proposed state without switc
   assert.equal(readFileSync(path.join(files.runtimeRoot, "identity-private-workspace-finance-blue"), "utf8"), privateKeyFile);
   assert.equal(readFileSync(path.join(files.runtimeRoot, "identity-registry-workspace-finance-blue"), "utf8"), registryFile);
   assert.equal(spawnSync("test", ["-e", path.join(files.remoteDir, ".workspace", ".env")]).status, 1);
+});
+
+test("deploy units default signed internal RPC to the managed public Gateway origin", () => {
+  const files = fixture();
+  writeFileSync(
+    path.join(files.remoteDir, ".workspace", ".env"),
+    "WORKSPACE_PUBLIC_ORIGIN=https://workspace.example.test\n",
+  );
+  const staging = buildStaging(files, "finance-gateway-origin-v1", "7");
+  const prepared = apply(files, ["deploy", "finance", staging, "prepare"]);
+  assert.equal(prepared.status, 0, `${prepared.stderr}\n${prepared.stdout}`);
+  assert.equal(
+    readFileSync(path.join(files.runtimeRoot, "internal-origin-workspace-finance-blue"), "utf8"),
+    "https://workspace.example.test",
+  );
 });
 
 test("prepare fails closed while a deploy unit is still only a candidate", () => {

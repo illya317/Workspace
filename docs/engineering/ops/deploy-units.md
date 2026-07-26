@@ -103,6 +103,8 @@ Full 发布是独立的收敛动作：monolith 版本检查通过并原子切换
 - `WORKSPACE_INTERNAL_TRUSTED_PUBLIC_KEYS_FILE`：同机可信公钥注册表路径。
 - `WORKSPACE_INTERNAL_REPLAY_DIRECTORY`：当前接收 unit 的持久 replay ledger。
 
+签名内部 RPC 的请求 origin 按 `WORKSPACE_INTERNAL_ORIGIN`、生产 `WORKSPACE_PUBLIC_ORIGIN`、本地 loopback 的顺序解析。生产默认必须经过当前受管 Gateway，才能把已激活 unit 的 API 前缀路由给真实 owner；deploy-unit 进程也会把现有 `WORKSPACE_PUBLIC_ORIGIN` 注入为默认内部 origin。不能把裸 `http://127.0.0.1` 当作生产 Gateway：启用 Host-based Nginx vhost 时它可能在签名请求到达 Workspace 前被默认站点直接拒绝。
+
 重复部署复用原私钥，不产生身份漂移。部署器每次校验注册表与全部私钥是同一完整集合且逐项匹配；只要已有任意私钥，注册表缺失、缺项、多项或密钥不匹配都会 fail closed。恢复必须从同一恢复点还原完整 `internal-unit-identities` 目录，不能靠部署当前 unit 静默重建。当前协议不提供隐式轮换，正式轮换必须另做带双公钥过渡、依赖方观测和回收旧钥的运维流程。
 
 Ed25519 在应用层提供 caller provenance、防误路由和防请求篡改，不自动把同一 Unix UID 下的进程变成互不信任的安全域。当前共享 PM2 用户可以读取统一私钥目录，因此不能宣称“某个 unit 被攻陷后仍无法冒充另一个 unit”。仓库没有把一个可手填环境值当作隔离证明：涉及签名 RPC 的生产 Profile promotion 当前无条件失败。必须先由后续运维变更实现独立 OS identity/容器、单钥挂载和可验证的进程/密钥 owner 证据，再修改这一门禁。共享 UID 阶段生成过的私钥视为已暴露候选，正式激活前必须通过显式轮换流程全部更换。

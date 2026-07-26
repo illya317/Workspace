@@ -9,11 +9,22 @@ import {
 const MAX_CLOCK_SKEW_MS = 60_000;
 const DEFAULT_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 
-export function workspaceInternalOrigin() {
-  const configured = process.env.WORKSPACE_INTERNAL_ORIGIN?.trim();
+type InternalRpcEnvironment = Pick<
+  NodeJS.ProcessEnv,
+  "NODE_ENV" | "PORT" | "WORKSPACE_INTERNAL_ORIGIN" | "WORKSPACE_PUBLIC_ORIGIN"
+>;
+
+export function workspaceInternalOrigin(env: InternalRpcEnvironment = process.env) {
+  const configured = env.WORKSPACE_INTERNAL_ORIGIN?.trim();
   if (configured) return configured;
-  if (process.env.NODE_ENV === "production") return "http://127.0.0.1";
-  return `http://127.0.0.1:${process.env.PORT?.trim() || "3000"}`;
+  if (env.NODE_ENV === "production") {
+    // Production internal RPC must pass through the managed Gateway so an
+    // independently activated unit receives its owned API routes. The bare
+    // loopback origin can select an unrelated default Nginx vhost and fail
+    // before the signed request reaches Workspace.
+    return env.WORKSPACE_PUBLIC_ORIGIN?.trim() || "http://127.0.0.1";
+  }
+  return `http://127.0.0.1:${env.PORT?.trim() || "3000"}`;
 }
 
 function internalUrl(pathname: string) {
