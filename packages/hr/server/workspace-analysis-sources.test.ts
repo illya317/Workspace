@@ -4,6 +4,7 @@ import test from "node:test";
 import { createWorkspaceAnalysisSourceCatalog } from "@workspace/platform/server/workspace-analysis-source-registry";
 
 import {
+  HR_CONTRACTS_ANALYSIS_SOURCE,
   HR_EMPLOYMENTS_ANALYSIS_SOURCE,
   HR_WORKSPACE_ANALYSIS_SOURCE_REGISTRATIONS,
 } from "./workspace-analysis-sources";
@@ -79,6 +80,26 @@ test("employment exposes every scalar list field and delegates only raw contract
     registration.adapter.scopeQuery.department,
     { departmentId: "scopeId" },
   );
+});
+
+test("contracts expose lifecycle scalars and explicitly omit nested timelines", () => {
+  const catalog = createWorkspaceAnalysisSourceCatalog([HR_CONTRACTS_ANALYSIS_SOURCE]);
+  const source = catalog.get("hr.contracts", 1)!;
+
+  for (const key of [
+    "agreementUid",
+    "recordState",
+    "temporalState",
+    "version",
+    "source",
+    "migrationState",
+    "currentRevisionUid",
+  ]) {
+    assert.equal(source.fields.some((field) => field.key === key), true, key);
+  }
+  assert.equal(source.fields.find((field) => field.key === "id")?.kind, "text");
+  assert.equal(source.fields.some((field) => field.key === "terms"), false);
+  assert.equal(source.fields.some((field) => field.key === "revisions"), false);
 });
 
 test("nested list payloads do not leak into canonical fields", () => {
