@@ -94,10 +94,11 @@ export function buildEmploymentAgreementCommand(
 ): DomainValidationResult<EmploymentAgreementCommand> {
   if (!input || typeof input !== "object" || Array.isArray(input)) return failCommand("协议命令无效");
   const raw = input as Record<string, unknown>;
-  const kind = normalizedString(raw.kind);
-  if (!kind || !EMPLOYMENT_AGREEMENT_COMMAND_KINDS.includes(kind as EmploymentAgreementCommandKind)) {
+  const rawKind = normalizedString(raw.kind);
+  if (!rawKind || !EMPLOYMENT_AGREEMENT_COMMAND_KINDS.includes(rawKind as EmploymentAgreementCommandKind)) {
     return failCommand("协议命令类型无效", 400, "kind");
   }
+  const kind = rawKind as EmploymentAgreementCommandKind;
   const meta = commandMeta(raw);
   if (!meta.ok) return meta;
   if (["end", "correct", "supersede", "cancel-future"].includes(kind) && !meta.data.reason) {
