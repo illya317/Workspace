@@ -56,18 +56,18 @@ export function externalPartyAvailabilitySections(
       label: "目标期间",
       required: true,
       spec: {
-        valueType: "number" as const,
+        valueType: "string" as const,
         control: "choice" as const,
         options: {
           source: "static" as const,
           items: targets.map((period) => ({
-            value: period.id,
+            value: String(period.id),
             label: `${period.validFrom || "未知"} 至 ${period.validThrough || "长期"}`,
           })),
           visibleCount: Math.min(Math.max(targets.length, 1), 6),
         },
       },
-      value: draft.periodId,
+      value: draft.periodId === null ? "" : String(draft.periodId),
       onChange: (value: unknown) => {
         const periodId = Number(value);
         const target = targets.find((period) => period.id === periodId);
