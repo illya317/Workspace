@@ -1,4 +1,4 @@
--- workspace:migration-mode=expand
+-- workspace:migration-mode=maintenance
 
 ALTER TABLE "ContractRevision"
   ADD COLUMN "createIdempotencyKey" TEXT,

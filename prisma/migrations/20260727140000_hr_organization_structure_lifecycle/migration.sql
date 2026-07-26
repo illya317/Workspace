@@ -1,4 +1,4 @@
--- workspace:migration-mode=expand
+-- workspace:migration-mode=maintenance
 
 ALTER TABLE "PositionReportOverride"
   ADD COLUMN "version" INTEGER NOT NULL DEFAULT 1;

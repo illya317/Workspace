@@ -30,11 +30,11 @@ CREATE INDEX "OwnershipProjectionRun_issuer_projected_at_idx"
   ON "OwnershipProjectionRun"("issuerCompanyId", "projectedAt");
 CREATE INDEX "OwnershipProjectionRun_ledger_hash_idx"
   ON "OwnershipProjectionRun"("ledgerHash");
-CREATE INDEX "OwnershipInterest_source_event_idx"
+CREATE INDEX CONCURRENTLY "OwnershipInterest_source_event_idx"
   ON "OwnershipInterest"("sourceEventId");
-CREATE INDEX "OwnershipInterest_closed_by_event_idx"
+CREATE INDEX CONCURRENTLY "OwnershipInterest_closed_by_event_idx"
   ON "OwnershipInterest"("closedByEventId");
-CREATE INDEX "OwnershipInterest_projection_run_idx"
+CREATE INDEX CONCURRENTLY "OwnershipInterest_projection_run_idx"
   ON "OwnershipInterest"("projectionRunId");
 
 ALTER TABLE "OwnershipInterest"

@@ -1,4 +1,4 @@
--- workspace:migration-mode=online
+-- workspace:migration-mode=maintenance
 -- Contract P1: post-approval reference, immutable materials and append-only archive records.
 
 ALTER TABLE "Contract"

@@ -1,4 +1,4 @@
--- workspace:migration-mode=expand
+-- workspace:migration-mode=maintenance
 -- Projection runs belong to one stable legal-company anchor. The event ledger
 -- remains authoritative; this FK only protects projection provenance.
 
