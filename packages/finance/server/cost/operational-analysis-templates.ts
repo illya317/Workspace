@@ -132,9 +132,9 @@ export async function listOperationalAnalysisTemplates(
   });
 }
 
-async function prepareOperationalAnalysisTemplateSave(
+async function prepareOperationalAnalysisTemplateSave<TInput extends WorkspaceSourcesOperationalAnalysisTemplateInput>(
   userId: number,
-  input: WorkspaceSourcesOperationalAnalysisTemplateInput,
+  input: TInput,
   options: { readonly viaApiKey?: boolean } = {},
 ) {
   if (!await canConfigureOperationalAnalytics(userId, input.scopeType, input.scopeId)) {
