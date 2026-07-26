@@ -30,6 +30,7 @@ test("deploy has one Full CNB production path", () => {
   assert.doesNotMatch(publish, /--full|hotfix|publish-hotfix/i);
   assert.equal(existsSync(new URL("./publish-hotfix.sh", import.meta.url)), false);
   assert.equal(existsSync(new URL("./hotfix-remote-build.sh", import.meta.url)), false);
+  assert.match(publish, /if \[ "\$\{#deploy_args\[@\]\}" -eq 0 \]; then\s+exec "\$SCRIPT_DIR\/publish-cnb\.sh"/);
 });
 
 test("deploy promotes main into the dedicated release worktree by fast-forward only", () => {

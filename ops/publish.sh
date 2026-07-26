@@ -86,6 +86,9 @@ case "${1:-}" in
       ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
     fi
     "$SCRIPT_DIR/promote-release-branch.sh"
+    if [ "${#deploy_args[@]}" -eq 0 ]; then
+      exec "$SCRIPT_DIR/publish-cnb.sh"
+    fi
     exec "$SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
     ;;
 esac
