@@ -14,6 +14,7 @@ import { listWorkflowCategoryRegistrations } from "../workflow-category-registry
 import { prisma, type Prisma } from "./prisma";
 import { permissionReviewNotificationDefinition, type PermissionReviewAlertPayload } from "./notification-permission-review";
 import { dataQualityNotificationDefinition, type DataQualityAlertPayload } from "./notification-data-quality";
+import type { ProjectMemberNotificationPayload } from "./notification-project-members";
 import {
   isWorkflowTodoProviderHandled,
   listWorkflowTodoProviderItems,
@@ -35,15 +36,6 @@ export type {
 } from "./notification-workflow";
 
 export type NotificationAction = "read" | "acknowledge" | "reject" | "clear";
-
-type ProjectMemberNotificationPayload = {
-  projectId: number;
-  employeeId: number;
-  projectName: string;
-  role: string;
-  inviterName: string;
-  changedFromRole?: string | null;
-};
 
 type DepartmentCollaborationInvitationPayload = {
   collaborationId: number;
