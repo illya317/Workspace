@@ -92,16 +92,10 @@ function graph(activeUnitId = "finance") {
 function tenantAndControlPlane(root) {
   mkdirSync(root, { recursive: true });
   const resourceManifestFile = path.join(root, "resource-defs.json");
-  const dataReleaseDir = path.join(root, "data-releases");
   const lifecycleRoot = path.join(root, "lifecycle");
   const tenantManifestFile = path.join(root, "tenant-config-manifest.json");
-  mkdirSync(dataReleaseDir);
   for (const relativePath of [
     "node_modules/prisma/package.json",
-    "ops/apply-data-release.mjs",
-    "ops/data-release.mjs",
-    "ops/data-release-handlers.mjs",
-    "ops/data-release-transfer.mjs",
     "ops/prisma-genesis-cutover.mjs",
     "scripts/check/check-permission-action-grants.mjs",
     "scripts/check/check-prisma-deploy-status.js",
@@ -116,7 +110,6 @@ function tenantAndControlPlane(root) {
     writeFileSync(file, `${relativePath}\n`);
   }
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
-  writeFileSync(path.join(dataReleaseDir, "one.json"), "{\"id\":\"one\"}\n");
   const tenantFiles = [
     { path: "manifest.json", size: 2, sha256: digest("{}") },
     { path: "config/tenant/profile.json", size: 2, sha256: digest("{}") },
@@ -136,7 +129,6 @@ function tenantAndControlPlane(root) {
     sourceTree: "b".repeat(40),
     migrationSetSha256: "c".repeat(64),
     resourceManifestFile,
-    dataReleaseDir,
     tenantManifestFile,
     lifecycleRoot,
     completedAt: "2026-07-25T00:00:00.000Z",
@@ -213,7 +205,6 @@ function buildStaging(files, version, sourceCharacter, unitId = "finance") {
     inputs: {
       migrationSetSha256: files.control.receipt.inputs.migrationSetSha256,
       resourceManifestSha256: files.control.receipt.inputs.resourceManifestSha256,
-      dataReleaseManifestSetSha256: files.control.receipt.inputs.dataReleaseManifestSetSha256,
       lifecycleToolSetSha256: files.control.receipt.inputs.lifecycleToolSetSha256,
     },
     createdAt: "2026-07-25T00:10:00.000Z",

@@ -8,7 +8,6 @@ import test from "node:test";
 import {
   assertControlPlaneReceipt,
   createControlPlaneReceipt,
-  digestDataReleaseSet,
   digestLifecycleSourceToolSet,
   digestLifecycleToolSet,
   normalizeControlPlaneReceipt,
@@ -23,17 +22,11 @@ function sha256(value) {
 function fixture() {
   const root = mkdtempSync(path.join(os.tmpdir(), "workspace-control-plane-"));
   const resourceManifestFile = path.join(root, "resource-defs.json");
-  const dataReleaseDir = path.join(root, "data-releases");
   const tenantManifestFile = path.join(root, "tenant-config-manifest.json");
   const lifecycleRoot = path.join(root, "release");
   const lifecycleSourceRoot = path.join(root, "source");
-  mkdirSync(dataReleaseDir);
   for (const relativePath of [
     "node_modules/prisma/package.json",
-    "ops/apply-data-release.mjs",
-    "ops/data-release.mjs",
-    "ops/data-release-handlers.mjs",
-    "ops/data-release-transfer.mjs",
     "ops/prisma-genesis-cutover.mjs",
     "scripts/check/check-permission-action-grants.mjs",
     "scripts/check/check-prisma-deploy-status.js",
@@ -54,14 +47,13 @@ function fixture() {
     writeFileSync(sourceFile, `${relativePath}\n`);
   }
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
-  writeFileSync(path.join(dataReleaseDir, "2026-01-01-fixture-v1.json"), "{\"id\":\"fixture\"}\n");
   const files = [
     { path: "manifest.json", size: 2, sha256: sha256("{}") },
     { path: "config/tenant/profile.json", size: 2, sha256: sha256("{}") },
   ];
   const digest = sha256(Buffer.from(files.map((file) => `${file.path}\0${file.size}\0${file.sha256}\n`).join("")));
   writeFileSync(tenantManifestFile, `${JSON.stringify({ schemaVersion: 2, kind: "workspace-tenant-config", digest, managedDirectories: [], files })}\n`);
-  return { root, resourceManifestFile, dataReleaseDir, tenantManifestFile, lifecycleRoot, lifecycleSourceRoot };
+  return { root, resourceManifestFile, tenantManifestFile, lifecycleRoot, lifecycleSourceRoot };
 }
 
 function create(fixtureValue) {
@@ -79,7 +71,6 @@ test("receipt binds the exact lifecycle inputs and ordered passed operations", (
   const files = fixture();
   const receipt = create(files);
   assert.equal(receipt.inputs.migrationSetSha256, "c".repeat(64));
-  assert.equal(receipt.inputs.dataReleaseManifestSetSha256, digestDataReleaseSet(files.dataReleaseDir));
   assert.equal(receipt.inputs.lifecycleToolSetSha256, digestLifecycleToolSet(files.lifecycleRoot));
   assert.equal(digestLifecycleSourceToolSet(files.lifecycleSourceRoot), digestLifecycleToolSet(files.lifecycleRoot));
   assert.equal(receipt.operations.at(0)?.id, "tenant-config-verified");
@@ -90,7 +81,7 @@ test("receipt binds the exact lifecycle inputs and ordered passed operations", (
   );
 });
 
-test("application assertion rejects stale migrations, resources, data releases, or tenant config", () => {
+test("application assertion rejects stale migrations, resources, or tenant config", () => {
   const files = fixture();
   const receiptFile = path.join(files.root, "control-plane-release.json");
   writeControlPlaneReceipt(receiptFile, create(files));

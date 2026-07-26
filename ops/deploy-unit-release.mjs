@@ -271,7 +271,6 @@ export function normalizeDeployUnitArtifactManifest(value) {
   requireDigest(manifest.controlPlane?.requirementsSha256, `${id} control-plane requirements digest`);
   const controlPlaneInputs = requireObject(manifest.controlPlane?.inputs, `${id} control-plane inputs`);
   const expectedControlPlaneKeys = [
-    "dataReleaseManifestSetSha256",
     "lifecycleToolSetSha256",
     "migrationSetSha256",
     "resourceManifestSha256",
@@ -365,7 +364,6 @@ export function normalizeDeployUnitReceipt(value) {
   requireDigest(receipt.controlPlane?.receiptSha256, `${unitId} control-plane receipt digest`);
   const controlPlaneInputs = requireObject(receipt.controlPlane?.inputs, `${unitId} control-plane receipt inputs`);
   const expectedReceiptInputKeys = [
-    "dataReleaseManifestSetSha256",
     "lifecycleToolSetSha256",
     "migrationSetSha256",
     "resourceManifestSha256",

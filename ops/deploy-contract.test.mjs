@@ -345,26 +345,8 @@ test("the expanded remote artifact deployment shell remains syntactically valid"
   assert.equal(result.status, 0, result.stderr);
 });
 
-test("remote data-release metadata JavaScript preserves string literals across SSH quoting", () => {
-  assert.match(
-    deploy,
-    /require\(\\"node:fs\\"\)\.readFileSync\(process\.argv\[1\], \\"utf8\\"\)/,
-  );
-  assert.match(deploy, /metadata\.deployment\?\.dataReleases \?\? \[\]/);
-  assert.ok(deploy.includes('release.id + \\\"\\\\t\\\" + release.payloadDigest'));
-  assert.doesNotMatch(deploy, /map\(\(release\) => `/);
-});
-
-test("remote data-release block stays inside the single SSH command argument", () => {
-  const start = deploy.indexOf("    data_release_specs=\\$(node -e '");
-  const end = deploy.indexOf("    echo '==> 校验生产数据发布回执与现场结果...", start);
-  assert.ok(start >= 0 && end > start, "remote data-release block must be extractable");
-  const block = deploy.slice(start, end);
-  for (let index = 0; index < block.length; index += 1) {
-    if (block[index] === '"') {
-      assert.equal(block[index - 1], "\\", `unescaped SSH-layer quote at block offset ${index}`);
-    }
-  }
+test("deployment lifecycle does not apply or gate private data releases", () => {
+  assert.doesNotMatch(deploy, /apply-data-release|data-release-gate|metadata\.deployment\?\.dataReleases/);
 });
 
 test("genesis state parser preserves JavaScript quotes across SSH quoting", () => {

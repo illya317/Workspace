@@ -156,28 +156,20 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-const dataReleases = metadata.deployment?.dataReleases;
-const validDataReleases = Array.isArray(dataReleases)
-  && dataReleases.every((release) => release && typeof release === 'object'
-    && Object.keys(release).sort().join(',') === 'id,payloadDigest'
-    && /^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*-v\d+$/.test(release.id)
-    && /^[0-9a-f]{64}$/.test(release.payloadDigest))
-  && new Set(dataReleases.map((release) => release.id)).size === dataReleases.length;
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
-  || metadata.localFullCi?.schemaVersion !== 1
-  || metadata.localFullCi?.kind !== 'workspace-local-full-ci'
-  || metadata.localFullCi?.status !== 'passed'
-  || metadata.localFullCi?.command !== 'npm run check:ci'
-  || metadata.localFullCi?.treeSha !== tree
-  || !Number.isFinite(Date.parse(metadata.localFullCi?.completedAt ?? ''))
+  || metadata.localReleaseGate?.schemaVersion !== 1
+  || metadata.localReleaseGate?.kind !== 'workspace-local-release-gate'
+  || metadata.localReleaseGate?.status !== 'passed'
+  || metadata.localReleaseGate?.command !== 'ops/local-release-gate.sh'
+  || metadata.localReleaseGate?.treeSha !== tree
+  || !Number.isFinite(Date.parse(metadata.localReleaseGate?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
   || metadata.deployment.startedAtEpochSeconds <= 0
-  || !validLocalTiming
-  || !validDataReleases) {
+  || !validLocalTiming) {
   throw new Error('CNB release metadata does not match local source');
 }
 const target = metadata.deployment?.target;

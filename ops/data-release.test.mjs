@@ -53,20 +53,15 @@ test("production cannot accept a manifest with incomplete canonical sources", ()
   assert.throws(() => validateManifest({ ...manifest, sourceCompleteness: "unknown" }, { repositoryRoot: root }), /sourceCompleteness/);
 });
 
-test("production deploy packages private data-release verification without source manifests", () => {
+test("production deploy is independent from private data releases", () => {
   const root = path.resolve(import.meta.dirname, "..");
   const deploy = readFileSync(path.join(root, "ops/deploy.sh"), "utf8");
   const build = readFileSync(path.join(root, "ops/build-standalone-artifact.sh"), "utf8");
   const publish = readFileSync(path.join(root, "ops/publish-cnb.sh"), "utf8");
-  const migration = deploy.indexOf("migrate deploy");
-  const gate = deploy.indexOf("data-release.mjs");
-  const candidate = deploy.indexOf("pm2 start", gate);
-  assert.ok(migration >= 0 && gate > migration && candidate > gate);
+  assert.doesNotMatch(deploy, /data-release\.mjs|apply-data-release\.mjs|data-release-gate/);
   assert.match(build, /copy_data_release_files/);
   assert.match(build, /apply-data-release\.mjs/);
   assert.match(build, /data-release-transfer\.mjs/);
   assert.doesNotMatch(build, /cp -R ops\/data-releases/);
-  assert.match(publish, /npm run data:release:check/);
-  assert.match(publish, /--data-release ID:SHA256/);
-  assert.doesNotMatch(publish, /git diff --name-only .*ops\/data-releases/);
+  assert.doesNotMatch(publish, /data:release:check|--data-release/);
 });

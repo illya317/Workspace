@@ -14,13 +14,12 @@ test("deploy syncs and syntax-checks the control-plane receipt tool", () => {
 
 test("control-plane receipt commits after lifecycle parity and before candidate startup", () => {
   const migration = deploy.indexOf("migrate deploy");
-  const dataRelease = deploy.indexOf("data-release.mjs", migration);
-  const resourceSeed = deploy.indexOf("seed-resources-runtime.mjs", dataRelease);
+  const resourceSeed = deploy.indexOf("seed-resources-runtime.mjs", migration);
   const workforce = deploy.indexOf("provision-agent-workforce.mjs", resourceSeed);
   const parity = deploy.indexOf("direct_fingerprint", workforce);
   const receiptWrite = deploy.indexOf("control-plane lifecycle 回执", parity);
   const candidate = deploy.indexOf("pm2 start", receiptWrite);
-  assert.ok(migration >= 0 && dataRelease > migration && resourceSeed > dataRelease);
+  assert.ok(migration >= 0 && resourceSeed > migration);
   assert.ok(workforce > resourceSeed && parity > workforce && receiptWrite > parity && candidate > receiptWrite);
   assert.match(deploy.slice(receiptWrite, candidate), /REMOTE_CONTROL_PLANE_RECEIPT_TOOL/);
   assert.match(deploy.slice(receiptWrite, candidate), /--migration-set '\$RELEASE_MIGRATION_SET_SHA'/);

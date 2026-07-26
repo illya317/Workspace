@@ -35,16 +35,10 @@ function writeJson(file, value) {
 
 function controlPlaneFixture(root) {
   const resourceManifestFile = path.join(root, "resource-defs.json");
-  const dataReleaseDir = path.join(root, "data-releases");
   const tenantManifestFile = path.join(root, "tenant-config-manifest.json");
   const lifecycleRoot = path.join(root, "lifecycle");
-  mkdirSync(dataReleaseDir, { recursive: true });
   for (const relativePath of [
     "node_modules/prisma/package.json",
-    "ops/apply-data-release.mjs",
-    "ops/data-release.mjs",
-    "ops/data-release-handlers.mjs",
-    "ops/data-release-transfer.mjs",
     "ops/prisma-genesis-cutover.mjs",
     "scripts/check/check-permission-action-grants.mjs",
     "scripts/check/check-prisma-deploy-status.js",
@@ -59,7 +53,6 @@ function controlPlaneFixture(root) {
     writeFileSync(file, `${relativePath}\n`);
   }
   writeFileSync(resourceManifestFile, "{\"resources\":[]}\n");
-  writeFileSync(path.join(dataReleaseDir, "release.json"), "{\"id\":\"release\"}\n");
   const tenantFiles = [
     { path: "manifest.json", size: 2, sha256: sha256("{}") },
     { path: "config/tenant/profile.json", size: 2, sha256: sha256("{}") },
@@ -79,7 +72,6 @@ function controlPlaneFixture(root) {
     sourceTree: "b".repeat(40),
     migrationSetSha256: "c".repeat(64),
     resourceManifestFile,
-    dataReleaseDir,
     tenantManifestFile,
     lifecycleRoot,
     completedAt: "2026-07-25T00:00:00.000Z",
@@ -143,7 +135,6 @@ function fixture(contractOverrides = {}) {
     inputs: {
       migrationSetSha256: controlPlaneReceipt.inputs.migrationSetSha256,
       resourceManifestSha256: controlPlaneReceipt.inputs.resourceManifestSha256,
-      dataReleaseManifestSetSha256: controlPlaneReceipt.inputs.dataReleaseManifestSetSha256,
       lifecycleToolSetSha256: controlPlaneReceipt.inputs.lifecycleToolSetSha256,
     },
     createdAt: "2026-07-25T00:30:00.000Z",

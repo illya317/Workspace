@@ -35,10 +35,8 @@ DEPLOY_UNIT_MODE=""
 DEPLOY_WAIT_SECONDS="${DEPLOY_WAIT_SECONDS:-1800}"
 LOCAL_PREFLIGHT_DURATION_SECONDS=0
 LOCAL_CI_DURATION_SECONDS=0
-LOCAL_CI_MODE="复用"
 TENANT_SYNC_DURATION_SECONDS=0
 RELEASE_TRIGGER_DURATION_SECONDS=0
-DATA_RELEASE_SPECS=""
 RELEASE_PROCESS_SECONDS=0
 RELEASE_ATTEMPT_COUNT=1
 RELEASE_PROCESS_STARTED_AT=""
@@ -47,6 +45,8 @@ CI_TIMING_ACTIVE=0
 TMP_DIR=""
 TMP_KEY=""
 SERVER_READ_KEY=""
+DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS=""
+DEPLOY_ATTEMPT_RECORDED=0
 
 usage() {
   cat <<'EOF'
@@ -63,17 +63,102 @@ usage() {
   --bootstrap-legacy-runtime-version VERSION
   --bootstrap-legacy-build-id BUILD_ID
   --genesis-production-base SHA  一次性把已部署旧历史切换到单提交、schema-only 基线
-  --data-release ID:SHA256  绑定已上传并复验的数据发布；可重复指定
   --deploy-unit UNIT  公开部署并原子切换一个 active 单元
   --shadow-unit UNIT  将一个 candidate/active 单元部署到 shadow，不切公网 Gateway
   --print-command
 EOF
 }
 
+record_failed_deploy_attempt() {
+  local exit_code="$1"
+  [ "$PRINT_COMMAND_ONLY" = "0" ] || return 0
+  [ "$DEPLOY_ATTEMPT_RECORDED" = "0" ] || return 0
+  [ -n "${SERVER_READ_KEY:-}" ] && [ -f "$SERVER_READ_KEY" ] || return 0
+  [ -n "${SOURCE_SHA:-}" ] && [ -n "${DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS:-}" ] || return 0
+  local status="failed"
+  case "$exit_code" in
+    130|143) status="cancelled" ;;
+  esac
+  local duration_seconds="$(($(date +%s) - DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS))"
+  [ "$duration_seconds" -ge 0 ] || duration_seconds=0
+  if ssh -i "$SERVER_READ_KEY" -o BatchMode=yes -o ConnectTimeout=10 -o StrictHostKeyChecking=accept-new "$SERVER" \
+    "REMOTE_DIR='$REMOTE_DIR' DEPLOY_SOURCE_SHA='$SOURCE_SHA' DEPLOY_STARTED_EPOCH_SECONDS='$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS' DEPLOY_DURATION_SECONDS='$duration_seconds' DEPLOY_STATUS='$status' DEPLOY_EXIT_CODE='$exit_code' python3 - <<'PY'
+import datetime
+import json
+import os
+from pathlib import Path
+
+remote_dir = Path(os.environ['REMOTE_DIR'])
+build = os.environ['DEPLOY_SOURCE_SHA']
+started = int(os.environ['DEPLOY_STARTED_EPOCH_SECONDS'])
+duration = int(os.environ['DEPLOY_DURATION_SECONDS'])
+status = os.environ['DEPLOY_STATUS']
+exit_code = int(os.environ['DEPLOY_EXIT_CODE'])
+finished_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+event_id = f'attempt:{build}:{started}'
+payload = {
+    'schemaVersion': 2,
+    'kind': 'workspace-deploy-event',
+    'id': event_id,
+    'transport': 'cnb',
+    'deploymentKind': 'full',
+    'deploymentMode': 'full',
+    'action': 'deploy',
+    'status': status,
+    'package': 'unknown',
+    'build': build,
+    'release': f'attempt-{build[:12]}',
+    'durationSeconds': duration,
+    'opsDurationSeconds': duration,
+    'exitCode': exit_code,
+    'startedAtEpochSeconds': started,
+    'finishedAt': finished_at,
+}
+
+def atomic_write(target, body):
+    tmp = target.with_name(f'.{target.name}.tmp-{os.getpid()}')
+    tmp.write_text(body)
+    os.chmod(tmp, 0o600)
+    tmp.replace(target)
+
+body = json.dumps(payload, ensure_ascii=False)
+target = Path.home() / '.finance-bot-deploy-event.json'
+atomic_write(target, body)
+history_root = remote_dir / '.workspace' / 'deployment-history'
+history_root.mkdir(parents=True, exist_ok=True, mode=0o700)
+os.chmod(history_root, 0o700)
+latest = history_root / 'latest.json'
+duplicate = False
+if latest.exists():
+    try:
+        duplicate = json.loads(latest.read_text()).get('id') == event_id
+    except (OSError, ValueError):
+        pass
+stamp = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ')
+atomic_write(history_root / f'{stamp}-{build[:12]}-{status}.json', body)
+atomic_write(latest, body)
+if not duplicate:
+    history_log = history_root / 'deployments.ndjson'
+    with history_log.open('a') as handle:
+        handle.write(body + '\n')
+    os.chmod(history_log, 0o600)
+print(f'Workspace deploy attempt recorded: {event_id} ({status}, {duration}s)')
+PY"; then
+    DEPLOY_ATTEMPT_RECORDED=1
+  else
+    echo "[警告] 部署失败事件未能写入服务器；原始退出码仍为 $exit_code" >&2
+  fi
+}
+
 cleanup() {
+  local exit_code=$?
   exclude_ci_from_release_process
+  if [ "$exit_code" -ne 0 ]; then
+    record_failed_deploy_attempt "$exit_code" || true
+  fi
   rm -rf "${TMP_DIR:-}"
   rm -f "${TMP_KEY:-}"
+  return "$exit_code"
 }
 trap cleanup EXIT
 
@@ -138,17 +223,6 @@ while [ "$#" -gt 0 ]; do
     --bootstrap-legacy-runtime-version) shift; BOOTSTRAP_LEGACY_RUNTIME_VERSION="${1:-}" ;;
     --bootstrap-legacy-build-id) shift; BOOTSTRAP_LEGACY_BUILD_ID="${1:-}" ;;
     --genesis-production-base) shift; GENESIS_PRODUCTION_BASE="${1:-}" ;;
-    --data-release)
-      shift
-      data_release_spec="${1:-}"
-      printf '%s' "$data_release_spec" | grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+(-[a-z0-9]+)*-v[0-9]+:[0-9a-f]{64}$' \
-        || { echo "[错误] --data-release 必须是 ID:SHA256"; exit 2; }
-      if printf '%s\n' "$DATA_RELEASE_SPECS" | grep -Fxq "$data_release_spec"; then
-        echo "[错误] 重复的数据发布: ${data_release_spec%%:*}"
-        exit 2
-      fi
-      DATA_RELEASE_SPECS="${DATA_RELEASE_SPECS}${DATA_RELEASE_SPECS:+$'\n'}${data_release_spec}"
-      ;;
     --deploy-unit)
       [ -z "$DEPLOY_UNIT_ID" ] || { echo "[错误] 只能指定一个单元部署目标"; exit 2; }
       shift; DEPLOY_UNIT_ID="${1:-}"; DEPLOY_UNIT_MODE="activate"
@@ -214,6 +288,10 @@ cd "$SOURCE_DIR"
 
 SOURCE_SHA="$(git rev-parse HEAD)"
 SOURCE_TREE="$(git rev-parse 'HEAD^{tree}')"
+DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS="$(date +%s)"
+PUBLISH_STARTED_EPOCH_SECONDS="$DEPLOY_ATTEMPT_STARTED_EPOCH_SECONDS"
+PUBLISH_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
+export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$SOURCE_DIR/.cache/release-process-timing.json}"
 if [ ! -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
   node "$SCRIPT_DIR/release-process-timing.mjs" begin \
@@ -237,8 +315,6 @@ if [ -n "$DEPLOY_UNIT_ID" ]; then
   echo "==> 分模块部署目标: $DEPLOY_UNIT_ID ($deploy_unit_maturity, $DEPLOY_UNIT_MODE)"
 fi
 LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS="$(date +%s)"
-echo "==> 校验版本化数据发布清单..."
-npm run data:release:check
 EXPECTED_NODE_MAJOR="$(tr -d '[:space:]' < .node-version)"
 ACTUAL_NODE_MAJOR="$(node -p 'process.versions.node.split(".")[0]')"
 if [ "$ACTUAL_NODE_MAJOR" != "$EXPECTED_NODE_MAJOR" ]; then
@@ -314,38 +390,16 @@ fi
 
 LOCAL_PREFLIGHT_DURATION_SECONDS="$(($(date +%s) - LOCAL_PREFLIGHT_STARTED_EPOCH_SECONDS))"
 
-LOCAL_CI_RECEIPT_FILE="$(git rev-parse --git-path workspace-local-full-ci.json)"
-LOCAL_CI_RECEIPT_ERROR="$TMP_DIR/local-full-ci-receipt-error.txt"
+LOCAL_RELEASE_GATE_RECEIPT_FILE="$TMP_DIR/local-release-gate.json"
 LOCAL_CI_STARTED_EPOCH_SECONDS="$(date +%s)"
 CI_TIMING_ACTIVE=1
-if node scripts/ci/local-full-ci-receipt.mjs verify \
-  --tree "$SOURCE_TREE" \
-  --file "$LOCAL_CI_RECEIPT_FILE" >/dev/null 2>"$LOCAL_CI_RECEIPT_ERROR"; then
-  echo "==> 复用当前 tree 的本地全量 CI 通过记录: ${SOURCE_TREE:0:12}"
-else
-  LOCAL_CI_MODE="执行"
-  receipt_error="$(head -n 1 "$LOCAL_CI_RECEIPT_ERROR" 2>/dev/null || true)"
-  echo "==> 当前 tree 的本地全量 CI 结果不可复用: ${receipt_error:-未知凭证错误}"
-  echo "==> 使用仓库 Node 运行一次本地全量 CI..."
-  npm run check:ci
-  if [ -n "$(git status --short)" ]; then
-    echo "[错误] 本地全量 CI 后工作区发生变化，拒绝记录通过结果"
-    git status --short
-    exit 1
-  fi
-  test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
-  if ! node scripts/ci/local-full-ci-receipt.mjs verify \
-    --tree "$SOURCE_TREE" \
-    --file "$LOCAL_CI_RECEIPT_FILE" >/dev/null 2>"$LOCAL_CI_RECEIPT_ERROR"; then
-    echo "[错误] 本地全量 CI 已结束，但没有产出当前 tree 的通过记录"
-    sed -n '1,3p' "$LOCAL_CI_RECEIPT_ERROR" >&2
-    exit 1
-  fi
-  echo "==> 本地全量 CI 已通过并绑定 tree: ${SOURCE_TREE:0:12}"
-fi
+echo "==> 运行发布前本地 production build + 全量 E2E（复用长期缓存，不复用旧通过结果）..."
+"$SCRIPT_DIR/local-release-gate.sh" --receipt "$LOCAL_RELEASE_GATE_RECEIPT_FILE"
+[ -z "$(git status --short)" ] || { echo "[错误] 本地发布检查后工作区发生变化"; git status --short; exit 1; }
+test "$(git rev-parse 'HEAD^{tree}')" = "$SOURCE_TREE"
 LOCAL_CI_DURATION_SECONDS="$(($(date +%s) - LOCAL_CI_STARTED_EPOCH_SECONDS))"
 exclude_ci_from_release_process
-echo "==> CI ${LOCAL_CI_MODE}完成：$(format_duration "$LOCAL_CI_DURATION_SECONDS")（不计入 Ops 耗时）"
+echo "==> 本地发布检查完成：$(format_duration "$LOCAL_CI_DURATION_SECONDS")（计入本次部署尝试总耗时）"
 
 if [ "$PRINT_COMMAND_ONLY" = "0" ]; then
   echo "==> 同步并校验本次部署使用的租户配置..."
@@ -358,9 +412,6 @@ release_process_snapshot="$(node "$SCRIPT_DIR/release-process-timing.mjs" snapsh
 RELEASE_PROCESS_SECONDS="$(node -e 'process.stdout.write(String(JSON.parse(process.argv[1]).releaseProcessSeconds))' "$release_process_snapshot")"
 RELEASE_ATTEMPT_COUNT="$(node -e 'process.stdout.write(String(JSON.parse(process.argv[1]).releaseAttemptCount))' "$release_process_snapshot")"
 RELEASE_PROCESS_STARTED_AT="$(node -e 'process.stdout.write(JSON.parse(process.argv[1]).releaseProcessStartedAt)' "$release_process_snapshot")"
-PUBLISH_STARTED_EPOCH_SECONDS="$(date +%s)"
-PUBLISH_STARTED_AT="$(date '+%Y-%m-%d %H:%M:%S %z')"
-export PUBLISH_STARTED_EPOCH_SECONDS PUBLISH_STARTED_AT
 echo "==> release 流程准备完成：累计 $(format_duration "$RELEASE_PROCESS_SECONDS")，${RELEASE_ATTEMPT_COUNT} 次尝试（main 处理与 CI 已排除）"
 
 METADATA_FILE="$TMP_DIR/cnb-release.json"
@@ -436,13 +487,12 @@ BASELINE_MIGRATION_COUNT="$BASELINE_MIGRATION_COUNT" BASELINE_MIGRATION_DIGEST="
 GENESIS_PRODUCTION_BASE="$GENESIS_PRODUCTION_BASE" GENESIS_LEGACY_MIGRATION_COUNT="$GENESIS_LEGACY_MIGRATION_COUNT" \
 GENESIS_LEGACY_MIGRATION_DIGEST="$GENESIS_LEGACY_MIGRATION_DIGEST" GENESIS_BASELINE_MIGRATION="$GENESIS_BASELINE_MIGRATION" \
 GENESIS_BASELINE_CHECKSUM="$GENESIS_BASELINE_CHECKSUM" \
-LOCAL_CI_RECEIPT_FILE="$LOCAL_CI_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
+LOCAL_RELEASE_GATE_RECEIPT_FILE="$LOCAL_RELEASE_GATE_RECEIPT_FILE" METADATA_FILE="$METADATA_FILE" \
 PUBLISH_STARTED_EPOCH_SECONDS="$PUBLISH_STARTED_EPOCH_SECONDS" DEPLOY_UNIT_ID="$DEPLOY_UNIT_ID" DEPLOY_UNIT_MODE="$DEPLOY_UNIT_MODE" \
 RELEASE_PROCESS_SECONDS="$RELEASE_PROCESS_SECONDS" RELEASE_ATTEMPT_COUNT="$RELEASE_ATTEMPT_COUNT" \
-RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" \
-DATA_RELEASE_SPECS="$DATA_RELEASE_SPECS" node <<'NODE'
+RELEASE_PROCESS_STARTED_AT="$RELEASE_PROCESS_STARTED_AT" TENANT_SYNC_DURATION_SECONDS="$TENANT_SYNC_DURATION_SECONDS" node <<'NODE'
 const fs = require('node:fs');
-const localFullCi = JSON.parse(fs.readFileSync(process.env.LOCAL_CI_RECEIPT_FILE, 'utf8'));
+const localReleaseGate = JSON.parse(fs.readFileSync(process.env.LOCAL_RELEASE_GATE_RECEIPT_FILE, 'utf8'));
 const startedAtEpochSeconds = Number(process.env.PUBLISH_STARTED_EPOCH_SECONDS);
 if (!Number.isSafeInteger(startedAtEpochSeconds) || startedAtEpochSeconds <= 0) {
   throw new Error('publish start epoch is invalid');
@@ -452,22 +502,16 @@ const seconds = (name) => {
   if (!Number.isSafeInteger(value) || value < 0) throw new Error(`${name} is invalid`);
   return value;
 };
-const dataReleases = process.env.DATA_RELEASE_SPECS.split('\n').filter(Boolean).map((spec) => {
-  const separator = spec.lastIndexOf(':');
-  return { id: spec.slice(0, separator), payloadDigest: spec.slice(separator + 1) };
-});
 const releaseAttemptCount = seconds('RELEASE_ATTEMPT_COUNT');
 if (releaseAttemptCount < 1) throw new Error('RELEASE_ATTEMPT_COUNT is invalid');
 if (Number.isNaN(Date.parse(process.env.RELEASE_PROCESS_STARTED_AT))) throw new Error('RELEASE_PROCESS_STARTED_AT is invalid');
-if (new Set(dataReleases.map((release) => release.id)).size !== dataReleases.length) throw new Error('data release ids must be unique');
 const metadata = {
   schemaVersion: 1,
   source: { commitSha: process.env.SOURCE_SHA, treeSha: process.env.SOURCE_TREE },
-  localFullCi,
+  localReleaseGate,
   cnb: { repository: process.env.CNB_REPO, sourceBranch: process.env.RELEASE_BRANCH },
   deployment: {
     startedAtEpochSeconds,
-    dataReleases,
     localTiming: {
       releaseProcessSeconds: seconds('RELEASE_PROCESS_SECONDS'),
       releaseAttemptCount,

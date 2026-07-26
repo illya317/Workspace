@@ -3,9 +3,7 @@
 import { createHash, randomUUID } from "node:crypto";
 import {
   chmodSync,
-  existsSync,
   readFileSync,
-  readdirSync,
   renameSync,
   writeFileSync,
 } from "node:fs";
@@ -22,7 +20,6 @@ const AUTHORITY = "workspace-control-plane-job";
 const REQUIRED_OPERATIONS = [
   "tenant-config-verified",
   "database-migrations",
-  "data-release-gate",
   "resource-registry-seed",
   "agent-workforce-provision",
   "permission-action-grants",
@@ -30,10 +27,6 @@ const REQUIRED_OPERATIONS = [
 ];
 const LIFECYCLE_TOOL_FILES = [
   "node_modules/prisma/package.json",
-  "ops/apply-data-release.mjs",
-  "ops/data-release.mjs",
-  "ops/data-release-handlers.mjs",
-  "ops/data-release-transfer.mjs",
   "ops/prisma-genesis-cutover.mjs",
   "scripts/check/check-permission-action-grants.mjs",
   "scripts/check/check-prisma-deploy-status.js",
@@ -89,14 +82,6 @@ export function digestFile(file) {
   return sha256(readFileSync(file));
 }
 
-export function digestDataReleaseSet(directory) {
-  const entries = (existsSync(directory) ? readdirSync(directory, { withFileTypes: true }) : [])
-    .filter((entry) => entry.isFile() && entry.name.endsWith(".json"))
-    .map((entry) => ({ name: entry.name, digest: digestFile(path.join(directory, entry.name)) }))
-    .sort((left, right) => left.name.localeCompare(right.name));
-  return sha256(Buffer.from(entries.map((entry) => `${entry.name}\0${entry.digest}\n`).join("")));
-}
-
 export function digestLifecycleToolSet(root) {
   const entries = LIFECYCLE_TOOL_FILES.map((relativePath) => ({
     relativePath,
@@ -113,12 +98,11 @@ export function digestLifecycleSourceToolSet(root) {
   return sha256(Buffer.from(entries.map((entry) => `${entry.relativePath}\0${entry.digest}\n`).join("")));
 }
 
-function inputDigests({ migrationSetSha256, resourceManifestFile, dataReleaseDir, tenantManifestFile, lifecycleRoot }) {
+function inputDigests({ migrationSetSha256, resourceManifestFile, tenantManifestFile, lifecycleRoot }) {
   const tenantManifest = readTenantConfigManifest(tenantManifestFile);
   return {
     migrationSetSha256: requireDigest(migrationSetSha256, "migration-set digest"),
     resourceManifestSha256: digestFile(resourceManifestFile),
-    dataReleaseManifestSetSha256: digestDataReleaseSet(dataReleaseDir),
     tenantConfigDigest: tenantManifest.digest,
     lifecycleToolSetSha256: digestLifecycleToolSet(lifecycleRoot),
   };
@@ -130,7 +114,6 @@ export function createControlPlaneReceipt({
   sourceTree,
   migrationSetSha256,
   resourceManifestFile,
-  dataReleaseDir,
   tenantManifestFile,
   lifecycleRoot,
   completedAt = new Date().toISOString(),
@@ -147,7 +130,6 @@ export function createControlPlaneReceipt({
     inputs: inputDigests({
       migrationSetSha256,
       resourceManifestFile,
-      dataReleaseDir,
       tenantManifestFile,
       lifecycleRoot,
     }),
@@ -170,7 +152,6 @@ export function normalizeControlPlaneReceipt(receipt) {
   const inputs = {
     migrationSetSha256: requireDigest(receipt.inputs?.migrationSetSha256, "migration-set digest"),
     resourceManifestSha256: requireDigest(receipt.inputs?.resourceManifestSha256, "resource manifest digest"),
-    dataReleaseManifestSetSha256: requireDigest(receipt.inputs?.dataReleaseManifestSetSha256, "data release manifest-set digest"),
     tenantConfigDigest: requireDigest(receipt.inputs?.tenantConfigDigest, "tenant config digest"),
     lifecycleToolSetSha256: requireDigest(receipt.inputs?.lifecycleToolSetSha256, "lifecycle tool-set digest"),
   };
@@ -203,7 +184,6 @@ export function assertControlPlaneReceipt({
   target,
   migrationSetSha256,
   resourceManifestFile,
-  dataReleaseDir,
   tenantManifestFile,
   lifecycleRoot,
 }) {
@@ -213,7 +193,6 @@ export function assertControlPlaneReceipt({
   const expectedInputs = inputDigests({
     migrationSetSha256,
     resourceManifestFile,
-    dataReleaseDir,
     tenantManifestFile,
     lifecycleRoot,
   });
@@ -257,7 +236,6 @@ function inputOptions(options) {
     target: requiredOption(options, "target"),
     migrationSetSha256: requiredOption(options, "migration_set"),
     resourceManifestFile: requiredOption(options, "resource_manifest"),
-    dataReleaseDir: requiredOption(options, "data_release_dir"),
     tenantManifestFile: requiredOption(options, "tenant_manifest"),
     lifecycleRoot: requiredOption(options, "lifecycle_root"),
   };

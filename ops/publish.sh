@@ -60,21 +60,7 @@ case "${1:-}" in
     : "${RELEASE_CI_ENV_FILE:?RELEASE_CI_ENV_FILE not set in $OPS_ENV_FILE}"
     [ -f "$RELEASE_CI_ENV_FILE" ] || { echo "[错误] release CI 环境文件不存在: $RELEASE_CI_ENV_FILE"; exit 1; }
     RELEASE_PROCESS_TIMING_FILE="${RELEASE_PROCESS_TIMING_FILE:-$RELEASE_WORKTREE/.cache/release-process-timing.json}"
-    deploy_args=()
-    data_release_ids=()
-    data_release_count=0
-    while [ "$#" -gt 0 ]; do
-      case "$1" in
-        --data-release)
-          shift
-          [ "$#" -gt 0 ] || { echo "[错误] --data-release 缺少批次 ID"; exit 2; }
-          data_release_ids+=("$1")
-          data_release_count=$((data_release_count + 1))
-          ;;
-        *) deploy_args+=("$1") ;;
-      esac
-      shift
-    done
+    deploy_args=("$@")
     candidate_sha="$(git -C "$RELEASE_WORKTREE" rev-parse main)"
     if [ -f "$RELEASE_PROCESS_TIMING_FILE" ]; then
       node "$SCRIPT_DIR/release-process-timing.mjs" resume --file "$RELEASE_PROCESS_TIMING_FILE" >/dev/null
@@ -100,17 +86,6 @@ case "${1:-}" in
       ln -s "$RELEASE_CI_ENV_FILE" "$release_env_target"
     fi
     "$SCRIPT_DIR/promote-release-branch.sh"
-    if [ "$data_release_count" -gt 0 ]; then
-      for data_release_id in "${data_release_ids[@]}"; do
-        descriptor="$(node "$RELEASE_WORKTREE/ops/data-release-transfer.mjs" inspect-private \
-          --config-root "${WORKSPACE_CONFIG_DIR:-${LOCAL_WORKSPACE_CONFIG_DIR:-}}" --id "$data_release_id")"
-        payload_digest="$(printf '%s' "$descriptor" | node -e 'let body=""; process.stdin.on("data", chunk => body += chunk).on("end", () => process.stdout.write(JSON.parse(body).payloadDigest));')"
-        OPS_ENV_FILE="$OPS_ENV_FILE" "$RELEASE_WORKTREE/ops/upload-data-release.sh" upload \
-          --id "$data_release_id" --source-sha "$candidate_sha"
-        OPS_ENV_FILE="$OPS_ENV_FILE" "$RELEASE_WORKTREE/ops/upload-data-release.sh" verify --id "$data_release_id"
-        deploy_args+=(--data-release "$data_release_id:$payload_digest")
-      done
-    fi
     exec "$SCRIPT_DIR/publish-cnb.sh" "${deploy_args[@]}"
     ;;
 esac

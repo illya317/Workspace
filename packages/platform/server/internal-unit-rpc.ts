@@ -9,10 +9,10 @@ import {
 const MAX_CLOCK_SKEW_MS = 60_000;
 const DEFAULT_MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
 
-type InternalRpcEnvironment = Pick<
+type InternalRpcEnvironment = Partial<Pick<
   NodeJS.ProcessEnv,
   "NODE_ENV" | "PORT" | "WORKSPACE_INTERNAL_ORIGIN" | "WORKSPACE_PUBLIC_ORIGIN"
->;
+>>;
 
 export function workspaceInternalOrigin(env: InternalRpcEnvironment = process.env) {
   const configured = env.WORKSPACE_INTERNAL_ORIGIN?.trim();

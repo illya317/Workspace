@@ -10,11 +10,10 @@ test("模板编辑器竖屏明确要求横屏，横屏按四组工具浏览纸�
 
   const listPane = page.locator('[data-mobile-split-pane="list"]');
   await expect(listPane).toBeVisible();
-  await listPane.getByText("移动端横屏模板", { exact: true }).click();
 
-  const landscapePrompt = page.locator('[data-mobile-experience="landscape"]:visible');
-  await expect(landscapePrompt.getByRole("heading", { name: "横屏使用模板编辑器", exact: true })).toBeVisible();
-  await expect(landscapePrompt.getByRole("button", { name: "进入横屏工作台", exact: true })).toBeVisible();
+  const landscapePrompt = page.locator('[data-document-editor-mobile-state="portrait"]:visible');
+  await expect(landscapePrompt.getByRole("heading", { name: "请横屏编辑", exact: true })).toBeVisible();
+  await expect(landscapePrompt.getByText("模板纸面和编辑工具仅在移动端横屏模式下开放。", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "加粗", exact: true })).toHaveCount(0);
 
   await page.setViewportSize({ width: 844, height: 390 });

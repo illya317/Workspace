@@ -22,7 +22,7 @@ test("过期周报响应不会把已选择周期切回旧值", async ({ page }) 
     await route.fulfill({ response });
   });
 
-  await page.goto("/workspace/work/me");
+  await page.goto("/workspace/work/me/space");
   const currentRequest = page.waitForRequest((request) => {
     const url = new URL(request.url());
     return url.pathname === REPORTS_PATH && url.searchParams.get("periodStart") === currentWeekStart;

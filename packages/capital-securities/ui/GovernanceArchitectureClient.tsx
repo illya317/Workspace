@@ -389,7 +389,8 @@ export default function GovernanceArchitectureClient({
     if (!draft) return [];
     const currentOrg = draft.id ? organizationsById.get(draft.id) : undefined;
     return [
-      createPanelSection("organization-info", {
+      {
+        ...createPanelSection("organization-info", {
         sections: [
           createFieldsSection("fields", organizationFormItems(), {
             header: { title: draft.id ? "组织信息" : "新建治理组织" },
@@ -406,7 +407,9 @@ export default function GovernanceArchitectureClient({
           }),
           departmentDescriptionsSection,
         ],
-      }),
+        }),
+        label: "治理组织详情",
+      },
     ];
   }
 
@@ -422,13 +425,16 @@ export default function GovernanceArchitectureClient({
       { kind: "readonly", key: "managerOf", label: "负责人关系", value: selectedPosition.managerOfDepartmentIds.length ? `负责 ${selectedPosition.managerOfDepartmentIds.length} 个组织` : "无" },
     ];
     return [
-      createPanelSection("position-info", {
+      {
+        ...createPanelSection("position-info", {
         sections: [createFieldsSection("position-fields", fields, {
           header: { title: "岗位摘要" },
           layout: { columns: 2 },
           actions: [{ key: "open-hr", action: "open", label: "去 HR 维护岗位", onClick: () => { window.location.href = workspacePath("/hr/roster"); } }],
         })],
-      }),
+        }),
+        label: "岗位详情",
+      },
     ];
   }
 

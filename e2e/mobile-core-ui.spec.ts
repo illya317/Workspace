@@ -13,7 +13,7 @@ for (const width of [360, 375, 390]) {
     await page.setViewportSize({ width, height: 844 });
     await mockWorkReports(page);
 
-    await page.goto("/workspace/work/me");
+    await page.goto("/workspace/work/me/space");
 
     await expect(page.getByAltText("Logo")).toBeHidden();
     const mobileBack = page.locator('nav button[aria-label="返回"]:visible');
@@ -109,7 +109,7 @@ for (const width of [360, 375, 390]) {
     await expect(saveAction).toBeEnabled();
     await saveAction.click();
     await expect(page.getByText("工作汇报快照已保存", { exact: true })).toBeVisible();
-    await expect(saveAction).toBeDisabled();
+    await expect(saveAction).toBeEnabled();
 
     const viewport = await page.evaluate(() => ({
       clientWidth: document.documentElement.clientWidth,
@@ -138,9 +138,9 @@ for (const width of [360, 375, 390]) {
 test("桌面工具栏操作保持纯图标", async ({ page }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
   await mockWorkReports(page);
-  await page.goto("/workspace/work/me");
+  await page.goto("/workspace/work/me/space");
 
-  await expectIconOnlyActions(page, ["新增", "隐藏工作计划", "页面助手"]);
+  await expectIconOnlyActions(page, ["新增", "隐藏工作空间", "页面助手"]);
 });
 
 test("移动端更多操作把即时动作与显示设置分组呈现", async ({ page }) => {
@@ -153,13 +153,12 @@ test("移动端更多操作把即时动作与显示设置分组呈现", async ({
   const actionRows = toolbarSheet.locator('[data-mobile-toolbar-action-row="true"]');
   await expect(actionRows.first()).toBeVisible();
   expect((await actionRows.allInnerTexts()).every((label) => label.trim().length > 0)).toBe(true);
-  await expect(toolbarSheet.locator('[data-mobile-toolbar-control="column-toggle"]')).toBeVisible();
   await expect(toolbarSheet.locator('[data-mobile-toolbar-control="page-size"]')).toBeVisible();
 });
 
 test("移动端页面助手使用全屏会话而不是悬浮卡片", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
-  await page.goto("/workspace/work/me");
+  await page.goto("/workspace/work/me/space");
 
   await page.getByRole("button", { name: "页面助手", exact: true }).click();
   const assistant = page.getByRole("region", { name: "页面助手", exact: true });

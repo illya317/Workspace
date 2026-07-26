@@ -951,28 +951,20 @@ const validLocalTiming = localTiming
   && !Number.isNaN(Date.parse(localTiming.releaseProcessStartedAt))
   && Number.isSafeInteger(localTiming.tenantSyncSeconds)
   && localTiming.tenantSyncSeconds >= 0;
-const dataReleases = metadata.deployment?.dataReleases;
-const validDataReleases = Array.isArray(dataReleases)
-  && dataReleases.every((release) => release && typeof release === 'object'
-    && Object.keys(release).sort().join(',') === 'id,payloadDigest'
-    && /^\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*-v\d+$/.test(release.id)
-    && /^[0-9a-f]{64}$/.test(release.payloadDigest))
-  && new Set(dataReleases.map((release) => release.id)).size === dataReleases.length;
 if (metadata.schemaVersion !== 1
   || metadata.source?.commitSha !== sha
   || metadata.source?.treeSha !== tree
-  || metadata.localFullCi?.schemaVersion !== 1
-  || metadata.localFullCi?.kind !== 'workspace-local-full-ci'
-  || metadata.localFullCi?.status !== 'passed'
-  || metadata.localFullCi?.command !== 'npm run check:ci'
-  || metadata.localFullCi?.treeSha !== tree
-  || !Number.isFinite(Date.parse(metadata.localFullCi?.completedAt ?? ''))
+  || metadata.localReleaseGate?.schemaVersion !== 1
+  || metadata.localReleaseGate?.kind !== 'workspace-local-release-gate'
+  || metadata.localReleaseGate?.status !== 'passed'
+  || metadata.localReleaseGate?.command !== 'ops/local-release-gate.sh'
+  || metadata.localReleaseGate?.treeSha !== tree
+  || !Number.isFinite(Date.parse(metadata.localReleaseGate?.completedAt ?? ''))
   || metadata.cnb?.repository !== repository
   || metadata.cnb?.sourceBranch !== branch
   || !Number.isSafeInteger(metadata.deployment?.startedAtEpochSeconds)
   || metadata.deployment.startedAtEpochSeconds <= 0
-  || !validLocalTiming
-  || !validDataReleases) {
+  || !validLocalTiming) {
   throw new Error('CNB release metadata does not match injection parent');
 }
 const bootstrap = metadata.deploymentBootstrap;
@@ -2035,7 +2027,6 @@ NODE
         --target production \
         --migration-set '$RELEASE_MIGRATION_SET_SHA' \
         --resource-manifest \"\$release_dir/resource-defs.json\" \
-        --data-release-dir \"\$release_dir/ops/data-releases\" \
         --tenant-manifest '$REMOTE_WORKSPACE_CONFIG_DIR/.deployment/tenant-config-manifest.json' \
         --lifecycle-root \"\$release_dir\" >/dev/null 2>&1; then
       control_plane_ready=1
@@ -2349,33 +2340,6 @@ PY
       unset SQLITE_CUTOVER_SOURCE SQLITE_CUTOVER_SHA256 SQLITE_CUTOVER_MANIFEST SQLITE_CUTOVER_ROLLBACK_ENV SQLITE_LEGACY_MIGRATIONS_DIR
       echo '==> SQLite 一次性切换完成，切换变量已从运行态配置移除。'
     fi
-    data_release_specs=\$(node -e '
-      const metadata = JSON.parse(require(\"node:fs\").readFileSync(process.argv[1], \"utf8\"));
-      process.stdout.write((metadata.deployment?.dataReleases ?? []).map((release) => release.id + \"\\t\" + release.payloadDigest).join(\"\\n\"));
-    ' \"\$release_dir/$RELEASE_METADATA_FILE\")
-    if [ -n \"\$data_release_specs\" ]; then
-      echo '==> 复验已上传的私有数据发布并执行显式绑定操作...'
-      while IFS=\$'\\t' read -r data_release_id data_release_digest; do
-        data_release_bundle='$REMOTE_WORKSPACE_CONFIG_DIR/data-release-uploads/'\"\$data_release_id\"'/'\"\$data_release_digest\"
-        node \"\$release_dir/ops/data-release-transfer.mjs\" verify-staged \
-          --bundle-root \"\$data_release_bundle\" \
-          --id \"\$data_release_id\" \
-          --payload-digest \"\$data_release_digest\" >/dev/null
-        WORKSPACE_DATA_RELEASE_SOURCE_SHA='$RELEASE_SOURCE_SHA' \
-          node \"\$release_dir/ops/apply-data-release.mjs\" apply \
-            --target production \
-            --id \"\$data_release_id\" \
-            --payload-digest \"\$data_release_digest\" \
-            --bundle-root \"\$data_release_bundle\" \
-            --repository-root \"\$release_dir\"
-      done <<< \"\$data_release_specs\"
-    fi
-    echo '==> 校验生产数据发布回执与现场结果...'
-    WORKSPACE_DATA_RELEASE_SOURCE_SHA='$RELEASE_SOURCE_SHA' \
-      node \"\$release_dir/ops/data-release.mjs\" gate \
-        --target production \
-        --repository-root \"\$release_dir\" \
-        --manifest-dir \"\$release_dir/ops/data-releases\"
     node \"\$release_dir/scripts/check/check-prisma-deploy-status.js\" --migrations-dir \"\$release_dir/prisma/migrations\"
     echo '==> 同步 RBAC resource registry...'
     node \"\$release_dir/seed-resources-runtime.mjs\" \"\$release_dir/resource-defs.json\"
@@ -2409,7 +2373,6 @@ PY
       --source-tree '$RELEASE_SOURCE_TREE' \
       --migration-set '$RELEASE_MIGRATION_SET_SHA' \
       --resource-manifest \"\$release_dir/resource-defs.json\" \
-      --data-release-dir \"\$release_dir/ops/data-releases\" \
       --tenant-manifest '$REMOTE_WORKSPACE_CONFIG_DIR/.deployment/tenant-config-manifest.json' \
       --lifecycle-root \"\$release_dir\" >/dev/null
     node '$REMOTE_CONTROL_PLANE_RECEIPT_TOOL' assert \
@@ -2417,7 +2380,6 @@ PY
       --target production \
       --migration-set '$RELEASE_MIGRATION_SET_SHA' \
       --resource-manifest \"\$release_dir/resource-defs.json\" \
-      --data-release-dir \"\$release_dir/ops/data-releases\" \
       --tenant-manifest '$REMOTE_WORKSPACE_CONFIG_DIR/.deployment/tenant-config-manifest.json' \
       --lifecycle-root \"\$release_dir\" >/dev/null
     fi
@@ -2638,6 +2600,7 @@ payload = {
     'deploymentKind': 'full',
     'deploymentMode': 'full',
     'action': 'deploy',
+    'status': 'succeeded',
     'package': str(package),
     'build': str(build),
     'release': release,

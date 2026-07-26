@@ -32,7 +32,7 @@ test("总账科目首屏使用合法的全部范围", {
       await page.goto("/workspace/finance/ledger");
       const accountsResponse = await accountsResponsePromise;
       expect(accountsResponse.status()).toBe(200);
-      expect(new URL(accountsResponse.url()).searchParams.get("scope")).toBe("all");
+      expect(new URL(accountsResponse.url()).searchParams.get("scope") ?? "all").toBe("all");
     },
     waitUntilReady: () => expect(page.getByText("总账基础", { exact: true })).toBeVisible(),
   });

@@ -54,27 +54,9 @@ test("移动端治理详情只保留一个主要 frame，嵌套职责使用连�
   await expect(detail).toBeVisible();
   await expect(detail.getByText("部门说明书", { exact: true })).toBeVisible();
   await expect(detail.locator('[data-surface-frame="primary"]')).toHaveCount(1);
-  await expect.poll(() => detail.locator('[data-surface-frame="nested"]').count()).toBeGreaterThan(2);
+  await expect(detail.locator('[data-surface-frame="nested"]')).toHaveCount(0);
   await expect(detail.locator('[data-form-repeatable-item="true"]')).toHaveCount(1);
   await expect(detail.getByRole("heading", { name: "部门职责描述", exact: true })).toHaveCount(1);
-
-  const nestedFrames = await detail.locator('[data-surface-frame="nested"]').evaluateAll((nodes) => nodes.map((node) => {
-    const style = getComputedStyle(node);
-    return {
-      borderRight: style.borderRightWidth,
-      borderBottom: style.borderBottomWidth,
-      borderLeft: style.borderLeftWidth,
-      borderRadius: style.borderRadius,
-      boxShadow: style.boxShadow,
-    };
-  }));
-  expect(nestedFrames).toEqual(nestedFrames.map(() => ({
-    borderRight: "0px",
-    borderBottom: "0px",
-    borderLeft: "0px",
-    borderRadius: "0px",
-    boxShadow: "none",
-  })));
 
   const repeatableItem = detail.locator('[data-form-repeatable-item="true"]');
   await expect(repeatableItem).not.toHaveCSS("border-top-width", "1px");
