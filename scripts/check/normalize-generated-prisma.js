@@ -48,6 +48,21 @@ const generatedPaths = [
   "../../generated/prisma/models/ProductionQcBatch.ts",
   "../../generated/prisma/models/ProductionQcFieldValue.ts",
   "../../generated/prisma/models/ProductionQcSignature.ts",
+  "../../generated/prisma/models/ContractRevision.ts",
+  "../../generated/prisma/models/ContractStateEvent.ts",
+  "../../generated/prisma/models/DepartmentEffectiveVersion.ts",
+  "../../generated/prisma/models/EmploymentAgreement.ts",
+  "../../generated/prisma/models/EmploymentAgreementChange.ts",
+  "../../generated/prisma/models/EmploymentAgreementRevision.ts",
+  "../../generated/prisma/models/EmploymentAgreementTerm.ts",
+  "../../generated/prisma/models/ExternalPartyRolePeriod.ts",
+  "../../generated/prisma/models/OrganizationStructureChange.ts",
+  "../../generated/prisma/models/OwnershipProjectionRun.ts",
+  "../../generated/prisma/models/PartyLegalFactRevision.ts",
+  "../../generated/prisma/models/PositionDescriptionRevision.ts",
+  "../../generated/prisma/models/PositionEffectiveVersion.ts",
+  "../../generated/prisma/models/PositionReportOverrideEffectiveVersion.ts",
+  "../../generated/prisma/models/ProjectMembershipChange.ts",
 ].map((filePath) => path.resolve(__dirname, filePath));
 
 for (const filePath of generatedPaths) {
