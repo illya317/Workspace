@@ -1,4 +1,5 @@
 import {
+  describeApprovalRequestFromContract,
   listRequests,
   type ApprovalAdapter,
   type ApprovalHandlerSource,
@@ -7,6 +8,7 @@ import {
   type ApprovalRequestRecord,
   type ApprovalStatus,
 } from "@workspace/platform/server/approvals";
+import { parseApprovalRequestStatusList } from "@workspace/platform";
 import { bindApprovalLifecycle } from "@workspace/platform/server/approval-lifecycle";
 import { serviceError, serviceOk } from "@workspace/platform/server/api";
 import {
@@ -124,11 +126,7 @@ export const hrDepartmentApprovalAdapter: ApprovalAdapter<HrDepartmentApprovalPa
     }
     return [];
   },
-  describeRequest: ({ request }) => ({
-    title: request.operation === "create" ? "创建部门审批" : "更新部门审批",
-    summary: departmentApprovalSummary(request.latestPayload) || `部门审批 #${request.id}`,
-    href: `/hr/roster?workflowId=${request.id}`,
-  }),
+  describeRequest: ({ request }) => describeApprovalRequestFromContract(request),
   commitApprovedPayload: async ({ actorUserId, request, approvalAuthorization }) => {
     if (!(await canProcessHrDepartmentRequest(actorUserId, request))) return serviceError("无权限审批该部门流程", 403);
     const result = request.operation === "create"
@@ -229,7 +227,6 @@ function preparedDepartmentPayload(
       ? {
           id: normalized.id,
           ...normalized.data,
-          managerEmployeeIds: normalized.managerEmployeeIds,
           descriptions: normalized.descriptions,
         }
       : normalized;
@@ -448,10 +445,6 @@ function businessActionKeyFor(operation: ApprovalOperation, _payload: Partial<Hr
   return operation === "create" ? "hr.roster.department.create" : "hr.roster.department.update";
 }
 
-function departmentApprovalSummary(payload: HrDepartmentApprovalPayload) {
-  return String(payload.data.name || payload.data.code || "").trim();
-}
-
 async function canSubmitHrRosterWorkflow(userId: number) {
   return evaluatePermissionAction(userId, HR_ROSTER_RESOURCE_KEY, "submit");
 }
@@ -527,11 +520,7 @@ function omitDepartmentIdField(data: Record<string, unknown>) {
 }
 
 function normalizeStatusFilter(status: string | null | undefined): ApprovalStatus[] | undefined {
-  if (!status) return undefined;
-  const values = status.split(",").map((item) => item.trim()).filter(Boolean);
-  const allowed = new Set<ApprovalStatus>(["draft", "submitted", "committing", "withdrawn", "rejected", "approved", "cancelled"]);
-  const statuses = values.filter((value): value is ApprovalStatus => allowed.has(value as ApprovalStatus));
-  return statuses.length ? statuses : undefined;
+  return parseApprovalRequestStatusList(status);
 }
 
 function nullablePositiveNumber(value: unknown) {

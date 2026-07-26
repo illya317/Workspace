@@ -9,6 +9,7 @@ import {
   createPanelSection,
 } from "@workspace/core/ui";
 import { postJson, putJson, requestJson } from "@workspace/platform/ui/api-client";
+import type { ApprovalRequestViewDto } from "@workspace/platform";
 import { createDepartmentDescriptionDetailsSections } from "@workspace/platform/ui/organization-units";
 import {
   formatWorkflowDateTime,
@@ -26,58 +27,13 @@ import { useTenantConfig } from "@workspace/platform/ui/tenant-config";
 
 const HR_DEPARTMENT_WORKFLOW_ENDPOINT = "/api/modules/hr/roster/submissions";
 
-export type HrDepartmentWorkflowStatus = "draft" | "submitted" | "committing" | "withdrawn" | "rejected" | "approved" | "cancelled";
-
-export type HrDepartmentWorkflowEvent = {
-  id: number;
-  sequence: number;
-  eventType: string;
-  actorUserId: number;
-  actorName: string;
-  fromStatus: HrDepartmentWorkflowStatus | null;
-  toStatus: HrDepartmentWorkflowStatus | null;
-  comment: string | null;
-  payloadSnapshot: HrDepartmentWorkflowPayload | null;
-  createdAt: string;
-};
-
 export type HrDepartmentWorkflowPayload = {
   entityType: "department";
   departmentId: number | null;
   data: Record<string, unknown>;
 };
 
-export type HrDepartmentWorkflowRequest = {
-  id: number;
-  resourceKey: string;
-  scopeId: string | null;
-  businessActionKey: string;
-  flowType: "approval" | "review" | "publish";
-  separationPolicy: "independent_required"  | "auto_pass_if_authorized";
-  subjectType: string;
-  subjectId: string | null;
-  operation: "create" | "update";
-  status: HrDepartmentWorkflowStatus;
-  handlerCanRevise: boolean;
-  requestCanWithdraw: boolean;
-  requestCanResubmit: boolean;
-  requestCanCancel: boolean;
-  requestCanRevise: boolean;
-  latestPayload: HrDepartmentWorkflowPayload;
-  submitterUserId: number;
-  submitterName: string;
-  submittedAt: string | null;
-  resolvedByUserId: number | null;
-  resolvedAt: string | null;
-  committedEntityType: string | null;
-  committedEntityId: string | null;
-  committedAt: string | null;
-  version: number;
-  createdAt: string;
-  updatedAt: string;
-  events: HrDepartmentWorkflowEvent[];
-  canProcess?: boolean;
-};
+export type HrDepartmentWorkflowRequest = ApprovalRequestViewDto<HrDepartmentWorkflowPayload>;
 
 export async function createHrDepartmentWorkflowDraft(input: {
   operation: "create" | "update";
@@ -199,18 +155,8 @@ function hrDepartmentWorkflowPanelProps({
     currentUserId,
     notify,
     onCommitted,
-    requestTitle,
-    requestDescription: requestDetail,
-    requestMeta: (request: HrDepartmentWorkflowRequest) => `${request.submitterName} · ${formatWorkflowDateTime(request.updatedAt)}`,
     requestBadges,
     requestFields,
-    requestTimelineEvents: (request: HrDepartmentWorkflowRequest) => request.events.map((event) => ({
-      id: event.id,
-      actor: event.actorName,
-      type: eventLabel(event.eventType),
-      at: formatWorkflowDateTime(event.createdAt),
-      comment: event.comment,
-    })),
     canEditPayload: (request: HrDepartmentWorkflowRequest) => canEditDepartmentWorkflowPayload(request, currentUserId),
     payloadValue: (request: HrDepartmentWorkflowRequest) => ({ ...request.latestPayload.data }),
     payloadText: (request: HrDepartmentWorkflowRequest) => JSON.stringify(request.latestPayload.data, null, 2),
@@ -465,28 +411,10 @@ function requestBadges(request: HrDepartmentWorkflowRequest): BodySurfaceBadgeSp
   ];
 }
 
-function requestTitle(request: HrDepartmentWorkflowRequest) {
-  return `${request.operation === "create" ? "新建" : "修改"} · ${request.latestPayload.data.name || request.latestPayload.data.code || "未命名组织"}`;
-}
-
 function requestDetail(request: HrDepartmentWorkflowRequest) {
   return String(request.latestPayload.data.name || request.latestPayload.data.code || request.latestPayload.departmentId || "-");
 }
 
 function readonlyField(key: string, label: string, value: string): FormSurfaceReadOnlyFieldSpec {
   return { kind: "readonly", key, label, value };
-}
-
-function eventLabel(eventType: string) {
-  if (eventType === "create_draft") return "创建草稿";
-  if (eventType === "submit") return "提交审批";
-  if (eventType === "withdraw") return "撤回";
-  if (eventType === "revise") return "修订";
-  if (eventType === "review_update") return "审核修改";
-  if (eventType === "approve") return "同意";
-  if (eventType === "reject") return "驳回";
-  if (eventType === "cancel") return "删除请求";
-  if (eventType === "comment") return "评论";
-  if (eventType === "commit_failed") return "提交正式数据失败";
-  return eventType;
 }

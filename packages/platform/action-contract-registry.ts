@@ -3,6 +3,10 @@ import {
   type ActionContractMetadata,
 } from "./action-contract";
 import { ADDITIONAL_ACTION_CONTRACT_METADATA } from "./action-contract-registry-additional";
+import {
+  APPROVAL_REQUEST_STATUSES,
+  APPROVAL_REQUEST_TRANSITIONS,
+} from "./workflow-request-contract";
 
 const HR_ROSTER_RESOURCE = {
   resourceKey: "hr.roster",
@@ -148,8 +152,8 @@ export const ACTION_CONTRACT_METADATA = defineActionContractMetadataList([
       canDisable: true,
       whenDisabled: "direct_write",
       entrySemantics: "form_finalization",
-      statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "failed"],
-      transitions: ["submit", "withdraw", "resubmit", "approve", "reject"],
+      statuses: APPROVAL_REQUEST_STATUSES,
+      transitions: APPROVAL_REQUEST_TRANSITIONS,
       mutationPolicy: HR_CREATE_WORKFLOW_MUTATION,
       routing: {
         handlerSource: "permission",

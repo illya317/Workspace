@@ -10,6 +10,10 @@ import { WORK_PROJECT_ACTION_CONTRACTS } from "./action-contract-registry-work-p
 import { PRODUCTION_QC_ACTION_CONTRACT_METADATA } from "./action-contract-registry-production-qc";
 import { INVENTORY_RECEIPT_ACTION_CONTRACT_METADATA } from "./action-contract-registry-inventory-receipts";
 import { PRODUCTION_PRODUCTS_ACTION_CONTRACT_METADATA } from "./action-contract-registry-production-products";
+import {
+  APPROVAL_REQUEST_STATUSES,
+  APPROVAL_REQUEST_TRANSITIONS,
+} from "./workflow-request-contract";
 
 const HR_PERFORMANCE_WORKFLOW_RESOURCE = {
   resourceKey: "hr.performance",
@@ -165,8 +169,8 @@ export const ADDITIONAL_ACTION_CONTRACT_METADATA = defineActionContractMetadataL
       canDisable: true,
       whenDisabled: "direct_write",
       entrySemantics: "form_finalization",
-      statuses: ["draft", "submitted", "withdrawn", "rejected", "approved", "failed"],
-      transitions: ["submit", "withdraw", "resubmit", "approve", "reject"],
+      statuses: APPROVAL_REQUEST_STATUSES,
+      transitions: APPROVAL_REQUEST_TRANSITIONS,
       mutationPolicy: HR_ROSTER_WORKFLOW_MUTATION,
       routing: { handlerSource: "permission", separationPolicy: "auto_pass_if_authorized", approvalMode: "any_one" },
       defaultDefinition: { version: 1, nodes: [{ key: "hr-roster-department-update-approval", label: "部门更新审批", kind: "approval", assignee: { kind: "permission_holders", resourceKey: "hr.roster", action: "approve" }, approvalMode: "any_one", separationPolicy: "auto_pass_if_authorized", bypassable: true }] },

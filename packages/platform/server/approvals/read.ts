@@ -61,10 +61,16 @@ export async function listRequests<TPayload>(input: {
   const requests = await Promise.all(rows.map(async (row) => {
     const dto = toDto<TPayload>(row as ApprovalRequestRowWithEvents);
     const record = toRecord(row as ApprovalRequestRowWithEvents, dto.latestPayload);
+    const [canProcess, description] = await Promise.all([
+      dto.status === "submitted"
+        ? findManualProcessableNode(input.adapter, record, input.actorUserId).then(Boolean)
+        : false,
+      input.adapter.describeRequest({ request: record }),
+    ]);
     return {
       ...dto,
-      canProcess: dto.status === "submitted"
-        && Boolean(await findManualProcessableNode(input.adapter, record, input.actorUserId)),
+      canProcess,
+      description,
     };
   }));
   return serviceOk({ requests });

@@ -23,6 +23,10 @@ import {
 } from "../WorkflowStatusBadge";
 import { workflowRequestTimelineSectionSpec } from "./body-surface-adapters";
 import type { WorkflowRequestTimelineEvent } from "./types";
+import {
+  getApprovalRequestEventLabel,
+  type ApprovalRequestDescription,
+} from "../../workflow-request-contract";
 
 export type WorkflowRequestAction = "submit" | "withdraw" | "cancel" | "approve" | "reject";
 
@@ -39,6 +43,14 @@ export interface WorkflowRequestRecordLike {
   requestCanCancel?: boolean;
   handlerCanRevise?: boolean;
   canProcess?: boolean;
+  description?: ApprovalRequestDescription;
+  events?: readonly {
+    id: number | string;
+    eventType: string;
+    actorName: string;
+    createdAt: string;
+    comment?: string | null;
+  }[];
 }
 
 export interface WorkflowRequestPayloadSectionsContext<TRequest extends WorkflowRequestRecordLike> {
@@ -61,8 +73,8 @@ export interface WorkflowRequestsPanelProps<TRequest extends WorkflowRequestReco
   notify: (toast: { message: string; type: "success" | "error" }) => void;
   onCommitted?: () => void | Promise<void>;
   filterRequests?: (requests: TRequest[]) => TRequest[];
-  requestTitle: (request: TRequest) => ReactNode;
-  requestDescription: (request: TRequest) => ReactNode;
+  requestTitle?: (request: TRequest) => ReactNode;
+  requestDescription?: (request: TRequest) => ReactNode;
   requestFields: (request: TRequest) => FormSurfaceReadOnlyFieldSpec[];
   requestBadges?: (request: TRequest) => BodySurfaceBadgeSpec[];
   requestMeta?: (request: TRequest) => ReactNode;
@@ -109,12 +121,12 @@ function useWorkflowRequestsPageModel<TRequest extends WorkflowRequestRecordLike
   notify,
   onCommitted,
   filterRequests,
-  requestTitle,
-  requestDescription,
+  requestTitle = defaultRequestTitle,
+  requestDescription = defaultRequestDescription,
   requestFields,
   requestBadges = defaultRequestBadges,
   requestMeta = defaultRequestMeta,
-  requestTimelineEvents = () => [],
+  requestTimelineEvents = defaultRequestTimelineEvents,
   canEditPayload = () => false,
   payloadValue,
   payloadText = () => "",
@@ -364,6 +376,24 @@ function defaultRequestBadges(request: WorkflowRequestRecordLike): BodySurfaceBa
 function defaultRequestMeta(request: WorkflowRequestRecordLike) {
   const submitter = request.submitterName || "未知发起人";
   return `${submitter} · ${formatDateTime(request.updatedAt)}`;
+}
+
+function defaultRequestTitle(request: WorkflowRequestRecordLike) {
+  return request.description?.title || `流程 #${request.id}`;
+}
+
+function defaultRequestDescription(request: WorkflowRequestRecordLike) {
+  return request.description?.summary || "";
+}
+
+function defaultRequestTimelineEvents(request: WorkflowRequestRecordLike): WorkflowRequestTimelineEvent[] {
+  return (request.events ?? []).map((event) => ({
+    id: event.id,
+    actor: event.actorName,
+    type: getApprovalRequestEventLabel(event.eventType),
+    at: formatWorkflowDateTime(event.createdAt),
+    comment: event.comment,
+  }));
 }
 
 export function workflowActionLabel(action: WorkflowRequestAction) {
