@@ -51,6 +51,7 @@ export type {
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
   BodySurfaceSplitSectionProps,
+  BodySurfaceSplitMasterFooterSpec,
   BodySurfaceStatusSpec,
   BodySurfaceToolbarCreateProps,
   BodySurfaceVisualizationProps,

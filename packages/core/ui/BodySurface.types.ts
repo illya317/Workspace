@@ -168,6 +168,10 @@ export type BodySurfaceComposedSectionProps = BodySurfaceSectionCommonProps & {
 
 export type BodySurfaceSplitMasterPresentation = "default" | "compact";
 
+export interface BodySurfaceSplitMasterFooterSpec {
+  pagination?: SurfacePaginationSpec;
+}
+
 export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
   layout: "split";
   master: {
@@ -175,6 +179,7 @@ export type BodySurfaceSplitSectionProps = BodySurfaceSectionCommonProps & {
     body: BodySurfaceProps;
     mobileBody?: BodySurfaceProps;
     presentation?: BodySurfaceSplitMasterPresentation;
+    footer?: BodySurfaceSplitMasterFooterSpec;
   };
   detail: BodySurfaceProps;
   desktop?: {

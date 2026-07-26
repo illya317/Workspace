@@ -36,6 +36,7 @@ import type {
   BodySurfaceSectionGridColumns,
   BodySurfaceSectionProps,
   BodySurfaceSectionSpec,
+  BodySurfaceSplitMasterFooterSpec,
   BodySurfaceSplitSectionProps,
 } from "./BodySurface.types";
 
@@ -295,9 +296,25 @@ function withMobileSplitNavigation(body: BodySurfaceProps, onNavigateToDetail: (
   };
 }
 
+function renderSplitMasterFooter(footer?: BodySurfaceSplitMasterFooterSpec) {
+  const pagination = footer?.pagination;
+  if (!pagination || pagination.totalPages <= 1) return null;
+  return (
+    <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <NavigationSurface kind="pagination" pagination={pagination} />
+    </div>
+  );
+}
+
 function renderSplitSide(props: BodySurfaceSplitSectionProps, mode: SplitWorkspaceMode, onNavigateToDetail?: () => void) {
   const body = mode === "mobile" ? props.master.mobileBody ?? props.master.body : props.master.body;
-  return <BodySurface {...(onNavigateToDetail ? withMobileSplitNavigation(body, onNavigateToDetail) : body)} />;
+  const renderedBody = onNavigateToDetail ? withMobileSplitNavigation(body, onNavigateToDetail) : body;
+  return (
+    <div className="space-y-3">
+      <BodySurface {...renderedBody} />
+      {renderSplitMasterFooter(props.master.footer)}
+    </div>
+  );
 }
 
 function renderSectionContent(props: BodySurfaceSectionProps, splitOpen: boolean) {

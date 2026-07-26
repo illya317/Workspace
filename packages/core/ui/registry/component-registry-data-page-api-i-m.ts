@@ -158,8 +158,8 @@ export const page_api_registry_entries = [
   },
   {
     name: "createMasterDetailBody",
-    description: "BodySurface 主列表与详情工作区声明助手；折叠和移动端推进由 Core 持有",
-    composes: ["BodySurface", "SelectorSurface"],
+    description: "BodySurface 主列表与详情工作区声明助手；master.footer.pagination 可将主列表翻页留在侧栏，折叠和移动端推进由 Core 持有",
+    composes: ["BodySurface", "SelectorSurface", "Pagination"],
   },
   {
     name: "createPageDataSection",

@@ -67,9 +67,9 @@ export const page_api_registry_entries = [
       },
       {
         name: "footer",
-        description: "页脚区域；表格/数据分页统一放在 PageSurface.footer.pagination。",
+        description: "整页页脚区域；全宽分页放在 PageSurface.footer.pagination，split 主列表分页放在 master.footer.pagination。",
         children: [
-          { name: "pagination", description: "页面底部分页声明。" },
+          { name: "pagination", description: "页面底部全宽分页声明。" },
         ],
       },
     ],

@@ -147,11 +147,11 @@ Core UI 声明分类只服务 `/settings/ui` 和 agent 阅读，不再写入 reg
 2. `tabbar`：页面级声明式 Tab 段。L1/L2 模块入口属于 route/module 层或模块入口卡片，不放进 `TabBar`；`TabBar` 只承载当前页面内部视图切换，也就是 L3 及以下。父项声明 `children` 时由 Core 以 accordion 方式在选中父 Tab 后同栏展开子 Tab，并通过 `activeChild / onChildChange` 控制。
 3. `toolbar`：页面级唯一工具栏。搜索、筛选、字段切换、刷新、导出、新建、生成等都必须表达为标准 toolbar item。
 4. `body`：正文，只接收 `BodySurfaceProps`。业务正文由 `BodySurface.kind` 决定 `create/data/form/document/visualization/selector/section` 分类；标准新建流归 `CreateSurface`，数据摘要指标和可展开记录归 `DataSurface`，正文 empty/loading/error 归 `BodySurface kind="section"` 的 `status`。split 是 `BodySurface kind="section" layout="split"`，左右两侧都接 `BodySurfaceProps`。
-5. `footer`：页脚；表格/数据分页只能在 `PageSurface.footer.pagination`。
+5. `footer`：整页页脚；全宽表格/数据分页在 `PageSurface.footer.pagination`，`BodySurface` split 主列表分页在 `master.footer.pagination`。
 
 `PageSurface.kind="login"` 和 `PageSurface.kind="directory"` 是封闭特殊页。一旦选择这两个 kind，就不能再走 standard 的页面正文渲染、导航、toolbar、footer 或 split body；login 只承载登录页专属 content + login FormSurface contract，directory 只承载目录模块网格或目录空态。后续调整普通 Surface、PageContent、section stack 或标准五段协议时，不得影响这两个特殊页的布局。
 
-`NavigationSurface` 是 Core 内部 renderer，由 `PageSurface.tabbar`、`PageSurface.footer.pagination`、`BodySurfaceModalSpec.pagination` 和 AppShell context selector 的公开 Interface 调度。正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不承载页面级 toolbar/pagination；`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合或比例。FormSurface 可以拥有自身固定的表单标题与生命周期动作栏，但这只是表单内部结构，不是页面 toolbar，也不允许调用方指定位置。
+`NavigationSurface` 是 Core 内部 renderer，由 `PageSurface.tabbar`、`PageSurface.footer.pagination`、`BodySurface` split 的 `master.footer.pagination`、`BodySurfaceModalSpec.pagination` 和 AppShell context selector 的公开 Interface 调度。正文 Surface 只能通过 `BodySurface` 选择正文内容形态，不自行承载页面级 toolbar/pagination；split 主列表是唯一可由 `master.footer.pagination` 声明的正文分页位置。`SelectorSurface` 只能作为 BodySurface 内容声明，不决定 split 外框、开合、比例或分页位置。FormSurface 可以拥有自身固定的表单标题与生命周期动作栏，但这只是表单内部结构，不是页面 toolbar，也不允许调用方指定位置。
 
 正文 Surface 和业务 section 都不声明页面外框。`BodySurfaceSectionSpec` 不暴露 `chrome/framed` 开关：Core 根据 section 的层级和结构统一派生外观，顶层有标题或动作的标准 section 使用 card，无标题结构容器和 CreateSurface 宿主保持透明，card 内的有标题子 section 使用 divider。`DataSurface` 和 `VisualizationSurface` 不再包自己的 PanelCard，避免同一个 body 被两层 layout 同时裁决。
 

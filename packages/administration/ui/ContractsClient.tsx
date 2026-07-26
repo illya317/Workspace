@@ -266,20 +266,16 @@ export default function ContractsClient({
           ],
         }}
         body={createMasterDetailBody({
-          master: { label: "合同列表", presentation: "compact", body: { kind: "selector", selector } },
+          master: {
+            label: "合同列表",
+            presentation: "compact",
+            body: { kind: "selector", selector },
+            footer: { pagination: { page, totalPages, onPageChange: setPage, compact: true } },
+          },
           detail: detailBody,
           desktop: { ratio: [3, 7] },
           mobile: { detailActive: editorMode !== null, onNavigateToList: closeEditor },
         })}
-        footer={{
-          pagination: {
-            page,
-            totalPages,
-            onPageChange: setPage,
-            compact: true,
-
-          },
-        }}
       />
   );
 }

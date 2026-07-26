@@ -8306,7 +8306,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
             },
             {
               name: "master",
-              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
               children: [
                 {
                   name: "label",
@@ -16598,7 +16598,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "master",
-                              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                             },
                             {
                               name: "detail",
@@ -26488,7 +26488,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                             },
                             {
                               name: "master",
-                              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                              description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                             },
                             {
                               name: "detail",
@@ -28103,6 +28103,38 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                     {
                       name: "default",
                       description: "字面量取值。",
+                    },
+                  ],
+                },
+                {
+                  name: "footer",
+                  description: "类型：BodySurfaceSplitMasterFooterSpec。",
+                  children: [
+                    {
+                      name: "pagination",
+                      description: "类型：SurfacePaginationSpec。",
+                      children: [
+                        {
+                          name: "page",
+                          description: "类型：number。",
+                        },
+                        {
+                          name: "totalPages",
+                          description: "类型：number。",
+                        },
+                        {
+                          name: "total",
+                          description: "类型：number。",
+                        },
+                        {
+                          name: "onPageChange",
+                          description: "类型：(page: number) => void。",
+                        },
+                        {
+                          name: "compact",
+                          description: "类型：boolean。",
+                        },
+                      ],
                     },
                   ],
                 },
@@ -36414,7 +36446,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "master",
-                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                           children: [
                             {
                               name: "label",
@@ -36439,6 +36471,38 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "default",
                                   description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "footer",
+                              description: "类型：BodySurfaceSplitMasterFooterSpec。",
+                              children: [
+                                {
+                                  name: "pagination",
+                                  description: "类型：SurfacePaginationSpec。",
+                                  children: [
+                                    {
+                                      name: "page",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "totalPages",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "total",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "onPageChange",
+                                      description: "类型：(page: number) => void。",
+                                    },
+                                    {
+                                      name: "compact",
+                                      description: "类型：boolean。",
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -67128,7 +67192,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                         },
                         {
                           name: "master",
-                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                           children: [
                             {
                               name: "label",
@@ -75420,7 +75484,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "master",
-                                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                                         },
                                         {
                                           name: "detail",
@@ -85310,7 +85374,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                         },
                                         {
                                           name: "master",
-                                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                                          description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                                         },
                                         {
                                           name: "detail",
@@ -86925,6 +86989,38 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                 {
                                   name: "default",
                                   description: "字面量取值。",
+                                },
+                              ],
+                            },
+                            {
+                              name: "footer",
+                              description: "类型：BodySurfaceSplitMasterFooterSpec。",
+                              children: [
+                                {
+                                  name: "pagination",
+                                  description: "类型：SurfacePaginationSpec。",
+                                  children: [
+                                    {
+                                      name: "page",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "totalPages",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "total",
+                                      description: "类型：number。",
+                                    },
+                                    {
+                                      name: "onPageChange",
+                                      description: "类型：(page: number) => void。",
+                                    },
+                                    {
+                                      name: "compact",
+                                      description: "类型：boolean。",
+                                    },
+                                  ],
                                 },
                               ],
                             },
@@ -95236,7 +95332,7 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                     },
                                     {
                                       name: "master",
-                                      description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; }。",
+                                      description: "类型：{ label: string; body: BodySurfaceProps; mobileBody?: BodySurfaceProps; presentation?: BodySurfaceSplitMasterPresentation; footer?: BodySurfaceSplitMasterFooterSpec; }。",
                                       children: [
                                         {
                                           name: "label",
@@ -95261,6 +95357,38 @@ export const generatedCoreUiSurfaceContracts: Record<string, readonly CoreUiCapa
                                             {
                                               name: "default",
                                               description: "字面量取值。",
+                                            },
+                                          ],
+                                        },
+                                        {
+                                          name: "footer",
+                                          description: "类型：BodySurfaceSplitMasterFooterSpec。",
+                                          children: [
+                                            {
+                                              name: "pagination",
+                                              description: "类型：SurfacePaginationSpec。",
+                                              children: [
+                                                {
+                                                  name: "page",
+                                                  description: "类型：number。",
+                                                },
+                                                {
+                                                  name: "totalPages",
+                                                  description: "类型：number。",
+                                                },
+                                                {
+                                                  name: "total",
+                                                  description: "类型：number。",
+                                                },
+                                                {
+                                                  name: "onPageChange",
+                                                  description: "类型：(page: number) => void。",
+                                                },
+                                                {
+                                                  name: "compact",
+                                                  description: "类型：boolean。",
+                                                },
+                                              ],
                                             },
                                           ],
                                         },
