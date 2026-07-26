@@ -41,7 +41,7 @@ export interface PositionDescriptionInput {
 export interface PositionCreateCommand {
   code: string;
   name: string;
-  alias?: string | null;
+  alias: string | null;
   departmentId: number | null;
   reportToPositionId: number | null;
   positionDescription?: PositionDescriptionCreateCommand | null;
@@ -159,7 +159,7 @@ export async function buildPositionCreateCommand(input: PositionInput): Promise<
   return okCommand({
     code: input.code,
     name: input.name,
-    alias: input.alias,
+    alias: trimOptional(input.alias),
     departmentId: department.data,
     reportToPositionId: reportToPosition.data,
     positionDescription: descriptionCreate.data,
