@@ -34,6 +34,7 @@ type PositionReportOverrideRecord = {
   reportToPositionId: number | null;
   reportToPosition: { name: string } | null;
   headcount: number | null;
+  remark: string | null;
   isActive: boolean;
   version: number;
   _count: { edps: number };
